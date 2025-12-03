@@ -1,0 +1,65 @@
+{
+  "metrics": {
+    "trends": [
+      {"ts": "2024-05-01T10:00:00Z", "metric": "fitness", "value": 0.87},
+      {"ts": "2024-05-02T10:00:00Z", "metric": "fitness", "value": 0.9},
+      {"ts": "2024-05-03T10:00:00Z", "metric": "fitness", "value": 0.91},
+      {"ts": "2024-05-01T10:00:00Z", "metric": "survival", "value": 0.78},
+      {"ts": "2024-05-02T10:00:00Z", "metric": "survival", "value": 0.81},
+      {"ts": "2024-05-03T10:00:00Z", "metric": "survival", "value": 0.83}
+    ],
+    "promotion_summary": {"promoted": 8, "quarantined": 2},
+    "rolling": [
+      {"label": "last_10", "value": 0.8},
+      {"label": "last_50", "value": 0.76},
+      {"label": "last_100", "value": 0.73}
+    ]
+  },
+  "agents": [
+    {
+      "id": "aponi-core",
+      "status": "promoted",
+      "score": 0.91,
+      "version": "v1.0",
+      "lineage": ["seed", "repair", "promoted"],
+      "source": "adad_core/agents/base_agent.py",
+      "last_seen": "2024-05-03T10:00:00Z"
+    },
+    {
+      "id": "aponi-mutator",
+      "status": "promoted",
+      "score": 0.82,
+      "version": "v0.9",
+      "lineage": ["seed", "mutate", "promoted"],
+      "source": "adad_core/evolve/mutator.py",
+      "last_seen": "2024-05-03T09:00:00Z"
+    },
+    {
+      "id": "aponi-watchdog",
+      "status": "quarantine",
+      "score": 0.41,
+      "version": "v0.4",
+      "lineage": ["seed", "mutate", "quarantine"],
+      "source": null,
+      "last_seen": "2024-05-02T16:00:00Z"
+    }
+  ],
+  "actions": [
+    {"action": "run_cycle", "ts": "2024-05-03T10:05:00Z", "result": "ok"},
+    {"action": "repair", "ts": "2024-05-03T09:30:00Z", "result": "ok"},
+    {"action": "snapshot", "ts": "2024-05-03T08:15:00Z", "result": "ok"}
+  ],
+  "lineage": [
+    {"ts": "2024-05-01T09:00:00Z", "label": "seed", "detail": "Initial agent import"},
+    {"ts": "2024-05-01T12:00:00Z", "label": "mutate", "detail": "Mutator produced adaptive IO branch"},
+    {"ts": "2024-05-02T10:00:00Z", "label": "promoted", "detail": "Cryovant signature updated"},
+    {"ts": "2024-05-03T09:30:00Z", "label": "repair", "detail": "Self-healing routines patched IO"}
+  ],
+  "mutations": [
+    {
+      "label": "adaptive_io",
+      "before": "def mutate(src):\n    return src\n",
+      "after": "def mutate(src):\n    patched = src + '\\n# adaptive IO'\n    return patched\n"
+    }
+  ]
+}
