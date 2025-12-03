@@ -1,0 +1,26 @@
+__pycache__/
+*.py[cod]
+*.log
+.env
+.venv/
+.envrc
+.tmp/
+.pytest_cache/
+.mypy_cache/
+
+# Data and telemetry
+/data/logs/*.jsonl
+/data/quarantine/*
+/data/adad.sqlite3
+!data/logs/.gitkeep
+!data/quarantine/.gitkeep
+
+# Editor artifacts
+*.swp
+.DS_Store
+.idea/
+.vscode/
+
+# Signatures and releases
+*.sig
+*.zip
