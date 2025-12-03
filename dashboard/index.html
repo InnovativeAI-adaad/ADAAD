@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aponi 1.0 Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    <script type="module" src="app.js" defer></script>
+  </head>
+  <body>
+    <header class="banner">
+      <div>
+        <p class="eyebrow">Aponi 1.0</p>
+        <h1>ADAAD Control &amp; Lineage</h1>
+        <p class="lede">
+          Canvas-based trend charts, inline mutation diffs, lineage playback, and
+          control hooks for run cycle, repair, snapshot, and mutate.
+        </p>
+      </div>
+      <div class="actions">
+        <button id="theme-toggle" class="ghost">Toggle theme</button>
+        <div class="pill" id="health-pill">Live</div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="card span-2">
+        <div class="card-header">
+          <h2>Fitness &amp; Survival Trends</h2>
+          <span class="muted">Canvas chart powered by Chart.js</span>
+        </div>
+        <canvas id="metrics-chart" height="140"></canvas>
+        <div id="rolling" class="stack"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <h2>Promotion vs Quarantine</h2>
+          <span class="muted">Survival rate at a glance</span>
+        </div>
+        <div class="summary-grid" id="summary-grid"></div>
+      </section>
+
+      <section class="card span-2">
+        <div class="card-header">
+          <h2>Agents</h2>
+          <span class="muted">Table with source viewer</span>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Agent</th>
+                <th>Status</th>
+                <th>Score</th>
+                <th>Version</th>
+                <th>Last seen</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="agent-rows"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <h2>Lineage Timeline</h2>
+          <span class="muted">Interactive scrubber</span>
+        </div>
+        <ol class="timeline" id="lineage-list"></ol>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <h2>Mutation Diff</h2>
+          <span class="muted">Inline unified view</span>
+        </div>
+        <pre class="diff" id="diff-viewer"></pre>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <h2>Control Panel</h2>
+          <span class="muted">Run / Repair / Snapshot / Mutate</span>
+        </div>
+        <div class="button-grid">
+          <button data-action="run_cycle">Run cycle</button>
+          <button data-action="repair">Repair</button>
+          <button data-action="snapshot">Snapshot</button>
+          <button data-action="mutate">Mutate</button>
+        </div>
+        <div class="stack" id="action-log"></div>
+      </section>
+    </main>
+
+    <dialog id="source-modal">
+      <div class="modal-header">
+        <h3 id="modal-title">Agent source</h3>
+        <button id="close-modal" aria-label="Close" class="ghost">✕</button>
+      </div>
+      <pre id="modal-body"></pre>
+    </dialog>
+  </body>
+</html>
