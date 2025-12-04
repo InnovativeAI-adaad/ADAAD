@@ -1,0 +1,7 @@
+# © InnovativeAI LLC — ADAAD Inside™ — All Rights Reserved
+[
+  {
+    "path": "app/architect_agent.py",
+    "rationale": "Absolute path import"
+  }
+]

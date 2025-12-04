@@ -1,3 +1,4 @@
+# © InnovativeAI LLC — ADAAD Inside™ — All Rights Reserved
 #!/data/data/com.termux/files/usr/bin/bash
 # ADAAD Project Setup Script for Termux
 #

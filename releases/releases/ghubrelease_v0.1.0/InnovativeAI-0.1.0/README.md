@@ -40,3 +40,5 @@ Aponi can connect to a private ADAAD backend using:
 ADAAD_BACKEND_URL=http://your-private-adaad:5001
 
 No UI changes required.
+
+# © InnovativeAI LLC — ADAAD Inside™ — All Rights Reserved

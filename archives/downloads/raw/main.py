@@ -1,3 +1,4 @@
+# © InnovativeAI LLC — ADAAD Inside™ — All Rights Reserved
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """

@@ -1,3 +1,4 @@
+# © InnovativeAI LLC — ADAAD Inside™ — All Rights Reserved
 (function() {
   const statusEl = document.getElementById("status");
   const agentCountEl = document.getElementById("agents-count");

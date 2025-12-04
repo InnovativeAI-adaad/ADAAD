@@ -1,0 +1,14 @@
+{
+  "kernel": {
+    "population_size": 10,
+    "strategy_pool": [
+      "ast",
+      "semantic",
+      "template"
+    ],
+    "mutation_rate": 0.3,
+    "selection_mode": "tournament",
+    "max_fail_rate": 0.4
+  },
+  "fingerprint": "68009eec0dbb6fcf5779c2fb13fcd8b5d2d2019c6dfbdb44a66d4f99a7810cd8"
+}

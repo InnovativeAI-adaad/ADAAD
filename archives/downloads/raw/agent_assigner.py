@@ -1,3 +1,4 @@
+# © InnovativeAI LLC — ADAAD Inside™ — All Rights Reserved
 # core/agent_assigner.py
 from __future__ import annotations
 import json

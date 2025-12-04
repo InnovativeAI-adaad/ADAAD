@@ -7,9 +7,16 @@ venv/
 env/
 
 # Runtime
-runtime/
+runtime/logs/
 security/keys/
 *.log
+
+# Binary and archive artifacts
+*.db
+*.zip
+*.tar.gz
+*.tgz
+*.gz
 
 # OS / editor
 .DS_Store

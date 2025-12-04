@@ -1,0 +1,47 @@
+# © InnovativeAI LLC — ADAAD Inside™ — All Rights Reserved
+[
+  {
+    "path": "app/__init__.py",
+    "rationale": "Stub detected; propose fleshing out implementation"
+  },
+  {
+    "path": "app/core/__init__.py",
+    "rationale": "Stub detected; propose fleshing out implementation"
+  },
+  {
+    "path": "app/providers/__init__.py",
+    "rationale": "Stub detected; propose fleshing out implementation"
+  },
+  {
+    "path": "app/integrations/__init__.py",
+    "rationale": "Stub detected; propose fleshing out implementation"
+  },
+  {
+    "path": "app/agents/__init__.py",
+    "rationale": "Stub detected; propose fleshing out implementation"
+  },
+  {
+    "path": "app/orchestrator/__init__.py",
+    "rationale": "Stub detected; propose fleshing out implementation"
+  },
+  {
+    "path": "app/resources/__init__.py",
+    "rationale": "Stub detected; propose fleshing out implementation"
+  },
+  {
+    "path": "app/api/__init__.py",
+    "rationale": "Stub detected; propose fleshing out implementation"
+  },
+  {
+    "path": "app/configs/__init__.py",
+    "rationale": "Stub detected; propose fleshing out implementation"
+  },
+  {
+    "path": "app/cognition/__init__.py",
+    "rationale": "Stub detected; propose fleshing out implementation"
+  },
+  {
+    "path": "app/plugins/__init__.py",
+    "rationale": "Stub detected; propose fleshing out implementation"
+  }
+]

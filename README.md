@@ -9,3 +9,5 @@ Core identities:
 - Pyronex – mutation / evolution engine
 - Cryovant – registry, lineage, and trust
 - Aponi – dashboard and control surface
+
+# © InnovativeAI LLC — ADAAD Inside™ — All Rights Reserved

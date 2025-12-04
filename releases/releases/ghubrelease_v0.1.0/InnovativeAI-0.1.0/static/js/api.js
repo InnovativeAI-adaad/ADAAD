@@ -1,3 +1,4 @@
+# © InnovativeAI LLC — ADAAD Inside™ — All Rights Reserved
 const API = (() => {
   const jsonGet = async (path) => {
     const response = await fetch(path, { cache: "no-cache" });

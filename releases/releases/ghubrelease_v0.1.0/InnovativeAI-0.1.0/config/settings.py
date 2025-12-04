@@ -1,3 +1,4 @@
+# © InnovativeAI LLC — ADAAD Inside™ — All Rights Reserved
 API_TITLE = "ADAAD-Free API"
 API_VERSION = "0.1.0"
 DEBUG = False
