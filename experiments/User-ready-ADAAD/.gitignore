@@ -1,0 +1,9 @@
+env/
+runtime/
+data/storage/
+data/quarantine/
+security/keys/*
+security/ledger/*.wal
+*.pyc
+__pycache__/
+.DS_Store

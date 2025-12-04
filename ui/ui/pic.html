@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InnovativeAI Logo Concepts</title>
+<style>
+  :root {
+    --bg: #071228;
+    --panel: #0f1724;
+    --accent: #7c3aed;
+    --accent-2: #3b82f6;
+    --good: #4ade80;
+    --text: #d8eef3;
+  }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px;
+  }
+  h1 {
+    font-weight: 300;
+    letter-spacing: 2px;
+    margin-bottom: 40px;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 1000px;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 16px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    aspect-ratio: 1;
+  }
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border-color: var(--accent);
+  }
+  svg {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 20px;
+  }
+  .label {
+    font-size: 12px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  /* SVG Gradients */
+  .grad-main { fill: url(#grad1); }
+  .stroke-main { stroke: url(#grad1); }
+</style>
+</head>
+<body>
+
+  <h1>InnovativeAI Identity Concepts</h1>
+
+  <svg width="0" height="0">
+    <defs>
+      <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#7c3aed;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+      </linearGradient>
+      <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" style="stop-color:#4ade80;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <div class="grid">
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="none" stroke="url(#grad1)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="50" cy="50" r="15" />
+        <path d="M50 35 V10 M50 65 V90 M35 50 H10 M65 50 H90 M20 20 L38 38 M80 20 L62 38 M20 80 L38 62 M80 80 L62 62" />
+      </svg>
+      <div class="label">Neural Node</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="url(#grad1)">
+        <path d="M50 50 L90 20 Q100 50 90 80 L50 50 Z" opacity="0.8" />
+        <path d="M50 50 L10 20 Q0 50 10 80 L50 50 Z" opacity="0.8" />
+        <path d="M50 50 L80 90 L50 100 L20 90 Z" opacity="0.5" />
+      </svg>
+      <div class="label">The Aponi Wing</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="none" stroke="url(#grad2)" stroke-width="8" stroke-linecap="round">
+        <path d="M30 10 Q70 30 30 50 Q-10 70 30 90" />
+        <path d="M70 10 Q30 30 70 50 Q110 70 70 90" />
+        <line x1="30" y1="25" x2="70" y2="25" stroke-width="4" opacity="0.5"/>
+        <line x1="30" y1="75" x2="70" y2="75" stroke-width="4" opacity="0.5"/>
+      </svg>
+      <div class="label">Evolution Helix</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100">
+        <rect x="42" y="10" width="16" height="80" rx="8" fill="url(#grad1)" />
+        <circle cx="25" cy="20" r="5" fill="#4ade80" />
+        <circle cx="75" cy="80" r="5" fill="#4ade80" />
+      </svg>
+      <div class="label">The Monolith</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="none" stroke="url(#grad1)" stroke-width="5">
+        <path d="M10 50 Q50 10 90 50 Q50 90 10 50 Z" />
+        <circle cx="50" cy="50" r="12" fill="url(#grad1)" stroke="none"/>
+        <path d="M50 28 V15 M50 72 V85 M28 50 H15 M72 50 H85" stroke-width="3" opacity="0.6"/>
+      </svg>
+      <div class="label">Circuit Eye</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="none" stroke="url(#grad2)" stroke-width="6" stroke-linejoin="round">
+        <path d="M50 10 L90 30 V70 L50 90 L10 70 V30 Z" />
+        <path d="M50 10 V50 L90 30 M50 50 L10 30" />
+        <path d="M50 50 V90" />
+      </svg>
+      <div class="label">Sandbox Cube</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="url(#grad1)">
+        <path d="M50 0 L62 38 L100 50 L62 62 L50 100 L38 62 L0 50 L38 38 Z" />
+      </svg>
+      <div class="label">Genesis Spark</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="none" stroke="url(#grad1)" stroke-width="6">
+        <path d="M50 10 L90 25 V55 C90 80 50 95 50 95 C50 95 10 80 10 55 V25 L50 10 Z" />
+        <path d="M50 35 V65 M35 50 H65" stroke-width="4" stroke="#4ade80" />
+      </svg>
+      <div class="label">Cryovant Shield</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="none" stroke="url(#grad2)" stroke-width="4">
+        <circle cx="50" cy="30" r="8" fill="url(#grad2)" stroke="none"/>
+        <circle cx="30" cy="70" r="8" fill="url(#grad2)" stroke="none"/>
+        <circle cx="70" cy="70" r="8" fill="url(#grad2)" stroke="none"/>
+        <line x1="50" y1="30" x2="30" y2="70" />
+        <line x1="50" y1="30" x2="70" y2="70" />
+        <line x1="30" y1="70" x2="70" y2="70" />
+      </svg>
+      <div class="label">Agent Network</div>
+    </div>
+
+  </div>
+</body>
+</html>

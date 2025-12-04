@@ -1,0 +1,243 @@
+=====================================
+       ADAAD PROJECT REPORT
+=====================================
+Generated: Wed Nov 19 13:14:37 CST 2025
+Project Root: /data/data/com.termux/files/home/ADAAD
+
+📁 ADAAD Directory Tree (2 levels deep)
+------------------------------------------
+
+🧠 CORE MODULES
+------------------------------------------
+  - __init__.py
+  - __pycache__
+  - agent_assigner.py
+  - agent_base.py
+  - agent_classes.py
+  - agent_creator.py
+  - agent_evolution.py
+  - agent_exporter.py
+  - agent_gui_launcher.py
+  - agent_iq.py
+  - agent_iq_analyzer.py
+  - agent_iq_gate.py
+  - agent_loader.py
+  - agent_marketer.py
+  - agent_memory.py
+  - agent_mutator_ast.py
+  - agent_reflect_and_plan.py
+  - agent_repair.py
+  - agent_runner.py
+  - agent_score_agents.py
+  - agent_scoring.py
+  - agent_stats.py
+  - aponi_theme.py
+  - architect_agent.py
+  - artifact_manager.py
+  - auth_tokens.example.json
+  - auto_evolver_hook.py
+  - autofix.py
+  - backup_manager.py
+  - beast_event_bus.py
+  - beast_mode.py
+  - beast_mode_loop.py
+  - billing.py
+  - config.py
+  - creator.py
+  - critic.py
+  - cryovant.py
+  - cryovant_key.bin
+  - dependency.py
+  - deploy_engine.py
+  - determinism.py
+  - dna.py
+  - dna_manager.py
+  - dream_mode.py
+  - dream_mode_config.json
+  - dream_mode_fallback_minimal.py
+  - dream_state.json
+  - dream_task_example.py
+  - engine
+  - evaluator.py
+  - eventbus.py
+  - executor.py
+  - failure_index.py
+  - fitness_engine.py
+  - generate_token.py
+  - goal_manager.py
+  - gui_aponi_bridge.py
+  - helpers.py
+  - improve_existing_agents.py
+  - improvement_engine.py
+  - logging_util.py
+  - marketplace.py
+  - memory.py
+  - metrics_manager.py
+  - negotiator.py
+  - pattern_saver.py
+  - patterns.py
+  - planner.py
+  - play_audio.py
+  - plugin_loader.py
+  - plugin_loader_hook.py
+  - plugin_manager.py
+  - profit_engine.py
+  - promotion_reporter.py
+  - pythonpath_patch.py
+  - ramseis_upgrade.py
+  - registry.py
+  - repair_agent.py
+  - repair_fallback.py
+  - repo_health.py
+  - retry_policy.py
+  - rules_engine.py
+  - runtime.py
+  - safe_eval.py
+  - sandbox_runner.py
+  - scheduler.py
+  - schema.sql
+  - scorer.py
+  - security
+  - self_heal_loop.py
+  - signing.py
+  - site_sandbox.py
+  - state.py
+  - storage.py
+  - task_runner.py
+  - task_runner.py.bak
+  - task_worker.py
+  - task_worker.py.bak
+  - test_gen.py
+  - test_orch.py
+  - tools
+  - verification.py
+  - versioning.py
+  - vuln_hint.py
+  - warm_pool.py
+  - watch_and_sync.py
+  - watchdog.py
+
+🤖 AGENTS
+------------------------------------------
+Agent: agent_analyzer.py
+  ⚠️ No .meta.json
+
+Agent: agent_chain.py
+  ⚠️ No .meta.json
+
+Agent: agent_critic.py
+  ⚠️ No .meta.json
+
+Agent: agent_explorer.py
+  ⚠️ No .meta.json
+
+Agent: agent_fuzzy.py
+  ⚠️ No .meta.json
+
+Agent: agent_interface.py
+  ⚠️ No .meta.json
+
+Agent: agent_logger.py
+  ⚠️ No .meta.json
+
+Agent: agent_math.py
+  ⚠️ No .meta.json
+
+Agent: agent_memory.py
+  ⚠️ No .meta.json
+
+Agent: agent_pattern.py
+  ⚠️ No .meta.json
+
+Agent: agent_planner.py
+  ⚠️ No .meta.json
+
+Agent: agent_random.py
+  ⚠️ No .meta.json
+
+Agent: agent_rewriter.py
+  ⚠️ No .meta.json
+
+Agent: agent_sandbox.py
+  ⚠️ No .meta.json
+
+Agent: agent_scorer.py
+  ⚠️ No .meta.json
+
+Agent: agent_scout.py
+  ⚠️ No .meta.json
+
+Agent: agent_summarizer.py
+  ⚠️ No .meta.json
+
+Agent: agent_symbolic.py
+  ⚠️ No .meta.json
+
+Agent: agent_template.py
+  ⚠️ No .meta.json
+
+Agent: agent_text.py
+  ⚠️ No .meta.json
+
+Agent: agent_timer.py
+  ⚠️ No .meta.json
+
+Agent: agent_vector.py
+  ⚠️ No .meta.json
+
+Agent: autonomous_agent.py
+  ⚠️ No .meta.json
+
+Agent: base_agent.py
+  ⚠️ No .meta.json
+
+Agent: dustin.py
+  ⚠️ No .meta.json
+
+Agent: fusion.py
+  ⚠️ No .meta.json
+
+Agent: genesis.py
+  ⚠️ No .meta.json
+
+Agent: planner_agent.py
+  ⚠️ No .meta.json
+
+Agent: step_handler.py
+  ⚠️ No .meta.json
+
+Agent: task_manager.py
+  ⚠️ No .meta.json
+
+Agent: team_orchestrator.py
+  ⚠️ No .meta.json
+
+Agent: warm_0.py
+  ⚠️ No .meta.json
+
+Agent: warm_1.py
+  ⚠️ No .meta.json
+
+Agent: warm_2.py
+  ⚠️ No .meta.json
+
+Agent: warm_fallback_1762737151_1.py
+  ⚠️ No .meta.json
+
+Agent: warm_fallback_1762739706_0.py
+  ⚠️ No .meta.json
+
+Agent: warm_fallback_1762739721_0.py
+  ⚠️ No .meta.json
+
+Agent: warm_fallback_1762739721_1.py
+  ⚠️ No .meta.json
+
+Agent: warm_fallback_1762739721_2.py
+  ⚠️ No .meta.json
+
+
+⛔ QUARANTINE STATUS
+------------------------------------------
+
+📊 METRICS / LINEAGE / HEARTBEAT

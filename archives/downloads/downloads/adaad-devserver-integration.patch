@@ -1,0 +1,265 @@
+diff --git a/core/runtime_devserver.py b/core/runtime_devserver.py
+new file mode 100644
+index 0000000..1111111
+--- /dev/null
++++ b/core/runtime_devserver.py
+@@ -0,0 +1,245 @@
++#!/usr/bin/env python3
++# -*- coding: utf-8 -*-
++"""
++ADAAD DevServer (integrated) — unified local development runner
++
++Goals:
++ - Launch Aponi (ASGI), Cryovant API, and Beast loop together for local dev
++ - Auto-restart on file changes (optional: watchdog)
++ - Publish lifecycle events to core.eventbus (if available)
++ - Clean shutdown on SIGINT/SIGTERM
++
++This is a mutation-safe, ADAAD-compliant refactor of devserver.py.
++"""
++from __future__ import annotations
++
++import asyncio
++import os
++import signal
++import subprocess
++import sys
++from pathlib import Path
++from typing import Optional, List
++
++PROJECT = Path(os.environ.get("ADAAD_ROOT") or "/storage/emulated/0/ADAAD").resolve()
++CORE = PROJECT / "core"
++
++# Optional: eventbus
++try:
++    from core.eventbus import publish as event_publish  # type: ignore
++except Exception:
++    def event_publish(evt: dict):  # fallback no-op
++        pass
++
++# Optional: watchdog
++try:
++    from watchdog.observers import Observer  # type: ignore
++    from watchdog.events import FileSystemEventHandler  # type: ignore
++    HAS_WATCHDOG = True
++except Exception:
++    HAS_WATCHDOG = False
++
++AP_ONI_HOST = os.environ.get("APONI_HOST", "0.0.0.0")
++AP_ONI_PORT = int(os.environ.get("APONI_PORT", "8001"))
++CRYO_HOST = os.environ.get("CRYOVANT_HOST", "0.0.0.0")
++CRYO_PORT = int(os.environ.get("CRYOVANT_PORT", "8002"))
++BEAST_CMD = [sys.executable or "python3", str(CORE / "beast_mode_loop.py")]
++
++EXCLUDES = ("__pycache__", ".git", "logs", "backup", "backups", ".idea", ".vscode")
++
++def _info(*a):
++    print("[devserver]", *a)
++    try:
++        event_publish({"type":"devserver_log","message":" ".join(map(str,a))})
++    except Exception:
++        pass
++
++def _run_subproc(cmd: List[str]) -> subprocess.Popen:
++    _info("spawn:", " ".join(cmd))
++    return subprocess.Popen(
++        cmd,
++        stdout=subprocess.PIPE,
++        stderr=subprocess.STDOUT,
++        cwd=str(PROJECT),
++        text=True,
++        env=os.environ.copy(),
++    )
++
++class _ReloadHandler(FileSystemEventHandler if HAS_WATCHDOG else object):  # type: ignore
++    def __init__(self, restart_fn):
++        if HAS_WATCHDOG:
++            super().__init__()  # type: ignore
++        self.restart_fn = restart_fn
++    def on_modified(self, event):  # type: ignore
++        p = str(getattr(event, "src_path", ""))
++        if any(x in p for x in EXCLUDES):
++            return
++        _info("change:", p)
++        try:
++            event_publish({"type":"devserver_change","path":p})
++        except Exception:
++            pass
++        self.restart_fn()
++
++class DevServer:
++    def __init__(self):
++        self.aponi_proc: Optional[subprocess.Popen] = None
++        self.cryovant_proc: Optional[subprocess.Popen] = None
++        self.beast_proc: Optional[subprocess.Popen] = None
++        self.observer = None
++
++    # ---- start/stop helpers ----
++    def start_aponi(self):
++        _info(f"Aponi (ASGI) :{AP_ONI_PORT}")
++        self.aponi_proc = _run_subproc([
++            sys.executable, "-m", "uvicorn",
++            "Aponi.api.asgi_app:get_asgi_app", "--factory",
++            "--host", AP_ONI_HOST, "--port", str(AP_ONI_PORT),
++            "--reload"
++        ])
++
++    def start_cryovant(self):
++        _info(f"Cryovant API :{CRYO_PORT}")
++        self.cryovant_proc = _run_subproc([
++            sys.executable, "-m", "uvicorn",
++            "core.cryovant_api:app",
++            "--host", CRYO_HOST, "--port", str(CRYO_PORT),
++            "--reload"
++        ])
++
++    def start_beast(self):
++        _info("Beast Mode loop…")
++        self.beast_proc = _run_subproc(BEAST_CMD)
++
++    def stop_all(self):
++        for name, proc in (("Aponi", self.aponi_proc), ("Cryovant", self.cryovant_proc), ("Beast", self.beast_proc)):
++            if proc and proc.poll() is None:
++                _info("stop", name)
++                try:
++                    proc.terminate()
++                    proc.wait(timeout=2)
++                except subprocess.TimeoutExpired:
++                    proc.kill()
++        self.aponi_proc = self.cryovant_proc = self.beast_proc = None
++
++    def restart(self):
++        _info("restart services")
++        try:
++            event_publish({"type":"devserver_restart"})
++        except Exception:
++            pass
++        self.stop_all()
++        self.start_all()
++
++    def start_all(self):
++        self.start_aponi()
++        self.start_cryovant()
++        self.start_beast()
++
++    # ---- watchdog ----
++    def start_watchdog(self):
++        if not HAS_WATCHDOG:
++            _info("watchdog not installed; skipping auto-reload")
++            return
++        _info("file watcher on")
++        h = _ReloadHandler(self.restart)
++        from watchdog.observers import Observer  # local import for safety
++        self.observer = Observer()
++        self.observer.schedule(h, str(PROJECT), recursive=True)
++        self.observer.start()
++
++    # ---- run loop ----
++    def run(self):
++        self.start_all()
++        self.start_watchdog()
++
++        def shutdown(*_):
++            _info("shutdown")
++            try:
++                event_publish({"type":"devserver_shutdown"})
++            except Exception:
++                pass
++            self.stop_all()
++            if self.observer:
++                self.observer.stop()
++                self.observer.join()
++            raise SystemExit(0)
++
++        signal.signal(signal.SIGINT, shutdown)
++        signal.signal(signal.SIGTERM, shutdown)
++        _info("DevServer running. Ctrl+C to stop.")
++        loop = asyncio.get_event_loop()
++        try:
++            while True:
++                loop.run_until_complete(asyncio.sleep(1))
++        except SystemExit:
++            pass
++
++def start_devserver_blocking():
++    DevServer().run()
++
++if __name__ == "__main__":
++    start_devserver_blocking()
+diff --git a/core/runtime.py b/core/runtime.py
+index 3f2d1a2..9a7b1c3 100644
+--- a/core/runtime.py
++++ b/core/runtime.py
+@@ -1,12 +1,23 @@
+ # core/runtime.py
+ """
+ Unified runtime for ADAAD:
+  - starts Beast Mode loop (imported coroutine if available, otherwise spawns subprocess)
+  - starts Aponi ASGI app (uvicorn Server) for dashboard/API
+  - starts file watchdog (using existing main.py handler logic)
+  - wires core eventbus so components can publish/subscribe
+ """
+ from __future__ import annotations
+ import asyncio
+ import logging
+ import os
+ import shutil
+ import sys
+ from pathlib import Path
+ import signal
+
+@@ -17,6 +28,15 @@
++# --- Dev mode toggle ---
++DEV_MODE = os.environ.get("ADAAD_DEV", "0") == "1"
++
++# manual CLI flag: --dev
++if "--dev" in sys.argv:
++    DEV_MODE = True
++    sys.argv = [a for a in sys.argv if a != "--dev"]
++
++
+ # prefer built-in beast loop if available
+ try:
+     from core import beast_mode_loop
+     HAS_BEAST_ASYNC = hasattr(beast_mode_loop, "run_loop") or hasattr(beast_mode_loop, "main")
+ except Exception:
+     beast_mode_loop = None
+@@ -29,6 +49,12 @@
+     from Aponi.api.asgi_app import get_asgi_app
+     HAS_ASGI = True
+ except Exception:
+     get_asgi_app = None
+     HAS_ASGI = False
+
++# DevServer (integrated)
++try:
++    from core.runtime_devserver import start_devserver_blocking
++    HAS_DEVSERVER = True
++except Exception:
++    start_devserver_blocking = None  # type: ignore
++    HAS_DEVSERVER = False
+
+ from core.eventbus import publish as event_publish
+ from watchdog.observers import Observer
+ from watchdog.events import FileSystemEventHandler
+
+ PROJECT_ROOT = Path(__file__).resolve().parents[1]
+@@ -140,6 +166,21 @@ async def main_runtime():
+     await asyncio.gather(*tasks)
+
+
+ def main():
+-    logging.info("Starting unified runtime…")
+-    asyncio.run(main_runtime())
++    if DEV_MODE and HAS_DEVSERVER:
++        logging.info("Starting ADAAD DevServer (DEV mode enabled)")
++        # Run blocking in the current process; it manages its own loop
++        start_devserver_blocking()
++        return
++    if DEV_MODE and not HAS_DEVSERVER:
++        logging.warning("DEV mode requested but core.runtime_devserver not found. Falling back to normal runtime.")
++    logging.info("Starting unified runtime…")
++    asyncio.run(main_runtime())
+
+ if __name__ == "__main__":
+     main()

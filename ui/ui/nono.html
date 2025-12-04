@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InnovativeAI - 39 Concepts</title>
+<style>
+  :root {
+    --bg: #050b14;
+    --panel: #0f1724;
+    --border: rgba(255,255,255,0.08);
+    --accent: #7c3aed;
+    --accent-2: #3b82f6;
+    --text: #e2e8f0;
+    --muted: #64748b;
+  }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  h1 {
+    font-weight: 200;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin: 0;
+    background: linear-gradient(to right, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  p { color: var(--muted); margin-top: 10px; font-size: 0.9rem; }
+  
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 16px;
+    width: 100%;
+    max-width: 1400px;
+  }
+  
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: relative;
+  }
+  
+  .card:hover {
+    border-color: var(--accent);
+    background: #131c2e;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  
+  .card svg {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 12px;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  
+  .card:hover svg {
+    transform: scale(1.1);
+  }
+  
+  .label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: center;
+  }
+
+  /* Global SVG Styles */
+  .stroke-grad { stroke: url(#grad1); }
+  .fill-grad { fill: url(#grad1); }
+  .stroke-white { stroke: #e2e8f0; }
+  .fill-white { fill: #e2e8f0; }
+</style>
+</head>
+<body>
+
+  <header>
+    <h1>InnovativeAI</h1>
+    <p>Design Candidate Suite B // 39 Variations</p>
+  </header>
+
+  <svg width="0" height="0">
+    <defs>
+      <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#7c3aed;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <div class="grid">
+    
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="none" stroke="url(#grad1)" stroke-width="6" stroke-linecap="round">
+        <circle cx="50" cy="50" r="20" />
+        <circle cx="50" cy="50" r="35" stroke-dasharray="10 10" stroke-width="2" />
+        <circle cx="50" cy="50" r="5" fill="url(#grad1)" stroke="none"/>
+      </svg>
+      <div class="label">01 Origin</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="url(#grad1)">
+        <path d="M50 10 L80 80 L50 65 L20 80 Z" />
+      </svg>
+      <div class="label">02 Shard</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="none" stroke="url(#grad1)" stroke-width="6" stroke-linecap="round">
+        <line x1="50" y1="90" x2="50" y2="30" />
+        <path d="M20 50 L50 20 L80 50" />
+        <line x1="20" y1="70" x2="50" y2="40" stroke-opacity="0.5" />
+        <line x1="80" y1="70" x2="50" y2="40" stroke-opacity="0.5" />
+      </svg>
+      <div class="label">03 Uplink</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="url(#grad1)">
+        <path d="M10 10 H90 V90 H10 Z M50 30 A20 20 0 0 0 50 70 A20 20 0 0 0 50 30 Z" fill-rule="evenodd"/>
+      </svg>
+      <div class="label">04 Void</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="none" stroke="url(#grad1)" stroke-width="8" stroke-linecap="square">
+        <path d="M30 20 V80" />
+        <path d="M70 20 V80" />
+        <path d="M30 50 H70" stroke-width="4" />
+      </svg>
+      <div class="label">05 Circuit I</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="none" stroke="url(#grad1)" stroke-width="4">
+        <path d="M50 20 L75 35 V65 L50 80 L25 65 V35 Z" />
+        <path d="M50 35 L62 42 V57 L50 65 L38 57 V42 Z" fill="url(#grad1)" stroke="none"/>
+      </svg>
+      <div class="label">06 Hive</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="none" stroke="url(#grad1)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="10,50 30,50 40,20 60,80 70,50 90,50" />
+      </svg>
+      <div class="label">07 Pulse</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="none" stroke="url(#grad1)" stroke-width="6">
+        <circle cx="50" cy="35" r="15" />
+        <circle cx="35" cy="65" r="15" />
+        <circle cx="65" cy="65" r="15" />
+      </svg>
+      <div class="label">08 Trinity</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="url(#grad1)">
+        <rect x="40" y="10" width="20" height="80" transform="skewX(-20) translate(15,0)" />
+        <rect x="20" y="10" width="10" height="80" transform="skewX(-20) translate(15,0)" opacity="0.5"/>
+      </svg>
+      <div class="label">09 Slash</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="none" stroke="url(#grad1)" stroke-width="5">
+        <path d="M10 50 Q50 10 90 50 Q50 90 10 50 Z" />
+        <circle cx="50" cy="50" r="15" fill="url(#grad1)" stroke="none"/>
+      </svg>
+      <div class="label">10 Eye</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="none" stroke="url(#grad1)" stroke-width="8" stroke-linecap="square">
+        <path d="M35 20 H20 V80 H35" />
+        <path d="M65 20 H80 V80 H65" />
+        <circle cx="50" cy="50" r="8" fill="url(#grad1)" stroke="none"/>
+      </svg>
+      <div class="label">11 Bracket</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="url(#grad1)">
+        <rect x="20" y="70" width="60" height="10" rx="2" />
+        <rect x="25" y="50" width="50" height="10" rx="2" opacity="0.8"/>
+        <rect x="30" y="30" width="40" height="10" rx="2" opacity="0.6"/>
+        <rect x="35" y="10" width="30" height="10" rx="2" opacity="0.4"/>
+      </svg>
+      <div class="label">12 Stack</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="none" stroke="url(#grad1)" stroke-width="4">
+        <ellipse cx="50" cy="50" rx="40" ry="15" transform="rotate(45 50 50)" />
+        <ellipse cx="50" cy="50" rx="40" ry="15" transform="rotate(-45 50 50)" />
+        <circle cx="50" cy="50" r="8" fill="url(#grad1)" stroke="none"/>
+      </svg>
+      <div class="label">13 Atom</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="url(#grad1)">
+        <path d="M20 80 L80 20 L50 20 L50 10 L90 10 L90 50 L80 50 L80 20 Z" /> <path d="M25 85 L85 25" stroke="url(#grad1)" stroke-width="10" stroke-linecap="round" />
+        <path d="M60 25 H85 V50" fill="none" stroke="url(#grad1)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="label">14 Arrow</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="url(#grad1)">
+        <circle cx="30" cy="30" r="8" />
+        <circle cx="50" cy="30" r="8" opacity="0.8" />
+        <circle cx="70" cy="30" r="8" opacity="0.6" />
+        <circle cx="30" cy="50" r="8" opacity="0.8" />
+        <circle cx="50" cy="50" r="8" opacity="0.6" />
+        <circle cx="70" cy="50" r="8" opacity="0.4" />
+        <circle cx="30" cy="70" r="8" opacity="0.6" />
+        <circle cx="50" cy="70" r="8" opacity="0.4" />
+        <circle cx="70" cy="70" r="8" opacity="0.2" />
+      </svg>
+      <div class="label">15 Grid</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="none" stroke="url(#grad1)" stroke-width="8" stroke-linecap="round">
+        <path d="M20 50 C20 30 40 30 50 50 C60 70 80 70 80 50 C80 30 60 30 50 50 C40 70 20 70 20 50" />
+      </svg>
+      <div class="label">16 Infinity</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="none" stroke="url(#grad1)" stroke-width="5" stroke-linejoin="round">
+        <path d="M50 15 L85 35 V75 L50 95 L15 75 V35 Z" />
+        <path d="M15 35 L50 55 L85 35" />
+        <path d="M50 55 V95" />
+      </svg>
+      <div class="label">17 Cube</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="none" stroke="url(#grad1)" stroke-width="6" stroke-linecap="round">
+        <path d="M50 80 V50" />
+        <circle cx="50" cy="80" r="5" fill="url(#grad1)" stroke="none"/>
+        <path d="M30 40 A30 30 0 0 1 70 40" />
+        <path d="M20 30 A50 50 0 0 1 80 30" />
+        <path d="M10 20 A70 70 0 0 1 90 20" opacity="0.5"/>
+      </svg>
+      <div class="label">18 Signal</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="url(#grad1)">
+        <rect x="20" y="20" width="25" height="25" rx="4" />
+        <rect x="55" y="20" width="25" height="25" rx="4" opacity="0.7" />
+        <rect x="20" y="55" width="25" height="25" rx="4" opacity="0.7" />
+        <rect x="55" y="55" width="25" height="25" rx="4" opacity="0.4" />
+      </svg>
+      <div class="label">19 Block</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="url(#grad1)">
+        <path d="M50 10 C50 10 60 40 90 50 C60 60 50 90 50 90 C50 90 40 60 10 50 C40 40 50 10 50 10 Z" />
+      </svg>
+      <div class="label">20 Spark</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="none" stroke="url(#grad1)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 80 L50 80 L50 50 L80 50 L80 20" />
+        <circle cx="80" cy="20" r="6" fill="url(#grad1)" stroke="none"/>
+      </svg>
+      <div class="label">21 Path</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="none" stroke="url(#grad1)" stroke-width="4">
+        <circle cx="50" cy="50" r="35" />
+        <line x1="50" y1="10" x2="50" y2="25" />
+        <line x1="50" y1="75" x2="50" y2="90" />
+        <line x1="10" y1="50" x2="25" y2="50" />
+        <line x1="75" y1="50" x2="90" y2="50" />
+        <circle cx="50" cy="50" r="5" fill="url(#grad1)" stroke="none"/>
+      </svg>
+      <div class="label">22 Target</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="none" stroke="url(#grad1)" stroke-width="6" stroke-linecap="round">
+        <path d="M30 40 C30 20 70 20 70 40 C70 50 60 50 50 50" />
+        <path d="M20 50 C10 60 30 90 50 90 C70 90 90 60 80 50" />
+        <path d="M50 50 V70" />
+      </svg>
+      <div class="label">23 Brain</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="none" stroke="url(#grad1)" stroke-width="6">
+        <circle cx="35" cy="50" r="25" opacity="0.8" />
+        <circle cx="65" cy="50" r="25" opacity="0.8" />
+        <path d="M50 35 V65" stroke-width="4" />
+      </svg>
+      <div class="label">24 Fusion</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="none" stroke="url(#grad1)" stroke-width="6" stroke-linecap="round">
+        <path d="M30 20 Q70 35 30 50 Q-10 65 30 80" />
+        <path d="M70 20 Q30 35 70 50 Q110 65 70 80" />
+      </svg>
+      <div class="label">25 Helix</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="url(#grad1)">
+        <rect x="20" y="30" width="40" height="8" rx="2" />
+        <rect x="20" y="46" width="60" height="8" rx="2" opacity="0.7" />
+        <rect x="20" y="62" width="30" height="8" rx="2" opacity="0.4" />
+      </svg>
+      <div class="label">26 Code</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="url(#grad1)">
+        <polygon points="30,20 70,20 50,50" opacity="0.5" />
+        <polygon points="50,50 90,50 70,80" />
+      </svg>
+      <div class="label">27 Shift</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="none" stroke="url(#grad1)" stroke-width="3">
+        <circle cx="50" cy="50" r="5" fill="url(#grad1)" />
+        <circle cx="20" cy="30" r="4" fill="url(#grad1)" />
+        <circle cx="80" cy="30" r="4" fill="url(#grad1)" />
+        <circle cx="20" cy="70" r="4" fill="url(#grad1)" />
+        <circle cx="80" cy="70" r="4" fill="url(#grad1)" />
+        <line x1="50" y1="50" x2="20" y2="30" />
+        <line x1="50" y1="50" x2="80" y2="30" />
+        <line x1="50" y1="50" x2="20" y2="70" />
+        <line x1="50" y1="50" x2="80" y2="70" />
+      </svg>
+      <div class="label">28 Network</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="url(#grad1)">
+        <rect x="35" y="10" width="30" height="80" />
+      </svg>
+      <div class="label">29 Monolith</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="none" stroke="url(#grad1)" stroke-width="8">
+        <path d="M30 20 H20 V30" />
+        <path d="M70 20 H80 V30" />
+        <path d="M30 80 H20 V70" />
+        <path d="M70 80 H80 V70" />
+        <rect x="40" y="40" width="20" height="20" fill="url(#grad1)" stroke="none"/>
+      </svg>
+      <div class="label">30 Frame</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="url(#grad1)">
+        <path d="M20 80 Q50 20 80 80 T20 80 Z" />
+      </svg>
+      <div class="label">31 Flow</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="none" stroke="url(#grad1)" stroke-width="8">
+        <path d="M20 90 V40 A30 30 0 0 1 80 40 V90" />
+      </svg>
+      <div class="label">32 Gateway</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="none" stroke="url(#grad1)" stroke-width="4">
+        <circle cx="50" cy="50" r="30" />
+        <circle cx="50" cy="50" r="15" fill="url(#grad1)" stroke="none"/>
+        <line x1="50" y1="10" x2="50" y2="20" stroke-width="6"/>
+        <line x1="50" y1="80" x2="50" y2="90" stroke-width="6"/>
+        <line x1="10" y1="50" x2="20" y2="50" stroke-width="6"/>
+        <line x1="80" y1="50" x2="90" y2="50" stroke-width="6"/>
+      </svg>
+      <div class="label">33 Core</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="none" stroke="url(#grad1)" stroke-width="4">
+        <rect x="25" y="25" width="50" height="50" rx="5" stroke-width="4" />
+        <line x1="25" y1="35" x2="15" y2="35" />
+        <line x1="25" y1="45" x2="15" y2="45" />
+        <line x1="25" y1="55" x2="15" y2="55" />
+        <line x1="25" y1="65" x2="15" y2="65" />
+        <line x1="75" y1="35" x2="85" y2="35" />
+        <line x1="75" y1="45" x2="85" y2="45" />
+        <line x1="75" y1="55" x2="85" y2="55" />
+        <line x1="75" y1="65" x2="85" y2="65" />
+        <rect x="40" y="40" width="20" height="20" fill="url(#grad1)" stroke="none"/>
+      </svg>
+      <div class="label">34 Chip</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="url(#grad1)">
+        <polygon points="50,10 60,40 90,50 60,60 50,90 40,60 10,50 40,40" />
+      </svg>
+      <div class="label">35 Star</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="none" stroke="url(#grad1)" stroke-width="4">
+        <path d="M20 50 A30 30 0 0 1 20 20" />
+        <path d="M30 50 A20 20 0 0 1 30 30" />
+        <path d="M40 50 A10 10 0 0 1 40 40" />
+        <path d="M20 50 A30 30 0 0 0 20 80" />
+        <path d="M30 50 A20 20 0 0 0 30 70" />
+        <path d="M40 50 A10 10 0 0 0 40 60" />
+        <line x1="20" y1="50" x2="90" y2="50" stroke-width="4" />
+      </svg>
+      <div class="label">36 Echo</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="url(#grad1)">
+        <path d="M50 10 Q90 60 50 90 Q10 60 50 10 Z" />
+      </svg>
+      <div class="label">37 Drop</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="url(#grad1)">
+        <rect x="20" y="40" width="15" height="40" />
+        <rect x="42" y="20" width="15" height="60" />
+        <rect x="64" y="50" width="15" height="30" />
+      </svg>
+      <div class="label">38 Equalizer</div>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 100 100" fill="url(#grad1)">
+        <circle cx="30" cy="30" r="15" />
+        <rect x="45" y="45" width="40" height="40" />
+      </svg>
+      <div class="label">39 Abstract</div>
+    </div>
+
+  </div>
+</body>
+</html>

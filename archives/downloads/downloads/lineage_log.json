@@ -1,0 +1,6147 @@
+[
+  {
+    "event": "promote",
+    "target": "offspring_1760634795_7742.py",
+    "fitness": 0.35252953717859203,
+    "parents": [
+      "agent_stub_1760634793.py",
+      "ramseis_upgrade_py_v2.py"
+    ],
+    "ts": "2025-10-16T17:13:17.881327+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760634795_7742_v2.py",
+    "fitness": 0.3524875048225309,
+    "parents": [
+      "agent_stub_1760634793.py",
+      "ramseis_upgrade_py.py"
+    ],
+    "ts": "2025-10-16T17:13:18.044006+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760634795_7742_v3.py",
+    "fitness": 0.35175912115393876,
+    "parents": [
+      "ramseis_upgrade_py_v2.py",
+      "agent_stub_1760634793.py"
+    ],
+    "ts": "2025-10-16T17:13:18.231534+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760634795_7742_v4.py",
+    "fitness": 0.3517158998842593,
+    "parents": [
+      "ramseis_upgrade_py.py",
+      "agent_stub_1760634793.py"
+    ],
+    "ts": "2025-10-16T17:13:18.448488+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760634798_2021.py",
+    "fitness": 0.25238115947276946,
+    "parents": [
+      "ramseis_upgrade_py.py"
+    ],
+    "ts": "2025-10-16T17:13:19.209148+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760634798_5717.py",
+    "fitness": 0.25238115947276946,
+    "parents": [
+      "ramseis_upgrade_py.py"
+    ],
+    "ts": "2025-10-16T17:13:19.296426+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760634798_9497.py",
+    "fitness": 0.25238115947276946,
+    "parents": [
+      "ramseis_upgrade_py.py"
+    ],
+    "ts": "2025-10-16T17:13:19.374917+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649534_7548.py",
+    "fitness": 0.7496500229528962,
+    "parents": [
+      "offspring_1760634795_7742_v2.py"
+    ],
+    "ts": "2025-10-16T21:19:01.839872+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649534_7548_v2.py",
+    "fitness": 0.7398629481447214,
+    "parents": [
+      "offspring_1760634798_9497.py"
+    ],
+    "ts": "2025-10-16T21:19:02.228623+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649534_7548_v3.py",
+    "fitness": 0.7388322392940522,
+    "parents": [
+      "offspring_1760634795_7742_v3.py"
+    ],
+    "ts": "2025-10-16T21:19:02.603298+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649534_7548_v4.py",
+    "fitness": 0.7262869069973444,
+    "parents": [
+      "agent_stub_1760635272.py"
+    ],
+    "ts": "2025-10-16T21:19:02.979850+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649551_2259.py",
+    "fitness": 0.7313294569728722,
+    "parents": [
+      "ramseis_upgrade_py.py"
+    ],
+    "ts": "2025-10-16T21:19:16.979731+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649551_7374.py",
+    "fitness": 0.7285639000658534,
+    "parents": [
+      "ramseis_upgrade_py.py"
+    ],
+    "ts": "2025-10-16T21:19:17.507068+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649551_2267.py",
+    "fitness": 0.720204570465431,
+    "parents": [
+      "ramseis_upgrade_py.py",
+      "offspring_1760634798_9497.py"
+    ],
+    "ts": "2025-10-16T21:19:17.758121+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649607_9209.py",
+    "fitness": 0.7213719125619011,
+    "parents": [
+      "offspring_1760649534_7548_v3.py"
+    ],
+    "ts": "2025-10-16T21:20:18.732770+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649607_9209_v2.py",
+    "fitness": 0.7210374063544804,
+    "parents": [
+      "offspring_1760649551_7374.py"
+    ],
+    "ts": "2025-10-16T21:20:18.969760+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649607_9209_v3.py",
+    "fitness": 0.7149436517185636,
+    "parents": [
+      "offspring_1760634795_7742.py"
+    ],
+    "ts": "2025-10-16T21:20:19.219215+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649607_9209_v4.py",
+    "fitness": 0.7149436303933463,
+    "parents": [
+      "offspring_1760634795_7742.py"
+    ],
+    "ts": "2025-10-16T21:20:19.506413+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649639_7400.py",
+    "fitness": 0.7203895678074724,
+    "parents": [
+      "offspring_1760634795_7742.py",
+      "warm_20251016_035841_0.py"
+    ],
+    "ts": "2025-10-16T21:20:53.930601+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649639_9319.py",
+    "fitness": 0.7149436702622308,
+    "parents": [
+      "offspring_1760634798_5717.py"
+    ],
+    "ts": "2025-10-16T21:20:54.201798+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649639_3360.py",
+    "fitness": 0.7149436368836298,
+    "parents": [
+      "offspring_1760634798_5717.py"
+    ],
+    "ts": "2025-10-16T21:20:54.525778+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649702_4264.py",
+    "fitness": 0.7204096586681196,
+    "parents": [
+      "offspring_1760649607_9209_v3.py"
+    ],
+    "ts": "2025-10-16T21:21:59.685283+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649702_4264_v2.py",
+    "fitness": 0.7199957192897797,
+    "parents": [
+      "offspring_1760649607_9209.py"
+    ],
+    "ts": "2025-10-16T21:22:00.087080+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649702_4264_v3.py",
+    "fitness": 0.7171311480098301,
+    "parents": [
+      "offspring_1760649534_7548.py"
+    ],
+    "ts": "2025-10-16T21:22:00.529253+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649702_4264_v4.py",
+    "fitness": 0.7171311313205296,
+    "parents": [
+      "offspring_1760649534_7548.py"
+    ],
+    "ts": "2025-10-16T21:22:00.910835+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649761_4249.py",
+    "fitness": 0.7211164132236657,
+    "parents": [
+      "offspring_1760649607_9209_v2.py",
+      "offspring_1760634795_7742_v2.py"
+    ],
+    "ts": "2025-10-16T21:22:50.714375+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649761_5915.py",
+    "fitness": 0.7179500984621329,
+    "parents": [
+      "offspring_1760634795_7742_v2.py",
+      "offspring_1760634798_2021.py"
+    ],
+    "ts": "2025-10-16T21:22:51.238359+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649761_8580.py",
+    "fitness": 0.7170831103635213,
+    "parents": [
+      "offspring_1760634795_7742_v2.py",
+      "offspring_1760634798_2021.py"
+    ],
+    "ts": "2025-10-16T21:22:51.802476+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649783_3380.py",
+    "fitness": 0.7210373701943292,
+    "parents": [
+      "offspring_1760649639_9319.py"
+    ],
+    "ts": "2025-10-16T21:23:10.269706+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649783_3380_v2.py",
+    "fitness": 0.7207769915421806,
+    "parents": [
+      "offspring_1760649639_3360.py"
+    ],
+    "ts": "2025-10-16T21:23:10.655117+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649783_3380_v3.py",
+    "fitness": 0.7207769767072467,
+    "parents": [
+      "offspring_1760649639_3360.py"
+    ],
+    "ts": "2025-10-16T21:23:11.394824+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649783_3380_v4.py",
+    "fitness": 0.7198915499142278,
+    "parents": [
+      "offspring_1760649534_7548_v4.py"
+    ],
+    "ts": "2025-10-16T21:23:11.867822+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649819_8831.py",
+    "fitness": 0.7251500034894597,
+    "parents": [
+      "offspring_1760649534_7548_v4.py",
+      "offspring_1760634795_7742_v2.py"
+    ],
+    "ts": "2025-10-16T21:23:48.437823+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649819_3465.py",
+    "fitness": 0.7236377081054934,
+    "parents": [
+      "offspring_1760649551_2259.py",
+      "offspring_1760634795_7742_v2.py"
+    ],
+    "ts": "2025-10-16T21:23:48.626399+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649819_2173.py",
+    "fitness": 0.7226374450882758,
+    "parents": [
+      "offspring_1760649551_2259.py",
+      "agent_stub_1760649514.py"
+    ],
+    "ts": "2025-10-16T21:23:48.795164+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649842_5651.py",
+    "fitness": 0.8499433643129138,
+    "parents": [
+      "offspring_1760649702_4264_v4.py"
+    ],
+    "ts": "2025-10-16T21:24:04.624385+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649842_4172.py",
+    "fitness": 0.8499399324364133,
+    "parents": [
+      "offspring_1760649783_3380_v2.py",
+      "offspring_1760649702_4264_v4.py"
+    ],
+    "ts": "2025-10-16T21:24:04.732243+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649842_5651_v2.py",
+    "fitness": 0.8499436461554635,
+    "parents": [
+      "offspring_1760634798_2021.py"
+    ],
+    "ts": "2025-10-16T21:24:04.814612+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649842_8033.py",
+    "fitness": 0.8471180537580036,
+    "parents": [
+      "offspring_1760649702_4264_v4.py",
+      "offspring_1760649551_7374.py"
+    ],
+    "ts": "2025-10-16T21:24:04.868260+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649842_5651_v3.py",
+    "fitness": 0.8499433698760139,
+    "parents": [
+      "offspring_1760649783_3380_v3.py"
+    ],
+    "ts": "2025-10-16T21:24:04.931603+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649842_5651_v4.py",
+    "fitness": 0.847025373052654,
+    "parents": [
+      "offspring_1760649639_9319.py"
+    ],
+    "ts": "2025-10-16T21:24:05.019412+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649842_5651_v5.py",
+    "fitness": 0.8470253656351872,
+    "parents": [
+      "offspring_1760649783_3380.py"
+    ],
+    "ts": "2025-10-16T21:24:05.103977+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649852_3714.py",
+    "fitness": 0.8072086170650219,
+    "parents": [
+      "warm_20251016_212403_1.py"
+    ],
+    "ts": "2025-10-16T21:24:13.914918+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649852_5809.py",
+    "fitness": 0.806963152189137,
+    "parents": [
+      "warm_20251016_212403_1.py"
+    ],
+    "ts": "2025-10-16T21:24:14.027733+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649852_6091.py",
+    "fitness": 0.806963152189137,
+    "parents": [
+      "warm_20251016_212403_1.py"
+    ],
+    "ts": "2025-10-16T21:24:14.167642+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649852_2135_v2.py",
+    "fitness": 0.8350395835515417,
+    "parents": [
+      "offspring_1760649842_5651_v5.py",
+      "offspring_1760649842_8033.py"
+    ],
+    "ts": "2025-10-16T21:24:14.282449+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649852_2135_v3.py",
+    "fitness": 0.8344935488221202,
+    "parents": [
+      "offspring_1760649842_5651_v5.py",
+      "offspring_1760649842_5651_v4.py"
+    ],
+    "ts": "2025-10-16T21:24:14.372525+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649852_2135_v4.py",
+    "fitness": 0.8341881171371615,
+    "parents": [
+      "offspring_1760649842_8033.py",
+      "offspring_1760649842_5651_v3.py"
+    ],
+    "ts": "2025-10-16T21:24:14.457088+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649860_5253.py",
+    "fitness": 0.8499433884196812,
+    "parents": [
+      "offspring_1760649852_2135_v2.py"
+    ],
+    "ts": "2025-10-16T21:24:21.700999+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649860_3558.py",
+    "fitness": 0.8499433810022143,
+    "parents": [
+      "offspring_1760649852_2135_v2.py"
+    ],
+    "ts": "2025-10-16T21:24:21.840616+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649860_3974.py",
+    "fitness": 0.8499433791478476,
+    "parents": [
+      "offspring_1760649852_2135_v2.py"
+    ],
+    "ts": "2025-10-16T21:24:21.966158+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649860_8715.py",
+    "fitness": 0.8499588758945467,
+    "parents": [
+      "warm_20251016_212412_4.py"
+    ],
+    "ts": "2025-10-16T21:24:22.127046+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649860_8715_v2.py",
+    "fitness": 0.8499433587498136,
+    "parents": [
+      "offspring_1760649852_2135_v3.py"
+    ],
+    "ts": "2025-10-16T21:24:22.221243+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649860_8715_v3.py",
+    "fitness": 0.8499433355702295,
+    "parents": [
+      "offspring_1760649852_2135_v3.py"
+    ],
+    "ts": "2025-10-16T21:24:22.321541+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649860_8715_v4.py",
+    "fitness": 0.8499288246578641,
+    "parents": [
+      "offspring_1760649852_6091.py"
+    ],
+    "ts": "2025-10-16T21:24:22.446569+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649868_3686.py",
+    "fitness": 0.8499285353978476,
+    "parents": [
+      "offspring_1760649860_8715_v4.py"
+    ],
+    "ts": "2025-10-16T21:24:29.404963+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649868_3035.py",
+    "fitness": 0.8499285279803807,
+    "parents": [
+      "offspring_1760649860_8715_v4.py"
+    ],
+    "ts": "2025-10-16T21:24:29.520196+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649868_1764.py",
+    "fitness": 0.8499285214900971,
+    "parents": [
+      "offspring_1760649860_8715_v4.py"
+    ],
+    "ts": "2025-10-16T21:24:29.683307+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649868_3334_v2.py",
+    "fitness": 0.8499402152061464,
+    "parents": [
+      "offspring_1760649860_8715.py",
+      "offspring_1760649860_8715_v2.py"
+    ],
+    "ts": "2025-10-16T21:24:29.800304+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649868_3334_v3.py",
+    "fitness": 0.8499399593247309,
+    "parents": [
+      "offspring_1760649860_8715_v3.py",
+      "offspring_1760649860_8715_v2.py"
+    ],
+    "ts": "2025-10-16T21:24:29.891992+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649868_3334_v4.py",
+    "fitness": 0.8499399481985305,
+    "parents": [
+      "offspring_1760649860_8715_v2.py",
+      "offspring_1760649860_8715_v3.py"
+    ],
+    "ts": "2025-10-16T21:24:29.984361+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649876_7421.py",
+    "fitness": 0.8499433745119308,
+    "parents": [
+      "offspring_1760649868_3334_v3.py"
+    ],
+    "ts": "2025-10-16T21:24:37.708490+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649875_7199.py",
+    "fitness": 0.8499433689488306,
+    "parents": [
+      "offspring_1760649868_3334_v4.py"
+    ],
+    "ts": "2025-10-16T21:24:37.860948+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649876_6050.py",
+    "fitness": 0.8499433643129138,
+    "parents": [
+      "offspring_1760649868_3334_v3.py"
+    ],
+    "ts": "2025-10-16T21:24:38.006387+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649875_7199_v3.py",
+    "fitness": 0.8499433541138968,
+    "parents": [
+      "offspring_1760649868_3334_v3.py"
+    ],
+    "ts": "2025-10-16T21:24:38.142111+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649875_7199_v4.py",
+    "fitness": 0.8499433392789629,
+    "parents": [
+      "offspring_1760649868_3334_v4.py"
+    ],
+    "ts": "2025-10-16T21:24:38.283095+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649886_2607.py",
+    "fitness": 0.719604109495049,
+    "parents": [
+      "offspring_1760649876_6050.py",
+      "offspring_1760649875_7199_v3.py"
+    ],
+    "ts": "2025-10-16T21:24:48.872642+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649886_2607_v2.py",
+    "fitness": 0.7196040909513818,
+    "parents": [
+      "offspring_1760649876_6050.py",
+      "offspring_1760649875_7199_v3.py"
+    ],
+    "ts": "2025-10-16T21:24:49.049571+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649886_2607_v3.py",
+    "fitness": 0.7195277472879539,
+    "parents": [
+      "offspring_1760649876_7421.py",
+      "offspring_1760649876_6050.py"
+    ],
+    "ts": "2025-10-16T21:24:49.180899+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649886_2607_v4.py",
+    "fitness": 0.719527701855969,
+    "parents": [
+      "offspring_1760649876_6050.py",
+      "offspring_1760649876_8126.py"
+    ],
+    "ts": "2025-10-16T21:24:49.371763+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649888_3231.py",
+    "fitness": 0.7149436433739134,
+    "parents": [
+      "offspring_1760649876_6050.py"
+    ],
+    "ts": "2025-10-16T21:24:50.971264+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649888_5730.py",
+    "fitness": 0.7149436433739134,
+    "parents": [
+      "offspring_1760649876_6050.py"
+    ],
+    "ts": "2025-10-16T21:24:51.107399+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649888_6812.py",
+    "fitness": 0.7149436387379965,
+    "parents": [
+      "offspring_1760649876_6050.py"
+    ],
+    "ts": "2025-10-16T21:24:51.247979+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649904_9347.py",
+    "fitness": 0.7174761248141313,
+    "parents": [
+      "offspring_1760649888_6812.py"
+    ],
+    "ts": "2025-10-16T21:25:08.399177+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649904_9347_v2.py",
+    "fitness": 0.7174761248141313,
+    "parents": [
+      "offspring_1760649888_6812.py"
+    ],
+    "ts": "2025-10-16T21:25:08.563379+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649904_9347_v3.py",
+    "fitness": 0.7174761220325812,
+    "parents": [
+      "offspring_1760649888_3231.py"
+    ],
+    "ts": "2025-10-16T21:25:08.710470+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649904_9347_v4.py",
+    "fitness": 0.7174761183238477,
+    "parents": [
+      "offspring_1760649888_5730.py"
+    ],
+    "ts": "2025-10-16T21:25:08.838203+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649910_8573.py",
+    "fitness": 0.719197262150103,
+    "parents": [
+      "offspring_1760649875_7199.py",
+      "offspring_1760649876_6050.py"
+    ],
+    "ts": "2025-10-16T21:25:13.286224+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649910_4796.py",
+    "fitness": 0.7154832750415244,
+    "parents": [
+      "offspring_1760649875_7199.py",
+      "offspring_1760649876_6050.py"
+    ],
+    "ts": "2025-10-16T21:25:13.418232+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649910_4605.py",
+    "fitness": 0.7149898410083257,
+    "parents": [
+      "offspring_1760649875_7199.py",
+      "offspring_1760649876_6050.py"
+    ],
+    "ts": "2025-10-16T21:25:13.552970+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649928_4844.py",
+    "fitness": 0.7169563355637837,
+    "parents": [
+      "offspring_1760649904_9347_v3.py"
+    ],
+    "ts": "2025-10-16T21:25:35.299578+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649928_4844_v2.py",
+    "fitness": 0.716956316092933,
+    "parents": [
+      "offspring_1760649904_9347_v2.py"
+    ],
+    "ts": "2025-10-16T21:25:35.448052+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649928_4844_v3.py",
+    "fitness": 0.7166103239483305,
+    "parents": [
+      "offspring_1760649904_9347.py"
+    ],
+    "ts": "2025-10-16T21:25:35.707175+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649928_4844_v4.py",
+    "fitness": 0.716436844845286,
+    "parents": [
+      "offspring_1760649904_9347_v3.py"
+    ],
+    "ts": "2025-10-16T21:25:36.051838+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649941_3039.py",
+    "fitness": 0.7203601116298406,
+    "parents": [
+      "offspring_1760649904_9347_v2.py",
+      "offspring_1760649904_9347_v4.py"
+    ],
+    "ts": "2025-10-16T21:25:45.773201+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649941_7122.py",
+    "fitness": 0.7150659689488309,
+    "parents": [
+      "offspring_1760649904_9347_v4.py",
+      "offspring_1760649904_9347_v2.py"
+    ],
+    "ts": "2025-10-16T21:25:46.109219+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649941_7677.py",
+    "fitness": 0.7149433606041803,
+    "parents": [
+      "offspring_1760649904_9347_v2.py"
+    ],
+    "ts": "2025-10-16T21:25:46.283377+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649955_4268.py",
+    "fitness": 0.8323512929347109,
+    "parents": [
+      "offspring_1760649886_2607_v3.py",
+      "offspring_1760649875_7199_v2.py"
+    ],
+    "ts": "2025-10-16T21:25:57.688301+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649956_5822.py",
+    "fitness": 0.8323512929347109,
+    "parents": [
+      "offspring_1760649886_2607_v3.py",
+      "offspring_1760649904_9347_v3.py"
+    ],
+    "ts": "2025-10-16T21:25:57.817798+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649955_4483.py",
+    "fitness": 0.8322094424727962,
+    "parents": [
+      "offspring_1760649904_9347_v3.py",
+      "offspring_1760649928_4844_v3.py"
+    ],
+    "ts": "2025-10-16T21:25:57.965897+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649955_1793_v2.py",
+    "fitness": 0.8320424962780693,
+    "parents": [
+      "offspring_1760649904_9347_v4.py",
+      "offspring_1760649910_8573.py"
+    ],
+    "ts": "2025-10-16T21:25:58.067738+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649955_1793_v3.py",
+    "fitness": 0.8319836838141821,
+    "parents": [
+      "offspring_1760649941_3039.py",
+      "agent_stub_1760649918.py"
+    ],
+    "ts": "2025-10-16T21:25:58.159315+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649955_1793_v4.py",
+    "fitness": 0.8319004842021249,
+    "parents": [
+      "offspring_1760649928_4844_v2.py",
+      "offspring_1760649910_8573.py"
+    ],
+    "ts": "2025-10-16T21:25:58.256888+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649964_2180.py",
+    "fitness": 0.832254008545037,
+    "parents": [
+      "offspring_1760649955_1793_v3.py"
+    ],
+    "ts": "2025-10-16T21:26:06.351510+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649964_2691.py",
+    "fitness": 0.8321101898478589,
+    "parents": [
+      "offspring_1760649955_1793_v3.py"
+    ],
+    "ts": "2025-10-16T21:26:06.485245+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649964_3922.py",
+    "fitness": 0.8320930801137778,
+    "parents": [
+      "offspring_1760649955_1793_v3.py"
+    ],
+    "ts": "2025-10-16T21:26:06.638841+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649964_8365.py",
+    "fitness": 0.8306585674521955,
+    "parents": [
+      "offspring_1760649955_4268.py",
+      "offspring_1760649955_1793_v2.py"
+    ],
+    "ts": "2025-10-16T21:26:07.149598+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649964_8365_v2.py",
+    "fitness": 0.8279855586016671,
+    "parents": [
+      "offspring_1760649955_1793_v4.py",
+      "offspring_1760649955_4268.py"
+    ],
+    "ts": "2025-10-16T21:26:07.263515+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649964_8365_v3.py",
+    "fitness": 0.8261551338466112,
+    "parents": [
+      "offspring_1760649955_1793_v2.py",
+      "offspring_1760649955_1793_v4.py"
+    ],
+    "ts": "2025-10-16T21:26:07.364671+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649964_8365_v4.py",
+    "fitness": 0.8260135529954986,
+    "parents": [
+      "offspring_1760649955_1793_v3.py",
+      "offspring_1760649955_1793_v2.py"
+    ],
+    "ts": "2025-10-16T21:26:07.466724+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649973_8808.py",
+    "fitness": 0.8499589018556808,
+    "parents": [
+      "warm_20251016_212605_3.py"
+    ],
+    "ts": "2025-10-16T21:26:14.897966+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649973_1732.py",
+    "fitness": 0.849958900001314,
+    "parents": [
+      "warm_20251016_212605_3.py"
+    ],
+    "ts": "2025-10-16T21:26:15.034784+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649973_3242.py",
+    "fitness": 0.8499405517525144,
+    "parents": [
+      "offspring_1760649964_8365_v3.py",
+      "warm_20251016_212605_3.py"
+    ],
+    "ts": "2025-10-16T21:26:15.093904+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649973_3242_v2.py",
+    "fitness": 0.8499405100292631,
+    "parents": [
+      "offspring_1760649964_8365_v3.py",
+      "warm_20251016_212605_3.py"
+    ],
+    "ts": "2025-10-16T21:26:15.219790+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649973_3242_v3.py",
+    "fitness": 0.8499254122522143,
+    "parents": [
+      "offspring_1760649964_8365.py",
+      "warm_20251016_212605_4.py"
+    ],
+    "ts": "2025-10-16T21:26:15.322566+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649973_3242_v4.py",
+    "fitness": 0.8499253853638968,
+    "parents": [
+      "offspring_1760649964_8365.py",
+      "warm_20251016_212605_4.py"
+    ],
+    "ts": "2025-10-16T21:26:15.416181+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649981_6726.py",
+    "fitness": 0.8499279466787976,
+    "parents": [
+      "offspring_1760649973_3242_v4.py"
+    ],
+    "ts": "2025-10-16T21:26:23.143377+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649981_4366.py",
+    "fitness": 0.8499402309682635,
+    "parents": [
+      "offspring_1760649973_6482.py",
+      "offspring_1760649973_3242_v2.py"
+    ],
+    "ts": "2025-10-16T21:26:23.343469+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649981_4366_v2.py",
+    "fitness": 0.8499248198244308,
+    "parents": [
+      "offspring_1760649973_3242_v3.py",
+      "offspring_1760649973_6482.py"
+    ],
+    "ts": "2025-10-16T21:26:23.493672+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649981_4366_v3.py",
+    "fitness": 0.8499247892273798,
+    "parents": [
+      "offspring_1760649973_6482.py",
+      "offspring_1760649973_3242_v4.py"
+    ],
+    "ts": "2025-10-16T21:26:23.605218+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649981_4366_v4.py",
+    "fitness": 0.8499245277828641,
+    "parents": [
+      "offspring_1760649973_3242_v2.py",
+      "offspring_1760649973_3242_v4.py"
+    ],
+    "ts": "2025-10-16T21:26:23.698567+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649989_4359.py",
+    "fitness": 0.849928246137831,
+    "parents": [
+      "offspring_1760649981_4595.py"
+    ],
+    "ts": "2025-10-16T21:26:30.534965+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649989_1147.py",
+    "fitness": 0.8499282424290976,
+    "parents": [
+      "offspring_1760649981_4595.py"
+    ],
+    "ts": "2025-10-16T21:26:30.725678+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649989_3900_v2.py",
+    "fitness": 0.8499282377931808,
+    "parents": [
+      "offspring_1760649981_4595.py"
+    ],
+    "ts": "2025-10-16T21:26:30.881156+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649989_3900_v3.py",
+    "fitness": 0.8499279420428807,
+    "parents": [
+      "offspring_1760649981_4366_v4.py"
+    ],
+    "ts": "2025-10-16T21:26:30.983229+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649989_3900_v4.py",
+    "fitness": 0.8499279346254138,
+    "parents": [
+      "offspring_1760649981_4366_v3.py"
+    ],
+    "ts": "2025-10-16T21:26:31.085581+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649997_9013.py",
+    "fitness": 0.8486792631693226,
+    "parents": [
+      "offspring_1760649989_3900_v4.py"
+    ],
+    "ts": "2025-10-16T21:26:38.727290+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649997_4233.py",
+    "fitness": 0.8486792557518557,
+    "parents": [
+      "offspring_1760649989_3900_v4.py"
+    ],
+    "ts": "2025-10-16T21:26:38.910610+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649997_5874.py",
+    "fitness": 0.8486792455528387,
+    "parents": [
+      "offspring_1760649989_3900_v4.py"
+    ],
+    "ts": "2025-10-16T21:26:39.265807+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649997_1873.py",
+    "fitness": 0.8487197020154722,
+    "parents": [
+      "offspring_1760649989_3900_v4.py",
+      "offspring_1760649989_3900_v3.py"
+    ],
+    "ts": "2025-10-16T21:26:39.679226+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649997_1873_v2.py",
+    "fitness": 0.8487196992339221,
+    "parents": [
+      "offspring_1760649989_3900_v4.py",
+      "offspring_1760649989_3900_v3.py"
+    ],
+    "ts": "2025-10-16T21:26:39.817008+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649997_1873_v3.py",
+    "fitness": 0.8487118617800994,
+    "parents": [
+      "agent_stub_1760649995.py",
+      "offspring_1760649989_3900_v3.py"
+    ],
+    "ts": "2025-10-16T21:26:39.972174+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760649997_1873_v4.py",
+    "fitness": 0.8487118571441826,
+    "parents": [
+      "agent_stub_1760649995.py",
+      "offspring_1760649989_3900_v3.py"
+    ],
+    "ts": "2025-10-16T21:26:40.144918+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650016_9532.py",
+    "fitness": 0.8480927494222851,
+    "parents": [
+      "agent_stub_1760650014.py"
+    ],
+    "ts": "2025-10-16T21:26:58.995715+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650016_2013.py",
+    "fitness": 0.8480927429320015,
+    "parents": [
+      "agent_stub_1760650014.py"
+    ],
+    "ts": "2025-10-16T21:26:59.385516+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650016_4390.py",
+    "fitness": 0.8480927355145346,
+    "parents": [
+      "agent_stub_1760650014.py"
+    ],
+    "ts": "2025-10-16T21:26:59.612862+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650015_3014.py",
+    "fitness": 0.8480927206796008,
+    "parents": [
+      "agent_stub_1760650014.py"
+    ],
+    "ts": "2025-10-16T21:26:59.669174+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650015_3014_v2.py",
+    "fitness": 0.8480927206796008,
+    "parents": [
+      "agent_stub_1760650014.py"
+    ],
+    "ts": "2025-10-16T21:26:59.769581+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650015_3014_v3.py",
+    "fitness": 0.8480927178980507,
+    "parents": [
+      "agent_stub_1760650014.py"
+    ],
+    "ts": "2025-10-16T21:26:59.934828+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650015_3014_v4.py",
+    "fitness": 0.8480927104805838,
+    "parents": [
+      "agent_stub_1760650014.py"
+    ],
+    "ts": "2025-10-16T21:27:00.107783+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650029_8693.py",
+    "fitness": 0.7477325806800644,
+    "parents": [
+      "offspring_1760650016_9532.py"
+    ],
+    "ts": "2025-10-16T21:27:13.173414+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650029_8693_v2.py",
+    "fitness": 0.7447329379081302,
+    "parents": [
+      "offspring_1760650015_3014_v2.py"
+    ],
+    "ts": "2025-10-16T21:27:13.357320+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650029_8693_v3.py",
+    "fitness": 0.7374813531413418,
+    "parents": [
+      "offspring_1760650016_9532.py"
+    ],
+    "ts": "2025-10-16T21:27:13.519182+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650029_8693_v4.py",
+    "fitness": 0.7374813160540072,
+    "parents": [
+      "offspring_1760650016_9532.py"
+    ],
+    "ts": "2025-10-16T21:27:13.644990+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650033_4283.py",
+    "fitness": 0.7486407359229088,
+    "parents": [
+      "offspring_1760650015_3014_v2.py"
+    ],
+    "ts": "2025-10-16T21:27:15.390156+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650033_4791.py",
+    "fitness": 0.7486407331413587,
+    "parents": [
+      "offspring_1760650015_3014_v2.py"
+    ],
+    "ts": "2025-10-16T21:27:15.498717+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650033_9431.py",
+    "fitness": 0.7480395307365492,
+    "parents": [
+      "offspring_1760650015_3014_v2.py"
+    ],
+    "ts": "2025-10-16T21:27:15.615354+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650047_9121.py",
+    "fitness": 0.7558450631237318,
+    "parents": [
+      "offspring_1760650015_3014_v2.py",
+      "offspring_1760650015_3014_v4.py"
+    ],
+    "ts": "2025-10-16T21:27:30.724549+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650047_9121_v2.py",
+    "fitness": 0.7552800562643568,
+    "parents": [
+      "offspring_1760650015_3014_v3.py",
+      "offspring_1760650016_2013.py"
+    ],
+    "ts": "2025-10-16T21:27:30.843811+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650047_9121_v3.py",
+    "fitness": 0.7543930049867622,
+    "parents": [
+      "offspring_1760650015_3014_v3.py",
+      "offspring_1760650015_3014_v2.py"
+    ],
+    "ts": "2025-10-16T21:27:30.968673+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650047_9121_v4.py",
+    "fitness": 0.751784882817788,
+    "parents": [
+      "offspring_1760650015_3014_v4.py",
+      "offspring_1760650016_4390.py"
+    ],
+    "ts": "2025-10-16T21:27:31.098432+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650052_5294.py",
+    "fitness": 0.7430470456284356,
+    "parents": [
+      "offspring_1760650015_3014.py",
+      "offspring_1760650015_3014_v4.py"
+    ],
+    "ts": "2025-10-16T21:27:34.277278+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650052_1783.py",
+    "fitness": 0.7149436563544804,
+    "parents": [
+      "offspring_1760650015_3014.py"
+    ],
+    "ts": "2025-10-16T21:27:34.425079+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650052_6058.py",
+    "fitness": 0.7149402420944638,
+    "parents": [
+      "offspring_1760650015_3014_v4.py",
+      "offspring_1760650015_3014.py"
+    ],
+    "ts": "2025-10-16T21:27:34.566539+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650060_8598.py",
+    "fitness": 0.8281212027034318,
+    "parents": [
+      "agent_stub_1760650059.py",
+      "warm_20251016_212738_1.py"
+    ],
+    "ts": "2025-10-16T21:27:42.814533+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650060_8598_v2.py",
+    "fitness": 0.8281211850869479,
+    "parents": [
+      "agent_stub_1760650059.py",
+      "warm_20251016_212738_1.py"
+    ],
+    "ts": "2025-10-16T21:27:42.957174+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650060_8598_v3.py",
+    "fitness": 0.8047175834870594,
+    "parents": [
+      "warm_20251016_212738_1.py",
+      "warm_20251016_212738_3.py"
+    ],
+    "ts": "2025-10-16T21:27:43.080895+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650060_8598_v4.py",
+    "fitness": 0.8047175612346587,
+    "parents": [
+      "warm_20251016_212738_3.py",
+      "warm_20251016_212738_1.py"
+    ],
+    "ts": "2025-10-16T21:27:43.199811+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650062_2238.py",
+    "fitness": 0.8278060083227692,
+    "parents": [
+      "warm_20251016_212738_1.py"
+    ],
+    "ts": "2025-10-16T21:27:43.874791+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650062_7238.py",
+    "fitness": 0.8276499881747692,
+    "parents": [
+      "warm_20251016_212738_1.py"
+    ],
+    "ts": "2025-10-16T21:27:44.028219+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650062_9037.py",
+    "fitness": 0.7286455164751638,
+    "parents": [
+      "warm_20251016_212738_1.py"
+    ],
+    "ts": "2025-10-16T21:27:44.155036+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650071_3244.py",
+    "fitness": 0.8279620219804857,
+    "parents": [
+      "warm_20251016_212746_1.py"
+    ],
+    "ts": "2025-10-16T21:27:52.493376+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650071_9343.py",
+    "fitness": 0.8279620154902022,
+    "parents": [
+      "warm_20251016_212746_1.py"
+    ],
+    "ts": "2025-10-16T21:27:52.640630+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650071_2215.py",
+    "fitness": 0.8279620108542853,
+    "parents": [
+      "warm_20251016_212746_1.py"
+    ],
+    "ts": "2025-10-16T21:27:52.776986+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650069_8396.py",
+    "fitness": 0.8281180282207354,
+    "parents": [
+      "warm_20251016_212747_4.py"
+    ],
+    "ts": "2025-10-16T21:27:53.458902+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650069_8396_v2.py",
+    "fitness": 0.8281180254391853,
+    "parents": [
+      "warm_20251016_212747_4.py"
+    ],
+    "ts": "2025-10-16T21:27:53.601379+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650069_8396_v3.py",
+    "fitness": 0.8281180254391853,
+    "parents": [
+      "warm_20251016_212747_4.py"
+    ],
+    "ts": "2025-10-16T21:27:53.719088+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650069_8396_v4.py",
+    "fitness": 0.8281180226576352,
+    "parents": [
+      "warm_20251016_212747_4.py"
+    ],
+    "ts": "2025-10-16T21:27:53.872695+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650080_6841.py",
+    "fitness": 0.8499433810022143,
+    "parents": [
+      "offspring_1760650069_8396_v3.py"
+    ],
+    "ts": "2025-10-16T21:28:02.751020+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650080_6271.py",
+    "fitness": 0.8499433717303807,
+    "parents": [
+      "offspring_1760650069_8396_v3.py"
+    ],
+    "ts": "2025-10-16T21:28:02.893623+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650080_8982.py",
+    "fitness": 0.8499433615313637,
+    "parents": [
+      "offspring_1760650069_8396_v3.py"
+    ],
+    "ts": "2025-10-16T21:28:03.016595+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650079_6910.py",
+    "fitness": 0.8499433754391141,
+    "parents": [
+      "offspring_1760650069_8396_v3.py"
+    ],
+    "ts": "2025-10-16T21:28:03.735899+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650079_6910_v2.py",
+    "fitness": 0.84994334947798,
+    "parents": [
+      "offspring_1760650069_8396_v3.py"
+    ],
+    "ts": "2025-10-16T21:28:03.867687+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650079_6910_v3.py",
+    "fitness": 0.8499433346430462,
+    "parents": [
+      "offspring_1760650069_8396_v2.py"
+    ],
+    "ts": "2025-10-16T21:28:03.976589+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650079_6910_v4.py",
+    "fitness": 0.8499433225896624,
+    "parents": [
+      "offspring_1760650069_8396_v2.py"
+    ],
+    "ts": "2025-10-16T21:28:04.105420+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650094_5113.py",
+    "fitness": 0.7990158751281148,
+    "parents": [
+      "offspring_1760650080_6271.py",
+      "offspring_1760650079_6910_v2.py"
+    ],
+    "ts": "2025-10-16T21:28:17.801347+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650094_5113_v2.py",
+    "fitness": 0.7988874322687745,
+    "parents": [
+      "offspring_1760650080_6841.py",
+      "offspring_1760650080_6271.py"
+    ],
+    "ts": "2025-10-16T21:28:18.364589+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650094_5113_v3.py",
+    "fitness": 0.7986346970553793,
+    "parents": [
+      "offspring_1760650080_6841.py",
+      "offspring_1760650080_6271.py"
+    ],
+    "ts": "2025-10-16T21:28:18.777251+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650094_5113_v4.py",
+    "fitness": 0.798389214383791,
+    "parents": [
+      "offspring_1760650079_6910_v3.py",
+      "offspring_1760650079_6910_v2.py"
+    ],
+    "ts": "2025-10-16T21:28:19.133779+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650096_1583.py",
+    "fitness": 0.7969566192606999,
+    "parents": [
+      "offspring_1760650080_8982.py"
+    ],
+    "ts": "2025-10-16T21:28:19.795961+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650096_3645.py",
+    "fitness": 0.7966968706563096,
+    "parents": [
+      "offspring_1760650080_8982.py"
+    ],
+    "ts": "2025-10-16T21:28:19.941299+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650096_2081.py",
+    "fitness": 0.7582553196322179,
+    "parents": [
+      "offspring_1760650080_8982.py"
+    ],
+    "ts": "2025-10-16T21:28:20.123114+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650110_6771.py",
+    "fitness": 0.7577358289137205,
+    "parents": [
+      "offspring_1760650080_8982.py"
+    ],
+    "ts": "2025-10-16T21:28:35.867027+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650110_6771_v2.py",
+    "fitness": 0.7574761164694811,
+    "parents": [
+      "offspring_1760650096_3645.py"
+    ],
+    "ts": "2025-10-16T21:28:36.250500+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650110_6771_v3.py",
+    "fitness": 0.7574563028458556,
+    "parents": [
+      "offspring_1760650079_6910_v4.py"
+    ],
+    "ts": "2025-10-16T21:28:36.556736+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650110_6771_v4.py",
+    "fitness": 0.7571972299252425,
+    "parents": [
+      "offspring_1760650079_6910_v2.py"
+    ],
+    "ts": "2025-10-16T21:28:36.789313+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650116_5796.py",
+    "fitness": 0.768859408550148,
+    "parents": [
+      "offspring_1760650096_1583.py",
+      "offspring_1760650096_2081.py"
+    ],
+    "ts": "2025-10-16T21:28:38.906866+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650116_6069.py",
+    "fitness": 0.766089454454846,
+    "parents": [
+      "offspring_1760650096_1583.py"
+    ],
+    "ts": "2025-10-16T21:28:39.097383+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650116_6173.py",
+    "fitness": 0.7653080014016894,
+    "parents": [
+      "offspring_1760650096_1583.py"
+    ],
+    "ts": "2025-10-16T21:28:39.286988+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650125_6515.py",
+    "fitness": 0.8301255710735793,
+    "parents": [
+      "agent_stub_1760650123.py"
+    ],
+    "ts": "2025-10-16T21:28:47.465967+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650125_7408.py",
+    "fitness": 0.8296570391259797,
+    "parents": [
+      "agent_stub_1760650123.py"
+    ],
+    "ts": "2025-10-16T21:28:47.578729+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650125_5965.py",
+    "fitness": 0.8291885349938811,
+    "parents": [
+      "agent_stub_1760650123.py"
+    ],
+    "ts": "2025-10-16T21:28:47.717211+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650124_2542.py",
+    "fitness": 0.8471393942170005,
+    "parents": [
+      "offspring_1760650116_6173.py",
+      "offspring_1760650116_5796.py"
+    ],
+    "ts": "2025-10-16T21:28:47.819328+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650124_2542_v2.py",
+    "fitness": 0.8471293024655246,
+    "parents": [
+      "agent_stub_1760650123.py",
+      "offspring_1760650116_6069.py"
+    ],
+    "ts": "2025-10-16T21:28:47.924412+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650125_5965_v2.py",
+    "fitness": 0.8330848806368706,
+    "parents": [
+      "offspring_1760650116_6173.py"
+    ],
+    "ts": "2025-10-16T21:28:48.025231+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650125_5965_v3.py",
+    "fitness": 0.8326109686814132,
+    "parents": [
+      "offspring_1760650116_6173.py"
+    ],
+    "ts": "2025-10-16T21:28:48.126607+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650134_4126.py",
+    "fitness": 0.8326359723914384,
+    "parents": [
+      "offspring_1760650124_2542.py"
+    ],
+    "ts": "2025-10-16T21:28:56.509987+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650134_3676.py",
+    "fitness": 0.8324917444037576,
+    "parents": [
+      "offspring_1760650124_2542.py"
+    ],
+    "ts": "2025-10-16T21:28:56.694941+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650134_8393.py",
+    "fitness": 0.8311936470826468,
+    "parents": [
+      "offspring_1760650124_2542.py"
+    ],
+    "ts": "2025-10-16T21:28:56.826396+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650134_8393_v2.py",
+    "fitness": 0.8313379093761118,
+    "parents": [
+      "offspring_1760650124_2542.py"
+    ],
+    "ts": "2025-10-16T21:28:56.924109+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650134_8393_v3.py",
+    "fitness": 0.8313378991770949,
+    "parents": [
+      "offspring_1760650124_2542.py"
+    ],
+    "ts": "2025-10-16T21:28:57.032324+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650134_8393_v4.py",
+    "fitness": 0.8313378963955448,
+    "parents": [
+      "offspring_1760650124_2542.py"
+    ],
+    "ts": "2025-10-16T21:28:57.127095+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650134_8393_v5.py",
+    "fitness": 0.8311936804612479,
+    "parents": [
+      "offspring_1760650124_2542.py"
+    ],
+    "ts": "2025-10-16T21:28:57.222914+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650147_1330.py",
+    "fitness": 0.7959932084085344,
+    "parents": [
+      "warm_20251016_212855_4.py"
+    ],
+    "ts": "2025-10-16T21:29:11.686462+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650147_1330_v2.py",
+    "fitness": 0.7959528508800597,
+    "parents": [
+      "warm_20251016_212854_0.py"
+    ],
+    "ts": "2025-10-16T21:29:11.829554+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650147_1330_v3.py",
+    "fitness": 0.7681251732228984,
+    "parents": [
+      "offspring_1760650134_8393_v4.py"
+    ],
+    "ts": "2025-10-16T21:29:11.996219+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650147_1330_v4.py",
+    "fitness": 0.7676056834315842,
+    "parents": [
+      "offspring_1760650134_8393_v4.py"
+    ],
+    "ts": "2025-10-16T21:29:12.205377+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650152_4983.py",
+    "fitness": 0.769044769750969,
+    "parents": [
+      "offspring_1760650134_3676.py"
+    ],
+    "ts": "2025-10-16T21:29:16.271387+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650152_5374.py",
+    "fitness": 0.7579956016248783,
+    "parents": [
+      "offspring_1760650134_3676.py"
+    ],
+    "ts": "2025-10-16T21:29:16.463249+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650152_5213.py",
+    "fitness": 0.7577358428214709,
+    "parents": [
+      "offspring_1760650134_3676.py"
+    ],
+    "ts": "2025-10-16T21:29:17.160533+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650175_4511.py",
+    "fitness": 0.7296560935104933,
+    "parents": [
+      "offspring_1760650134_8393.py",
+      "warm_20251016_212855_4.py"
+    ],
+    "ts": "2025-10-16T21:29:40.459258+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650175_4511_v2.py",
+    "fitness": 0.722813035272925,
+    "parents": [
+      "offspring_1760650134_4126.py",
+      "offspring_1760650134_8393_v4.py"
+    ],
+    "ts": "2025-10-16T21:29:40.657841+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650175_4511_v3.py",
+    "fitness": 0.7227445881900846,
+    "parents": [
+      "offspring_1760650134_4126.py",
+      "offspring_1760650134_8393.py"
+    ],
+    "ts": "2025-10-16T21:29:40.831941+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650175_4511_v4.py",
+    "fitness": 0.7219433029447665,
+    "parents": [
+      "offspring_1760650134_8393_v5.py",
+      "offspring_1760650134_8393_v3.py"
+    ],
+    "ts": "2025-10-16T21:29:41.015676+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650184_6168.py",
+    "fitness": 0.7342168034408013,
+    "parents": [
+      "offspring_1760650152_5213.py",
+      "offspring_1760650152_5374.py"
+    ],
+    "ts": "2025-10-16T21:29:49.410934+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650184_7862.py",
+    "fitness": 0.7327879010739888,
+    "parents": [
+      "offspring_1760650152_5374.py"
+    ],
+    "ts": "2025-10-16T21:29:49.578267+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650184_1711.py",
+    "fitness": 0.7322329652441153,
+    "parents": [
+      "offspring_1760650152_5213.py",
+      "offspring_1760650152_5374.py"
+    ],
+    "ts": "2025-10-16T21:29:49.736293+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650212_1881.py",
+    "fitness": 0.7364019720713298,
+    "parents": [
+      "offspring_1760650152_4983.py"
+    ],
+    "ts": "2025-10-16T21:30:17.362994+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650212_1881_v2.py",
+    "fitness": 0.7312496947259874,
+    "parents": [
+      "offspring_1760650134_8393_v2.py"
+    ],
+    "ts": "2025-10-16T21:30:17.520404+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650212_1881_v3.py",
+    "fitness": 0.7310244333406112,
+    "parents": [
+      "offspring_1760650134_8393_v2.py"
+    ],
+    "ts": "2025-10-16T21:30:17.667480+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650212_1881_v4.py",
+    "fitness": 0.7219875576569154,
+    "parents": [
+      "offspring_1760650134_3676.py"
+    ],
+    "ts": "2025-10-16T21:30:17.842491+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650225_9740.py",
+    "fitness": 0.71593367927287,
+    "parents": [
+      "warm_20251016_212855_4.py"
+    ],
+    "ts": "2025-10-16T21:30:29.948937+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650225_1103.py",
+    "fitness": 0.7151384392968849,
+    "parents": [
+      "offspring_1760650152_5374.py"
+    ],
+    "ts": "2025-10-16T21:30:30.074380+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650225_4803.py",
+    "fitness": 0.7150014415503091,
+    "parents": [
+      "offspring_1760650152_5374.py",
+      "offspring_1760650134_8393_v5.py"
+    ],
+    "ts": "2025-10-16T21:30:30.231629+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650262_4703.py",
+    "fitness": 0.7294018993408662,
+    "parents": [
+      "offspring_1760650134_8393.py"
+    ],
+    "ts": "2025-10-16T21:31:08.620247+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650262_4703_v2.py",
+    "fitness": 0.7228161417292577,
+    "parents": [
+      "offspring_1760650212_1881_v4.py"
+    ],
+    "ts": "2025-10-16T21:31:08.885740+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650262_4703_v3.py",
+    "fitness": 0.7222409573605112,
+    "parents": [
+      "offspring_1760650212_1881.py"
+    ],
+    "ts": "2025-10-16T21:31:09.090973+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650262_4703_v4.py",
+    "fitness": 0.7214807675215577,
+    "parents": [
+      "offspring_1760650184_7862.py"
+    ],
+    "ts": "2025-10-16T21:31:09.263576+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650280_6946.py",
+    "fitness": 0.7487694954756208,
+    "parents": [
+      "offspring_1760650134_8393_v2.py",
+      "offspring_1760650134_8393_v5.py"
+    ],
+    "ts": "2025-10-16T21:31:24.925434+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650280_3933.py",
+    "fitness": 0.7411595638398294,
+    "parents": [
+      "offspring_1760650134_8393_v2.py"
+    ],
+    "ts": "2025-10-16T21:31:25.095917+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650280_2082.py",
+    "fitness": 0.7327490145209166,
+    "parents": [
+      "offspring_1760650134_8393_v2.py",
+      "offspring_1760650212_1881_v3.py"
+    ],
+    "ts": "2025-10-16T21:31:25.245550+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650326_6320.py",
+    "fitness": 0.718843670738357,
+    "parents": [
+      "offspring_1760650262_4703.py",
+      "offspring_1760650262_4703_v4.py"
+    ],
+    "ts": "2025-10-16T21:32:13.223956+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650326_6320_v2.py",
+    "fitness": 0.716634470144899,
+    "parents": [
+      "offspring_1760650225_1103.py",
+      "offspring_1760650212_1881.py"
+    ],
+    "ts": "2025-10-16T21:32:13.392977+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650326_6320_v3.py",
+    "fitness": 0.7159890908657361,
+    "parents": [
+      "offspring_1760650134_3676.py",
+      "offspring_1760650212_1881_v4.py"
+    ],
+    "ts": "2025-10-16T21:32:13.519562+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650326_6320_v4.py",
+    "fitness": 0.7157363686329081,
+    "parents": [
+      "offspring_1760650134_3676.py",
+      "offspring_1760650212_1881_v4.py"
+    ],
+    "ts": "2025-10-16T21:32:13.723459+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650350_3059.py",
+    "fitness": 0.7228882974521725,
+    "parents": [
+      "offspring_1760650147_1330_v3.py",
+      "warm_20251016_212854_0.py"
+    ],
+    "ts": "2025-10-16T21:32:35.510252+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650350_4042.py",
+    "fitness": 0.719728209760782,
+    "parents": [
+      "offspring_1760650212_1881_v4.py",
+      "offspring_1760650147_1330_v3.py"
+    ],
+    "ts": "2025-10-16T21:32:35.654503+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650350_3454.py",
+    "fitness": 0.7195798762417984,
+    "parents": [
+      "offspring_1760650212_1881_v4.py",
+      "offspring_1760650262_4703_v4.py"
+    ],
+    "ts": "2025-10-16T21:32:35.826255+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650404_8968.py",
+    "fitness": 0.7198258667882649,
+    "parents": [
+      "offspring_1760650280_3933.py",
+      "offspring_1760650152_5374.py"
+    ],
+    "ts": "2025-10-16T21:33:32.462157+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650404_8968_v2.py",
+    "fitness": 0.7192396326646485,
+    "parents": [
+      "offspring_1760650262_4703_v3.py",
+      "offspring_1760650212_1881_v4.py"
+    ],
+    "ts": "2025-10-16T21:33:32.633276+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650404_8968_v3.py",
+    "fitness": 0.7192396252471815,
+    "parents": [
+      "offspring_1760650262_4703_v3.py",
+      "offspring_1760650212_1881_v2.py"
+    ],
+    "ts": "2025-10-16T21:33:32.751739+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650404_8968_v4.py",
+    "fitness": 0.7189953144467142,
+    "parents": [
+      "offspring_1760650147_1330_v3.py",
+      "offspring_1760650147_1330_v4.py"
+    ],
+    "ts": "2025-10-16T21:33:32.859211+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650444_9488.py",
+    "fitness": 0.7196545417165,
+    "parents": [
+      "offspring_1760650212_1881_v3.py",
+      "offspring_1760650184_7862.py"
+    ],
+    "ts": "2025-10-16T21:34:13.980333+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650444_8507.py",
+    "fitness": 0.7190132471958428,
+    "parents": [
+      "offspring_1760650184_7862.py",
+      "offspring_1760650212_1881_v3.py"
+    ],
+    "ts": "2025-10-16T21:34:14.191100+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650444_3621.py",
+    "fitness": 0.7177738216384787,
+    "parents": [
+      "offspring_1760650212_1881_v3.py",
+      "offspring_1760650134_8393_v5.py"
+    ],
+    "ts": "2025-10-16T21:34:14.368676+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650494_7889.py",
+    "fitness": 0.7257197401493316,
+    "parents": [
+      "offspring_1760650212_1881_v3.py",
+      "warm_20251016_212854_0.py"
+    ],
+    "ts": "2025-10-16T21:35:03.503163+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650494_7889_v2.py",
+    "fitness": 0.7192774971160412,
+    "parents": [
+      "warm_20251016_212855_4.py",
+      "offspring_1760650184_1711.py"
+    ],
+    "ts": "2025-10-16T21:35:03.676323+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650494_7889_v3.py",
+    "fitness": 0.7191087942295914,
+    "parents": [
+      "warm_20251016_212854_0.py",
+      "offspring_1760650212_1881.py"
+    ],
+    "ts": "2025-10-16T21:35:03.828555+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650494_7889_v4.py",
+    "fitness": 0.7190894508353926,
+    "parents": [
+      "offspring_1760650152_4983.py",
+      "offspring_1760650280_3933.py"
+    ],
+    "ts": "2025-10-16T21:35:04.081636+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650580_4428.py",
+    "fitness": 0.7193554025166955,
+    "parents": [
+      "offspring_1760650134_3676.py"
+    ],
+    "ts": "2025-10-16T21:36:34.163016+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650580_9896.py",
+    "fitness": 0.718337150405067,
+    "parents": [
+      "offspring_1760650326_6320_v2.py"
+    ],
+    "ts": "2025-10-16T21:36:34.541687+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650580_6772.py",
+    "fitness": 0.7180181231671126,
+    "parents": [
+      "offspring_1760650326_6320_v2.py",
+      "offspring_1760650326_6320_v3.py"
+    ],
+    "ts": "2025-10-16T21:36:34.873051+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650629_3505.py",
+    "fitness": 0.7222409471614942,
+    "parents": [
+      "offspring_1760650404_8968.py"
+    ],
+    "ts": "2025-10-16T21:37:30.432063+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650629_3505_v2.py",
+    "fitness": 0.7182553428118019,
+    "parents": [
+      "offspring_1760650212_1881.py"
+    ],
+    "ts": "2025-10-16T21:37:30.775759+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650629_3505_v3.py",
+    "fitness": 0.7174758364812981,
+    "parents": [
+      "offspring_1760650147_1330_v3.py"
+    ],
+    "ts": "2025-10-16T21:37:31.174311+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650629_3505_v4.py",
+    "fitness": 0.7174267533363882,
+    "parents": [
+      "offspring_1760650152_5213.py"
+    ],
+    "ts": "2025-10-16T21:37:31.456402+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650781_6843.py",
+    "fitness": 0.7419291828314465,
+    "parents": [
+      "offspring_1760650147_1330.py"
+    ],
+    "ts": "2025-10-16T21:40:08.126334+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650782_4368.py",
+    "fitness": 0.7363059597921476,
+    "parents": [
+      "offspring_1760650147_1330.py",
+      "offspring_1760650212_1881_v2.py"
+    ],
+    "ts": "2025-10-16T21:40:08.430329+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650782_4368_v2.py",
+    "fitness": 0.7183523784790848,
+    "parents": [
+      "offspring_1760650175_4511_v2.py",
+      "offspring_1760650262_4703_v3.py"
+    ],
+    "ts": "2025-10-16T21:40:08.931032+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650782_4368_v3.py",
+    "fitness": 0.7173863864179643,
+    "parents": [
+      "offspring_1760650152_5213.py",
+      "offspring_1760650147_1330.py"
+    ],
+    "ts": "2025-10-16T21:40:09.314826+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650809_7429.py",
+    "fitness": 0.7174203039094792,
+    "parents": [
+      "offspring_1760650134_8393_v3.py"
+    ],
+    "ts": "2025-10-16T21:40:31.791711+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650809_1167.py",
+    "fitness": 0.7159363709555465,
+    "parents": [
+      "warm_20251016_212854_0.py",
+      "offspring_1760650134_8393_v2.py"
+    ],
+    "ts": "2025-10-16T21:40:32.158771+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650809_7811.py",
+    "fitness": 0.7151589686965675,
+    "parents": [
+      "warm_20251016_212855_4.py",
+      "offspring_1760650134_8393_v2.py"
+    ],
+    "ts": "2025-10-16T21:40:32.951606+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650908_8222.py",
+    "fitness": 0.7202437603041726,
+    "parents": [
+      "offspring_1760650580_9896.py",
+      "offspring_1760650212_1881_v4.py"
+    ],
+    "ts": "2025-10-16T21:42:13.010577+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650908_8222_v2.py",
+    "fitness": 0.7198259715599848,
+    "parents": [
+      "offspring_1760650580_9896.py",
+      "offspring_1760650134_3676.py"
+    ],
+    "ts": "2025-10-16T21:42:13.340310+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650908_8222_v3.py",
+    "fitness": 0.7193343835504126,
+    "parents": [
+      "offspring_1760650147_1330_v4.py",
+      "offspring_1760650262_4703_v4.py"
+    ],
+    "ts": "2025-10-16T21:42:13.712484+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650908_8222_v4.py",
+    "fitness": 0.7190132546133097,
+    "parents": [
+      "offspring_1760650184_7862.py",
+      "offspring_1760650212_1881_v4.py"
+    ],
+    "ts": "2025-10-16T21:42:14.146857+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650984_7533.py",
+    "fitness": 0.7204610967301995,
+    "parents": [
+      "offspring_1760650212_1881_v4.py",
+      "offspring_1760650494_7889_v4.py"
+    ],
+    "ts": "2025-10-16T21:43:25.779676+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650984_9490.py",
+    "fitness": 0.7183371262982995,
+    "parents": [
+      "offspring_1760650262_4703_v4.py"
+    ],
+    "ts": "2025-10-16T21:43:26.429638+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760650983_2879.py",
+    "fitness": 0.7180780951009377,
+    "parents": [
+      "offspring_1760650494_7889_v4.py"
+    ],
+    "ts": "2025-10-16T21:43:26.772467+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651011_8379.py",
+    "fitness": 0.7199976448873762,
+    "parents": [
+      "offspring_1760650580_9896.py",
+      "offspring_1760650262_4703_v3.py"
+    ],
+    "ts": "2025-10-16T21:43:55.456926+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651011_8379_v2.py",
+    "fitness": 0.7191839607517623,
+    "parents": [
+      "offspring_1760650280_3933.py",
+      "offspring_1760650225_1103.py"
+    ],
+    "ts": "2025-10-16T21:43:55.921145+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651011_8379_v3.py",
+    "fitness": 0.7180288309606422,
+    "parents": [
+      "offspring_1760650262_4703.py",
+      "offspring_1760650262_4703_v3.py"
+    ],
+    "ts": "2025-10-16T21:43:56.379694+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651011_8379_v4.py",
+    "fitness": 0.7167982937455449,
+    "parents": [
+      "offspring_1760650152_5374.py",
+      "offspring_1760650629_3505_v4.py"
+    ],
+    "ts": "2025-10-16T21:43:56.922780+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651134_3680.py",
+    "fitness": 0.7195054539226681,
+    "parents": [
+      "offspring_1760650225_1103.py",
+      "offspring_1760650326_6320_v4.py"
+    ],
+    "ts": "2025-10-16T21:45:58.644279+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651134_2616.py",
+    "fitness": 0.7192593449961552,
+    "parents": [
+      "offspring_1760650225_1103.py",
+      "offspring_1760650326_6320_v4.py"
+    ],
+    "ts": "2025-10-16T21:45:59.076323+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651134_2342.py",
+    "fitness": 0.7190536286386928,
+    "parents": [
+      "offspring_1760650147_1330_v2.py"
+    ],
+    "ts": "2025-10-16T21:45:59.626443+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651129_4229.py",
+    "fitness": 0.7246293564807338,
+    "parents": [
+      "offspring_1760650147_1330.py",
+      "offspring_1760650134_8393_v3.py"
+    ],
+    "ts": "2025-10-16T21:45:59.863462+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651129_4229_v2.py",
+    "fitness": 0.7203163774955401,
+    "parents": [
+      "offspring_1760650262_4703_v3.py",
+      "offspring_1760650134_8393_v2.py"
+    ],
+    "ts": "2025-10-16T21:46:00.486817+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651129_4229_v3.py",
+    "fitness": 0.7170830862567539,
+    "parents": [
+      "offspring_1760650262_4703_v2.py",
+      "offspring_1760650184_1711.py"
+    ],
+    "ts": "2025-10-16T21:46:00.787265+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651129_4229_v4.py",
+    "fitness": 0.7165522089257996,
+    "parents": [
+      "offspring_1760650152_5374.py",
+      "offspring_1760650262_4703_v2.py"
+    ],
+    "ts": "2025-10-16T21:46:01.072655+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651269_5973.py",
+    "fitness": 0.7216753078379384,
+    "parents": [
+      "warm_20251016_212854_0.py",
+      "offspring_1760650134_8393_v4.py"
+    ],
+    "ts": "2025-10-16T21:48:09.919037+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651269_9458.py",
+    "fitness": 0.7172604049370557,
+    "parents": [
+      "offspring_1760650147_1330_v2.py"
+    ],
+    "ts": "2025-10-16T21:48:10.355892+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651269_4649.py",
+    "fitness": 0.7165789003381988,
+    "parents": [
+      "offspring_1760650134_8393_v4.py",
+      "offspring_1760650184_7862.py"
+    ],
+    "ts": "2025-10-16T21:48:10.705075+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651317_7237.py",
+    "fitness": 0.7338673985176134,
+    "parents": [
+      "offspring_1760650809_7429.py",
+      "offspring_1760650147_1330_v2.py"
+    ],
+    "ts": "2025-10-16T21:49:00.659638+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651317_7237_v2.py",
+    "fitness": 0.7203166602652732,
+    "parents": [
+      "offspring_1760650983_2879.py",
+      "offspring_1760650326_6320_v3.py"
+    ],
+    "ts": "2025-10-16T21:49:01.266699+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651317_7237_v3.py",
+    "fitness": 0.7199979647444437,
+    "parents": [
+      "offspring_1760650809_7429.py",
+      "offspring_1760650580_4428.py"
+    ],
+    "ts": "2025-10-16T21:49:01.501730+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651317_7237_v4.py",
+    "fitness": 0.7194093025750314,
+    "parents": [
+      "offspring_1760650147_1330_v3.py",
+      "offspring_1760650262_4703_v3.py"
+    ],
+    "ts": "2025-10-16T21:49:01.757642+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651425_9831.py",
+    "fitness": 0.7198991133283326,
+    "parents": [
+      "offspring_1760650147_1330_v3.py",
+      "offspring_1760650326_6320_v3.py"
+    ],
+    "ts": "2025-10-16T21:50:48.308318+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651425_2487.py",
+    "fitness": 0.7196542255681659,
+    "parents": [
+      "offspring_1760650147_1330_v3.py",
+      "offspring_1760650134_8393_v3.py"
+    ],
+    "ts": "2025-10-16T21:50:48.609436+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651425_1185.py",
+    "fitness": 0.7164144558195586,
+    "parents": [
+      "offspring_1760650326_6320_v3.py"
+    ],
+    "ts": "2025-10-16T21:50:48.897010+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651478_7897.py",
+    "fitness": 0.721672520491621,
+    "parents": [
+      "offspring_1760650147_1330.py",
+      "offspring_1760650404_8968.py"
+    ],
+    "ts": "2025-10-16T21:51:38.936648+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651478_7897_v2.py",
+    "fitness": 0.7200711249234526,
+    "parents": [
+      "offspring_1760650212_1881_v3.py",
+      "offspring_1760650152_5374.py"
+    ],
+    "ts": "2025-10-16T21:51:39.299460+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651478_7897_v3.py",
+    "fitness": 0.7198256600475677,
+    "parents": [
+      "offspring_1760650629_3505_v4.py",
+      "offspring_1760650262_4703.py"
+    ],
+    "ts": "2025-10-16T21:51:39.634920+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651478_7897_v4.py",
+    "fitness": 0.7195801469581478,
+    "parents": [
+      "offspring_1760650225_4803.py",
+      "offspring_1760650262_4703_v2.py"
+    ],
+    "ts": "2025-10-16T21:51:39.959853+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651569_1802.py",
+    "fitness": 0.7256174830111067,
+    "parents": [
+      "offspring_1760650326_6320_v4.py",
+      "offspring_1760650147_1330.py"
+    ],
+    "ts": "2025-10-16T21:53:11.537831+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651569_2996.py",
+    "fitness": 0.7193734133448352,
+    "parents": [
+      "offspring_1760650326_6320_v4.py"
+    ],
+    "ts": "2025-10-16T21:53:12.020396+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651569_6164.py",
+    "fitness": 0.7193733595682,
+    "parents": [
+      "offspring_1760650326_6320_v4.py"
+    ],
+    "ts": "2025-10-16T21:53:12.280991+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651638_3156.py",
+    "fitness": 0.7203166426487893,
+    "parents": [
+      "offspring_1760650444_9488.py",
+      "offspring_1760650147_1330_v4.py"
+    ],
+    "ts": "2025-10-16T21:54:21.811515+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651638_3156_v2.py",
+    "fitness": 0.7185984682341711,
+    "parents": [
+      "offspring_1760650152_5213.py",
+      "offspring_1760650225_4803.py"
+    ],
+    "ts": "2025-10-16T21:54:22.175818+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651638_3156_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760650147_1330_v4.py",
+      "offspring_1760650134_8393.py"
+    ],
+    "ts": "2025-10-16T21:54:22.738061+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651638_3156_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760650494_7889_v3.py",
+      "offspring_1760650152_5213.py"
+    ],
+    "ts": "2025-10-16T21:54:23.028474+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651748_5706.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760650404_8968_v2.py",
+      "agent_stub_1760650357.py"
+    ],
+    "ts": "2025-10-16T21:56:09.538023+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651748_4563.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760650984_7533.py"
+    ],
+    "ts": "2025-10-16T21:56:09.953266+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651749_2577.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760650984_7533.py",
+      "offspring_1760650350_4042.py"
+    ],
+    "ts": "2025-10-16T21:56:10.303145+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651812_5917.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760650594.py"
+    ],
+    "ts": "2025-10-16T21:57:27.994370+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651812_5917_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760650782_4368_v3.py"
+    ],
+    "ts": "2025-10-16T21:57:28.458285+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651812_5917_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760650494_7889_v4.py"
+    ],
+    "ts": "2025-10-16T21:57:28.908705+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760651812_5917_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760650908_8222_v2.py"
+    ],
+    "ts": "2025-10-16T21:57:29.478447+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652007_8455.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760650212_1881_v3.py",
+      "offspring_1760650350_3059.py"
+    ],
+    "ts": "2025-10-16T22:00:31.201989+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652007_9509.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760650908_8222_v4.py",
+      "offspring_1760650212_1881_v3.py"
+    ],
+    "ts": "2025-10-16T22:00:31.504993+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652008_4714.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760650908_8222_v4.py"
+    ],
+    "ts": "2025-10-16T22:00:32.017167+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652018_5835.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651478_7897_v2.py",
+      "offspring_1760651011_8379_v3.py"
+    ],
+    "ts": "2025-10-16T22:00:46.603893+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652018_5835_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760650142_mut_mut_mut.py",
+      "offspring_1760650908_8222_v3.py"
+    ],
+    "ts": "2025-10-16T22:00:46.945898+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652018_5835_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760650580_9896.py",
+      "agent_stub_1760650787.py"
+    ],
+    "ts": "2025-10-16T22:00:47.380846+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652018_5835_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760651492.py",
+      "offspring_1760651478_7897_v2.py"
+    ],
+    "ts": "2025-10-16T22:00:47.820969+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652232_4047.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760651339.py"
+    ],
+    "ts": "2025-10-16T22:04:34.041775+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652232_4047_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651269_9458.py"
+    ],
+    "ts": "2025-10-16T22:04:34.343045+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652232_4047_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651425_9831.py"
+    ],
+    "ts": "2025-10-16T22:04:35.049610+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652232_4047_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760650594.py"
+    ],
+    "ts": "2025-10-16T22:04:35.730528+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652263_7415.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760650142_mut_mut_mut.py"
+    ],
+    "ts": "2025-10-16T22:04:45.796053+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652263_7799.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760650175_4511_v3.py"
+    ],
+    "ts": "2025-10-16T22:04:46.283684+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652263_4468.py",
+    "fitness": 0.0,
+    "parents": [
+      "warm_20251016_212855_4.py"
+    ],
+    "ts": "2025-10-16T22:04:46.695996+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652358_9572.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651134_2616.py",
+      "offspring_1760651011_8379.py"
+    ],
+    "ts": "2025-10-16T22:06:22.606976+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652358_9572_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760650984_7533.py",
+      "offspring_1760651129_4229_v2.py"
+    ],
+    "ts": "2025-10-16T22:06:22.944598+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652358_9572_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760650680.py",
+      "offspring_1760651569_6164.py"
+    ],
+    "ts": "2025-10-16T22:06:23.141478+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652358_9572_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651269_9458.py",
+      "agent_stub_1760651634.py"
+    ],
+    "ts": "2025-10-16T22:06:23.452640+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652482_9284.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760650134_4126.py"
+    ],
+    "ts": "2025-10-16T22:08:26.747259+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652482_4070.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760650262_4703_v4.py",
+      "offspring_1760650134_8393_v5.py"
+    ],
+    "ts": "2025-10-16T22:08:27.287498+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652482_8343.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760651634.py"
+    ],
+    "ts": "2025-10-16T22:08:27.779262+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652524_3592.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651129_4229.py"
+    ],
+    "ts": "2025-10-16T22:09:09.113972+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652524_3592_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651129_4229_v3.py"
+    ],
+    "ts": "2025-10-16T22:09:09.629019+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652524_3592_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760651894.py"
+    ],
+    "ts": "2025-10-16T22:09:09.894170+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652524_3592_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651638_3156_v3.py"
+    ],
+    "ts": "2025-10-16T22:09:10.247988+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652753_2605.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651478_7897_v3.py",
+      "agent_stub_1760652055.py"
+    ],
+    "ts": "2025-10-16T22:12:56.790341+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652753_2605_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652263_4468.py",
+      "offspring_1760651748_4563.py"
+    ],
+    "ts": "2025-10-16T22:12:57.248991+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652753_2605_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760651189.py",
+      "offspring_1760650908_8222_v3.py"
+    ],
+    "ts": "2025-10-16T22:12:57.676742+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652753_2605_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651478_7897_v4.py",
+      "offspring_1760651425_2487.py"
+    ],
+    "ts": "2025-10-16T22:12:58.077685+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652919_5857.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652358_9572_v3.py",
+      "offspring_1760650984_9490.py"
+    ],
+    "ts": "2025-10-16T22:15:45.134195+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652919_5857_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651812_5917_v2.py",
+      "offspring_1760651425_1185.py"
+    ],
+    "ts": "2025-10-16T22:15:45.394303+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652919_5857_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760651492.py",
+      "offspring_1760651011_8379_v4.py"
+    ],
+    "ts": "2025-10-16T22:15:45.689097+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652919_5857_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651812_5917_v2.py",
+      "offspring_1760652018_5835.py"
+    ],
+    "ts": "2025-10-16T22:15:46.051208+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652962_5736.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760650404_8968_v2.py",
+      "offspring_1760651317_7237_v3.py"
+    ],
+    "ts": "2025-10-16T22:16:20.350986+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652962_9560.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652007_8455.py"
+    ],
+    "ts": "2025-10-16T22:16:20.865584+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760652962_6516.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652007_8455.py",
+      "offspring_1760650404_8968_v2.py"
+    ],
+    "ts": "2025-10-16T22:16:21.271393+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760653066_9558.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651425_2487.py"
+    ],
+    "ts": "2025-10-16T22:18:20.056578+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760653067_3066.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652018_5835_v4.py",
+      "offspring_1760651748_4563.py"
+    ],
+    "ts": "2025-10-16T22:18:20.435908+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760653067_3066_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651748_5706.py",
+      "offspring_1760652008_4714.py"
+    ],
+    "ts": "2025-10-16T22:18:20.960616+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760653067_3066_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651425_1185.py",
+      "offspring_1760651748_5706.py"
+    ],
+    "ts": "2025-10-16T22:18:21.599083+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760653218_7770.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760650175_4511_v2.py"
+    ],
+    "ts": "2025-10-16T22:20:39.877999+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760653218_4028.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760650908_8222.py"
+    ],
+    "ts": "2025-10-16T22:20:40.096758+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760653218_5451.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760650908_8222.py",
+      "offspring_1760650175_4511_v2.py"
+    ],
+    "ts": "2025-10-16T22:20:40.483577+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760653320_9885.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651638_3156.py"
+    ],
+    "ts": "2025-10-16T22:22:30.743648+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760653320_9885_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651638_3156.py"
+    ],
+    "ts": "2025-10-16T22:22:31.399122+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760653320_9885_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651317_7237_v2.py"
+    ],
+    "ts": "2025-10-16T22:22:32.135286+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760653320_9885_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760651189.py"
+    ],
+    "ts": "2025-10-16T22:22:32.616328+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760653529_2405.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760650142_mut_mut.py"
+    ],
+    "ts": "2025-10-16T22:25:56.880643+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760653529_2405_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651749_2577.py"
+    ],
+    "ts": "2025-10-16T22:25:57.281300+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760653529_2405_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651425_9831.py"
+    ],
+    "ts": "2025-10-16T22:25:57.722181+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760653529_2405_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652018_5835_v2.py"
+    ],
+    "ts": "2025-10-16T22:25:58.035935+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760653600_5897.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760651492.py",
+      "offspring_1760650225_4803.py"
+    ],
+    "ts": "2025-10-16T22:27:01.546227+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760653600_5043.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760650983_2879.py",
+      "offspring_1760652482_8343.py"
+    ],
+    "ts": "2025-10-16T22:27:01.823400+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760653600_7776.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760650983_2879.py"
+    ],
+    "ts": "2025-10-16T22:27:02.199983+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760653728_1704.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652008_4714.py",
+      "agent_stub_1760651894.py"
+    ],
+    "ts": "2025-10-16T22:29:21.767763+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760653728_1704_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651569_6164.py",
+      "offspring_1760652358_9572_v2.py"
+    ],
+    "ts": "2025-10-16T22:29:22.141258+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760653728_1704_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651638_3156_v2.py",
+      "offspring_1760651425_1185.py"
+    ],
+    "ts": "2025-10-16T22:29:22.495150+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760653728_1704_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652962_5736.py",
+      "offspring_1760651129_4229.py"
+    ],
+    "ts": "2025-10-16T22:29:22.974356+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760653918_3615.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651317_7237_v3.py"
+    ],
+    "ts": "2025-10-16T22:32:29.985877+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760653918_3615_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652524_3592_v4.py"
+    ],
+    "ts": "2025-10-16T22:32:30.427205+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760653918_3615_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760652961.py"
+    ],
+    "ts": "2025-10-16T22:32:31.087242+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760653918_3615_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760650142_mut.py"
+    ],
+    "ts": "2025-10-16T22:32:31.688047+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760654093_9845.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652008_4714.py",
+      "offspring_1760651425_9831.py"
+    ],
+    "ts": "2025-10-16T22:35:24.350426+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760654093_9845_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651269_9458.py",
+      "offspring_1760651269_5973.py"
+    ],
+    "ts": "2025-10-16T22:35:24.994622+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760654093_9845_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760650142_mut_mut_mut.py",
+      "agent_stub_1760651339.py"
+    ],
+    "ts": "2025-10-16T22:35:25.709785+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760654093_9845_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651748_5706.py",
+      "offspring_1760651425_9831.py"
+    ],
+    "ts": "2025-10-16T22:35:26.392270+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760654236_8713.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760650505.py",
+      "offspring_1760650984_9490.py"
+    ],
+    "ts": "2025-10-16T22:37:43.683134+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760654236_6523.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760650175_4511_v3.py"
+    ],
+    "ts": "2025-10-16T22:37:44.321922+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760654236_5683.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760650505.py",
+      "offspring_1760650984_9490.py"
+    ],
+    "ts": "2025-10-16T22:37:44.918261+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760654315_9889.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651269_5973.py",
+      "offspring_1760652007_9509.py"
+    ],
+    "ts": "2025-10-16T22:39:05.775982+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760654315_9889_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652018_5835.py",
+      "offspring_1760653320_9885_v4.py"
+    ],
+    "ts": "2025-10-16T22:39:06.395760+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760654315_9889_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651317_7237_v4.py",
+      "offspring_1760651638_3156.py"
+    ],
+    "ts": "2025-10-16T22:39:06.904821+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760654315_9889_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652263_7415.py",
+      "offspring_1760652753_2605_v4.py"
+    ],
+    "ts": "2025-10-16T22:39:07.610141+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760654450_5224.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651812_5917.py"
+    ],
+    "ts": "2025-10-16T22:41:18.862977+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760654450_5224_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652524_3592.py"
+    ],
+    "ts": "2025-10-16T22:41:19.228156+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760654450_5224_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760653529_2405.py"
+    ],
+    "ts": "2025-10-16T22:41:19.458489+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760654450_5224_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760653600_7776.py"
+    ],
+    "ts": "2025-10-16T22:41:19.863189+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760654626_1726.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652524_3592_v2.py"
+    ],
+    "ts": "2025-10-16T22:44:15.803242+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760654626_1726_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652919_5857.py"
+    ],
+    "ts": "2025-10-16T22:44:16.452141+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760654626_1726_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760653529_2405.py"
+    ],
+    "ts": "2025-10-16T22:44:17.010962+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760654626_1726_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760653122.py"
+    ],
+    "ts": "2025-10-16T22:44:17.821143+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760654813_5491.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760653529_2405_v2.py",
+      "offspring_1760652524_3592_v4.py"
+    ],
+    "ts": "2025-10-16T22:47:27.427934+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760654813_5491_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651569_2996.py",
+      "offspring_1760651638_3156_v4.py"
+    ],
+    "ts": "2025-10-16T22:47:27.649375+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760654813_5491_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760653728_1704_v2.py",
+      "offspring_1760653218_4028.py"
+    ],
+    "ts": "2025-10-16T22:47:27.872999+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760654813_5491_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652018_5835_v3.py",
+      "offspring_1760653529_2405_v3.py"
+    ],
+    "ts": "2025-10-16T22:47:28.170507+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760654985_5585.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760650142_mut.py",
+      "agent_stub_1760653574.py"
+    ],
+    "ts": "2025-10-16T22:50:23.466491+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760654985_5585_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760653409.py",
+      "offspring_1760653218_7770.py"
+    ],
+    "ts": "2025-10-16T22:50:24.025552+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760654985_5585_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760653728_1704_v3.py",
+      "offspring_1760652018_5835_v3.py"
+    ],
+    "ts": "2025-10-16T22:50:24.550790+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760654985_5585_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652919_5857_v4.py",
+      "offspring_1760653320_9885.py"
+    ],
+    "ts": "2025-10-16T22:50:25.257855+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760655189_2003.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651638_3156_v3.py",
+      "offspring_1760652482_8343.py"
+    ],
+    "ts": "2025-10-16T22:53:52.846491+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760655189_2003_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651569_2996.py",
+      "offspring_1760651748_4563.py"
+    ],
+    "ts": "2025-10-16T22:53:53.628520+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760655189_2003_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760653067_3066_v3.py",
+      "offspring_1760653529_2405.py"
+    ],
+    "ts": "2025-10-16T22:53:54.461686+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760655189_2003_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760653218_7770.py",
+      "offspring_1760652482_9284.py"
+    ],
+    "ts": "2025-10-16T22:53:54.901796+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760655489_6097.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760653691.py"
+    ],
+    "ts": "2025-10-16T22:58:52.981501+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760655489_6097_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652753_2605.py"
+    ],
+    "ts": "2025-10-16T22:58:54.079237+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760655489_6097_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654450_5224_v4.py"
+    ],
+    "ts": "2025-10-16T22:58:54.831131+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760655489_6097_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652232_4047.py"
+    ],
+    "ts": "2025-10-16T22:58:55.417452+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760655718_7737.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760653067_3066_v3.py"
+    ],
+    "ts": "2025-10-16T23:02:40.466913+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760655718_7737_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760653218_7770.py"
+    ],
+    "ts": "2025-10-16T23:02:41.411101+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760655718_7737_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760653067_3066.py"
+    ],
+    "ts": "2025-10-16T23:02:41.986489+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760655718_7737_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651638_3156_v3.py"
+    ],
+    "ts": "2025-10-16T23:02:43.393789+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760656008_8428.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760653600_7776.py"
+    ],
+    "ts": "2025-10-16T23:07:33.918562+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760656008_8428_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652753_2605_v4.py"
+    ],
+    "ts": "2025-10-16T23:07:34.663098+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760656008_8428_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652232_4047_v2.py"
+    ],
+    "ts": "2025-10-16T23:07:35.567634+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760656009_8148.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652962_5736.py",
+      "offspring_1760652007_8455.py"
+    ],
+    "ts": "2025-10-16T23:07:36.016223+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760656296_2896.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652482_9284.py",
+      "offspring_1760653529_2405_v3.py"
+    ],
+    "ts": "2025-10-16T23:12:21.195247+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760656296_2896_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652919_5857_v4.py",
+      "offspring_1760654236_8713.py"
+    ],
+    "ts": "2025-10-16T23:12:21.929200+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760656296_2896_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654093_9845_v4.py",
+      "agent_stub_1760653574.py"
+    ],
+    "ts": "2025-10-16T23:12:22.608836+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760656296_2896_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652753_2605_v2.py",
+      "agent_stub_1760654868.py"
+    ],
+    "ts": "2025-10-16T23:12:23.185469+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760656407_3888.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760650175_4511_v3.py",
+      "offspring_1760650147_1330_v4.py"
+    ],
+    "ts": "2025-10-16T23:14:04.077373+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760656407_8112.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651269_9458.py"
+    ],
+    "ts": "2025-10-16T23:14:04.637470+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760656407_7748.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760653600_7776.py"
+    ],
+    "ts": "2025-10-16T23:14:05.058958+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760656530_2375.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760654681.py"
+    ],
+    "ts": "2025-10-16T23:16:18.218916+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760656530_2375_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654236_5683.py"
+    ],
+    "ts": "2025-10-16T23:16:19.082566+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760656530_2375_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760651788.py"
+    ],
+    "ts": "2025-10-16T23:16:19.779881+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760656531_3711.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652753_2605_v4.py"
+    ],
+    "ts": "2025-10-16T23:16:20.200467+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760656880_2313.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760653320_9885_v2.py"
+    ],
+    "ts": "2025-10-16T23:21:54.511292+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760656880_2313_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760653067_3066_v2.py"
+    ],
+    "ts": "2025-10-16T23:21:55.041229+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760656880_2313_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652962_9560.py"
+    ],
+    "ts": "2025-10-16T23:21:55.472110+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760656880_2313_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760651812_5917_v3.py"
+    ],
+    "ts": "2025-10-16T23:21:55.906373+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760657030_5299.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760655718_7737_v3.py"
+    ],
+    "ts": "2025-10-16T23:24:25.231198+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760657030_5299_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652018_5835_v3.py"
+    ],
+    "ts": "2025-10-16T23:24:25.838639+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760657030_5299_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760653067_3066_v2.py"
+    ],
+    "ts": "2025-10-16T23:24:26.578864+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760657030_5299_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760653122.py"
+    ],
+    "ts": "2025-10-16T23:24:28.452721+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760657283_3912.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760655489_6097_v2.py",
+      "offspring_1760652018_5835_v3.py"
+    ],
+    "ts": "2025-10-16T23:28:36.573294+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760657283_3912_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654236_8713.py",
+      "offspring_1760652018_5835_v2.py"
+    ],
+    "ts": "2025-10-16T23:28:37.013476+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760657283_3912_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654626_1726_v2.py",
+      "agent_stub_1760650142_mut.py"
+    ],
+    "ts": "2025-10-16T23:28:37.303036+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760657283_3912_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760650142_mut_mut.py",
+      "offspring_1760652524_3592.py"
+    ],
+    "ts": "2025-10-16T23:28:37.656622+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760657547_5194.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760653600_7776.py"
+    ],
+    "ts": "2025-10-16T23:32:58.718524+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760657547_5194_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760655489_6097_v4.py"
+    ],
+    "ts": "2025-10-16T23:32:59.091794+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760657547_5194_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654450_5224_v4.py"
+    ],
+    "ts": "2025-10-16T23:32:59.454020+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760657547_5194_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654315_9889.py"
+    ],
+    "ts": "2025-10-16T23:32:59.857469+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760657713_4189.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654093_9845_v4.py"
+    ],
+    "ts": "2025-10-16T23:35:43.972264+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760657713_4189_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760653409.py"
+    ],
+    "ts": "2025-10-16T23:35:44.344350+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760657713_4189_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652358_9572_v4.py"
+    ],
+    "ts": "2025-10-16T23:35:44.729526+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760657713_4189_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760653122.py"
+    ],
+    "ts": "2025-10-16T23:35:45.200835+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760658076_5227.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760653918_3615.py"
+    ],
+    "ts": "2025-10-16T23:41:49.565633+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760658076_5227_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760653067_3066_v3.py"
+    ],
+    "ts": "2025-10-16T23:41:49.910233+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760658076_5227_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760656008_8428_v3.py"
+    ],
+    "ts": "2025-10-16T23:41:50.305433+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760658076_5227_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760656009_8148.py"
+    ],
+    "ts": "2025-10-16T23:41:50.663621+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760658256_1707.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652753_2605_v4.py"
+    ],
+    "ts": "2025-10-16T23:44:47.596238+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760658256_1707_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760653918_3615_v2.py"
+    ],
+    "ts": "2025-10-16T23:44:48.032078+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760658256_1707_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760653218_5451.py"
+    ],
+    "ts": "2025-10-16T23:44:48.477415+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760658256_1707_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654315_9889_v4.py"
+    ],
+    "ts": "2025-10-16T23:44:48.935284+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760658455_2819.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760656880_2313_v4.py"
+    ],
+    "ts": "2025-10-16T23:48:06.665591+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760658455_2819_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760656978.py"
+    ],
+    "ts": "2025-10-16T23:48:07.021283+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760658455_2819_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760654150.py"
+    ],
+    "ts": "2025-10-16T23:48:07.461857+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760658455_2819_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652753_2605_v3.py"
+    ],
+    "ts": "2025-10-16T23:48:07.909991+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760658597_3120.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652524_3592_v2.py"
+    ],
+    "ts": "2025-10-16T23:50:24.877955+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760658597_3434.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652962_6516.py"
+    ],
+    "ts": "2025-10-16T23:50:25.429420+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760658598_1148.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652524_3592_v2.py"
+    ],
+    "ts": "2025-10-16T23:50:25.802927+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760658723_5763.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760655046.py"
+    ],
+    "ts": "2025-10-16T23:52:38.942730+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760658723_5763_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760655718_7737_v2.py"
+    ],
+    "ts": "2025-10-16T23:52:39.376894+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760658723_5763_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654985_5585_v4.py"
+    ],
+    "ts": "2025-10-16T23:52:39.881096+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760658723_5763_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760656296_2896_v2.py"
+    ],
+    "ts": "2025-10-16T23:52:40.373932+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760658911_8785.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760656407_3888.py"
+    ],
+    "ts": "2025-10-16T23:55:45.213273+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760658911_8785_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760656296_2896_v3.py"
+    ],
+    "ts": "2025-10-16T23:55:45.614597+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760658911_8785_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760653979.py"
+    ],
+    "ts": "2025-10-16T23:55:46.050354+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760658911_8785_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652753_2605_v4.py"
+    ],
+    "ts": "2025-10-16T23:55:46.478220+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760659356_1587.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654626_1726_v3.py"
+    ],
+    "ts": "2025-10-17T00:03:19.435448+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760659356_1587_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760650142_mut.py"
+    ],
+    "ts": "2025-10-17T00:03:20.796067+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760659356_1587_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652919_5857_v2.py"
+    ],
+    "ts": "2025-10-17T00:03:21.700550+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760659357_2708.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760650142_mut_mut_mut.py"
+    ],
+    "ts": "2025-10-17T00:03:22.268469+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760659573_5031.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760650142_mut.py",
+      "agent_stub_1760658317.py"
+    ],
+    "ts": "2025-10-17T00:06:47.676644+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760659573_5031_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652524_3592_v4.py",
+      "offspring_1760653067_3066_v3.py"
+    ],
+    "ts": "2025-10-17T00:06:48.147555+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760659574_5031.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654450_5224.py",
+      "offspring_1760657283_3912_v2.py"
+    ],
+    "ts": "2025-10-17T00:06:48.590206+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760659573_5031_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652919_5857_v2.py",
+      "offspring_1760654626_1726_v3.py"
+    ],
+    "ts": "2025-10-17T00:06:48.924960+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760659823_7005.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760655189_2003_v2.py",
+      "offspring_1760652919_5857_v3.py"
+    ],
+    "ts": "2025-10-17T00:10:59.877643+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760659823_7005_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652524_3592_v4.py",
+      "agent_stub_1760655260.py"
+    ],
+    "ts": "2025-10-17T00:11:00.269756+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760659823_7005_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760656296_2896_v3.py",
+      "offspring_1760654985_5585_v2.py"
+    ],
+    "ts": "2025-10-17T00:11:00.684762+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760659823_7005_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654315_9889_v4.py",
+      "offspring_1760656407_3888.py"
+    ],
+    "ts": "2025-10-17T00:11:01.244901+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760659996_7666.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760653728_1704_v4.py",
+      "offspring_1760658455_2819_v4.py"
+    ],
+    "ts": "2025-10-17T00:13:50.921680+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760659996_7666_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760656978.py",
+      "offspring_1760653600_7776.py"
+    ],
+    "ts": "2025-10-17T00:13:51.341243+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760659996_7666_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760654502.py",
+      "offspring_1760653600_5043.py"
+    ],
+    "ts": "2025-10-17T00:13:51.776075+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760659996_7666_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652919_5857_v4.py",
+      "offspring_1760655718_7737_v4.py"
+    ],
+    "ts": "2025-10-17T00:13:52.171208+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760660182_1982.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760657343.py",
+      "agent_stub_1760650142_mut.py"
+    ],
+    "ts": "2025-10-17T00:16:58.923902+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760660182_1982_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760656296_2896_v3.py",
+      "offspring_1760657713_4189_v2.py"
+    ],
+    "ts": "2025-10-17T00:16:59.593909+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760660182_1982_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654626_1726_v3.py",
+      "offspring_1760653600_5897.py"
+    ],
+    "ts": "2025-10-17T00:17:00.140199+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760660182_1982_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760654868.py",
+      "offspring_1760657283_3912.py"
+    ],
+    "ts": "2025-10-17T00:17:00.545327+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760660370_6778.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760656612.py"
+    ],
+    "ts": "2025-10-17T00:20:03.880402+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760660370_6778_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760652919_5857_v2.py"
+    ],
+    "ts": "2025-10-17T00:20:04.524963+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760660370_6778_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760653280.py"
+    ],
+    "ts": "2025-10-17T00:20:05.082725+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760660370_6778_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760655718_7737_v4.py"
+    ],
+    "ts": "2025-10-17T00:20:05.635329+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760660845_6958.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760653918_3615_v3.py"
+    ],
+    "ts": "2025-10-17T00:27:58.985293+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760660845_6958_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760656008_8428_v3.py"
+    ],
+    "ts": "2025-10-17T00:27:59.482292+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760660845_6958_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760655489_6097_v2.py"
+    ],
+    "ts": "2025-10-17T00:27:59.827958+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760660845_6958_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760652961.py"
+    ],
+    "ts": "2025-10-17T00:28:00.337702+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760661067_7368.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654985_5585_v2.py"
+    ],
+    "ts": "2025-10-17T00:31:43.523226+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760661067_7368_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760655718_7737_v2.py"
+    ],
+    "ts": "2025-10-17T00:31:43.968390+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760661067_7368_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760658256_1707_v4.py"
+    ],
+    "ts": "2025-10-17T00:31:44.371930+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760661067_7368_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760653728_1704.py"
+    ],
+    "ts": "2025-10-17T00:31:44.668132+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760661347_5152.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760653409.py"
+    ],
+    "ts": "2025-10-17T00:36:21.808967+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760661347_5152_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654450_5224_v4.py"
+    ],
+    "ts": "2025-10-17T00:36:22.231519+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760661347_5152_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760655189_2003_v2.py"
+    ],
+    "ts": "2025-10-17T00:36:22.615580+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760661347_5152_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760653067_3066_v3.py"
+    ],
+    "ts": "2025-10-17T00:36:23.069785+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760661530_2861.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760653600_7776.py"
+    ],
+    "ts": "2025-10-17T00:39:23.863205+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760661529_4473.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760657547_5194_v2.py",
+      "offspring_1760653529_2405_v3.py"
+    ],
+    "ts": "2025-10-17T00:39:24.151471+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760661530_2861_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760655489_6097.py"
+    ],
+    "ts": "2025-10-17T00:39:24.469077+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760661530_2861_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654093_9845_v4.py"
+    ],
+    "ts": "2025-10-17T00:39:24.829624+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760661745_6336.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760655189_2003_v4.py",
+      "offspring_1760655189_2003.py"
+    ],
+    "ts": "2025-10-17T00:43:03.410738+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760661745_6336_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760659573_5031_v2.py",
+      "offspring_1760653067_3066_v3.py"
+    ],
+    "ts": "2025-10-17T00:43:03.770952+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760661745_6336_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654093_9845.py",
+      "agent_stub_1760653979.py"
+    ],
+    "ts": "2025-10-17T00:43:04.152487+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760661745_6336_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760660251.py",
+      "offspring_1760659573_5031_v2.py"
+    ],
+    "ts": "2025-10-17T00:43:04.516557+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760661960_6635.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760658911_8785_v4.py"
+    ],
+    "ts": "2025-10-17T00:46:35.769713+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760661960_6635_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760655189_2003_v4.py"
+    ],
+    "ts": "2025-10-17T00:46:36.117650+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760661960_6635_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760658911_8785_v3.py"
+    ],
+    "ts": "2025-10-17T00:46:36.493652+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760661960_6635_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760656978.py"
+    ],
+    "ts": "2025-10-17T00:46:36.884443+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760662484_6837.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760656612.py",
+      "offspring_1760653320_9885.py"
+    ],
+    "ts": "2025-10-17T00:55:29.872272+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760662484_6837_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760658076_5227_v3.py",
+      "offspring_1760658723_5763_v4.py"
+    ],
+    "ts": "2025-10-17T00:55:30.238319+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760662484_6837_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760654150.py",
+      "offspring_1760654813_5491_v3.py"
+    ],
+    "ts": "2025-10-17T00:55:30.555880+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760662484_6837_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760658256_1707.py",
+      "offspring_1760659996_7666_v3.py"
+    ],
+    "ts": "2025-10-17T00:55:30.922417+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760662732_9169.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654093_9845_v2.py",
+      "offspring_1760659823_7005_v2.py"
+    ],
+    "ts": "2025-10-17T00:59:41.665038+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760662732_9169_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760653728_1704_v3.py",
+      "offspring_1760658256_1707_v4.py"
+    ],
+    "ts": "2025-10-17T00:59:42.085904+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760662732_9169_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760656008_8428_v2.py",
+      "agent_stub_1760650142_mut_mut_mut.py"
+    ],
+    "ts": "2025-10-17T00:59:42.656137+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760662732_9169_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760654681.py",
+      "offspring_1760658723_5763_v4.py"
+    ],
+    "ts": "2025-10-17T00:59:43.103741+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760663104_7944.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760656296_2896_v3.py",
+      "offspring_1760654985_5585.py"
+    ],
+    "ts": "2025-10-17T01:05:39.896084+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760663104_7944_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654236_5683.py",
+      "offspring_1760654450_5224_v4.py"
+    ],
+    "ts": "2025-10-17T01:05:40.258191+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760663104_7944_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654093_9845.py",
+      "offspring_1760653728_1704_v3.py"
+    ],
+    "ts": "2025-10-17T01:05:40.653181+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760663104_7944_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760657547_5194.py",
+      "offspring_1760657547_5194_v4.py"
+    ],
+    "ts": "2025-10-17T01:05:41.041346+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760663283_6983.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760653600_5043.py",
+      "offspring_1760658723_5763.py"
+    ],
+    "ts": "2025-10-17T01:08:42.111398+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760663283_6983_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760661530_2861_v2.py",
+      "offspring_1760656531_3711.py"
+    ],
+    "ts": "2025-10-17T01:08:42.699384+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760663283_6983_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760657030_5299_v3.py",
+      "offspring_1760658076_5227_v3.py"
+    ],
+    "ts": "2025-10-17T01:08:43.215284+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760663283_6983_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654985_5585_v2.py",
+      "offspring_1760656296_2896_v2.py"
+    ],
+    "ts": "2025-10-17T01:08:43.653122+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760663518_4872.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760655046.py"
+    ],
+    "ts": "2025-10-17T01:12:34.532973+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760663518_4872_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760653918_3615_v4.py"
+    ],
+    "ts": "2025-10-17T01:12:35.065884+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760663518_4872_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654093_9845_v2.py"
+    ],
+    "ts": "2025-10-17T01:12:35.659277+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760663518_4872_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760659357_2708.py"
+    ],
+    "ts": "2025-10-17T01:12:36.152595+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760663755_6499.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760656296_2896_v2.py",
+      "offspring_1760654626_1726_v2.py"
+    ],
+    "ts": "2025-10-17T01:16:32.948570+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760663755_6499_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654450_5224_v4.py",
+      "agent_stub_1760655046.py"
+    ],
+    "ts": "2025-10-17T01:16:33.373282+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760663755_6499_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760655633.py",
+      "agent_stub_1760653979.py"
+    ],
+    "ts": "2025-10-17T01:16:33.838883+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760663755_6499_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760656296_2896_v2.py",
+      "offspring_1760655489_6097.py"
+    ],
+    "ts": "2025-10-17T01:16:34.285722+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760664341_5212.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760653979.py",
+      "offspring_1760653728_1704.py"
+    ],
+    "ts": "2025-10-17T01:26:17.563152+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760664341_5212_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654236_5683.py",
+      "agent_stub_1760655633.py"
+    ],
+    "ts": "2025-10-17T01:26:17.919564+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760664341_5212_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760657142.py",
+      "offspring_1760657030_5299.py"
+    ],
+    "ts": "2025-10-17T01:26:18.354334+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760664341_5212_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760658598_1148.py",
+      "offspring_1760653728_1704_v2.py"
+    ],
+    "ts": "2025-10-17T01:26:18.766536+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760664600_8701.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760656407_7748.py",
+      "offspring_1760661067_7368_v3.py"
+    ],
+    "ts": "2025-10-17T01:30:38.341257+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760664600_8701_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760661817.py",
+      "offspring_1760658911_8785_v2.py"
+    ],
+    "ts": "2025-10-17T01:30:38.750076+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760664600_8701_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760661960_6635_v2.py",
+      "offspring_1760655489_6097.py"
+    ],
+    "ts": "2025-10-17T01:30:39.196445+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760664600_8701_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760658076_5227_v2.py",
+      "offspring_1760657547_5194_v3.py"
+    ],
+    "ts": "2025-10-17T01:30:39.649880+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760665000_9557.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760655260.py",
+      "agent_stub_1760661458.py"
+    ],
+    "ts": "2025-10-17T01:37:30.028137+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760665000_9557_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654985_5585_v4.py",
+      "agent_stub_1760653816.py"
+    ],
+    "ts": "2025-10-17T01:37:30.353634+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760665000_9557_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760658723_5763.py",
+      "offspring_1760657547_5194_v3.py"
+    ],
+    "ts": "2025-10-17T01:37:30.687081+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760665000_9557_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760657030_5299_v4.py",
+      "agent_stub_1760650142_mut.py"
+    ],
+    "ts": "2025-10-17T01:37:30.952489+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760665202_4705.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760650142_mut.py"
+    ],
+    "ts": "2025-10-17T01:40:38.817397+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760665202_4705_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760661960_6635_v2.py"
+    ],
+    "ts": "2025-10-17T01:40:39.225686+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760665202_4705_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760660439.py"
+    ],
+    "ts": "2025-10-17T01:40:39.765192+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760665202_4705_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760661530_2861_v3.py"
+    ],
+    "ts": "2025-10-17T01:40:40.272215+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760665452_6247.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760661617.py"
+    ],
+    "ts": "2025-10-17T01:44:45.452441+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760665453_2508.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760655189_2003_v3.py",
+      "agent_stub_1760663359.py"
+    ],
+    "ts": "2025-10-17T01:44:45.740329+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760665453_2508_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654985_5585_v3.py",
+      "offspring_1760660845_6958_v3.py"
+    ],
+    "ts": "2025-10-17T01:44:46.008463+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760665453_2508_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760660370_6778_v4.py",
+      "agent_stub_1760656978.py"
+    ],
+    "ts": "2025-10-17T01:44:46.260677+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760665739_2446.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654450_5224.py"
+    ],
+    "ts": "2025-10-17T01:49:37.498929+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760665739_2446_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654450_5224_v4.py"
+    ],
+    "ts": "2025-10-17T01:49:37.849516+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760665739_2446_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760663518_4872.py"
+    ],
+    "ts": "2025-10-17T01:49:38.352920+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760665739_2446_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760660845_6958_v4.py"
+    ],
+    "ts": "2025-10-17T01:49:38.834982+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760666338_5183.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760659823_7005_v4.py"
+    ],
+    "ts": "2025-10-17T01:59:38.483992+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760666338_5183_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760658597_3120.py"
+    ],
+    "ts": "2025-10-17T01:59:38.964119+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760666338_5183_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760661067_7368_v3.py"
+    ],
+    "ts": "2025-10-17T01:59:39.384937+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760666338_5183_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760661529_4473.py"
+    ],
+    "ts": "2025-10-17T01:59:39.849967+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760666612_8411.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760659356_1587_v2.py"
+    ],
+    "ts": "2025-10-17T02:04:09.957363+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760666612_8411_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654813_5491_v4.py"
+    ],
+    "ts": "2025-10-17T02:04:10.345307+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760666612_8411_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760658516.py"
+    ],
+    "ts": "2025-10-17T02:04:10.742976+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760666612_8411_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760663755_6499_v4.py"
+    ],
+    "ts": "2025-10-17T02:04:11.296822+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760667040_1637.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760658076_5227_v2.py",
+      "agent_stub_1760655808.py"
+    ],
+    "ts": "2025-10-17T02:11:17.829708+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760667040_1637_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760664341_5212.py",
+      "offspring_1760657713_4189_v4.py"
+    ],
+    "ts": "2025-10-17T02:11:18.258060+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760667040_1637_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760664600_8701.py",
+      "offspring_1760663518_4872.py"
+    ],
+    "ts": "2025-10-17T02:11:18.614188+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760667040_1637_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760662732_9169_v2.py",
+      "offspring_1760663755_6499_v4.py"
+    ],
+    "ts": "2025-10-17T02:11:18.957056+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760667235_4737.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760662818.py"
+    ],
+    "ts": "2025-10-17T02:14:36.213107+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760667235_4737_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760656008_8428_v2.py"
+    ],
+    "ts": "2025-10-17T02:14:36.682783+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760667235_4737_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760661347_5152_v3.py"
+    ],
+    "ts": "2025-10-17T02:14:37.079819+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760667235_4737_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760657547_5194_v4.py"
+    ],
+    "ts": "2025-10-17T02:14:37.587103+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760667520_6499.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654813_5491_v3.py"
+    ],
+    "ts": "2025-10-17T02:19:18.055712+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760667520_6499_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760660370_6778_v3.py"
+    ],
+    "ts": "2025-10-17T02:19:18.497960+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760667520_6499_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760655718_7737_v2.py"
+    ],
+    "ts": "2025-10-17T02:19:19.024864+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760667520_6499_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760657547_5194_v4.py"
+    ],
+    "ts": "2025-10-17T02:19:19.563289+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760667881_2903.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760663518_4872_v3.py"
+    ],
+    "ts": "2025-10-17T02:25:19.795195+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760667881_2903_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760658598_1148.py"
+    ],
+    "ts": "2025-10-17T02:25:20.174000+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760667881_2903_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760658256_1707_v4.py"
+    ],
+    "ts": "2025-10-17T02:25:20.470977+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760667881_2903_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760662818.py"
+    ],
+    "ts": "2025-10-17T02:25:20.780654+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760668504_8491.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760658076_5227_v2.py"
+    ],
+    "ts": "2025-10-17T02:35:42.585653+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760668504_8491_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760656008_8428_v2.py"
+    ],
+    "ts": "2025-10-17T02:35:42.956705+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760668504_8491_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760657713_4189.py"
+    ],
+    "ts": "2025-10-17T02:35:43.402631+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760668504_8491_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760656612.py"
+    ],
+    "ts": "2025-10-17T02:35:44.288532+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760668743_4415.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760664600_8701_v4.py",
+      "offspring_1760659996_7666_v3.py"
+    ],
+    "ts": "2025-10-17T02:39:43.061744+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760668743_4415_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760654681.py",
+      "offspring_1760659996_7666_v3.py"
+    ],
+    "ts": "2025-10-17T02:39:43.464235+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760668743_4415_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760656880_2313_v3.py",
+      "offspring_1760659573_5031_v3.py"
+    ],
+    "ts": "2025-10-17T02:39:43.933790+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760668743_4415_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760659573_5031.py",
+      "offspring_1760661960_6635_v4.py"
+    ],
+    "ts": "2025-10-17T02:39:44.467172+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760669186_9869.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760657547_5194.py",
+      "agent_stub_1760655808.py"
+    ],
+    "ts": "2025-10-17T02:47:03.637534+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760669186_9869_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760650142_mut.py",
+      "agent_stub_1760658674.py"
+    ],
+    "ts": "2025-10-17T02:47:04.002722+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760669186_9869_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760662732_9169_v3.py",
+      "offspring_1760656008_8428_v2.py"
+    ],
+    "ts": "2025-10-17T02:47:04.346608+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760669186_9869_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760663518_4872.py",
+      "offspring_1760655718_7737_v2.py"
+    ],
+    "ts": "2025-10-17T02:47:04.818526+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760669441_2749.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760662484_6837.py"
+    ],
+    "ts": "2025-10-17T02:51:21.461725+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760669441_2749_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760665855.py"
+    ],
+    "ts": "2025-10-17T02:51:21.740069+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760669441_2749_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760659356_1587_v3.py"
+    ],
+    "ts": "2025-10-17T02:51:22.019756+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760669441_2749_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760656009_8148.py"
+    ],
+    "ts": "2025-10-17T02:51:22.355716+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760669738_9462.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760661817.py",
+      "offspring_1760656530_2375_v2.py"
+    ],
+    "ts": "2025-10-17T02:56:17.302235+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760669738_9462_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760659574_5031.py",
+      "offspring_1760665000_9557_v4.py"
+    ],
+    "ts": "2025-10-17T02:56:17.737588+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760669738_9462_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760667235_4737.py",
+      "offspring_1760663283_6983_v4.py"
+    ],
+    "ts": "2025-10-17T02:56:18.217138+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760669738_9462_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760661530_2861_v2.py",
+      "offspring_1760658723_5763_v2.py"
+    ],
+    "ts": "2025-10-17T02:56:18.627564+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760670107_1750.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760656296_2896_v3.py",
+      "offspring_1760659996_7666_v4.py"
+    ],
+    "ts": "2025-10-17T03:02:26.728701+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760670107_1750_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760657771.py",
+      "offspring_1760658455_2819_v4.py"
+    ],
+    "ts": "2025-10-17T03:02:27.108593+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760670107_1750_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760657283_3912_v2.py",
+      "offspring_1760658256_1707.py"
+    ],
+    "ts": "2025-10-17T03:02:27.523895+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760670107_1750_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760658598_1148.py",
+      "offspring_1760660845_6958.py"
+    ],
+    "ts": "2025-10-17T03:02:27.930888+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760670761_7301.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760666612_8411_v2.py"
+    ],
+    "ts": "2025-10-17T03:13:22.540614+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760670761_7301_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760659823_7005_v2.py"
+    ],
+    "ts": "2025-10-17T03:13:23.192036+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760670761_7301_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760665739_2446_v2.py"
+    ],
+    "ts": "2025-10-17T03:13:23.585822+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760670761_7301_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760663755_6499_v4.py"
+    ],
+    "ts": "2025-10-17T03:13:24.083446+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760671035_3372.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760667520_6499_v4.py"
+    ],
+    "ts": "2025-10-17T03:17:53.026848+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760671034_9526.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760665739_2446_v2.py",
+      "agent_stub_1760661617.py"
+    ],
+    "ts": "2025-10-17T03:17:53.446013+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760671035_3372_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760654985_5585_v4.py"
+    ],
+    "ts": "2025-10-17T03:17:53.809044+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760671035_3372_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760658723_5763_v2.py"
+    ],
+    "ts": "2025-10-17T03:17:54.098614+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760671488_8086.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760657547_5194_v2.py"
+    ],
+    "ts": "2025-10-17T03:25:27.210357+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760671488_8086_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760657713_4189_v2.py"
+    ],
+    "ts": "2025-10-17T03:25:27.697498+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760671488_8086_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760660182_1982_v3.py"
+    ],
+    "ts": "2025-10-17T03:25:28.309646+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760671488_8086_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760667520_6499.py"
+    ],
+    "ts": "2025-10-17T03:25:28.764740+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760671762_3971.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760660182_1982.py",
+      "offspring_1760661347_5152.py"
+    ],
+    "ts": "2025-10-17T03:30:01.954067+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760671762_3971_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760659573_5031.py",
+      "offspring_1760662484_6837_v2.py"
+    ],
+    "ts": "2025-10-17T03:30:02.306960+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760671762_3971_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760663359.py",
+      "offspring_1760661745_6336_v4.py"
+    ],
+    "ts": "2025-10-17T03:30:02.852987+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760671762_3971_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760660845_6958_v3.py",
+      "offspring_1760659357_2708.py"
+    ],
+    "ts": "2025-10-17T03:30:03.491972+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760672163_7672.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760665000_9557_v4.py"
+    ],
+    "ts": "2025-10-17T03:36:41.889396+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760672163_7672_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760662732_9169_v2.py"
+    ],
+    "ts": "2025-10-17T03:36:42.256855+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760672163_7672_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760663104_7944.py"
+    ],
+    "ts": "2025-10-17T03:36:42.583204+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760672163_7672_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760665739_2446_v2.py"
+    ],
+    "ts": "2025-10-17T03:36:42.951166+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760672533_7080.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760667881_2903_v3.py",
+      "offspring_1760656880_2313.py"
+    ],
+    "ts": "2025-10-17T03:42:55.026178+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760672533_7080_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760659356_1587_v2.py",
+      "offspring_1760656296_2896_v2.py"
+    ],
+    "ts": "2025-10-17T03:42:55.312501+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760672533_7080_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760658723_5763_v4.py",
+      "offspring_1760658455_2819.py"
+    ],
+    "ts": "2025-10-17T03:42:55.669496+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760672533_7080_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760667040_1637_v3.py",
+      "offspring_1760664341_5212_v2.py"
+    ],
+    "ts": "2025-10-17T03:42:56.096456+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760673123_7358.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760658455_2819.py",
+      "offspring_1760661745_6336_v2.py"
+    ],
+    "ts": "2025-10-17T03:52:40.902388+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760673123_7358_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760659574_5031.py",
+      "offspring_1760669738_9462_v3.py"
+    ],
+    "ts": "2025-10-17T03:52:41.166448+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760673123_7358_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760668583.py",
+      "offspring_1760665739_2446.py"
+    ],
+    "ts": "2025-10-17T03:52:41.457492+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760673123_7358_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760668504_8491_v3.py",
+      "offspring_1760665202_4705.py"
+    ],
+    "ts": "2025-10-17T03:52:41.808544+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760673422_6770.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760664600_8701_v4.py"
+    ],
+    "ts": "2025-10-17T03:57:42.136903+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760673422_6770_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760665453_2508_v3.py"
+    ],
+    "ts": "2025-10-17T03:57:42.766170+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760673422_6770_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760661745_6336_v3.py"
+    ],
+    "ts": "2025-10-17T03:57:43.219864+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760673422_6770_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760660182_1982_v3.py"
+    ],
+    "ts": "2025-10-17T03:57:43.687877+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760673890_9161.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760658151.py",
+      "offspring_1760664600_8701_v3.py"
+    ],
+    "ts": "2025-10-17T04:05:32.126353+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760673890_9161_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760667881_2903_v3.py",
+      "offspring_1760670761_7301.py"
+    ],
+    "ts": "2025-10-17T04:05:32.592721+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760673890_9161_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760663283_6983_v4.py",
+      "agent_stub_1760663359.py"
+    ],
+    "ts": "2025-10-17T04:05:33.177342+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760673890_9161_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760667881_2903.py",
+      "offspring_1760659573_5031.py"
+    ],
+    "ts": "2025-10-17T04:05:33.905195+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760674223_4003.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760650142_mut_mut.py",
+      "offspring_1760656530_2375_v3.py"
+    ],
+    "ts": "2025-10-17T04:11:03.082002+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760674223_4003_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760658911_8785_v2.py",
+      "offspring_1760671034_9526.py"
+    ],
+    "ts": "2025-10-17T04:11:03.421781+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760674223_4003_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760658598_1148.py",
+      "offspring_1760659823_7005_v3.py"
+    ],
+    "ts": "2025-10-17T04:11:03.796034+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760674223_4003_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760656296_2896_v4.py",
+      "offspring_1760658256_1707_v3.py"
+    ],
+    "ts": "2025-10-17T04:11:04.219836+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760674631_7141.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760661817.py"
+    ],
+    "ts": "2025-10-17T04:17:51.142570+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760674632_1544.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760667040_1637.py"
+    ],
+    "ts": "2025-10-17T04:17:51.480336+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760674632_1544_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760658822.py"
+    ],
+    "ts": "2025-10-17T04:17:51.831235+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760674632_1544_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760661960_6635_v3.py"
+    ],
+    "ts": "2025-10-17T04:17:52.202555+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760675051_4273.py",
+    "fitness": 0.0,
+    "parents": [
+      "agent_stub_1760663197.py"
+    ],
+    "ts": "2025-10-17T04:24:50.973208+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760675051_4273_v2.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760669441_2749_v3.py"
+    ],
+    "ts": "2025-10-17T04:24:51.316560+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760675051_4273_v3.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760659823_7005_v4.py"
+    ],
+    "ts": "2025-10-17T04:24:51.848449+00:00"
+  },
+  {
+    "event": "promote",
+    "target": "offspring_1760675051_4273_v4.py",
+    "fitness": 0.0,
+    "parents": [
+      "offspring_1760670107_1750.py"
+    ],
+    "ts": "2025-10-17T04:24:52.491848+00:00"
+  }
+]

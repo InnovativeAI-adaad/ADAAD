@@ -1,0 +1,53 @@
+{
+  "proposals": [
+    {
+      "id": "core_missing_create_agent.py",
+      "title": "Create core/create_agent.py",
+      "reason": "Missing core file create_agent.py",
+      "priority": 100,
+      "blueprint": {
+        "filename": "create_agent.py",
+        "content": "#!/usr/bin/env python3\n\"\"\"\ncreate_agent.py — auto-generated stub by ArchitectAgent (safe).\nFill in functionality or delegate to agent_creator.\n\"\"\"\nfrom __future__ import annotations\nimport logging\nlog = logging.getLogger(__name__)\n\ndef run(*args, **kwargs):\n    log.info(\"Running stub create_agent.py (args=%r kwargs=%r)\", args, kwargs)\n    return True\n",
+        "type": "core"
+      }
+    },
+    {
+      "id": "core_missing_repair_broken_agents.py",
+      "title": "Create core/repair_broken_agents.py",
+      "reason": "Missing core file repair_broken_agents.py",
+      "priority": 99,
+      "blueprint": {
+        "filename": "repair_broken_agents.py",
+        "content": "#!/usr/bin/env python3\n\"\"\"\nrepair_broken_agents.py — auto-generated stub by ArchitectAgent (safe).\nFill in functionality or delegate to agent_creator.\n\"\"\"\nfrom __future__ import annotations\nimport logging\nlog = logging.getLogger(__name__)\n\ndef run(*args, **kwargs):\n    log.info(\"Running stub repair_broken_agents.py (args=%r kwargs=%r)\", args, kwargs)\n    return True\n",
+        "type": "core"
+      }
+    },
+    {
+      "id": "core_missing_score_agents.py",
+      "title": "Create core/score_agents.py",
+      "reason": "Missing core file score_agents.py",
+      "priority": 98,
+      "blueprint": {
+        "filename": "score_agents.py",
+        "content": "#!/usr/bin/env python3\n\"\"\"\nscore_agents.py — auto-generated stub by ArchitectAgent (safe).\nFill in functionality or delegate to agent_creator.\n\"\"\"\nfrom __future__ import annotations\nimport logging\nlog = logging.getLogger(__name__)\n\ndef run(*args, **kwargs):\n    log.info(\"Running stub score_agents.py (args=%r kwargs=%r)\", args, kwargs)\n    return True\n",
+        "type": "core"
+      }
+    },
+    {
+      "id": "patterns_json",
+      "title": "Create patterns.json",
+      "reason": "patterns.json needed for self-evolution",
+      "priority": 80,
+      "blueprint": {
+        "filename": "patterns.json",
+        "json": {
+          "patterns": [],
+          "generated_by": "ArchitectAgent",
+          "generated_at": "20251101T114711"
+        },
+        "type": "data"
+      }
+    }
+  ],
+  "ts": "20251101T114711"
+}

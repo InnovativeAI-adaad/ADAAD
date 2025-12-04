@@ -1,0 +1,4070 @@
+{
+  "name": "ADAAD",
+  "path": "/storage/emulated/0/ADAAD",
+  "type": "dir",
+  "children": [
+    {
+      "name": "valuation_suite.py",
+      "path": "/storage/emulated/0/ADAAD/valuation_suite.py",
+      "type": "file",
+      "size": 5394,
+      "mtime": "2025-11-13T11:59:58-0600"
+    },
+    {
+      "name": "unified.log",
+      "path": "/storage/emulated/0/ADAAD/unified.log",
+      "type": "file",
+      "size": 501,
+      "mtime": "2025-11-14T22:49:01-0600"
+    },
+    {
+      "name": "tree.py",
+      "path": "/storage/emulated/0/ADAAD/tree.py",
+      "type": "file",
+      "size": 39221,
+      "mtime": "2025-11-10T23:08:27-0600"
+    },
+    {
+      "name": "tests",
+      "path": "/storage/emulated/0/ADAAD/tests",
+      "type": "dir",
+      "children": [],
+      "size": 4096,
+      "mtime": "2025-11-14T00:13:20-0600"
+    },
+    {
+      "name": "templates",
+      "path": "/storage/emulated/0/ADAAD/templates",
+      "type": "dir",
+      "children": [],
+      "size": 4096,
+      "mtime": "2025-10-23T04:07:19-0500"
+    },
+    {
+      "name": "structure.py",
+      "path": "/storage/emulated/0/ADAAD/structure.py",
+      "type": "file",
+      "size": 12215,
+      "mtime": "2025-11-14T12:36:56-0600"
+    },
+    {
+      "name": "storage",
+      "path": "/storage/emulated/0/ADAAD/storage",
+      "type": "dir",
+      "children": [
+        {
+          "name": "shared",
+          "path": "/storage/emulated/0/ADAAD/storage/shared",
+          "type": "dir",
+          "children": [
+            {
+              "name": "ADAAD",
+              "path": "/storage/emulated/0/ADAAD/storage/shared/ADAAD",
+              "type": "dir",
+              "children": [
+                {
+                  "name": "static",
+                  "path": "/storage/emulated/0/ADAAD/storage/shared/ADAAD/static",
+                  "type": "dir",
+                  "children": [],
+                  "size": 4096,
+                  "mtime": "2025-11-12T17:06:14-0600"
+                }
+              ],
+              "size": 4096,
+              "mtime": "2025-11-12T17:06:14-0600"
+            }
+          ],
+          "size": 4096,
+          "mtime": "2025-11-12T17:06:14-0600"
+        }
+      ],
+      "size": 4096,
+      "mtime": "2025-11-12T17:06:14-0600"
+    },
+    {
+      "name": "static",
+      "path": "/storage/emulated/0/ADAAD/static",
+      "type": "dir",
+      "children": [
+        {
+          "name": "style.css",
+          "path": "/storage/emulated/0/ADAAD/static/style.css",
+          "type": "file",
+          "size": 9975,
+          "mtime": "2025-11-15T00:44:17-0600"
+        },
+        {
+          "name": "src",
+          "path": "/storage/emulated/0/ADAAD/static/src",
+          "type": "dir",
+          "children": [
+            {
+              "name": "offline.js",
+              "path": "/storage/emulated/0/ADAAD/static/src/offline.js",
+              "type": "file",
+              "size": 208,
+              "mtime": "2025-11-15T00:44:17-0600"
+            },
+            {
+              "name": "app.js",
+              "path": "/storage/emulated/0/ADAAD/static/src/app.js",
+              "type": "file",
+              "size": 516,
+              "mtime": "2025-11-15T00:44:17-0600"
+            },
+            {
+              "name": "api.js",
+              "path": "/storage/emulated/0/ADAAD/static/src/api.js",
+              "type": "file",
+              "size": 321,
+              "mtime": "2025-11-15T00:44:17-0600"
+            }
+          ],
+          "size": 4096,
+          "mtime": "2025-11-12T17:24:34-0600"
+        },
+        {
+          "name": "js",
+          "path": "/storage/emulated/0/ADAAD/static/js",
+          "type": "dir",
+          "children": [
+            {
+              "name": "aponi_ui.js",
+              "path": "/storage/emulated/0/ADAAD/static/js/aponi_ui.js",
+              "type": "file",
+              "size": 5833,
+              "mtime": "2025-11-15T00:44:17-0600"
+            },
+            {
+              "name": "aponi_search.js",
+              "path": "/storage/emulated/0/ADAAD/static/js/aponi_search.js",
+              "type": "file",
+              "size": 4101,
+              "mtime": "2025-11-15T00:44:17-0600"
+            },
+            {
+              "name": "aponi_main.js",
+              "path": "/storage/emulated/0/ADAAD/static/js/aponi_main.js",
+              "type": "file",
+              "size": 3685,
+              "mtime": "2025-11-15T00:44:17-0600"
+            },
+            {
+              "name": "aponi_kpi.js",
+              "path": "/storage/emulated/0/ADAAD/static/js/aponi_kpi.js",
+              "type": "file",
+              "size": 5302,
+              "mtime": "2025-11-15T00:44:17-0600"
+            },
+            {
+              "name": "aponi_explorer.js",
+              "path": "/storage/emulated/0/ADAAD/static/js/aponi_explorer.js",
+              "type": "file",
+              "size": 5697,
+              "mtime": "2025-11-15T00:44:17-0600"
+            },
+            {
+              "name": "aponi_editor.js",
+              "path": "/storage/emulated/0/ADAAD/static/js/aponi_editor.js",
+              "type": "file",
+              "size": 3177,
+              "mtime": "2025-11-15T00:44:17-0600"
+            },
+            {
+              "name": "aponi_dashboard_console.js",
+              "path": "/storage/emulated/0/ADAAD/static/js/aponi_dashboard_console.js",
+              "type": "file",
+              "size": 2682,
+              "mtime": "2025-11-15T00:44:17-0600"
+            },
+            {
+              "name": "aponi_console.js",
+              "path": "/storage/emulated/0/ADAAD/static/js/aponi_console.js",
+              "type": "file",
+              "size": 2723,
+              "mtime": "2025-11-15T00:44:17-0600"
+            }
+          ],
+          "size": 4096,
+          "mtime": "2025-10-24T19:06:48-0500"
+        },
+        {
+          "name": "heartbeat.json",
+          "path": "/storage/emulated/0/ADAAD/static/heartbeat.json",
+          "type": "file",
+          "size": 61,
+          "mtime": "2025-11-15T00:44:17-0600"
+        },
+        {
+          "name": "assets",
+          "path": "/storage/emulated/0/ADAAD/static/assets",
+          "type": "dir",
+          "children": [
+            {
+              "name": "project.svg",
+              "path": "/storage/emulated/0/ADAAD/static/assets/project.svg",
+              "type": "file",
+              "size": 532826,
+              "mtime": "2025-11-15T00:44:17-0600"
+            },
+            {
+              "name": "logo.png",
+              "path": "/storage/emulated/0/ADAAD/static/assets/logo.png",
+              "type": "file",
+              "size": 1348691,
+              "mtime": "2025-11-15T00:44:17-0600"
+            },
+            {
+              "name": "agent_default.jpg",
+              "path": "/storage/emulated/0/ADAAD/static/assets/agent_default.jpg",
+              "type": "file",
+              "size": 276650,
+              "mtime": "2025-11-15T00:44:17-0600"
+            }
+          ],
+          "size": 4096,
+          "mtime": "2025-11-10T23:03:33-0600"
+        },
+        {
+          "name": "aponi_ui.css",
+          "path": "/storage/emulated/0/ADAAD/static/aponi_ui.css",
+          "type": "file",
+          "size": 9975,
+          "mtime": "2025-11-15T00:44:17-0600"
+        },
+        {
+          "name": "aponi_dashboard.html",
+          "path": "/storage/emulated/0/ADAAD/static/aponi_dashboard.html",
+          "type": "file",
+          "size": 30066,
+          "mtime": "2025-11-15T00:44:17-0600"
+        },
+        {
+          "name": "adaad_tree_full.json",
+          "path": "/storage/emulated/0/ADAAD/static/adaad_tree_full.json",
+          "type": "file",
+          "size": 31,
+          "mtime": "2025-11-15T00:44:17-0600"
+        }
+      ],
+      "size": 4096,
+      "mtime": "2025-11-13T03:56:17-0600"
+    },
+    {
+      "name": "scaffolds",
+      "path": "/storage/emulated/0/ADAAD/scaffolds",
+      "type": "dir",
+      "children": [],
+      "size": 4096,
+      "mtime": "2025-10-10T13:26:39-0500"
+    },
+    {
+      "name": "sandbox",
+      "path": "/storage/emulated/0/ADAAD/sandbox",
+      "type": "dir",
+      "children": [],
+      "size": 4096,
+      "mtime": "2025-10-11T11:40:15-0500"
+    },
+    {
+      "name": "requirements.txt",
+      "path": "/storage/emulated/0/ADAAD/requirements.txt",
+      "type": "file",
+      "size": 864,
+      "mtime": "2025-11-01T22:41:27-0500"
+    },
+    {
+      "name": "reports",
+      "path": "/storage/emulated/0/ADAAD/reports",
+      "type": "dir",
+      "children": [
+        {
+          "name": "syntax_check.json",
+          "path": "/storage/emulated/0/ADAAD/reports/syntax_check.json",
+          "type": "file",
+          "size": 70463,
+          "mtime": "2025-10-17T09:14:22-0500"
+        },
+        {
+          "name": "patterns_dna.json",
+          "path": "/storage/emulated/0/ADAAD/reports/patterns_dna.json",
+          "type": "file",
+          "size": 1002,
+          "mtime": "2025-10-17T09:15:00-0500"
+        },
+        {
+          "name": "inventory_report.json",
+          "path": "/storage/emulated/0/ADAAD/reports/inventory_report.json",
+          "type": "file",
+          "size": 842731,
+          "mtime": "2025-10-17T09:15:11-0500"
+        },
+        {
+          "name": "goals_and_todo.json",
+          "path": "/storage/emulated/0/ADAAD/reports/goals_and_todo.json",
+          "type": "file",
+          "size": 108,
+          "mtime": "2025-10-17T09:14:51-0500"
+        },
+        {
+          "name": "disk_usage.json",
+          "path": "/storage/emulated/0/ADAAD/reports/disk_usage.json",
+          "type": "file",
+          "size": 3981,
+          "mtime": "2025-10-17T09:14:42-0500"
+        },
+        {
+          "name": "deps_report.json",
+          "path": "/storage/emulated/0/ADAAD/reports/deps_report.json",
+          "type": "file",
+          "size": 2790,
+          "mtime": "2025-10-17T09:13:34-0500"
+        },
+        {
+          "name": "core_modules_summary.json",
+          "path": "/storage/emulated/0/ADAAD/reports/core_modules_summary.json",
+          "type": "file",
+          "size": 91146,
+          "mtime": "2025-10-17T09:12:39-0500"
+        },
+        {
+          "name": "agents_summary.json",
+          "path": "/storage/emulated/0/ADAAD/reports/agents_summary.json",
+          "type": "file",
+          "size": 122927,
+          "mtime": "2025-10-17T09:13:00-0500"
+        }
+      ],
+      "size": 4096,
+      "mtime": "2025-10-17T09:15:00-0500"
+    },
+    {
+      "name": "quarantine",
+      "path": "/storage/emulated/0/ADAAD/quarantine",
+      "type": "dir",
+      "children": [],
+      "size": 4096,
+      "mtime": "2025-11-12T16:28:18-0600"
+    },
+    {
+      "name": "proposals",
+      "path": "/storage/emulated/0/ADAAD/proposals",
+      "type": "dir",
+      "children": [
+        {
+          "name": "warm_fallback_1762739721_2_1763168190.json",
+          "path": "/storage/emulated/0/ADAAD/proposals/warm_fallback_1762739721_2_1763168190.json",
+          "type": "file",
+          "size": 734,
+          "mtime": "2025-11-14T18:56:30-0600"
+        },
+        {
+          "name": "warm_fallback_1762739721_0_1763168190.json",
+          "path": "/storage/emulated/0/ADAAD/proposals/warm_fallback_1762739721_0_1763168190.json",
+          "type": "file",
+          "size": 734,
+          "mtime": "2025-11-14T18:56:30-0600"
+        },
+        {
+          "name": "warm_fallback_1762737151_1_1763168190.json",
+          "path": "/storage/emulated/0/ADAAD/proposals/warm_fallback_1762737151_1_1763168190.json",
+          "type": "file",
+          "size": 734,
+          "mtime": "2025-11-14T18:56:30-0600"
+        },
+        {
+          "name": "genesis_1763168190.json",
+          "path": "/storage/emulated/0/ADAAD/proposals/genesis_1763168190.json",
+          "type": "file",
+          "size": 54511,
+          "mtime": "2025-11-14T18:56:30-0600"
+        },
+        {
+          "name": "fusion_1763168190.json",
+          "path": "/storage/emulated/0/ADAAD/proposals/fusion_1763168190.json",
+          "type": "file",
+          "size": 8333,
+          "mtime": "2025-11-14T18:56:30-0600"
+        }
+      ],
+      "size": 12288,
+      "mtime": "2025-11-14T18:56:30-0600"
+    },
+    {
+      "name": "plugins",
+      "path": "/storage/emulated/0/ADAAD/plugins",
+      "type": "dir",
+      "children": [
+        {
+          "name": "testbed",
+          "path": "/storage/emulated/0/ADAAD/plugins/testbed",
+          "type": "dir",
+          "children": [
+            {
+              "name": "unit_converter.py",
+              "path": "/storage/emulated/0/ADAAD/plugins/testbed/unit_converter.py",
+              "type": "file",
+              "size": 556,
+              "mtime": "2025-11-13T03:12:30-0600"
+            },
+            {
+              "name": "tip_calculator.py",
+              "path": "/storage/emulated/0/ADAAD/plugins/testbed/tip_calculator.py",
+              "type": "file",
+              "size": 556,
+              "mtime": "2025-11-13T03:12:30-0600"
+            },
+            {
+              "name": "bmi_calculator.py",
+              "path": "/storage/emulated/0/ADAAD/plugins/testbed/bmi_calculator.py",
+              "type": "file",
+              "size": 556,
+              "mtime": "2025-11-13T03:12:30-0600"
+            }
+          ],
+          "size": 4096,
+          "mtime": "2025-11-13T02:22:20-0600"
+        },
+        {
+          "name": "scripts",
+          "path": "/storage/emulated/0/ADAAD/plugins/scripts",
+          "type": "dir",
+          "children": [
+            {
+              "name": "deploy_core_wiring.py",
+              "path": "/storage/emulated/0/ADAAD/plugins/scripts/deploy_core_wiring.py",
+              "type": "file",
+              "size": 10216,
+              "mtime": "2025-11-13T03:12:30-0600"
+            },
+            {
+              "name": "check_style.py",
+              "path": "/storage/emulated/0/ADAAD/plugins/scripts/check_style.py",
+              "type": "file",
+              "size": 2170,
+              "mtime": "2025-11-13T03:16:44-0600"
+            },
+            {
+              "name": "adaad_style_apply.py",
+              "path": "/storage/emulated/0/ADAAD/plugins/scripts/adaad_style_apply.py",
+              "type": "file",
+              "size": 11066,
+              "mtime": "2025-11-13T03:12:30-0600"
+            }
+          ],
+          "size": 4096,
+          "mtime": "2025-11-10T23:02:56-0600"
+        }
+      ],
+      "size": 4096,
+      "mtime": "2025-11-13T02:22:19-0600"
+    },
+    {
+      "name": "patch_broken_files.py",
+      "path": "/storage/emulated/0/ADAAD/patch_broken_files.py",
+      "type": "file",
+      "size": 1742,
+      "mtime": "2025-11-13T03:12:13-0600"
+    },
+    {
+      "name": "orchestrator_outputs",
+      "path": "/storage/emulated/0/ADAAD/orchestrator_outputs",
+      "type": "dir",
+      "children": [
+        {
+          "name": "metrics.jsonl",
+          "path": "/storage/emulated/0/ADAAD/orchestrator_outputs/metrics.jsonl",
+          "type": "file",
+          "size": 28665,
+          "mtime": "2025-10-30T23:28:16-0500"
+        }
+      ],
+      "size": 4096,
+      "mtime": "2025-10-30T23:23:46-0500"
+    },
+    {
+      "name": "marketplace",
+      "path": "/storage/emulated/0/ADAAD/marketplace",
+      "type": "dir",
+      "children": [
+        {
+          "name": "plugins",
+          "path": "/storage/emulated/0/ADAAD/marketplace/plugins",
+          "type": "dir",
+          "children": [
+            {
+              "name": "unit_converter.py",
+              "path": "/storage/emulated/0/ADAAD/marketplace/plugins/unit_converter.py",
+              "type": "file",
+              "size": 955,
+              "mtime": "2025-11-13T02:56:13-0600"
+            },
+            {
+              "name": "tunnel.py",
+              "path": "/storage/emulated/0/ADAAD/marketplace/plugins/tunnel.py",
+              "type": "file",
+              "size": 7244,
+              "mtime": "2025-10-15T15:30:47-0500"
+            },
+            {
+              "name": "tip_calculator.py",
+              "path": "/storage/emulated/0/ADAAD/marketplace/plugins/tip_calculator.py",
+              "type": "file",
+              "size": 785,
+              "mtime": "2025-11-13T02:55:51-0600"
+            },
+            {
+              "name": "testbed",
+              "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed",
+              "type": "dir",
+              "children": [
+                {
+                  "name": "settings.gradle.kts",
+                  "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/settings.gradle.kts",
+                  "type": "file",
+                  "size": 334,
+                  "mtime": "2025-10-09T19:29:40-0500"
+                },
+                {
+                  "name": "gradle.properties",
+                  "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/gradle.properties",
+                  "type": "file",
+                  "size": 1654,
+                  "mtime": "2025-10-09T19:29:38-0500"
+                },
+                {
+                  "name": "gradle",
+                  "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/gradle",
+                  "type": "dir",
+                  "children": [
+                    {
+                      "name": "wrapper",
+                      "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/gradle/wrapper",
+                      "type": "dir",
+                      "children": [
+                        {
+                          "name": "gradle-wrapper.properties",
+                          "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/gradle/wrapper/gradle-wrapper.properties",
+                          "type": "file",
+                          "size": 233,
+                          "mtime": "2025-10-09T19:29:38-0500"
+                        }
+                      ],
+                      "size": 4096,
+                      "mtime": "2025-10-10T13:40:31-0500"
+                    }
+                  ],
+                  "size": 4096,
+                  "mtime": "2025-10-10T13:40:31-0500"
+                },
+                {
+                  "name": "app",
+                  "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/app",
+                  "type": "dir",
+                  "children": [
+                    {
+                      "name": "src",
+                      "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/app/src",
+                      "type": "dir",
+                      "children": [
+                        {
+                          "name": "main",
+                          "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/app/src/main",
+                          "type": "dir",
+                          "children": [
+                            {
+                              "name": "res",
+                              "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/app/src/main/res",
+                              "type": "dir",
+                              "children": [
+                                {
+                                  "name": "values",
+                                  "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/app/src/main/res/values",
+                                  "type": "dir",
+                                  "children": [
+                                    {
+                                      "name": "strings.xml",
+                                      "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/app/src/main/res/values/strings.xml",
+                                      "type": "file",
+                                      "size": 76,
+                                      "mtime": "2025-10-09T19:29:39-0500"
+                                    }
+                                  ],
+                                  "size": 4096,
+                                  "mtime": "2025-10-10T13:40:31-0500"
+                                },
+                                {
+                                  "name": "layout",
+                                  "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/app/src/main/res/layout",
+                                  "type": "dir",
+                                  "children": [
+                                    {
+                                      "name": "activity_main.xml",
+                                      "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/app/src/main/res/layout/activity_main.xml",
+                                      "type": "file",
+                                      "size": 812,
+                                      "mtime": "2025-10-09T19:29:39-0500"
+                                    }
+                                  ],
+                                  "size": 4096,
+                                  "mtime": "2025-10-10T13:40:30-0500"
+                                }
+                              ],
+                              "size": 4096,
+                              "mtime": "2025-11-10T23:03:05-0600"
+                            },
+                            {
+                              "name": "python",
+                              "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/app/src/main/python",
+                              "type": "dir",
+                              "children": [
+                                {
+                                  "name": "android_testbed_main.py",
+                                  "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/app/src/main/python/android_testbed_main.py",
+                                  "type": "file",
+                                  "size": 1958,
+                                  "mtime": "2025-10-15T15:30:47-0500"
+                                }
+                              ],
+                              "size": 4096,
+                              "mtime": "2025-11-10T23:03:06-0600"
+                            },
+                            {
+                              "name": "java",
+                              "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/app/src/main/java",
+                              "type": "dir",
+                              "children": [
+                                {
+                                  "name": "org",
+                                  "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/app/src/main/java/org",
+                                  "type": "dir",
+                                  "children": [
+                                    {
+                                      "name": "python",
+                                      "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/app/src/main/java/org/python",
+                                      "type": "dir",
+                                      "children": [
+                                        {
+                                          "name": "testbed",
+                                          "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/app/src/main/java/org/python/testbed",
+                                          "type": "dir",
+                                          "children": [
+                                            {
+                                              "name": "MainActivity.kt",
+                                              "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/app/src/main/java/org/python/testbed/MainActivity.kt",
+                                              "type": "file",
+                                              "size": 3371,
+                                              "mtime": "2025-10-09T19:29:39-0500"
+                                            }
+                                          ],
+                                          "size": 4096,
+                                          "mtime": "2025-10-10T13:40:31-0500"
+                                        }
+                                      ],
+                                      "size": 4096,
+                                      "mtime": "2025-10-10T13:40:31-0500"
+                                    }
+                                  ],
+                                  "size": 4096,
+                                  "mtime": "2025-10-10T13:40:31-0500"
+                                }
+                              ],
+                              "size": 4096,
+                              "mtime": "2025-10-10T13:40:31-0500"
+                            },
+                            {
+                              "name": "c",
+                              "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/app/src/main/c",
+                              "type": "dir",
+                              "children": [
+                                {
+                                  "name": "main_activity.c",
+                                  "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/app/src/main/c/main_activity.c",
+                                  "type": "file",
+                                  "size": 4855,
+                                  "mtime": "2025-10-09T19:29:39-0500"
+                                },
+                                {
+                                  "name": "CMakeLists.txt",
+                                  "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/app/src/main/c/CMakeLists.txt",
+                                  "type": "file",
+                                  "size": 419,
+                                  "mtime": "2025-10-09T19:29:39-0500"
+                                }
+                              ],
+                              "size": 4096,
+                              "mtime": "2025-10-10T13:40:31-0500"
+                            },
+                            {
+                              "name": "AndroidManifest.xml",
+                              "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/app/src/main/AndroidManifest.xml",
+                              "type": "file",
+                              "size": 696,
+                              "mtime": "2025-10-09T19:29:39-0500"
+                            }
+                          ],
+                          "size": 4096,
+                          "mtime": "2025-10-10T13:40:31-0500"
+                        },
+                        {
+                          "name": "androidTest",
+                          "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/app/src/androidTest",
+                          "type": "dir",
+                          "children": [
+                            {
+                              "name": "java",
+                              "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/app/src/androidTest/java",
+                              "type": "dir",
+                              "children": [
+                                {
+                                  "name": "org",
+                                  "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/app/src/androidTest/java/org",
+                                  "type": "dir",
+                                  "children": [
+                                    {
+                                      "name": "python",
+                                      "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/app/src/androidTest/java/org/python",
+                                      "type": "dir",
+                                      "children": [
+                                        {
+                                          "name": "testbed",
+                                          "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/app/src/androidTest/java/org/python/testbed",
+                                          "type": "dir",
+                                          "children": [
+                                            {
+                                              "name": "PythonSuite.kt",
+                                              "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/app/src/androidTest/java/org/python/testbed/PythonSuite.kt",
+                                              "type": "file",
+                                              "size": 993,
+                                              "mtime": "2025-10-09T19:29:40-0500"
+                                            }
+                                          ],
+                                          "size": 4096,
+                                          "mtime": "2025-10-10T13:40:30-0500"
+                                        }
+                                      ],
+                                      "size": 4096,
+                                      "mtime": "2025-10-10T13:40:30-0500"
+                                    }
+                                  ],
+                                  "size": 4096,
+                                  "mtime": "2025-10-10T13:40:30-0500"
+                                }
+                              ],
+                              "size": 4096,
+                              "mtime": "2025-10-10T13:40:30-0500"
+                            }
+                          ],
+                          "size": 4096,
+                          "mtime": "2025-10-10T13:40:30-0500"
+                        }
+                      ],
+                      "size": 4096,
+                      "mtime": "2025-10-10T13:40:30-0500"
+                    },
+                    {
+                      "name": "build.gradle.kts",
+                      "path": "/storage/emulated/0/ADAAD/marketplace/plugins/testbed/app/build.gradle.kts",
+                      "type": "file",
+                      "size": 8544,
+                      "mtime": "2025-10-09T19:29:39-0500"
+                    }
+                  ],
+                  "size": 4096,
+                  "mtime": "2025-11-10T23:03:35-0600"
+                }
+              ],
+              "size": 4096,
+              "mtime": "2025-11-10T23:03:35-0600"
+            },
+            {
+              "name": "plugin_tip_calculator.py",
+              "path": "/storage/emulated/0/ADAAD/marketplace/plugins/plugin_tip_calculator.py",
+              "type": "file",
+              "size": 456,
+              "mtime": "2025-10-15T15:30:47-0500"
+            },
+            {
+              "name": "format_py.sh",
+              "path": "/storage/emulated/0/ADAAD/marketplace/plugins/format_py.sh",
+              "type": "file",
+              "size": 524,
+              "mtime": "2025-10-09T19:29:42-0500"
+            },
+            {
+              "name": "engineer_agent",
+              "path": "/storage/emulated/0/ADAAD/marketplace/plugins/engineer_agent",
+              "type": "dir",
+              "children": [
+                {
+                  "name": "stop_engineer.sh",
+                  "path": "/storage/emulated/0/ADAAD/marketplace/plugins/engineer_agent/stop_engineer.sh",
+                  "type": "file",
+                  "size": 69,
+                  "mtime": "2025-10-09T19:29:41-0500"
+                },
+                {
+                  "name": "run_engineer.sh",
+                  "path": "/storage/emulated/0/ADAAD/marketplace/plugins/engineer_agent/run_engineer.sh",
+                  "type": "file",
+                  "size": 1153,
+                  "mtime": "2025-10-09T19:29:41-0500"
+                },
+                {
+                  "name": "lwe.py",
+                  "path": "/storage/emulated/0/ADAAD/marketplace/plugins/engineer_agent/lwe.py",
+                  "type": "file",
+                  "size": 4833,
+                  "mtime": "2025-10-15T15:30:47-0500"
+                },
+                {
+                  "name": "fastapi_engineer.py",
+                  "path": "/storage/emulated/0/ADAAD/marketplace/plugins/engineer_agent/fastapi_engineer.py",
+                  "type": "file",
+                  "size": 3589,
+                  "mtime": "2025-10-15T15:30:47-0500"
+                },
+                {
+                  "name": "engineer_supervisor.sh",
+                  "path": "/storage/emulated/0/ADAAD/marketplace/plugins/engineer_agent/engineer_supervisor.sh",
+                  "type": "file",
+                  "size": 394,
+                  "mtime": "2025-10-09T19:29:40-0500"
+                },
+                {
+                  "name": "engineer_agent.py",
+                  "path": "/storage/emulated/0/ADAAD/marketplace/plugins/engineer_agent/engineer_agent.py",
+                  "type": "file",
+                  "size": 1096,
+                  "mtime": "2025-10-15T15:30:47-0500"
+                }
+              ],
+              "size": 4096,
+              "mtime": "2025-11-10T23:03:07-0600"
+            },
+            {
+              "name": "echo_plugin.sh",
+              "path": "/storage/emulated/0/ADAAD/marketplace/plugins/echo_plugin.sh",
+              "type": "file",
+              "size": 143,
+              "mtime": "2025-10-09T19:29:42-0500"
+            },
+            {
+              "name": "bmi_calculator.py",
+              "path": "/storage/emulated/0/ADAAD/marketplace/plugins/bmi_calculator.py",
+              "type": "file",
+              "size": 791,
+              "mtime": "2025-11-13T02:55:16-0600"
+            },
+            {
+              "name": "adaad_agent_post_and_stream.py",
+              "path": "/storage/emulated/0/ADAAD/marketplace/plugins/adaad_agent_post_and_stream.py",
+              "type": "file",
+              "size": 7112,
+              "mtime": "2025-10-15T15:30:47-0500"
+            }
+          ],
+          "size": 4096,
+          "mtime": "2025-11-10T23:04:02-0600"
+        }
+      ],
+      "size": 4096,
+      "mtime": "2025-11-13T02:53:31-0600"
+    },
+    {
+      "name": "main.py",
+      "path": "/storage/emulated/0/ADAAD/main.py",
+      "type": "file",
+      "size": 24673,
+      "mtime": "2025-11-13T08:59:17-0600"
+    },
+    {
+      "name": "logs",
+      "path": "/storage/emulated/0/ADAAD/logs",
+      "type": "dir",
+      "children": [
+        {
+          "name": "reports",
+          "path": "/storage/emulated/0/ADAAD/logs/reports",
+          "type": "dir",
+          "children": [],
+          "size": 4096,
+          "mtime": "2025-11-14T22:37:27-0600"
+        },
+        {
+          "name": "proposal_queue.jsonl",
+          "path": "/storage/emulated/0/ADAAD/logs/proposal_queue.jsonl",
+          "type": "file",
+          "size": 10185,
+          "mtime": "2025-11-14T18:31:54-0600"
+        },
+        {
+          "name": "orch_state.json",
+          "path": "/storage/emulated/0/ADAAD/logs/orch_state.json",
+          "type": "file",
+          "size": 75,
+          "mtime": "2025-11-15T02:07:53-0600"
+        },
+        {
+          "name": "mutation_feedback.jsonl",
+          "path": "/storage/emulated/0/ADAAD/logs/mutation_feedback.jsonl",
+          "type": "file",
+          "size": 18757,
+          "mtime": "2025-11-14T18:31:54-0600"
+        },
+        {
+          "name": "metrics.jsonl",
+          "path": "/storage/emulated/0/ADAAD/logs/metrics.jsonl",
+          "type": "file",
+          "size": 46750,
+          "mtime": "2025-11-12T17:30:54-0600"
+        },
+        {
+          "name": "lineage.jsonl",
+          "path": "/storage/emulated/0/ADAAD/logs/lineage.jsonl",
+          "type": "file",
+          "size": 52675,
+          "mtime": "2025-11-15T02:08:00-0600"
+        },
+        {
+          "name": "heartbeat.json",
+          "path": "/storage/emulated/0/ADAAD/logs/heartbeat.json",
+          "type": "file",
+          "size": 61,
+          "mtime": "2025-11-09T19:55:15-0600"
+        },
+        {
+          "name": "fitness.jsonl",
+          "path": "/storage/emulated/0/ADAAD/logs/fitness.jsonl",
+          "type": "file",
+          "size": 49764,
+          "mtime": "2025-11-15T02:08:00-0600"
+        },
+        {
+          "name": "failures.sqlite",
+          "path": "/storage/emulated/0/ADAAD/logs/failures.sqlite",
+          "type": "file",
+          "size": 12288,
+          "mtime": "2025-11-09T19:55:15-0600"
+        },
+        {
+          "name": "dashboard_state.json",
+          "path": "/storage/emulated/0/ADAAD/logs/dashboard_state.json",
+          "type": "file",
+          "size": 0,
+          "mtime": "2025-11-13T08:58:44-0600"
+        },
+        {
+          "name": "architect_history.jsonl",
+          "path": "/storage/emulated/0/ADAAD/logs/architect_history.jsonl",
+          "type": "file",
+          "size": 24587,
+          "mtime": "2025-11-14T18:56:30-0600"
+        },
+        {
+          "name": "aponi_unified.jsonl",
+          "path": "/storage/emulated/0/ADAAD/logs/aponi_unified.jsonl",
+          "type": "file",
+          "size": 2004,
+          "mtime": "2025-11-15T02:28:25-0600"
+        },
+        {
+          "name": "adaad_termux_boot.log",
+          "path": "/storage/emulated/0/ADAAD/logs/adaad_termux_boot.log",
+          "type": "file",
+          "size": 325,
+          "mtime": "2025-11-13T09:33:06-0600"
+        }
+      ],
+      "size": 4096,
+      "mtime": "2025-11-15T02:07:53-0600"
+    },
+    {
+      "name": "index.html",
+      "path": "/storage/emulated/0/ADAAD/index.html",
+      "type": "file",
+      "size": 203,
+      "mtime": "2025-11-08T02:54:25-0600"
+    },
+    {
+      "name": "generated_agents",
+      "path": "/storage/emulated/0/ADAAD/generated_agents",
+      "type": "dir",
+      "children": [
+        {
+          "name": "quarantine",
+          "path": "/storage/emulated/0/ADAAD/generated_agents/quarantine",
+          "type": "dir",
+          "children": [],
+          "size": 4096,
+          "mtime": "2025-11-13T02:04:09-0600"
+        }
+      ],
+      "size": 4096,
+      "mtime": "2025-11-13T02:04:09-0600"
+    },
+    {
+      "name": "experiments",
+      "path": "/storage/emulated/0/ADAAD/experiments",
+      "type": "dir",
+      "children": [],
+      "size": 200704,
+      "mtime": "2025-11-14T11:24:11-0600"
+    },
+    {
+      "name": "data",
+      "path": "/storage/emulated/0/ADAAD/data",
+      "type": "dir",
+      "children": [
+        {
+          "name": "supporters_stats.json",
+          "path": "/storage/emulated/0/ADAAD/data/supporters_stats.json",
+          "type": "file",
+          "size": 2021,
+          "mtime": "2025-10-09T19:30:23-0500"
+        },
+        {
+          "name": "patterns.json",
+          "path": "/storage/emulated/0/ADAAD/data/patterns.json",
+          "type": "file",
+          "size": 2588635,
+          "mtime": "2025-10-25T18:50:57-0500"
+        },
+        {
+          "name": "logs",
+          "path": "/storage/emulated/0/ADAAD/data/logs",
+          "type": "dir",
+          "children": [
+            {
+              "name": "todo_data.txt",
+              "path": "/storage/emulated/0/ADAAD/data/logs/todo_data.txt",
+              "type": "file",
+              "size": 8,
+              "mtime": "2025-10-09T19:30:25-0500"
+            },
+            {
+              "name": "startup_config.json",
+              "path": "/storage/emulated/0/ADAAD/data/logs/startup_config.json",
+              "type": "file",
+              "size": 43,
+              "mtime": "2025-10-09T19:30:27-0500"
+            },
+            {
+              "name": "scores.json",
+              "path": "/storage/emulated/0/ADAAD/data/logs/scores.json",
+              "type": "file",
+              "size": 3005,
+              "mtime": "2025-10-09T19:30:26-0500"
+            },
+            {
+              "name": "repair_log.txt",
+              "path": "/storage/emulated/0/ADAAD/data/logs/repair_log.txt",
+              "type": "file",
+              "size": 4900,
+              "mtime": "2025-10-09T19:30:28-0500"
+            },
+            {
+              "name": "reorg_log_old1.txt",
+              "path": "/storage/emulated/0/ADAAD/data/logs/reorg_log_old1.txt",
+              "type": "file",
+              "size": 2447,
+              "mtime": "2025-10-09T19:30:25-0500"
+            },
+            {
+              "name": "reorg_log.txt",
+              "path": "/storage/emulated/0/ADAAD/data/logs/reorg_log.txt",
+              "type": "file",
+              "size": 22581,
+              "mtime": "2025-10-09T19:30:27-0500"
+            },
+            {
+              "name": "lineage.json",
+              "path": "/storage/emulated/0/ADAAD/data/logs/lineage.json",
+              "type": "file",
+              "size": 1036263,
+              "mtime": "2025-10-09T19:30:24-0500"
+            },
+            {
+              "name": "knowledge_base.json",
+              "path": "/storage/emulated/0/ADAAD/data/logs/knowledge_base.json",
+              "type": "file",
+              "size": 94,
+              "mtime": "2025-10-09T19:30:26-0500"
+            },
+            {
+              "name": "goal.txt",
+              "path": "/storage/emulated/0/ADAAD/data/logs/goal.txt",
+              "type": "file",
+              "size": 50,
+              "mtime": "2025-10-09T19:30:24-0500"
+            },
+            {
+              "name": "goal.json",
+              "path": "/storage/emulated/0/ADAAD/data/logs/goal.json",
+              "type": "file",
+              "size": 201,
+              "mtime": "2025-10-09T19:30:28-0500"
+            },
+            {
+              "name": "cryovant_registry.json",
+              "path": "/storage/emulated/0/ADAAD/data/logs/cryovant_registry.json",
+              "type": "file",
+              "size": 996238,
+              "mtime": "2025-10-09T19:30:28-0500"
+            },
+            {
+              "name": "chat_memory.json",
+              "path": "/storage/emulated/0/ADAAD/data/logs/chat_memory.json",
+              "type": "file",
+              "size": 73,
+              "mtime": "2025-10-09T19:30:24-0500"
+            },
+            {
+              "name": "beastmode_ext.log.1",
+              "path": "/storage/emulated/0/ADAAD/data/logs/beastmode_ext.log.1",
+              "type": "file",
+              "size": 6123630,
+              "mtime": "2025-10-09T19:30:27-0500"
+            },
+            {
+              "name": "aadad_log.txt",
+              "path": "/storage/emulated/0/ADAAD/data/logs/aadad_log.txt",
+              "type": "file",
+              "size": 97,
+              "mtime": "2025-10-09T19:30:28-0500"
+            }
+          ],
+          "size": 4096,
+          "mtime": "2025-11-10T23:03:35-0600"
+        },
+        {
+          "name": "lineage_log.json",
+          "path": "/storage/emulated/0/ADAAD/data/lineage_log.json",
+          "type": "file",
+          "size": 151886,
+          "mtime": "2025-10-16T16:26:30-0500"
+        },
+        {
+          "name": "lineage.jsonl",
+          "path": "/storage/emulated/0/ADAAD/data/lineage.jsonl",
+          "type": "file",
+          "size": 17068,
+          "mtime": "2025-11-14T00:40:15-0600"
+        },
+        {
+          "name": "idea_history.json",
+          "path": "/storage/emulated/0/ADAAD/data/idea_history.json",
+          "type": "file",
+          "size": 16196,
+          "mtime": "2025-10-09T19:30:23-0500"
+        },
+        {
+          "name": "fitness.jsonl",
+          "path": "/storage/emulated/0/ADAAD/data/fitness.jsonl",
+          "type": "file",
+          "size": 17068,
+          "mtime": "2025-11-14T00:40:15-0600"
+        },
+        {
+          "name": "creation_log.json",
+          "path": "/storage/emulated/0/ADAAD/data/creation_log.json",
+          "type": "file",
+          "size": 40024,
+          "mtime": "2025-10-25T18:50:57-0500"
+        },
+        {
+          "name": "created_agents.json",
+          "path": "/storage/emulated/0/ADAAD/data/created_agents.json",
+          "type": "file",
+          "size": 2426,
+          "mtime": "2025-10-16T11:55:02-0500"
+        },
+        {
+          "name": "beast_state.json",
+          "path": "/storage/emulated/0/ADAAD/data/beast_state.json",
+          "type": "file",
+          "size": 1197,
+          "mtime": "2025-10-16T23:18:10-0500"
+        },
+        {
+          "name": "architect_proposals",
+          "path": "/storage/emulated/0/ADAAD/data/architect_proposals",
+          "type": "dir",
+          "children": [],
+          "size": 4096,
+          "mtime": "2025-11-13T06:07:46-0600"
+        },
+        {
+          "name": "architect_metrics.jsonl",
+          "path": "/storage/emulated/0/ADAAD/data/architect_metrics.jsonl",
+          "type": "file",
+          "size": 325,
+          "mtime": "2025-11-13T22:37:57-0600"
+        },
+        {
+          "name": "architect_aprovals",
+          "path": "/storage/emulated/0/ADAAD/data/architect_aprovals",
+          "type": "dir",
+          "children": [],
+          "size": 4096,
+          "mtime": "2025-11-13T06:07:59-0600"
+        },
+        {
+          "name": "agent_status.json",
+          "path": "/storage/emulated/0/ADAAD/data/agent_status.json",
+          "type": "file",
+          "size": 1980,
+          "mtime": "2025-10-11T23:39:32-0500"
+        },
+        {
+          "name": "agent_runs.json",
+          "path": "/storage/emulated/0/ADAAD/data/agent_runs.json",
+          "type": "file",
+          "size": 16,
+          "mtime": "2025-10-10T13:58:42-0500"
+        },
+        {
+          "name": "adaad_structure_report.json",
+          "path": "/storage/emulated/0/ADAAD/data/adaad_structure_report.json",
+          "type": "file",
+          "size": 64650,
+          "mtime": "2025-11-13T06:07:04-0600"
+        },
+        {
+          "name": "adaad_structure_report (1).json",
+          "path": "/storage/emulated/0/ADAAD/data/adaad_structure_report (1).json",
+          "type": "file",
+          "size": 65557,
+          "mtime": "2025-11-13T22:32:15-0600"
+        },
+        {
+          "name": "adaad.sqlite3",
+          "path": "/storage/emulated/0/ADAAD/data/adaad.sqlite3",
+          "type": "file",
+          "size": 32768,
+          "mtime": "2025-10-10T10:04:01-0500"
+        }
+      ],
+      "size": 4096,
+      "mtime": "2025-11-14T11:22:10-0600"
+    },
+    {
+      "name": "dash.html",
+      "path": "/storage/emulated/0/ADAAD/dash.html",
+      "type": "file",
+      "size": 118220,
+      "mtime": "2025-11-08T12:20:33-0600"
+    },
+    {
+      "name": "cryovant_key.bin",
+      "path": "/storage/emulated/0/ADAAD/cryovant_key.bin",
+      "type": "file",
+      "size": 32,
+      "mtime": "2025-10-25T20:09:50-0500"
+    },
+    {
+      "name": "cryovant_data",
+      "path": "/storage/emulated/0/ADAAD/cryovant_data",
+      "type": "dir",
+      "children": [
+        {
+          "name": "registry.json",
+          "path": "/storage/emulated/0/ADAAD/cryovant_data/registry.json",
+          "type": "file",
+          "size": 968,
+          "mtime": "2025-10-09T19:30:40-0500"
+        },
+        {
+          "name": "logs",
+          "path": "/storage/emulated/0/ADAAD/cryovant_data/logs",
+          "type": "dir",
+          "children": [
+            {
+              "name": "agent_lifecycle.jsonl",
+              "path": "/storage/emulated/0/ADAAD/cryovant_data/logs/agent_lifecycle.jsonl",
+              "type": "file",
+              "size": 102,
+              "mtime": "2025-10-09T19:30:40-0500"
+            }
+          ],
+          "size": 4096,
+          "mtime": "2025-10-10T13:38:14-0500"
+        },
+        {
+          "name": "keys",
+          "path": "/storage/emulated/0/ADAAD/cryovant_data/keys",
+          "type": "dir",
+          "children": [],
+          "size": 4096,
+          "mtime": "2025-11-13T06:05:58-0600"
+        },
+        {
+          "name": "cryovant.db",
+          "path": "/storage/emulated/0/ADAAD/cryovant_data/cryovant.db",
+          "type": "file",
+          "size": 20480,
+          "mtime": "2025-10-09T22:57:43-0500"
+        },
+        {
+          "name": "agents",
+          "path": "/storage/emulated/0/ADAAD/cryovant_data/agents",
+          "type": "dir",
+          "children": [
+            {
+              "name": "test_agent_3",
+              "path": "/storage/emulated/0/ADAAD/cryovant_data/agents/test_agent_3",
+              "type": "dir",
+              "children": [
+                {
+                  "name": "agent.py",
+                  "path": "/storage/emulated/0/ADAAD/cryovant_data/agents/test_agent_3/agent.py",
+                  "type": "file",
+                  "size": 259,
+                  "mtime": "2025-10-15T15:30:46-0500"
+                }
+              ],
+              "size": 4096,
+              "mtime": "2025-11-10T23:02:56-0600"
+            }
+          ],
+          "size": 4096,
+          "mtime": "2025-11-10T23:03:38-0600"
+        }
+      ],
+      "size": 4096,
+      "mtime": "2025-11-13T06:05:58-0600"
+    },
+    {
+      "name": "core_api.py",
+      "path": "/storage/emulated/0/ADAAD/core_api.py",
+      "type": "file",
+      "size": 1841,
+      "mtime": "2025-11-01T05:26:43-0500"
+    },
+    {
+      "name": "core",
+      "path": "/storage/emulated/0/ADAAD/core",
+      "type": "dir",
+      "children": [
+        {
+          "name": "watchdog.py",
+          "path": "/storage/emulated/0/ADAAD/core/watchdog.py",
+          "type": "file",
+          "size": 2874,
+          "mtime": "2025-10-15T15:30:44-0500"
+        },
+        {
+          "name": "watch_and_sync.py",
+          "path": "/storage/emulated/0/ADAAD/core/watch_and_sync.py",
+          "type": "file",
+          "size": 5244,
+          "mtime": "2025-10-15T15:30:43-0500"
+        },
+        {
+          "name": "warm_pool.py",
+          "path": "/storage/emulated/0/ADAAD/core/warm_pool.py",
+          "type": "file",
+          "size": 5098,
+          "mtime": "2025-10-25T19:17:07-0500"
+        },
+        {
+          "name": "vuln_hint.py",
+          "path": "/storage/emulated/0/ADAAD/core/vuln_hint.py",
+          "type": "file",
+          "size": 6070,
+          "mtime": "2025-10-15T15:30:43-0500"
+        },
+        {
+          "name": "versioning.py",
+          "path": "/storage/emulated/0/ADAAD/core/versioning.py",
+          "type": "file",
+          "size": 1608,
+          "mtime": "2025-10-15T15:30:42-0500"
+        },
+        {
+          "name": "verification.py",
+          "path": "/storage/emulated/0/ADAAD/core/verification.py",
+          "type": "file",
+          "size": 1634,
+          "mtime": "2025-10-16T16:38:45-0500"
+        },
+        {
+          "name": "tools",
+          "path": "/storage/emulated/0/ADAAD/core/tools",
+          "type": "dir",
+          "children": [
+            {
+              "name": "task_queue.py",
+              "path": "/storage/emulated/0/ADAAD/core/tools/task_queue.py",
+              "type": "file",
+              "size": 1364,
+              "mtime": "2025-10-15T15:30:43-0500"
+            },
+            {
+              "name": "llm_openai.py",
+              "path": "/storage/emulated/0/ADAAD/core/tools/llm_openai.py",
+              "type": "file",
+              "size": 1524,
+              "mtime": "2025-10-15T15:30:43-0500"
+            },
+            {
+              "name": "llm_interface.py",
+              "path": "/storage/emulated/0/ADAAD/core/tools/llm_interface.py",
+              "type": "file",
+              "size": 1293,
+              "mtime": "2025-10-15T15:30:43-0500"
+            },
+            {
+              "name": "llm_adapter.py",
+              "path": "/storage/emulated/0/ADAAD/core/tools/llm_adapter.py",
+              "type": "file",
+              "size": 1263,
+              "mtime": "2025-10-15T15:30:42-0500"
+            }
+          ],
+          "size": 4096,
+          "mtime": "2025-11-14T09:36:45-0600"
+        },
+        {
+          "name": "test_orch.py",
+          "path": "/storage/emulated/0/ADAAD/core/test_orch.py",
+          "type": "file",
+          "size": 2018,
+          "mtime": "2025-11-09T19:07:34-0600"
+        },
+        {
+          "name": "test_gen.py",
+          "path": "/storage/emulated/0/ADAAD/core/test_gen.py",
+          "type": "file",
+          "size": 1144,
+          "mtime": "2025-10-15T15:30:44-0500"
+        },
+        {
+          "name": "task_worker.py",
+          "path": "/storage/emulated/0/ADAAD/core/task_worker.py",
+          "type": "file",
+          "size": 946,
+          "mtime": "2025-11-11T01:23:55-0600"
+        },
+        {
+          "name": "task_runner.py",
+          "path": "/storage/emulated/0/ADAAD/core/task_runner.py",
+          "type": "file",
+          "size": 937,
+          "mtime": "2025-11-11T01:08:42-0600"
+        },
+        {
+          "name": "storage.py",
+          "path": "/storage/emulated/0/ADAAD/core/storage.py",
+          "type": "file",
+          "size": 2742,
+          "mtime": "2025-10-15T15:30:44-0500"
+        },
+        {
+          "name": "state.py",
+          "path": "/storage/emulated/0/ADAAD/core/state.py",
+          "type": "file",
+          "size": 1191,
+          "mtime": "2025-10-15T15:30:42-0500"
+        },
+        {
+          "name": "site_sandbox.py",
+          "path": "/storage/emulated/0/ADAAD/core/site_sandbox.py",
+          "type": "file",
+          "size": 2527,
+          "mtime": "2025-10-15T15:30:44-0500"
+        },
+        {
+          "name": "signing.py",
+          "path": "/storage/emulated/0/ADAAD/core/signing.py",
+          "type": "file",
+          "size": 4440,
+          "mtime": "2025-10-15T15:30:42-0500"
+        },
+        {
+          "name": "self_heal_loop.py",
+          "path": "/storage/emulated/0/ADAAD/core/self_heal_loop.py",
+          "type": "file",
+          "size": 382,
+          "mtime": "2025-10-15T15:30:43-0500"
+        },
+        {
+          "name": "security",
+          "path": "/storage/emulated/0/ADAAD/core/security",
+          "type": "dir",
+          "children": [
+            {
+              "name": "security_scanner.py",
+              "path": "/storage/emulated/0/ADAAD/core/security/security_scanner.py",
+              "type": "file",
+              "size": 2488,
+              "mtime": "2025-10-15T15:30:42-0500"
+            },
+            {
+              "name": "sandbox_runner.py",
+              "path": "/storage/emulated/0/ADAAD/core/security/sandbox_runner.py",
+              "type": "file",
+              "size": 4802,
+              "mtime": "2025-11-11T01:30:32-0600"
+            },
+            {
+              "name": "sandbox_limits.py",
+              "path": "/storage/emulated/0/ADAAD/core/security/sandbox_limits.py",
+              "type": "file",
+              "size": 1286,
+              "mtime": "2025-10-15T15:30:42-0500"
+            },
+            {
+              "name": "quarantine_ui.py",
+              "path": "/storage/emulated/0/ADAAD/core/security/quarantine_ui.py",
+              "type": "file",
+              "size": 6935,
+              "mtime": "2025-11-13T01:40:27-0600"
+            },
+            {
+              "name": "quarantine_scheduler.py",
+              "path": "/storage/emulated/0/ADAAD/core/security/quarantine_scheduler.py",
+              "type": "file",
+              "size": 4467,
+              "mtime": "2025-11-13T01:41:17-0600"
+            },
+            {
+              "name": "quarantine_repair.py",
+              "path": "/storage/emulated/0/ADAAD/core/security/quarantine_repair.py",
+              "type": "file",
+              "size": 9419,
+              "mtime": "2025-11-13T01:36:59-0600"
+            },
+            {
+              "name": "quarantine_manager.py",
+              "path": "/storage/emulated/0/ADAAD/core/security/quarantine_manager.py",
+              "type": "file",
+              "size": 6732,
+              "mtime": "2025-11-13T01:39:30-0600"
+            },
+            {
+              "name": "memory",
+              "path": "/storage/emulated/0/ADAAD/core/security/memory",
+              "type": "dir",
+              "children": [
+                {
+                  "name": "repair_work",
+                  "path": "/storage/emulated/0/ADAAD/core/security/memory/repair_work",
+                  "type": "dir",
+                  "children": [],
+                  "size": 4096,
+                  "mtime": "2025-11-13T01:35:00-0600"
+                },
+                {
+                  "name": "keys",
+                  "path": "/storage/emulated/0/ADAAD/core/security/memory/keys",
+                  "type": "dir",
+                  "children": [],
+                  "size": 4096,
+                  "mtime": "2025-11-13T02:06:54-0600"
+                },
+                {
+                  "name": "artifacts",
+                  "path": "/storage/emulated/0/ADAAD/core/security/memory/artifacts",
+                  "type": "dir",
+                  "children": [],
+                  "size": 4096,
+                  "mtime": "2025-11-13T02:06:54-0600"
+                }
+              ],
+              "size": 4096,
+              "mtime": "2025-11-13T02:06:54-0600"
+            },
+            {
+              "name": "cryovant",
+              "path": "/storage/emulated/0/ADAAD/core/security/cryovant",
+              "type": "dir",
+              "children": [
+                {
+                  "name": "safe_executor.py",
+                  "path": "/storage/emulated/0/ADAAD/core/security/cryovant/safe_executor.py",
+                  "type": "file",
+                  "size": 3226,
+                  "mtime": "2025-11-10T23:19:57-0600"
+                },
+                {
+                  "name": "policy_engine.py",
+                  "path": "/storage/emulated/0/ADAAD/core/security/cryovant/policy_engine.py",
+                  "type": "file",
+                  "size": 3647,
+                  "mtime": "2025-11-10T23:19:57-0600"
+                },
+                {
+                  "name": "log_manager.py",
+                  "path": "/storage/emulated/0/ADAAD/core/security/cryovant/log_manager.py",
+                  "type": "file",
+                  "size": 1869,
+                  "mtime": "2025-11-10T23:19:57-0600"
+                },
+                {
+                  "name": "cryovant_ui.py",
+                  "path": "/storage/emulated/0/ADAAD/core/security/cryovant/cryovant_ui.py",
+                  "type": "file",
+                  "size": 6482,
+                  "mtime": "2025-11-10T23:19:57-0600"
+                },
+                {
+                  "name": "cryovant_api.py",
+                  "path": "/storage/emulated/0/ADAAD/core/security/cryovant/cryovant_api.py",
+                  "type": "file",
+                  "size": 12923,
+                  "mtime": "2025-11-10T23:19:57-0600"
+                },
+                {
+                  "name": "cryovant.py",
+                  "path": "/storage/emulated/0/ADAAD/core/security/cryovant/cryovant.py",
+                  "type": "file",
+                  "size": 13363,
+                  "mtime": "2025-11-10T23:19:57-0600"
+                },
+                {
+                  "name": "core.py",
+                  "path": "/storage/emulated/0/ADAAD/core/security/cryovant/core.py",
+                  "type": "file",
+                  "size": 5613,
+                  "mtime": "2025-11-10T23:19:57-0600"
+                },
+                {
+                  "name": "config.py",
+                  "path": "/storage/emulated/0/ADAAD/core/security/cryovant/config.py",
+                  "type": "file",
+                  "size": 3214,
+                  "mtime": "2025-11-10T23:19:57-0600"
+                },
+                {
+                  "name": "cli.py",
+                  "path": "/storage/emulated/0/ADAAD/core/security/cryovant/cli.py",
+                  "type": "file",
+                  "size": 5708,
+                  "mtime": "2025-11-10T23:19:57-0600"
+                },
+                {
+                  "name": "cert_manager.py",
+                  "path": "/storage/emulated/0/ADAAD/core/security/cryovant/cert_manager.py",
+                  "type": "file",
+                  "size": 4582,
+                  "mtime": "2025-11-10T23:19:57-0600"
+                },
+                {
+                  "name": "api.py",
+                  "path": "/storage/emulated/0/ADAAD/core/security/cryovant/api.py",
+                  "type": "file",
+                  "size": 4367,
+                  "mtime": "2025-11-10T23:19:57-0600"
+                }
+              ],
+              "size": 4096,
+              "mtime": "2025-11-13T01:44:09-0600"
+            },
+            {
+              "name": "__pycache__",
+              "path": "/storage/emulated/0/ADAAD/core/security/__pycache__",
+              "type": "dir",
+              "children": [],
+              "size": 4096,
+              "mtime": "2025-11-14T11:26:15-0600"
+            },
+            {
+              "name": "__init__.py",
+              "path": "/storage/emulated/0/ADAAD/core/security/__init__.py",
+              "type": "file",
+              "size": 268,
+              "mtime": "2025-11-14T09:17:05-0600"
+            }
+          ],
+          "size": 4096,
+          "mtime": "2025-11-13T01:43:42-0600"
+        },
+        {
+          "name": "scorer.py",
+          "path": "/storage/emulated/0/ADAAD/core/scorer.py",
+          "type": "file",
+          "size": 14163,
+          "mtime": "2025-10-15T15:30:43-0500"
+        },
+        {
+          "name": "schema.sql",
+          "path": "/storage/emulated/0/ADAAD/core/schema.sql",
+          "type": "file",
+          "size": 987,
+          "mtime": "2025-10-10T10:02:18-0500"
+        },
+        {
+          "name": "scheduler.py",
+          "path": "/storage/emulated/0/ADAAD/core/scheduler.py",
+          "type": "file",
+          "size": 17191,
+          "mtime": "2025-10-15T15:30:42-0500"
+        },
+        {
+          "name": "sandbox_runner.py",
+          "path": "/storage/emulated/0/ADAAD/core/sandbox_runner.py",
+          "type": "file",
+          "size": 1944,
+          "mtime": "2025-11-11T01:25:48-0600"
+        },
+        {
+          "name": "safe_eval.py",
+          "path": "/storage/emulated/0/ADAAD/core/safe_eval.py",
+          "type": "file",
+          "size": 3501,
+          "mtime": "2025-10-15T15:30:43-0500"
+        },
+        {
+          "name": "runtime.py",
+          "path": "/storage/emulated/0/ADAAD/core/runtime.py",
+          "type": "file",
+          "size": 6901,
+          "mtime": "2025-10-15T15:30:43-0500"
+        },
+        {
+          "name": "rules_engine.py",
+          "path": "/storage/emulated/0/ADAAD/core/rules_engine.py",
+          "type": "file",
+          "size": 1470,
+          "mtime": "2025-10-15T15:30:43-0500"
+        },
+        {
+          "name": "retry_policy.py",
+          "path": "/storage/emulated/0/ADAAD/core/retry_policy.py",
+          "type": "file",
+          "size": 619,
+          "mtime": "2025-10-15T15:30:44-0500"
+        },
+        {
+          "name": "repo_health.py",
+          "path": "/storage/emulated/0/ADAAD/core/repo_health.py",
+          "type": "file",
+          "size": 2826,
+          "mtime": "2025-10-15T15:30:44-0500"
+        },
+        {
+          "name": "repair_fallback.py",
+          "path": "/storage/emulated/0/ADAAD/core/repair_fallback.py",
+          "type": "file",
+          "size": 328,
+          "mtime": "2025-10-15T15:30:44-0500"
+        },
+        {
+          "name": "repair_agent.py",
+          "path": "/storage/emulated/0/ADAAD/core/repair_agent.py",
+          "type": "file",
+          "size": 7255,
+          "mtime": "2025-10-31T02:13:15-0500"
+        },
+        {
+          "name": "registry.py",
+          "path": "/storage/emulated/0/ADAAD/core/registry.py",
+          "type": "file",
+          "size": 1588,
+          "mtime": "2025-10-15T15:30:45-0500"
+        },
+        {
+          "name": "ramseis_upgrade.py",
+          "path": "/storage/emulated/0/ADAAD/core/ramseis_upgrade.py",
+          "type": "file",
+          "size": 669,
+          "mtime": "2025-10-16T11:55:01-0500"
+        },
+        {
+          "name": "pythonpath_patch.py",
+          "path": "/storage/emulated/0/ADAAD/core/pythonpath_patch.py",
+          "type": "file",
+          "size": 118,
+          "mtime": "2025-10-15T15:30:43-0500"
+        },
+        {
+          "name": "promotion_reporter.py",
+          "path": "/storage/emulated/0/ADAAD/core/promotion_reporter.py",
+          "type": "file",
+          "size": 674,
+          "mtime": "2025-10-15T15:30:43-0500"
+        },
+        {
+          "name": "profit_engine.py",
+          "path": "/storage/emulated/0/ADAAD/core/profit_engine.py",
+          "type": "file",
+          "size": 5204,
+          "mtime": "2025-10-31T03:22:44-0500"
+        },
+        {
+          "name": "plugin_manager.py",
+          "path": "/storage/emulated/0/ADAAD/core/plugin_manager.py",
+          "type": "file",
+          "size": 3906,
+          "mtime": "2025-11-13T02:59:51-0600"
+        },
+        {
+          "name": "plugin_loader_hook.py",
+          "path": "/storage/emulated/0/ADAAD/core/plugin_loader_hook.py",
+          "type": "file",
+          "size": 748,
+          "mtime": "2025-10-15T15:30:45-0500"
+        },
+        {
+          "name": "plugin_loader.py",
+          "path": "/storage/emulated/0/ADAAD/core/plugin_loader.py",
+          "type": "file",
+          "size": 881,
+          "mtime": "2025-10-15T15:30:43-0500"
+        },
+        {
+          "name": "play_audio.py",
+          "path": "/storage/emulated/0/ADAAD/core/play_audio.py",
+          "type": "file",
+          "size": 3897,
+          "mtime": "2025-10-15T15:30:42-0500"
+        },
+        {
+          "name": "planner.py",
+          "path": "/storage/emulated/0/ADAAD/core/planner.py",
+          "type": "file",
+          "size": 2284,
+          "mtime": "2025-10-15T15:30:45-0500"
+        },
+        {
+          "name": "patterns.py",
+          "path": "/storage/emulated/0/ADAAD/core/patterns.py",
+          "type": "file",
+          "size": 12821,
+          "mtime": "2025-10-15T15:30:43-0500"
+        },
+        {
+          "name": "pattern_saver.py",
+          "path": "/storage/emulated/0/ADAAD/core/pattern_saver.py",
+          "type": "file",
+          "size": 1117,
+          "mtime": "2025-10-15T15:30:45-0500"
+        },
+        {
+          "name": "negotiator.py",
+          "path": "/storage/emulated/0/ADAAD/core/negotiator.py",
+          "type": "file",
+          "size": 1834,
+          "mtime": "2025-10-15T15:30:44-0500"
+        },
+        {
+          "name": "metrics_manager.py",
+          "path": "/storage/emulated/0/ADAAD/core/metrics_manager.py",
+          "type": "file",
+          "size": 6054,
+          "mtime": "2025-11-14T09:35:59-0600"
+        },
+        {
+          "name": "memory.py",
+          "path": "/storage/emulated/0/ADAAD/core/memory.py",
+          "type": "file",
+          "size": 1892,
+          "mtime": "2025-10-15T15:30:42-0500"
+        },
+        {
+          "name": "marketplace.py",
+          "path": "/storage/emulated/0/ADAAD/core/marketplace.py",
+          "type": "file",
+          "size": 4628,
+          "mtime": "2025-10-15T15:30:44-0500"
+        },
+        {
+          "name": "improvement_engine.py",
+          "path": "/storage/emulated/0/ADAAD/core/improvement_engine.py",
+          "type": "file",
+          "size": 2681,
+          "mtime": "2025-10-16T16:38:12-0500"
+        },
+        {
+          "name": "improve_existing_agents.py",
+          "path": "/storage/emulated/0/ADAAD/core/improve_existing_agents.py",
+          "type": "file",
+          "size": 1295,
+          "mtime": "2025-10-15T15:30:44-0500"
+        },
+        {
+          "name": "helpers.py",
+          "path": "/storage/emulated/0/ADAAD/core/helpers.py",
+          "type": "file",
+          "size": 595,
+          "mtime": "2025-10-31T03:21:49-0500"
+        },
+        {
+          "name": "gui_aponi_bridge.py",
+          "path": "/storage/emulated/0/ADAAD/core/gui_aponi_bridge.py",
+          "type": "file",
+          "size": 639,
+          "mtime": "2025-10-15T20:36:56-0500"
+        },
+        {
+          "name": "goal_manager.py",
+          "path": "/storage/emulated/0/ADAAD/core/goal_manager.py",
+          "type": "file",
+          "size": 2908,
+          "mtime": "2025-10-16T16:36:53-0500"
+        },
+        {
+          "name": "generate_token.py",
+          "path": "/storage/emulated/0/ADAAD/core/generate_token.py",
+          "type": "file",
+          "size": 376,
+          "mtime": "2025-10-15T20:33:21-0500"
+        },
+        {
+          "name": "failure_index.py",
+          "path": "/storage/emulated/0/ADAAD/core/failure_index.py",
+          "type": "file",
+          "size": 6375,
+          "mtime": "2025-11-09T19:58:18-0600"
+        },
+        {
+          "name": "executor.py",
+          "path": "/storage/emulated/0/ADAAD/core/executor.py",
+          "type": "file",
+          "size": 3403,
+          "mtime": "2025-10-15T15:30:45-0500"
+        },
+        {
+          "name": "eventbus.py",
+          "path": "/storage/emulated/0/ADAAD/core/eventbus.py",
+          "type": "file",
+          "size": 495,
+          "mtime": "2025-10-15T15:30:43-0500"
+        },
+        {
+          "name": "evaluator.py",
+          "path": "/storage/emulated/0/ADAAD/core/evaluator.py",
+          "type": "file",
+          "size": 420,
+          "mtime": "2025-10-15T15:30:44-0500"
+        },
+        {
+          "name": "engine",
+          "path": "/storage/emulated/0/ADAAD/core/engine",
+          "type": "dir",
+          "children": [
+            {
+              "name": "mutation_engine.py",
+              "path": "/storage/emulated/0/ADAAD/core/engine/mutation_engine.py",
+              "type": "file",
+              "size": 15925,
+              "mtime": "2025-11-14T00:39:58-0600"
+            },
+            {
+              "name": "main.py",
+              "path": "/storage/emulated/0/ADAAD/core/engine/main.py",
+              "type": "file",
+              "size": 24673,
+              "mtime": "2025-11-13T08:54:12-0600"
+            },
+            {
+              "name": "auto_evolver.py",
+              "path": "/storage/emulated/0/ADAAD/core/engine/auto_evolver.py",
+              "type": "file",
+              "size": 3821,
+              "mtime": "2025-10-15T15:30:44-0500"
+            },
+            {
+              "name": "agent_runner.py",
+              "path": "/storage/emulated/0/ADAAD/core/engine/agent_runner.py",
+              "type": "file",
+              "size": 3265,
+              "mtime": "2025-10-16T12:29:26-0500"
+            },
+            {
+              "name": "agent_manager.py",
+              "path": "/storage/emulated/0/ADAAD/core/engine/agent_manager.py",
+              "type": "file",
+              "size": 6573,
+              "mtime": "2025-10-15T15:30:44-0500"
+            },
+            {
+              "name": "agent_lifecycle.py",
+              "path": "/storage/emulated/0/ADAAD/core/engine/agent_lifecycle.py",
+              "type": "file",
+              "size": 1885,
+              "mtime": "2025-10-16T16:15:33-0500"
+            },
+            {
+              "name": "__pycache__",
+              "path": "/storage/emulated/0/ADAAD/core/engine/__pycache__",
+              "type": "dir",
+              "children": [],
+              "size": 4096,
+              "mtime": "2025-11-14T11:25:41-0600"
+            }
+          ],
+          "size": 4096,
+          "mtime": "2025-11-14T00:01:03-0600"
+        },
+        {
+          "name": "dream_task_example.py",
+          "path": "/storage/emulated/0/ADAAD/core/dream_task_example.py",
+          "type": "file",
+          "size": 708,
+          "mtime": "2025-10-29T21:55:56-0500"
+        },
+        {
+          "name": "dream_state.json",
+          "path": "/storage/emulated/0/ADAAD/core/dream_state.json",
+          "type": "file",
+          "size": 1615,
+          "mtime": "2025-10-31T01:54:16-0500"
+        },
+        {
+          "name": "dream_mode_fallback_minimal.py",
+          "path": "/storage/emulated/0/ADAAD/core/dream_mode_fallback_minimal.py",
+          "type": "file",
+          "size": 638,
+          "mtime": "2025-10-15T15:30:43-0500"
+        },
+        {
+          "name": "dream_mode_config.json",
+          "path": "/storage/emulated/0/ADAAD/core/dream_mode_config.json",
+          "type": "file",
+          "size": 252,
+          "mtime": "2025-10-10T13:09:08-0500"
+        },
+        {
+          "name": "dream_mode.py",
+          "path": "/storage/emulated/0/ADAAD/core/dream_mode.py",
+          "type": "file",
+          "size": 35508,
+          "mtime": "2025-10-29T21:53:50-0500"
+        },
+        {
+          "name": "dna_manager.py",
+          "path": "/storage/emulated/0/ADAAD/core/dna_manager.py",
+          "type": "file",
+          "size": 1633,
+          "mtime": "2025-10-15T15:30:42-0500"
+        },
+        {
+          "name": "dna.py",
+          "path": "/storage/emulated/0/ADAAD/core/dna.py",
+          "type": "file",
+          "size": 13477,
+          "mtime": "2025-10-15T15:30:42-0500"
+        },
+        {
+          "name": "determinism.py",
+          "path": "/storage/emulated/0/ADAAD/core/determinism.py",
+          "type": "file",
+          "size": 1242,
+          "mtime": "2025-10-15T15:30:43-0500"
+        },
+        {
+          "name": "deploy_engine.py",
+          "path": "/storage/emulated/0/ADAAD/core/deploy_engine.py",
+          "type": "file",
+          "size": 3299,
+          "mtime": "2025-10-15T15:30:44-0500"
+        },
+        {
+          "name": "dependency.py",
+          "path": "/storage/emulated/0/ADAAD/core/dependency.py",
+          "type": "file",
+          "size": 1096,
+          "mtime": "2025-10-15T15:30:44-0500"
+        },
+        {
+          "name": "cryovant_key.bin",
+          "path": "/storage/emulated/0/ADAAD/core/cryovant_key.bin",
+          "type": "file",
+          "size": 32,
+          "mtime": "2025-11-12T16:28:18-0600"
+        },
+        {
+          "name": "cryovant.py",
+          "path": "/storage/emulated/0/ADAAD/core/cryovant.py",
+          "type": "file",
+          "size": 13363,
+          "mtime": "2025-11-13T06:02:56-0600"
+        },
+        {
+          "name": "critic.py",
+          "path": "/storage/emulated/0/ADAAD/core/critic.py",
+          "type": "file",
+          "size": 2330,
+          "mtime": "2025-10-15T15:30:43-0500"
+        },
+        {
+          "name": "creator.py",
+          "path": "/storage/emulated/0/ADAAD/core/creator.py",
+          "type": "file",
+          "size": 18935,
+          "mtime": "2025-10-25T19:10:04-0500"
+        },
+        {
+          "name": "billing.py",
+          "path": "/storage/emulated/0/ADAAD/core/billing.py",
+          "type": "file",
+          "size": 4161,
+          "mtime": "2025-10-15T15:30:44-0500"
+        },
+        {
+          "name": "beast_mode_loop.py",
+          "path": "/storage/emulated/0/ADAAD/core/beast_mode_loop.py",
+          "type": "file",
+          "size": 40650,
+          "mtime": "2025-10-16T12:13:04-0500"
+        },
+        {
+          "name": "beast_mode.py",
+          "path": "/storage/emulated/0/ADAAD/core/beast_mode.py",
+          "type": "file",
+          "size": 26112,
+          "mtime": "2025-10-15T15:30:44-0500"
+        },
+        {
+          "name": "beast_event_bus.py",
+          "path": "/storage/emulated/0/ADAAD/core/beast_event_bus.py",
+          "type": "file",
+          "size": 812,
+          "mtime": "2025-10-15T20:36:56-0500"
+        },
+        {
+          "name": "backup_manager.py",
+          "path": "/storage/emulated/0/ADAAD/core/backup_manager.py",
+          "type": "file",
+          "size": 6230,
+          "mtime": "2025-10-15T15:30:44-0500"
+        },
+        {
+          "name": "autofix.py",
+          "path": "/storage/emulated/0/ADAAD/core/autofix.py",
+          "type": "file",
+          "size": 6747,
+          "mtime": "2025-10-15T15:30:43-0500"
+        },
+        {
+          "name": "auto_evolver_hook.py",
+          "path": "/storage/emulated/0/ADAAD/core/auto_evolver_hook.py",
+          "type": "file",
+          "size": 4944,
+          "mtime": "2025-10-15T15:30:43-0500"
+        },
+        {
+          "name": "auth_tokens.example.json",
+          "path": "/storage/emulated/0/ADAAD/core/auth_tokens.example.json",
+          "type": "file",
+          "size": 67,
+          "mtime": "2025-10-15T20:33:21-0500"
+        },
+        {
+          "name": "artifact_manager.py",
+          "path": "/storage/emulated/0/ADAAD/core/artifact_manager.py",
+          "type": "file",
+          "size": 2548,
+          "mtime": "2025-10-15T15:30:42-0500"
+        },
+        {
+          "name": "architect_agent.py",
+          "path": "/storage/emulated/0/ADAAD/core/architect_agent.py",
+          "type": "file",
+          "size": 26417,
+          "mtime": "2025-11-13T06:00:29-0600"
+        },
+        {
+          "name": "aponi_theme.py",
+          "path": "/storage/emulated/0/ADAAD/core/aponi_theme.py",
+          "type": "file",
+          "size": 1159,
+          "mtime": "2025-10-15T15:30:44-0500"
+        },
+        {
+          "name": "agent_stats.py",
+          "path": "/storage/emulated/0/ADAAD/core/agent_stats.py",
+          "type": "file",
+          "size": 974,
+          "mtime": "2025-10-15T15:30:42-0500"
+        },
+        {
+          "name": "agent_scoring.py",
+          "path": "/storage/emulated/0/ADAAD/core/agent_scoring.py",
+          "type": "file",
+          "size": 12440,
+          "mtime": "2025-10-16T12:16:06-0500"
+        },
+        {
+          "name": "agent_score_agents.py",
+          "path": "/storage/emulated/0/ADAAD/core/agent_score_agents.py",
+          "type": "file",
+          "size": 2390,
+          "mtime": "2025-10-15T15:30:43-0500"
+        },
+        {
+          "name": "agent_repair.py",
+          "path": "/storage/emulated/0/ADAAD/core/agent_repair.py",
+          "type": "file",
+          "size": 1674,
+          "mtime": "2025-10-29T21:39:15-0500"
+        },
+        {
+          "name": "agent_reflect_and_plan.py",
+          "path": "/storage/emulated/0/ADAAD/core/agent_reflect_and_plan.py",
+          "type": "file",
+          "size": 2154,
+          "mtime": "2025-10-15T15:30:44-0500"
+        },
+        {
+          "name": "agent_mutator_ast.py",
+          "path": "/storage/emulated/0/ADAAD/core/agent_mutator_ast.py",
+          "type": "file",
+          "size": 3500,
+          "mtime": "2025-10-16T12:29:26-0500"
+        },
+        {
+          "name": "agent_memory.py",
+          "path": "/storage/emulated/0/ADAAD/core/agent_memory.py",
+          "type": "file",
+          "size": 1586,
+          "mtime": "2025-10-15T15:30:42-0500"
+        },
+        {
+          "name": "agent_marketer.py",
+          "path": "/storage/emulated/0/ADAAD/core/agent_marketer.py",
+          "type": "file",
+          "size": 480,
+          "mtime": "2025-10-15T15:30:44-0500"
+        },
+        {
+          "name": "agent_loader.py",
+          "path": "/storage/emulated/0/ADAAD/core/agent_loader.py",
+          "type": "file",
+          "size": 3260,
+          "mtime": "2025-10-15T15:30:42-0500"
+        },
+        {
+          "name": "agent_iq_gate.py",
+          "path": "/storage/emulated/0/ADAAD/core/agent_iq_gate.py",
+          "type": "file",
+          "size": 7925,
+          "mtime": "2025-10-15T15:30:44-0500"
+        },
+        {
+          "name": "agent_iq_analyzer.py",
+          "path": "/storage/emulated/0/ADAAD/core/agent_iq_analyzer.py",
+          "type": "file",
+          "size": 3420,
+          "mtime": "2025-10-15T15:30:43-0500"
+        },
+        {
+          "name": "agent_iq.py",
+          "path": "/storage/emulated/0/ADAAD/core/agent_iq.py",
+          "type": "file",
+          "size": 947,
+          "mtime": "2025-10-15T15:30:45-0500"
+        },
+        {
+          "name": "agent_gui_launcher.py",
+          "path": "/storage/emulated/0/ADAAD/core/agent_gui_launcher.py",
+          "type": "file",
+          "size": 231,
+          "mtime": "2025-10-15T15:30:44-0500"
+        },
+        {
+          "name": "agent_exporter.py",
+          "path": "/storage/emulated/0/ADAAD/core/agent_exporter.py",
+          "type": "file",
+          "size": 180,
+          "mtime": "2025-10-15T20:36:56-0500"
+        },
+        {
+          "name": "agent_evolution.py",
+          "path": "/storage/emulated/0/ADAAD/core/agent_evolution.py",
+          "type": "file",
+          "size": 2978,
+          "mtime": "2025-10-15T15:30:44-0500"
+        },
+        {
+          "name": "agent_creator.py",
+          "path": "/storage/emulated/0/ADAAD/core/agent_creator.py",
+          "type": "file",
+          "size": 16329,
+          "mtime": "2025-11-13T01:57:18-0600"
+        },
+        {
+          "name": "agent_classes.py",
+          "path": "/storage/emulated/0/ADAAD/core/agent_classes.py",
+          "type": "file",
+          "size": 714,
+          "mtime": "2025-10-15T15:30:44-0500"
+        },
+        {
+          "name": "agent_base.py",
+          "path": "/storage/emulated/0/ADAAD/core/agent_base.py",
+          "type": "file",
+          "size": 1958,
+          "mtime": "2025-10-25T18:29:48-0500"
+        },
+        {
+          "name": "agent_assigner.py",
+          "path": "/storage/emulated/0/ADAAD/core/agent_assigner.py",
+          "type": "file",
+          "size": 1899,
+          "mtime": "2025-10-16T16:37:22-0500"
+        },
+        {
+          "name": "__pycache__",
+          "path": "/storage/emulated/0/ADAAD/core/__pycache__",
+          "type": "dir",
+          "children": [],
+          "size": 4096,
+          "mtime": "2025-11-14T11:25:14-0600"
+        },
+        {
+          "name": "__init__.py",
+          "path": "/storage/emulated/0/ADAAD/core/__init__.py",
+          "type": "file",
+          "size": 523,
+          "mtime": "2025-11-13T09:36:16-0600"
+        }
+      ],
+      "size": 12288,
+      "mtime": "2025-11-14T11:25:59-0600"
+    },
+    {
+      "name": "config",
+      "path": "/storage/emulated/0/ADAAD/config",
+      "type": "dir",
+      "children": [
+        {
+          "name": "cryovant_key.py",
+          "path": "/storage/emulated/0/ADAAD/config/cryovant_key.py",
+          "type": "file",
+          "size": 147,
+          "mtime": "2025-11-13T02:22:29-0600"
+        },
+        {
+          "name": "aponi_launcher_manifest.json",
+          "path": "/storage/emulated/0/ADAAD/config/aponi_launcher_manifest.json",
+          "type": "file",
+          "size": 595,
+          "mtime": "2025-11-14T22:45:41-0600"
+        }
+      ],
+      "size": 4096,
+      "mtime": "2025-11-14T22:45:41-0600"
+    },
+    {
+      "name": "archive",
+      "path": "/storage/emulated/0/ADAAD/archive",
+      "type": "dir",
+      "children": [],
+      "size": 4096,
+      "mtime": "2025-11-15T00:00:13-0600"
+    },
+    {
+      "name": "architect_plugins",
+      "path": "/storage/emulated/0/ADAAD/architect_plugins",
+      "type": "dir",
+      "children": [],
+      "size": 4096,
+      "mtime": "2025-11-14T18:23:36-0600"
+    },
+    {
+      "name": "archetypes",
+      "path": "/storage/emulated/0/ADAAD/archetypes",
+      "type": "dir",
+      "children": [
+        {
+          "name": "toolsmith.py",
+          "path": "/storage/emulated/0/ADAAD/archetypes/toolsmith.py",
+          "type": "file",
+          "size": 34,
+          "mtime": "2025-11-13T02:22:19-0600"
+        },
+        {
+          "name": "generalist.py",
+          "path": "/storage/emulated/0/ADAAD/archetypes/generalist.py",
+          "type": "file",
+          "size": 2081,
+          "mtime": "2025-10-25T18:36:01-0500"
+        }
+      ],
+      "size": 4096,
+      "mtime": "2025-11-10T23:02:54-0600"
+    },
+    {
+      "name": "aponi_server.py",
+      "path": "/storage/emulated/0/ADAAD/aponi_server.py",
+      "type": "file",
+      "size": 29522,
+      "mtime": "2025-11-08T03:58:16-0600"
+    },
+    {
+      "name": "aponi_dashboard.py",
+      "path": "/storage/emulated/0/ADAAD/aponi_dashboard.py",
+      "type": "file",
+      "size": 52267,
+      "mtime": "2025-11-13T03:54:26-0600"
+    },
+    {
+      "name": "aponi_dashboard.html",
+      "path": "/storage/emulated/0/ADAAD/aponi_dashboard.html",
+      "type": "file",
+      "size": 30066,
+      "mtime": "2025-11-13T03:26:21-0600"
+    },
+    {
+      "name": "Aponi",
+      "path": "/storage/emulated/0/ADAAD/Aponi",
+      "type": "dir",
+      "children": [
+        {
+          "name": "tools",
+          "path": "/storage/emulated/0/ADAAD/Aponi/tools",
+          "type": "dir",
+          "children": [
+            {
+              "name": "show_banner.py",
+              "path": "/storage/emulated/0/ADAAD/Aponi/tools/show_banner.py",
+              "type": "file",
+              "size": 323,
+              "mtime": "2025-10-15T15:30:46-0500"
+            },
+            {
+              "name": "packager.py",
+              "path": "/storage/emulated/0/ADAAD/Aponi/tools/packager.py",
+              "type": "file",
+              "size": 254,
+              "mtime": "2025-10-15T15:30:46-0500"
+            },
+            {
+              "name": "brand_manager.py",
+              "path": "/storage/emulated/0/ADAAD/Aponi/tools/brand_manager.py",
+              "type": "file",
+              "size": 864,
+              "mtime": "2025-10-15T15:30:46-0500"
+            }
+          ],
+          "size": 4096,
+          "mtime": "2025-11-14T09:37:03-0600"
+        },
+        {
+          "name": "README.md",
+          "path": "/storage/emulated/0/ADAAD/Aponi/README.md",
+          "type": "file",
+          "size": 146,
+          "mtime": "2025-10-09T19:29:49-0500"
+        },
+        {
+          "name": "handlers",
+          "path": "/storage/emulated/0/ADAAD/Aponi/handlers",
+          "type": "dir",
+          "children": [
+            {
+              "name": "handle_tail_logs.py",
+              "path": "/storage/emulated/0/ADAAD/Aponi/handlers/handle_tail_logs.py",
+              "type": "file",
+              "size": 138,
+              "mtime": "2025-10-15T15:30:46-0500"
+            },
+            {
+              "name": "handle_score.py",
+              "path": "/storage/emulated/0/ADAAD/Aponi/handlers/handle_score.py",
+              "type": "file",
+              "size": 352,
+              "mtime": "2025-10-15T15:30:45-0500"
+            },
+            {
+              "name": "handle_scaffold.py",
+              "path": "/storage/emulated/0/ADAAD/Aponi/handlers/handle_scaffold.py",
+              "type": "file",
+              "size": 122,
+              "mtime": "2025-10-15T15:30:45-0500"
+            },
+            {
+              "name": "handle_run_agent.py",
+              "path": "/storage/emulated/0/ADAAD/Aponi/handlers/handle_run_agent.py",
+              "type": "file",
+              "size": 449,
+              "mtime": "2025-10-15T15:30:45-0500"
+            },
+            {
+              "name": "handle_plugins.py",
+              "path": "/storage/emulated/0/ADAAD/Aponi/handlers/handle_plugins.py",
+              "type": "file",
+              "size": 868,
+              "mtime": "2025-10-15T15:30:46-0500"
+            },
+            {
+              "name": "handle_pack.py",
+              "path": "/storage/emulated/0/ADAAD/Aponi/handlers/handle_pack.py",
+              "type": "file",
+              "size": 122,
+              "mtime": "2025-10-15T15:30:46-0500"
+            },
+            {
+              "name": "handle_marketplace.py",
+              "path": "/storage/emulated/0/ADAAD/Aponi/handlers/handle_marketplace.py",
+              "type": "file",
+              "size": 214,
+              "mtime": "2025-10-15T15:30:46-0500"
+            },
+            {
+              "name": "handle_list_agents.py",
+              "path": "/storage/emulated/0/ADAAD/Aponi/handlers/handle_list_agents.py",
+              "type": "file",
+              "size": 233,
+              "mtime": "2025-10-15T15:30:45-0500"
+            },
+            {
+              "name": "handle_inspect_projects.py",
+              "path": "/storage/emulated/0/ADAAD/Aponi/handlers/handle_inspect_projects.py",
+              "type": "file",
+              "size": 382,
+              "mtime": "2025-10-15T15:30:45-0500"
+            },
+            {
+              "name": "handle_improve_agent.py",
+              "path": "/storage/emulated/0/ADAAD/Aponi/handlers/handle_improve_agent.py",
+              "type": "file",
+              "size": 817,
+              "mtime": "2025-10-15T15:30:46-0500"
+            },
+            {
+              "name": "handle_ecosystem.py",
+              "path": "/storage/emulated/0/ADAAD/Aponi/handlers/handle_ecosystem.py",
+              "type": "file",
+              "size": 140,
+              "mtime": "2025-10-15T15:30:46-0500"
+            },
+            {
+              "name": "handle_diagnostics.py",
+              "path": "/storage/emulated/0/ADAAD/Aponi/handlers/handle_diagnostics.py",
+              "type": "file",
+              "size": 589,
+              "mtime": "2025-10-15T15:30:46-0500"
+            },
+            {
+              "name": "handle_beast.py",
+              "path": "/storage/emulated/0/ADAAD/Aponi/handlers/handle_beast.py",
+              "type": "file",
+              "size": 142,
+              "mtime": "2025-10-15T15:30:46-0500"
+            },
+            {
+              "name": "handle_apply_patch.py",
+              "path": "/storage/emulated/0/ADAAD/Aponi/handlers/handle_apply_patch.py",
+              "type": "file",
+              "size": 1101,
+              "mtime": "2025-10-15T15:30:46-0500"
+            }
+          ],
+          "size": 4096,
+          "mtime": "2025-11-10T23:03:05-0600"
+        },
+        {
+          "name": "data",
+          "path": "/storage/emulated/0/ADAAD/Aponi/data",
+          "type": "dir",
+          "children": [
+            {
+              "name": "architect_proposal_prop_ff73c3432b26.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_ff73c3432b26.json",
+              "type": "file",
+              "size": 4909,
+              "mtime": "2025-11-14T18:31:39-0600"
+            },
+            {
+              "name": "architect_proposal_prop_ff531c66e191.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_ff531c66e191.json",
+              "type": "file",
+              "size": 3252,
+              "mtime": "2025-11-14T18:31:51-0600"
+            },
+            {
+              "name": "architect_proposal_prop_fdc9d512bf36.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_fdc9d512bf36.json",
+              "type": "file",
+              "size": 2230,
+              "mtime": "2025-11-14T18:31:37-0600"
+            },
+            {
+              "name": "architect_proposal_prop_fcf6d48d29af.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_fcf6d48d29af.json",
+              "type": "file",
+              "size": 7625,
+              "mtime": "2025-11-14T18:31:42-0600"
+            },
+            {
+              "name": "architect_proposal_prop_fca572ede253.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_fca572ede253.json",
+              "type": "file",
+              "size": 7265,
+              "mtime": "2025-11-14T18:31:49-0600"
+            },
+            {
+              "name": "architect_proposal_prop_fc9402c87729.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_fc9402c87729.json",
+              "type": "file",
+              "size": 40181,
+              "mtime": "2025-11-14T18:31:38-0600"
+            },
+            {
+              "name": "architect_proposal_prop_fbfd90294214.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_fbfd90294214.json",
+              "type": "file",
+              "size": 22819,
+              "mtime": "2025-11-14T18:31:43-0600"
+            },
+            {
+              "name": "architect_proposal_prop_fb7903c0e48a.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_fb7903c0e48a.json",
+              "type": "file",
+              "size": 8942,
+              "mtime": "2025-11-14T18:31:48-0600"
+            },
+            {
+              "name": "architect_proposal_prop_f8fb24d56b65.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_f8fb24d56b65.json",
+              "type": "file",
+              "size": 3137,
+              "mtime": "2025-11-14T18:31:34-0600"
+            },
+            {
+              "name": "architect_proposal_prop_f872dd1547a6.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_f872dd1547a6.json",
+              "type": "file",
+              "size": 2022,
+              "mtime": "2025-11-14T18:31:32-0600"
+            },
+            {
+              "name": "architect_proposal_prop_f81952959c15.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_f81952959c15.json",
+              "type": "file",
+              "size": 1800,
+              "mtime": "2025-11-14T18:31:34-0600"
+            },
+            {
+              "name": "architect_proposal_prop_f44eb69d0efb.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_f44eb69d0efb.json",
+              "type": "file",
+              "size": 13794,
+              "mtime": "2025-11-14T18:31:37-0600"
+            },
+            {
+              "name": "architect_proposal_prop_f10ac4a71c5d.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_f10ac4a71c5d.json",
+              "type": "file",
+              "size": 24912,
+              "mtime": "2025-11-14T18:31:41-0600"
+            },
+            {
+              "name": "architect_proposal_prop_ef71a82ce20b.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_ef71a82ce20b.json",
+              "type": "file",
+              "size": 4584,
+              "mtime": "2025-11-14T18:31:30-0600"
+            },
+            {
+              "name": "architect_proposal_prop_edc6c9ad4281.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_edc6c9ad4281.json",
+              "type": "file",
+              "size": 24967,
+              "mtime": "2025-11-14T18:31:48-0600"
+            },
+            {
+              "name": "architect_proposal_prop_e81a75cdc492.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_e81a75cdc492.json",
+              "type": "file",
+              "size": 3159,
+              "mtime": "2025-11-14T18:31:54-0600"
+            },
+            {
+              "name": "architect_proposal_prop_e7bf0c1e4493.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_e7bf0c1e4493.json",
+              "type": "file",
+              "size": 10358,
+              "mtime": "2025-11-14T18:31:31-0600"
+            },
+            {
+              "name": "architect_proposal_prop_e65a98af39fe.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_e65a98af39fe.json",
+              "type": "file",
+              "size": 23722,
+              "mtime": "2025-11-14T18:31:37-0600"
+            },
+            {
+              "name": "architect_proposal_prop_e657283ea73d.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_e657283ea73d.json",
+              "type": "file",
+              "size": 27096,
+              "mtime": "2025-11-14T18:31:38-0600"
+            },
+            {
+              "name": "architect_proposal_prop_e51857c27d78.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_e51857c27d78.json",
+              "type": "file",
+              "size": 88549,
+              "mtime": "2025-11-14T18:31:30-0600"
+            },
+            {
+              "name": "architect_proposal_prop_e2cc777b90dc.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_e2cc777b90dc.json",
+              "type": "file",
+              "size": 2360,
+              "mtime": "2025-11-14T18:31:39-0600"
+            },
+            {
+              "name": "architect_proposal_prop_e09b80f77762.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_e09b80f77762.json",
+              "type": "file",
+              "size": 9690,
+              "mtime": "2025-11-14T18:31:48-0600"
+            },
+            {
+              "name": "architect_proposal_prop_df40abaa3311.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_df40abaa3311.json",
+              "type": "file",
+              "size": 17634,
+              "mtime": "2025-11-14T18:31:35-0600"
+            },
+            {
+              "name": "architect_proposal_prop_de5814a65599.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_de5814a65599.json",
+              "type": "file",
+              "size": 2478,
+              "mtime": "2025-11-14T18:31:40-0600"
+            },
+            {
+              "name": "architect_proposal_prop_de108a3c3df3.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_de108a3c3df3.json",
+              "type": "file",
+              "size": 27700,
+              "mtime": "2025-11-14T18:31:32-0600"
+            },
+            {
+              "name": "architect_proposal_prop_da139a5fa7f6.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_da139a5fa7f6.json",
+              "type": "file",
+              "size": 21710,
+              "mtime": "2025-11-14T18:31:49-0600"
+            },
+            {
+              "name": "architect_proposal_prop_d7a45601b028.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_d7a45601b028.json",
+              "type": "file",
+              "size": 3194,
+              "mtime": "2025-11-14T18:31:43-0600"
+            },
+            {
+              "name": "architect_proposal_prop_d61f1d59bbea.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_d61f1d59bbea.json",
+              "type": "file",
+              "size": 5327,
+              "mtime": "2025-11-14T18:31:41-0600"
+            },
+            {
+              "name": "architect_proposal_prop_d18508782ac6.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_d18508782ac6.json",
+              "type": "file",
+              "size": 2571,
+              "mtime": "2025-11-14T18:31:40-0600"
+            },
+            {
+              "name": "architect_proposal_prop_d170828f393b.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_d170828f393b.json",
+              "type": "file",
+              "size": 5680,
+              "mtime": "2025-11-14T18:31:37-0600"
+            },
+            {
+              "name": "architect_proposal_prop_d0a3bc3c3a1f.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_d0a3bc3c3a1f.json",
+              "type": "file",
+              "size": 2506,
+              "mtime": "2025-11-14T18:31:43-0600"
+            },
+            {
+              "name": "architect_proposal_prop_cd8ba7a875fe.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_cd8ba7a875fe.json",
+              "type": "file",
+              "size": 1592,
+              "mtime": "2025-11-14T18:31:38-0600"
+            },
+            {
+              "name": "architect_proposal_prop_cd7578e3c6b8.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_cd7578e3c6b8.json",
+              "type": "file",
+              "size": 1816,
+              "mtime": "2025-11-14T18:31:32-0600"
+            },
+            {
+              "name": "architect_proposal_prop_cd53c03949b6.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_cd53c03949b6.json",
+              "type": "file",
+              "size": 6031,
+              "mtime": "2025-11-14T18:31:38-0600"
+            },
+            {
+              "name": "architect_proposal_prop_cbd62fea1b63.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_cbd62fea1b63.json",
+              "type": "file",
+              "size": 20158,
+              "mtime": "2025-11-14T18:31:49-0600"
+            },
+            {
+              "name": "architect_proposal_prop_ca9fe5ff01dc.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_ca9fe5ff01dc.json",
+              "type": "file",
+              "size": 7375,
+              "mtime": "2025-11-14T18:31:41-0600"
+            },
+            {
+              "name": "architect_proposal_prop_c9fb8564442e.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_c9fb8564442e.json",
+              "type": "file",
+              "size": 5395,
+              "mtime": "2025-11-14T18:31:41-0600"
+            },
+            {
+              "name": "architect_proposal_prop_c86ca27262f2.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_c86ca27262f2.json",
+              "type": "file",
+              "size": 4168,
+              "mtime": "2025-11-14T18:31:38-0600"
+            },
+            {
+              "name": "architect_proposal_prop_c519a329be13.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_c519a329be13.json",
+              "type": "file",
+              "size": 2103,
+              "mtime": "2025-11-14T18:31:33-0600"
+            },
+            {
+              "name": "architect_proposal_prop_c4fc0e5be657.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_c4fc0e5be657.json",
+              "type": "file",
+              "size": 9566,
+              "mtime": "2025-11-14T18:31:47-0600"
+            },
+            {
+              "name": "architect_proposal_prop_c441594256da.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_c441594256da.json",
+              "type": "file",
+              "size": 8135,
+              "mtime": "2025-11-14T18:31:33-0600"
+            },
+            {
+              "name": "architect_proposal_prop_c200e3d5396f.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_c200e3d5396f.json",
+              "type": "file",
+              "size": 21617,
+              "mtime": "2025-11-14T18:31:48-0600"
+            },
+            {
+              "name": "architect_proposal_prop_be7412d6c334.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_be7412d6c334.json",
+              "type": "file",
+              "size": 6521,
+              "mtime": "2025-11-14T18:31:48-0600"
+            },
+            {
+              "name": "architect_proposal_prop_bd27e789ad1f.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_bd27e789ad1f.json",
+              "type": "file",
+              "size": 4052,
+              "mtime": "2025-11-14T18:31:47-0600"
+            },
+            {
+              "name": "architect_proposal_prop_bbd7dd5c73ed.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_bbd7dd5c73ed.json",
+              "type": "file",
+              "size": 9165,
+              "mtime": "2025-11-14T18:31:54-0600"
+            },
+            {
+              "name": "architect_proposal_prop_bb38dc674d3d.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_bb38dc674d3d.json",
+              "type": "file",
+              "size": 11559,
+              "mtime": "2025-11-14T18:31:48-0600"
+            },
+            {
+              "name": "architect_proposal_prop_b87a803fb855.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_b87a803fb855.json",
+              "type": "file",
+              "size": 5172,
+              "mtime": "2025-11-14T18:31:39-0600"
+            },
+            {
+              "name": "architect_proposal_prop_b80f52dd66d2.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_b80f52dd66d2.json",
+              "type": "file",
+              "size": 4814,
+              "mtime": "2025-11-14T18:31:43-0600"
+            },
+            {
+              "name": "architect_proposal_prop_b32f7976649f.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_b32f7976649f.json",
+              "type": "file",
+              "size": 21772,
+              "mtime": "2025-11-14T18:31:33-0600"
+            },
+            {
+              "name": "architect_proposal_prop_b31ef1de1fba.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_b31ef1de1fba.json",
+              "type": "file",
+              "size": 7763,
+              "mtime": "2025-11-14T18:31:45-0600"
+            },
+            {
+              "name": "architect_proposal_prop_b314e4292fc7.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_b314e4292fc7.json",
+              "type": "file",
+              "size": 2196,
+              "mtime": "2025-11-14T18:31:53-0600"
+            },
+            {
+              "name": "architect_proposal_prop_b12355057d65.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_b12355057d65.json",
+              "type": "file",
+              "size": 12820,
+              "mtime": "2025-11-14T18:31:54-0600"
+            },
+            {
+              "name": "architect_proposal_prop_b0a551fed6f2.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_b0a551fed6f2.json",
+              "type": "file",
+              "size": 5322,
+              "mtime": "2025-11-14T18:31:47-0600"
+            },
+            {
+              "name": "architect_proposal_prop_b02400453621.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_b02400453621.json",
+              "type": "file",
+              "size": 5372,
+              "mtime": "2025-11-14T18:31:49-0600"
+            },
+            {
+              "name": "architect_proposal_prop_ada7f6148190.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_ada7f6148190.json",
+              "type": "file",
+              "size": 2010,
+              "mtime": "2025-11-14T18:31:54-0600"
+            },
+            {
+              "name": "architect_proposal_prop_ad200bdf5c24.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_ad200bdf5c24.json",
+              "type": "file",
+              "size": 67084,
+              "mtime": "2025-11-14T18:31:30-0600"
+            },
+            {
+              "name": "architect_proposal_prop_abe217a6fe0d.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_abe217a6fe0d.json",
+              "type": "file",
+              "size": 3733,
+              "mtime": "2025-11-14T18:31:54-0600"
+            },
+            {
+              "name": "architect_proposal_prop_aaca6caf7ea3.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_aaca6caf7ea3.json",
+              "type": "file",
+              "size": 5776,
+              "mtime": "2025-11-14T18:31:36-0600"
+            },
+            {
+              "name": "architect_proposal_prop_aa1e8090e1b8.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_aa1e8090e1b8.json",
+              "type": "file",
+              "size": 7947,
+              "mtime": "2025-11-14T18:31:44-0600"
+            },
+            {
+              "name": "architect_proposal_prop_a6ff9d64b353.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_a6ff9d64b353.json",
+              "type": "file",
+              "size": 11368,
+              "mtime": "2025-11-14T18:31:41-0600"
+            },
+            {
+              "name": "architect_proposal_prop_a11c41defb3b.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_a11c41defb3b.json",
+              "type": "file",
+              "size": 19078,
+              "mtime": "2025-11-14T18:31:32-0600"
+            },
+            {
+              "name": "architect_proposal_prop_9ff64f5867e4.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_9ff64f5867e4.json",
+              "type": "file",
+              "size": 29823,
+              "mtime": "2025-11-14T18:31:51-0600"
+            },
+            {
+              "name": "architect_proposal_prop_96b2781f78c7.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_96b2781f78c7.json",
+              "type": "file",
+              "size": 11087,
+              "mtime": "2025-11-14T18:31:45-0600"
+            },
+            {
+              "name": "architect_proposal_prop_95dcf41f38b1.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_95dcf41f38b1.json",
+              "type": "file",
+              "size": 3701,
+              "mtime": "2025-11-14T18:31:35-0600"
+            },
+            {
+              "name": "architect_proposal_prop_950e2361d584.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_950e2361d584.json",
+              "type": "file",
+              "size": 12471,
+              "mtime": "2025-11-14T18:31:54-0600"
+            },
+            {
+              "name": "architect_proposal_prop_9279dc6c97be.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_9279dc6c97be.json",
+              "type": "file",
+              "size": 3619,
+              "mtime": "2025-11-14T18:31:49-0600"
+            },
+            {
+              "name": "architect_proposal_prop_92579c5da2e4.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_92579c5da2e4.json",
+              "type": "file",
+              "size": 4657,
+              "mtime": "2025-11-14T18:31:49-0600"
+            },
+            {
+              "name": "architect_proposal_prop_91fd8a1144ca.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_91fd8a1144ca.json",
+              "type": "file",
+              "size": 67084,
+              "mtime": "2025-11-14T18:23:45-0600"
+            },
+            {
+              "name": "architect_proposal_prop_91c92079d802.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_91c92079d802.json",
+              "type": "file",
+              "size": 7359,
+              "mtime": "2025-11-14T18:31:40-0600"
+            },
+            {
+              "name": "architect_proposal_prop_91b87372c8b4.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_91b87372c8b4.json",
+              "type": "file",
+              "size": 5211,
+              "mtime": "2025-11-14T18:31:35-0600"
+            },
+            {
+              "name": "architect_proposal_prop_8d2a60eb33ad.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_8d2a60eb33ad.json",
+              "type": "file",
+              "size": 2365,
+              "mtime": "2025-11-14T18:31:32-0600"
+            },
+            {
+              "name": "architect_proposal_prop_8c11c3c7c9d2.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_8c11c3c7c9d2.json",
+              "type": "file",
+              "size": 6539,
+              "mtime": "2025-11-14T18:31:36-0600"
+            },
+            {
+              "name": "architect_proposal_prop_8b554b7b5c77.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_8b554b7b5c77.json",
+              "type": "file",
+              "size": 52465,
+              "mtime": "2025-11-14T18:31:42-0600"
+            },
+            {
+              "name": "architect_proposal_prop_87be7b4e0260.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_87be7b4e0260.json",
+              "type": "file",
+              "size": 4239,
+              "mtime": "2025-11-14T18:31:39-0600"
+            },
+            {
+              "name": "architect_proposal_prop_83bda043e798.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_83bda043e798.json",
+              "type": "file",
+              "size": 6845,
+              "mtime": "2025-11-14T18:31:42-0600"
+            },
+            {
+              "name": "architect_proposal_prop_799a5650057f.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_799a5650057f.json",
+              "type": "file",
+              "size": 3060,
+              "mtime": "2025-11-14T18:31:53-0600"
+            },
+            {
+              "name": "architect_proposal_prop_767632af4581.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_767632af4581.json",
+              "type": "file",
+              "size": 62964,
+              "mtime": "2025-11-14T18:31:35-0600"
+            },
+            {
+              "name": "architect_proposal_prop_74fbeb593624.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_74fbeb593624.json",
+              "type": "file",
+              "size": 38487,
+              "mtime": "2025-11-14T18:31:46-0600"
+            },
+            {
+              "name": "architect_proposal_prop_748d629eeebe.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_748d629eeebe.json",
+              "type": "file",
+              "size": 4584,
+              "mtime": "2025-11-14T18:23:44-0600"
+            },
+            {
+              "name": "architect_proposal_prop_7073f1769739.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_7073f1769739.json",
+              "type": "file",
+              "size": 38467,
+              "mtime": "2025-11-14T18:31:40-0600"
+            },
+            {
+              "name": "architect_proposal_prop_6e9ce4bfb64d.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_6e9ce4bfb64d.json",
+              "type": "file",
+              "size": 9032,
+              "mtime": "2025-11-14T18:31:49-0600"
+            },
+            {
+              "name": "architect_proposal_prop_6c141c460465.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_6c141c460465.json",
+              "type": "file",
+              "size": 3828,
+              "mtime": "2025-11-14T18:31:34-0600"
+            },
+            {
+              "name": "architect_proposal_prop_698366c548bf.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_698366c548bf.json",
+              "type": "file",
+              "size": 8690,
+              "mtime": "2025-11-14T18:31:36-0600"
+            },
+            {
+              "name": "architect_proposal_prop_63f6371424fa.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_63f6371424fa.json",
+              "type": "file",
+              "size": 8534,
+              "mtime": "2025-11-14T18:31:39-0600"
+            },
+            {
+              "name": "architect_proposal_prop_59752001ea5b.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_59752001ea5b.json",
+              "type": "file",
+              "size": 1825,
+              "mtime": "2025-11-14T18:31:53-0600"
+            },
+            {
+              "name": "architect_proposal_prop_5423edb127ed.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_5423edb127ed.json",
+              "type": "file",
+              "size": 2490,
+              "mtime": "2025-11-14T18:31:45-0600"
+            },
+            {
+              "name": "architect_proposal_prop_51298d0429b1.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_51298d0429b1.json",
+              "type": "file",
+              "size": 2820,
+              "mtime": "2025-11-14T18:31:49-0600"
+            },
+            {
+              "name": "architect_proposal_prop_4e98d8cb2da5.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_4e98d8cb2da5.json",
+              "type": "file",
+              "size": 8394,
+              "mtime": "2025-11-14T18:31:35-0600"
+            },
+            {
+              "name": "architect_proposal_prop_48c7757141b2.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_48c7757141b2.json",
+              "type": "file",
+              "size": 1575,
+              "mtime": "2025-11-14T18:31:37-0600"
+            },
+            {
+              "name": "architect_proposal_prop_48aeb5f47c56.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_48aeb5f47c56.json",
+              "type": "file",
+              "size": 3122,
+              "mtime": "2025-11-14T18:31:44-0600"
+            },
+            {
+              "name": "architect_proposal_prop_4345aced2c32.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_4345aced2c32.json",
+              "type": "file",
+              "size": 8531,
+              "mtime": "2025-11-14T18:31:43-0600"
+            },
+            {
+              "name": "architect_proposal_prop_402ba6c92b76.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_402ba6c92b76.json",
+              "type": "file",
+              "size": 47979,
+              "mtime": "2025-11-14T18:31:32-0600"
+            },
+            {
+              "name": "architect_proposal_prop_3fc51ea82463.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_3fc51ea82463.json",
+              "type": "file",
+              "size": 2581,
+              "mtime": "2025-11-14T18:31:44-0600"
+            },
+            {
+              "name": "architect_proposal_prop_3df3bcd5f25e.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_3df3bcd5f25e.json",
+              "type": "file",
+              "size": 7412,
+              "mtime": "2025-11-14T18:31:54-0600"
+            },
+            {
+              "name": "architect_proposal_prop_3b4a51191504.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_3b4a51191504.json",
+              "type": "file",
+              "size": 26468,
+              "mtime": "2025-11-14T18:31:46-0600"
+            },
+            {
+              "name": "architect_proposal_prop_3573dfd342ca.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_3573dfd342ca.json",
+              "type": "file",
+              "size": 3419,
+              "mtime": "2025-11-14T18:31:41-0600"
+            },
+            {
+              "name": "architect_proposal_prop_350e065f7810.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_350e065f7810.json",
+              "type": "file",
+              "size": 30728,
+              "mtime": "2025-11-14T18:31:36-0600"
+            },
+            {
+              "name": "architect_proposal_prop_34662bf3048a.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_34662bf3048a.json",
+              "type": "file",
+              "size": 38445,
+              "mtime": "2025-11-14T18:23:45-0600"
+            },
+            {
+              "name": "architect_proposal_prop_330a9d4a9f09.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_330a9d4a9f09.json",
+              "type": "file",
+              "size": 6520,
+              "mtime": "2025-11-14T18:31:40-0600"
+            },
+            {
+              "name": "architect_proposal_prop_32dd001c3dd3.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_32dd001c3dd3.json",
+              "type": "file",
+              "size": 4054,
+              "mtime": "2025-11-14T18:31:42-0600"
+            },
+            {
+              "name": "architect_proposal_prop_324b22a93fd1.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_324b22a93fd1.json",
+              "type": "file",
+              "size": 22388,
+              "mtime": "2025-11-14T18:31:53-0600"
+            },
+            {
+              "name": "architect_proposal_prop_2adfc491f49e.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_2adfc491f49e.json",
+              "type": "file",
+              "size": 1672,
+              "mtime": "2025-11-14T18:31:49-0600"
+            },
+            {
+              "name": "architect_proposal_prop_29e57f5bd3fd.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_29e57f5bd3fd.json",
+              "type": "file",
+              "size": 12053,
+              "mtime": "2025-11-14T18:31:45-0600"
+            },
+            {
+              "name": "architect_proposal_prop_2648f009ce65.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_2648f009ce65.json",
+              "type": "file",
+              "size": 11304,
+              "mtime": "2025-11-14T18:31:51-0600"
+            },
+            {
+              "name": "architect_proposal_prop_21400245bf4b.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_21400245bf4b.json",
+              "type": "file",
+              "size": 38446,
+              "mtime": "2025-11-14T18:31:30-0600"
+            },
+            {
+              "name": "architect_proposal_prop_2139f0b37212.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_2139f0b37212.json",
+              "type": "file",
+              "size": 2841,
+              "mtime": "2025-11-14T18:31:42-0600"
+            },
+            {
+              "name": "architect_proposal_prop_1ef7bd02d6a9.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_1ef7bd02d6a9.json",
+              "type": "file",
+              "size": 3566,
+              "mtime": "2025-11-14T18:31:44-0600"
+            },
+            {
+              "name": "architect_proposal_prop_1e3be92bac5d.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_1e3be92bac5d.json",
+              "type": "file",
+              "size": 26416,
+              "mtime": "2025-11-14T18:31:33-0600"
+            },
+            {
+              "name": "architect_proposal_prop_144fa56d3624.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_144fa56d3624.json",
+              "type": "file",
+              "size": 88306,
+              "mtime": "2025-11-14T18:31:53-0600"
+            },
+            {
+              "name": "architect_proposal_prop_0a87c4eedf3a.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_0a87c4eedf3a.json",
+              "type": "file",
+              "size": 7171,
+              "mtime": "2025-11-14T18:31:39-0600"
+            },
+            {
+              "name": "architect_proposal_prop_081d015d58c0.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_081d015d58c0.json",
+              "type": "file",
+              "size": 15929,
+              "mtime": "2025-11-14T18:31:44-0600"
+            },
+            {
+              "name": "architect_proposal_prop_0814e7a17cdb.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_0814e7a17cdb.json",
+              "type": "file",
+              "size": 2568,
+              "mtime": "2025-11-14T18:31:44-0600"
+            },
+            {
+              "name": "architect_proposal_prop_06bae3b54388.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_06bae3b54388.json",
+              "type": "file",
+              "size": 30419,
+              "mtime": "2025-11-14T18:31:51-0600"
+            },
+            {
+              "name": "architect_proposal_prop_0453777b6da0.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/architect_proposal_prop_0453777b6da0.json",
+              "type": "file",
+              "size": 2590,
+              "mtime": "2025-11-14T18:31:43-0600"
+            },
+            {
+              "name": "agents_meta.json",
+              "path": "/storage/emulated/0/ADAAD/Aponi/data/agents_meta.json",
+              "type": "file",
+              "size": 3,
+              "mtime": "2025-10-09T19:29:43-0500"
+            }
+          ],
+          "size": 16384,
+          "mtime": "2025-11-14T18:31:54-0600"
+        },
+        {
+          "name": "aponi_unified.py",
+          "path": "/storage/emulated/0/ADAAD/Aponi/aponi_unified.py",
+          "type": "file",
+          "size": 22465,
+          "mtime": "2025-11-14T23:58:18-0600"
+        },
+        {
+          "name": "aponi_main_unified.pymkdir",
+          "path": "/storage/emulated/0/ADAAD/Aponi/aponi_main_unified.pymkdir",
+          "type": "file",
+          "size": 5320,
+          "mtime": "2025-11-15T01:59:20-0600"
+        },
+        {
+          "name": "aponi_main_unified.py",
+          "path": "/storage/emulated/0/ADAAD/Aponi/aponi_main_unified.py",
+          "type": "file",
+          "size": 5318,
+          "mtime": "2025-11-15T01:59:34-0600"
+        },
+        {
+          "name": "api",
+          "path": "/storage/emulated/0/ADAAD/Aponi/api",
+          "type": "dir",
+          "children": [
+            {
+              "name": "static",
+              "path": "/storage/emulated/0/ADAAD/Aponi/api/static",
+              "type": "dir",
+              "children": [
+                {
+                  "name": "aponi_dashboard.html",
+                  "path": "/storage/emulated/0/ADAAD/Aponi/api/static/aponi_dashboard.html",
+                  "type": "file",
+                  "size": 48264,
+                  "mtime": "2025-11-13T03:38:27-0600"
+                }
+              ],
+              "size": 4096,
+              "mtime": "2025-11-13T03:22:24-0600"
+            },
+            {
+              "name": "asgi_app.py",
+              "path": "/storage/emulated/0/ADAAD/Aponi/api/asgi_app.py",
+              "type": "file",
+              "size": 1281,
+              "mtime": "2025-10-15T15:30:45-0500"
+            },
+            {
+              "name": "aponi_service.py",
+              "path": "/storage/emulated/0/ADAAD/Aponi/api/aponi_service.py",
+              "type": "file",
+              "size": 12380,
+              "mtime": "2025-11-15T01:57:01-0600"
+            },
+            {
+              "name": "aponi_server_secure.py",
+              "path": "/storage/emulated/0/ADAAD/Aponi/api/aponi_server_secure.py",
+              "type": "file",
+              "size": 14048,
+              "mtime": "2025-10-15T15:30:45-0500"
+            },
+            {
+              "name": "aponi_launch.py",
+              "path": "/storage/emulated/0/ADAAD/Aponi/api/aponi_launch.py",
+              "type": "file",
+              "size": 6488,
+              "mtime": "2025-11-13T10:00:55-0600"
+            },
+            {
+              "name": "aponi_dashboard.py",
+              "path": "/storage/emulated/0/ADAAD/Aponi/api/aponi_dashboard.py",
+              "type": "file",
+              "size": 52126,
+              "mtime": "2025-11-12T16:52:34-0600"
+            },
+            {
+              "name": "__init__.py",
+              "path": "/storage/emulated/0/ADAAD/Aponi/api/__init__.py",
+              "type": "file",
+              "size": 553,
+              "mtime": "2025-10-15T15:30:45-0500"
+            }
+          ],
+          "size": 4096,
+          "mtime": "2025-11-15T01:57:01-0600"
+        },
+        {
+          "name": "agents",
+          "path": "/storage/emulated/0/ADAAD/Aponi/agents",
+          "type": "dir",
+          "children": [
+            {
+              "name": "surgical_developer.py",
+              "path": "/storage/emulated/0/ADAAD/Aponi/agents/surgical_developer.py",
+              "type": "file",
+              "size": 3263,
+              "mtime": "2025-10-15T15:30:45-0500"
+            },
+            {
+              "name": "reporter_agent.py",
+              "path": "/storage/emulated/0/ADAAD/Aponi/agents/reporter_agent.py",
+              "type": "file",
+              "size": 997,
+              "mtime": "2025-10-15T15:30:45-0500"
+            },
+            {
+              "name": "orchestrator.py",
+              "path": "/storage/emulated/0/ADAAD/Aponi/agents/orchestrator.py",
+              "type": "file",
+              "size": 21634,
+              "mtime": "2025-10-15T15:30:45-0500"
+            },
+            {
+              "name": "explorer.py",
+              "path": "/storage/emulated/0/ADAAD/Aponi/agents/explorer.py",
+              "type": "file",
+              "size": 17836,
+              "mtime": "2025-10-15T15:30:45-0500"
+            }
+          ],
+          "size": 4096,
+          "mtime": "2025-11-10T23:17:49-0600"
+        }
+      ],
+      "size": 4096,
+      "mtime": "2025-11-15T01:59:34-0600"
+    },
+    {
+      "name": "agents",
+      "path": "/storage/emulated/0/ADAAD/agents",
+      "type": "dir",
+      "children": [
+        {
+          "name": "warm_fallback_1762739721_2.py",
+          "path": "/storage/emulated/0/ADAAD/agents/warm_fallback_1762739721_2.py",
+          "type": "file",
+          "size": 200,
+          "mtime": "2025-11-15T02:07:53-0600"
+        },
+        {
+          "name": "warm_fallback_1762739721_1.py",
+          "path": "/storage/emulated/0/ADAAD/agents/warm_fallback_1762739721_1.py",
+          "type": "file",
+          "size": 200,
+          "mtime": "2025-11-15T02:07:53-0600"
+        },
+        {
+          "name": "warm_fallback_1762739721_0.py",
+          "path": "/storage/emulated/0/ADAAD/agents/warm_fallback_1762739721_0.py",
+          "type": "file",
+          "size": 200,
+          "mtime": "2025-11-15T02:07:53-0600"
+        },
+        {
+          "name": "warm_fallback_1762739706_0.py",
+          "path": "/storage/emulated/0/ADAAD/agents/warm_fallback_1762739706_0.py",
+          "type": "file",
+          "size": 200,
+          "mtime": "2025-11-15T02:07:53-0600"
+        },
+        {
+          "name": "warm_fallback_1762737151_1.py",
+          "path": "/storage/emulated/0/ADAAD/agents/warm_fallback_1762737151_1.py",
+          "type": "file",
+          "size": 200,
+          "mtime": "2025-11-15T02:07:53-0600"
+        },
+        {
+          "name": "warm_2.py",
+          "path": "/storage/emulated/0/ADAAD/agents/warm_2.py",
+          "type": "file",
+          "size": 1217,
+          "mtime": "2025-11-15T02:09:32-0600"
+        },
+        {
+          "name": "warm_1.py",
+          "path": "/storage/emulated/0/ADAAD/agents/warm_1.py",
+          "type": "file",
+          "size": 1217,
+          "mtime": "2025-11-15T02:09:32-0600"
+        },
+        {
+          "name": "warm_0.py",
+          "path": "/storage/emulated/0/ADAAD/agents/warm_0.py",
+          "type": "file",
+          "size": 1217,
+          "mtime": "2025-11-15T02:09:32-0600"
+        },
+        {
+          "name": "utils",
+          "path": "/storage/emulated/0/ADAAD/agents/utils",
+          "type": "dir",
+          "children": [
+            {
+              "name": "logger.py",
+              "path": "/storage/emulated/0/ADAAD/agents/utils/logger.py",
+              "type": "file",
+              "size": 826,
+              "mtime": "2025-10-16T16:14:20-0500"
+            }
+          ],
+          "size": 4096,
+          "mtime": "2025-11-10T23:02:53-0600"
+        },
+        {
+          "name": "genesis.py",
+          "path": "/storage/emulated/0/ADAAD/agents/genesis.py",
+          "type": "file",
+          "size": 33233,
+          "mtime": "2025-11-15T02:07:52-0600"
+        },
+        {
+          "name": "generated_agents",
+          "path": "/storage/emulated/0/ADAAD/agents/generated_agents",
+          "type": "dir",
+          "children": [
+            {
+              "name": "starter_agent",
+              "path": "/storage/emulated/0/ADAAD/agents/generated_agents/starter_agent",
+              "type": "dir",
+              "children": [
+                {
+                  "name": "HELLO_ARCHITECT.txt",
+                  "path": "/storage/emulated/0/ADAAD/agents/generated_agents/starter_agent/HELLO_ARCHITECT.txt",
+                  "type": "file",
+                  "size": 29,
+                  "mtime": "2025-11-09T19:08:47-0600"
+                }
+              ],
+              "size": 4096,
+              "mtime": "2025-11-10T23:02:53-0600"
+            }
+          ],
+          "size": 12288,
+          "mtime": "2025-11-14T12:39:57-0600"
+        },
+        {
+          "name": "fusion.py",
+          "path": "/storage/emulated/0/ADAAD/agents/fusion.py",
+          "type": "file",
+          "size": 4890,
+          "mtime": "2025-11-15T02:07:52-0600"
+        },
+        {
+          "name": "dustin.py",
+          "path": "/storage/emulated/0/ADAAD/agents/dustin.py",
+          "type": "file",
+          "size": 17111,
+          "mtime": "2025-11-15T02:07:52-0600"
+        },
+        {
+          "name": "base_agent.py",
+          "path": "/storage/emulated/0/ADAAD/agents/base_agent.py",
+          "type": "file",
+          "size": 1217,
+          "mtime": "2025-11-15T02:09:19-0600"
+        },
+        {
+          "name": "agent_vector.py",
+          "path": "/storage/emulated/0/ADAAD/agents/agent_vector.py",
+          "type": "file",
+          "size": 1219,
+          "mtime": "2025-11-15T02:27:51-0600"
+        },
+        {
+          "name": "agent_timer.py",
+          "path": "/storage/emulated/0/ADAAD/agents/agent_timer.py",
+          "type": "file",
+          "size": 1124,
+          "mtime": "2025-11-15T02:27:51-0600"
+        },
+        {
+          "name": "agent_text.py",
+          "path": "/storage/emulated/0/ADAAD/agents/agent_text.py",
+          "type": "file",
+          "size": 1240,
+          "mtime": "2025-11-15T02:27:50-0600"
+        },
+        {
+          "name": "agent_symbolic.py",
+          "path": "/storage/emulated/0/ADAAD/agents/agent_symbolic.py",
+          "type": "file",
+          "size": 1098,
+          "mtime": "2025-11-15T02:27:51-0600"
+        },
+        {
+          "name": "agent_summarizer.py",
+          "path": "/storage/emulated/0/ADAAD/agents/agent_summarizer.py",
+          "type": "file",
+          "size": 1168,
+          "mtime": "2025-11-15T02:27:50-0600"
+        },
+        {
+          "name": "agent_scout.py",
+          "path": "/storage/emulated/0/ADAAD/agents/agent_scout.py",
+          "type": "file",
+          "size": 1182,
+          "mtime": "2025-11-15T02:27:51-0600"
+        },
+        {
+          "name": "agent_scorer.py",
+          "path": "/storage/emulated/0/ADAAD/agents/agent_scorer.py",
+          "type": "file",
+          "size": 1047,
+          "mtime": "2025-11-15T02:27:50-0600"
+        },
+        {
+          "name": "agent_sandbox.py",
+          "path": "/storage/emulated/0/ADAAD/agents/agent_sandbox.py",
+          "type": "file",
+          "size": 1116,
+          "mtime": "2025-11-15T02:27:51-0600"
+        },
+        {
+          "name": "agent_rewriter.py",
+          "path": "/storage/emulated/0/ADAAD/agents/agent_rewriter.py",
+          "type": "file",
+          "size": 1009,
+          "mtime": "2025-11-15T02:27:50-0600"
+        },
+        {
+          "name": "agent_random.py",
+          "path": "/storage/emulated/0/ADAAD/agents/agent_random.py",
+          "type": "file",
+          "size": 1267,
+          "mtime": "2025-11-15T02:27:50-0600"
+        },
+        {
+          "name": "agent_planner.py",
+          "path": "/storage/emulated/0/ADAAD/agents/agent_planner.py",
+          "type": "file",
+          "size": 1152,
+          "mtime": "2025-11-15T02:27:50-0600"
+        },
+        {
+          "name": "agent_pattern.py",
+          "path": "/storage/emulated/0/ADAAD/agents/agent_pattern.py",
+          "type": "file",
+          "size": 1136,
+          "mtime": "2025-11-15T02:27:50-0600"
+        },
+        {
+          "name": "agent_memory.py",
+          "path": "/storage/emulated/0/ADAAD/agents/agent_memory.py",
+          "type": "file",
+          "size": 1270,
+          "mtime": "2025-11-15T02:27:50-0600"
+        },
+        {
+          "name": "agent_math.py",
+          "path": "/storage/emulated/0/ADAAD/agents/agent_math.py",
+          "type": "file",
+          "size": 1613,
+          "mtime": "2025-11-15T02:27:50-0600"
+        },
+        {
+          "name": "agent_logger.py",
+          "path": "/storage/emulated/0/ADAAD/agents/agent_logger.py",
+          "type": "file",
+          "size": 1100,
+          "mtime": "2025-11-15T02:27:50-0600"
+        },
+        {
+          "name": "agent_fuzzy.py",
+          "path": "/storage/emulated/0/ADAAD/agents/agent_fuzzy.py",
+          "type": "file",
+          "size": 1154,
+          "mtime": "2025-11-15T02:27:51-0600"
+        },
+        {
+          "name": "agent_explorer.py",
+          "path": "/storage/emulated/0/ADAAD/agents/agent_explorer.py",
+          "type": "file",
+          "size": 1319,
+          "mtime": "2025-11-15T02:27:50-0600"
+        },
+        {
+          "name": "agent_critic.py",
+          "path": "/storage/emulated/0/ADAAD/agents/agent_critic.py",
+          "type": "file",
+          "size": 1254,
+          "mtime": "2025-11-15T02:27:50-0600"
+        },
+        {
+          "name": "agent_chain.py",
+          "path": "/storage/emulated/0/ADAAD/agents/agent_chain.py",
+          "type": "file",
+          "size": 1171,
+          "mtime": "2025-11-15T02:27:51-0600"
+        },
+        {
+          "name": "agent_analyzer.py",
+          "path": "/storage/emulated/0/ADAAD/agents/agent_analyzer.py",
+          "type": "file",
+          "size": 1366,
+          "mtime": "2025-11-15T02:27:51-0600"
+        },
+        {
+          "name": "__pycache__",
+          "path": "/storage/emulated/0/ADAAD/agents/__pycache__",
+          "type": "dir",
+          "children": [
+            {
+              "name": "warm_fallback_1762739721_2.cpython-313.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/warm_fallback_1762739721_2.cpython-313.pyc",
+              "type": "file",
+              "size": 755,
+              "mtime": "2025-11-13T08:54:15-0600"
+            },
+            {
+              "name": "warm_fallback_1762739721_2.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/warm_fallback_1762739721_2.cpython-312.pyc",
+              "type": "file",
+              "size": 697,
+              "mtime": "2025-11-13T08:59:50-0600"
+            },
+            {
+              "name": "warm_fallback_1762739721_1.cpython-313.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/warm_fallback_1762739721_1.cpython-313.pyc",
+              "type": "file",
+              "size": 755,
+              "mtime": "2025-11-13T08:54:15-0600"
+            },
+            {
+              "name": "warm_fallback_1762739721_1.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/warm_fallback_1762739721_1.cpython-312.pyc",
+              "type": "file",
+              "size": 697,
+              "mtime": "2025-11-13T08:59:50-0600"
+            },
+            {
+              "name": "warm_fallback_1762739721_0.cpython-313.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/warm_fallback_1762739721_0.cpython-313.pyc",
+              "type": "file",
+              "size": 755,
+              "mtime": "2025-11-13T08:54:15-0600"
+            },
+            {
+              "name": "warm_fallback_1762739721_0.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/warm_fallback_1762739721_0.cpython-312.pyc",
+              "type": "file",
+              "size": 697,
+              "mtime": "2025-11-13T08:59:50-0600"
+            },
+            {
+              "name": "warm_fallback_1762739706_0.cpython-313.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/warm_fallback_1762739706_0.cpython-313.pyc",
+              "type": "file",
+              "size": 755,
+              "mtime": "2025-11-13T08:54:15-0600"
+            },
+            {
+              "name": "warm_fallback_1762739706_0.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/warm_fallback_1762739706_0.cpython-312.pyc",
+              "type": "file",
+              "size": 697,
+              "mtime": "2025-11-13T08:59:50-0600"
+            },
+            {
+              "name": "warm_fallback_1762737151_1.cpython-313.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/warm_fallback_1762737151_1.cpython-313.pyc",
+              "type": "file",
+              "size": 755,
+              "mtime": "2025-11-13T08:54:15-0600"
+            },
+            {
+              "name": "warm_fallback_1762737151_1.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/warm_fallback_1762737151_1.cpython-312.pyc",
+              "type": "file",
+              "size": 697,
+              "mtime": "2025-11-13T08:59:50-0600"
+            },
+            {
+              "name": "warm_2.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/warm_2.cpython-312.pyc",
+              "type": "file",
+              "size": 2063,
+              "mtime": "2025-11-15T02:04:01-0600"
+            },
+            {
+              "name": "warm_1.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/warm_1.cpython-312.pyc",
+              "type": "file",
+              "size": 2063,
+              "mtime": "2025-11-15T02:04:01-0600"
+            },
+            {
+              "name": "warm_0.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/warm_0.cpython-312.pyc",
+              "type": "file",
+              "size": 2063,
+              "mtime": "2025-11-15T02:04:00-0600"
+            },
+            {
+              "name": "genesis.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/genesis.cpython-312.pyc",
+              "type": "file",
+              "size": 51088,
+              "mtime": "2025-11-15T00:00:14-0600"
+            },
+            {
+              "name": "fusion.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/fusion.cpython-312.pyc",
+              "type": "file",
+              "size": 9444,
+              "mtime": "2025-11-15T00:00:14-0600"
+            },
+            {
+              "name": "dustin.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/dustin.cpython-312.pyc",
+              "type": "file",
+              "size": 25999,
+              "mtime": "2025-11-15T00:00:13-0600"
+            },
+            {
+              "name": "base_agent.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/base_agent.cpython-312.pyc",
+              "type": "file",
+              "size": 2067,
+              "mtime": "2025-11-15T02:03:48-0600"
+            },
+            {
+              "name": "agent_vector.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/agent_vector.cpython-312.pyc",
+              "type": "file",
+              "size": 2451,
+              "mtime": "2025-11-15T02:27:52-0600"
+            },
+            {
+              "name": "agent_timer.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/agent_timer.cpython-312.pyc",
+              "type": "file",
+              "size": 2392,
+              "mtime": "2025-11-15T02:27:52-0600"
+            },
+            {
+              "name": "agent_text.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/agent_text.cpython-312.pyc",
+              "type": "file",
+              "size": 2384,
+              "mtime": "2025-11-15T02:27:52-0600"
+            },
+            {
+              "name": "agent_symbolic.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/agent_symbolic.cpython-312.pyc",
+              "type": "file",
+              "size": 2221,
+              "mtime": "2025-11-15T02:27:52-0600"
+            },
+            {
+              "name": "agent_summarizer.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/agent_summarizer.cpython-312.pyc",
+              "type": "file",
+              "size": 2335,
+              "mtime": "2025-11-15T02:27:52-0600"
+            },
+            {
+              "name": "agent_scout.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/agent_scout.cpython-312.pyc",
+              "type": "file",
+              "size": 2560,
+              "mtime": "2025-11-15T02:27:52-0600"
+            },
+            {
+              "name": "agent_scorer.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/agent_scorer.cpython-312.pyc",
+              "type": "file",
+              "size": 2325,
+              "mtime": "2025-11-15T02:27:51-0600"
+            },
+            {
+              "name": "agent_sandbox.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/agent_sandbox.cpython-312.pyc",
+              "type": "file",
+              "size": 2406,
+              "mtime": "2025-11-15T02:27:51-0600"
+            },
+            {
+              "name": "agent_rewriter.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/agent_rewriter.cpython-312.pyc",
+              "type": "file",
+              "size": 2151,
+              "mtime": "2025-11-15T02:27:51-0600"
+            },
+            {
+              "name": "agent_random.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/agent_random.cpython-312.pyc",
+              "type": "file",
+              "size": 2480,
+              "mtime": "2025-11-15T02:27:51-0600"
+            },
+            {
+              "name": "agent_planner.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/agent_planner.cpython-312.pyc",
+              "type": "file",
+              "size": 2248,
+              "mtime": "2025-11-15T02:27:51-0600"
+            },
+            {
+              "name": "agent_pattern.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/agent_pattern.cpython-312.pyc",
+              "type": "file",
+              "size": 2309,
+              "mtime": "2025-11-15T02:27:51-0600"
+            },
+            {
+              "name": "agent_memory.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/agent_memory.cpython-312.pyc",
+              "type": "file",
+              "size": 2600,
+              "mtime": "2025-11-15T02:27:51-0600"
+            },
+            {
+              "name": "agent_math.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/agent_math.cpython-312.pyc",
+              "type": "file",
+              "size": 2904,
+              "mtime": "2025-11-15T02:27:51-0600"
+            },
+            {
+              "name": "agent_logger.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/agent_logger.cpython-312.pyc",
+              "type": "file",
+              "size": 2407,
+              "mtime": "2025-11-15T02:27:51-0600"
+            },
+            {
+              "name": "agent_fuzzy.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/agent_fuzzy.cpython-312.pyc",
+              "type": "file",
+              "size": 2346,
+              "mtime": "2025-11-15T02:27:51-0600"
+            },
+            {
+              "name": "agent_explorer.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/agent_explorer.cpython-312.pyc",
+              "type": "file",
+              "size": 2731,
+              "mtime": "2025-11-15T02:27:51-0600"
+            },
+            {
+              "name": "agent_critic.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/agent_critic.cpython-312.pyc",
+              "type": "file",
+              "size": 2397,
+              "mtime": "2025-11-15T02:27:51-0600"
+            },
+            {
+              "name": "agent_chain.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/agent_chain.cpython-312.pyc",
+              "type": "file",
+              "size": 2289,
+              "mtime": "2025-11-15T02:27:51-0600"
+            },
+            {
+              "name": "agent_analyzer.cpython-312.pyc",
+              "path": "/storage/emulated/0/ADAAD/agents/__pycache__/agent_analyzer.cpython-312.pyc",
+              "type": "file",
+              "size": 2717,
+              "mtime": "2025-11-15T02:27:51-0600"
+            }
+          ],
+          "size": 4096,
+          "mtime": "2025-11-15T02:27:52-0600"
+        }
+      ],
+      "size": 114688,
+      "mtime": "2025-11-15T02:27:51-0600"
+    },
+    {
+      "name": "adaad_structure_report.json",
+      "path": "/storage/emulated/0/ADAAD/adaad_structure_report.json",
+      "type": "file",
+      "size": 66264,
+      "mtime": "2025-11-14T09:11:13-0600"
+    },
+    {
+      "name": "adaad_simple_tree.json",
+      "path": "/storage/emulated/0/ADAAD/adaad_simple_tree.json",
+      "type": "file",
+      "size": 736048,
+      "mtime": "2025-11-14T09:10:44-0600"
+    },
+    {
+      "name": "adaad_architecture.json",
+      "path": "/storage/emulated/0/ADAAD/adaad_architecture.json",
+      "type": "file",
+      "size": 47389,
+      "mtime": "2025-11-15T02:38:50-0600"
+    }
+  ],
+  "size": 4096,
+  "mtime": "2025-11-15T00:00:13-0600"
+}

@@ -1,0 +1,5 @@
+# keep lean; add only what runs on Termux/Pydroid3
+requests>=2.31
+uvloop; platform_system=="Linux" and platform_machine=="aarch64"
+typer>=0.12
+pydantic>=2

@@ -1,0 +1,165 @@
+=====================================
+        ADAAD DEEP SOURCE REPORT      
+=====================================
+Generated: Wed Nov 19 13:12:01 CST 2025
+Home: /data/data/com.termux/files/home
+
+🔎 Searching for ADAAD directories...
+/data/data/com.termux/files/home/backups/extracted_nested/ADAAD
+/data/data/com.termux/files/home/ADAAD_backup_1763378480
+/data/data/com.termux/files/home/.config/adaad
+/data/data/com.termux/files/home/adaad_venv
+/data/data/com.termux/files/home/old/ADAAD
+
+📁 ADAAD root exists at /data/data/com.termux/files/home/ADAAD
+
+=============== CORE =================
+
+============== AGENTS ================
+  - __pycache__
+  - agent_analyzer.py
+  - agent_chain.py
+  - agent_critic.py
+  - agent_explorer.py
+  - agent_fuzzy.py
+  - agent_interface.py
+  - agent_logger.py
+  - agent_math.py
+  - agent_memory.py
+  - agent_pattern.py
+  - agent_planner.py
+  - agent_random.py
+  - agent_rewriter.py
+  - agent_sandbox.py
+  - agent_scorer.py
+  - agent_scout.py
+  - agent_summarizer.py
+  - agent_symbolic.py
+  - agent_template.py
+  - agent_text.py
+  - agent_timer.py
+  - agent_vector.py
+  - autonomous_agent.py
+  - base_agent.py
+  - dustin.py
+  - fusion.py
+  - generated_agents
+  - genesis.py
+  - planner_agent.py
+  - step_handler.py
+  - task_manager.py
+  - team_orchestrator.py
+  - tools
+  - utils
+  - warm_0.py
+  - warm_1.py
+  - warm_2.py
+  - warm_fallback_1762737151_1.py
+  - warm_fallback_1762739706_0.py
+  - warm_fallback_1762739721_0.py
+  - warm_fallback_1762739721_1.py
+  - warm_fallback_1762739721_2.py
+  - workflows
+
+============== QUARANTINE ==============
+Files:
+
+======== METRICS / LINEAGE / STATE ========
+Found: lineage_log.json
+Preview:
+    [
+      {
+        "event": "promote",
+        "target": "offspring_1760634795_7742.py",
+        "fitness": 0.35252953717859203,
+        "parents": [
+          "agent_stub_1760634793.py",
+          "ramseis_upgrade_py_v2.py"
+        ],
+        "ts": "2025-10-16T17:13:17.881327+00:00"
+
+
+================ LOGS =================
+204K	/data/data/com.termux/files/home/ADAAD/logs
+  - /data/data/com.termux/files/home/ADAAD/logs/goadaad_status.json
+  - /data/data/com.termux/files/home/ADAAD/logs/fitness.jsonl
+  - /data/data/com.termux/files/home/ADAAD/logs/api.log
+  - /data/data/com.termux/files/home/ADAAD/logs/architect_history.jsonl
+  - /data/data/com.termux/files/home/ADAAD/logs/orch_state.json
+  - /data/data/com.termux/files/home/ADAAD/logs/aponi_unified.jsonl
+  - /data/data/com.termux/files/home/ADAAD/logs/adaad_termux_boot.log
+  - /data/data/com.termux/files/home/ADAAD/logs/dashboard_state.json
+  - /data/data/com.termux/files/home/ADAAD/logs/agent.log
+  - /data/data/com.termux/files/home/ADAAD/logs/auth.log
+  - /data/data/com.termux/files/home/ADAAD/logs/failures.sqlite
+  - /data/data/com.termux/files/home/ADAAD/logs/heartbeat.json
+  - /data/data/com.termux/files/home/ADAAD/logs/system.log
+  - /data/data/com.termux/files/home/ADAAD/logs/metrics.jsonl
+  - /data/data/com.termux/files/home/ADAAD/logs/proposal_queue.jsonl
+  - /data/data/com.termux/files/home/ADAAD/logs/lineage.jsonl
+  - /data/data/com.termux/files/home/ADAAD/logs/mutation_feedback.jsonl
+
+====== Pydroid /storage/emulated/0 Check =======
+/storage/emulated/0/Download/adaad_project/beast_mode.py
+/storage/emulated/0/Download/adaad_project/beast_mode_loop.py
+/storage/emulated/0/ADAAD/core/beast_mode_loop.py
+/storage/emulated/0/ADAAD/core/beast_mode.py
+/storage/emulated/0/ADAAD
+
+============= RECENT CHANGES (48h) =============
+  - /data/data/com.termux/files/home/Apon1/adaad_tree_dashboard.html
+  - /data/data/com.termux/files/home/Apon1/adaad_tree_full.json
+  - /data/data/com.termux/files/home/Apon1/adaad_tree_full.html
+  - /data/data/com.termux/files/home/adaad_reqs_termux.txt
+  - /data/data/com.termux/files/home/backups/extracted_nested/ADAAD/logs/goadaad_status.json.bak
+  - /data/data/com.termux/files/home/backups/extracted_nested/ADAAD/logs/goadaad_status.json
+  - /data/data/com.termux/files/home/backups/extracted_nested/ADAAD/goadaad.py.bak
+  - /data/data/com.termux/files/home/backups/extracted_nested/ADAAD/adaad_tree_full.json
+  - /data/data/com.termux/files/home/backups/extracted_nested/ADAAD/adaad_tree_full.json.bak
+  - /data/data/com.termux/files/home/backups/extracted_nested/ADAAD/goadaad.py
+  - /data/data/com.termux/files/home/backups/extracted_nested/ADAAD/marketplace/plugins/adaad_agent_post_and_stream.py
+  - /data/data/com.termux/files/home/backups/extracted_nested/ADAAD/adaad_structure_report.json
+  - /data/data/com.termux/files/home/backups/extracted_nested/ADAAD/adaad_architecture.json
+  - /data/data/com.termux/files/home/backups/extracted_nested/ADAAD/static/adaad_tree_full.json
+  - /data/data/com.termux/files/home/backups/extracted_nested/ADAAD/adaad_simple_tree.json
+  - /data/data/com.termux/files/home/backups/extracted_nested/ADAAD/data/adaad_structure_report.json
+  - /data/data/com.termux/files/home/backups/extracted_nested/ADAAD/data/adaad_structure_report (1).json
+  - /data/data/com.termux/files/home/backups/extracted_nested/ADAAD/plugins/scripts/adaad_style_apply.py
+  - /data/data/com.termux/files/home/ADAAD_backup_1763378480/data/adaad_structure_report (1).json
+  - /data/data/com.termux/files/home/ADAAD_backup_1763378480/data/adaad_structure_report.json
+  - /data/data/com.termux/files/home/ADAAD_backup_1763378480/adaad_architecture.json
+  - /data/data/com.termux/files/home/ADAAD_backup_1763378480/adaad_simple_tree.json
+  - /data/data/com.termux/files/home/ADAAD_backup_1763378480/adaad_structure_report.json
+  - /data/data/com.termux/files/home/ADAAD_backup_1763378480/adaad_tree_full.json
+  - /data/data/com.termux/files/home/ADAAD_backup_1763378480/static/adaad_tree_full.json
+  - /data/data/com.termux/files/home/ADAAD_backup_1763378480/plugins/scripts/adaad_style_apply.py
+  - /data/data/com.termux/files/home/ADAAD_backup_1763378480/marketplace/plugins/adaad_agent_post_and_stream.py
+  - /data/data/com.termux/files/home/adaad_setup.sh
+  - /data/data/com.termux/files/home/ad/adaad_z.sh
+  - /data/data/com.termux/files/home/ad/adaad_z.sh.bak
+  - /data/data/com.termux/files/home/ad/scripts/adaad_setup.sh.bak
+  - /data/data/com.termux/files/home/ad/scripts/adaad_setup.sh
+  - /data/data/com.termux/files/home/adaad_source_report_20251119_131201.txt
+  - /data/data/com.termux/files/home/adaad_start.sh
+  - /data/data/com.termux/files/home/downloads/adaad_z.sh
+  - /data/data/com.termux/files/home/downloads/adaad_z.sh.bak
+  - /data/data/com.termux/files/home/downloads/adaad_tree_full.json.bak
+  - /data/data/com.termux/files/home/downloads/adaad_tree_full.json
+  - /data/data/com.termux/files/home/old/ADAAD/goadaad.py
+  - /data/data/com.termux/files/home/old/ADAAD/logs/goadaad_status.json
+  - /data/data/com.termux/files/home/old/ADAAD/adaad_tree_full.json
+  - /data/data/com.termux/files/home/adaad_setup.sh.bak
+  - /data/data/com.termux/files/home/adaad_path_patch.sh
+
+============= VERSION CHECK =============
+Beast mode files found:
+  - /data/data/com.termux/files/home/backups/extracted_nested/ADAAD/core/beast_mode.py
+  - /data/data/com.termux/files/home/ADAAD_backup_1763378480/core/beast_mode.py
+  - /data/data/com.termux/files/home/old/ADAAD/core/beast_mode.py
+
+============= SIZE SUMMARY =============
+0	/data/data/com.termux/files/home/ADAAD
+
+=====================================
+Report saved to: /data/data/com.termux/files/home/adaad_source_report_20251119_131201.txt
+=====================================

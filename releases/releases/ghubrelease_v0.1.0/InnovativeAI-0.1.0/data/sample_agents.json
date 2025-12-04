@@ -1,0 +1,8 @@
+[
+  {
+    "id": "demo_agent",
+    "name": "Demo Agent",
+    "status": "available",
+    "description": "Placeholder agent for the ADAAD-Free public demo (not executable)."
+  }
+]
