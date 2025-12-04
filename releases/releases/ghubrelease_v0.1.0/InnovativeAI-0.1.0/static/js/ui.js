@@ -1,3 +1,4 @@
+# © InnovativeAI LLC — ADAAD Inside™ — All Rights Reserved
 (function() {
   const listEl = document.getElementById("agents-list");
 

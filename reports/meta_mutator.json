@@ -1,0 +1,12 @@
+{
+  "state": {
+    "operators": [
+      "ast",
+      "semantic",
+      "template"
+    ],
+    "mutation_rate": 0.3,
+    "selection_mode": "tournament"
+  },
+  "fingerprint": "5bb68db3521090049fd6dbdb802fcd006451fc0f8c45658ff000bd152795709a"
+}

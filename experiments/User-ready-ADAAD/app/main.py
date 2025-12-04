@@ -1,3 +1,4 @@
+# © InnovativeAI LLC — ADAAD Inside™ — All Rights Reserved
 import sys, os
 from app.orchestrator import __init__ as _  # ensures package exists
 def main():

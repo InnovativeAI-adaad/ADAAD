@@ -1,3 +1,4 @@
+# © InnovativeAI LLC — ADAAD Inside™ — All Rights Reserved
 #!/data/data/com.termux/files/usr/bin/bash
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.."; pwd)"
