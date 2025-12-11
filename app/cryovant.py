@@ -238,7 +238,22 @@ class CryovantRegistry:
         return ok
 
     def certify_policy_change(self, payload: Dict[str, Any], signature: str) -> bool:
-        if "policy_hash" not in payload and "kernel_hash" not in payload:
+        def _valid_digest(value: Any) -> bool:
+            if not isinstance(value, str):
+                return False
+            cleaned = value.strip()
+            if cleaned != value:
+                return False
+            return len(cleaned) == 64 and all(ch in "0123456789abcdef" for ch in cleaned)
+
+        if not isinstance(signature, str) or not signature.strip():
+            return False
+
+        policy_hash = payload.get("policy_hash")
+        kernel_hash = payload.get("kernel_hash")
+        has_policy = _valid_digest(policy_hash)
+        has_kernel = _valid_digest(kernel_hash)
+        if not (has_policy or has_kernel):
             return False
         return self.verify_ctc(payload, signature)
 
