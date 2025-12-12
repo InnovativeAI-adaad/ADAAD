@@ -3,18 +3,18 @@
 from __future__ import annotations
 
 import json
-import os
 import time
+from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List
+
+from runtime.metrics import METRICS_PATH, MutationStage, StageResult
 
 
 PROPOSAL_DIR = Path("reports/architect")
 PROPOSAL_DIR.mkdir(parents=True, exist_ok=True)
 CANON_TAG = "# © InnovativeAI LLC — ADAAD Inside™ — All Rights Reserved"
-BAD_IMPORTS = ("from ..", "import app.")
-EVENT_LOG = Path("runtime/logs/events.jsonl")
 SYSTEM_PROPOSAL_DIR = PROPOSAL_DIR
 KERNEL_STATE = Path("reports/evolution_kernel.json")
 META_STATE = Path("reports/meta_mutator.json")
@@ -24,85 +24,93 @@ META_STATE = Path("reports/meta_mutator.json")
 class BlueprintProposal:
     path: str
     rationale: str
+    metrics_signal: Dict[str, object] | None = None
 
     def to_json(self) -> str:
-        return json.dumps({"path": self.path, "rationale": self.rationale})
+        return json.dumps({"path": self.path, "rationale": self.rationale, "metrics_signal": self.metrics_signal})
 
 
 class ArchitectAgent:
-    """Generates lightweight blueprint proposals based on missing modules."""
+    """Generates stage-aligned diagnostic blueprint proposals."""
 
-    def __init__(self, root: Path | str = Path("app")) -> None:
+    def __init__(self, root: Path | str = Path("app"), metrics_path: Path = METRICS_PATH) -> None:
         self.root = Path(root)
+        self.metrics_path = metrics_path
 
-    def scan_for_placeholders(self) -> List[BlueprintProposal]:
-        proposals: List[BlueprintProposal] = []
-        for dirpath, _dirnames, filenames in os.walk(self.root):
-            for filename in filenames:
-                if filename.endswith(".py"):
-                    file_path = Path(dirpath) / filename
-                    content = file_path.read_text(encoding="utf-8")
-                    if not content.strip() or content.strip() == "pass":
-                        proposals.append(
-                            BlueprintProposal(
-                                path=str(file_path),
-                                rationale="Stub detected; propose fleshing out implementation",
-                            )
-                        )
-        return proposals
-
-    def scan_for_policy_violations(self) -> List[BlueprintProposal]:
-        proposals: List[BlueprintProposal] = []
-        for dirpath, _dirnames, filenames in os.walk(self.root):
-            for filename in filenames:
-                if not filename.endswith(".py"):
-                    continue
-                file_path = Path(dirpath) / filename
-                content = file_path.read_text(encoding="utf-8", errors="ignore")
-                lines = content.splitlines()
-                if CANON_TAG not in lines[:5]:
-                    proposals.append(BlueprintProposal(str(file_path), "Missing ADAAD tag"))
-                if "from /" in content or "import /" in content:
-                    proposals.append(BlueprintProposal(str(file_path), "Absolute path import"))
-        return proposals
-
-    def analyze_runtime_events(self) -> List[BlueprintProposal]:
-        proposals: List[BlueprintProposal] = []
-        if not EVENT_LOG.exists():
-            return proposals
-        for line in EVENT_LOG.read_text(encoding="utf-8", errors="ignore").splitlines():
+    def _tail_lines(self, path: Path, max_lines: int = 2000, max_bytes: int = 512 * 1024) -> List[str]:
+        if not path.exists():
+            return []
+        try:
+            size = path.stat().st_size
+        except OSError:
+            return []
+        if size <= 0:
+            return []
+        read_size = min(size, max_bytes)
+        try:
+            with path.open("rb") as f:
+                f.seek(size - read_size)
+                chunk = f.read(read_size)
+        except OSError:
+            return []
+        lines = chunk.splitlines()[-max_lines:]
+        out: List[str] = []
+        for b in lines:
             try:
-                payload = json.loads(line)
+                out.append(b.decode("utf-8", errors="ignore"))
+            except Exception:
+                continue
+        return out
+
+    def _load_metrics(self) -> List[Dict[str, object]]:
+        payloads: List[Dict[str, object]] = []
+        for line in self._tail_lines(self.metrics_path):
+            try:
+                payloads.append(json.loads(line))
             except json.JSONDecodeError:
                 continue
-            if payload.get("event", "").lower().startswith("error") or payload.get("ok") is False:
-                proposals.append(
-                    BlueprintProposal(
-                        path=str(self.root),
-                        rationale=f"Runtime anomaly detected: {payload.get('event')}",
-                    )
-                )
-        return proposals
+        return [p for p in payloads if p.get("event_type") == "MUTATION_STAGE"]
+
+    def _dominant_error(self, rows: List[Dict[str, object]]) -> str | None:
+        codes = Counter(row.get("error_code") for row in rows if row.get("error_code"))
+        if not codes:
+            return None
+        return codes.most_common(1)[0][0]
+
+    def _stage_blueprint(self, stage: MutationStage, rows: List[Dict[str, object]]) -> BlueprintProposal:
+        stage_rows = [row for row in rows if row.get("stage") == stage.value]
+        total = len(stage_rows)
+        failure_rows = [row for row in stage_rows if row.get("result") == StageResult.FAIL.value]
+        dominant = self._dominant_error(stage_rows)
+        if total == 0:
+            rationale = f"Diagnostic for stage {stage.value}: no stage data in recent metrics tail"
+        else:
+            rationale = (
+                f"Diagnostic for stage {stage.value}: "
+                f"{len(failure_rows)}/{total} failures; dominant error={dominant or 'none'}"
+            )
+        metrics_signal = {
+            "stage": stage.value,
+            "failures": len(failure_rows),
+            "total": total,
+            "dominant_error_code": dominant,
+        }
+        return BlueprintProposal(
+            path=f"diagnostics/{stage.value.lower()}.json",
+            rationale=rationale,
+            metrics_signal=metrics_signal,
+        )
+
+    def diagnostic_blueprints(self) -> List[BlueprintProposal]:
+        rows = self._load_metrics()
+        return [self._stage_blueprint(stage, rows) for stage in MutationStage]
 
     def audit_system_layers(self) -> List[BlueprintProposal]:
-        proposals: List[BlueprintProposal] = []
-        if not KERNEL_STATE.exists():
-            proposals.append(BlueprintProposal(str(KERNEL_STATE), "Missing evolution kernel state"))
-        else:
-            payload = json.loads(KERNEL_STATE.read_text(encoding="utf-8"))
-            if "fingerprint" not in payload:
-                proposals.append(BlueprintProposal(str(KERNEL_STATE), "Kernel fingerprint absent"))
-        if not META_STATE.exists():
-            proposals.append(BlueprintProposal(str(META_STATE), "Missing meta-mutator state"))
-        return proposals
+        """Placeholder system audits retained for compatibility."""
+        return []
 
     def governance_sweep(self) -> List[BlueprintProposal]:
-        return (
-            self.scan_for_placeholders()
-            + self.scan_for_policy_violations()
-            + self.analyze_runtime_events()
-            + self.audit_system_layers()
-        )
+        return self.diagnostic_blueprints()
 
     def export_proposals(self, proposals: List[BlueprintProposal]) -> Path:
         timestamped_path = PROPOSAL_DIR / f"architect_proposals_{int(time.time())}.json"
