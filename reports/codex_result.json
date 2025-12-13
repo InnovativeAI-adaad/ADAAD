@@ -1,0 +1,17 @@
+{
+  "task_id": "codex-smoke-0001",
+  "status": "SUCCESS",
+  "message": "Tests passed",
+  "started_at": "2025-12-12T16:21:25.486267Z",
+  "finished_at": "2025-12-12T16:21:25.642896Z",
+  "applied_patch": false,
+  "test_results": [
+    {
+      "command": "python -m compileall app runtime tools ui tests",
+      "returncode": 0,
+      "stdout": "Listing 'app'...\nCompiling 'app/__init__.py'...\nListing 'app/agents'...\nCompiling 'app/agents/__init__.py'...\nListing 'app/api'...\nCompiling 'app/api/__init__.py'...\nCompiling 'app/architect_agent.py'...\nCompiling 'app/beast_mode_loop.py'...\nListing 'app/cognition'...\nCompiling 'app/cognition/__init__.py'...\nListing 'app/configs'...\nCompiling 'app/configs/__init__.py'...\nListing 'app/core'...\nCompiling 'app/core/__init__.py'...\nCompiling 'app/cryovant.py'...\nCompiling 'app/dream_mode.py'...\nListing 'app/evolution'...\nCompiling 'app/evolution/__init__.py'...\nCompiling 'app/evolution/kernel.py'...\nListing 'app/integrations'...\nCompiling 'app/integrations/__init__.py'...\nCompiling 'app/main.py'...\nCompiling 'app/meta_mutator.py'...\nCompiling 'app/mutation_pipeline.py'...\nListing 'app/orchestrator'...\nCompiling 'app/orchestrator/__init__.py'...\nListing 'app/plugins'...\nCompiling 'app/plugins/__init__.py'...\nListing 'app/providers'...\nCompiling 'app/providers/__init__.py'...\nListing 'app/resources'...\nCompiling 'app/resources/__init__.py'...\nListing 'runtime'...\nCompiling 'runtime/__init__.py'...\nCompiling 'runtime/boot.py'...\nCompiling 'runtime/earth_init.py'...\nCompiling 'runtime/failure_taxonomy.py'...\nCompiling 'runtime/logging.py'...\nCompiling 'runtime/metrics.py'...\nCompiling 'runtime/population.py'...\nListing 'runtime/tmp'...\nListing 'runtime/tmp/codex'...\nListing 'tools'...\nListing 'tools/codex'...\nListing 'tools/codex/prompts'...\nListing 'tools/ngrok'...\nCompiling 'tools/repro_harness.py'...\nListing 'ui'...\nCompiling 'ui/aponi_dashboard.py'...\nListing 'ui/pages'...\nListing 'tests'...\n",
+      "stderr": ""
+    }
+  ],
+  "metrics_path": "reports/metrics.jsonl"
+}

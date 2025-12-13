@@ -1,2 +1,2 @@
-Apply the provided unified diff in a scratch workspace first. Never modify files outside allowed_paths and never touch forbidden_paths.
-Use atomic promotion to move validated changes into the real repository after all checks pass.
+Apply the provided unified diff patch. If the patch file is empty, record the
+step as skipped and proceed to validation and testing.

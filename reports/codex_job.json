@@ -1,0 +1,13 @@
+{
+  "task_id": "codex-smoke-0001",
+  "objective": "Validate codex pipeline gating and scratch execution",
+  "allowed_paths": ["app/", "runtime/", "reports/", "tools/", "ui/", "tests/", "docs/", "data/", "scripts/", "experiments/", "archives/"],
+  "forbidden_paths": ["security/keys/", "security/ledger/"],
+  "patch_format": "unified_diff",
+  "tests": ["python -m compileall app runtime tools ui tests"],
+  "success_criteria": ["py_compile passes", "tests pass"],
+  "cycle_id": "cycle-smoke-0001",
+  "parent_agent_id": "architect",
+  "child_candidate_id": "codex",
+  "diff": ""
+}
