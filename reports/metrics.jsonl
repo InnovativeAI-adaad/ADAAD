@@ -1,3 +1,10 @@
 # © InnovativeAI LLC — ADAAD Inside™ — All Rights Reserved
 {"ts": 0.0, "cycle_id": "sample-cycle", "parent_agent_id": "sample-parent", "child_candidate_id": "sample-child", "stage": "MUTATE_AST", "result": "SUCCESS", "duration_ms": 5, "error_code": null, "exception_type": null, "exception_msg_hash": null, "sandbox_exit_code": null}
 {"ts": 0.0, "cycle_id": "sample-cycle", "parent_agent_id": "sample-parent", "child_candidate_id": "sample-child", "stage": "SANDBOX_RUN", "result": "FAIL", "duration_ms": 12, "error_code": "TEST_FAIL", "exception_type": "AssertionError", "exception_msg_hash": "af2bdbe1aa9b6ec1e2ade1d694f41fc71a831d0268e9891562113d8a62add1bf", "sandbox_exit_code": 1}
+{"event_type": "CODEX_STAGE", "status": "SUCCESS", "detail": "CODEX_PLAN", "timestamp": "2025-12-12T16:21:25.486427Z"}
+{"event_type": "CODEX_STAGE", "status": "SUCCESS", "detail": "CODEX_GENERATE_DIFF", "timestamp": "2025-12-12T16:21:25.486612Z"}
+{"event_type": "CODEX_STAGE", "status": "SKIPPED", "detail": "CODEX_APPLY_DIFF", "timestamp": "2025-12-12T16:21:25.486748Z"}
+{"event_type": "CODEX_STAGE", "status": "SUCCESS", "detail": "CODEX_VALIDATE_IMPORTS", "timestamp": "2025-12-12T16:21:25.486810Z"}
+{"event_type": "CODEX_STAGE", "status": "SUCCESS", "detail": "CODEX_SANDBOX_TEST", "timestamp": "2025-12-12T16:21:25.642494Z"}
+{"event_type": "CODEX_STAGE", "status": "SKIPPED", "detail": "CODEX_CRYOVANT_CERT", "timestamp": "2025-12-12T16:21:25.642738Z"}
+{"event_type": "CODEX_STAGE", "status": "SKIPPED", "detail": "CODEX_PROMOTE", "timestamp": "2025-12-12T16:21:25.642808Z"}

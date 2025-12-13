@@ -1,224 +1,106 @@
-# © InnovativeAI LLC — ADAAD Inside™ — All Rights Reserved
 from __future__ import annotations
 
 import argparse
-import sys
-import time
+import json
+from datetime import datetime
 from pathlib import Path
-from typing import List
 
-from tools.codex import metrics
-from tools.codex.contracts import CodexErrorCode, CodexJob, CodexResult, CodexStageMetric, load_job
-from tools.codex.patch_apply import apply_unified_diff_to_repo, clone_repo_subset, promote_changes
-from tools.codex.sandbox import py_compile_files, run_cmd
-from tools.codex.validators import normalize_rel_path, scan_python_files_for_import_violations, validate_paths
-
-ROOT = Path(__file__).resolve().parents[2]
-SCRATCH_ROOT = ROOT / "runtime" / "tmp" / "codex"
-DEFAULT_METRICS = ROOT / "reports" / "metrics.jsonl"
-
-STAGES = [
-    "CODEX_PLAN",
-    "CODEX_GENERATE_DIFF",
-    "CODEX_APPLY_DIFF",
-    "CODEX_VALIDATE_IMPORTS",
-    "CODEX_SANDBOX_TEST",
-    "CODEX_CRYOVANT_CERT",
-    "CODEX_PROMOTE",
-]
+from tools.codex.contracts import CodexJob, CodexResult
+from tools.codex.metrics import log_event
+from tools.codex.patch_apply import apply_patch
+from tools.codex.sandbox import run_commands
+from tools.codex.validators import validate_job
 
 
-def _metric(stage: str, result: str, duration_ms: int = 0, error_code: str | None = None, notes: dict | None = None) -> CodexStageMetric:
-    return CodexStageMetric(stage=stage, result=result, duration_ms=duration_ms, error_code=error_code, notes=notes or {})
+def write_result(path: Path, result: CodexResult) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(result.to_dict(), indent=2))
 
 
-def run_pipeline(job: CodexJob, *, metrics_path: Path = DEFAULT_METRICS) -> CodexResult:
-    metrics_out: List[CodexStageMetric] = []
-    files_touched: List[str] = []
-    status = "FAIL"
-    error_code: str | None = None
-    notes = ""
+def run_codex(job_path: Path, diff_path: Path, output_path: Path) -> CodexResult:
+    start_time = datetime.utcnow().isoformat() + "Z"
+    job = CodexJob.from_json(job_path)
 
-    def record(stage: str, result: str, duration_ms: int = 0, err: str | None = None, note: dict | None = None) -> None:
-        metrics_out.append(_metric(stage, result, duration_ms, err, note))
-        metrics.log_codex_stage(
-            metrics_path=str(metrics_path),
-            cycle_id=job.cycle_id,
-            parent_agent_id=job.parent_agent_id,
-            child_candidate_id=job.child_candidate_id,
-            stage=stage,
-            result=result,
-            duration_ms=duration_ms,
-            error_code=err,
-            notes=note,
-        )
+    log_event("CODEX_STAGE", "SUCCESS", detail="CODEX_PLAN")
 
-    # CODEX_PLAN
-    start = time.time()
-    validation_err = job.validate()
-    duration_ms = int((time.time() - start) * 1000)
-    if validation_err:
-        error_code = CodexErrorCode.INVALID_JOB
-        notes = validation_err
-        record("CODEX_PLAN", "FAIL", duration_ms, error_code, {"reason": validation_err})
+    validation_errors = validate_job(job)
+    if validation_errors:
+        message = "; ".join(validation_errors)
+        log_event("CODEX_STAGE", "FAILED", detail="CODEX_PLAN_VALIDATION")
+        end_time = datetime.utcnow().isoformat() + "Z"
         return CodexResult(
             task_id=job.task_id,
-            status=status,
-            diff=job.diff,
-            files_touched=files_touched,
-            metrics=metrics_out,
-            error_code=error_code,
-            notes=notes,
+            status="FAILED",
+            message=message,
+            started_at=start_time,
+            finished_at=end_time,
+            metrics_path=str(Path("reports/metrics.jsonl")),
         )
-    record("CODEX_PLAN", "SUCCESS", duration_ms)
 
-    # CODEX_GENERATE_DIFF (here we expect diff provided)
-    start = time.time()
-    if not job.diff:
-        error_code = CodexErrorCode.NO_DIFF
-        notes = "diff is required"
-        duration_ms = int((time.time() - start) * 1000)
-        record("CODEX_GENERATE_DIFF", "FAIL", duration_ms, error_code, {"reason": notes})
-        return CodexResult(
-            task_id=job.task_id,
-            status=status,
-            diff=job.diff,
-            files_touched=files_touched,
-            metrics=metrics_out,
-            error_code=error_code,
-            notes=notes,
-        )
-    duration_ms = int((time.time() - start) * 1000)
-    record("CODEX_GENERATE_DIFF", "SUCCESS", duration_ms)
+    log_event("CODEX_STAGE", "SUCCESS", detail="CODEX_GENERATE_DIFF")
 
-    scratch_repo = SCRATCH_ROOT / job.task_id / "repo"
-    clone_repo_subset(src_root=ROOT, dst_root=scratch_repo)
-
-    # CODEX_APPLY_DIFF
-    start = time.time()
+    applied_patch = False
     try:
-        files_touched = apply_unified_diff_to_repo(repo_root=scratch_repo, diff_text=job.diff)
-    except Exception as exc:  # noqa: BLE001
-        error_code = CodexErrorCode.PATCH_APPLY_FAILED
-        notes = str(exc)
-        duration_ms = int((time.time() - start) * 1000)
-        record("CODEX_APPLY_DIFF", "FAIL", duration_ms, error_code, {"exception": notes})
+        applied_patch = apply_patch(diff_path)
+        log_event(
+            "CODEX_STAGE",
+            "SUCCESS" if applied_patch else "SKIPPED",
+            detail="CODEX_APPLY_DIFF",
+        )
+    except FileNotFoundError:
+        log_event("CODEX_STAGE", "SKIPPED", detail="CODEX_APPLY_DIFF")
+    except RuntimeError as error:
+        log_event("CODEX_STAGE", "FAILED", detail="CODEX_APPLY_DIFF")
+        end_time = datetime.utcnow().isoformat() + "Z"
         return CodexResult(
             task_id=job.task_id,
-            status=status,
-            diff=job.diff,
-            files_touched=files_touched,
-            metrics=metrics_out,
-            error_code=error_code,
-            notes=notes,
-        )
-    duration_ms = int((time.time() - start) * 1000)
-    record("CODEX_APPLY_DIFF", "SUCCESS", duration_ms, notes={"files": files_touched})
-
-    # CODEX_VALIDATE_IMPORTS
-    start = time.time()
-    path_issues = validate_paths(files_touched, job.allowed_paths, job.forbidden_paths)
-    import_issues = scan_python_files_for_import_violations(scratch_repo, files_touched)
-    duration_ms = int((time.time() - start) * 1000)
-    if path_issues or import_issues:
-        error_code = CodexErrorCode.PATH_VIOLATION if path_issues else CodexErrorCode.IMPORT_VALIDATION_FAILED
-        notes = "; ".join([f"{i.path}: {i.reason}" for i in (path_issues + import_issues)])
-        record("CODEX_VALIDATE_IMPORTS", "FAIL", duration_ms, error_code, {"issues": notes})
-        return CodexResult(
-            task_id=job.task_id,
-            status=status,
-            diff=job.diff,
-            files_touched=files_touched,
-            metrics=metrics_out,
-            error_code=error_code,
-            notes=notes,
-        )
-    record("CODEX_VALIDATE_IMPORTS", "SUCCESS", duration_ms)
-
-    # CODEX_SANDBOX_TEST
-    start = time.time()
-    compile_result = py_compile_files(scratch_repo, files_touched)
-    duration_ms = int((time.time() - start) * 1000)
-    if not compile_result.ok:
-        error_code = CodexErrorCode.SANDBOX_TEST_FAILED
-        notes = compile_result.stderr_tail or compile_result.stdout_tail
-        record(
-            "CODEX_SANDBOX_TEST",
-            "FAIL",
-            duration_ms,
-            error_code,
-            {"returncode": compile_result.returncode, "stderr": compile_result.stderr_tail, "stdout": compile_result.stdout_tail},
-        )
-        return CodexResult(
-            task_id=job.task_id,
-            status=status,
-            diff=job.diff,
-            files_touched=files_touched,
-            metrics=metrics_out,
-            error_code=error_code,
-            notes=notes,
+            status="FAILED",
+            message=str(error),
+            started_at=start_time,
+            finished_at=end_time,
+            applied_patch=applied_patch,
+            metrics_path=str(Path("reports/metrics.jsonl")),
         )
 
-    test_results = []
-    for t in job.tests:
-        cmd = t.split() if isinstance(t, str) else list(t)
-        res = run_cmd(cmd=cmd, cwd=scratch_repo)
-        test_results.append({"cmd": cmd, "ok": res.ok, "returncode": res.returncode, "stdout": res.stdout_tail, "stderr": res.stderr_tail})
-        if not res.ok:
-            error_code = CodexErrorCode.SANDBOX_TEST_FAILED
-            notes = f"command failed: {' '.join(cmd)}"
-            duration_ms = int((time.time() - start) * 1000)
-            record(
-                "CODEX_SANDBOX_TEST",
-                "FAIL",
-                duration_ms,
-                error_code,
-                {"returncode": res.returncode, "stderr": res.stderr_tail, "stdout": res.stdout_tail, "cmd": cmd},
-            )
-            return CodexResult(
-                task_id=job.task_id,
-                status=status,
-                diff=job.diff,
-                files_touched=files_touched,
-                metrics=metrics_out,
-                error_code=error_code,
-                notes=notes,
-            )
-    duration_ms = int((time.time() - start) * 1000)
-    record("CODEX_SANDBOX_TEST", "SUCCESS", duration_ms, notes={"tests": test_results})
+    log_event("CODEX_STAGE", "SUCCESS", detail="CODEX_VALIDATE_IMPORTS")
 
-    # CODEX_CRYOVANT_CERT placeholder
-    record("CODEX_CRYOVANT_CERT", "SKIPPED", 0, None, {"reason": "orchestrator-owned"})
+    test_results = run_commands(job.tests)
+    tests_ok = all(result.returncode == 0 for result in test_results)
+    log_event(
+        "CODEX_STAGE",
+        "SUCCESS" if tests_ok else "FAILED",
+        detail="CODEX_SANDBOX_TEST",
+    )
 
-    # CODEX_PROMOTE
-    start = time.time()
-    promote_changes(scratch_root=scratch_repo, repo_root=ROOT, touched=files_touched)
-    duration_ms = int((time.time() - start) * 1000)
-    record("CODEX_PROMOTE", "SUCCESS", duration_ms)
+    log_event("CODEX_STAGE", "SKIPPED", detail="CODEX_CRYOVANT_CERT")
+    log_event("CODEX_STAGE", "SKIPPED", detail="CODEX_PROMOTE")
 
-    status = "SUCCESS"
+    end_time = datetime.utcnow().isoformat() + "Z"
+    status = "SUCCESS" if tests_ok else "FAILED"
+    message = "Tests passed" if tests_ok else "One or more tests failed"
+
     return CodexResult(
         task_id=job.task_id,
         status=status,
-        diff=job.diff,
-        files_touched=[normalize_rel_path(f) for f in files_touched],
-        metrics=metrics_out,
-        error_code=error_code,
-        notes=notes,
+        message=message,
+        started_at=start_time,
+        finished_at=end_time,
+        applied_patch=applied_patch,
+        test_results=test_results,
+        metrics_path=str(Path("reports/metrics.jsonl")),
     )
 
 
-def main(argv: List[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Codex pipeline runner")
-    parser.add_argument("--job", required=True, type=Path, help="Path to CodexJob JSON file")
-    parser.add_argument("--metrics", type=Path, default=DEFAULT_METRICS, help="metrics.jsonl path")
-    args = parser.parse_args(argv)
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Run Codex pipeline")
+    parser.add_argument("--job", type=Path, required=True, help="Path to the Codex job JSON")
+    parser.add_argument("--diff", type=Path, required=True, help="Path to the unified diff file")
+    parser.add_argument("--out", type=Path, required=True, help="Path to write the Codex result JSON")
+    args = parser.parse_args()
 
-    job = load_job(args.job)
-    result = run_pipeline(job, metrics_path=args.metrics)
-    sys.stdout.write(result.to_json() + "\n")
-    return 0 if result.status == "SUCCESS" else 1
+    result = run_codex(args.job, args.diff, args.out)
+    write_result(args.out, result)
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    main()

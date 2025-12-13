@@ -1,3 +1,2 @@
-- No prompt strings embedded in code; use prompts/ files instead.
-- Enforce canonical imports; avoid relative imports and absolute filesystem imports.
-- Run tests via subprocess only; never execute mutated code in-process.
+Keep output minimal and structured. Use ISO 8601 timestamps and JSON payloads
+for machine consumption.
