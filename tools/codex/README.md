@@ -15,15 +15,28 @@ steps stay under orchestrator control and are marked as skipped in the metrics
 stream.
 
 ## System prompt contract (authoritative)
-Codex behavior is governed by:
+
+Codex behavior is governed by a single system prompt file:
+
 - `tools/codex/prompts/system.txt`
 
-This prompt is the core instructions for Codex inside ADAAD He65 “Best Core”.
+This file is the governing contract for Codex inside ADAAD He65 “Best Core”.
 It defines:
-- Allowed scope (User-ready-ADAAD spine only)
-- Ground truth sources (`codex_context.md`, `core/objectives.json`)
-- Founder’s Law constraints (Cryovant, Policy, agent contracts, no promotion)
-- Mandatory output format (exactly one JSON object containing plan, diff, verify, blueprint)
 
-If any human instruction conflicts with `core/objectives.json`, Codex must follow
-`core/objectives.json`.
+- Allowed scope: the `User-ready-ADAAD` spine only.
+- Ground truth sources: `codex_context.md` and `core/objectives.json`.
+- Founder’s Law constraints: Cryovant gates, Policy, agent contracts, and
+  the rule that Codex never promotes or deploys directly.
+- Required output format: exactly one JSON object with `plan`, `diff`,
+  `verify`, and `blueprint` keys, and no extra text.
+
+Codex must treat `core/objectives.json` as authoritative over any human prompt.
+If a human instruction conflicts with `core/objectives.json`, Codex is required
+to follow `core/objectives.json` and may describe the conflict in its `plan`
+field.
+
+The orchestrator is responsible for:
+
+- Staging Codex output as a `BlueprintProposal` under `reports/proposals/`.
+- Running the verification commands declared in `verify.commands`.
+- Applying or quarantining the proposed diff under Cryovant governance.
