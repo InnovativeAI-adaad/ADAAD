@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -49,6 +50,15 @@ class Cryovant:
             self.append_event({"event_type": "KEYS_CHMOD_FAIL", "error": str(exc)})
         self.touch_ledger()
 
+    def emit_metric(self, payload: dict):
+        if not self._metrics_sink:
+            return
+        try:
+            self._metrics_sink(payload)
+        except Exception:
+            # Metrics are best-effort; never block on them here.
+            pass
+
     def state(self) -> dict:
         return {"cert_ok": self.cert_ok, "ledger": str(self.ledger_dir)}
 
@@ -70,9 +80,26 @@ class Cryovant:
         if not self.cert_ok:
             evt = {"event_type": "AGENT_CERT_FAIL", "reason": "missing_agent_dirs", "count": len(list(agent_dirs))}
             self.append_event(evt)
-            if self._metrics_sink:
-                try:
-                    self._metrics_sink(evt)
-                except Exception:
-                    pass
+            self.emit_metric(evt)
         return self.cert_ok
+
+    def compute_lineage_hash(self, agent_dir: Path) -> str:
+        """Compute a deterministic hash for an agent directory."""
+        digest = hashlib.sha256()
+        base = Path(agent_dir)
+        for path in sorted(base.rglob("*")):
+            if path.is_file():
+                digest.update(str(path.relative_to(base)).encode("utf-8", errors="ignore"))
+                digest.update(path.read_bytes())
+        return digest.hexdigest()
+
+    def record_lineage(self, agent_id: str, lineage_hash: str, target: Path) -> dict:
+        evt = {
+            "event_type": "LINEAGE_RECORDED",
+            "agent_id": agent_id,
+            "lineage_hash": lineage_hash,
+            "target": str(target),
+        }
+        self.append_event(evt)
+        self.emit_metric(evt)
+        return evt
