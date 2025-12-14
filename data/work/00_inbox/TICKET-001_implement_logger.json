@@ -1,0 +1,23 @@
+{
+  "id": "TICKET-001",
+  "type": "feature",
+  "priority": "critical",
+  "title": "Implement Canonical ILogger (runtime/logger.py)",
+  "description": "Create a concrete implementation of ILogger that adheres to Protocol v1.0 for unified system observability.",
+  "inputs": [
+    "runtime/interfaces/ilogger.py",
+    "docs/protocols/v1/logging_standard.md"
+  ],
+  "deliverables": [
+    "runtime/logger.py",
+    "tests/runtime/test_logger.py"
+  ],
+  "acceptance_criteria": [
+    "runtime/logger.py exists",
+    "Implements ILogger",
+    "Writes valid JSONL",
+    "Rotates at 5MB (5242880 bytes), backupCount=3",
+    "tests/runtime/test_logger.py passes with python -m unittest"
+  ],
+  "agent_handoff": "Implementer"
+}
