@@ -91,14 +91,17 @@ def main():
 
     if cert_ok:
         dream.enable()
+        architect.enable()
         beast.enable()
     else:
         emit_metric({"event_type": "HARD_GATE", "status": "ENGINES_DISABLED", "reason": "cryovant_gate_failed"})
         dream.disable()
+        architect.disable()
         beast.disable()
 
     pool = WarmPool(max_workers=4)
     pool.submit(dream.background_housekeeping)
+    pool.submit(architect.process_pending_proposals, cryo)
     pool.submit(beast.heartbeat_loop)
 
     try:
