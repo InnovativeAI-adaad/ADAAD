@@ -28,7 +28,7 @@ def process_review_tickets(review_dir: Path = Path("data/work/02_review")) -> Li
     inbox.mkdir(parents=True, exist_ok=True)
     done.mkdir(parents=True, exist_ok=True)
 
-    cryo = Cryovant(Path("security/ledger"), Path("security/keys"))
+    cryo = Cryovant()
     promoted: List[Path] = []
 
     for ticket_path in review_dir.glob("*.json"):
@@ -54,7 +54,13 @@ def process_review_tickets(review_dir: Path = Path("data/work/02_review")) -> Li
             continue
 
         for result in ok_agents:
-            cryo.certify(agent_id=result.path.name, lineage_hash=result.lineage_hash or "", outcome="accepted")
+            cryo.promotion(
+                ticket_id=ticket_id,
+                deliverable=ticket.get("title", ""),
+                agent_id=result.path.name,
+                lineage_hash=result.lineage_hash or "",
+                outcome="accepted",
+            )
 
         shutil.move(str(ticket_path), done / ticket_path.name)
         promoted.append(done / ticket_path.name)

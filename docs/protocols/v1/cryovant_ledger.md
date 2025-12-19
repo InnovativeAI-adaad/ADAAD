@@ -10,7 +10,7 @@ Define the append-only JSONL schema Cryovant uses to record certification, linea
 ```json
 {
   "ts": "ISO-8601 timestamp in UTC",
-  "action": "certify|ledger_probe|promotion|doctor_probe|other",
+  "action": "certify|ledger_probe|promotion|doctor_probe|gate_cycle|other",
   "actor": "cryovant|gatekeeper|doctor|system|<caller>",
   "outcome": "ok|error|accepted|rejected",
   "agent_id": "string identifier of the agent (if applicable)",
