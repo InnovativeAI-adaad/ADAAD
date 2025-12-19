@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="80" viewBox="0 0 360 80" role="img" aria-label="InnovativeAI LLC">
+  <defs>
+    <linearGradient id="innovativeai-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="360" height="80" rx="12" fill="#050b14"/>
+  <path d="M30 20 L55 60 L80 20 Z" fill="url(#innovativeai-gradient)" opacity="0.85"/>
+  <circle cx="55" cy="40" r="10" fill="#0ea5e9" opacity="0.9"/>
+  <text x="110" y="42" fill="#e2e8f0" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="22" font-weight="700">
+    InnovativeAI LLC
+  </text>
+  <text x="110" y="62" fill="#94a3b8" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="14" font-weight="500">
+    ADAAD Autonomous Systems · © 2025 InnovativeAI LLC. All rights reserved.
+  </text>
+</svg>

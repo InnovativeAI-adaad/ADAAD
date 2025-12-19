@@ -56,7 +56,9 @@ def check_architect_scan() -> Dict[str, object]:
     agents_root = Path("app/agents")
     ok_agents, bad_agents = validate_agents(agents_root)
     present = [res.path.name for res in ok_agents] + [res.path.name for res in bad_agents]
-    invalid = {res.path.name: res.missing for res in bad_agents}
+    invalid = {
+        res.path.name: {"missing": res.missing, "schema_violations": res.schema_violations} for res in bad_agents
+    }
     return {"architect_scan": {"agent_dirs": sorted(present), "invalid": invalid}}
 
 
