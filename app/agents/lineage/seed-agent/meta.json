@@ -1,0 +1,9 @@
+{
+  "agent_id": "seed-agent",
+  "artifact": "app/agents/lineage/seed-agent/artifact.py",
+  "classification": "seed",
+  "ancestor_id": null,
+  "generation": 1,
+  "fitness_score": 1.0,
+  "created_at": 1766171083.5413682
+}

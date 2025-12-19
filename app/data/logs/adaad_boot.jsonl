@@ -1,0 +1,3 @@
+{"ts": "2025-12-19T18:52:54.385216+00:00", "lvl": "INFO", "cmp": "ADAAD.boot", "msg": "boot start"}
+{"ts": "2025-12-19T18:52:54.389383+00:00", "lvl": "AUDIT", "cmp": "ADAAD.boot", "msg": "AUDIT: boot.preflight", "ctx": {"action": "boot.preflight", "actor": "boot", "outcome": "start"}}
+{"ts": "2025-12-19T18:52:54.390416+00:00", "lvl": "AUDIT", "cmp": "ADAAD.boot", "msg": "AUDIT: boot", "ctx": {"action": "boot", "actor": "system", "outcome": "error", "error": "Required directories missing"}}

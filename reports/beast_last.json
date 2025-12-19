@@ -1,0 +1,20 @@
+{
+  "outcomes": [
+    {
+      "success": true,
+      "fitness": 0.6,
+      "certified": true,
+      "agent_id": "096626f5-eb47-4948-9106-c3689c82bdd6",
+      "parent": "seed-agent"
+    },
+    {
+      "success": true,
+      "fitness": 0.6,
+      "certified": true,
+      "agent_id": "5f16939e-a99d-4aa5-a776-33685c6edf77",
+      "parent": "dfcee802-5fb5-4a21-b256-08c2988b0f4a"
+    }
+  ],
+  "proposals": 0,
+  "system_proposals": 0
+}

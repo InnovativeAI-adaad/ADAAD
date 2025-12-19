@@ -202,3 +202,21 @@ class BeastLoop:
             self.tick()
             time.sleep(self.interval_s)
         return None
+
+
+if __name__ == "__main__":
+    # Minimal CLI runner
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--once", action="store_true", help="run a single tick and exit")
+    parser.add_argument("--interval", type=float, default=5.0, help="sleep seconds between ticks")
+    args = parser.parse_args()
+
+    loop = BeastLoop(interval_s=args.interval)
+    if args.once:
+        out = loop.tick()
+        # No prints in governed code paths. Write to reports.
+        Path("reports").mkdir(parents=True, exist_ok=True)
+        Path("reports/beast_last.json").write_text(json.dumps(out, indent=2), encoding="utf-8")
+    else:
+        loop.run(once=False)

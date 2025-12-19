@@ -1,0 +1,6 @@
+{
+  "ancestor_id": "seed-agent",
+  "generation": 2,
+  "artifact": "app/agents/lineage/096626f5-eb47-4948-9106-c3689c82bdd6/artifact.py",
+  "fitness_score": 0.6
+}

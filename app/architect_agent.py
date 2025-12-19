@@ -32,3 +32,34 @@ class ArchitectAgent:
             "present": sorted(present),
             "invalid": invalid,
         }
+
+
+# === HE65 compat: governance hooks for BeastLoop ===
+# BeastLoop expects these methods. Older ArchitectAgent versions may not have them.
+# Provide safe defaults: return empty proposals, export is no-op.
+try:
+    ArchitectAgent
+except NameError:
+    ArchitectAgent = None
+
+def _aa_governance_sweep(self):
+    return []
+
+def _aa_export_proposals(self, proposals):
+    return None
+
+def _aa_audit_system_layers(self):
+    return []
+
+def _aa_export_system_proposals(self, proposals):
+    return None
+
+if ArchitectAgent is not None:
+    for _name, _fn in (
+        ("governance_sweep", _aa_governance_sweep),
+        ("export_proposals", _aa_export_proposals),
+        ("audit_system_layers", _aa_audit_system_layers),
+        ("export_system_proposals", _aa_export_system_proposals),
+    ):
+        if not hasattr(ArchitectAgent, _name):
+            setattr(ArchitectAgent, _name, _fn)

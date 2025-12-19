@@ -1,0 +1,9 @@
+{
+  "agent_id": "096626f5-eb47-4948-9106-c3689c82bdd6",
+  "artifact": "app/agents/lineage/096626f5-eb47-4948-9106-c3689c82bdd6/artifact.py",
+  "classification": "promoted",
+  "ancestor_id": "seed-agent",
+  "generation": 2,
+  "fitness_score": 0.6,
+  "created_at": 1766171407.1815107
+}

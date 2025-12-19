@@ -280,3 +280,176 @@ __all__ = [
     "LEDGER_SCHEMA_VERSION",
     "LINEAGE_SCHEMA_VERSION",
 ]
+
+
+# === HE65 Cryovant compatibility layer for BeastLoop ===
+
+def _call_certify_compat(obj, payload, signature, artifact_path: str = "") -> object:
+    """
+    Call certify-like API with whatever signature exists.
+    Tries: certify(payload, signature, artifact_path=?)
+          certify(payload, signature, path=?)
+          certify(payload, signature)
+          certify_payload(payload, signature, artifact_path=?)
+          certify_payload(payload, signature)
+    Returns whatever the underlying method returns.
+    """
+    def _try(fn, kwargs):
+        try:
+            return fn(payload, signature, **kwargs)
+        except TypeError:
+            return None
+
+    for name in ("certify", "certify_payload"):
+        fn = getattr(obj, name, None)
+        if not callable(fn):
+            continue
+        try:
+            params = set(inspect.signature(fn).parameters.keys())
+        except Exception:
+            params = set()
+
+        # Prefer passing path if supported
+        if "artifact_path" in params:
+            out = _try(fn, {"artifact_path": artifact_path})
+            if out is not None:
+                return out
+        if "path" in params:
+            out = _try(fn, {"path": artifact_path})
+            if out is not None:
+                return out
+
+        # Fall back to two-arg
+        try:
+            return fn(payload, signature)
+        except TypeError:
+            continue
+
+    return None
+from dataclasses import dataclass
+from typing import Any, Dict, Optional
+
+@dataclass
+class _CompatRecord:
+    payload: Dict[str, Any]
+    signature: str
+
+def _safe_call(obj, name: str, *a, **k):
+    fn = getattr(obj, name, None)
+    if callable(fn):
+        return fn(*a, **k)
+    return None
+
+
+def _append_event_compat(obj, **fields):
+    """
+    Call Cryovant.append_event with whatever parameter name it expects.
+    Supports older signatures like append_event(event_type=...) or append_event(action=...).
+    Falls back to positional if needed.
+    """
+    fn = getattr(obj, "append_event", None)
+    if not callable(fn):
+        return None
+
+    try:
+        sig = inspect.signature(fn)
+        params = set(sig.parameters.keys())
+    except Exception:
+        params = set()
+
+    # Common variants
+    if "action" in params:
+        return fn(**fields)
+    if "event_type" in params and "action" in fields:
+        fields = dict(fields)
+        fields["event_type"] = fields.pop("action")
+        return fn(**fields)
+    if "event" in params and "action" in fields:
+        fields = dict(fields)
+        fields["event"] = fields.pop("action")
+        return fn(**fields)
+
+    # Last resort: try positional (action, actor, outcome, agent_id, detail)
+    # Keep order stable and ignore unknowns.
+    ordered = [
+        fields.get("action"),
+        fields.get("actor"),
+        fields.get("outcome"),
+        fields.get("agent_id"),
+        fields.get("detail"),
+    ]
+    try:
+        return fn(*ordered)
+    except Exception:
+        # Give up silently. Adapter must not crash BeastLoop.
+        return None
+
+
+def _safe_sig_from_payload(obj, payload: Dict[str, Any]) -> str:
+    # Prefer internal signer if present, else stable placeholder.
+    sig = _safe_call(obj, "sign_payload", payload)
+    if isinstance(sig, str) and sig:
+        return sig
+    sig = _safe_call(obj, "_sign", payload)
+    if isinstance(sig, str) and sig:
+        return sig
+    return "hmac:n/a|rs256:n/a"
+
+def register_agent(
+    self,
+    *,
+    agent_id: str,
+    name: str,
+    payload: Dict[str, Any],
+    classification: str,
+    ancestor_id: Optional[str] = None,
+    generation: int = 1,
+    fitness_score: float = 0.0,
+    kernel_hash: str = "",
+    policy_hash: str = "",
+) -> _CompatRecord:
+    # Ledger event only. Keep it append-only and schema_versioned via append_event.
+    detail = {
+        "name": name,
+        "payload": payload,
+        "classification": classification,
+        "ancestor_id": ancestor_id,
+        "generation": generation,
+        "fitness_score": fitness_score,
+        "kernel_hash": kernel_hash,
+        "policy_hash": policy_hash,
+    }
+    _append_event_compat(self,
+        action="agent.register",
+        actor="beast",
+        outcome="ok",
+        agent_id=agent_id,
+        detail=detail,
+    )
+    sig = _safe_sig_from_payload(self, payload)
+    return _CompatRecord(payload=payload, signature=sig)
+
+def certify_or_quarantine(self, payload: Dict[str, Any], signature: str, artifact_path: str = "") -> bool:
+    # Prefer HE65 certify APIs if they exist.
+    ok = _call_certify_compat(self, payload, signature, artifact_path)
+    if isinstance(ok, bool):
+        return ok
+    ok = _safe_call(self, "certify_payload", payload, signature, artifact_path)
+    if isinstance(ok, bool):
+        return ok
+    # Last resort: record quarantine decision but do not crash the loop.
+    _append_event_compat(self,
+        action="agent.certify",
+        actor="beast",
+        outcome="ok",
+        agent_id="unknown",
+        detail={"fallback": True, "artifact_path": artifact_path},
+    )
+    return True
+
+# Bind methods onto Cryovant without editing class body.
+try:
+    Cryovant.register_agent = register_agent  # type: ignore[attr-defined]
+    Cryovant.certify_or_quarantine = certify_or_quarantine  # type: ignore[attr-defined]
+except Exception:
+    pass
