@@ -2,10 +2,11 @@
 security/keys/
 **/keys/
 *.key
+!security/keys/
+!security/keys/.keep
 
 # Runtime state and logs
 logs/**
-!logs/.gitkeep
 reports/*.log
 reports/metrics.jsonl
 reports/queue_events.jsonl
@@ -14,8 +15,6 @@ reports/dream_state.json
 reports/dream_tasks.json
 data/queue/**
 data/**/queue/**
-!data/queue/.gitkeep
-!data/**/queue/.gitkeep
 data/**/*.db
 *.sqlite
 *.sqlite3
@@ -41,6 +40,9 @@ archives/patches/
 *.tgz
 *.gz
 
+# Cryovant ledger artifacts
+security/ledger/*.jsonl
+
 # OS / editor
 .DS_Store
 Thumbs.db
@@ -48,9 +50,4 @@ Thumbs.db
 .vscode/
 
 # Allow directory keepers
-!reports/.gitkeep
-!security/ledger/.gitkeep
-!data/queue/.gitkeep
-!data/**/queue/.gitkeep
-!logs/.gitkeep
-!tests/.gitkeep
+!**/.keep

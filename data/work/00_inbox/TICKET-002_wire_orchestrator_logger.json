@@ -1,0 +1,21 @@
+{
+  "id": "TICKET-002",
+  "type": "chore",
+  "priority": "high",
+  "title": "Wire orchestrator boot to structured logger",
+  "description": "Replace _safe_print usage with canonical logger import and emit structured boot logs.",
+  "requirements": [
+    "Replace _safe_print usage in the boot path with logger calls.",
+    "Use canonical import: from runtime.logger import get_logger (or equivalent).",
+    "Emit exactly two boot lines: info: boot start; audit: boot ok (or error on failure)."
+  ],
+  "deliverables": [
+    "app/main.py (or runtime entrypoint) uses the logger instead of print/safe_print.",
+    "Boot execution writes JSONL events under data/logs/."
+  ],
+  "acceptance": [
+    "Boot emits info boot start and audit boot ok/error to data/logs/*.jsonl.",
+    "No print/_safe_print calls remain in the boot path."
+  ],
+  "agent_handoff": "Implementer"
+}

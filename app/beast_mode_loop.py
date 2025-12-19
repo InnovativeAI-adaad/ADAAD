@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Dict
 
 from app.architect_agent import ArchitectAgent
-from app.cryovant import CryovantRegistry
+from security.cryovant import Cryovant
 from app.dream_mode import SandboxExecutor
 from app.mutation_pipeline import apply_mutation_with_checks, record_fitness_stage, run_sandbox_stage
 from app.meta_mutator import MetaMutator
@@ -16,6 +16,8 @@ from app.evolution.kernel import EvolutionKernel
 from runtime.logging import event
 from runtime.population import PopulationManager
 from runtime.metrics import ErrorCode, MutationStage, StageResult, record_stage_metric
+
+ELEMENT_ID = "fire"
 
 METRICS_PATH = Path("reports/metrics.jsonl")
 BEAST_TARGET = Path("reports/beast_target.txt")
@@ -25,7 +27,7 @@ class BeastLoop:
     def __init__(
         self,
         interval_s: float = 5.0,
-        registry: CryovantRegistry | None = None,
+        registry: Cryovant | None = None,
         architect: ArchitectAgent | None = None,
         population: PopulationManager | None = None,
         offspring: int = 2,
@@ -33,7 +35,7 @@ class BeastLoop:
         meta_mutator: MetaMutator | None = None,
     ) -> None:
         self.interval_s = interval_s
-        self.registry = registry or CryovantRegistry()
+        self.registry = registry or Cryovant(Path("security/ledger"), Path("security/keys"))
         self.architect = architect or ArchitectAgent()
         self.population = population or PopulationManager()
         self.kernel = kernel or EvolutionKernel()
