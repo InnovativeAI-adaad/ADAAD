@@ -1,6 +1,11 @@
 # Changelog
 
-# Changelog
+## He65.1.0
+- Added ledger-wide `schema_version=1.0` enforcement and required versioned lineage metadata for `meta.json`, `dna.json`, and `certificate.json`.
+- Gatekeeper now emits `promotion.rejected` events with rejection reasons and test summary hashes; safe boot keeps mutation disabled and ledger-logs zero-agent states.
+- Cryovant is the sole ledger writer; direct writers are blocked and flagged by Doctor; deterministic `ledger_probe` added.
+- Doctor verifies schema versions on ledger events and blocks forbidden direct writers; README and branding updated with local assets.
+- Breaking: promotions or metadata without schema_version fail validation and Doctor checks.
 
 ## He65.0.5
 - Enforced canonical top-level roots (no legacy bundles) and strengthened doctor output schema and invariants.

@@ -61,6 +61,24 @@
     height: 80px;
     margin-bottom: 20px;
   }
+  .brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .brand-logo {
+    width: 260px;
+    max-width: 90vw;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  }
+  .brand-footer {
+    font-size: 12px;
+    color: #94a3b8;
+    text-align: center;
+  }
   .label {
     font-size: 12px;
     color: #6b7280;
@@ -73,6 +91,13 @@
 </style>
 </head>
 <body>
+
+  <div class="brand">
+    <img src="../assets/innovativeai_llc.svg" alt="InnovativeAI LLC" class="brand-logo"/>
+    <div class="brand-footer">
+      InnovativeAI LLC · ADAAD Autonomous Systems · © 2025 InnovativeAI LLC. All rights reserved.
+    </div>
+  </div>
 
   <h1>InnovativeAI Identity Concepts</h1>
 

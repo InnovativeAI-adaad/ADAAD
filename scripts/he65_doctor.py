@@ -12,7 +12,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from runtime.tools.agent_validator import validate_agents
-from security.cryovant import Cryovant, KEYS_DIR, LEDGER_PATH
+from security.cryovant import Cryovant, KEYS_DIR, LEDGER_PATH, LEDGER_SCHEMA_VERSION
 
 REQUIRED_ROOTS = [
     "app",
@@ -181,17 +181,7 @@ def check_cryovant() -> Tuple[bool, str]:
     try:
         cryo = Cryovant()
         ledger_path = cryo.touch_ledger()
-        cryo.append_event(
-            {
-                "action": "doctor_probe",
-                "actor": "doctor",
-                "outcome": "ok",
-                "agent_id": "system",
-                "lineage_hash": "probe",
-                "signature_id": "doctor-probe",
-                "detail": {"path": str(ledger_path)},
-            }
-        )
+        cryo.ledger_probe(actor="doctor")
         return True, str(ledger_path)
     except Exception as exc:  # pragma: no cover
         return False, str(exc)
@@ -199,8 +189,34 @@ def check_cryovant() -> Tuple[bool, str]:
 
 def check_agents() -> Tuple[bool, List[str]]:
     _, failed = validate_agents(Path("app/agents/active"))
-    messages = [f"{res.path}: missing {','.join(res.missing)}" for res in failed]
+    messages = [
+        f"{res.path}: missing {','.join(res.missing)} schema:{','.join(res.schema_violations)}" for res in failed
+    ]
     return not messages, messages
+
+
+def check_direct_ledger_writer_block() -> Tuple[bool, str]:
+    try:
+        from security.ledger import ledger as direct_ledger
+
+        try:
+            direct_ledger.append_record(Path("security/ledger"), {"action": "probe"})
+            return False, "direct ledger writer accepted a write"
+        except RuntimeError:
+            return True, "direct ledger writer blocked"
+    except Exception as exc:
+        return False, str(exc)
+
+
+def check_ledger_schema_version() -> Tuple[bool, str]:
+    ledger_path = LEDGER_PATH
+    if not ledger_path.exists():
+        return False, "ledger missing"
+    events = [json.loads(line) for line in ledger_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    if not events:
+        return False, "ledger empty"
+    missing = [idx for idx, event in enumerate(events) if event.get("schema_version") != LEDGER_SCHEMA_VERSION]
+    return not missing, f"{len(missing)} events missing or mismatching schema_version"
 
 
 def run_tests() -> Tuple[bool, str]:
@@ -250,6 +266,14 @@ def main() -> None:
     checks["cryovant_ok"] = ok_cryo
     checks["cryovant_detail"] = cryo_detail
 
+    ok_direct_writer, direct_writer_detail = check_direct_ledger_writer_block()
+    checks["direct_writer_blocked"] = ok_direct_writer
+    checks["direct_writer_detail"] = direct_writer_detail
+
+    ok_schema_version, schema_version_detail = check_ledger_schema_version()
+    checks["ledger_schema_version_ok"] = ok_schema_version
+    checks["ledger_schema_version_detail"] = schema_version_detail
+
     ok_agents, agent_detail = check_agents()
     checks["agents_valid"] = ok_agents
     checks["agent_issues"] = agent_detail
@@ -257,6 +281,11 @@ def main() -> None:
     ok_tests, test_detail = run_tests()
     checks["tests_ok"] = ok_tests
     checks["tests_detail"] = test_detail
+
+    checks["branding"] = {
+        "asset": "ui/assets/innovativeai_llc.svg",
+        "footer": "InnovativeAI LLC · ADAAD Autonomous Systems · © 2025 InnovativeAI LLC. All rights reserved.",
+    }
 
     required_pass = [
         ok_roots,
@@ -268,6 +297,8 @@ def main() -> None:
         ok_ledger_path,
         ok_keep,
         ok_cryo,
+        ok_direct_writer,
+        ok_schema_version,
         ok_agents,
         ok_tests,
     ]
