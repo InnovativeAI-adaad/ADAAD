@@ -1,17 +1,16 @@
 # © InnovativeAI LLC — ADAAD Inside™ — All Rights Reserved
-"""Runtime event logging helpers for ADAAD."""
-import json
-import pathlib
-import time
-from typing import Any, Dict
+"""Compatibility shim forwarding to the canonical JSON logger."""
+from __future__ import annotations
 
-LOG_DIR = pathlib.Path("runtime/logs")
-LOG_DIR.mkdir(parents=True, exist_ok=True)
+from typing import Any
+
+from runtime.logger import get_logger
+
+_shim_logger = get_logger(component="runtime")
 
 
 def event(name: str, **data: Any) -> None:
-    record: Dict[str, Any] = {"ts": time.time(), "event": name} | data
-    (LOG_DIR / "events.jsonl").open("a", encoding="utf-8").write(json.dumps(record) + "\n")
+    _shim_logger.info(name, **data)
 
 
-__all__ = ["event", "LOG_DIR"]
+__all__ = ["event"]

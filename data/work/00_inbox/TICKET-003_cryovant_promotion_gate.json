@@ -1,0 +1,19 @@
+{
+  "id": "TICKET-003",
+  "type": "feature",
+  "priority": "high",
+  "title": "Implement Cryovant promotion gate",
+  "description": "Automate ticket review gating with Cryovant signing and promotion flow.",
+  "requirements": [
+    "Watch data/work/02_review/ for incoming tickets.",
+    "For each ticket run tests (at minimum python -m unittest subset).",
+    "On pass, call Cryovant signing to generate an acceptance artifact (AAT).",
+    "Only on valid AAT move ticket to data/work/03_done/ and promote artifact to app/agents/active/ or runtime/ per ticket deliverables.",
+    "On fail, log error with failure stage and traceback summary, then move ticket back to data/work/00_inbox/ with notes appended."
+  ],
+  "acceptance": [
+    "No artifact promotion occurs without a Cryovant acceptance record.",
+    "Gate logs are emitted as AUDIT on success and ERROR on failure."
+  ],
+  "agent_handoff": "Implementer"
+}

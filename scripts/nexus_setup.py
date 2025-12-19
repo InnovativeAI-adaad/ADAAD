@@ -25,7 +25,7 @@ CANONICAL_FOLDERS: List[str] = [
     "app/agents/incubator",
     "app/agents/candidates",
     "app/agents/active",
-    "app/agents/quarantine",
+    "app/agents/quarantine"
     "data/work/00_inbox",
     "data/work/01_active",
     "data/work/02_review",
