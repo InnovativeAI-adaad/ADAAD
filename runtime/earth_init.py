@@ -13,7 +13,7 @@ KEY_DIR = SECURITY_ROOT / "keys"
 
 
 def init_earth() -> Dict[str, object]:
-    cryo = Cryovant(LEDGER_DIR, KEY_DIR)
+    cryo = Cryovant()
     LEDGER_DIR.mkdir(parents=True, exist_ok=True)
     KEY_DIR.mkdir(parents=True, exist_ok=True)
     return {

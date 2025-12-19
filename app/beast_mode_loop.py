@@ -35,7 +35,7 @@ class BeastLoop:
         meta_mutator: MetaMutator | None = None,
     ) -> None:
         self.interval_s = interval_s
-        self.registry = registry or Cryovant(Path("security/ledger"), Path("security/keys"))
+        self.registry = registry or Cryovant()
         self.architect = architect or ArchitectAgent()
         self.population = population or PopulationManager()
         self.kernel = kernel or EvolutionKernel()

@@ -103,19 +103,24 @@ class CanonicalLogger(ILogger):
         self._log(AUDIT_LEVEL, f"AUDIT: {action}", **audit_ctx)
 
 
-_canonical_logger: Optional[CanonicalLogger] = None
+_LOGGER_CACHE: Dict[str, CanonicalLogger] = {}
 
 
 def get_canonical_logger(name: str = "ADAAD.System", log_dir: Path | str = "data/logs") -> CanonicalLogger:
-    global _canonical_logger
-    if _canonical_logger is None:
-        _canonical_logger = CanonicalLogger(name=name, log_dir=log_dir)
-    return _canonical_logger
+    key = f"{name}:{log_dir}"
+    if key not in _LOGGER_CACHE:
+        _LOGGER_CACHE[key] = CanonicalLogger(name=name, log_dir=log_dir)
+    return _LOGGER_CACHE[key]
+
+
+def get_logger(component: str = "runtime", log_dir: Path | str = "data/logs") -> CanonicalLogger:
+    return get_canonical_logger(name=f"ADAAD.{component}", log_dir=log_dir)
 
 
 __all__ = [
     "CanonicalLogger",
     "JsonFormatter",
     "get_canonical_logger",
+    "get_logger",
     "AUDIT_LEVEL",
 ]

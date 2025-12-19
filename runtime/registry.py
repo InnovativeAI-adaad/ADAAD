@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict
+from typing import Dict, Mapping
 
 
 @dataclass
@@ -18,6 +18,8 @@ class ElementRegistry:
         self.elements: Dict[str, Element] = {}
 
     def register(self, element_id: str, path: str, purpose: str, details: Dict[str, object] | None = None) -> Element:
+        if element_id in self.elements:
+            raise ValueError(f"Element '{element_id}' already registered")
         elem = Element(name=element_id, path=path, purpose=purpose, registered=True, details=details or {})
         self.elements[element_id] = elem
         return elem
@@ -39,3 +41,14 @@ _REGISTRY = ElementRegistry()
 
 def get_registry() -> ElementRegistry:
     return _REGISTRY
+
+
+def register(element_id: str, path: str, purpose: str, details: Dict[str, object] | None = None) -> Element:
+    return _REGISTRY.register(element_id, path, purpose, details)
+
+
+def snapshot() -> Mapping[str, object]:
+    return _REGISTRY.snapshot()
+
+
+__all__ = ["Element", "ELEMENTS", "register", "snapshot", "get_registry", "ElementRegistry"]

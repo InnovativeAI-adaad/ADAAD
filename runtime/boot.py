@@ -31,8 +31,8 @@ def boot_sequence() -> Dict[str, object]:
     if not ledger_ok:
         raise RuntimeError("Cryovant ledger not writable")
 
-    cryo = Cryovant(Path("security/ledger"), Path("security/keys"))
-    agents_root = Path("app/agents")
+    cryo = Cryovant()
+    agents_root = Path("app/agents/active")
     agents = _agent_dirs(agents_root)
     cryo.gate_cycle(agents)
     registry.register("water", ELEMENTS["water"][0], ELEMENTS["water"][1], {"ledger_ok": True})
