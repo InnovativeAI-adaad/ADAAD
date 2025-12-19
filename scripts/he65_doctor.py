@@ -21,6 +21,7 @@ REQUIRED_ROOTS = [
     "tests",
     "docs",
     "data",
+    "logs",
     "reports",
     "releases",
     "experiments",
