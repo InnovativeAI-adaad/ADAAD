@@ -1,12 +1,31 @@
+"""Bootstrap script for initializing the He65 Nexus workspace.
+
+This script materializes the canonical folder structure, seeds protocol
+references, and drops the first ticket into the work queue. It is
+idempotent: rerunning it will not overwrite existing artifacts.
+"""
 from __future__ import annotations
 
 import json
-import textwrap
 from pathlib import Path
 from typing import Any, Dict, List
 
 ROOT = Path(".").resolve()
-
+CANONICAL_FOLDERS: List[str] = [
+    "docs/protocols/v1",
+    "runtime/interfaces",
+    "app/agents/incubator",
+    "app/agents/candidates",
+    "app/agents/active",
+    "app/agents/quarantine",
+    "data/work/00_inbox",
+    "data/work/01_active",
+    "data/work/02_review",
+    "data/work/03_done",
+    "runtime/tools",
+    "data/logs",
+    "tests/runtime",
+]
 REQUIRED_ROOT_MARKERS: List[str] = [
     "app",
     "runtime",
@@ -17,72 +36,52 @@ REQUIRED_ROOT_MARKERS: List[str] = [
     "reports",
 ]
 
-CANONICAL_FOLDERS: List[str] = [
-    "docs/protocols/v1",
-    "runtime/interfaces",
-    "runtime/tools",
-    "tests/runtime",
-    "app/agents/incubator",
-    "app/agents/candidates",
-    "app/agents/active",
-    "app/agents/quarantine"
-    "data/work/00_inbox",
-    "data/work/01_active",
-    "data/work/02_review",
-    "data/work/03_done",
-    "data/logs",
-]
+LOGGER_INTERFACE_CODE = """
+from abc import ABC, abstractmethod
+from typing import Any, Optional
 
-LOGGER_INTERFACE_CODE = textwrap.dedent(
-    '''
-    from abc import ABC, abstractmethod
-    from typing import Any, Optional
+class ILogger(ABC):
+    """He65 canonical logger contract. All logging must pass through this interface."""
 
-    class ILogger(ABC):
-        """He65 canonical logger contract. All logging must pass through this interface."""
+    @abstractmethod
+    def info(self, msg: str, **kwargs: Any) -> None:
+        raise NotImplementedError
 
-        @abstractmethod
-        def info(self, msg: str, **kwargs: Any) -> None:
-            raise NotImplementedError
+    @abstractmethod
+    def error(self, msg: str, error: Optional[Exception] = None, **kwargs: Any) -> None:
+        raise NotImplementedError
 
-        @abstractmethod
-        def error(self, msg: str, error: Optional[Exception] = None, **kwargs: Any) -> None:
-            raise NotImplementedError
+    @abstractmethod
+    def debug(self, msg: str, **kwargs: Any) -> None:
+        raise NotImplementedError
 
-        @abstractmethod
-        def debug(self, msg: str, **kwargs: Any) -> None:
-            raise NotImplementedError
+    @abstractmethod
+    def audit(self, action: str, actor: str, outcome: str, **details: Any) -> None:
+        """High-value security/transaction logging."""
+        raise NotImplementedError
+""".lstrip()
 
-        @abstractmethod
-        def audit(self, action: str, actor: str, outcome: str, **details: Any) -> None:
-            """High-value security/transaction logging."""
-            raise NotImplementedError
-    '''
-).lstrip()
+LOGGING_PROTOCOL_MD = """
+# Protocol v1.0: Structured Logging Standard
 
-LOGGING_PROTOCOL_MD = textwrap.dedent(
-    '''
-    # Protocol v1.0: Structured Logging Standard
+## Mandate (Stability-First)
+1. No direct use of `print()` in `runtime/` or `app/`.
+2. All logs must be structured JSON lines (JSONL).
+3. Rotation occurs at 5MB.
+4. Callers must redact secrets before logging.
 
-    ## Mandate (Stability-First)
-    1. No direct use of `print()` in `runtime/` or `app/`.
-    2. All logs must be structured JSON lines (JSONL).
-    3. Rotation occurs at 5MB.
-    4. Callers must redact secrets before logging.
+## Canonical Schema
+```json
+{
+  "ts": "ISO-8601 Timestamp",
+  "lvl": "INFO|ERROR|DEBUG|AUDIT",
+  "cmp": "Component Name",
+  "msg": "Human readable message",
+  "ctx": { "any": "extra fields" }
+}
+```
 
-    ## Canonical Schema
-    ```json
-    {
-      "ts": "ISO-8601 Timestamp",
-      "lvl": "INFO|ERROR|DEBUG|AUDIT",
-      "cmp": "Component Name",
-      "msg": "Human readable message",
-      "ctx": { "any": "extra fields" }
-    }
-    ```
-
-    '''
-).lstrip()
+""".lstrip()
 
 TICKET_001: Dict[str, Any] = {
     "id": "TICKET-001",
@@ -110,7 +109,7 @@ TICKET_001: Dict[str, Any] = {
 
 
 def _assert_root() -> None:
-    missing = [p for p in REQUIRED_ROOT_MARKERS if not (ROOT / p).exists()]
+    missing = [marker for marker in REQUIRED_ROOT_MARKERS if not (ROOT / marker).exists()]
     if missing:
         raise SystemExit(f"ERROR: Not at He65 repo root. Missing: {missing}")
 
@@ -133,20 +132,16 @@ def _write_if_missing(path: Path, content: str) -> bool:
 def bootstrap_he65_nexus() -> None:
     _assert_root()
     _mkdirs()
-
     wrote_iface = _write_if_missing(ROOT / "runtime/interfaces/ilogger.py", LOGGER_INTERFACE_CODE)
     wrote_proto = _write_if_missing(ROOT / "docs/protocols/v1/logging_standard.md", LOGGING_PROTOCOL_MD)
-
     ticket_path = ROOT / "data/work/00_inbox/TICKET-001_implement_logger.json"
-    wrote_ticket = False
-    if not ticket_path.exists():
-        ticket_path.write_text(json.dumps(TICKET_001, indent=2), encoding="utf-8")
-        wrote_ticket = True
+    wrote_ticket = _write_if_missing(ticket_path, json.dumps(TICKET_001, indent=2))
 
-    print("He65 Nexus bootstrap complete.")
+    print("He65 Nexus Bootstrap Complete.")
     print(f"Interface created: {wrote_iface}")
     print(f"Protocol created: {wrote_proto}")
     print(f"Ticket created: {wrote_ticket}")
+    print("Next: Implementer will now work on TICKET-001.")
 
 
 if __name__ == "__main__":

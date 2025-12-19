@@ -1,122 +1,121 @@
+"""Canonical JSONL logger implementation for ADAAD.
+
+The logger satisfies the ILogger contract and adheres to Protocol v1.0,
+producing structured JSON lines with deterministic rotation.
+"""
 from __future__ import annotations
 
 import json
 import logging
-from datetime import datetime, timezone
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Any, Dict, Optional
+import traceback
+from datetime import datetime, timezone
 
 from runtime.interfaces.ilogger import ILogger
 
-AUDIT_LEVEL = 25
+AUDIT_LEVEL = logging.INFO + 5
 logging.addLevelName(AUDIT_LEVEL, "AUDIT")
 
-DEFAULT_LOG_DIR = Path("data/logs")
-ROTATION_BYTES = 5_242_880
-BACKUP_COUNT = 3
 
-_LOGGER_CACHE: Dict[str, "JSONLogger"] = {}
+class JsonFormatter(logging.Formatter):
+    """Formats log records into the canonical JSONL schema."""
 
-REDACTION_KEYS = {"password", "secret", "token", "api_key", "credential", "key"}
+    def format(self, record: logging.LogRecord) -> str:  # noqa: WPS463
+        timestamp = datetime.fromtimestamp(record.created, tz=timezone.utc).isoformat()
+        log_entry: Dict[str, Any] = {
+            "ts": timestamp,
+            "lvl": record.levelname,
+            "cmp": record.name,
+            "msg": record.getMessage(),
+        }
 
-
-def redact_context(data: Dict[str, Any], redactions: Optional[set[str]] = None) -> Dict[str, Any]:
-    keys = redactions or REDACTION_KEYS
-    return {k: ("<redacted>" if k in keys else v) for k, v in data.items()}
-
-
-def _iso_utc(ts: float) -> str:
-    return datetime.fromtimestamp(ts, tz=timezone.utc).isoformat()
-
-
-class JSONFormatter(logging.Formatter):
-    def __init__(self, component: str) -> None:
-        super().__init__()
-        self.component = component
-
-    def format(self, record: logging.LogRecord) -> str:  # type: ignore[override]
-        context = getattr(record, "context", {}) or {}
+        ctx: Dict[str, Any] = {}
+        if hasattr(record, "ctx") and isinstance(record.ctx, dict):
+            ctx.update(record.ctx)
 
         if record.exc_info:
-            try:
-                context = {**context, "exc": self.formatException(record.exc_info)}
-            except Exception:
-                context = {**context, "exc": "unavailable"}
+            exc_type, exc_value, exc_tb = record.exc_info
+            ctx.update(
+                {
+                    "exc_type": exc_type.__name__ if exc_type else None,
+                    "exc_msg": str(exc_value) if exc_value else None,
+                    "traceback": traceback.format_exception(exc_type, exc_value, exc_tb),
+                }
+            )
 
-        payload = {
-            "ts": _iso_utc(record.created),
-            "lvl": record.levelname,
-            "cmp": self.component,
-            "msg": record.getMessage(),
-            "ctx": context,
-        }
-        return json.dumps(payload, ensure_ascii=False)
+        if ctx:
+            log_entry["ctx"] = ctx
+
+        return json.dumps(log_entry, ensure_ascii=False)
 
 
-class JSONLogger(ILogger):
-    def __init__(self, component: str = "runtime", log_file: Optional[Path] = None) -> None:
-        self.component = component
-        self.log_path = Path(log_file) if log_file else DEFAULT_LOG_DIR / f"{component}.jsonl"
-        self.log_path.parent.mkdir(parents=True, exist_ok=True)
+class CanonicalLogger(ILogger):
+    """Concrete ILogger implementation with JSONL output and rotation."""
 
-        logger_name = f"adaad.{component}"
-        if log_file:
-            logger_name = f"{logger_name}.{abs(hash(self.log_path))}"
+    def __init__(self, name: str = "ADAAD.Orchestrator", log_dir: Path | str = "data/logs") -> None:
+        self.log_file = Path(log_dir) / f"{name.lower().replace('.', '_')}.jsonl"
+        self.log_file.parent.mkdir(parents=True, exist_ok=True)
 
-        self._logger = logging.getLogger(logger_name)
-        self._logger.setLevel(logging.DEBUG)
-        self._logger.propagate = False
+        self.logger = logging.getLogger(name)
+        self.logger.setLevel(logging.DEBUG)
+        self.logger.propagate = False
+        self._reset_handlers()
 
-        self._handler = self._ensure_handler(self.log_path)
-
-    def _ensure_handler(self, log_path: Path) -> RotatingFileHandler:
-        for handler in self._logger.handlers:
-            if isinstance(handler, RotatingFileHandler) and Path(getattr(handler, "baseFilename", "")) == log_path:
-                return handler
-
-        handler = RotatingFileHandler(
-            log_path,
-            maxBytes=ROTATION_BYTES,
-            backupCount=BACKUP_COUNT,
+        file_handler = RotatingFileHandler(
+            self.log_file,
+            maxBytes=5 * 1024 * 1024,
+            backupCount=3,
             encoding="utf-8",
         )
-        handler.setFormatter(JSONFormatter(self.component))
-        handler.adaad_json_handler = True  # type: ignore[attr-defined]
-        self._logger.addHandler(handler)
-        return handler
+        file_handler.setFormatter(JsonFormatter())
+        self.logger.addHandler(file_handler)
+
+        stream_handler = logging.StreamHandler()
+        stream_handler.setLevel(logging.INFO)
+        stream_handler.setFormatter(logging.Formatter("[%(levelname)s] %(message)s"))
+        self.logger.addHandler(stream_handler)
+
+    def _reset_handlers(self) -> None:
+        for handler in list(self.logger.handlers):
+            self.logger.removeHandler(handler)
+            handler.close()
+
+    def _log(self, level: int, msg: str, **kwargs: Any) -> None:
+        extra = {"ctx": kwargs} if kwargs else {}
+        self.logger.log(level, msg, extra=extra)
 
     def info(self, msg: str, **kwargs: Any) -> None:
-        self._logger.info(msg, extra={"context": redact_context(kwargs)})
+        self._log(logging.INFO, msg, **kwargs)
 
     def error(self, msg: str, error: Optional[Exception] = None, **kwargs: Any) -> None:
-        context = redact_context(dict(kwargs))
         exc_info = None
-        if isinstance(error, BaseException):
-            context["error"] = repr(error)
+        if error:
             exc_info = (error.__class__, error, error.__traceback__)
-        self._logger.error(msg, extra={"context": context}, exc_info=exc_info)
+        self.logger.log(logging.ERROR, msg, extra={"ctx": kwargs} if kwargs else {}, exc_info=exc_info)
 
     def debug(self, msg: str, **kwargs: Any) -> None:
-        self._logger.debug(msg, extra={"context": kwargs})
+        self._log(logging.DEBUG, msg, **kwargs)
 
     def audit(self, action: str, actor: str, outcome: str, **details: Any) -> None:
-        context = {"action": action, "actor": actor, "outcome": outcome} | redact_context(details)
-        self._logger.log(AUDIT_LEVEL, action, extra={"context": context})
-
-    @property
-    def handler(self) -> RotatingFileHandler:
-        return self._handler
+        audit_ctx = {"action": action, "actor": actor, "outcome": outcome, **details}
+        self._log(AUDIT_LEVEL, f"AUDIT: {action}", **audit_ctx)
 
 
-def get_logger(component: str = "runtime", log_file: Optional[Path] = None) -> JSONLogger:
-    key = f"{component}:{Path(log_file).absolute()}" if log_file else component
-    if key in _LOGGER_CACHE:
-        return _LOGGER_CACHE[key]
-
-    logger = JSONLogger(component=component, log_file=log_file)
-    _LOGGER_CACHE[key] = logger
-    return logger
+_canonical_logger: Optional[CanonicalLogger] = None
 
 
-__all__ = ["get_logger", "JSONLogger", "AUDIT_LEVEL", "ROTATION_BYTES", "BACKUP_COUNT", "redact_context"]
+def get_canonical_logger(name: str = "ADAAD.System", log_dir: Path | str = "data/logs") -> CanonicalLogger:
+    global _canonical_logger
+    if _canonical_logger is None:
+        _canonical_logger = CanonicalLogger(name=name, log_dir=log_dir)
+    return _canonical_logger
+
+
+__all__ = [
+    "CanonicalLogger",
+    "JsonFormatter",
+    "get_canonical_logger",
+    "AUDIT_LEVEL",
+]

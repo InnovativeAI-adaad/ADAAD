@@ -1,72 +1,92 @@
-from __future__ import annotations
-
 import json
 import logging
-import tempfile
-import unittest
-from datetime import datetime
+import sys
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+
 from runtime.interfaces.ilogger import ILogger
-from runtime.logger import BACKUP_COUNT, ROTATION_BYTES, get_logger
+from runtime.logger import CanonicalLogger, JsonFormatter, get_canonical_logger
 
 
 def read_jsonl(path: Path) -> list[dict]:
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
 
 
-class LoggerTests(unittest.TestCase):
-    def test_logger_writes_jsonl(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_file = Path(tmpdir) / "logger.jsonl"
-            logger = get_logger(component="testcmp", log_file=log_file)
-
-            self.assertIsInstance(logger, ILogger)
-            logger.info("hello", foo="bar")
-
-            entries = read_jsonl(log_file)
-            self.assertEqual(len(entries), 1)
-            entry = entries[0]
-            self.assertEqual(entry["lvl"], "INFO")
-            self.assertEqual(entry["cmp"], "testcmp")
-            self.assertEqual(entry["msg"], "hello")
-            self.assertEqual(entry["ctx"]["foo"], "bar")
-            datetime.fromisoformat(entry["ts"])  # raises if not ISO-8601
-
-    def test_audit_logs_include_fields(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_file = Path(tmpdir) / "audit.jsonl"
-            logger = get_logger(component="auditcmp", log_file=log_file)
-
-            logger.audit("boot", actor="system", outcome="ok", detail="ready")
-
-            entry = read_jsonl(log_file)[0]
-            self.assertEqual(entry["lvl"], "AUDIT")
-            ctx = entry["ctx"]
-            self.assertEqual(ctx["action"], "boot")
-            self.assertEqual(ctx["actor"], "system")
-            self.assertEqual(ctx["outcome"], "ok")
-            self.assertEqual(ctx["detail"], "ready")
-
-    def test_rotation_config_and_no_duplicate_handlers(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_file = Path(tmpdir) / "rotate.jsonl"
-            logger = get_logger(component="rotator", log_file=log_file)
-
-            handler = logger.handler
-            self.assertIsInstance(handler, logging.handlers.RotatingFileHandler)
-            self.assertEqual(handler.maxBytes, ROTATION_BYTES)
-            self.assertEqual(handler.backupCount, BACKUP_COUNT)
-
-            logger.info("first")
-            logger_again = get_logger(component="rotator", log_file=log_file)
-            logger_again.info("second")
-
-            entries = read_jsonl(log_file)
-            self.assertEqual(len(entries), 2)
-            self.assertEqual(entries[0]["msg"], "first")
-            self.assertEqual(entries[1]["msg"], "second")
+def test_implements_interface(tmp_path: Path) -> None:
+    logger = CanonicalLogger(name="test.logger", log_dir=tmp_path)
+    assert isinstance(logger, ILogger)
 
 
-if __name__ == "__main__":
-    unittest.main()
+def test_writes_valid_jsonl(tmp_path: Path) -> None:
+    logger = CanonicalLogger(name="test.logger", log_dir=tmp_path)
+    logger.info("Bootstrap test", session_id="A1B2C3", mode="runloop")
+
+    logs = read_jsonl(logger.log_file)
+    assert len(logs) == 1
+    log = logs[0]
+    assert log["lvl"] == "INFO"
+    assert log["cmp"] == "test.logger"
+    assert log["msg"] == "Bootstrap test"
+    assert log["ctx"]["session_id"] == "A1B2C3"
+
+
+def test_error_logging_includes_traceback(tmp_path: Path) -> None:
+    logger = CanonicalLogger(name="test.error", log_dir=tmp_path)
+    try:
+        raise ValueError("Invalid state transition")
+    except ValueError as exc:  # pragma: no cover - exercised in test
+        logger.error("State failure", error=exc, component="orchestrator")
+
+    logs = read_jsonl(logger.log_file)
+    log = logs[0]
+    assert log["lvl"] == "ERROR"
+    assert log["ctx"]["component"] == "orchestrator"
+    assert log["ctx"]["exc_type"] == "ValueError"
+    assert any("Invalid state transition" in line for line in log["ctx"]["traceback"])
+
+
+def test_audit_logging(tmp_path: Path) -> None:
+    logger = CanonicalLogger(name="test.audit", log_dir=tmp_path)
+    logger.audit("AGENT_PROMOTION", "Cryovant", "SUCCESS", agent_id="he65:101a")
+
+    log = read_jsonl(logger.log_file)[0]
+    assert log["lvl"] == "AUDIT"
+    assert log["msg"] == "AUDIT: AGENT_PROMOTION"
+    assert log["ctx"]["actor"] == "Cryovant"
+    assert log["ctx"]["agent_id"] == "he65:101a"
+
+
+def test_rotation_configured(tmp_path: Path) -> None:
+    logger = CanonicalLogger(name="test.rotation", log_dir=tmp_path)
+    handler = next(h for h in logger.logger.handlers if isinstance(h, logging.handlers.RotatingFileHandler))
+    assert handler.maxBytes == 5 * 1024 * 1024
+    assert handler.backupCount == 3
+
+
+def test_json_formatter_includes_timestamp(tmp_path: Path) -> None:
+    formatter = JsonFormatter()
+    record = logging.LogRecord(
+        name="component",
+        level=logging.INFO,
+        pathname=__file__,
+        lineno=0,
+        msg="message",
+        args=(),
+        exc_info=None,
+        func=None,
+        sinfo=None,
+    )
+    record.created = 1.0
+    output = json.loads(formatter.format(record))
+    assert output["ts"].startswith("1970-01-01T00:00:01")
+
+
+def test_get_canonical_logger_reuses_instance(tmp_path: Path) -> None:
+    first = get_canonical_logger(name="test.singleton", log_dir=tmp_path)
+    second = get_canonical_logger(name="another", log_dir=tmp_path)
+    assert first is second
+    assert first.log_file.exists()
+    assert second.log_file == first.log_file
+    assert any(handler.level == logging.INFO for handler in first.logger.handlers if isinstance(handler, logging.StreamHandler))
