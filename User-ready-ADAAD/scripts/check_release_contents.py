@@ -8,7 +8,6 @@ or inside a .zip archive.
 
 from __future__ import annotations
 
-import sys
 import zipfile
 from pathlib import Path
 
