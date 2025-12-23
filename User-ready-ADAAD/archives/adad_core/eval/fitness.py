@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Deterministic fitness computation and append-only logging."""
 from __future__ import annotations
 

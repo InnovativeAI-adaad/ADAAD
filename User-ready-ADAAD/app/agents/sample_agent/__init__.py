@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 Sample agent implementation used for boot health checks.
 """

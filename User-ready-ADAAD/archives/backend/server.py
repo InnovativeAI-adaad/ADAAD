@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Lightweight FastAPI backend for the Aponi 1.0 dashboard.
 
 The server exposes simple JSON endpoints that mirror ADAAD's Beast Mode

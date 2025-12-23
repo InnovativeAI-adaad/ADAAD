@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Selection rules for promoting or quarantining agents."""
 from __future__ import annotations
 

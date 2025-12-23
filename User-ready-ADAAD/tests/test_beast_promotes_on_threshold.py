@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import json
 import os
 import tempfile
@@ -32,6 +33,9 @@ class BeastPromotionTest(unittest.TestCase):
         self._orig_threshold = os.environ.get("ADAAD_FITNESS_THRESHOLD")
         os.environ["ADAAD_FITNESS_THRESHOLD"] = "0.1"
 
+        self._orig_hmac_key_b64 = os.environ.get("CRYOVANT_HMAC_KEY_B64")
+        os.environ["CRYOVANT_HMAC_KEY_B64"] = "dGVzdC1zZWNyZXQ="
+
         def _restore_threshold() -> None:
             if self._orig_threshold is None:
                 os.environ.pop("ADAAD_FITNESS_THRESHOLD", None)
@@ -39,6 +43,14 @@ class BeastPromotionTest(unittest.TestCase):
                 os.environ["ADAAD_FITNESS_THRESHOLD"] = self._orig_threshold
 
         self.addCleanup(_restore_threshold)
+
+        def _restore_hmac_key() -> None:
+            if self._orig_hmac_key_b64 is None:
+                os.environ.pop("CRYOVANT_HMAC_KEY_B64", None)
+            else:
+                os.environ["CRYOVANT_HMAC_KEY_B64"] = self._orig_hmac_key_b64
+
+        self.addCleanup(_restore_hmac_key)
 
     def test_beast_promotes(self) -> None:
         agents_root = Path(self.tmp.name) / "agents"
