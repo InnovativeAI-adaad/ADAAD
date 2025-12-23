@@ -38,6 +38,8 @@ class AponiDashboard:
     def _build_handler(self):
         state_ref = self._state
         lineage_dir = APP_ROOT / "agents" / "lineage"
+        staging_dir = lineage_dir / "_staging"
+        capabilities_path = APP_ROOT.parent / "data" / "capabilities.json"
 
         class Handler(SimpleHTTPRequestHandler):
             def _send_json(self, payload) -> None:
@@ -55,11 +57,20 @@ class AponiDashboard:
                 if self.path.startswith("/metrics"):
                     self._send_json(metrics.tail(limit=50))
                     return
+                if self.path.startswith("/fitness"):
+                    self._send_json(self._fitness_events())
+                    return
+                if self.path.startswith("/capabilities"):
+                    self._send_json(self._capabilities())
+                    return
                 if self.path.startswith("/lineage"):
                     self._send_json(journal.read_entries(limit=50))
                     return
                 if self.path.startswith("/mutations"):
                     self._send_json(self._collect_mutations(lineage_dir))
+                    return
+                if self.path.startswith("/staging"):
+                    self._send_json(self._collect_mutations(staging_dir))
                     return
                 self.send_response(404)
                 self.end_headers()
@@ -74,6 +85,21 @@ class AponiDashboard:
                 children = [item for item in lineage_root.iterdir() if item.is_dir()]
                 children.sort(key=lambda entry: entry.stat().st_mtime, reverse=True)
                 return [child.name for child in children]
+
+            @staticmethod
+            def _fitness_events() -> List[Dict]:
+                entries = metrics.tail(limit=200)
+                fitness_events = [entry for entry in entries if entry.get("event") == "fitness_scored"]
+                return fitness_events[-50:]
+
+            @staticmethod
+            def _capabilities() -> Dict:
+                if not capabilities_path.exists():
+                    return {}
+                try:
+                    return json.loads(capabilities_path.read_text(encoding="utf-8"))
+                except json.JSONDecodeError:
+                    return {}
 
         return Handler
 

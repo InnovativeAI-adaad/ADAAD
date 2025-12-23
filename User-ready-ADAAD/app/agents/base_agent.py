@@ -4,6 +4,7 @@ Base agent definition and validation utilities.
 
 import hashlib
 import json
+import shutil
 import time
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
@@ -72,17 +73,36 @@ def validate_agents(agents_root: Path) -> Tuple[bool, List[str]]:
     return True, []
 
 
-def write_offspring(parent_id: str, content: str, lineage_dir: Path) -> Path:
+def stage_offspring(parent_id: str, content: str, lineage_dir: Path) -> Path:
     """
-    Persist a mutated offspring under the lineage directory with timestamp and hash.
+    Stage a mutated offspring into the _staging area with metadata and hash.
     """
-    lineage_dir.mkdir(parents=True, exist_ok=True)
+    staging_root = lineage_dir / "_staging"
+    staging_root.mkdir(parents=True, exist_ok=True)
     timestamp = time.strftime("%Y%m%d%H%M%S", time.gmtime())
     content_hash = hashlib.sha256(content.encode("utf-8")).hexdigest()[:8]
-    offspring_dir = lineage_dir / f"{timestamp}_{content_hash}"
-    offspring_dir.mkdir(parents=True, exist_ok=True)
-    payload = {"parent": parent_id, "content": content}
-    with (offspring_dir / "mutation.json").open("w", encoding="utf-8") as handle:
+    staged_dir = staging_root / f"{timestamp}_{content_hash}"
+    staged_dir.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "parent": parent_id,
+        "content": content,
+        "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "content_hash": content_hash,
+    }
+    with (staged_dir / "mutation.json").open("w", encoding="utf-8") as handle:
         json.dump(payload, handle, indent=2)
-    metrics.log(event_type="agent_offspring_written", payload={"path": str(offspring_dir)}, level="INFO")
-    return offspring_dir
+    metrics.log(event_type="offspring_staged", payload={"path": str(staged_dir)}, level="INFO")
+    return staged_dir
+
+
+def promote_offspring(staged_dir: Path, lineage_dir: Path) -> Path:
+    """
+    Promote a staged offspring into the main lineage directory.
+    """
+    if not staged_dir.exists():
+        raise FileNotFoundError(f"staged_dir missing: {staged_dir}")
+    lineage_dir.mkdir(parents=True, exist_ok=True)
+    target_dir = lineage_dir / staged_dir.name
+    shutil.move(str(staged_dir), target_dir)
+    metrics.log(event_type="offspring_promoted", payload={"from": str(staged_dir), "to": str(target_dir)}, level="INFO")
+    return target_dir

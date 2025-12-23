@@ -10,7 +10,7 @@ from app.architect_agent import ArchitectAgent
 from app.beast_mode_loop import BeastModeLoop
 from app.dream_mode import DreamMode
 from runtime import metrics
-from runtime.capabilities import register_capability
+from runtime.capability_graph import register_capability
 from runtime.element_registry import dump, register
 from runtime.invariants import verify_all
 from runtime.warm_pool import WarmPool
