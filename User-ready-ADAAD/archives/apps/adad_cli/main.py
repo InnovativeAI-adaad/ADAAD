@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Lightweight entry point for running a single ADAAD cycle."""
 from __future__ import annotations
 

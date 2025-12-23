@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Verification helpers for Cryovant signatures."""
 from __future__ import annotations
 

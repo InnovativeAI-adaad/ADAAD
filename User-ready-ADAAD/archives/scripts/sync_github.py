@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Placeholder for mirroring artifacts to GitHub.
 
 This stub keeps the public interface stable while allowing downstream

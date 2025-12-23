@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 Runtime package providing core utilities for the ADAAD orchestrator.
 """

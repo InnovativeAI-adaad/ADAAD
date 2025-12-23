@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 Beast mode evaluates mutations and promotes approved staged candidates.
 """

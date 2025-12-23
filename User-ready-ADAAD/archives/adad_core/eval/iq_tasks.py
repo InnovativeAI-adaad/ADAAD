@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Cheap deterministic IQ-like probes."""
 from __future__ import annotations
 

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 Graph-backed capability registry enforcing dependencies and monotonic scores.
 """

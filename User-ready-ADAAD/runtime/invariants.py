@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 Core invariant checks to enforce canonical tree and banned import policies.
 """

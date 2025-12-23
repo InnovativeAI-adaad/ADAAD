@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 Minimal HTTP dashboard served with the standard library.
 """

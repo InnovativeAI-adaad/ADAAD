@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 Ledger journaling utilities.
 """
@@ -48,3 +49,20 @@ def read_entries(limit: int = 50) -> List[Dict[str, str]]:
         except json.JSONDecodeError:
             continue
     return entries
+
+
+def last_issued_at(agent_id: str) -> str | None:
+    """
+    Return the most recent issued_at for the given agent based on certificate_evolved entries.
+    """
+    entries = read_entries(limit=5000)
+    for entry in reversed(entries):
+        if entry.get("agent_id") != agent_id:
+            continue
+        if entry.get("action") != "certificate_evolved":
+            continue
+        payload = entry.get("payload") or {}
+        issued_at = payload.get("issued_at")
+        if issued_at:
+            return issued_at
+    return None

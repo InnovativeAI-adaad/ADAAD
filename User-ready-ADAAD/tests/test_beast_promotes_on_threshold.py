@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import json
 import os
 import tempfile
@@ -7,6 +8,7 @@ from pathlib import Path
 from app.agents.base_agent import stage_offspring
 from app.beast_mode_loop import BeastModeLoop
 from runtime import capability_graph, metrics
+from security import cryovant
 from security.ledger import journal
 
 
@@ -32,6 +34,9 @@ class BeastPromotionTest(unittest.TestCase):
         self._orig_threshold = os.environ.get("ADAAD_FITNESS_THRESHOLD")
         os.environ["ADAAD_FITNESS_THRESHOLD"] = "0.1"
 
+        self._orig_hmac_key_b64 = os.environ.get("CRYOVANT_HMAC_KEY_B64")
+        os.environ["CRYOVANT_HMAC_KEY_B64"] = "dGVzdC1zZWNyZXQ="
+
         def _restore_threshold() -> None:
             if self._orig_threshold is None:
                 os.environ.pop("ADAAD_FITNESS_THRESHOLD", None)
@@ -40,6 +45,14 @@ class BeastPromotionTest(unittest.TestCase):
 
         self.addCleanup(_restore_threshold)
 
+        def _restore_hmac_key() -> None:
+            if self._orig_hmac_key_b64 is None:
+                os.environ.pop("CRYOVANT_HMAC_KEY_B64", None)
+            else:
+                os.environ["CRYOVANT_HMAC_KEY_B64"] = self._orig_hmac_key_b64
+
+        self.addCleanup(_restore_hmac_key)
+
     def test_beast_promotes(self) -> None:
         agents_root = Path(self.tmp.name) / "agents"
         lineage_dir = agents_root / "lineage"
@@ -47,7 +60,8 @@ class BeastPromotionTest(unittest.TestCase):
         agent_dir.mkdir(parents=True, exist_ok=True)
         (agent_dir / "meta.json").write_text(json.dumps({"name": "agentA"}), encoding="utf-8")
         (agent_dir / "dna.json").write_text(json.dumps({"seq": "abc"}), encoding="utf-8")
-        (agent_dir / "certificate.json").write_text(json.dumps({"signature": "cryovant-dev-seed"}), encoding="utf-8")
+        (agent_dir / "certificate.json").write_text(json.dumps({"signature": "placeholder"}), encoding="utf-8")
+        cryovant.evolve_certificate("agentA", agent_dir, Path(self.tmp.name) / "bootstrap", {})
 
         capability_graph.register_capability("orchestrator.boot", "0.1.0", 1.0, "test")
         capability_graph.register_capability("cryovant.gate", "0.1.0", 1.0, "test")

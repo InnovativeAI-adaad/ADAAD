@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Reference agent implementing the ADAAD-required surface."""
 from __future__ import annotations
 

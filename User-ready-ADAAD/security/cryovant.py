@@ -1,11 +1,15 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 Cryovant gatekeeper enforcing environment and lineage validation.
 """
 
+import base64
 import hashlib
+import hmac
 import json
 import os
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -16,17 +20,143 @@ from security.ledger import journal
 ELEMENT_ID = "Water"
 
 KEYS_DIR = SECURITY_ROOT / "keys"
+HMAC_KEY_PATH = KEYS_DIR / "hmac.key"
+HMAC_KEY_ENV_PATH = "CRYOVANT_HMAC_KEY_PATH"
+HMAC_KEY_ENV_B64 = "CRYOVANT_HMAC_KEY_B64"
+CRYOVANT_ISSUER_ENV = "CRYOVANT_ISSUER"
+CERT_SCHEMA_VERSION = 1
 
 
-def verify_signature(signature: str) -> bool:
-    """
-    Placeholder signature verification hook. Returns False until real keys are configured.
-    """
-    return False
+def _hmac_key_path() -> Optional[Path]:
+    override = os.getenv(HMAC_KEY_ENV_PATH)
+    if override:
+        return Path(override)
+    return HMAC_KEY_PATH
 
 
-def _valid_signature(signature: str) -> bool:
-    return signature.startswith("cryovant-dev-") or verify_signature(signature)
+def _load_hmac_key() -> Optional[bytes]:
+    b64_value = os.getenv(HMAC_KEY_ENV_B64)
+    if b64_value:
+        try:
+            return base64.b64decode(b64_value.strip())
+        except Exception:
+            return None
+    path = _hmac_key_path()
+    if path and path.exists():
+        try:
+            if path.stat().st_mode & 0o077:
+                return None
+        except OSError:
+            return None
+        key = path.read_text(encoding="utf-8").strip()
+        return key.encode("utf-8") if key else None
+    return None
+
+
+def _canonical_json(data: Any) -> str:
+    return json.dumps(data, sort_keys=True, separators=(",", ":"))
+
+
+def _hash_text(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def _key_id(key: bytes) -> str:
+    return hashlib.sha256(key).hexdigest()[:12]
+
+
+def _issuer() -> str:
+    return os.getenv(CRYOVANT_ISSUER_ENV, "cryovant-dev")
+
+
+def _hash_payload(payload: Dict[str, Any]) -> Tuple[str, str]:
+    canonical = _canonical_json(payload)
+    payload_hash = _hash_text(canonical)
+    return canonical, payload_hash
+
+
+def _parse_ts(timestamp: str) -> Optional[datetime]:
+    try:
+        return datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+    except Exception:
+        return None
+
+
+def _signature_payload(
+    agent_id: str,
+    issued_at: str,
+    issued_from: str,
+    capabilities_snapshot: Dict[str, Any],
+    meta: Dict[str, Any],
+    dna: Dict[str, Any],
+    issuer: str,
+    key_id: str,
+) -> Dict[str, Any]:
+    return {
+        "schema_version": CERT_SCHEMA_VERSION,
+        "issuer": issuer,
+        "key_id": key_id,
+        "agent_id": agent_id,
+        "issued_at": issued_at,
+        "issued_from": issued_from,
+        "meta_hash": _hash_text(_canonical_json(meta)),
+        "dna_hash": _hash_text(_canonical_json(dna)),
+        "capabilities_hash": _hash_text(_canonical_json(capabilities_snapshot)),
+    }
+
+
+def _sign_payload(payload: Dict[str, Any], key: bytes) -> Tuple[str, str]:
+    canonical, payload_hash = _hash_payload(payload)
+    mac = hmac.new(key, canonical.encode("utf-8"), hashlib.sha256)
+    return f"hmac256:{mac.hexdigest()}", payload_hash
+
+
+def verify_certificate(agent_id: str, meta: Dict[str, Any], dna: Dict[str, Any], certificate: Dict[str, Any]) -> bool:
+    if not certificate:
+        return False
+    if certificate.get("schema_version") != CERT_SCHEMA_VERSION:
+        return False
+    issuer = certificate.get("issuer")
+    if issuer != _issuer():
+        return False
+    if not isinstance(certificate.get("capabilities_snapshot", {}), dict):
+        return False
+    signature = certificate.get("signature", "")
+    payload_hash = certificate.get("payload_hash", "")
+    issued_at = certificate.get("issued_at", "")
+    if not signature.startswith("hmac256:") or not payload_hash or not issued_at:
+        return False
+    issued_dt = _parse_ts(issued_at)
+    if not issued_dt:
+        return False
+    last_issued = journal.last_issued_at(agent_id)
+    if last_issued:
+        last_dt = _parse_ts(last_issued)
+        if not last_dt:
+            return False
+        if issued_dt < last_dt:
+            return False
+    key = _load_hmac_key()
+    if not key:
+        return False
+    if certificate.get("key_id") != _key_id(key):
+        return False
+    expected_payload = _signature_payload(
+        agent_id=agent_id,
+        issued_at=certificate.get("issued_at", ""),
+        issued_from=certificate.get("issued_from", ""),
+        capabilities_snapshot=certificate.get("capabilities_snapshot", {}),
+        meta=meta,
+        dna=dna,
+        issuer=issuer,
+        key_id=certificate.get("key_id", ""),
+    )
+    _, recalculated_hash = _hash_payload(expected_payload)
+    if payload_hash != recalculated_hash:
+        return False
+    mac = hmac.new(key, _canonical_json(expected_payload).encode("utf-8"), hashlib.sha256)
+    expected_sig = f"hmac256:{mac.hexdigest()}"
+    return hmac.compare_digest(expected_sig, signature)
 
 
 def _read_json(path: Path) -> Dict[str, Any]:
@@ -38,14 +168,27 @@ def _read_json(path: Path) -> Dict[str, Any]:
 
 def compute_lineage_hash(agent_dir: Path) -> str:
     """
-    Compute a stable hash over agent metadata triplet.
+    Compute the payload hash over agent metadata and certificate fields.
     """
     meta = _read_json(agent_dir / "meta.json")
     dna = _read_json(agent_dir / "dna.json")
     certificate = _read_json(agent_dir / "certificate.json")
-    bundle = {"certificate.json": certificate, "dna.json": dna, "meta.json": meta}
-    canonical = json.dumps(bundle, sort_keys=True, separators=(",", ":"))
-    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+    issuer = certificate.get("issuer", _issuer())
+    key_id = certificate.get("key_id", "")
+    issued_at = certificate.get("issued_at", "")
+    issued_from = certificate.get("issued_from", "")
+    payload = _signature_payload(
+        agent_id=agent_dir.name,
+        issued_at=issued_at,
+        issued_from=issued_from,
+        capabilities_snapshot=certificate.get("capabilities_snapshot", {}),
+        meta=meta,
+        dna=dna,
+        issuer=issuer,
+        key_id=key_id,
+    )
+    _, payload_hash = _hash_payload(payload)
+    return payload_hash
 
 
 def evolve_certificate(agent_id: str, agent_dir: Path, mutation_dir: Path, capabilities_snapshot: Dict[str, Any]) -> Dict[str, Any]:
@@ -56,32 +199,51 @@ def evolve_certificate(agent_id: str, agent_dir: Path, mutation_dir: Path, capab
     existing_cert = _read_json(certificate_path)
     meta = _read_json(agent_dir / "meta.json")
     dna = _read_json(agent_dir / "dna.json")
+    key = _load_hmac_key()
+    if not key:
+        raise RuntimeError("cryovant signing key missing")
+    issuer = _issuer()
+    key_id = _key_id(key)
+    issued_at = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     base_certificate: Dict[str, Any] = {
-        "issuer": "cryovant-dev",
-        "issued_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "schema_version": CERT_SCHEMA_VERSION,
+        "issuer": issuer,
+        "key_id": key_id,
+        "issued_at": issued_at,
         "issued_from": str(mutation_dir),
         "capabilities_snapshot": capabilities_snapshot,
     }
-    for key, value in existing_cert.items():
-        if key not in base_certificate:
-            base_certificate[key] = value
 
-    bundle = {"certificate.json": base_certificate, "dna.json": dna, "meta.json": meta}
-    lineage_hash = hashlib.sha256(json.dumps(bundle, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
-    signature = existing_cert.get("signature")
-    if not _valid_signature(signature or ""):
-        signature = f"cryovant-dev-{lineage_hash[:12]}"
+    payload = _signature_payload(
+        agent_id=agent_id,
+        issued_at=issued_at,
+        issued_from=str(mutation_dir),
+        capabilities_snapshot=capabilities_snapshot,
+        meta=meta,
+        dna=dna,
+        issuer=issuer,
+        key_id=key_id,
+    )
+    signature, payload_hash = _sign_payload(payload, key)
 
-    certificate = {**base_certificate, "lineage_hash": lineage_hash, "signature": signature}
+    certificate = {
+        **base_certificate,
+        "meta_hash": payload["meta_hash"],
+        "dna_hash": payload["dna_hash"],
+        "capabilities_hash": payload["capabilities_hash"],
+        "payload_hash": payload_hash,
+        "lineage_hash": payload_hash,
+        "signature": signature,
+    }
     certificate_path.write_text(json.dumps(certificate, indent=2), encoding="utf-8")
     journal.write_entry(
         agent_id=agent_id,
         action="certificate_evolved",
-        payload={"mutation_dir": str(mutation_dir), "lineage_hash": lineage_hash},
+        payload={"mutation_dir": str(mutation_dir), "lineage_hash": payload_hash, "issued_at": issued_at},
     )
     metrics.log(
         event_type="certificate_evolved",
-        payload={"agent": agent_id, "mutation_dir": str(mutation_dir), "lineage_hash": lineage_hash},
+        payload={"agent": agent_id, "mutation_dir": str(mutation_dir), "lineage_hash": payload_hash},
         level="INFO",
         element_id=ELEMENT_ID,
     )
@@ -135,14 +297,32 @@ def certify_agents(app_agents_dir: Path) -> Tuple[bool, List[str]]:
                 missing.append(f"{candidate.name}:{required.name}")
         if cert.exists():
             certificate = _read_json(cert)
-            signature = certificate.get("signature", "")
-            lineage_hash = certificate.get("lineage_hash")
-            if not lineage_hash and _valid_signature(signature):
-                lineage_hash = compute_lineage_hash(candidate)
-                certificate["lineage_hash"] = lineage_hash
-                cert.write_text(json.dumps(certificate, indent=2), encoding="utf-8")
-                journal.write_entry(agent_id=candidate.name, action="certificate_evolved", payload={"lineage_hash": lineage_hash})
-            if not _valid_signature(signature):
+            meta_data = _read_json(meta)
+            dna_data = _read_json(dna)
+            schema_version = certificate.get("schema_version")
+            signature_str = str(certificate.get("signature", ""))
+            legacy = schema_version is None
+            version_mismatch = schema_version not in (None, CERT_SCHEMA_VERSION)
+            if legacy or version_mismatch:
+                key = _load_hmac_key()
+                if key:
+                    try:
+                        certificate = evolve_certificate(
+                            agent_id=candidate.name,
+                            agent_dir=candidate,
+                            mutation_dir=Path("bootstrap"),
+                            capabilities_snapshot=certificate.get("capabilities_snapshot", {}),
+                        )
+                    except Exception:
+                        signature_failures.append(candidate.name)
+                        continue
+                else:
+                    signature_failures.append(candidate.name)
+                    continue
+            elif not signature_str.startswith("hmac256:"):
+                signature_failures.append(candidate.name)
+                continue
+            if not verify_certificate(candidate.name, meta_data, dna_data, certificate):
                 signature_failures.append(candidate.name)
     if missing or signature_failures:
         errors = missing + [f"{name}:invalid_signature" for name in signature_failures]
