@@ -1,0 +1,8 @@
+{"timestamp": "2025-12-23T00:46:15Z", "event": "agent_validation_passed", "level": "INFO", "element": "Earth", "payload": {"agents": "agents"}}
+{"timestamp": "2025-12-23T00:46:15Z", "event": "ledger_write", "level": "INFO", "element": "Earth", "payload": {"timestamp": "2025-12-23T00:46:15Z", "agent_id": "system", "action": "env_check", "payload": {"check": "environment_ok"}}}
+{"timestamp": "2025-12-23T00:46:15Z", "event": "cryovant_environment_valid", "level": "INFO", "element": "Earth", "payload": {"ledger": "/workspace/ADAAD/User-ready-ADAAD/security/ledger/lineage.jsonl", "keys_dir": "/workspace/ADAAD/User-ready-ADAAD/security/keys"}}
+{"timestamp": "2025-12-23T00:46:15Z", "event": "unittest_probe", "level": "INFO", "element": "Earth", "payload": {"ok": true}}
+{"timestamp": "2025-12-23T00:56:51Z", "event": "agent_validation_passed", "level": "INFO", "element": "Earth", "payload": {"agents": "agents"}}
+{"timestamp": "2025-12-23T00:56:51Z", "event": "ledger_write", "level": "INFO", "element": "Water", "payload": {"timestamp": "2025-12-23T00:56:51Z", "agent_id": "system", "action": "env_check", "payload": {"check": "environment_ok"}}}
+{"timestamp": "2025-12-23T00:56:51Z", "event": "cryovant_environment_valid", "level": "INFO", "element": "Water", "payload": {"ledger": "/workspace/ADAAD/User-ready-ADAAD/security/ledger/lineage.jsonl", "keys_dir": "/workspace/ADAAD/User-ready-ADAAD/security/keys"}}
+{"timestamp": "2025-12-23T00:56:51Z", "event": "unittest_probe", "level": "INFO", "element": "Earth", "payload": {"ok": true}}
