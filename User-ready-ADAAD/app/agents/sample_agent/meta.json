@@ -1,0 +1,6 @@
+{
+  "id": "sample-agent",
+  "name": "Sample Agent",
+  "version": "0.1.0",
+  "description": "Reference agent included for health checks."
+}
