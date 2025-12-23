@@ -2,8 +2,9 @@
 Core invariant checks to enforce canonical tree and banned import policies.
 """
 
-import re
+import json
 import os
+import re
 from pathlib import Path
 from typing import List, Tuple
 
@@ -28,6 +29,7 @@ REQUIRED_DIRS = [
 ]
 
 BANNED_ROOTS = {"core", "engines", "adad_core", "ADAAD22"}
+BANNED_ABSOLUTE_PATTERNS = ["/workspace/", "/home/", "/sdcard/", "/storage/"]
 
 
 def verify_tree() -> Tuple[bool, List[str]]:
@@ -94,8 +96,57 @@ def verify_security_paths() -> Tuple[bool, List[str]]:
     return True, []
 
 
+def ensure_staging_dir() -> Tuple[bool, List[str]]:
+    staging = ROOT_DIR / "app" / "agents" / "lineage" / "_staging"
+    try:
+        staging.mkdir(parents=True, exist_ok=True)
+    except Exception as exc:  # pragma: no cover - defensive
+        metrics.log(event_type="invariant_staging_failed", payload={"error": str(exc)}, level="ERROR", element_id=ELEMENT_ID)
+        return False, [f"staging_unavailable:{exc}"]
+    metrics.log(event_type="invariant_staging_ok", payload={"path": str(staging)}, level="INFO", element_id=ELEMENT_ID)
+    return True, []
+
+
+def verify_capabilities_file() -> Tuple[bool, List[str]]:
+    capabilities_path = ROOT_DIR / "data" / "capabilities.json"
+    if not capabilities_path.exists():
+        return True, []
+    try:
+        json.loads(capabilities_path.read_text(encoding="utf-8"))
+        return True, []
+    except Exception as exc:  # pragma: no cover - defensive
+        metrics.log(event_type="invariant_capabilities_invalid", payload={"error": str(exc)}, level="ERROR", element_id=ELEMENT_ID)
+        return False, [f"capabilities_invalid:{exc}"]
+
+
+def scan_absolute_paths() -> Tuple[bool, List[str]]:
+    failures: List[str] = []
+    for path in ROOT_DIR.rglob("*.py"):
+        if "archives" in path.parts:
+            continue
+        if path.resolve() == Path(__file__).resolve():
+            continue
+        content = path.read_text(encoding="utf-8").splitlines()
+        for lineno, line in enumerate(content, start=1):
+            if any(pattern in line for pattern in BANNED_ABSOLUTE_PATTERNS):
+                failures.append(f"{path}:{lineno}:{line.strip()}")
+    if failures:
+        metrics.log(event_type="invariant_abs_paths_failed", payload={"failures": failures}, level="ERROR", element_id=ELEMENT_ID)
+        return False, failures
+    metrics.log(event_type="invariant_abs_paths_ok", payload={}, level="INFO", element_id=ELEMENT_ID)
+    return True, []
+
+
 def verify_all() -> Tuple[bool, List[str]]:
-    checks = [verify_tree(), scan_banned_imports(), verify_metrics_path(), verify_security_paths()]
+    checks = [
+        verify_tree(),
+        scan_banned_imports(),
+        scan_absolute_paths(),
+        verify_metrics_path(),
+        verify_security_paths(),
+        ensure_staging_dir(),
+        verify_capabilities_file(),
+    ]
     failures: List[str] = []
     for ok, msgs in checks:
         if not ok:

@@ -2,9 +2,12 @@
 Cryovant gatekeeper enforcing environment and lineage validation.
 """
 
+import hashlib
+import json
 import os
+import time
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from runtime import metrics
 from security import SECURITY_ROOT
@@ -15,8 +18,74 @@ ELEMENT_ID = "Water"
 KEYS_DIR = SECURITY_ROOT / "keys"
 
 
+def verify_signature(signature: str) -> bool:
+    """
+    Placeholder signature verification hook. Returns False until real keys are configured.
+    """
+    return False
+
+
 def _valid_signature(signature: str) -> bool:
-    return bool(signature and signature not in {"sample-signature", "fill-me"} and len(signature) >= 12)
+    return signature.startswith("cryovant-dev-") or verify_signature(signature)
+
+
+def _read_json(path: Path) -> Dict[str, Any]:
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def compute_lineage_hash(agent_dir: Path) -> str:
+    """
+    Compute a stable hash over agent metadata triplet.
+    """
+    meta = _read_json(agent_dir / "meta.json")
+    dna = _read_json(agent_dir / "dna.json")
+    certificate = _read_json(agent_dir / "certificate.json")
+    bundle = {"certificate.json": certificate, "dna.json": dna, "meta.json": meta}
+    canonical = json.dumps(bundle, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def evolve_certificate(agent_id: str, agent_dir: Path, mutation_dir: Path, capabilities_snapshot: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Update the agent certificate with lineage hash and signature.
+    """
+    certificate_path = agent_dir / "certificate.json"
+    existing_cert = _read_json(certificate_path)
+    meta = _read_json(agent_dir / "meta.json")
+    dna = _read_json(agent_dir / "dna.json")
+    base_certificate: Dict[str, Any] = {
+        "issuer": "cryovant-dev",
+        "issued_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "issued_from": str(mutation_dir),
+        "capabilities_snapshot": capabilities_snapshot,
+    }
+    for key, value in existing_cert.items():
+        if key not in base_certificate:
+            base_certificate[key] = value
+
+    bundle = {"certificate.json": base_certificate, "dna.json": dna, "meta.json": meta}
+    lineage_hash = hashlib.sha256(json.dumps(bundle, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
+    signature = existing_cert.get("signature")
+    if not _valid_signature(signature or ""):
+        signature = f"cryovant-dev-{lineage_hash[:12]}"
+
+    certificate = {**base_certificate, "lineage_hash": lineage_hash, "signature": signature}
+    certificate_path.write_text(json.dumps(certificate, indent=2), encoding="utf-8")
+    journal.write_entry(
+        agent_id=agent_id,
+        action="certificate_evolved",
+        payload={"mutation_dir": str(mutation_dir), "lineage_hash": lineage_hash},
+    )
+    metrics.log(
+        event_type="certificate_evolved",
+        payload={"agent": agent_id, "mutation_dir": str(mutation_dir), "lineage_hash": lineage_hash},
+        level="INFO",
+        element_id=ELEMENT_ID,
+    )
+    return certificate
 
 
 def validate_environment() -> bool:
@@ -65,16 +134,16 @@ def certify_agents(app_agents_dir: Path) -> Tuple[bool, List[str]]:
             if not required.exists():
                 missing.append(f"{candidate.name}:{required.name}")
         if cert.exists():
-            try:
-                import json
-
-                certificate = json.loads(cert.read_text(encoding="utf-8"))
-                signature = certificate.get("signature", "")
-                if not _valid_signature(signature):
-                    signature_failures.append(candidate.name)
-            except Exception:
+            certificate = _read_json(cert)
+            signature = certificate.get("signature", "")
+            lineage_hash = certificate.get("lineage_hash")
+            if not lineage_hash and _valid_signature(signature):
+                lineage_hash = compute_lineage_hash(candidate)
+                certificate["lineage_hash"] = lineage_hash
+                cert.write_text(json.dumps(certificate, indent=2), encoding="utf-8")
+                journal.write_entry(agent_id=candidate.name, action="certificate_evolved", payload={"lineage_hash": lineage_hash})
+            if not _valid_signature(signature):
                 signature_failures.append(candidate.name)
-
     if missing or signature_failures:
         errors = missing + [f"{name}:invalid_signature" for name in signature_failures]
         metrics.log(event_type="cryovant_certify_failed", payload={"missing": errors}, level="ERROR", element_id=ELEMENT_ID)
@@ -87,7 +156,9 @@ def certify_agents(app_agents_dir: Path) -> Tuple[bool, List[str]]:
             continue
         if candidate.name in {"agent_template", "lineage"}:
             continue
-        journal.write_entry(agent_id=candidate.name, action="certified", payload={"path": str(candidate)})
+        certificate = _read_json(candidate / "certificate.json")
+        payload = {"path": str(candidate), "lineage_hash": certificate.get("lineage_hash")}
+        journal.write_entry(agent_id=candidate.name, action="certified", payload=payload)
 
     metrics.log(event_type="cryovant_certified", payload={"agents_dir": str(app_agents_dir)}, level="INFO", element_id=ELEMENT_ID)
     return True, []

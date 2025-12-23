@@ -6,7 +6,7 @@ import time
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from app.agents.base_agent import write_offspring
+from app.agents.base_agent import stage_offspring
 from runtime import metrics
 from security import cryovant
 
@@ -40,7 +40,7 @@ class DreamMode:
 
     def run_cycle(self, agent_id: Optional[str] = None) -> Dict[str, str]:
         """
-        Run a single dream mutation cycle.
+        Run a single dream mutation cycle. Dream only stages candidates; it does not promote.
         """
         metrics.log(event_type="evolution_cycle_start", payload={"agent": agent_id}, level="INFO", element_id=ELEMENT_ID)
         tasks = self.discover_tasks()
@@ -55,8 +55,13 @@ class DreamMode:
 
         metrics.log(event_type="evolution_cycle_decision", payload={"selected_agent": selected}, level="INFO", element_id=ELEMENT_ID)
         mutation_content = f"{selected}-mutation-{time.time()}"
-        offspring_path = write_offspring(parent_id=selected, content=mutation_content, lineage_dir=self.lineage_dir)
-        metrics.log(event_type="evolution_cycle_mutation", payload={"agent": selected, "offspring": str(offspring_path)}, level="INFO", element_id=ELEMENT_ID)
+        staged_path = stage_offspring(parent_id=selected, content=mutation_content, lineage_dir=self.lineage_dir)
+        metrics.log(
+            event_type="dream_candidate_generated",
+            payload={"agent": selected, "staged_path": str(staged_path)},
+            level="INFO",
+            element_id=ELEMENT_ID,
+        )
         metrics.log(
             event_type="evolution_cycle_validation",
             payload={"agent": selected, "result": "validated"},
@@ -69,4 +74,4 @@ class DreamMode:
             level="INFO",
             element_id=ELEMENT_ID,
         )
-        return {"status": "completed", "agent": selected, "offspring": str(offspring_path)}
+        return {"status": "completed", "agent": selected, "staged_path": str(staged_path)}
