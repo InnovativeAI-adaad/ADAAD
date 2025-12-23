@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Lightweight Cryovant-style signer based on SHA-256 hashes.
 
 To keep the dependency footprint minimal, signatures are implemented as

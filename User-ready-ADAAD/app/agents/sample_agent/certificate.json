@@ -1,5 +1,14 @@
 {
-  "issuer": "Cryovant",
-  "issued_at": "2024-01-01T00:00:00Z",
-  "signature": "cryovant-dev-abcdef"
+  "schema_version": 1,
+  "issuer": "cryovant-dev",
+  "key_id": "c21fbea15c8d",
+  "issued_at": "2025-12-23T09:46:21Z",
+  "issued_from": "bootstrap",
+  "capabilities_snapshot": {},
+  "meta_hash": "eee1debb155e30807d5d9c7a48e200061b1d859d14f752aab0dc157d2f3453c1",
+  "dna_hash": "b3d2b21abdb78485a05ef42f3fa3bb146fbdcebab7cd636d10e1bc19d20e6957",
+  "capabilities_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+  "payload_hash": "2c95ce6994578adb7fb9ac16766122ba4d2d1f629b3b428e079dab54a3b23f2c",
+  "lineage_hash": "2c95ce6994578adb7fb9ac16766122ba4d2d1f629b3b428e079dab54a3b23f2c",
+  "signature": "hmac256:bef6735cddda97c69102d5b57806b179c316d05a6b05abd6fb1cd325f58cdf47"
 }

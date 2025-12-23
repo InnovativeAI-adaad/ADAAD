@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Atomic file operations for append-only telemetry.
 
 These helpers avoid partial writes by using temporary files and

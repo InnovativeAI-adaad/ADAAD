@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 Cross-platform verification for ADAAD He65 rules.
 """

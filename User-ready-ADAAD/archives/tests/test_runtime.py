@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 from pathlib import Path
 import json
 
@@ -32,12 +33,15 @@ def test_health_snapshot_shape():
 def test_cycle_logs_and_quarantine(tmp_path: Path):
     logs_dir = Path("data/logs")
     quarantine_dir = Path("data/quarantine")
+    logs_dir.mkdir(parents=True, exist_ok=True)
+    quarantine_dir.mkdir(parents=True, exist_ok=True)
     for log in logs_dir.glob("*.jsonl"):
         log.unlink()
     for quarantined in quarantine_dir.glob("*.py"):
         quarantined.unlink()
 
     bad_agent = Path("adad_core/agents/bad_agent.py")
+    bad_agent.parent.mkdir(parents=True, exist_ok=True)
     bad_agent.write_text("raise RuntimeError('boom')\n", encoding="utf-8")
     try:
         pipeline.cycle_once()

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Lightweight system health checks.
 
 Designed to run on constrained Android environments where only a subset

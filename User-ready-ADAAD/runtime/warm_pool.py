@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 Lightweight warm-pool implementation for pre-initializing threads.
 Termux-safe and avoids heavy dependencies.
