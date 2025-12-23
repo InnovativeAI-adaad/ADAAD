@@ -1,0 +1,14 @@
+# Contributing
+
+By submitting a contribution, you agree that your work is licensed under the Apache License, Version 2.0 (see `LICENSE`). No trademark rights are granted or implied; see `TRADEMARKS.md` and `BRAND_LICENSE.md`.
+
+## Expectations
+- Follow existing code style and keep SPDX headers in source files.
+- Do not include brand assets (`brand/`) in code or release artifacts.
+- Keep dependencies documented and compatible with the existing tooling.
+
+## How to contribute
+1. Fork and create a topic branch.
+2. Add tests for functional changes.
+3. Run the test suite for the affected areas.
+4. Submit a pull request describing the change and its impact.
