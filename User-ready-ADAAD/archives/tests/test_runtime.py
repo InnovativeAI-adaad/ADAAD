@@ -1,3 +1,16 @@
+# SPDX-License-Identifier: Apache-2.0
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 from pathlib import Path
 import json
 
@@ -30,14 +43,15 @@ def test_health_snapshot_shape():
 
 
 def test_cycle_logs_and_quarantine(tmp_path: Path):
-    logs_dir = Path("data/logs")
-    quarantine_dir = Path("data/quarantine")
+    logs_dir = pipeline.LOGS
+    quarantine_dir = pipeline.QUAR
     for log in logs_dir.glob("*.jsonl"):
         log.unlink()
     for quarantined in quarantine_dir.glob("*.py"):
         quarantined.unlink()
 
-    bad_agent = Path("adad_core/agents/bad_agent.py")
+    pipeline.AGENTS.mkdir(parents=True, exist_ok=True)
+    bad_agent = pipeline.AGENTS / "bad_agent.py"
     bad_agent.write_text("raise RuntimeError('boom')\n", encoding="utf-8")
     try:
         pipeline.cycle_once()
