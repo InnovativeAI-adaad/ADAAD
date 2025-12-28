@@ -20,7 +20,7 @@ import json
 import shutil
 import time
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Iterable, List, Optional, Tuple
 
 from runtime import metrics
 
@@ -63,6 +63,33 @@ def validate_agent_home(agent_path: Path) -> Tuple[bool, List[str]]:
     return True, []
 
 
+def _is_agent_dir(path: Path) -> bool:
+    return path.is_dir() and all((path / required).exists() for required in REQUIRED_FILES)
+
+
+def _iter_candidate_agent_dirs(agents_root: Path) -> Iterable[Path]:
+    """
+    Yield agent directories, supporting both:
+      1) app/agents/<agent_id>/
+      2) app/agents/<bucket>/<agent_id>/
+    """
+    for entry in sorted(agents_root.iterdir(), key=lambda p: p.name):
+        if not entry.is_dir():
+            continue
+        if entry.name.startswith("__") or entry.name in {"lineage"}:
+            continue
+        if _is_agent_dir(entry):
+            yield entry
+            continue
+
+        # bucket container
+        for child in sorted(entry.iterdir(), key=lambda p: p.name):
+            if not child.is_dir() or child.name.startswith("__"):
+                continue
+            if _is_agent_dir(child):
+                yield child
+
+
 def validate_agents(agents_root: Path) -> Tuple[bool, List[str]]:
     """
     Validate all agent directories and fail fast on missing metadata.
@@ -71,10 +98,8 @@ def validate_agents(agents_root: Path) -> Tuple[bool, List[str]]:
     if not agents_root.exists():
         return False, [f"{agents_root} does not exist"]
 
-    for agent_dir in agents_root.iterdir():
-        if not agent_dir.is_dir():
-            continue
-        if agent_dir.name in {"agent_template", "lineage"}:
+    for agent_dir in _iter_candidate_agent_dirs(agents_root):
+        if agent_dir.name == "agent_template":
             continue
         valid, missing = validate_agent_home(agent_dir)
         if not valid:
