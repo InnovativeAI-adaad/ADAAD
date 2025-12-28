@@ -40,7 +40,7 @@ def _register_supporting_elements(
     registry.register("water", ELEMENTS["water"][0], ELEMENTS["water"][1], {"ledger_ok": ledger_ok})
     registry.register("wood", ELEMENTS["wood"][0], ELEMENTS["wood"][1], architect_scan or {})
     registry.register("fire", ELEMENTS["fire"][0], ELEMENTS["fire"][1], dream_ready)
-    registry.register("metal", ELEMENTS["metal"][0], ELEMENTS["metal"][1], {"ui_attached": False})
+    registry.register("metal", ELEMENTS["metal"][0], ELEMENTS["metal"][1], {"ui_attached": (Path("ui/aponi_dashboard.py").exists())})
     return registry.snapshot()
 
 

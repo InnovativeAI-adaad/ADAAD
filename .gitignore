@@ -24,3 +24,10 @@ __pycache__/
 # Signatures and releases
 *.sig
 *.zip
+# Allow directory keepers
+!**/.keep
+
+# Runtime logs
+data/logs/*.jsonl
+
+reports/metrics.jsonl
