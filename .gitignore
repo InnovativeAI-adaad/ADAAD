@@ -31,3 +31,7 @@ __pycache__/
 data/logs/*.jsonl
 
 reports/metrics.jsonl
+
+# Never commit private keys
+security/keys/*
+!security/keys/.keep
