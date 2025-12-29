@@ -1,0 +1,918 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>APONI · ADAAD Dashboard</title>
+  <meta name="color-scheme" content="dark" />
+  <style>
+    :root{
+      --bg:#050b14;
+      --panel:#0f1724;
+      --panel2:#0b1220;
+      --border:rgba(255,255,255,.08);
+      --text:#e6edf6;
+      --muted:#8aa0b8;
+      --ok:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --accent:#7c3aed;
+      --accent2:#3b82f6;
+      --shadow: 0 14px 50px rgba(0,0,0,.45);
+      --shadow2: 0 10px 30px rgba(0,0,0,.35);
+      --r:16px;
+      --r2:12px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+
+      --glass: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.012));
+      --glass2: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.008));
+      --glow: radial-gradient(800px 420px at 12% -10%, rgba(124,58,237,.28), transparent 60%),
+              radial-gradient(900px 480px at 110% 0%, rgba(59,130,246,.22), transparent 55%),
+              radial-gradient(700px 400px at 70% 120%, rgba(34,197,94,.10), transparent 60%);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background: var(--glow), var(--bg);
+      color:var(--text);
+      font-family:var(--sans);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    a{color:inherit}
+    .wrap{max-width:1200px;margin:0 auto;padding:18px 14px 86px}
+    header{
+      display:flex;gap:12px;align-items:center;justify-content:space-between;
+      padding:14px 14px;
+      border:1px solid var(--border);
+      border-radius:var(--r);
+      background:var(--glass);
+      box-shadow:var(--shadow);
+      position:sticky; top:10px; z-index:50;
+      backdrop-filter: blur(10px);
+    }
+    .brand{display:flex;gap:12px;align-items:center;min-width:0}
+    .logo{
+      width:38px;height:38px;border-radius:14px;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      box-shadow: 0 18px 40px rgba(124,58,237,.20);
+      flex:0 0 auto;
+      position:relative;
+      overflow:hidden;
+    }
+    .logo:before{
+      content:"";
+      position:absolute; inset:-40%;
+      background: conic-gradient(from 200deg, rgba(255,255,255,.0), rgba(255,255,255,.35), rgba(255,255,255,0));
+      animation: spin 6s linear infinite;
+      opacity:.45;
+    }
+    .logo:after{
+      content:"";
+      position:absolute;inset:9px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.22);
+      opacity:.9;
+      background: rgba(0,0,0,.12);
+      backdrop-filter: blur(10px);
+    }
+    @keyframes spin{ to{ transform: rotate(360deg);} }
+
+    .title{min-width:0}
+    .title h1{margin:0;font-size:13px;letter-spacing:.18em;text-transform:uppercase;font-weight:700}
+    .title .sub{margin-top:4px;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .hdr-right{display:flex;gap:10px;align-items:center;flex:0 0 auto}
+    .chip{
+      display:flex;align-items:center;gap:10px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.02);
+      padding:8px 10px;border-radius:999px;
+      font-size:12px;color:var(--muted);
+      max-width:52vw;
+      cursor:pointer;
+      user-select:none;
+      transition: opacity .12s ease;
+    }
+    .chip:active{transform:translateY(1px)}
+    .chip.disabled{opacity:.6;cursor:default}
+    .dot{width:10px;height:10px;border-radius:99px;background:var(--warn);box-shadow:0 0 0 4px rgba(245,158,11,.12)}
+    .dot.ok{background:var(--ok);box-shadow:0 0 0 4px rgba(34,197,94,.12)}
+    .dot.bad{background:var(--bad);box-shadow:0 0 0 4px rgba(239,68,68,.12)}
+    .btn{
+      border:1px solid var(--border);
+      background:var(--glass2);
+      color:var(--text);
+      padding:9px 10px;
+      border-radius:14px;
+      font-size:12px;
+      cursor:pointer;
+      user-select:none;
+      box-shadow: var(--shadow2);
+    }
+    .btn:active{transform:translateY(1px)}
+    .btn.primary{
+      border-color: rgba(124,58,237,.35);
+      background:linear-gradient(135deg, rgba(124,58,237,.26), rgba(59,130,246,.18));
+    }
+
+    .tabs{
+      display:flex;gap:8px;flex-wrap:wrap;
+      padding:12px 2px 0;
+    }
+    .tab{
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.01);
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:12px;
+      color:var(--muted);
+      cursor:pointer;
+      user-select:none;
+      transition: transform .12s ease, border-color .12s ease, background .12s ease, color .12s ease;
+    }
+    .tab:hover{transform:translateY(-1px)}
+    .tab.active{
+      color:var(--text);
+      border-color: rgba(124,58,237,.35);
+      background:linear-gradient(135deg, rgba(124,58,237,.22), rgba(59,130,246,.14));
+    }
+
+    .grid{display:grid;grid-template-columns: 1.2fr .8fr;gap:12px;margin-top:12px}
+    @media (max-width: 940px){
+      .grid{grid-template-columns:1fr}
+      header{top:0;border-radius:0;border-left:none;border-right:none}
+      .wrap{padding:0 0 86px}
+      .wrap > *{margin-left:14px;margin-right:14px}
+    }
+
+    .card{
+      border:1px solid var(--border);
+      background:var(--glass2);
+      border-radius:var(--r);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    .card:before{
+      content:"";
+      position:absolute; inset:0;
+      background: radial-gradient(900px 260px at 10% 0%, rgba(124,58,237,.12), transparent 60%),
+                  radial-gradient(900px 260px at 90% 0%, rgba(59,130,246,.10), transparent 60%);
+      pointer-events:none;
+      opacity:.65;
+    }
+    .card .hd{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      padding:12px 12px;
+      border-bottom:1px solid var(--border);
+      background:rgba(0,0,0,.10);
+      position:relative;
+      z-index:1;
+    }
+    .card .hd .h{display:flex;flex-direction:column;gap:3px;min-width:0}
+    .card .hd .h .t{
+      font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
+    }
+    .card .hd .h .k{
+      font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .card .bd{padding:12px; position:relative; z-index:1;}
+
+    .kpis{display:grid;grid-template-columns: repeat(4, 1fr);gap:10px}
+    @media (max-width: 940px){ .kpis{grid-template-columns: repeat(2, 1fr)} }
+    .kpi{
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.015);
+      border-radius:var(--r2);
+      padding:10px;
+      min-height:80px;
+    }
+    .kpi .l{font-size:11px;color:var(--muted);letter-spacing:.10em;text-transform:uppercase}
+    .kpi .v{margin-top:10px;font-family:var(--mono);font-size:14px}
+    .kpi .s{margin-top:6px;font-size:11px;color:var(--muted)}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .badge{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:4px 8px;border-radius:999px;
+      border:1px solid var(--border);
+      color:var(--muted);
+      font-size:11px;
+      background:rgba(255,255,255,.01);
+      max-width: 100%;
+      white-space:nowrap;
+    }
+    .badge.ok{border-color: rgba(34,197,94,.28); color: #b7f7cd; background: rgba(34,197,94,.08)}
+    .badge.bad{border-color: rgba(239,68,68,.28); color: #ffd1d1; background: rgba(239,68,68,.08)}
+    .badge.warn{border-color: rgba(245,158,11,.28); color: #ffe6b7; background: rgba(245,158,11,.08)}
+    .mono{font-family:var(--mono)}
+
+    .tableWrap{overflow:auto; max-height:560px}
+    table{
+      width:100%;
+      border-collapse: collapse;
+      font-size:12px;
+    }
+    th,td{
+      border-bottom:1px solid var(--border);
+      padding:9px 8px;
+      text-align:left;
+      vertical-align:top;
+    }
+    th{color:var(--muted);font-weight:700;font-size:11px;letter-spacing:.10em;text-transform:uppercase}
+    tr:hover td{background: rgba(255,255,255,.02)}
+
+    .logs{
+      font-family:var(--mono);
+      font-size:11px;
+      background:rgba(0,0,0,.18);
+      border:1px solid var(--border);
+      border-radius:var(--r2);
+      padding:10px;
+      height:420px;
+      overflow:auto;
+      line-height:1.55;
+      white-space:pre-wrap;
+      word-break:break-word;
+    }
+
+    .foot{
+      position:fixed;left:0;right:0;bottom:0;
+      border-top:1px solid var(--border);
+      background:rgba(5,11,20,.72);
+      backdrop-filter: blur(10px);
+      padding:10px 14px;
+      display:flex;gap:10px;align-items:center;justify-content:space-between;
+      font-size:12px;color:var(--muted);
+      z-index:55;
+    }
+    .foot .left{display:flex;gap:10px;align-items:center;min-width:0; flex-wrap:wrap}
+    .foot .right{display:flex;gap:8px;align-items:center}
+    .pill{
+      padding:6px 10px;border-radius:999px;border:1px solid var(--border);
+      background:rgba(255,255,255,.01);
+      font-family:var(--mono);
+      max-width: 70vw;
+      overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    }
+
+    input,select{
+      background:rgba(255,255,255,.02);
+      border:1px solid var(--border);
+      color:var(--text);
+      border-radius:14px;
+      padding:9px 10px;
+      font-size:12px;
+      outline:none;
+    }
+
+    /* Gate overlay */
+    #gateOverlay{
+      position:fixed; inset:0; z-index:999999;
+      display:none;
+      align-items:center; justify-content:center;
+      padding:24px;
+      background: rgba(0,0,0,.92);
+      backdrop-filter: blur(8px);
+    }
+    #gateOverlay .box{
+      width:min(760px, 94vw);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:22px;
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015));
+      box-shadow: 0 28px 90px rgba(0,0,0,.6);
+      overflow:hidden;
+    }
+    #gateOverlay .top{
+      padding:16px 16px;
+      border-bottom:1px solid rgba(255,255,255,.10);
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      background: rgba(0,0,0,.10);
+    }
+    #gateOverlay .top .ttl{
+      font-size:12px; letter-spacing:.18em; text-transform:uppercase; color: var(--muted);
+    }
+    #gateOverlay .top .big{
+      font-size:18px; font-weight:800; margin-top:6px;
+    }
+    #gateOverlay .mid{ padding:16px 16px; }
+    #gateOverlay .msg{ color: rgba(255,255,255,.86); line-height:1.55; }
+    #gateOverlay .meta{ margin-top:12px; color: rgba(255,255,255,.60); font-family: var(--mono); font-size: 12px; }
+    #gateOverlay .actions{ padding:16px; border-top:1px solid rgba(255,255,255,.10); display:flex; gap:10px; justify-content:flex-end; }
+    #gateOverlay .hint{ font-size:12px; color: rgba(255,255,255,.55); margin-right:auto; align-self:center; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div class="title">
+          <h1>APONI</h1>
+          <div class="sub" id="subline">ADAAD Metal Layer · Nexus Dashboard</div>
+        </div>
+      </div>
+      <div class="hdr-right">
+        <div class="chip" title="Nexus gate status" id="statusChip">
+          <span class="dot" id="statusDot"></span>
+          <span id="statusText">pending</span>
+          <span class="badge" id="protoBadge">v—</span>
+        </div>
+        <button class="btn" id="btnReconnect" title="Refresh now">Refresh</button>
+        <button class="btn primary" id="btnRunCycle" title="Reserved for mutation cycle endpoint">Run cycle</button>
+      </div>
+    </header>
+
+    <div class="tabs" role="tablist" aria-label="Aponi sections">
+      <div class="tab active" data-tab="overview" role="tab">Overview</div>
+      <div class="tab" data-tab="agents" role="tab">Agents</div>
+      <div class="tab" data-tab="protocol" role="tab">Protocol</div>
+      <div class="tab" data-tab="logs" role="tab">Logs</div>
+    </div>
+
+    <div id="view"></div>
+  </div>
+
+  <div class="foot">
+    <div class="left">
+      <span class="muted">Nexus</span>
+      <span class="pill" id="apiBasePill">http://127.0.0.1:8000/api/nexus</span>
+      <span class="muted">poll</span>
+      <span class="pill" id="pollPill">15s</span>
+    </div>
+    <div class="right">
+      <span class="muted" id="clock">--:--:--</span>
+    </div>
+  </div>
+
+  <div id="gateOverlay" aria-hidden="true">
+    <div class="box">
+      <div class="top">
+        <div>
+          <div class="ttl">Security Gate</div>
+          <div class="big">Locked</div>
+        </div>
+        <span class="badge bad">423 / gate_ok=false</span>
+      </div>
+      <div class="mid">
+        <div class="msg" id="gateReason">Cryovant gate is locked.</div>
+        <div class="meta" id="gateMeta">last status: —</div>
+      </div>
+      <div class="actions">
+        <div class="hint">UI is disabled until Cryovant verifies the environment.</div>
+        <button class="btn" id="gateCopy">Copy details</button>
+        <button class="btn primary" id="gateRetry">Re-check</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  "use strict";
+
+  const $ = (q, el=document) => el.querySelector(q);
+  const $$ = (q, el=document) => Array.from(el.querySelectorAll(q));
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  const state = {
+    // Point this at your Termux IP if viewing from another device.
+    baseUrl: "http://127.0.0.1:8000",
+    apiBase: "/api/nexus",
+
+    tab: "overview",
+    pollMs: 15000,
+
+    lastHealth: null,
+    lastProtocol: null,
+    lastAgents: null,
+    lastHandshake: null,
+
+    logs: [],
+    connected: false,
+    lastEventAt: 0,
+  };
+
+  const uuid = () => {
+    if (crypto && typeof crypto.randomUUID === "function") return crypto.randomUUID();
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
+      const r = (Math.random() * 16) | 0;
+      const v = c === "x" ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
+  };
+
+  function buildMutationRequest(){
+    return {
+      mutation_type: "dna_patch",
+      payload: { dna: [] },
+      signature: "STUB",
+      nonce: uuid(),
+      timestamp: new Date().toISOString(),
+      challenge_id: "STUB",
+    };
+  }
+
+  // ---------- Gate (vanilla) ----------
+  const GATE_KEY = "ADAAD_GATE_STATE";
+  const gate = { locked:false, reason:"", lastStatus:null };
+
+  function loadGate(){
+    try{
+      const raw = localStorage.getItem(GATE_KEY);
+      if (!raw) return;
+      const g = JSON.parse(raw);
+      gate.locked = !!g.locked;
+      gate.reason = g.reason || "";
+      gate.lastStatus = g.lastStatus ?? null;
+    }catch(_){}
+  }
+  function saveGate(){ try{ localStorage.setItem(GATE_KEY, JSON.stringify(gate)); }catch(_){} }
+
+  function setGateLocked(locked, reason, lastStatus){
+    gate.locked = !!locked;
+    gate.reason = reason || "";
+    gate.lastStatus = lastStatus ?? null;
+    saveGate();
+    renderGate();
+  }
+
+  function renderGate(){
+    const dot = $("#statusDot");
+    const txt = $("#statusText");
+    const chip = $("#statusChip");
+    const ov = $("#gateOverlay");
+    const meta = $("#gateMeta");
+    const reason = $("#gateReason");
+
+    const verified = !gate.locked && !!state.lastHandshake;
+    const pending = !gate.locked && !state.lastHandshake;
+
+    if (gate.locked){
+      if (dot) dot.className = "dot bad";
+      if (txt) txt.textContent = "LOCKED";
+      if (chip) chip.title = "Gate: Locked";
+      if (reason) reason.textContent = gate.reason || "Cryovant gate is locked.";
+      if (meta) meta.textContent = `last status: ${gate.lastStatus ?? "unknown"}`;
+      if (ov) ov.style.display = "flex";
+      return;
+    }
+
+    if (ov) ov.style.display = "none";
+    if (dot) dot.className = pending ? "dot" : "dot ok";
+    if (txt) txt.textContent = pending ? "PENDING" : "VERIFIED";
+    if (chip) chip.title = pending ? "Gate: Pending" : "Gate: Verified";
+  }
+
+  function installFetchInterceptor(){
+    const orig = window.fetch.bind(window);
+    window.fetch = async (input, init) => {
+      const res = await orig(input, init);
+      try{
+        const hdr = res.headers.get("x-adaad-gate");
+        if (res.status === 423 || (hdr && hdr.toLowerCase() === "locked")){
+          setGateLocked(true, "Security Gate Violation (423)", res.status);
+        }
+      }catch(_){}
+      return res;
+    };
+  }
+
+  async function probeHealth(force=false){
+    if (gate.locked && !force) return false;
+    const url = `${state.baseUrl}${state.apiBase}/health`;
+    try{
+      const res = await fetch(url, { method:"GET" });
+      if (res.status === 423){
+        setGateLocked(true, "Cryovant gate LOCKED", 423);
+        return false;
+      }
+      if (!res.ok){
+        setGateLocked(true, `Health failed (${res.status})`, res.status);
+        return false;
+      }
+      const data = await res.json().catch(() => null);
+      state.lastHealth = data;
+      if (!data || data.gate_ok !== true){
+        setGateLocked(true, "Gate check failed (gate_ok=false)", res.status);
+        return false;
+      }
+      setGateLocked(false, "", res.status);
+      return true;
+    }catch(_){
+      setGateLocked(true, "Backend unreachable", 0);
+      return false;
+    }
+  }
+
+  function startGatePolling(){
+    setInterval(() => { if (!gate.locked) probeHealth(false); }, state.pollMs);
+  }
+
+  // ---------- UI ----------
+  function escapeHtml(s){
+    return String(s)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+  function fmtTs(ts){
+    if (!ts) return "—";
+    const d = new Date(ts);
+    if (Number.isNaN(d.getTime())) return String(ts);
+    return d.toLocaleString();
+  }
+  function badge(status){
+    if (status === "ok") return `<span class="badge ok">OK</span>`;
+    if (status === "warn") return `<span class="badge warn">WARN</span>`;
+    if (status === "bad") return `<span class="badge bad">BAD</span>`;
+    return `<span class="badge">${escapeHtml(String(status ?? "—"))}</span>`;
+  }
+  function card(title, subtitle, rightHtml, bodyEl){
+    const c = document.createElement("div");
+    c.className = "card";
+    c.innerHTML = `
+      <div class="hd">
+        <div class="h">
+          <div class="t">${escapeHtml(title)}</div>
+          <div class="k">${escapeHtml(subtitle || "")}</div>
+        </div>
+        <div class="row">${rightHtml || ""}</div>
+      </div>
+      <div class="bd"></div>
+    `;
+    c.querySelector(".bd").appendChild(bodyEl);
+    return c;
+  }
+  function kpi(label, value, sub){
+    const d = document.createElement("div");
+    d.className = "kpi";
+    d.innerHTML = `
+      <div class="l">${escapeHtml(label)}</div>
+      <div class="v">${escapeHtml(value ?? "—")}</div>
+      <div class="s">${escapeHtml(sub ?? "")}</div>
+    `;
+    return d;
+  }
+  function space(px){ const d=document.createElement("div"); d.style.height=px+"px"; return d; }
+
+  function setTab(tab){
+    state.tab = tab;
+    $$(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === tab));
+    render();
+  }
+
+  function render(){
+    const v = $("#view");
+    v.innerHTML = "";
+    if (state.tab === "overview") v.appendChild(viewOverview());
+    if (state.tab === "agents") v.appendChild(viewAgents());
+    if (state.tab === "protocol") v.appendChild(viewProtocol());
+    if (state.tab === "logs") v.appendChild(viewLogs());
+  }
+
+  function viewOverview(){
+    const root = document.createElement("div");
+    root.className = "grid";
+
+    const left = document.createElement("div");
+    const right = document.createElement("div");
+
+    const k = document.createElement("div");
+    k.className = "kpis";
+
+    const h = state.lastHealth || {};
+    const hs = h.gate_ok === true ? "ok" : "warn";
+    const protoV = h.protocol_version || h.protocol || "—";
+
+    const agentsCount = state.lastAgents?.count ?? "—";
+    const lastCheck = state.lastHandshake?.ts || state.lastProtocol?.created_at || null;
+
+    k.appendChild(kpi("Gate", h.gate_ok === true ? "VERIFIED" : "PENDING", `health: ${badge(hs).replace(/<[^>]+>/g,"")}`));
+    k.appendChild(kpi("Protocol", String(protoV), `updated: ${fmtTs(state.lastProtocol?.created_at || null)}`));
+    k.appendChild(kpi("Agents", String(agentsCount), `certified set`));
+    k.appendChild(kpi("Last check", fmtTs(lastCheck), `poll: ${Math.round(state.pollMs/1000)}s`));
+
+    const lbody = document.createElement("div");
+    lbody.appendChild(k);
+
+    left.appendChild(card("Control", "Nexus status snapshot", `
+      <span class="badge ${gate.locked ? "bad" : "ok"}">${gate.locked ? "LOCKED" : "LIVE"}</span>
+      <span class="badge">${escapeHtml(state.baseUrl)}</span>
+    `, lbody));
+
+    const rbody = document.createElement("div");
+    const info = [
+      ["API Base", `${state.baseUrl}${state.apiBase}`],
+      ["Handshake", state.lastHandshake ? "ok" : "—"],
+      ["Protocol exists", state.lastProtocol ? "yes" : "—"],
+      ["Agent list", state.lastAgents ? "loaded" : "—"],
+    ];
+    const kv = document.createElement("div");
+    kv.innerHTML = `
+      <table style="width:100%; border-collapse: collapse; font-size:12px">
+        <tbody>
+          ${info.map(([k,v]) => `
+            <tr>
+              <td style="color:var(--muted); padding:8px 6px; border-bottom:1px solid var(--border); width:180px">${escapeHtml(k)}</td>
+              <td class="mono" style="padding:8px 6px; border-bottom:1px solid var(--border)">${escapeHtml(v)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+    rbody.appendChild(kv);
+    rbody.appendChild(space(10));
+
+    const cfg = document.createElement("div");
+    cfg.className = "row";
+    cfg.innerHTML = `
+      <input id="baseUrlInput" value="${escapeHtml(state.baseUrl)}" style="min-width:260px;flex:1 1 auto" />
+      <button class="btn" id="btnSaveBase">Set URL</button>
+    `;
+    rbody.appendChild(cfg);
+
+    right.appendChild(card("Routing", "Base URL and controls", `
+      <span class="badge">${escapeHtml(gate.locked ? "blocked" : "ok")}</span>
+    `, rbody));
+
+    root.appendChild(left);
+    root.appendChild(right);
+
+    setTimeout(() => {
+      $("#btnSaveBase").onclick = async () => {
+        const v = $("#baseUrlInput").value.trim();
+        if (!v) return;
+        state.baseUrl = v.replace(/\/+$/,"");
+        $("#apiBasePill").textContent = `${state.baseUrl}${state.apiBase}`;
+        state.logs.push(`[ui] baseUrl set: ${state.baseUrl}`);
+        await hardRefresh();
+      };
+    }, 0);
+
+    return root;
+  }
+
+  function viewAgents(){
+    const root = document.createElement("div");
+    root.className = "grid";
+
+    const left = document.createElement("div");
+    const right = document.createElement("div");
+
+    const rows = (state.lastAgents?.agents || []);
+    const table = document.createElement("div");
+    table.className = "tableWrap";
+    table.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>agent</th>
+            <th>meta</th>
+            <th>dna</th>
+            <th>cert</th>
+            <th>entry</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(a => `
+            <tr data-agent="${escapeHtml(a.name)}">
+              <td class="mono">${escapeHtml(a.name)}</td>
+              <td>${a.meta_exists ? badge("ok") : badge("bad")}</td>
+              <td>${a.dna_exists ? badge("ok") : badge("bad")}</td>
+              <td>${a.certificate_exists ? badge("ok") : badge("bad")}</td>
+              <td>${a.entrypoint_exists ? badge("ok") : badge("bad")}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+
+    const lbody = document.createElement("div");
+    lbody.appendChild(table);
+    left.appendChild(card("Agents", "Cryovant-visible registry", `
+      <span class="badge">${escapeHtml(String(rows.length))} total</span>
+    `, lbody));
+
+    const detail = document.createElement("div");
+    detail.innerHTML = `<div style="color:var(--muted)">Select an agent to inspect.</div>`;
+    right.appendChild(card("Inspector", "Quick facts", `
+      <span class="badge">filesystem</span>
+    `, detail));
+
+    root.appendChild(left);
+    root.appendChild(right);
+
+    setTimeout(() => {
+      $$("tbody tr", left).forEach(tr => {
+        tr.onclick = () => {
+          const id = tr.getAttribute("data-agent");
+          const a = rows.find(x => x.name === id);
+          if (!a) return;
+          detail.innerHTML = `
+            <div class="row" style="margin-bottom:10px">
+              <span class="badge">${escapeHtml(a.name)}</span>
+              <span class="badge ${a.certificate_exists ? "ok" : "bad"}">cert</span>
+              <span class="badge ${a.entrypoint_exists ? "ok" : "bad"}">entry</span>
+            </div>
+            <div class="mono" style="font-size:12px; line-height:1.6; color: rgba(255,255,255,.75)">
+              meta.json: ${a.meta_exists}<br>
+              dna.json: ${a.dna_exists}<br>
+              certificate.json: ${a.certificate_exists}<br>
+              entrypoint: ${a.entrypoint_exists}<br>
+            </div>
+          `;
+        };
+      });
+    }, 0);
+
+    return root;
+  }
+
+  function viewProtocol(){
+    const root = document.createElement("div");
+    root.className = "grid";
+
+    const left = document.createElement("div");
+    const right = document.createElement("div");
+
+    const p = state.lastProtocol || {};
+    const jsonBox = document.createElement("div");
+    jsonBox.className = "logs";
+    jsonBox.textContent = JSON.stringify(p, null, 2);
+
+    left.appendChild(card("Protocol", "runtime/protocol.json", `
+      <span class="badge">${escapeHtml(String(p.version || "—"))}</span>
+      <span class="badge">${escapeHtml(fmtTs(p.created_at || null))}</span>
+    `, jsonBox));
+
+    const info = document.createElement("div");
+    info.innerHTML = `
+      <div style="color:var(--muted); margin-bottom:10px">
+        This is the dashboard’s contract. If Cryovant fails, backend returns 423 and Aponi locks.
+      </div>
+      <div class="mono" style="font-size:12px; line-height:1.7; color: rgba(255,255,255,.72)">
+        keys_dir: ${escapeHtml(p.gate_cycle?.keys_dir || "—")}<br>
+        keys_mode_required: ${escapeHtml(p.gate_cycle?.keys_mode_required_octal || "—")}<br>
+        ledger_dir: ${escapeHtml(p.gate_cycle?.ledger_dir || "—")}<br>
+        no_bypass: ${escapeHtml(String(p.gate_cycle?.no_bypass ?? "—"))}<br>
+      </div>
+    `;
+    right.appendChild(card("Notes", "Enforcement semantics", `
+      <span class="badge warn">no bypass</span>
+    `, info));
+
+    root.appendChild(left);
+    root.appendChild(right);
+    return root;
+  }
+
+  function viewLogs(){
+    const root = document.createElement("div");
+    root.className = "grid";
+
+    const left = document.createElement("div");
+    const right = document.createElement("div");
+
+    const box = document.createElement("div");
+    box.className = "logs";
+    box.textContent = state.logs.slice(-600).join("\n");
+
+    left.appendChild(card("Logs", "UI events and gate transitions", `
+      <span class="badge">${escapeHtml(String(state.logs.length))} lines</span>
+    `, box));
+
+    const tools = document.createElement("div");
+    tools.innerHTML = `
+      <div class="row" style="margin-bottom:10px">
+        <button class="btn" id="btnClearLogs">Clear</button>
+        <button class="btn primary" id="btnCopyLogs">Copy</button>
+      </div>
+      <div style="color:var(--muted); font-size:12px">
+        When gate locks, UI becomes read-only until health returns gate_ok=true.
+      </div>
+    `;
+    right.appendChild(card("Tools", "Operator controls", `
+      <span class="badge">clipboard</span>
+    `, tools));
+
+    root.appendChild(left);
+    root.appendChild(right);
+
+    setTimeout(() => {
+      $("#btnClearLogs").onclick = () => { state.logs = []; render(); };
+      $("#btnCopyLogs").onclick = async () => {
+        const t = state.logs.join("\n");
+        try{ await navigator.clipboard.writeText(t); }catch(_){}
+      };
+    }, 0);
+
+    return root;
+  }
+
+  // ---------- Data ----------
+  async function getJson(path){
+    const url = `${state.baseUrl}${state.apiBase}${path}`;
+    const res = await fetch(url, { method:"GET" });
+    if (res.status === 423){
+      setGateLocked(true, "Cryovant gate LOCKED (423)", 423);
+      throw new Error("locked");
+    }
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  }
+
+  async function sendStubMutation(){
+    const agentId = (state.lastAgents?.agents?.[0]?.name) || "sample_agent";
+    const url = `${state.baseUrl}${state.apiBase}/agents/${agentId}/mutate`;
+    const request = buildMutationRequest();
+    try{
+      const res = await fetch(url, {
+        method:"POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(request),
+      });
+      const body = await res.json().catch(() => ({}));
+      state.logs.push(`[mutate] ${res.status} ${res.statusText || ""} ${JSON.stringify(body.detail || body)}`);
+    }catch(err){
+      state.logs.push(`[mutate] error ${String(err && err.message ? err.message : err)}`);
+    }
+    render();
+  }
+
+  async function hardRefresh(){
+    try{
+      state.logs.push(`[poll] health`);
+      await probeHealth(true);
+
+      state.logs.push(`[poll] handshake`);
+      state.lastHandshake = await getJson("/handshake");
+
+      state.logs.push(`[poll] protocol`);
+      state.lastProtocol = await getJson("/protocol");
+
+      state.logs.push(`[poll] agents`);
+      state.lastAgents = await getJson("/agents");
+
+      const pv = state.lastProtocol?.version || state.lastHealth?.protocol || state.lastHealth?.protocol_version || "—";
+      $("#protoBadge").textContent = `v${pv}`;
+      state.connected = true;
+      state.lastEventAt = Date.now();
+      renderGate();
+      render();
+    }catch(e){
+      state.connected = false;
+      state.logs.push(`[err] ${String(e && e.message ? e.message : e)}`);
+      renderGate();
+      render();
+    }
+  }
+
+  // ---------- Boot ----------
+  function tickClock(){
+    const d = new Date();
+    const hh = String(d.getHours()).padStart(2,"0");
+    const mm = String(d.getMinutes()).padStart(2,"0");
+    const ss = String(d.getSeconds()).padStart(2,"0");
+    $("#clock").textContent = `${hh}:${mm}:${ss}`;
+  }
+
+  function bindUi(){
+    $$(".tab").forEach(t => t.onclick = () => setTab(t.dataset.tab));
+    $("#statusChip").onclick = () => { if (!gate.locked) hardRefresh(); };
+    $("#btnReconnect").onclick = () => hardRefresh();
+    $("#btnRunCycle").onclick = () => {
+      state.logs.push("[ui] Run cycle clicked → sending stub mutate");
+      sendStubMutation();
+    };
+
+    $("#gateRetry").onclick = async () => { await hardRefresh(); };
+    $("#gateCopy").onclick = async () => {
+      const payload = {
+        baseUrl: state.baseUrl,
+        apiBase: state.apiBase,
+        locked: gate.locked,
+        reason: gate.reason,
+        lastStatus: gate.lastStatus,
+        ts: new Date().toISOString()
+      };
+      try{ await navigator.clipboard.writeText(JSON.stringify(payload, null, 2)); }catch(_){}
+    };
+  }
+
+  loadGate();
+  installFetchInterceptor();
+  $("#apiBasePill").textContent = `${state.baseUrl}${state.apiBase}`;
+  $("#pollPill").textContent = `${Math.round(state.pollMs/1000)}s`;
+  renderGate();
+  bindUi();
+  render();
+  hardRefresh();
+  startGatePolling();
+  setInterval(tickClock, 500);
+})();
+</script>
+</body>
+</html>

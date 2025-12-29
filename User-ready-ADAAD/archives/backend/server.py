@@ -19,21 +19,26 @@ but falls back to baked-in samples when no logs are present.
 """
 from __future__ import annotations
 
-from datetime import datetime
 import difflib
 import json
+import os
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List
 
 from fastapi import Body, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from app.api.nexus.mutate import router as mutate_router
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"
 STATE_FILE = DATA_DIR / "dashboard_state.json"
 ACTIONS_LOG = DATA_DIR / "actions.jsonl"
+GATE_LOCK_FILE = BASE_DIR / "security" / "ledger" / "gate.lock"
+GATE_PROTOCOL = "adaad-gate/1.0"
 
 app = FastAPI(title="Aponi Dashboard Backend", version="1.0")
+app.include_router(mutate_router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -106,6 +111,50 @@ def _fallback_state() -> Dict[str, Any]:
     }
 
 
+def _gate_state() -> Dict[str, Any]:
+    locked = False
+    reason = None
+    source = "default"
+
+    env_flag = os.environ.get("ADAAD_GATE_LOCKED")
+    if env_flag:
+        locked = env_flag.lower() not in {"", "0", "false", "no"}
+        source = "env"
+        reason = os.environ.get("ADAAD_GATE_REASON") or reason
+
+    if GATE_LOCK_FILE.exists():
+        locked = True
+        source = "file"
+        try:
+            contents = GATE_LOCK_FILE.read_text(encoding="utf-8").strip()
+            if contents:
+                reason = contents
+        except Exception:
+            reason = reason
+
+    if reason:
+        reason = reason[:280]
+
+    return {
+        "locked": locked,
+        "reason": reason,
+        "source": source,
+        "checked_at": datetime.utcnow().isoformat() + "Z",
+        "protocol": GATE_PROTOCOL,
+    }
+
+
+def _assert_gate_open() -> Dict[str, Any]:
+    gate = _gate_state()
+    if gate["locked"]:
+        raise HTTPException(
+            status_code=423,
+            detail=gate["reason"] or "Cryovant gate LOCKED",
+            headers={"X-ADAAD-GATE": "locked"},
+        )
+    return gate
+
+
 def _load_agent_source(path: str | None) -> str:
     if not path:
         return ""
@@ -154,6 +203,67 @@ def agents() -> List[Dict[str, Any]]:
     for agent in state.get("agents", []):
         enriched.append({**agent, "source_content": _load_agent_source(agent.get("source"))})
     return enriched
+
+
+@app.get("/api/nexus/handshake")
+def nexus_handshake() -> Dict[str, Any]:
+    gate = _assert_gate_open()
+    return {
+        "ok": True,
+        "ts": datetime.utcnow().isoformat() + "Z",
+        "protocol": GATE_PROTOCOL,
+        "gate": {"locked": False, "reason": None, "checked_at": gate["checked_at"]},
+    }
+
+
+@app.get("/api/nexus/protocol")
+def nexus_protocol() -> Dict[str, Any]:
+    gate = _assert_gate_open()
+    return {
+        "ok": True,
+        "version": "1.0",
+        "created_at": gate["checked_at"],
+        "gate_cycle": {
+            "keys_dir": "security/keys",
+            "keys_mode_required_octal": "0700",
+            "ledger_dir": "security/ledger",
+            "no_bypass": True,
+        },
+    }
+
+
+@app.get("/api/nexus/agents")
+def nexus_agents() -> Dict[str, Any]:
+    gate = _assert_gate_open()
+    agents_dir = BASE_DIR / "app" / "agents"
+    agents: List[Dict[str, Any]] = []
+    if agents_dir.exists():
+        for entry in sorted(agents_dir.iterdir(), key=lambda p: p.name):
+            if not entry.is_dir() or entry.name in {"agent_template", "lineage"} or entry.name.startswith("__"):
+                continue
+            agents.append(
+                {
+                    "name": entry.name,
+                    "meta_exists": (entry / "meta.json").exists(),
+                    "dna_exists": (entry / "dna.json").exists(),
+                    "certificate_exists": (entry / "certificate.json").exists(),
+                    "entrypoint_exists": (entry / "__init__.py").exists(),
+                }
+            )
+    return {"ok": True, "count": len(agents), "agents": agents}
+
+
+@app.get("/api/nexus/health")
+def nexus_health() -> Dict[str, Any]:
+    gate = _gate_state()
+    snapshot = {"ok": not gate["locked"], "protocol": GATE_PROTOCOL, "gate": gate}
+    if gate["locked"]:
+        raise HTTPException(
+            status_code=423,
+            detail=gate["reason"] or "Cryovant gate LOCKED",
+            headers={"X-ADAAD-GATE": "locked"},
+        )
+    return snapshot
 
 
 @app.get("/api/actions")
