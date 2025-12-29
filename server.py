@@ -80,8 +80,8 @@ def _read_gate_state() -> Dict[str, Any]:
             if contents:
                 reason = contents
         except Exception:
-            # Fall back to prior reason if present
-            reason = reason
+            # Fall back to prior reason if present (keep existing reason)
+            pass
 
     if reason:
         reason = reason[:280]
