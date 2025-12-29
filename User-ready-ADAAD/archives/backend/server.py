@@ -129,7 +129,7 @@ def _gate_state() -> Dict[str, Any]:
             if contents:
                 reason = contents
         except Exception:
-            reason = reason
+            pass
 
     if reason:
         reason = reason[:280]
