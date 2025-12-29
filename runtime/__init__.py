@@ -19,6 +19,8 @@ from pathlib import Path
 
 ELEMENT_ID = "Earth"
 
-ROOT_DIR = Path(__file__).resolve().parent.parent
+# Canonical repository root for governance tooling.
+REPO_ROOT = Path(__file__).resolve().parents[1]
+ROOT_DIR = REPO_ROOT
 
-__all__ = ["ROOT_DIR", "ELEMENT_ID"]
+__all__ = ["ROOT_DIR", "REPO_ROOT", "ELEMENT_ID"]
