@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import logging
 from typing import Any, Dict, List, Tuple
 
 
@@ -23,7 +24,8 @@ def _fsync_dir(dir_path: str) -> None:
         finally:
             os.close(fd)
     except Exception:
-        pass
+        # Best-effort: failure to fsync the directory should not break the write operation.
+        logging.debug("Failed to fsync directory %s", dir_path, exc_info=True)
 
 
 def _atomic_write_bytes(path: str, data: bytes) -> None:
