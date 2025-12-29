@@ -1,137 +1,152 @@
-#!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """
-Aponi Dashboard (Metal Layer)
-Minimal HTTP server for Termux/Pydroid3.
-
-Exposes read-only endpoints:
-  /            -> basic status
-  /health      -> reports/health.json if present
-  /metrics     -> tail of reports/metrics.jsonl
-  /boot        -> tail of data/logs/adaad_boot.jsonl
-  /ledger      -> tail of security/ledger/events.jsonl
-  /cryovant    -> tail of reports/cryovant.jsonl
-  /lineage     -> alias of /cryovant
+Minimal HTTP dashboard served with the standard library.
 """
 
-from __future__ import annotations
-
+import argparse
 import json
 import os
-import sys
-from http.server import BaseHTTPRequestHandler, HTTPServer
-from urllib.parse import urlparse, parse_qs
+import threading
+import time
+from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
-from datetime import datetime, timezone
+from typing import Dict, List
 
-ROOT = Path(__file__).resolve().parents[1]
+from app import APP_ROOT
+from runtime import metrics
+from security.ledger import journal
 
-PATHS = {
-    "health": ROOT / "reports" / "health.json",
-    "metrics": ROOT / "reports" / "metrics.jsonl",
-    "boot": ROOT / "data" / "logs" / "adaad_boot.jsonl",
-    "ledger": ROOT / "security" / "ledger" / "events.jsonl",
-    "cryovant": ROOT / "reports" / "cryovant.jsonl",
-}
+ELEMENT_ID = "Metal"
 
-def _now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
 
-def _tail_lines(p: Path, n: int) -> list[str]:
-    if n < 1:
-        n = 1
-    if n > 5000:
-        n = 5000
-    if not p.exists():
-        return []
-    # Simple tail: read all lines. Ok for small/medium jsonl files on device.
+class AponiDashboard:
+    """
+    Lightweight dashboard exposing orchestrator state and logs.
+    """
+
+    def __init__(self, host: str = "0.0.0.0", port: int = 8080) -> None:
+        self.host = host
+        self.port = port
+        self._server: HTTPServer | None = None
+        self._thread: threading.Thread | None = None
+        self._state: Dict[str, str] = {}
+
+    def start(self, orchestrator_state: Dict[str, str]) -> None:
+        self._state = orchestrator_state
+        handler = self._build_handler()
+        self._server = HTTPServer((self.host, self.port), handler)
+        self._thread = threading.Thread(target=self._server.serve_forever, daemon=True)
+        self._thread.start()
+        metrics.log(event_type="aponi_dashboard_started", payload={"host": self.host, "port": self.port}, level="INFO", element_id=ELEMENT_ID)
+
+    def _build_handler(self):
+        state_ref = self._state
+        lineage_dir = APP_ROOT / "agents" / "lineage"
+        staging_dir = lineage_dir / "_staging"
+        capabilities_path = APP_ROOT.parent / "data" / "capabilities.json"
+
+        class Handler(SimpleHTTPRequestHandler):
+            def _send_json(self, payload) -> None:
+                body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+            def do_GET(self):  # noqa: N802 - required by base class
+                if self.path.startswith("/state"):
+                    self._send_json(state_ref)
+                    return
+                if self.path.startswith("/metrics"):
+                    self._send_json(metrics.tail(limit=50))
+                    return
+                if self.path.startswith("/fitness"):
+                    self._send_json(self._fitness_events())
+                    return
+                if self.path.startswith("/capabilities"):
+                    self._send_json(self._capabilities())
+                    return
+                if self.path.startswith("/lineage"):
+                    self._send_json(journal.read_entries(limit=50))
+                    return
+                if self.path.startswith("/mutations"):
+                    self._send_json(self._collect_mutations(lineage_dir))
+                    return
+                if self.path.startswith("/staging"):
+                    self._send_json(self._collect_mutations(staging_dir))
+                    return
+                self.send_response(404)
+                self.end_headers()
+
+            def log_message(self, format, *args):  # pragma: no cover
+                return
+
+            @staticmethod
+            def _collect_mutations(lineage_root: Path) -> List[str]:
+                if not lineage_root.exists():
+                    return []
+                children = [item for item in lineage_root.iterdir() if item.is_dir()]
+                children.sort(key=lambda entry: entry.stat().st_mtime, reverse=True)
+                return [child.name for child in children]
+
+            @staticmethod
+            def _fitness_events() -> List[Dict]:
+                entries = metrics.tail(limit=200)
+                fitness_events = [
+                    entry
+                    for entry in entries
+                    if entry.get("event") in {"fitness_scored", "beast_fitness_scored"}
+                ]
+                return fitness_events[-50:]
+
+            @staticmethod
+            def _capabilities() -> Dict:
+                if not capabilities_path.exists():
+                    return {}
+                try:
+                    return json.loads(capabilities_path.read_text(encoding="utf-8"))
+                except json.JSONDecodeError:
+                    return {}
+
+        return Handler
+
+    def stop(self) -> None:
+        if self._server:
+            self._server.shutdown()
+        if self._thread:
+            self._thread.join(timeout=1)
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Run Aponi dashboard in standalone mode.")
+    parser.add_argument("--host", default=os.environ.get("APONI_HOST", "0.0.0.0"), help="Host interface to bind (env: APONI_HOST)")
+    parser.add_argument("--port", type=int, default=int(os.environ.get("APONI_PORT", "8080")), help="Port to bind (env: APONI_PORT)")
+    args = parser.parse_args(argv)
+
+    dashboard = AponiDashboard(host=args.host, port=args.port)
+    dashboard.start({"status": "dashboard_only"})
+    print(f"[APONI] dashboard running on http://{dashboard.host}:{dashboard.port}")
+    print("[APONI] endpoints: /state /metrics /fitness /capabilities /lineage /mutations /staging")
     try:
-        lines = p.read_text(encoding="utf-8", errors="replace").splitlines()
-    except Exception:
-        return []
-    return lines[-n:]
-
-def _json_response(handler: BaseHTTPRequestHandler, status: int, payload: dict) -> None:
-    raw = json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
-    handler.send_response(status)
-    handler.send_header("Content-Type", "application/json; charset=utf-8")
-    handler.send_header("Content-Length", str(len(raw)))
-    handler.end_headers()
-    handler.wfile.write(raw)
-
-def _text_response(handler: BaseHTTPRequestHandler, status: int, body: str) -> None:
-    raw = body.encode("utf-8")
-    handler.send_response(status)
-    handler.send_header("Content-Type", "text/plain; charset=utf-8")
-    handler.send_header("Content-Length", str(len(raw)))
-    handler.end_headers()
-    handler.wfile.write(raw)
-
-class Handler(BaseHTTPRequestHandler):
-    def log_message(self, fmt: str, *args) -> None:
-        # quiet by default
-        return
-
-    def do_GET(self) -> None:
-        u = urlparse(self.path)
-        path = u.path.rstrip("/") or "/"
-        qs = parse_qs(u.query)
-        n = int(qs.get("n", ["200"])[0]) if qs.get("n") else 200
-
-        if path == "/":
-            payload = {
-                "service": "aponi_dashboard",
-                "ts": _now_iso(),
-                "root": str(ROOT),
-                "endpoints": ["/health", "/metrics?n=200", "/boot?n=200", "/ledger?n=200", "/cryovant?n=200", "/lineage?n=200"],
-                "files": {k: {"path": str(v), "exists": v.exists(), "bytes": (v.stat().st_size if v.exists() else 0)} for k, v in PATHS.items()},
-            }
-            return _json_response(self, 200, payload)
-
-        if path in ("/health",):
-            p = PATHS["health"]
-            if not p.exists():
-                return _json_response(self, 404, {"ok": False, "ts": _now_iso(), "error": "health.json not found", "path": str(p)})
-            try:
-                data = json.loads(p.read_text(encoding="utf-8"))
-            except Exception as e:
-                return _json_response(self, 500, {"ok": False, "ts": _now_iso(), "error": f"health.json parse error: {e}", "path": str(p)})
-            return _json_response(self, 200, {"ok": True, "ts": _now_iso(), "health": data})
-
-        if path in ("/metrics", "/boot", "/ledger", "/cryovant", "/lineage"):
-            key = "cryovant" if path in ("/cryovant", "/lineage") else path.lstrip("/")
-            p = PATHS.get(key)
-            lines = _tail_lines(p, n) if p else []
-            return _json_response(self, 200, {
-                "ok": True,
-                "ts": _now_iso(),
-                "kind": key,
-                "path": str(p) if p else None,
-                "exists": (p.exists() if p else False),
-                "n": n,
-                "lines": lines,
-            })
-
-        return _json_response(self, 404, {"ok": False, "ts": _now_iso(), "error": "not found", "path": path})
-
-def main(argv: list[str]) -> int:
-    host = os.environ.get("APONI_HOST", "127.0.0.1")
-    port = int(os.environ.get("APONI_PORT", "8787"))
-    if len(argv) >= 2:
-        try:
-            port = int(argv[1])
-        except Exception:
-            pass
-
-    httpd = HTTPServer((host, port), Handler)
-    print(f"[APONI] serving on http://{host}:{port} (root={ROOT})")
-    print("[APONI] endpoints: / /health /metrics /boot /ledger /cryovant /lineage")
-    try:
-        httpd.serve_forever()
-    except KeyboardInterrupt:
-        pass
-    finally:
-        httpd.server_close()
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:  # pragma: no cover - manual shutdown path
+        dashboard.stop()
     return 0
 
+
 if __name__ == "__main__":
-    raise SystemExit(main(sys.argv))
+    raise SystemExit(main())

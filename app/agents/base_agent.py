@@ -22,6 +22,7 @@ import time
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
+from app.agents.discovery import iter_agent_dirs, resolve_agent_id
 from runtime import metrics
 
 REQUIRED_FILES = ("meta.json", "dna.json", "certificate.json")
@@ -71,14 +72,12 @@ def validate_agents(agents_root: Path) -> Tuple[bool, List[str]]:
     if not agents_root.exists():
         return False, [f"{agents_root} does not exist"]
 
-    for agent_dir in agents_root.iterdir():
-        if not agent_dir.is_dir():
-            continue
-        if agent_dir.name in {"agent_template", "lineage"}:
+    for agent_dir in iter_agent_dirs(agents_root):
+        if agent_dir.name == "agent_template":
             continue
         valid, missing = validate_agent_home(agent_dir)
         if not valid:
-            errors.append(f"{agent_dir.name}: {','.join(missing)}")
+            errors.append(f"{resolve_agent_id(agent_dir, agents_root)}: {','.join(missing)}")
     if errors:
         metrics.log(event_type="agent_validation_failed", payload={"errors": errors}, level="ERROR")
         return False, errors

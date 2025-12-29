@@ -22,6 +22,7 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from app.agents.discovery import iter_agent_dirs, resolve_agent_id
 from runtime import metrics
 from security import SECURITY_ROOT
 from security.ledger import journal
@@ -29,6 +30,11 @@ from security.ledger import journal
 ELEMENT_ID = "Water"
 
 KEYS_DIR = SECURITY_ROOT / "keys"
+LEDGER_DIR = SECURITY_ROOT / "ledger"
+
+
+def dev_mode() -> bool:
+    return os.environ.get("CRYOVANT_DEV_MODE", "0").lower() in {"1", "true", "yes", "on"}
 
 
 def verify_signature(signature: str) -> bool:
@@ -39,7 +45,7 @@ def verify_signature(signature: str) -> bool:
 
 
 def _valid_signature(signature: str) -> bool:
-    return signature.startswith("cryovant-dev-") or verify_signature(signature)
+    return (signature.startswith("cryovant-dev-") and dev_mode()) or verify_signature(signature)
 
 
 def _read_json(path: Path) -> Dict[str, Any]:
@@ -105,23 +111,45 @@ def validate_environment() -> bool:
     """
     Ensure ledger and keys directories exist and ledger is writable.
     """
+    KEYS_DIR.mkdir(parents=True, exist_ok=True)
     try:
-        ledger_file = journal.ensure_ledger()
-        KEYS_DIR.mkdir(parents=True, exist_ok=True)
-        if not os.access(ledger_file.parent, os.W_OK):
-            raise PermissionError("ledger not writable")
-        test_entry = {"check": "environment_ok"}
-        journal.write_entry(agent_id="system", action="env_check", payload=test_entry)
+        os.chmod(str(KEYS_DIR), 0o700)
+    except Exception:
+        pass
+
+    LEDGER_DIR.mkdir(parents=True, exist_ok=True)
+    probe = LEDGER_DIR / ".write_probe"
+    try:
+        probe.write_text("ok", encoding="utf-8")
+        probe.unlink(missing_ok=True)
+    except Exception as exc:
         metrics.log(
-            event_type="cryovant_environment_valid",
-            payload={"ledger": str(ledger_file), "keys_dir": str(KEYS_DIR)},
-            level="INFO",
+            event_type="cryovant_environment_invalid",
+            payload={"ledger_dir": str(LEDGER_DIR), "error": str(exc)},
+            level="ERROR",
             element_id=ELEMENT_ID,
         )
-        return True
-    except Exception as exc:  # pragma: no cover - defensive logging
-        metrics.log(event_type="cryovant_environment_error", payload={"error": str(exc)}, level="ERROR", element_id=ELEMENT_ID)
         return False
+
+    try:
+        ledger_file = journal.ensure_ledger()
+        journal.write_entry(agent_id="system", action="env_check", payload={"check": "environment_ok"})
+    except Exception as exc:  # pragma: no cover - defensive logging
+        metrics.log(
+            event_type="cryovant_environment_error",
+            payload={"ledger_dir": str(LEDGER_DIR), "error": str(exc)},
+            level="ERROR",
+            element_id=ELEMENT_ID,
+        )
+        return False
+
+    metrics.log(
+        event_type="cryovant_environment_valid",
+        payload={"ledger_dir": str(LEDGER_DIR), "ledger_file": str(ledger_file), "keys_dir": str(KEYS_DIR)},
+        level="INFO",
+        element_id=ELEMENT_ID,
+    )
+    return True
 
 
 def certify_agents(app_agents_dir: Path) -> Tuple[bool, List[str]]:
@@ -135,17 +163,19 @@ def certify_agents(app_agents_dir: Path) -> Tuple[bool, List[str]]:
         metrics.log(event_type="cryovant_no_agents_dir", payload={"path": str(app_agents_dir)}, level="ERROR", element_id=ELEMENT_ID)
         return False, [f"missing agents directory: {app_agents_dir}"]
 
-    for candidate in agents_root.iterdir():
-        if not candidate.is_dir():
-            continue
-        if candidate.name in {"agent_template", "lineage"}:
-            continue
+    agent_dirs = list(iter_agent_dirs(agents_root))
+    if not agent_dirs:
+        metrics.log(event_type="cryovant_certified", payload={"agents_dir": str(app_agents_dir), "agents": 0}, level="INFO", element_id=ELEMENT_ID)
+        return True, []
+
+    for candidate in agent_dirs:
+        agent_id = resolve_agent_id(candidate, agents_root)
         meta = candidate / "meta.json"
         dna = candidate / "dna.json"
         cert = candidate / "certificate.json"
         for required in (meta, dna, cert):
             if not required.exists():
-                missing.append(f"{candidate.name}:{required.name}")
+                missing.append(f"{agent_id}:{required.name}")
         if cert.exists():
             certificate = _read_json(cert)
             signature = certificate.get("signature", "")
@@ -154,9 +184,9 @@ def certify_agents(app_agents_dir: Path) -> Tuple[bool, List[str]]:
                 lineage_hash = compute_lineage_hash(candidate)
                 certificate["lineage_hash"] = lineage_hash
                 cert.write_text(json.dumps(certificate, indent=2), encoding="utf-8")
-                journal.write_entry(agent_id=candidate.name, action="certificate_evolved", payload={"lineage_hash": lineage_hash})
+                journal.write_entry(agent_id=agent_id, action="certificate_evolved", payload={"lineage_hash": lineage_hash})
             if not _valid_signature(signature):
-                signature_failures.append(candidate.name)
+                signature_failures.append(agent_id)
     if missing or signature_failures:
         errors = missing + [f"{name}:invalid_signature" for name in signature_failures]
         metrics.log(event_type="cryovant_certify_failed", payload={"missing": errors}, level="ERROR", element_id=ELEMENT_ID)
@@ -164,16 +194,13 @@ def certify_agents(app_agents_dir: Path) -> Tuple[bool, List[str]]:
             journal.write_entry(agent_id=agent, action="certify_failed", payload={"reason": "invalid_signature"})
         return False, errors
 
-    for candidate in agents_root.iterdir():
-        if not candidate.is_dir():
-            continue
-        if candidate.name in {"agent_template", "lineage"}:
-            continue
+    for candidate in agent_dirs:
+        agent_id = resolve_agent_id(candidate, agents_root)
         certificate = _read_json(candidate / "certificate.json")
         payload = {"path": str(candidate), "lineage_hash": certificate.get("lineage_hash")}
-        journal.write_entry(agent_id=candidate.name, action="certified", payload=payload)
+        journal.write_entry(agent_id=agent_id, action="certified", payload=payload)
 
-    metrics.log(event_type="cryovant_certified", payload={"agents_dir": str(app_agents_dir)}, level="INFO", element_id=ELEMENT_ID)
+    metrics.log(event_type="cryovant_certified", payload={"agents_dir": str(app_agents_dir), "agents": len(agent_dirs)}, level="INFO", element_id=ELEMENT_ID)
     return True, []
 
 

@@ -19,7 +19,10 @@ from pathlib import Path
 from typing import Dict, List
 
 from app.agents.base_agent import validate_agents
+from app.agents.discovery import iter_agent_dirs, resolve_agent_id
+from app.agents.mutation_request import MutationRequest
 from runtime import metrics
+from runtime.timeutils import now_iso
 
 ELEMENT_ID = "Wood"
 
@@ -38,3 +41,23 @@ class ArchitectAgent:
         level = "INFO" if valid else "ERROR"
         metrics.log(event_type="architect_scan", payload=result, level=level)
         return result
+
+    def propose_mutations(self) -> List[MutationRequest]:
+        """
+        Architect emits mutation requests; does not mutate directly.
+        """
+        proposals: List[MutationRequest] = []
+        for agent_dir in iter_agent_dirs(self.agents_root):
+            agent_id = resolve_agent_id(agent_dir, self.agents_root)
+            proposals.append(
+                MutationRequest(
+                    agent_id=agent_id,
+                    generation_ts=now_iso(),
+                    intent="noop",
+                    ops=[],
+                    signature="cryovant-dev-noop",
+                    nonce=f"arch-{agent_id}-{now_iso()}",
+                )
+            )
+        metrics.log(event_type="architect_proposals", payload={"count": len(proposals)}, level="INFO")
+        return proposals

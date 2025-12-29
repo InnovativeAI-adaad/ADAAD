@@ -1,59 +1,62 @@
-# ADAAD
+# ADAAD (He65 layout)
 
-ADAAD — Autonomous Device-Anchored Adaptive Development. This repository
-contains a lightweight, Android-friendly core with append-only telemetry,
-a safe sandbox runner, and a promotion/quarantine pipeline modeled after
-ADAAD's Beast Mode flows.
+This repository now surfaces the full He65 ADAAD implementation at the repo
+root. It includes Cryovant gatekeeping, append-only telemetry, the
+architect/dream/beast orchestration loops, and a lightweight Aponi dashboard.
 
-## Layout
+## Key layout
 
-- `adad_core/` — core modules (IO, evaluation, cryovant, evolution, runtime)
-- `adad_core/agents/` — built-in agents ready for evaluation
-- `apps/adad_cli/` — CLI entry point for one evaluation cycle
-- `scripts/` — helper scripts for local runs and log syncing
-- `data/` — append-only metrics, fitness, and lineage logs (created at runtime)
+- `app/` — Wood/Fire: orchestrator entry (`app/main.py`), architect scan,
+  dream/beast cycles, agent contract and samples.
+- `runtime/` — Earth: invariants, metrics, capability graph, warm pool, root
+  paths.
+- `security/` — Water: Cryovant gatekeeping and append-only ledger under
+  `security/ledger/`.
+- `ui/` — Metal: Aponi dashboard (`ui/aponi_dashboard.py`) for state/metrics/
+  lineage tails.
+- `data/` — runtime data (capabilities, work inbox, etc.).
+- `reports/` — append-only JSONL metrics (`reports/metrics.jsonl`).
+- `tests/` — unit tests for orchestrator, Cryovant, fitness, capabilities.
+- `archives/`, `releases/`, `experiments/`, `brand/`, `tools/`, `scripts/` —
+  packaged assets, helpers, and historical material.
 
-## Quick start
+## Running the orchestrator
 
-Run a single evaluation cycle (respects CPU/battery gates):
-
-```bash
-./scripts/run_local.sh
-```
-
-Execute the fast unit tests:
-
-```bash
-pytest
-```
-
-## Notes
-
-- Logging is append-only JSONL to stay deterministic and mobile-friendly.
-- Cryovant signature helpers use SHA-256/HMAC without extra dependencies.
-- The sandbox uses stdlib `runpy` with minimal surface area.
-
-## Aponi 1.0 dashboard
-
-The Aponi dashboard ships with a FastAPI backend and static front-end for the
-ten requested enhancements (trend chart, agent table with source modal,
-interactive lineage, promotion/quarantine rollup, mutation diff viewer,
-control panel actions, and dark/light themes).
-
-Run locally:
+Use Python 3.11+:
 
 ```bash
-# 1) Start ADAAD/ADAD so logs exist
-python3 -m apps.adad_cli.main
-
-# 2) Backend API (serves /api/*)
-uvicorn backend.server:app --reload --port 8088
-
-# 3) Front-end preview (static)
-python -m http.server 4173 --directory dashboard
-# then open http://localhost:4173
+python -m app.main
 ```
 
-GitHub Pages: the static site lives under `dashboard/`. Point Pages to the
-repository root (or the `dashboard` folder) to publish without a custom build
-step.
+This will:
+
+- Run invariants and element registration.
+- Validate Cryovant environment and certify agents via the ledger
+  (`security/ledger/lineage.jsonl`).
+- Discover architect/dream/beast workloads under `app/agents/`.
+- Start the Aponi dashboard on port 8080 for live state/metrics/lineage tails.
+
+Metrics are written to `reports/metrics.jsonl`; ledger events live under
+`security/ledger/` and are generated at runtime (ledger JSONL files are not
+tracked in git).
+
+## Dashboard-only run
+
+If you just want the Metal dashboard without booting the full orchestrator, run
+from the repo root so imports resolve:
+
+```bash
+python ui/aponi_dashboard.py --host 127.0.0.1 --port 8080
+```
+
+You can also set `APONI_HOST` / `APONI_PORT` instead of CLI flags. Endpoints:
+`/state`, `/metrics`, `/fitness`, `/capabilities`, `/lineage`, `/mutations`,
+`/staging`.
+
+## Tests
+
+Run the suite from the repo root:
+
+```bash
+python -m pytest
+```
