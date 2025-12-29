@@ -28,17 +28,16 @@ from typing import Any, Dict, List
 
 from fastapi import Body, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.nexus.mutate import router as mutate_router
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[3]
 DATA_DIR = BASE_DIR / "data"
 STATE_FILE = DATA_DIR / "dashboard_state.json"
 ACTIONS_LOG = DATA_DIR / "actions.jsonl"
-GATE_LOCK_FILE = BASE_DIR / "security" / "ledger" / "gate.lock"
+GATE_LOCK_FILE = ROOT / "security" / "ledger" / "gate.lock"
 GATE_PROTOCOL = "adaad-gate/1.0"
 
 app = FastAPI(title="Aponi Dashboard Backend", version="1.0")
-app.include_router(mutate_router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
