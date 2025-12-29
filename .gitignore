@@ -9,11 +9,9 @@ __pycache__/
 .mypy_cache/
 
 # Data and telemetry
-/data/logs/*.jsonl
 /data/quarantine/*
+!/data/quarantine/.gitkeep
 /data/adad.sqlite3
-!data/logs/.gitkeep
-!data/quarantine/.gitkeep
 
 # Editor artifacts
 *.swp
@@ -24,14 +22,16 @@ __pycache__/
 # Signatures and releases
 *.sig
 *.zip
+
 # Allow directory keepers
-!**/.keep
+!**/.gitkeep
 
-# Runtime logs
-data/logs/*.jsonl
+# Runtime logs (generated; not tracked)
+/data/logs/*.jsonl
 
-reports/metrics.jsonl
+/reports/metrics.jsonl
+/security/ledger/*.jsonl
 
 # Never commit private keys
 security/keys/*
-!security/keys/.keep
+!security/keys/.gitkeep
