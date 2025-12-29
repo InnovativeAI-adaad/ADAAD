@@ -29,6 +29,10 @@ from typing import Any, Dict, List
 from fastapi import Body, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 ROOT = Path(__file__).resolve().parents[3]
 DATA_DIR = BASE_DIR / "data"
@@ -128,8 +132,9 @@ def _gate_state() -> Dict[str, Any]:
             contents = GATE_LOCK_FILE.read_text(encoding="utf-8").strip()
             if contents:
                 reason = contents
-        except Exception:
-            pass
+        except Exception as exc:
+            # Failed to read gate lock reason; keep gate locked but log for diagnostics.
+            logger.warning("Failed to read gate lock file '%s': %s", GATE_LOCK_FILE, exc)
 
     if reason:
         reason = reason[:280]
