@@ -1,0 +1,92 @@
+# SPDX-License-Identifier: Apache-2.0
+"""
+Lightweight mutation strategy selector using UCB1-style scoring.
+"""
+
+from __future__ import annotations
+
+import json
+import math
+from pathlib import Path
+from typing import Dict, List, Tuple
+
+from app.agents.mutation_request import MutationRequest
+
+
+class MutationEngine:
+    """
+    Chooses which mutation strategy to run based on historical rewards.
+    """
+
+    def __init__(self, metrics_path: Path) -> None:
+        self.metrics_path = metrics_path
+
+    def _load_history(self) -> Dict[str, Dict[str, float]]:
+        """
+        Return {strategy_id: {"n": count, "reward": total_reward, "fail": failures}}.
+        """
+        if not self.metrics_path.exists():
+            return {}
+        history: Dict[str, Dict[str, float]] = {}
+        try:
+            lines = self.metrics_path.read_text(encoding="utf-8").splitlines()
+        except Exception:
+            return history
+
+        for line in lines:
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            payload = record.get("payload", {}) or {}
+            event = record.get("event")
+            sid = payload.get("strategy_id")
+            if not sid:
+                continue
+            entry = history.setdefault(sid, {"n": 0.0, "reward": 0.0, "fail": 0.0})
+            if event == "mutation_score":
+                score = float(payload.get("score", 0.0))
+                entry["n"] += 1.0
+                entry["reward"] += score
+                if score <= 0.0:
+                    entry["fail"] += 1.0
+            if event == "mutation_failed":
+                entry["fail"] += 1.0
+        return history
+
+    def _ucb1(self, history: Dict[str, Dict[str, float]], strategy_id: str, total: float) -> float:
+        stats = history.get(strategy_id, {"n": 0.0, "reward": 0.0, "fail": 0.0})
+        n = stats["n"]
+        if n == 0:
+            return float("inf")
+        avg = stats["reward"] / n
+        return avg + math.sqrt(2 * math.log(max(total, 1.0)) / n)
+
+    def select(self, requests: List[MutationRequest]) -> Tuple[MutationRequest | None, Dict[str, float]]:
+        """
+        Pick the best candidate request. Returns (request or None, scores).
+        """
+        if not requests:
+            return None, {}
+        history = self._load_history()
+        total = sum(v.get("n", 0.0) for v in history.values()) or 1.0
+        scores: Dict[str, float] = {}
+        best: MutationRequest | None = None
+        best_score = -float("inf")
+        for req in requests:
+            sid = req.intent or "default"
+            stats = history.get(sid, {"n": 0.0, "reward": 0.0, "fail": 0.0})
+            failures = stats.get("fail", 0.0)
+            attempts = max(stats.get("n", 0.0), failures)
+            if attempts and failures / attempts > 0.20:
+                scores[sid] = float("-inf")
+                continue
+            s = self._ucb1(history, sid, total)
+            scores[sid] = s
+            if s > best_score:
+                best_score = s
+                best = req
+        return best, scores
+
+
+__all__ = ["MutationEngine"]
