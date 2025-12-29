@@ -17,8 +17,9 @@ Ledger journaling utilities.
 
 import json
 import time
+import hashlib
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from runtime import metrics
 from security.ledger import LEDGER_ROOT
@@ -26,6 +27,8 @@ from security.ledger import LEDGER_ROOT
 ELEMENT_ID = "Water"
 
 LEDGER_FILE = LEDGER_ROOT / "lineage.jsonl"
+JOURNAL_PATH = LEDGER_ROOT / "cryovant_journal.jsonl"
+GENESIS_PATH = LEDGER_ROOT / "cryovant_journal.genesis.jsonl"
 
 
 def ensure_ledger() -> Path:
@@ -36,6 +39,19 @@ def ensure_ledger() -> Path:
     if not LEDGER_FILE.exists():
         LEDGER_FILE.touch()
     return LEDGER_FILE
+
+
+def ensure_journal() -> Path:
+    """
+    Ensure the Cryovant journal exists, seeding from genesis if available.
+    """
+    LEDGER_ROOT.mkdir(parents=True, exist_ok=True)
+    if not JOURNAL_PATH.exists():
+        if GENESIS_PATH.exists():
+            JOURNAL_PATH.write_text(GENESIS_PATH.read_text(encoding="utf-8"), encoding="utf-8")
+        else:
+            JOURNAL_PATH.touch()
+    return JOURNAL_PATH
 
 
 def write_entry(agent_id: str, action: str, payload: Dict[str, str] | None = None) -> None:
@@ -61,3 +77,44 @@ def read_entries(limit: int = 50) -> List[Dict[str, str]]:
         except json.JSONDecodeError:
             continue
     return entries
+
+
+def _hash_line(prev_hash: str, payload: Dict[str, object]) -> str:
+    material = (prev_hash + json.dumps(payload, ensure_ascii=False, sort_keys=True)).encode("utf-8")
+    return hashlib.sha256(material).hexdigest()
+
+
+def _last_hash() -> str:
+    ensure_journal()
+    last = ""
+    with JOURNAL_PATH.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                last = line
+    if not last:
+        return "0" * 64
+    try:
+        obj = json.loads(last)
+        return str(obj.get("hash") or "0" * 64)
+    except Exception:
+        return "0" * 64
+
+
+def append_tx(tx_type: str, payload: Dict[str, object], tx_id: Optional[str] = None) -> Dict[str, object]:
+    JOURNAL_PATH.parent.mkdir(parents=True, exist_ok=True)
+    prev = _last_hash()
+    entry = {
+        "tx": tx_id or f"TX-{tx_type}-{time.strftime('%Y%m%d%H%M%S', time.gmtime())}",
+        "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "type": tx_type,
+        "payload": payload,
+        "prev_hash": prev,
+    }
+    entry["hash"] = _hash_line(prev, entry)
+    with JOURNAL_PATH.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+    return entry
+
+
+__all__ = ["write_entry", "read_entries", "append_tx", "ensure_ledger", "ensure_journal"]

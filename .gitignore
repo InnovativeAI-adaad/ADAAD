@@ -30,7 +30,11 @@ __pycache__/
 /data/logs/*.jsonl
 
 /reports/metrics.jsonl
+/reports/system_dependency_graph.json
+/logs/*.log
+/logs/*.jsonl
 /security/ledger/*.jsonl
+!/security/ledger/cryovant_journal.genesis.jsonl
 /security/ledger/gate_hash.txt
 
 # Never commit private keys

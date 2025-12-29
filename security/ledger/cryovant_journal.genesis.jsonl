@@ -1,0 +1,2 @@
+{"tx": "TX-BASE-20251229-00", "ts": "2025-12-29T15:47:45Z", "type": "genesis", "payload": {"detail": "genesis"}, "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000", "hash": "f9540ff2228b08eea6fb7cc25b7e42342abe2e2c5474b79e41aa2c4286844474"}
+{"tx": "TX-BASE-20251229-01", "ts": "2025-12-29T15:47:45Z", "type": "discovery_exclusion_filter", "payload": {"detail": "migrate to jsonl"}, "prev_hash": "f9540ff2228b08eea6fb7cc25b7e42342abe2e2c5474b79e41aa2c4286844474", "hash": "f9fe2dca77be7be671681d2f410f92d6d363885e08b6e043871fa4bfc01ecf80"}

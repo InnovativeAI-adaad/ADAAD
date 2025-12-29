@@ -17,6 +17,11 @@ from typing import Iterable
 REQUIRED_FILES = ("meta.json", "dna.json", "certificate.json")
 
 
+def _is_excluded(entry: Path) -> bool:
+    name = entry.name
+    return name.startswith("__") or name.startswith(".") or name in {"lineage", "agent_template"}
+
+
 def is_agent_dir(path: Path) -> bool:
     return path.is_dir() and all((path / req).exists() for req in REQUIRED_FILES)
 
@@ -31,7 +36,7 @@ def iter_agent_dirs(agents_root: Path) -> Iterable[Path]:
     for entry in sorted(agents_root.iterdir(), key=lambda p: p.name):
         if not entry.is_dir():
             continue
-        if entry.name.startswith("__") or entry.name in {"lineage", "agent_template"}:
+        if _is_excluded(entry):
             continue
 
         if is_agent_dir(entry):
@@ -42,7 +47,7 @@ def iter_agent_dirs(agents_root: Path) -> Iterable[Path]:
         for child in sorted(entry.iterdir(), key=lambda p: p.name):
             if not child.is_dir():
                 continue
-            if child.name.startswith("__"):
+            if _is_excluded(child):
                 continue
             if is_agent_dir(child):
                 yield child

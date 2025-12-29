@@ -44,6 +44,18 @@ def verify_signature(signature: str) -> bool:
     return False
 
 
+def verify_session(token: str) -> bool:
+    """
+    Validate a Cryovant session token. Phase 2 fails closed unless a real token
+    is available. A dev token can be provided via CRYOVANT_DEV_TOKEN for local
+    workflows.
+    """
+    dev_token = os.environ.get("CRYOVANT_DEV_TOKEN", "").strip()
+    if dev_token and token == dev_token:
+        return True
+    return False
+
+
 def _valid_signature(signature: str) -> bool:
     return (signature.startswith("cryovant-dev-") and dev_mode()) or verify_signature(signature)
 
