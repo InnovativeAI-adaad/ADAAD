@@ -22,6 +22,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 from app.agents.base_agent import promote_offspring
+from app.agents.discovery import agent_path_from_id, iter_agent_dirs, resolve_agent_id
 from runtime import fitness, metrics
 from runtime.capability_graph import get_capabilities, register_capability
 from security import cryovant
@@ -42,14 +43,8 @@ class BeastModeLoop:
 
     def _available_agents(self) -> List[str]:
         agents: List[str] = []
-        if not self.agents_root.exists():
-            return agents
-        for agent_dir in self.agents_root.iterdir():
-            if not agent_dir.is_dir():
-                continue
-            if agent_dir.name in {"agent_template", "lineage"}:
-                continue
-            agents.append(agent_dir.name)
+        for agent_dir in iter_agent_dirs(self.agents_root):
+            agents.append(resolve_agent_id(agent_dir, self.agents_root))
         return agents
 
     def _latest_staged(self, agent_id: str) -> Tuple[Optional[Path], Optional[Dict[str, str]]]:
@@ -110,7 +105,7 @@ class BeastModeLoop:
             metrics.log(event_type="beast_cycle_end", payload={"status": "discarded", "agent": selected}, level="INFO", element_id=ELEMENT_ID)
             return {"status": "discarded", "agent": selected, "score": score}
 
-        agent_dir = self.agents_root / selected
+        agent_dir = agent_path_from_id(selected, self.agents_root)
         cryovant.evolve_certificate(selected, agent_dir, staged_dir, get_capabilities())
         promoted = promote_offspring(staged_dir, self.lineage_dir)
         journal.write_entry(

@@ -16,7 +16,7 @@ Deterministic orchestrator entrypoint.
 """
 
 import sys
-from typing import Dict
+from typing import Dict, Optional
 
 from app import APP_ROOT
 from app.architect_agent import ArchitectAgent
@@ -43,8 +43,8 @@ class Orchestrator:
         self.lineage_dir = self.agents_root / "lineage"
         self.warm_pool = WarmPool(size=2)
         self.architect = ArchitectAgent(self.agents_root)
-        self.dream = DreamMode(self.agents_root, self.lineage_dir)
-        self.beast = BeastModeLoop(self.agents_root, self.lineage_dir)
+        self.dream: Optional[DreamMode] = None
+        self.beast: Optional[BeastModeLoop] = None
         self.dashboard = AponiDashboard()
 
     def _fail(self, reason: str) -> None:
@@ -64,6 +64,8 @@ class Orchestrator:
         self._register_elements()
         self._init_runtime()
         self._init_cryovant()
+        self.dream = DreamMode(self.agents_root, self.lineage_dir)
+        self.beast = BeastModeLoop(self.agents_root, self.lineage_dir)
         self._health_check_architect()
         self._health_check_dream()
         self._register_capabilities()
@@ -103,11 +105,16 @@ class Orchestrator:
             self._fail("architect_scan_failed")
 
     def _health_check_dream(self) -> None:
+        assert self.dream is not None
         tasks = self.dream.discover_tasks()
         if not tasks:
-            metrics.log(event_type="dream_health_failed", payload={"reason": "no tasks"}, level="ERROR")
-            self._fail("dream_discovery_failed")
+            metrics.log(event_type="dream_safe_boot", payload={"reason": "no tasks"}, level="WARN")
+            self.state["mutation_enabled"] = "false"
+            self.state["safe_boot"] = "true"
+            return
         metrics.log(event_type="dream_health_ok", payload={"tasks": tasks}, level="INFO")
+        self.state["mutation_enabled"] = "true"
+        self.state["safe_boot"] = "false"
 
     def _register_capabilities(self) -> None:
         register_capability("orchestrator.boot", "0.65.0", 1.0, "Earth")

@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 from app.agents.base_agent import stage_offspring
+from app.agents.discovery import iter_agent_dirs, resolve_agent_id
 from runtime import metrics
 from security import cryovant
 
@@ -40,14 +41,8 @@ class DreamMode:
         Discover mutation-ready agents.
         """
         tasks: List[str] = []
-        if not self.agents_root.exists():
-            return tasks
-        for agent_dir in self.agents_root.iterdir():
-            if not agent_dir.is_dir():
-                continue
-            if agent_dir.name in {"agent_template", "lineage"}:
-                continue
-            tasks.append(agent_dir.name)
+        for agent_dir in iter_agent_dirs(self.agents_root):
+            tasks.append(resolve_agent_id(agent_dir, self.agents_root))
         metrics.log(event_type="dream_discovery", payload={"tasks": tasks}, level="INFO")
         return tasks
 
