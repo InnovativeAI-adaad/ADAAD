@@ -16,9 +16,10 @@ Centralized JSONL metrics writer.
 """
 
 import json
+import os
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from runtime import ROOT_DIR
 
@@ -59,11 +60,40 @@ def tail(limit: int = 100) -> List[Dict[str, Any]]:
     Return the most recent entries from the metrics log.
     """
     _ensure_metrics_file()
-    lines = METRICS_PATH.read_text(encoding="utf-8").splitlines()
+    raw_lines, _ = _read_last_lines(METRICS_PATH, limit)
     entries: List[Dict[str, Any]] = []
-    for line in lines[-limit:]:
+    for line in raw_lines:
         try:
             entries.append(json.loads(line))
         except json.JSONDecodeError:
             continue
     return entries
+
+
+def _read_last_lines(path: Path, limit: int, chunk_size: int = 4096) -> Tuple[List[str], int]:
+    """
+    Read only the last `limit` lines from a UTF-8 file without loading it fully
+    into memory. Returns the decoded lines (newlines stripped) and the number of
+    bytes read to satisfy the request.
+    """
+    decoded: List[str] = []
+    bytes_read = 0
+    with path.open("rb") as handle:
+        handle.seek(0, os.SEEK_END)
+        buffer = b""
+        lines_found = 0
+        position = handle.tell()
+        while position > 0 and lines_found < limit + 1:
+            step = min(chunk_size, position)
+            position -= step
+            handle.seek(position)
+            chunk = handle.read(step)
+            bytes_read += len(chunk)
+            buffer = chunk + buffer
+            lines_found = buffer.count(b"\n")
+            if lines_found >= limit + 1:
+                break
+
+    if buffer:
+        decoded = [line.decode("utf-8", errors="ignore") for line in buffer.splitlines()[-limit:]]
+    return decoded, bytes_read

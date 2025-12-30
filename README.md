@@ -40,6 +40,14 @@ Metrics are written to `reports/metrics.jsonl`; ledger events live under
 `security/ledger/` and are generated at runtime (ledger JSONL files are not
 tracked in git).
 
+Cryovant notes:
+
+- Bundled `cryovant-dev-*` certificates are trusted by default when no signing
+  keys are configured (the repo ships only dev certs).
+- Set `CRYOVANT_DEV_MODE=1` to explicitly allow dev signatures if you introduce
+  custom verification, or wire up `verify_signature` for production keys to
+  tighten enforcement.
+
 ## Dashboard-only run
 
 If you just want the Metal dashboard without booting the full orchestrator, run

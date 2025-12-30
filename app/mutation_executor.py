@@ -27,10 +27,9 @@ class MutationExecutor:
 
     def _verify(self, request: MutationRequest) -> Tuple[bool, str]:
         sig = request.signature or ""
-        dev_mode = bool(int(cryovant.dev_mode()))
         if cryovant.verify_signature(sig):
             return True, "verified"
-        if sig.startswith("cryovant-dev-") and dev_mode:
+        if cryovant.dev_signature_allowed(sig):
             return True, "dev_signature"
         return False, "invalid_signature"
 
