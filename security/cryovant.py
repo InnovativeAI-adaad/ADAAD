@@ -56,8 +56,42 @@ def verify_session(token: str) -> bool:
     return False
 
 
+def _dev_signature_allowed(signature: str) -> bool:
+    if not signature.startswith("cryovant-dev-"):
+        return False
+    if dev_mode():
+        return True
+    # If no keys are configured or verification is a no-op, default to accepting
+    # the bundled dev certificates to keep local boot flows working.
+    try:
+        has_keys = any(KEYS_DIR.iterdir())
+    except Exception:
+        has_keys = False
+    return not has_keys
+
+
 def _valid_signature(signature: str) -> bool:
-    return (signature.startswith("cryovant-dev-") and dev_mode()) or verify_signature(signature)
+    if not signature:
+        return False
+    if verify_signature(signature):
+        return True
+    return _dev_signature_allowed(signature)
+
+
+def signature_valid(signature: str) -> bool:
+    """
+    Public validation helper that accepts either a real signature (once supported)
+    or the bundled cryovant-dev-* signatures when no signing keys are present.
+    """
+    return _valid_signature(signature)
+
+
+def dev_signature_allowed(signature: str) -> bool:
+    """
+    Public helper exposing dev signature acceptance rules for callers that want to
+    differentiate between verified and dev-signed flows.
+    """
+    return _dev_signature_allowed(signature)
 
 
 def _read_json(path: Path) -> Dict[str, Any]:
