@@ -444,7 +444,6 @@
     const meta = $("#gateMeta");
     const reason = $("#gateReason");
 
-    const verified = !gate.locked && !!state.lastHandshake;
     const pending = !gate.locked && !state.lastHandshake;
 
     if (gate.locked){
