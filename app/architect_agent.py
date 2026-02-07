@@ -44,20 +44,29 @@ class ArchitectAgent:
 
     def propose_mutations(self) -> List[MutationRequest]:
         """
-        Architect emits mutation requests; does not mutate directly.
+        Generate actionable mutation proposals using concrete strategies.
         """
+        from app.agents.mutation_strategies import select_strategy
+
         proposals: List[MutationRequest] = []
         for agent_dir in iter_agent_dirs(self.agents_root):
             agent_id = resolve_agent_id(agent_dir, self.agents_root)
+            strategy_name, ops = select_strategy(agent_dir)
+            if not ops:
+                continue
             proposals.append(
                 MutationRequest(
                     agent_id=agent_id,
                     generation_ts=now_iso(),
-                    intent="noop",
-                    ops=[],
-                    signature="cryovant-dev-noop",
+                    intent=strategy_name,
+                    ops=ops,
+                    signature="cryovant-dev-architect",
                     nonce=f"arch-{agent_id}-{now_iso()}",
                 )
             )
-        metrics.log(event_type="architect_proposals", payload={"count": len(proposals)}, level="INFO")
+        metrics.log(
+            event_type="architect_proposals",
+            payload={"count": len(proposals), "strategies": [p.intent for p in proposals]},
+            level="INFO",
+        )
         return proposals
