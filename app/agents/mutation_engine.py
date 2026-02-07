@@ -8,9 +8,11 @@ from __future__ import annotations
 import json
 import math
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 from app.agents.mutation_request import MutationRequest
+from runtime import metrics
+from runtime.metrics_analysis import summarize_preflight_rejections, top_preflight_rejections
 
 
 class MutationEngine:
@@ -62,6 +64,85 @@ class MutationEngine:
         avg = stats["reward"] / n
         return avg + math.sqrt(2 * math.log(max(total, 1.0)) / n)
 
+    def _extract_op_paths(self, request: MutationRequest) -> List[str]:
+        paths: List[str] = []
+        for op in request.ops:
+            if not isinstance(op, dict):
+                continue
+            for key in ("file", "filepath", "target"):
+                value = op.get(key)
+                if isinstance(value, str) and value.strip():
+                    paths.append(value)
+            files = op.get("files")
+            if isinstance(files, list):
+                paths.extend([entry for entry in files if isinstance(entry, str) and entry.strip()])
+        return paths
+
+    def _has_code_payload(self, request: MutationRequest) -> bool:
+        for op in request.ops:
+            if not isinstance(op, dict):
+                continue
+            for key in ("content", "source", "code", "value"):
+                value = op.get(key)
+                if isinstance(value, str) and value.strip():
+                    return True
+        return False
+
+    def _mentions_imports(self, request: MutationRequest) -> bool:
+        for op in request.ops:
+            if not isinstance(op, dict):
+                continue
+            for key in ("content", "source", "code", "value"):
+                value = op.get(key)
+                if isinstance(value, str) and "import " in value:
+                    return True
+        return False
+
+    def _apply_preflight_bias(self, request: MutationRequest, score: float) -> Tuple[float, Dict[str, float]]:
+        penalties: Dict[str, float] = {}
+        top_rejections = top_preflight_rejections(limit=500, top_n=3)
+        summary = summarize_preflight_rejections(limit=500)
+        reasons = [reason for reason, _ in top_rejections]
+        if not reasons:
+            return score, penalties
+
+        paths = self._extract_op_paths(request)
+        unique_paths = {path for path in paths if path}
+        if "multi_file_mutation" in reasons and len(unique_paths) > 1:
+            penalties["multi_file_mutation"] = 0.75
+            score -= penalties["multi_file_mutation"]
+
+        if "ast_parse_failed" in reasons and self._has_code_payload(request):
+            penalties["ast_parse_failed"] = 0.4
+            score -= penalties["ast_parse_failed"]
+
+        if "import_smoke_failed" in reasons and self._mentions_imports(request):
+            penalties["import_smoke_failed"] = 0.3
+            score -= penalties["import_smoke_failed"]
+
+        if penalties:
+            metrics.log(
+                event_type="mutation_bias_applied",
+                payload={
+                    "strategy_id": request.intent or "default",
+                    "penalties": penalties,
+                    "top_rejections": reasons,
+                    "window": summary.get("window", 0),
+                },
+                level="INFO",
+            )
+        return score, penalties
+
+    def bias_details(self, request: MutationRequest) -> Dict[str, Any]:
+        """
+        Return preflight bias details without altering selection logic.
+        """
+        score, penalties = self._apply_preflight_bias(request, 0.0)
+        return {
+            "penalties": penalties,
+            "score_delta": score,
+        }
+
     def select(self, requests: List[MutationRequest]) -> Tuple[MutationRequest | None, Dict[str, float]]:
         """
         Pick the best candidate request. Returns (request or None, scores).
@@ -82,6 +163,7 @@ class MutationEngine:
                 scores[sid] = float("-inf")
                 continue
             s = self._ucb1(history, sid, total)
+            s, _ = self._apply_preflight_bias(req, s)
             scores[sid] = s
             if s > best_score:
                 best_score = s

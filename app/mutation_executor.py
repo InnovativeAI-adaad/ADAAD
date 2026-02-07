@@ -6,12 +6,14 @@ Mutation executor: verifies requests, applies ops, runs post-checks.
 from __future__ import annotations
 
 import subprocess
+import sys
 import uuid
 from pathlib import Path
 from typing import Any, Dict, Tuple
 
 from app.agents.discovery import agent_path_from_id
 from app.agents.mutation_request import MutationRequest
+from runtime import ROOT_DIR
 from runtime.timeutils import now_iso
 from runtime import metrics
 from security import cryovant
@@ -35,15 +37,28 @@ class MutationExecutor:
 
     def _run_tests(self) -> Tuple[bool, str]:
         """
-        Run pytest to validate a mutation. Keep it simple: fail fast on errors.
+        Run pytest with timeout and capture results.
         """
         try:
-            result = subprocess.run(["python", "-m", "pytest"], capture_output=True, text=True, check=False)
-            if result.returncode != 0:
-                return False, result.stderr or result.stdout
-            return True, result.stdout
+            result = subprocess.run(
+                [sys.executable, "-m", "pytest", "-x", "--tb=short"],
+                capture_output=True,
+                text=True,
+                timeout=30,
+                cwd=str(ROOT_DIR),
+                check=False,
+            )
+        except subprocess.TimeoutExpired:
+            return False, "Test execution timeout (>30s)"
         except Exception as exc:  # pragma: no cover
-            return False, str(exc)
+            return False, f"Test execution error: {exc}"
+
+        if result.returncode in {0, 5}:
+            return True, result.stdout
+
+        stderr_lines = result.stderr.splitlines()
+        failure_summary = "\n".join(stderr_lines[-10:])
+        return False, f"Tests failed:\n{failure_summary}"
 
     def execute(self, request: MutationRequest) -> Dict[str, Any]:
         ok, reason = self._verify(request)

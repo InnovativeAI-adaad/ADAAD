@@ -1,0 +1,6 @@
+{
+  "id": "test-subject",
+  "name": "Test Subject Agent",
+  "version": "0.1.0",
+  "description": "Agent for mutation pipeline testing"
+}
