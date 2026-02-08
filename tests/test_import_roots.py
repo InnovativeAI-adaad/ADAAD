@@ -11,27 +11,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import importlib.util
 import re
+import sys
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-import sys  # noqa: E402
-
 sys.path.append(str(ROOT))
 
 
-BANNED_ROOTS = {"core", "engines", "adad_core", "ADAAD22"}
-EXCLUDED_DIRS = {
-    "archives",
-    ".venv",
-    "venv",
-    "__pycache__",
-    ".tox",
-    ".mypy_cache",
-    "build",
-    "dist",
-}
+# Approved top-level namespaces for in-repo imports.
+# To add a new namespace:
+# 1) Create the top-level package/module at the repo root.
+# 2) Add the new namespace to APPROVED_ROOTS below.
+# 3) Ensure imports use the new root instead of legacy ones.
+APPROVED_ROOTS = {"app", "runtime", "security", "ui", "tests", "tools"}
+STDLIB_ROOTS = set(getattr(sys, "stdlib_module_names", ())) | set(sys.builtin_module_names)
+SITE_PACKAGES_MARKERS = ("site-packages", "dist-packages")
+EXCLUDED_DIRS = {".venv", "venv", "__pycache__", ".tox", ".mypy_cache", "build", "dist", "archives"}
 
 
 def is_excluded_path(path: Path) -> bool:
@@ -50,10 +48,24 @@ class ImportRootTest(unittest.TestCase):
                     match = re.match(r"^(from|import) ([\\w\\.\\/]+)", line)
                     if not match:
                         continue
-                    root = match.group(2).split(".")[0]
-                    if root in BANNED_ROOTS or root.startswith("/"):
+                    module = match.group(2)
+                    if module.startswith("."):
+                        continue
+                    root = module.split(".")[0]
+                    if root.startswith("/"):
                         failures.append(f"{path}:{lineno}:{line.strip()}")
-        self.assertFalse(failures, f"Banned import roots found: {failures}")
+                        continue
+                    if root in APPROVED_ROOTS or root in STDLIB_ROOTS:
+                        continue
+                    spec = importlib.util.find_spec(root)
+                    if spec is not None:
+                        origin = spec.origin or ""
+                        if origin == "built-in":
+                            continue
+                        if any(marker in origin for marker in SITE_PACKAGES_MARKERS):
+                            continue
+                    failures.append(f"{path}:{lineno}:{line.strip()}")
+        self.assertFalse(failures, f"Disallowed import roots found: {failures}")
 
 
 if __name__ == "__main__":
