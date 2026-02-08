@@ -2,5 +2,14 @@
   "id": "template-agent",
   "name": "Template Agent",
   "version": "0.0.0",
-  "description": "Fill out this template before enabling an agent."
+  "description": "Fill out this template before enabling an agent.",
+  "dream_scope": {
+    "enabled": false,
+    "allow": []
+  },
+  "resource_envelope": {
+    "profile": "default"
+  },
+  "boot_signature": "deterministic-boot-v1",
+  "mutable_global_dependencies": []
 }

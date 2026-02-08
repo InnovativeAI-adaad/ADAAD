@@ -142,7 +142,7 @@ class BeastModeLoop:
             agents.append(resolve_agent_id(agent_dir, self.agents_root))
         return agents
 
-    def _latest_staged(self, agent_id: str) -> Tuple[Optional[Path], Optional[Dict[str, str]]]:
+    def _latest_staged(self, agent_id: str) -> Tuple[Optional[Path], Optional[Dict[str, object]]]:
         staging_root = self.lineage_dir / "_staging"
         if not staging_root.exists():
             return None, None
@@ -160,7 +160,23 @@ class BeastModeLoop:
                 return candidate, payload
         return None, None
 
-    def _discard(self, staged_dir: Path, payload: Dict[str, str], score: float) -> None:
+    @staticmethod
+    def _validate_handoff_contract(contract: object) -> Tuple[bool, str, Optional[bool]]:
+        if not isinstance(contract, dict):
+            return False, "handoff_contract_missing", None
+        required = {"schema_version", "issued_at", "issuer", "dream_scope", "constraints"}
+        missing = sorted(list(required - set(contract)))
+        if missing:
+            return False, f"handoff_contract_missing:{','.join(missing)}", None
+        constraints = contract.get("constraints")
+        if not isinstance(constraints, dict):
+            return False, "handoff_contract_constraints_invalid", None
+        sandboxed = constraints.get("sandboxed")
+        if not isinstance(sandboxed, bool):
+            return False, "handoff_contract_sandboxed_invalid", None
+        return True, "ok", sandboxed
+
+    def _discard(self, staged_dir: Path, payload: Dict[str, object], score: float) -> None:
         shutil.rmtree(staged_dir, ignore_errors=True)
         metrics.log(
             event_type="mutation_discarded",
@@ -200,6 +216,26 @@ class BeastModeLoop:
                 element_id=ELEMENT_ID,
             )
             return {"status": "throttled", "agent": selected, "reason": throttled.get("reason")}
+
+        if payload.get("dream_mode"):
+            contract_ok, reason, contract_sandboxed = self._validate_handoff_contract(payload.get("handoff_contract"))
+            if not contract_ok:
+                metrics.log(
+                    event_type="mutation_handoff_blocked",
+                    payload={"agent": selected, "staged": str(staged_dir), "reason": reason},
+                    level="ERROR",
+                    element_id=ELEMENT_ID,
+                )
+                return {"status": "blocked", "agent": selected, "reason": reason}
+            sandboxed = payload.get("sandboxed", contract_sandboxed if contract_sandboxed is not None else True)
+            if sandboxed:
+                metrics.log(
+                    event_type="mutation_sandboxed",
+                    payload={"agent": selected, "staged": str(staged_dir)},
+                    level="WARNING",
+                    element_id=ELEMENT_ID,
+                )
+                return {"status": "sandboxed", "agent": selected, "staged_path": str(staged_dir)}
 
         score = fitness.score_mutation(selected, payload)
         metrics.log(

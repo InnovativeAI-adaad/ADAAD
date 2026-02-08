@@ -85,7 +85,15 @@ def validate_agents(agents_root: Path) -> Tuple[bool, List[str]]:
     return True, []
 
 
-def stage_offspring(parent_id: str, content: str, lineage_dir: Path) -> Path:
+def stage_offspring(
+    parent_id: str,
+    content: str,
+    lineage_dir: Path,
+    *,
+    dream_mode: bool = False,
+    handoff_contract: Optional[Dict[str, object]] = None,
+    sandboxed: Optional[bool] = None,
+) -> Path:
     """
     Stage a mutated offspring into the _staging area with metadata and hash.
     """
@@ -95,12 +103,17 @@ def stage_offspring(parent_id: str, content: str, lineage_dir: Path) -> Path:
     content_hash = hashlib.sha256(content.encode("utf-8")).hexdigest()[:8]
     staged_dir = staging_root / f"{timestamp}_{content_hash}"
     staged_dir.mkdir(parents=True, exist_ok=True)
+    sandboxed_flag = sandboxed if sandboxed is not None else bool(dream_mode)
     payload = {
         "parent": parent_id,
         "content": content,
         "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "content_hash": content_hash,
+        "dream_mode": dream_mode,
+        "sandboxed": sandboxed_flag,
     }
+    if handoff_contract is not None:
+        payload["handoff_contract"] = handoff_contract
     with (staged_dir / "mutation.json").open("w", encoding="utf-8") as handle:
         json.dump(payload, handle, indent=2)
     metrics.log(event_type="offspring_staged", payload={"path": str(staged_dir)}, level="INFO")
