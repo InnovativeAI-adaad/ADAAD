@@ -82,6 +82,5 @@ class WarmPoolTest(unittest.TestCase):
         # Only the inflight long_task should have run; queued tasks should be skipped.
         self.assertEqual(finished, ["long"])
 
-
 if __name__ == "__main__":
     unittest.main()

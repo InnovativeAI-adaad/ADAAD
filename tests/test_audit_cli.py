@@ -35,7 +35,11 @@ def test_audit_cli_filters_and_summary() -> None:
                 "event": "mutation_rejected_constitutional",
                 "level": "ERROR",
                 "element": "Earth",
-                "payload": {"blocking_failures": ["signature_required"]},
+                "payload": {
+                    "agent_id": "test_subject",
+                    "tier": "SANDBOX",
+                    "blocking_failures": ["signature_required"],
+                },
             },
         ]
         _write_metrics(metrics_path, entries)
@@ -48,3 +52,87 @@ def test_audit_cli_filters_and_summary() -> None:
         report = json.loads(output)
         assert len(report["evaluations"]) == 1
         assert report["violations"]["constitutional"]["signature_required"] == 1
+
+
+def test_audit_cli_summary_respects_filters() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        metrics_path = Path(tmpdir) / "metrics.jsonl"
+        entries = [
+            {
+                "timestamp": "2026-02-06T00:00:00Z",
+                "event": "constitutional_evaluation",
+                "level": "INFO",
+                "element": "Earth",
+                "payload": {
+                    "agent_id": "alpha",
+                    "tier": "SANDBOX",
+                    "passed": True,
+                    "blocking_failures": [],
+                    "warnings": [],
+                },
+            },
+            {
+                "timestamp": "2026-02-06T00:30:00Z",
+                "event": "mutation_rejected_preflight",
+                "level": "ERROR",
+                "element": "Earth",
+                "payload": {
+                    "agent_id": "alpha",
+                    "tier": "SANDBOX",
+                    "reason": "missing_signature",
+                },
+            },
+            {
+                "timestamp": "2026-02-06T00:45:00Z",
+                "event": "mutation_rejected_constitutional",
+                "level": "ERROR",
+                "element": "Earth",
+                "payload": {
+                    "agent_id": "alpha",
+                    "tier": "SANDBOX",
+                    "blocking_failures": ["signature_required", "policy_violation"],
+                },
+            },
+            {
+                "timestamp": "2026-02-06T01:00:00Z",
+                "event": "constitutional_evaluation",
+                "level": "INFO",
+                "element": "Earth",
+                "payload": {
+                    "agent_id": "bravo",
+                    "tier": "PRODUCTION",
+                    "passed": False,
+                    "blocking_failures": ["policy_violation"],
+                    "warnings": [],
+                },
+            },
+            {
+                "timestamp": "2026-02-06T01:30:00Z",
+                "event": "mutation_rejected_preflight",
+                "level": "ERROR",
+                "element": "Earth",
+                "payload": {
+                    "agent_id": "bravo",
+                    "tier": "PRODUCTION",
+                    "reason": "bad_checksum",
+                },
+            },
+        ]
+        _write_metrics(metrics_path, entries)
+        original = metrics.METRICS_PATH
+        metrics.METRICS_PATH = metrics_path
+        try:
+            output = run_audit(
+                "alpha",
+                "SANDBOX",
+                "2026-02-06T00:00:00Z",
+                "2026-02-06T00:59:59Z",
+                "json",
+            )
+        finally:
+            metrics.METRICS_PATH = original
+        report = json.loads(output)
+        assert len(report["evaluations"]) == 1
+        assert report["violations"]["preflight"]["missing_signature"] == 1
+        assert report["violations"]["constitutional"]["signature_required"] == 1
+        assert report["violations"]["constitutional"]["policy_violation"] == 1
