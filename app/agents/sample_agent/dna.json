@@ -1,5 +1,6 @@
 {
   "lineage": "founder",
+  "lineage_parent": "founder",
   "traits": ["resilient", "deterministic"],
   "checksum": "sample-checksum"
 }

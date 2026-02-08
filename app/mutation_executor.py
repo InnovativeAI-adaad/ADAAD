@@ -16,6 +16,7 @@ from app.agents.mutation_request import MutationRequest
 from runtime import ROOT_DIR
 from runtime.timeutils import now_iso
 from runtime import metrics
+from runtime.fitness_v2 import score_mutation_survival
 from security import cryovant
 from security.ledger import journal
 from runtime.tools.mutation_guard import apply_dna_mutation
@@ -115,11 +116,21 @@ class MutationExecutor:
             "mutation_id": mutation_id,
             "lineage": apply_result,
         }
+        survival_payload = {
+            **payload,
+            "verified": ok,
+            "ops": request.ops,
+        }
+        survival_score = score_mutation_survival(
+            request.agent_id,
+            request.intent or "default",
+            survival_payload,
+        )
         if tests_ok:
             metrics.log(event_type="mutation_executed", payload=payload, level="INFO", element_id=ELEMENT_ID)
             metrics.log(
                 event_type="mutation_score",
-                payload={"agent": request.agent_id, "strategy_id": request.intent or "default", "score": 1.0},
+                payload={"agent": request.agent_id, "strategy_id": request.intent or "default", "score": survival_score},
                 level="INFO",
                 element_id=ELEMENT_ID,
             )
@@ -139,7 +150,7 @@ class MutationExecutor:
         metrics.log(event_type="mutation_failed", payload={**payload, "error": test_output}, level="ERROR", element_id=ELEMENT_ID)
         metrics.log(
             event_type="mutation_score",
-            payload={"agent": request.agent_id, "strategy_id": request.intent or "default", "score": 0.0},
+            payload={"agent": request.agent_id, "strategy_id": request.intent or "default", "score": survival_score},
             level="INFO",
             element_id=ELEMENT_ID,
         )

@@ -117,4 +117,28 @@ def append_tx(tx_type: str, payload: Dict[str, object], tx_id: Optional[str] = N
     return entry
 
 
-__all__ = ["write_entry", "read_entries", "append_tx", "ensure_ledger", "ensure_journal"]
+def record_rotation_event(action: str, payload: Dict[str, object]) -> None:
+    """
+    Record a rotation event to both the lineage ledger and cryovant journal.
+    """
+    write_entry(agent_id="system", action=action, payload=payload)
+    append_tx(tx_type=action, payload=payload)
+
+
+def record_rotation_failure(action: str, payload: Dict[str, object]) -> None:
+    """
+    Record a rotation failure to both the lineage ledger and cryovant journal.
+    """
+    write_entry(agent_id="system", action=action, payload=payload)
+    append_tx(tx_type=action, payload=payload)
+
+
+__all__ = [
+    "write_entry",
+    "read_entries",
+    "append_tx",
+    "ensure_ledger",
+    "ensure_journal",
+    "record_rotation_event",
+    "record_rotation_failure",
+]

@@ -31,6 +31,8 @@ ELEMENT_ID = "Water"
 
 KEYS_DIR = SECURITY_ROOT / "keys"
 LEDGER_DIR = SECURITY_ROOT / "ledger"
+ROTATION_METADATA_PATH = KEYS_DIR / "rotation.json"
+DEFAULT_ROTATION_INTERVAL_SECONDS = 60 * 60 * 24 * 30
 
 
 def dev_mode() -> bool:
@@ -100,6 +102,96 @@ def _read_json(path: Path) -> Dict[str, Any]:
     except Exception:
         return {}
 
+
+def _rotation_interval_seconds(metadata: Dict[str, Any]) -> int:
+    env_value = os.environ.get("CRYOVANT_KEY_ROTATION_INTERVAL_SECONDS", "").strip()
+    if env_value:
+        try:
+            return max(0, int(env_value))
+        except ValueError:
+            pass
+    try:
+        return max(0, int(metadata.get("interval_seconds", DEFAULT_ROTATION_INTERVAL_SECONDS)))
+    except (TypeError, ValueError):
+        return DEFAULT_ROTATION_INTERVAL_SECONDS
+
+
+def _load_rotation_metadata() -> Dict[str, Any]:
+    metadata = _read_json(ROTATION_METADATA_PATH)
+    interval_seconds = _rotation_interval_seconds(metadata)
+    metadata.setdefault("interval_seconds", interval_seconds)
+    metadata.setdefault("last_rotation_ts", 0)
+    metadata.setdefault("last_rotation_iso", "")
+    return metadata
+
+
+def _persist_rotation_metadata(metadata: Dict[str, Any]) -> None:
+    ROTATION_METADATA_PATH.parent.mkdir(parents=True, exist_ok=True)
+    ROTATION_METADATA_PATH.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+
+
+def _maybe_rotate_keys(app_agents_dir: Path, agent_count: int) -> bool:
+    """
+    Track key rotation metadata and emit rotation events when the interval elapses.
+    """
+    metadata = _load_rotation_metadata()
+    interval_seconds = _rotation_interval_seconds(metadata)
+    now = time.time()
+    last_rotation = metadata.get("last_rotation_ts") or 0
+    due = last_rotation <= 0 or (interval_seconds and now - float(last_rotation) >= interval_seconds)
+    if not due:
+        return False
+    try:
+        metadata.update(
+            {
+                "interval_seconds": interval_seconds,
+                "last_rotation_ts": int(now),
+                "last_rotation_iso": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(now)),
+            }
+        )
+        _persist_rotation_metadata(metadata)
+        journal.record_rotation_event(
+            action="key_rotation",
+            payload={
+                "interval_seconds": interval_seconds,
+                "last_rotation_ts": metadata["last_rotation_ts"],
+                "last_rotation_iso": metadata["last_rotation_iso"],
+                "keys_dir": str(KEYS_DIR),
+                "agents_dir": str(app_agents_dir),
+                "agent_count": agent_count,
+            },
+        )
+        metrics.log(
+            event_type="key_rotation",
+            payload={
+                "interval_seconds": interval_seconds,
+                "last_rotation_ts": metadata["last_rotation_ts"],
+                "last_rotation_iso": metadata["last_rotation_iso"],
+                "agents_dir": str(app_agents_dir),
+                "agent_count": agent_count,
+            },
+            level="INFO",
+            element_id=ELEMENT_ID,
+        )
+        return True
+    except Exception as exc:
+        journal.record_rotation_failure(
+            action="key_rotation_failed",
+            payload={
+                "interval_seconds": interval_seconds,
+                "last_rotation_ts": metadata.get("last_rotation_ts"),
+                "error": str(exc),
+                "keys_dir": str(KEYS_DIR),
+                "agents_dir": str(app_agents_dir),
+            },
+        )
+        metrics.log(
+            event_type="key_rotation_failed",
+            payload={"error": str(exc), "keys_dir": str(KEYS_DIR), "agents_dir": str(app_agents_dir)},
+            level="ERROR",
+            element_id=ELEMENT_ID,
+        )
+        return False
 
 def compute_lineage_hash(agent_dir: Path) -> str:
     """
@@ -210,6 +302,7 @@ def certify_agents(app_agents_dir: Path) -> Tuple[bool, List[str]]:
         return False, [f"missing agents directory: {app_agents_dir}"]
 
     agent_dirs = list(iter_agent_dirs(agents_root))
+    rotation_performed = _maybe_rotate_keys(agents_root, len(agent_dirs))
     if not agent_dirs:
         metrics.log(event_type="cryovant_certified", payload={"agents_dir": str(app_agents_dir), "agents": 0}, level="INFO", element_id=ELEMENT_ID)
         return True, []
@@ -238,6 +331,13 @@ def certify_agents(app_agents_dir: Path) -> Tuple[bool, List[str]]:
         metrics.log(event_type="cryovant_certify_failed", payload={"missing": errors}, level="ERROR", element_id=ELEMENT_ID)
         for agent in signature_failures:
             journal.write_entry(agent_id=agent, action="certify_failed", payload={"reason": "invalid_signature"})
+        if rotation_performed:
+            metrics.log(
+                event_type="rotation_revalidation_failed",
+                payload={"errors": errors, "agents_dir": str(app_agents_dir), "agent_count": len(agent_dirs)},
+                level="ERROR",
+                element_id=ELEMENT_ID,
+            )
         return False, errors
 
     for candidate in agent_dirs:
@@ -246,6 +346,13 @@ def certify_agents(app_agents_dir: Path) -> Tuple[bool, List[str]]:
         payload = {"path": str(candidate), "lineage_hash": certificate.get("lineage_hash")}
         journal.write_entry(agent_id=agent_id, action="certified", payload=payload)
 
+    if rotation_performed:
+        metrics.log(
+            event_type="rotation_revalidation_ok",
+            payload={"agents_dir": str(app_agents_dir), "agent_count": len(agent_dirs)},
+            level="INFO",
+            element_id=ELEMENT_ID,
+        )
     metrics.log(event_type="cryovant_certified", payload={"agents_dir": str(app_agents_dir), "agents": len(agent_dirs)}, level="INFO", element_id=ELEMENT_ID)
     return True, []
 

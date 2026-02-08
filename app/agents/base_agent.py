@@ -85,7 +85,17 @@ def validate_agents(agents_root: Path) -> Tuple[bool, List[str]]:
     return True, []
 
 
-def stage_offspring(parent_id: str, content: str, lineage_dir: Path) -> Path:
+def stage_offspring(
+    parent_id: str,
+    content: str,
+    lineage_dir: Path,
+    *,
+    dream_mode: bool = False,
+    handoff_contract: Optional[Dict[str, object]] = None,
+    sandboxed: Optional[bool] = None,
+    mutation_intent: Optional[str] = None,
+    schema_version: str = "1.0",
+) -> Path:
     """
     Stage a mutated offspring into the _staging area with metadata and hash.
     """
@@ -93,14 +103,24 @@ def stage_offspring(parent_id: str, content: str, lineage_dir: Path) -> Path:
     staging_root.mkdir(parents=True, exist_ok=True)
     timestamp = time.strftime("%Y%m%d%H%M%S", time.gmtime())
     content_hash = hashlib.sha256(content.encode("utf-8")).hexdigest()[:8]
-    staged_dir = staging_root / f"{timestamp}_{content_hash}"
+    intent_label = (mutation_intent or "unknown").strip().replace(" ", "_")
+    parent_label = parent_id.replace(":", "_").replace("/", "_")
+    flag_label = "dream" if dream_mode else "standard"
+    staged_dir = staging_root / f"{timestamp}_{parent_label}_{intent_label}_{flag_label}_{content_hash}"
     staged_dir.mkdir(parents=True, exist_ok=True)
+    sandboxed_flag = sandboxed if sandboxed is not None else bool(dream_mode)
     payload = {
+        "schema_version": schema_version,
         "parent": parent_id,
         "content": content,
         "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "content_hash": content_hash,
+        "dream_mode": dream_mode,
+        "sandboxed": sandboxed_flag,
+        "mutation_intent": mutation_intent,
     }
+    if handoff_contract is not None:
+        payload["handoff_contract"] = handoff_contract
     with (staged_dir / "mutation.json").open("w", encoding="utf-8") as handle:
         json.dump(payload, handle, indent=2)
     metrics.log(event_type="offspring_staged", payload={"path": str(staged_dir)}, level="INFO")

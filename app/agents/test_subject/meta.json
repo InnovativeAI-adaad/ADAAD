@@ -2,5 +2,14 @@
   "id": "test-subject",
   "name": "Test Subject Agent",
   "version": "0.1.0",
-  "description": "Agent for mutation pipeline testing"
+  "description": "Agent for mutation pipeline testing",
+  "dream_scope": {
+    "enabled": true,
+    "allow": ["mutation"]
+  },
+  "resource_envelope": {
+    "profile": "sandbox"
+  },
+  "boot_signature": "deterministic-boot-v1",
+  "mutable_global_dependencies": []
 }

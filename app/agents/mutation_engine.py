@@ -7,12 +7,16 @@ from __future__ import annotations
 
 import json
 import math
+import os
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 from app.agents.mutation_request import MutationRequest
 from runtime import metrics
 from runtime.metrics_analysis import summarize_preflight_rejections, top_preflight_rejections
+
+EMA_ALPHA = float(os.getenv("ADAAD_MUTATION_EMA_ALPHA", "0.3"))
+LOW_IMPACT_THRESHOLD = float(os.getenv("ADAAD_MUTATION_LOW_IMPACT_THRESHOLD", "0.3"))
 
 
 class MutationEngine:
@@ -45,13 +49,20 @@ class MutationEngine:
             sid = payload.get("strategy_id")
             if not sid:
                 continue
-            entry = history.setdefault(sid, {"n": 0.0, "reward": 0.0, "fail": 0.0})
+            entry = history.setdefault(
+                sid,
+                {"n": 0.0, "reward": 0.0, "fail": 0.0, "ema": None, "low_impact": 0.0},
+            )
             if event == "mutation_score":
                 score = float(payload.get("score", 0.0))
                 entry["n"] += 1.0
                 entry["reward"] += score
-                if score <= 0.0:
-                    entry["fail"] += 1.0
+                if entry["ema"] is None:
+                    entry["ema"] = score
+                else:
+                    entry["ema"] = (EMA_ALPHA * score) + ((1 - EMA_ALPHA) * float(entry["ema"]))
+                if score < LOW_IMPACT_THRESHOLD:
+                    entry["low_impact"] += 1.0
             if event == "mutation_failed":
                 entry["fail"] += 1.0
         return history
@@ -156,13 +167,18 @@ class MutationEngine:
         best_score = -float("inf")
         for req in requests:
             sid = req.intent or "default"
-            stats = history.get(sid, {"n": 0.0, "reward": 0.0, "fail": 0.0})
+            stats = history.get(sid, {"n": 0.0, "reward": 0.0, "fail": 0.0, "ema": None, "low_impact": 0.0})
             failures = stats.get("fail", 0.0)
-            attempts = max(stats.get("n", 0.0), failures)
-            if attempts and failures / attempts > 0.20:
-                scores[sid] = float("-inf")
-                continue
+            attempts = max(stats.get("n", 0.0), 1.0)
+            failure_rate = failures / attempts
             s = self._ucb1(history, sid, total)
+            ema = stats.get("ema")
+            if ema is not None:
+                s += float(ema) * 0.5
+            low_impact = stats.get("low_impact", 0.0)
+            if attempts:
+                s -= (low_impact / attempts) * 0.4
+            s -= failure_rate * 0.5
             s, _ = self._apply_preflight_bias(req, s)
             scores[sid] = s
             if s > best_score:

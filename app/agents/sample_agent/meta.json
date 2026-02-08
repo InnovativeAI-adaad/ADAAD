@@ -2,5 +2,14 @@
   "id": "sample-agent",
   "name": "Sample Agent",
   "version": "0.1.0",
-  "description": "Reference agent included for health checks."
+  "description": "Reference agent included for health checks.",
+  "dream_scope": {
+    "enabled": true,
+    "allow": ["mutation"]
+  },
+  "resource_envelope": {
+    "profile": "default"
+  },
+  "boot_signature": "deterministic-boot-v1",
+  "mutable_global_dependencies": []
 }

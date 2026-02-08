@@ -20,6 +20,7 @@ from typing import Dict, List
 
 from app.agents.base_agent import validate_agents
 from app.agents.discovery import iter_agent_dirs, resolve_agent_id
+from app.agents.invariants import check_invariants
 from app.agents.mutation_request import MutationRequest
 from runtime import metrics
 from runtime.timeutils import now_iso
@@ -37,8 +38,11 @@ class ArchitectAgent:
 
     def scan(self) -> Dict[str, List[str]]:
         valid, errors = validate_agents(self.agents_root)
-        result = {"valid": valid, "errors": errors}
-        level = "INFO" if valid else "ERROR"
+        invariant_errors = check_invariants(self.agents_root)
+        if invariant_errors:
+            errors.extend(invariant_errors)
+        result = {"valid": valid and not invariant_errors, "errors": errors}
+        level = "INFO" if result["valid"] else "ERROR"
         metrics.log(event_type="architect_scan", payload=result, level=level)
         return result
 

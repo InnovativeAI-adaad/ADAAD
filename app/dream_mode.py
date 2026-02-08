@@ -15,12 +15,13 @@
 Dream mode handles mutation cycles for agents.
 """
 
+import json
 import time
 from pathlib import Path
 from typing import Dict, List, Optional
 
 from app.agents.base_agent import stage_offspring
-from app.agents.discovery import iter_agent_dirs, resolve_agent_id
+from app.agents.discovery import agent_path_from_id, iter_agent_dirs, resolve_agent_id
 from runtime import metrics
 from security import cryovant
 
@@ -36,13 +37,48 @@ class DreamMode:
         self.agents_root = agents_root
         self.lineage_dir = lineage_dir
 
+    @staticmethod
+    def _read_json(path: Path) -> Dict[str, object]:
+        if not path.exists():
+            return {}
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            return {}
+
+    @staticmethod
+    def _extract_dream_scope(meta: Dict[str, object]) -> Optional[Dict[str, object]]:
+        scope = meta.get("dream_scope")
+        if not isinstance(scope, dict):
+            return None
+        allow = scope.get("allow", [])
+        if isinstance(allow, str):
+            allow = [allow]
+        if not isinstance(allow, list):
+            return None
+        if not scope.get("enabled", True):
+            return None
+        if "mutation" not in allow:
+            return None
+        return scope
+
     def discover_tasks(self) -> List[str]:
         """
         Discover mutation-ready agents.
         """
         tasks: List[str] = []
         for agent_dir in iter_agent_dirs(self.agents_root):
-            tasks.append(resolve_agent_id(agent_dir, self.agents_root))
+            agent_id = resolve_agent_id(agent_dir, self.agents_root)
+            meta = self._read_json(agent_dir / "meta.json")
+            if not self._extract_dream_scope(meta):
+                metrics.log(
+                    event_type="dream_scope_blocked",
+                    payload={"agent": agent_id},
+                    level="WARNING",
+                    element_id=ELEMENT_ID,
+                )
+                continue
+            tasks.append(agent_id)
         metrics.log(event_type="dream_discovery", payload={"tasks": tasks}, level="INFO")
         return tasks
 
@@ -61,9 +97,37 @@ class DreamMode:
             metrics.log(event_type="evolution_cycle_end", payload={"agent": selected, "status": "blocked"}, level="ERROR", element_id=ELEMENT_ID)
             return {"status": "blocked", "agent": selected}
 
+        agent_dir = agent_path_from_id(selected, self.agents_root)
+        meta = self._read_json(agent_dir / "meta.json")
+        dream_scope = self._extract_dream_scope(meta)
+        if not dream_scope:
+            metrics.log(
+                event_type="dream_scope_blocked",
+                payload={"agent": selected},
+                level="ERROR",
+                element_id=ELEMENT_ID,
+            )
+            return {"status": "blocked", "agent": selected, "reason": "dream_scope_missing"}
+
         metrics.log(event_type="evolution_cycle_decision", payload={"selected_agent": selected}, level="INFO", element_id=ELEMENT_ID)
         mutation_content = f"{selected}-mutation-{time.time()}"
-        staged_path = stage_offspring(parent_id=selected, content=mutation_content, lineage_dir=self.lineage_dir)
+        handoff_contract = {
+            "schema_version": "1.0",
+            "issued_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "issuer": "DreamMode",
+            "agent": selected,
+            "dream_scope": dream_scope,
+            "constraints": {"sandboxed": True},
+        }
+        staged_path = stage_offspring(
+            parent_id=selected,
+            content=mutation_content,
+            lineage_dir=self.lineage_dir,
+            dream_mode=True,
+            sandboxed=True,
+            handoff_contract=handoff_contract,
+            mutation_intent="dream_mutation",
+        )
         metrics.log(
             event_type="dream_candidate_generated",
             payload={"agent": selected, "staged_path": str(staged_path)},
