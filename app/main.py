@@ -71,7 +71,17 @@ class Orchestrator:
             journal.write_entry(agent_id="system", action="orchestrator_failed", payload={"reason": reason})
         except Exception:
             pass
-        dump()
+        try:
+            dump()
+        except Exception as exc:
+            try:
+                metrics.log(
+                    event_type="orchestrator_dump_failed",
+                    payload={"error": str(exc)},
+                    level="ERROR",
+                )
+            except Exception:
+                sys.stderr.write(f"orchestrator_dump_failed:{exc}\n")
         sys.exit(1)
 
     def boot(self) -> None:
@@ -84,7 +94,7 @@ class Orchestrator:
         self._init_cryovant()
         self.dream = DreamMode(self.agents_root, self.lineage_dir)
         self.beast = BeastModeLoop(self.agents_root, self.lineage_dir)
-        # Health-First Mode: run all health checks and safe-boot gating
+        # Health-First Mode: run architect/dream checks and safe-boot gating
         # before any mutation cycle to enforce boot invariants.
         self._health_check_architect()
         self._health_check_dream()

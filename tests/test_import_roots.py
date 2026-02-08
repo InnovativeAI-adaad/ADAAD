@@ -22,13 +22,27 @@ sys.path.append(str(ROOT))
 
 
 BANNED_ROOTS = {"core", "engines", "adad_core", "ADAAD22"}
+EXCLUDED_DIRS = {
+    "archives",
+    ".venv",
+    "venv",
+    "__pycache__",
+    ".tox",
+    ".mypy_cache",
+    "build",
+    "dist",
+}
+
+
+def is_excluded_path(path: Path) -> bool:
+    return any(part in EXCLUDED_DIRS for part in path.parts)
 
 
 class ImportRootTest(unittest.TestCase):
     def test_no_legacy_import_roots(self):
         failures = []
         for path in ROOT.rglob("*.py"):
-            if "archives" in path.parts:
+            if is_excluded_path(path):
                 continue
             content = path.read_text(encoding="utf-8").splitlines()
             for lineno, line in enumerate(content, start=1):

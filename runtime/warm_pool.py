@@ -19,7 +19,7 @@ Termux-safe and avoids heavy dependencies.
 import queue
 import threading
 import time
-from typing import Callable, List
+from typing import Callable, List, Optional
 
 from runtime import metrics
 
@@ -103,7 +103,7 @@ class WarmPool:
             element_id=ELEMENT_ID,
         )
 
-    def stop(self) -> None:
+    def stop(self, timeout: Optional[float] = 2.0) -> None:
         self._stop_event.set()
         while True:
             try:
@@ -117,9 +117,35 @@ class WarmPool:
                 element_id=ELEMENT_ID,
             )
             self._tasks.task_done()
-        self._tasks.join()
+        if timeout is None:
+            self._tasks.join()
+        else:
+            deadline = time.monotonic() + timeout
+            with self._tasks.all_tasks_done:
+                while self._tasks.unfinished_tasks:
+                    remaining = deadline - time.monotonic()
+                    if remaining <= 0:
+                        break
+                    self._tasks.all_tasks_done.wait(timeout=remaining)
+            if self._tasks.unfinished_tasks:
+                metrics.log(
+                    event_type="warm_pool_stop_timeout",
+                    payload={"unfinished_tasks": self._tasks.unfinished_tasks},
+                    level="WARN",
+                    element_id=ELEMENT_ID,
+                )
+        if timeout is None:
+            join_deadline = None
+        else:
+            join_deadline = time.monotonic() + timeout
         for thread in self._threads:
-            thread.join(timeout=1)
+            if join_deadline is None:
+                thread.join(timeout=1)
+                continue
+            remaining = join_deadline - time.monotonic()
+            if remaining <= 0:
+                break
+            thread.join(timeout=remaining)
         metrics.log(
             event_type="warm_pool_stopped",
             payload={"threads": len(self._threads)},

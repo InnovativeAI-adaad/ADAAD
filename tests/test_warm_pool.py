@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import threading
+import time
 import unittest
 
 from runtime.warm_pool import WarmPool
@@ -81,6 +82,25 @@ class WarmPoolTest(unittest.TestCase):
 
         # Only the inflight long_task should have run; queued tasks should be skipped.
         self.assertEqual(finished, ["long"])
+
+    def test_stop_timeout_returns_promptly(self) -> None:
+        pool = WarmPool(size=1)
+        pool.start()
+
+        task_started = threading.Event()
+
+        def never_finishes() -> None:
+            task_started.set()
+            threading.Event().wait()
+
+        pool.submit(never_finishes)
+        self.assertTrue(task_started.wait(timeout=0.5))
+
+        start = time.monotonic()
+        pool.stop(timeout=0.1)
+        elapsed = time.monotonic() - start
+
+        self.assertLess(elapsed, 0.5)
 
 
 if __name__ == "__main__":

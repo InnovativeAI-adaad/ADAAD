@@ -41,14 +41,20 @@ def _filter_entries(
     tier: Optional[str],
     start: Optional[str],
     end: Optional[str],
+    include_rejections: bool = False,
 ) -> List[Dict[str, Any]]:
     start_dt = _parse_timestamp(start) if start else None
     end_dt = _parse_timestamp(end) if end else None
     filtered: List[Dict[str, Any]] = []
     for entry in entries:
         payload = entry.get("payload") or {}
-        if entry.get("event") != "constitutional_evaluation":
-            continue
+        event = entry.get("event")
+        if event != "constitutional_evaluation":
+            if not include_rejections or event not in {
+                "mutation_rejected_preflight",
+                "mutation_rejected_constitutional",
+            }:
+                continue
         if agent_id and payload.get("agent_id") != agent_id:
             continue
         if tier and payload.get("tier") != tier:
@@ -121,7 +127,15 @@ def run_audit(
 ) -> str:
     entries = _load_entries()
     filtered = _filter_entries(entries, agent_id, tier, start, end)
-    violations = _summarize_violations(entries)
+    summary_entries = _filter_entries(
+        entries,
+        agent_id,
+        tier,
+        start,
+        end,
+        include_rejections=True,
+    )
+    violations = _summarize_violations(summary_entries)
     if output == "json":
         return json.dumps({"evaluations": filtered, "violations": violations}, indent=2)
     table = _format_table(filtered)
