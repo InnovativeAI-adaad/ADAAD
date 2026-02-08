@@ -16,9 +16,12 @@ Deterministic orchestrator entrypoint.
 """
 
 import argparse
+import hashlib
 import json
 import os
+import re
 import sys
+import time
 from typing import Any, Dict, Optional
 
 from app import APP_ROOT
@@ -33,7 +36,7 @@ from runtime.capability_graph import register_capability
 from runtime.element_registry import dump, register
 from runtime.invariants import verify_all
 from app.agents.discovery import agent_path_from_id
-from runtime.constitution import determine_tier, evaluate_mutation, get_forced_tier
+from runtime.constitution import CONSTITUTION_VERSION, determine_tier, evaluate_mutation, get_forced_tier
 from runtime.fitness_v2 import score_mutation_enhanced
 from runtime.timeutils import now_iso
 from runtime.warm_pool import WarmPool
@@ -99,7 +102,8 @@ class Orchestrator:
         self._health_check_architect()
         self._health_check_dream()
         if self.state.get("mutation_enabled"):
-            self._run_mutation_cycle()
+            if self._governance_gate():
+                self._run_mutation_cycle()
         self._register_capabilities()
         self._init_ui()
         self.state["status"] = "ready"
@@ -147,6 +151,140 @@ class Orchestrator:
         metrics.log(event_type="dream_health_ok", payload={"tasks": tasks}, level="INFO")
         self.state["mutation_enabled"] = True
         self.state["safe_boot"] = False
+
+    def _governance_gate(self) -> bool:
+        failures: list[dict[str, str]] = []
+
+        constitution_ok, constitution_reason = self._check_constitution_version()
+        if not constitution_ok:
+            failures.append({"check": "constitution_version", "reason": constitution_reason})
+
+        key_ok, key_reason = self._check_key_rotation_status()
+        if not key_ok:
+            failures.append({"check": "key_rotation", "reason": key_reason})
+
+        ledger_ok, ledger_reason = self._check_ledger_integrity()
+        if not ledger_ok:
+            failures.append({"check": "ledger_integrity", "reason": ledger_reason})
+
+        mutation_ok, mutation_reason = self._check_mutation_engine_health()
+        if not mutation_ok:
+            failures.append({"check": "mutation_engine", "reason": mutation_reason})
+
+        warm_ok, warm_reason = self._check_warm_pool_ready()
+        if not warm_ok:
+            failures.append({"check": "warm_pool", "reason": warm_reason})
+
+        architect_ok, architect_reason = self._check_architect_invariants()
+        if not architect_ok:
+            failures.append({"check": "architect_invariants", "reason": architect_reason})
+
+        if failures:
+            metrics.log(
+                event_type="governance_gate_failed",
+                payload={"failures": failures},
+                level="ERROR",
+            )
+            self.state["mutation_enabled"] = False
+            self.state["governance_gate_failed"] = failures
+            return False
+
+        metrics.log(event_type="governance_gate_passed", payload={}, level="INFO")
+        return True
+
+    def _check_constitution_version(self) -> tuple[bool, str]:
+        if not CONSTITUTION_VERSION:
+            return False, "missing_constitution_version"
+        expected = os.getenv("ADAAD_CONSTITUTION_VERSION", "").strip()
+        if not expected:
+            expected = self._load_constitution_doc_version() or CONSTITUTION_VERSION
+        if expected != CONSTITUTION_VERSION:
+            return False, f"constitution_version_mismatch:{CONSTITUTION_VERSION}!={expected}"
+        return True, "ok"
+
+    def _load_constitution_doc_version(self) -> str:
+        doc_path = APP_ROOT.parent / "docs" / "CONSTITUTION.md"
+        if not doc_path.exists():
+            return ""
+        try:
+            content = doc_path.read_text(encoding="utf-8")
+        except Exception:
+            return ""
+        match = re.search(r"Framework v([0-9]+\\.[0-9]+\\.[0-9]+)", content)
+        if match:
+            return match.group(1)
+        match = re.search(r"Version\\s*[:]\\s*([0-9]+\\.[0-9]+\\.[0-9]+)", content)
+        if match:
+            return match.group(1)
+        return ""
+
+    def _check_key_rotation_status(self) -> tuple[bool, str]:
+        keys_dir = cryovant.KEYS_DIR
+        if not keys_dir.exists():
+            return False, "keys_dir_missing"
+        key_files = [path for path in keys_dir.iterdir() if path.is_file() and path.name != ".gitkeep"]
+        if not key_files:
+            if cryovant.dev_signature_allowed("cryovant-dev-probe"):
+                return True, "dev_signature_mode"
+            return False, "no_signing_keys"
+        max_age_days = int(os.getenv("ADAAD_KEY_ROTATION_MAX_AGE_DAYS", "90"))
+        newest_mtime = max(path.stat().st_mtime for path in key_files)
+        age_days = (time.time() - newest_mtime) / 86400
+        if age_days > max_age_days:
+            return False, f"keys_stale:{age_days:.1f}d>{max_age_days}d"
+        return True, "ok"
+
+    def _check_ledger_integrity(self) -> tuple[bool, str]:
+        try:
+            journal.ensure_journal()
+            journal_path = journal.JOURNAL_PATH
+            if not journal_path.exists():
+                return False, "journal_missing"
+            lines = journal_path.read_text(encoding="utf-8").splitlines()
+        except Exception as exc:
+            return False, f"journal_unreadable:{exc}"
+        prev_hash = "0" * 64
+        for index, line in enumerate(lines, start=1):
+            if not line.strip():
+                continue
+            try:
+                entry = json.loads(line)
+            except json.JSONDecodeError as exc:
+                return False, f"journal_invalid_json:line{index}:{exc}"
+            entry_prev = str(entry.get("prev_hash") or "")
+            entry_hash = str(entry.get("hash") or "")
+            if entry_prev != prev_hash:
+                return False, f"journal_prev_hash_mismatch:line{index}"
+            payload = {key: value for key, value in entry.items() if key != "hash"}
+            material = (prev_hash + json.dumps(payload, ensure_ascii=False, sort_keys=True)).encode("utf-8")
+            computed = hashlib.sha256(material).hexdigest()
+            if computed != entry_hash:
+                return False, f"journal_hash_mismatch:line{index}"
+            prev_hash = entry_hash
+        return True, "ok"
+
+    def _check_mutation_engine_health(self) -> tuple[bool, str]:
+        try:
+            self.mutation_engine._load_history()
+        except Exception as exc:  # pragma: no cover - defensive
+            return False, f"mutation_engine_history_error:{exc}"
+        metrics_path = metrics.METRICS_PATH
+        if metrics_path.exists() and not os.access(metrics_path, os.R_OK | os.W_OK):
+            return False, "metrics_unwritable"
+        return True, "ok"
+
+    def _check_warm_pool_ready(self) -> tuple[bool, str]:
+        if not self.warm_pool._started:
+            return False, "warm_pool_not_started"
+        if not self.warm_pool._ready_event.is_set():
+            return False, "warm_pool_not_ready"
+        return True, "ok"
+
+    def _check_architect_invariants(self) -> tuple[bool, str]:
+        scan = self.architect.scan()
+        if not scan.get("valid"):
+            return False, "architect_scan_failed"
+        return True, "ok"
 
     def _run_mutation_cycle(self) -> None:
         """
