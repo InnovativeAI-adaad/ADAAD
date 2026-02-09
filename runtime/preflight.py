@@ -3,9 +3,9 @@
 Preflight validation for mutation requests.
 
 Validations are intentionally minimal and deterministic:
-- Single-file scope enforcement.
-- Python AST parse check.
-- Import smoke test (for Python targets).
+- Multi-file scope support.
+- Python AST parse check (per target).
+- Import smoke test (for Python targets, per target).
 """
 
 from __future__ import annotations
@@ -29,6 +29,18 @@ _CONTENT_KEYS = ("content", "source", "code", "value")
 
 def _extract_targets(request: MutationRequest) -> Set[Path]:
     targets: Set[Path] = set()
+    if request.targets:
+        agents_root = ROOT_DIR / "app" / "agents"
+        agent_dir = agent_path_from_id(request.agent_id, agents_root)
+        for target in request.targets:
+            if not target.path:
+                continue
+            path = Path(target.path)
+            if not path.is_absolute():
+                path = agent_dir / path
+            targets.add(path)
+        if targets:
+            return targets
     for op in request.ops:
         if not isinstance(op, dict):
             continue
@@ -41,6 +53,11 @@ def _extract_targets(request: MutationRequest) -> Set[Path]:
             for entry in value:
                 if isinstance(entry, str) and entry.strip():
                     targets.add(Path(entry))
+                if isinstance(entry, dict):
+                    for key in _FILE_KEYS:
+                        nested = entry.get(key)
+                        if isinstance(nested, str) and nested.strip():
+                            targets.add(Path(nested))
     if targets:
         return targets
     agents_root = ROOT_DIR / "app" / "agents"
@@ -49,6 +66,25 @@ def _extract_targets(request: MutationRequest) -> Set[Path]:
 
 
 def _extract_source(request: MutationRequest, target: Path) -> Optional[str]:
+    if request.targets:
+        for target_entry in request.targets:
+            if not target_entry.ops:
+                continue
+            candidate = Path(target_entry.path)
+            if not candidate.is_absolute():
+                agents_root = ROOT_DIR / "app" / "agents"
+                agent_dir = agent_path_from_id(request.agent_id, agents_root)
+                candidate = agent_dir / candidate
+            if candidate != target:
+                continue
+            for op in target_entry.ops:
+                if not isinstance(op, dict):
+                    continue
+                for key in _CONTENT_KEYS:
+                    value = op.get(key)
+                    if isinstance(value, str):
+                        return value
+        return None
     for op in request.ops:
         if not isinstance(op, dict):
             continue
@@ -60,6 +96,22 @@ def _extract_source(request: MutationRequest, target: Path) -> Optional[str]:
                 break
         if target_value and Path(target_value) != target:
             continue
+        files_value = op.get("files")
+        if isinstance(files_value, list):
+            for entry in files_value:
+                if isinstance(entry, dict):
+                    nested_target = None
+                    for key in _FILE_KEYS:
+                        nested_value = entry.get(key)
+                        if isinstance(nested_value, str):
+                            nested_target = nested_value
+                            break
+                    if nested_target and Path(nested_target) != target:
+                        continue
+                    for key in _CONTENT_KEYS:
+                        nested_content = entry.get(key)
+                        if isinstance(nested_content, str):
+                            return nested_content
         for key in _CONTENT_KEYS:
             value = op.get(key)
             if isinstance(value, str):
@@ -116,26 +168,20 @@ def _legacy_validate_mutation(request: MutationRequest) -> Dict[str, Any]:
         "targets": [str(target) for target in targets],
         "checks": {},
     }
-    if len(targets) != 1:
-        result.update({"ok": False, "reason": "multi_file_mutation"})
-        result["checks"]["single_file"] = False
-        return result
-    result["checks"]["single_file"] = True
-    target = next(iter(targets))
-    source = _extract_source(request, target)
-
-    ast_result = _ast_check(target, source)
-    result["checks"]["ast_parse"] = ast_result
-    if not ast_result.get("ok"):
-        result.update({"ok": False, "reason": "ast_parse_failed"})
-        return result
-
-    import_result = _import_smoke_check(target, source)
-    result["checks"]["import_smoke"] = import_result
-    if not import_result.get("ok"):
-        result.update({"ok": False, "reason": "import_smoke_failed"})
-        return result
-
+    per_target: Dict[str, Any] = {}
+    for target in targets:
+        source = _extract_source(request, target)
+        ast_result = _ast_check(target, source)
+        import_result = _import_smoke_check(target, source)
+        per_target[str(target)] = {
+            "ast_parse": ast_result,
+            "import_smoke": import_result,
+        }
+        if not ast_result.get("ok"):
+            result.update({"ok": False, "reason": "ast_parse_failed"})
+        if not import_result.get("ok"):
+            result.update({"ok": False, "reason": "import_smoke_failed"})
+    result["checks"]["targets"] = per_target
     return result
 
 

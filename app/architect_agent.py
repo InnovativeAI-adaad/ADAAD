@@ -21,9 +21,11 @@ from typing import Dict, List
 from app.agents.base_agent import validate_agents
 from app.agents.discovery import iter_agent_dirs, resolve_agent_id
 from app.agents.invariants import check_invariants
-from app.agents.mutation_request import MutationRequest
+from app.agents.mutation_request import MutationRequest, MutationTarget
 from runtime import metrics
+from runtime import ROOT_DIR
 from runtime.timeutils import now_iso
+from runtime.tools.mutation_fs import file_hash
 
 ELEMENT_ID = "Wood"
 
@@ -50,20 +52,32 @@ class ArchitectAgent:
         """
         Generate actionable mutation proposals using concrete strategies.
         """
-        from app.agents.mutation_strategies import select_strategy
+        from app.agents.mutation_strategies import load_skill_weights, select_strategy
 
         proposals: List[MutationRequest] = []
+        skill_weights = load_skill_weights(ROOT_DIR / "data" / "mutation_engine_state.json")
         for agent_dir in iter_agent_dirs(self.agents_root):
             agent_id = resolve_agent_id(agent_dir, self.agents_root)
-            strategy_name, ops = select_strategy(agent_dir)
+            strategy_name, ops = select_strategy(agent_dir, skill_weights=skill_weights)
             if not ops:
                 continue
+            dna_path = agent_dir / "dna.json"
+            targets = [
+                MutationTarget(
+                    agent_id=agent_id,
+                    path="dna.json",
+                    target_type="dna",
+                    ops=ops,
+                    hash_preimage=file_hash(dna_path),
+                )
+            ]
             proposals.append(
                 MutationRequest(
                     agent_id=agent_id,
                     generation_ts=now_iso(),
                     intent=strategy_name,
                     ops=ops,
+                    targets=targets,
                     signature="cryovant-dev-architect",
                     nonce=f"arch-{agent_id}-{now_iso()}",
                 )

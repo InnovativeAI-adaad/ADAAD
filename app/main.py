@@ -316,6 +316,7 @@ class Orchestrator:
         if not proposals:
             metrics.log(event_type="mutation_cycle_skipped", payload={"reason": "no proposals"}, level="INFO")
             return
+        self.mutation_engine.refresh_state_from_metrics()
         selected, scores = self.mutation_engine.select(proposals)
         metrics.log(event_type="mutation_strategy_scores", payload={"scores": scores}, level="INFO")
         if not selected:
@@ -442,7 +443,12 @@ class Orchestrator:
         if dna_path.exists():
             dna = json.loads(dna_path.read_text(encoding="utf-8"))
         simulated = json.loads(json.dumps(dna))
-        _apply_ops(simulated, request.ops)
+        if request.targets:
+            for target in request.targets:
+                if target.path == "dna.json":
+                    _apply_ops(simulated, target.ops)
+        else:
+            _apply_ops(simulated, request.ops)
         payload = {
             "parent": dna.get("lineage") or "dry_run",
             "intent": request.intent,

@@ -65,9 +65,10 @@ class RealMutationCycleTest(unittest.TestCase):
 
         self.assertGreater(len(proposals), 0, "Architect should propose mutations")
         self.assertNotEqual(proposals[0].intent, "noop", "Should not be no-op")
-        self.assertGreater(len(proposals[0].ops), 0, "Should have ops")
+        self.assertGreater(len(proposals[0].targets), 0, "Should have targets")
+        self.assertGreater(len(proposals[0].targets[0].ops), 0, "Targets should include ops")
 
-        engine = MutationEngine(metrics.METRICS_PATH)
+        engine = MutationEngine(metrics.METRICS_PATH, state_path=Path(self.tmp.name) / "mutation_engine_state.json")
         selected, _ = engine.select(proposals)
 
         self.assertIsNotNone(selected, "Engine should select a proposal")
