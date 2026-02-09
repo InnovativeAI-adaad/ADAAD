@@ -15,6 +15,7 @@ from typing import Any, Callable, Dict, List
 
 from app.agents.mutation_request import MutationRequest
 from runtime import metrics
+from runtime.metrics_analysis import mutation_rate_snapshot
 
 CONSTITUTION_VERSION = "0.1.0"
 ELEMENT_ID = "Earth"
@@ -49,15 +50,12 @@ class Rule:
 
 
 def _validate_single_file(request: MutationRequest) -> Dict[str, Any]:
-    """Enforce single-file mutation scope."""
+    """Report mutation scope without blocking multi-file operations."""
     from runtime.preflight import _extract_targets
 
     targets = _extract_targets(request)
-    if len(targets) == 1:
-        return {"ok": True, "target_count": 1}
     return {
-        "ok": False,
-        "reason": "multi_file_mutation",
+        "ok": True,
         "target_count": len(targets),
         "targets": [str(target) for target in targets],
     }
@@ -71,9 +69,15 @@ def _validate_ast(request: MutationRequest) -> Dict[str, Any]:
     if not targets:
         return {"ok": True, "reason": "no_targets"}
 
-    target = next(iter(targets))
-    source = _extract_source(request, target)
-    return _ast_check(target, source)
+    checks: Dict[str, Any] = {}
+    ok = True
+    for target in targets:
+        source = _extract_source(request, target)
+        result = _ast_check(target, source)
+        checks[str(target)] = result
+        if not result.get("ok"):
+            ok = False
+    return {"ok": ok, "targets": checks}
 
 
 def _validate_imports(request: MutationRequest) -> Dict[str, Any]:
@@ -84,9 +88,15 @@ def _validate_imports(request: MutationRequest) -> Dict[str, Any]:
     if not targets:
         return {"ok": True, "reason": "no_targets"}
 
-    target = next(iter(targets))
-    source = _extract_source(request, target)
-    return _import_smoke_check(target, source)
+    checks: Dict[str, Any] = {}
+    ok = True
+    for target in targets:
+        source = _extract_source(request, target)
+        result = _import_smoke_check(target, source)
+        checks[str(target)] = result
+        if not result.get("ok"):
+            ok = False
+    return {"ok": ok, "targets": checks}
 
 
 def _validate_signature(request: MutationRequest) -> Dict[str, Any]:
@@ -110,14 +120,21 @@ def _validate_no_banned_tokens(request: MutationRequest) -> Dict[str, Any]:
     if not targets:
         return {"ok": True}
 
-    target = next(iter(targets))
-    source = _extract_source(request, target)
-    if not source:
-        return {"ok": True}
-
-    found = [token for token in banned if token in source]
-    if found:
-        return {"ok": False, "reason": "banned_tokens", "found": found}
+    findings: Dict[str, List[str]] = {}
+    ok = True
+    for target in targets:
+        source = _extract_source(request, target)
+        if not source:
+            if target.exists():
+                source = target.read_text(encoding="utf-8")
+            else:
+                continue
+        found = [token for token in banned if token in source]
+        if found:
+            ok = False
+            findings[str(target)] = found
+    if not ok:
+        return {"ok": False, "reason": "banned_tokens", "found": findings}
     return {"ok": True}
 
 
@@ -137,8 +154,38 @@ def _validate_coverage(_: MutationRequest) -> Dict[str, Any]:
 
 
 def _validate_mutation_rate(_: MutationRequest) -> Dict[str, Any]:
-    """Check mutation rate limits (stub for now)."""
-    return {"ok": True, "reason": "not_yet_implemented"}
+    """Check mutation rate limits against recent metrics."""
+    max_rate_env = os.getenv("ADAAD_MAX_MUTATIONS_PER_HOUR", "60").strip()
+    window_env = os.getenv("ADAAD_MUTATION_RATE_WINDOW_SEC", "3600").strip()
+    try:
+        max_rate = float(max_rate_env)
+    except ValueError:
+        return {"ok": False, "reason": "invalid_max_rate", "details": {"value": max_rate_env}}
+    try:
+        window_sec = int(window_env)
+    except ValueError:
+        return {"ok": False, "reason": "invalid_window_sec", "details": {"value": window_env}}
+    if max_rate <= 0:
+        return {
+            "ok": True,
+            "reason": "rate_limit_disabled",
+            "details": {"max_mutations_per_hour": max_rate, "window_sec": window_sec},
+        }
+    snapshot = mutation_rate_snapshot(window_sec)
+    exceeded = snapshot["rate_per_hour"] > max_rate
+    return {
+        "ok": not exceeded,
+        "reason": "rate_limit_exceeded" if exceeded else "rate_limit_ok",
+        "details": {
+            "max_mutations_per_hour": max_rate,
+            "window_sec": window_sec,
+            "count": snapshot["count"],
+            "rate_per_hour": snapshot["rate_per_hour"],
+            "window_start_ts": snapshot["window_start_ts"],
+            "window_end_ts": snapshot["window_end_ts"],
+            "event_types": snapshot["event_types"],
+        },
+    }
 
 
 def _validate_resources(_: MutationRequest) -> Dict[str, Any]:
@@ -205,9 +252,9 @@ RULES: List[Rule] = [
     ),
     Rule(
         name="max_mutation_rate",
-        enabled=False,
-        severity=Severity.ADVISORY,
-        tier_overrides={},
+        enabled=True,
+        severity=Severity.WARNING,
+        tier_overrides={Tier.PRODUCTION: Severity.BLOCKING, Tier.SANDBOX: Severity.ADVISORY},
         reason="Prevent runaway mutation loops",
         validator=_validate_mutation_rate,
     ),

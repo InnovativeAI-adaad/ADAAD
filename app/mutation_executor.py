@@ -20,6 +20,8 @@ from runtime.fitness_v2 import score_mutation_survival
 from security import cryovant
 from security.ledger import journal
 from runtime.tools.mutation_guard import apply_dna_mutation
+from runtime.tools.code_mutation_guard import apply_code_mutation, extract_targets as extract_code_targets
+from runtime.tools.mutation_tx import MutationTargetError, MutationTransaction
 
 ELEMENT_ID = "Fire"
 
@@ -74,7 +76,7 @@ class MutationExecutor:
 
         mutation_id = str(uuid.uuid4())
 
-        if not request.ops:
+        if not request.ops and not request.targets:
             metrics.log(
                 event_type="mutation_noop",
                 payload={"agent": request.agent_id, "mutation_id": mutation_id, "reason": "no_ops"},
@@ -89,33 +91,138 @@ class MutationExecutor:
             return {"status": "skipped", "reason": "no_ops", "mutation_id": mutation_id}
 
         agent_dir = agent_path_from_id(request.agent_id, self.agents_root)
-        journal.write_entry(
-            agent_id=request.agent_id,
-            action="mutation_planned",
-            payload={"mutation_id": mutation_id, "ops": len(request.ops), "ts": now_iso()},
-        )
-        metrics.log(
-            event_type="mutation_planned",
-            payload={"agent": request.agent_id, "mutation_id": mutation_id, "ops": len(request.ops), "path": str(agent_dir)},
-            level="INFO",
-            element_id=ELEMENT_ID,
-        )
+        if request.targets:
+            target_types = [target.target_type for target in request.targets]
+            journal.write_entry(
+                agent_id=request.agent_id,
+                action="mutation_planned",
+                payload={"mutation_id": mutation_id, "targets": len(request.targets), "target_types": target_types, "ts": now_iso()},
+            )
+            metrics.log(
+                event_type="mutation_planned",
+                payload={
+                    "agent": request.agent_id,
+                    "mutation_id": mutation_id,
+                    "targets": len(request.targets),
+                    "target_types": target_types,
+                    "path": str(agent_dir),
+                },
+                level="INFO",
+                element_id=ELEMENT_ID,
+            )
 
-        agent_fs_id = request.agent_id.replace(":", "/")
-        agent_dir = agent_path_from_id(request.agent_id, self.agents_root)
-        dna_path = agent_dir / "dna.json"
-        backup_bytes = dna_path.read_bytes() if dna_path.exists() else b"{}"
+            mutation_records = []
+            try:
+                with MutationTransaction(request.agent_id, agents_root=self.agents_root) as tx:
+                    for target in request.targets:
+                        mutation_records.append(tx.apply(target))
+                    tx.verify()
+                    tests_ok, test_output = self._run_tests()
+                    if tests_ok:
+                        tx.commit()
+                    else:
+                        tx.rollback()
+            except MutationTargetError as exc:
+                metrics.log(
+                    event_type="mutation_rejected_preflight",
+                    payload={"agent": request.agent_id, "reason": str(exc)},
+                    level="ERROR",
+                    element_id=ELEMENT_ID,
+                )
+                journal.write_entry(
+                    agent_id=request.agent_id,
+                    action="mutation_failed",
+                    payload={"mutation_id": mutation_id, "error": str(exc), "ts": now_iso()},
+                )
+                return {"status": "failed", "tests_ok": False, "error": str(exc), "mutation_id": mutation_id}
 
-        apply_result = apply_dna_mutation(agent_fs_id, request.ops)
+            payload = {
+                "agent": request.agent_id,
+                "targets": len(request.targets),
+                "target_types": target_types,
+                "tests_ok": tests_ok,
+                "mutation_id": mutation_id,
+                "lineage": [
+                    {"path": str(record.path), "checksum": record.checksum, "applied": record.applied, "skipped": record.skipped}
+                    for record in mutation_records
+                ],
+            }
+        else:
+            journal.write_entry(
+                agent_id=request.agent_id,
+                action="mutation_planned",
+                payload={"mutation_id": mutation_id, "ops": len(request.ops), "ts": now_iso()},
+            )
+            metrics.log(
+                event_type="mutation_planned",
+                payload={"agent": request.agent_id, "mutation_id": mutation_id, "ops": len(request.ops), "path": str(agent_dir)},
+                level="INFO",
+                element_id=ELEMENT_ID,
+            )
 
-        tests_ok, test_output = self._run_tests()
-        payload = {
-            "agent": request.agent_id,
-            "ops": len(request.ops),
-            "tests_ok": tests_ok,
-            "mutation_id": mutation_id,
-            "lineage": apply_result,
-        }
+            agent_fs_id = request.agent_id.replace(":", "/")
+            dna_path = agent_dir / "dna.json"
+            backup_bytes = dna_path.read_bytes() if dna_path.exists() else b"{}"
+
+            dna_ops: list[Dict[str, Any]] = []
+            code_ops: list[Dict[str, Any]] = []
+            for op in request.ops:
+                if not isinstance(op, dict):
+                    dna_ops.append(op)
+                    continue
+                target_value = op.get("file") or op.get("target") or op.get("filepath")
+                if isinstance(target_value, str) and target_value.strip():
+                    if Path(target_value).name == "dna.json":
+                        dna_ops.append(op)
+                    else:
+                        code_ops.append(op)
+                else:
+                    dna_ops.append(op)
+
+            code_targets = extract_code_targets(code_ops) if code_ops else []
+            code_backups = {path: (path.read_bytes() if path.exists() else None) for path in code_targets}
+
+            apply_result: Dict[str, Any] = {}
+            if dna_ops:
+                apply_result["dna"] = apply_dna_mutation(agent_fs_id, dna_ops)
+            if code_ops:
+                apply_result["code"] = apply_code_mutation(code_ops)
+                if apply_result["code"].get("status") == "failed":
+                    metrics.log(
+                        event_type="mutation_failed",
+                        payload={"agent": request.agent_id, "mutation_id": mutation_id, "error": "code_mutation_failed"},
+                        level="ERROR",
+                        element_id=ELEMENT_ID,
+                    )
+                    journal.write_entry(
+                        agent_id=request.agent_id,
+                        action="mutation_failed",
+                        payload={"mutation_id": mutation_id, "error": "code_mutation_failed", "ts": now_iso()},
+                    )
+                    return {"status": "failed", "tests_ok": False, "error": "code_mutation_failed", "mutation_id": mutation_id}
+
+            tests_ok, test_output = self._run_tests()
+            payload = {
+                "agent": request.agent_id,
+                "ops": len(request.ops),
+                "tests_ok": tests_ok,
+                "mutation_id": mutation_id,
+                "lineage": apply_result,
+            }
+            if not tests_ok:
+                try:
+                    dna_path.write_bytes(backup_bytes)
+                except Exception:
+                    pass
+                for path, original in code_backups.items():
+                    try:
+                        if original is None:
+                            if path.exists():
+                                path.unlink()
+                        else:
+                            path.write_bytes(original)
+                    except Exception:
+                        continue
         survival_payload = {
             **payload,
             "verified": ok,
@@ -137,15 +244,9 @@ class MutationExecutor:
             journal.write_entry(
                 agent_id=request.agent_id,
                 action="mutation_promoted",
-                payload={"mutation_id": mutation_id, "lineage": apply_result, "ts": now_iso()},
+                payload={"mutation_id": mutation_id, "lineage": payload["lineage"], "ts": now_iso()},
             )
             return {"status": "executed", "tests_ok": True, "mutation_id": mutation_id}
-
-        # rollback dna
-        try:
-            dna_path.write_bytes(backup_bytes)
-        except Exception:
-            pass
 
         metrics.log(event_type="mutation_failed", payload={**payload, "error": test_output}, level="ERROR", element_id=ELEMENT_ID)
         metrics.log(

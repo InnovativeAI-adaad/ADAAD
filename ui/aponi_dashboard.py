@@ -26,6 +26,7 @@ from typing import Dict, List
 
 from app import APP_ROOT
 from runtime import metrics
+from runtime.metrics_analysis import mutation_rate_snapshot
 from security.ledger import journal
 
 ELEMENT_ID = "Metal"
@@ -68,7 +69,9 @@ class AponiDashboard:
 
             def do_GET(self):  # noqa: N802 - required by base class
                 if self.path.startswith("/state"):
-                    self._send_json(state_ref)
+                    state_payload = dict(state_ref)
+                    state_payload["mutation_rate_limit"] = self._mutation_rate_state()
+                    self._send_json(state_payload)
                     return
                 if self.path.startswith("/metrics"):
                     self._send_json(metrics.tail(limit=50))
@@ -120,6 +123,36 @@ class AponiDashboard:
                     return json.loads(capabilities_path.read_text(encoding="utf-8"))
                 except json.JSONDecodeError:
                     return {}
+
+            @staticmethod
+            def _mutation_rate_state() -> Dict:
+                max_rate_env = os.getenv("ADAAD_MAX_MUTATIONS_PER_HOUR", "60").strip()
+                window_env = os.getenv("ADAAD_MUTATION_RATE_WINDOW_SEC", "3600").strip()
+                try:
+                    max_rate = float(max_rate_env)
+                except ValueError:
+                    return {"ok": False, "reason": "invalid_max_rate", "value": max_rate_env}
+                try:
+                    window_sec = int(window_env)
+                except ValueError:
+                    return {"ok": False, "reason": "invalid_window_sec", "value": window_env}
+                if max_rate <= 0:
+                    return {
+                        "ok": True,
+                        "reason": "rate_limit_disabled",
+                        "max_mutations_per_hour": max_rate,
+                        "window_sec": window_sec,
+                    }
+                snapshot = mutation_rate_snapshot(window_sec)
+                return {
+                    "ok": snapshot["rate_per_hour"] <= max_rate,
+                    "max_mutations_per_hour": max_rate,
+                    "window_sec": window_sec,
+                    "count": snapshot["count"],
+                    "rate_per_hour": snapshot["rate_per_hour"],
+                    "window_start_ts": snapshot["window_start_ts"],
+                    "window_end_ts": snapshot["window_end_ts"],
+                }
 
         return Handler
 
