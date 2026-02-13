@@ -31,6 +31,7 @@ from app.agents.mutation_request import MutationRequest
 from app.beast_mode_loop import BeastModeLoop
 from app.dream_mode import DreamMode
 from app.mutation_executor import MutationExecutor
+from runtime.evolution import EvolutionRuntime
 from runtime import metrics
 from runtime.capability_graph import register_capability
 from runtime.element_registry import dump, register
@@ -52,7 +53,7 @@ class Orchestrator:
     Coordinates boot order and health checks.
     """
 
-    def __init__(self, *, dry_run: bool = False) -> None:
+    def __init__(self, *, dry_run: bool = False, replay_mode: str = "off") -> None:
         self.state: Dict[str, Any] = {"status": "initializing", "mutation_enabled": False}
         self.agents_root = APP_ROOT / "agents"
         self.lineage_dir = self.agents_root / "lineage"
@@ -61,9 +62,11 @@ class Orchestrator:
         self.dream: Optional[DreamMode] = None
         self.beast: Optional[BeastModeLoop] = None
         self.dashboard = AponiDashboard()
-        self.executor = MutationExecutor(self.agents_root)
+        self.evolution_runtime = EvolutionRuntime()
+        self.executor = MutationExecutor(self.agents_root, evolution_runtime=self.evolution_runtime)
         self.mutation_engine = MutationEngine(metrics.METRICS_PATH)
         self.dry_run = dry_run
+        self.replay_mode = "full" if replay_mode is True else ("off" if replay_mode is False else replay_mode)
 
     def _fail(self, reason: str) -> None:
         metrics.log(event_type="orchestrator_error", payload={"reason": reason}, level="ERROR")
@@ -95,6 +98,8 @@ class Orchestrator:
         self._register_elements()
         self._init_runtime()
         self._init_cryovant()
+        epoch_state = self.evolution_runtime.boot()
+        self.state["epoch"] = epoch_state
         self.dream = DreamMode(self.agents_root, self.lineage_dir)
         self.beast = BeastModeLoop(self.agents_root, self.lineage_dir)
         # Health-First Mode: run architect/dream/beast checks and safe-boot gating
@@ -102,8 +107,26 @@ class Orchestrator:
         self._health_check_architect()
         self._health_check_dream()
         self._health_check_beast()
+        if self.replay_mode != "off":
+            replay_ok = False
+            if self.replay_mode == "full" or self.replay_mode == "strict":
+                replay_ok = self.evolution_runtime.verify_all_epochs()
+            elif self.replay_mode.startswith("epoch:"):
+                epoch_id = self.replay_mode.split(":", 1)[1]
+                replay_ok = self.evolution_runtime.verify_epoch(epoch_id).get("passed", False)
+            if not replay_ok and self.replay_mode == "strict":
+                self.state["replay_divergence"] = True
+                self._fail("replay_divergence")
+            self.state["status"] = "replay_verified" if replay_ok else "replay_warning"
+            if not replay_ok:
+                self.state["replay_divergence"] = True
+            journal.write_entry(agent_id="system", action="replay_verified", payload={"ok": replay_ok, "mode": self.replay_mode, "ts": now_iso()})
+            return
         if self.state.get("mutation_enabled"):
-            if self._governance_gate():
+            if self.evolution_runtime.fail_closed:
+                self.state["replay_divergence"] = True
+                journal.write_entry(agent_id="system", action="mutation_blocked_fail_closed", payload={"epoch_id": self.evolution_runtime.current_epoch_id, "ts": now_iso()})
+            elif self._governance_gate():
                 self._run_mutation_cycle()
         self._register_capabilities()
         self._init_ui()
@@ -312,15 +335,23 @@ class Orchestrator:
         """
         Execute one architect → mutation engine → executor cycle.
         """
+        if self.evolution_runtime.fail_closed:
+            metrics.log(event_type="mutation_cycle_blocked", payload={"reason": "replay_fail_closed", "epoch_id": self.evolution_runtime.current_epoch_id}, level="ERROR")
+            return
+        hook_before = self.evolution_runtime.before_mutation_cycle()
+        active_epoch_id = hook_before.get("epoch_id")
+        epoch_meta = {"epoch_id": active_epoch_id, "epoch_start_ts": self.evolution_runtime.epoch_start_ts, "epoch_mutation_count": self.evolution_runtime.epoch_mutation_count}
         proposals = self.architect.propose_mutations()
+        for proposal in proposals:
+            proposal.epoch_id = active_epoch_id
         if not proposals:
-            metrics.log(event_type="mutation_cycle_skipped", payload={"reason": "no proposals"}, level="INFO")
+            metrics.log(event_type="mutation_cycle_skipped", payload={"reason": "no proposals", "epoch_id": active_epoch_id}, level="INFO")
             return
         self.mutation_engine.refresh_state_from_metrics()
         selected, scores = self.mutation_engine.select(proposals)
-        metrics.log(event_type="mutation_strategy_scores", payload={"scores": scores}, level="INFO")
+        metrics.log(event_type="mutation_strategy_scores", payload={"scores": scores, **epoch_meta}, level="INFO")
         if not selected:
-            metrics.log(event_type="mutation_cycle_skipped", payload={"reason": "no selection"}, level="INFO")
+            metrics.log(event_type="mutation_cycle_skipped", payload={"reason": "no selection", "epoch_id": active_epoch_id}, level="INFO")
             return
         forced_tier = get_forced_tier()
         tier = forced_tier or determine_tier(selected.agent_id)
@@ -334,13 +365,13 @@ class Orchestrator:
         if not constitutional_verdict.get("passed"):
             metrics.log(
                 event_type="mutation_rejected_constitutional",
-                payload=constitutional_verdict,
+                payload={**constitutional_verdict, "epoch_id": active_epoch_id},
                 level="ERROR",
             )
             journal.write_entry(
                 agent_id=selected.agent_id,
                 action="mutation_rejected_constitutional",
-                payload=constitutional_verdict,
+                payload={**constitutional_verdict, "epoch_id": active_epoch_id},
             )
             if self.dry_run:
                 bias = self.mutation_engine.bias_details(selected)
@@ -362,6 +393,7 @@ class Orchestrator:
                     agent_id=selected.agent_id,
                     action="mutation_dry_run",
                     payload={
+                        "epoch_id": active_epoch_id,
                         "strategy_id": selected.intent or "default",
                         "tier": tier.name,
                         "constitutional_verdict": constitutional_verdict,
@@ -376,6 +408,7 @@ class Orchestrator:
             event_type="mutation_approved_constitutional",
             payload={
                 "agent_id": selected.agent_id,
+                **epoch_meta,
                 "tier": tier.name,
                 "constitution_version": constitutional_verdict.get("constitution_version"),
                 "warnings": constitutional_verdict.get("warnings", []),
@@ -389,6 +422,7 @@ class Orchestrator:
                 event_type="mutation_dry_run",
                 payload={
                     "agent_id": selected.agent_id,
+                    "epoch_id": active_epoch_id,
                     "strategy_id": selected.intent or "default",
                     "tier": tier.name,
                     "constitution_version": constitutional_verdict.get("constitution_version"),
@@ -403,6 +437,7 @@ class Orchestrator:
                 agent_id=selected.agent_id,
                 action="mutation_dry_run",
                 payload={
+                    "epoch_id": active_epoch_id,
                     "strategy_id": selected.intent or "default",
                     "tier": tier.name,
                     "constitutional_verdict": constitutional_verdict,
@@ -421,6 +456,10 @@ class Orchestrator:
             payload={
                 "result": result,
                 "constitutional_verdict": constitutional_verdict,
+                "epoch_id": active_epoch_id,
+                "epoch_start_ts": self.evolution_runtime.epoch_start_ts,
+                "epoch_mutation_count": self.evolution_runtime.epoch_mutation_count,
+                "replay": result.get("evolution", {}).get("replay", {}),
                 "ts": now_iso(),
             },
         )
@@ -460,10 +499,13 @@ class Orchestrator:
 def main() -> None:
     parser = argparse.ArgumentParser(description="ADAAD orchestrator")
     parser.add_argument("--dry-run", action="store_true", help="Evaluate mutations without applying them.")
+    parser.add_argument("--replay", default="off", choices=["off", "strict", "full"], help="Replay mode: off|strict|full.")
+    parser.add_argument("--replay-epoch", default="", help="Replay a specific epoch id.")
     args = parser.parse_args()
 
     dry_run_env = os.getenv("ADAAD_DRY_RUN", "").lower() in {"1", "true", "yes", "on"}
-    orchestrator = Orchestrator(dry_run=args.dry_run or dry_run_env)
+    replay_mode = f"epoch:{args.replay_epoch}" if args.replay_epoch else args.replay
+    orchestrator = Orchestrator(dry_run=args.dry_run or dry_run_env, replay_mode=replay_mode)
     orchestrator.boot()
 
 

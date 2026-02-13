@@ -117,6 +117,17 @@ def append_tx(tx_type: str, payload: Dict[str, object], tx_id: Optional[str] = N
     return entry
 
 
+def project_from_lineage(event: Dict[str, object]) -> Dict[str, object]:
+    """Create a journal projection from a lineage-v2 event."""
+    payload = dict(event.get("payload") or {})
+    return {
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "agent_id": str(payload.get("agent_id") or "system"),
+        "action": str(event.get("type") or "lineage_event"),
+        "payload": payload,
+    }
+
+
 def record_rotation_event(action: str, payload: Dict[str, object]) -> None:
     """
     Record a rotation event to both the lineage ledger and cryovant journal.
@@ -141,4 +152,5 @@ __all__ = [
     "ensure_journal",
     "record_rotation_event",
     "record_rotation_failure",
+    "project_from_lineage",
 ]
