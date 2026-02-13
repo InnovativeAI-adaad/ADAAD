@@ -23,6 +23,8 @@ from typing import Dict, List, Optional
 from app.agents.base_agent import stage_offspring
 from app.agents.discovery import agent_path_from_id, iter_agent_dirs, resolve_agent_id
 from runtime import metrics
+from runtime.evolution.entropy_discipline import EntropyBudget, deterministic_context, deterministic_token_with_budget
+from runtime.evolution.fitness import FitnessEvaluator
 from security import cryovant
 
 ELEMENT_ID = "Fire"
@@ -33,9 +35,13 @@ class DreamMode:
     Drives creative mutation cycles.
     """
 
-    def __init__(self, agents_root: Path, lineage_dir: Path):
+    def __init__(self, agents_root: Path, lineage_dir: Path, *, replay_mode: str = "off", recovery_tier: str | None = None):
         self.agents_root = agents_root
         self.lineage_dir = lineage_dir
+        self.replay_mode = replay_mode
+        self.recovery_tier = recovery_tier
+        self.entropy_budget = EntropyBudget()
+        self.fitness_evaluator = FitnessEvaluator()
 
     @staticmethod
     def _read_json(path: Path) -> Dict[str, object]:
@@ -82,7 +88,7 @@ class DreamMode:
         metrics.log(event_type="dream_discovery", payload={"tasks": tasks}, level="INFO")
         return tasks
 
-    def run_cycle(self, agent_id: Optional[str] = None) -> Dict[str, str]:
+    def run_cycle(self, agent_id: Optional[str] = None, *, epoch_id: str = "", bundle_id: str = "dream") -> Dict[str, str]:
         """
         Run a single dream mutation cycle. Dream only stages candidates; it does not promote.
         """
@@ -110,7 +116,17 @@ class DreamMode:
             return {"status": "blocked", "agent": selected, "reason": "dream_scope_missing"}
 
         metrics.log(event_type="evolution_cycle_decision", payload={"selected_agent": selected}, level="INFO", element_id=ELEMENT_ID)
-        mutation_content = f"{selected}-mutation-{time.time()}"
+        if deterministic_context(replay_mode=self.replay_mode, recovery_tier=self.recovery_tier):
+            seed = f"{epoch_id}::{selected}"
+            numeric_token, self.entropy_budget = deterministic_token_with_budget(
+                seed,
+                f"mutation_{bundle_id}",
+                budget=self.entropy_budget,
+            )
+            token = str(numeric_token)
+        else:
+            token = str(time.time())
+        mutation_content = f"{selected}-mutation-{token}"
         handoff_contract = {
             "schema_version": "1.0",
             "issued_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -134,6 +150,13 @@ class DreamMode:
             level="INFO",
             element_id=ELEMENT_ID,
         )
+        fitness = self.fitness_evaluator.evaluate_content(mutation_content, constitution_ok=True)
+        metrics.log(
+            event_type="dream_mutation_fitness",
+            payload={"agent": selected, "fitness": fitness.to_dict(), "viable": fitness.is_viable()},
+            level="INFO" if fitness.is_viable() else "WARNING",
+            element_id=ELEMENT_ID,
+        )
         metrics.log(
             event_type="evolution_cycle_validation",
             payload={"agent": selected, "result": "validated"},
@@ -146,4 +169,10 @@ class DreamMode:
             level="INFO",
             element_id=ELEMENT_ID,
         )
-        return {"status": "completed", "agent": selected, "staged_path": str(staged_path)}
+        return {
+            "status": "completed",
+            "agent": selected,
+            "staged_path": str(staged_path),
+            "fitness": str(fitness.score),
+            "viable": "true" if fitness.is_viable() else "false",
+        }

@@ -14,9 +14,12 @@ from app.agents.mutation_request import MutationRequest
 from runtime import ROOT_DIR
 from runtime.timeutils import now_iso
 from runtime import metrics
+from runtime.analysis.impact_predictor import ImpactPredictor
+from runtime.fitness_pipeline import FitnessPipeline, RiskEvaluator, TestOutcomeEvaluator
 from runtime.test_sandbox import TestSandbox, TestSandboxResult, TestSandboxStatus
 from runtime.fitness_v2 import score_mutation_survival
 from runtime.evolution import EvolutionRuntime
+from runtime.evolution.entropy_discipline import deterministic_context, deterministic_id
 from security.ledger import journal
 from runtime.tools.mutation_guard import apply_dna_mutation
 from runtime.tools.code_mutation_guard import apply_code_mutation, extract_targets as extract_code_targets
@@ -31,6 +34,8 @@ class MutationExecutor:
         self.evolution_runtime = evolution_runtime or EvolutionRuntime()
         self.governor = self.evolution_runtime.governor
         self.test_sandbox = TestSandbox(root_dir=ROOT_DIR, timeout_s=60)
+        self.impact_predictor = ImpactPredictor(agents_root)
+        self.fitness_pipeline = FitnessPipeline([TestOutcomeEvaluator(), RiskEvaluator()])
 
     def _run_tests(self, args: Sequence[str] | None = None, retries: int = 1) -> TestSandboxResult:
         """Run project tests through the sandbox wrapper and return sandbox metadata."""
@@ -51,11 +56,36 @@ class MutationExecutor:
             )
         return result
 
+    def _build_mutation_id(self, request: MutationRequest, epoch_id: str) -> str:
+        if deterministic_context(
+            replay_mode=self.evolution_runtime.replay_mode.value,
+            recovery_tier=self.governor.recovery_tier.value,
+        ):
+            return deterministic_id(
+                epoch_id=epoch_id,
+                bundle_id=request.bundle_id or request.intent or "mutation",
+                agent_id=request.agent_id,
+                label="mutation",
+            )
+        return str(uuid.uuid4())
+
     def execute(self, request: MutationRequest) -> Dict[str, Any]:
-        mutation_id = str(uuid.uuid4())
-
-
         epoch_id = self.evolution_runtime.epoch_manager.get_active().epoch_id
+        mutation_id = self._build_mutation_id(request, epoch_id)
+        impact = self.impact_predictor.predict(request)
+        metrics.log(
+            event_type="mutation_impact_prediction",
+            payload={
+                "agent": request.agent_id,
+                "mutation_id": mutation_id,
+                "risk_score": impact.risk_score,
+                "affected_agents": sorted(impact.affected_agents),
+                "affected_files": sorted(impact.affected_files),
+                "recommendations": impact.recommendations,
+            },
+            level="WARNING" if impact.risk_score > 0.8 else "INFO",
+            element_id=ELEMENT_ID,
+        )
         request.epoch_id = epoch_id
         if self.evolution_runtime.fail_closed:
             return {"status": "blocked", "reason": "fail_closed", "epoch_id": epoch_id, "replay_status": "failed"}
@@ -233,17 +263,25 @@ class MutationExecutor:
             **payload,
             "verified": True,
             "ops": request.ops,
+            "impact_risk_score": impact.risk_score,
         }
         survival_score = score_mutation_survival(
             request.agent_id,
             request.intent or "default",
             survival_payload,
         )
+        composed_fitness = self.fitness_pipeline.evaluate({"tests_ok": tests_ok, "impact_risk_score": impact.risk_score})
         if tests_ok:
             metrics.log(event_type="mutation_executed", payload=payload, level="INFO", element_id=ELEMENT_ID)
             metrics.log(
                 event_type="mutation_score",
                 payload={"agent": request.agent_id, "strategy_id": request.intent or "default", "score": survival_score, "epoch_id": epoch_id},
+                level="INFO",
+                element_id=ELEMENT_ID,
+            )
+            metrics.log(
+                event_type="mutation_fitness_pipeline",
+                payload={"agent": request.agent_id, "epoch_id": epoch_id, **composed_fitness},
                 level="INFO",
                 element_id=ELEMENT_ID,
             )
@@ -261,6 +299,12 @@ class MutationExecutor:
         metrics.log(
             event_type="mutation_score",
             payload={"agent": request.agent_id, "strategy_id": request.intent or "default", "score": survival_score, "epoch_id": epoch_id},
+            level="INFO",
+            element_id=ELEMENT_ID,
+        )
+        metrics.log(
+            event_type="mutation_fitness_pipeline",
+            payload={"agent": request.agent_id, "epoch_id": epoch_id, **composed_fitness},
             level="INFO",
             element_id=ELEMENT_ID,
         )

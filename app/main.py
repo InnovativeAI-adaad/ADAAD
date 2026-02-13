@@ -16,7 +16,6 @@ Deterministic orchestrator entrypoint.
 """
 
 import argparse
-import hashlib
 import json
 import os
 import re
@@ -32,6 +31,12 @@ from app.beast_mode_loop import BeastModeLoop
 from app.dream_mode import DreamMode
 from app.mutation_executor import MutationExecutor
 from runtime.evolution import EvolutionRuntime
+from runtime.evolution.replay_mode import ReplayMode, normalize_replay_mode
+from runtime.evolution.lineage_v2 import LineageIntegrityError
+from runtime.recovery.ledger_guardian import AutoRecoveryHook, SnapshotManager
+from runtime.recovery.tier_manager import RecoveryPolicy, RecoveryTierLevel, TierManager
+from runtime.platform.android_monitor import AndroidMonitor
+from runtime.platform.storage_manager import StorageManager
 from runtime import metrics
 from runtime.capability_graph import register_capability
 from runtime.element_registry import dump, register
@@ -45,6 +50,7 @@ from runtime.tools.mutation_guard import _apply_ops
 from security import cryovant
 from security.gatekeeper_protocol import run_gatekeeper
 from security.ledger import journal
+from security.ledger.journal import JournalIntegrityError
 from ui.aponi_dashboard import AponiDashboard
 
 
@@ -53,7 +59,7 @@ class Orchestrator:
     Coordinates boot order and health checks.
     """
 
-    def __init__(self, *, dry_run: bool = False, replay_mode: str = "off") -> None:
+    def __init__(self, *, dry_run: bool = False, replay_mode: str | bool | ReplayMode = ReplayMode.OFF, replay_epoch: str = "") -> None:
         self.state: Dict[str, Any] = {"status": "initializing", "mutation_enabled": False}
         self.agents_root = APP_ROOT / "agents"
         self.lineage_dir = self.agents_root / "lineage"
@@ -63,10 +69,17 @@ class Orchestrator:
         self.beast: Optional[BeastModeLoop] = None
         self.dashboard = AponiDashboard()
         self.evolution_runtime = EvolutionRuntime()
+        self.snapshot_manager = SnapshotManager(APP_ROOT.parent / ".ledger_snapshots")
+        self.recovery_hook = AutoRecoveryHook(self.snapshot_manager)
+        self.tier_manager = TierManager()
+        self.resource_monitor = AndroidMonitor(APP_ROOT.parent)
+        self.storage_manager = StorageManager(APP_ROOT.parent)
         self.executor = MutationExecutor(self.agents_root, evolution_runtime=self.evolution_runtime)
         self.mutation_engine = MutationEngine(metrics.METRICS_PATH)
         self.dry_run = dry_run
-        self.replay_mode = "full" if replay_mode is True else ("off" if replay_mode is False else replay_mode)
+        self.replay_mode = normalize_replay_mode(replay_mode)
+        self.replay_epoch = replay_epoch.strip()
+        self.evolution_runtime.set_replay_mode(self.replay_mode)
 
     def _fail(self, reason: str) -> None:
         metrics.log(event_type="orchestrator_error", payload={"reason": reason}, level="ERROR")
@@ -100,28 +113,19 @@ class Orchestrator:
         self._init_cryovant()
         epoch_state = self.evolution_runtime.boot()
         self.state["epoch"] = epoch_state
-        self.dream = DreamMode(self.agents_root, self.lineage_dir)
+        self.dream = DreamMode(
+            self.agents_root,
+            self.lineage_dir,
+            replay_mode=self.replay_mode.value,
+            recovery_tier=self.evolution_runtime.governor.recovery_tier.value,
+        )
         self.beast = BeastModeLoop(self.agents_root, self.lineage_dir)
         # Health-First Mode: run architect/dream/beast checks and safe-boot gating
         # before any mutation cycle to enforce boot invariants.
         self._health_check_architect()
         self._health_check_dream()
         self._health_check_beast()
-        if self.replay_mode != "off":
-            replay_ok = False
-            if self.replay_mode == "full" or self.replay_mode == "strict":
-                replay_ok = self.evolution_runtime.verify_all_epochs()
-            elif self.replay_mode.startswith("epoch:"):
-                epoch_id = self.replay_mode.split(":", 1)[1]
-                replay_ok = self.evolution_runtime.verify_epoch(epoch_id).get("passed", False)
-            if not replay_ok and self.replay_mode == "strict":
-                self.state["replay_divergence"] = True
-                self._fail("replay_divergence")
-            self.state["status"] = "replay_verified" if replay_ok else "replay_warning"
-            if not replay_ok:
-                self.state["replay_divergence"] = True
-            journal.write_entry(agent_id="system", action="replay_verified", payload={"ok": replay_ok, "mode": self.replay_mode, "ts": now_iso()})
-            return
+        self._run_replay_preflight()
         if self.state.get("mutation_enabled"):
             if self.evolution_runtime.fail_closed:
                 self.state["replay_divergence"] = True
@@ -134,6 +138,46 @@ class Orchestrator:
         metrics.log(event_type="orchestrator_ready", payload=self.state, level="INFO")
         journal.write_entry(agent_id="system", action="orchestrator_ready", payload=self.state)
         dump()
+
+    def _run_replay_preflight(self, *, verify_only: bool = False) -> Dict[str, Any]:
+        mode = self.replay_mode
+        preflight = self.evolution_runtime.replay_preflight(mode, epoch_id=self.replay_epoch or None)
+        has_divergence = bool(preflight.get("has_divergence"))
+        self.state["replay_mode"] = mode.value
+        self.state["replay_target"] = preflight.get("verify_target")
+        self.state["replay_decision"] = preflight.get("decision")
+        self.state["replay_results"] = preflight.get("results", [])
+        self.state["replay_divergence"] = has_divergence
+        self.state["status"] = "replay_warning" if has_divergence else "replay_verified"
+        outcome = {
+            "mode": mode.value,
+            "verify_only": verify_only,
+            "ok": not has_divergence,
+            "decision": preflight.get("decision"),
+            "target": preflight.get("verify_target"),
+            "divergence": has_divergence,
+            "results": preflight.get("results", []),
+            "ts": now_iso(),
+        }
+        journal.write_entry(agent_id="system", action="replay_verified", payload=outcome)
+        if has_divergence and mode.fail_closed:
+            self._fail("replay_divergence")
+        if verify_only:
+            dump()
+            return {"verify_only": True, **outcome}
+        return {"verify_only": False, **outcome}
+
+    def verify_replay_only(self) -> None:
+        metrics.log(event_type="orchestrator_start", payload={"verify_only": True}, level="INFO")
+        gate = run_gatekeeper()
+        if not gate.get("ok"):
+            self._fail(f"gatekeeper_failed:{','.join(gate.get('missing', []))}")
+        self._register_elements()
+        self._init_runtime()
+        self._init_cryovant()
+        epoch_state = self.evolution_runtime.boot()
+        self.state["epoch"] = epoch_state
+        self._run_replay_preflight(verify_only=True)
 
     def _register_elements(self) -> None:
         register("Earth", "runtime.metrics")
@@ -224,14 +268,29 @@ class Orchestrator:
         if not architect_ok:
             failures.append({"check": "architect_invariants", "reason": architect_reason})
 
+        resources_ok, resources_reason = self._check_platform_resources()
+        if not resources_ok:
+            failures.append({"check": "platform_resources", "reason": resources_reason})
+
         if failures:
+            tier = self.tier_manager.evaluate_escalation(
+                governance_violations=len(failures),
+                ledger_errors=sum(1 for f in failures if f.get("check") == "ledger_integrity"),
+                mutation_failures=sum(1 for f in failures if f.get("check") == "mutation_engine"),
+                metric_anomalies=0,
+            )
+            policy = RecoveryPolicy.for_tier(tier)
+            self.tier_manager.apply(tier, "governance_gate_failed")
             metrics.log(
                 event_type="governance_gate_failed",
-                payload={"failures": failures},
+                payload={"failures": failures, "recovery_tier": tier.value, "recovery_policy": policy.__dict__},
                 level="ERROR",
             )
             self.state["mutation_enabled"] = False
             self.state["governance_gate_failed"] = failures
+            self.state["recovery_tier"] = tier.value
+            if policy.fail_close and tier in {RecoveryTierLevel.GOVERNANCE, RecoveryTierLevel.CRITICAL}:
+                self._fail(f"recovery_tier_{tier.value}")
             return False
 
         metrics.log(event_type="governance_gate_passed", payload={}, level="INFO")
@@ -245,6 +304,24 @@ class Orchestrator:
             expected = self._load_constitution_doc_version() or CONSTITUTION_VERSION
         if expected != CONSTITUTION_VERSION:
             return False, f"constitution_version_mismatch:{CONSTITUTION_VERSION}!={expected}"
+        return True, "ok"
+
+    def _check_platform_resources(self) -> tuple[bool, str]:
+        snapshot = self.resource_monitor.snapshot()
+        prune_result = self.storage_manager.check_and_prune()
+        metrics.log(
+            event_type="platform_resource_snapshot",
+            payload={
+                "battery_percent": snapshot.battery_percent,
+                "memory_mb": round(snapshot.memory_mb, 2),
+                "storage_mb": round(snapshot.storage_mb, 2),
+                "cpu_percent": round(snapshot.cpu_percent, 2),
+                "prune": prune_result,
+            },
+            level="INFO",
+        )
+        if snapshot.is_constrained():
+            return False, "resource_constrained"
         return True, "ok"
 
     def _load_constitution_doc_version(self) -> str:
@@ -280,32 +357,21 @@ class Orchestrator:
         return True, "ok"
 
     def _check_ledger_integrity(self) -> tuple[bool, str]:
+        self.snapshot_manager.create_snapshot(journal.JOURNAL_PATH)
+        self.snapshot_manager.create_snapshot(self.evolution_runtime.ledger.ledger_path)
         try:
-            journal.ensure_journal()
-            journal_path = journal.JOURNAL_PATH
-            if not journal_path.exists():
-                return False, "journal_missing"
-            lines = journal_path.read_text(encoding="utf-8").splitlines()
+            journal.verify_journal_integrity(recovery_hook=self.recovery_hook)
+        except JournalIntegrityError as exc:
+            return False, str(exc)
         except Exception as exc:
             return False, f"journal_unreadable:{exc}"
-        prev_hash = "0" * 64
-        for index, line in enumerate(lines, start=1):
-            if not line.strip():
-                continue
-            try:
-                entry = json.loads(line)
-            except json.JSONDecodeError as exc:
-                return False, f"journal_invalid_json:line{index}:{exc}"
-            entry_prev = str(entry.get("prev_hash") or "")
-            entry_hash = str(entry.get("hash") or "")
-            if entry_prev != prev_hash:
-                return False, f"journal_prev_hash_mismatch:line{index}"
-            payload = {key: value for key, value in entry.items() if key != "hash"}
-            material = (prev_hash + json.dumps(payload, ensure_ascii=False, sort_keys=True)).encode("utf-8")
-            computed = hashlib.sha256(material).hexdigest()
-            if computed != entry_hash:
-                return False, f"journal_hash_mismatch:line{index}"
-            prev_hash = entry_hash
+
+        try:
+            self.evolution_runtime.ledger.verify_integrity(recovery_hook=self.recovery_hook)
+        except LineageIntegrityError as exc:
+            return False, str(exc)
+        except Exception as exc:
+            return False, f"lineage_unreadable:{exc}"
         return True, "ok"
 
     def _check_mutation_engine_health(self) -> tuple[bool, str]:
@@ -499,13 +565,32 @@ class Orchestrator:
 def main() -> None:
     parser = argparse.ArgumentParser(description="ADAAD orchestrator")
     parser.add_argument("--dry-run", action="store_true", help="Evaluate mutations without applying them.")
-    parser.add_argument("--replay", default="off", choices=["off", "strict", "full"], help="Replay mode: off|strict|full.")
-    parser.add_argument("--replay-epoch", default="", help="Replay a specific epoch id.")
+    parser.add_argument(
+        "--replay",
+        default="off",
+        help=(
+            "Replay mode: off (skip replay), audit (verify and continue), strict (verify and fail-close). "
+            "Legacy aliases: full->audit, true->audit, false->off."
+        ),
+    )
+    parser.add_argument("--replay-epoch", default="", help="Replay a specific epoch id as the verification target.")
+    parser.add_argument("--verify-replay", action="store_true", help="Run replay verification and exit after reporting result.")
     args = parser.parse_args()
 
     dry_run_env = os.getenv("ADAAD_DRY_RUN", "").lower() in {"1", "true", "yes", "on"}
-    replay_mode = f"epoch:{args.replay_epoch}" if args.replay_epoch else args.replay
-    orchestrator = Orchestrator(dry_run=args.dry_run or dry_run_env, replay_mode=replay_mode)
+    try:
+        replay_mode = normalize_replay_mode(args.replay)
+    except ValueError as exc:
+        parser.error(str(exc))
+
+    orchestrator = Orchestrator(
+        dry_run=args.dry_run or dry_run_env,
+        replay_mode=replay_mode,
+        replay_epoch=args.replay_epoch,
+    )
+    if args.verify_replay:
+        orchestrator.verify_replay_only()
+        return
     orchestrator.boot()
 
 

@@ -9,6 +9,7 @@ from runtime.evolution.epoch import EpochManager
 from runtime.evolution.governor import EvolutionGovernor
 from runtime.evolution.lineage_v2 import LineageLedgerV2
 from runtime.evolution.replay import ReplayEngine
+from runtime.evolution.replay_mode import ReplayMode, normalize_replay_mode
 from runtime.evolution.replay_verifier import ReplayVerifier
 
 
@@ -17,6 +18,7 @@ class EvolutionRuntime:
         self.ledger = LineageLedgerV2()
         self.governor = EvolutionGovernor(ledger=self.ledger)
         self.epoch_manager = EpochManager(self.governor, self.ledger)
+        self.replay_mode = ReplayMode.OFF
         self.replay_engine = ReplayEngine(self.ledger)
         self.replay_verifier = ReplayVerifier(self.ledger, self.replay_engine)
 
@@ -29,6 +31,10 @@ class EvolutionRuntime:
     @property
     def fail_closed(self) -> bool:
         return self.governor.fail_closed
+
+    def set_replay_mode(self, replay_mode: str | bool | ReplayMode) -> None:
+        self.replay_mode = normalize_replay_mode(replay_mode)
+        self.epoch_manager.replay_mode = self.replay_mode.value
 
     def boot(self) -> Dict[str, Any]:
         epoch = self.epoch_manager.load_or_create()
@@ -97,24 +103,63 @@ class EvolutionRuntime:
 
     def verify_epoch(self, epoch_id: str, expected: str | None = None) -> Dict[str, Any]:
         replay = self.replay_engine.replay_epoch(epoch_id)
-        replay_digest = replay["digest"]
+        actual_digest = replay["digest"]
         expected_digest = expected or self.ledger.get_epoch_digest(epoch_id) or "sha256:0"
-        passed = replay_digest == expected_digest
+        passed = actual_digest == expected_digest
+        decision = "match" if passed else "diverge"
         self.ledger.append_event(
             "ReplayVerificationEvent",
             {
                 "epoch_id": epoch_id,
                 "epoch_digest": expected_digest,
-                "replay_digest": replay_digest,
+                "replay_digest": actual_digest,
                 "replay_passed": passed,
                 "expected": expected_digest,
+                "decision": decision,
             },
         )
         return {
             "epoch_id": epoch_id,
-            "digest": replay_digest,
-            "expected": expected_digest,
+            "baseline_epoch": epoch_id,
+            "baseline_source": "lineage_epoch_digest",
+            "expected_digest": expected_digest,
+            "actual_digest": actual_digest,
             "passed": passed,
+            "decision": decision,
+            "digest": actual_digest,
+            "expected": expected_digest,
+        }
+
+    def replay_preflight(self, mode: str | ReplayMode, *, epoch_id: str | None = None) -> Dict[str, Any]:
+        replay_mode = normalize_replay_mode(mode)
+        if replay_mode is ReplayMode.OFF:
+            return {
+                "mode": replay_mode.value,
+                "verify_target": "none",
+                "has_divergence": False,
+                "decision": "skip",
+                "results": [],
+            }
+
+        if epoch_id:
+            results = [self.verify_epoch(epoch_id)]
+            verify_target = "single_epoch"
+        else:
+            results = [self.verify_epoch(each_epoch_id) for each_epoch_id in self.ledger.list_epoch_ids()]
+            verify_target = "all_epochs"
+
+        has_divergence = any(not result["passed"] for result in results)
+        if has_divergence and replay_mode.fail_closed:
+            self.governor.enter_fail_closed("replay_divergence", self.current_epoch_id or "unknown")
+            decision = "fail_closed"
+        else:
+            decision = "continue"
+        return {
+            "mode": replay_mode.value,
+            "verify_target": verify_target,
+            "has_divergence": has_divergence,
+            "decision": decision,
+            "results": results,
         }
 
     def verify_all_epochs(self) -> bool:
