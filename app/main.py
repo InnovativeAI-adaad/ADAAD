@@ -157,6 +157,7 @@ class Orchestrator:
             "target": preflight.get("verify_target"),
             "divergence": has_divergence,
             "results": preflight.get("results", []),
+            "replay_score": self._aggregate_replay_score(preflight.get("results", [])),
             "ts": now_iso(),
         }
         journal.write_entry(agent_id="system", action="replay_verified", payload=outcome)
@@ -174,6 +175,13 @@ class Orchestrator:
             dump()
             return {"verify_only": True, **outcome}
         return {"verify_only": False, **outcome}
+
+    @staticmethod
+    def _aggregate_replay_score(results: list[Dict[str, Any]]) -> float:
+        if not results:
+            return 1.0
+        scores = [float(result.get("replay_score", 0.0)) for result in results]
+        return round(sum(scores) / len(scores), 4)
 
 
     def write_replay_manifest(self, outcome: Dict[str, Any]) -> os.PathLike[str]:
@@ -455,13 +463,13 @@ class Orchestrator:
         if not constitutional_verdict.get("passed"):
             metrics.log(
                 event_type="mutation_rejected_constitutional",
-                payload={**constitutional_verdict, "epoch_id": active_epoch_id},
+                payload={**constitutional_verdict, "epoch_id": active_epoch_id, "decision": "rejected", "evidence": constitutional_verdict},
                 level="ERROR",
             )
             journal.write_entry(
                 agent_id=selected.agent_id,
                 action="mutation_rejected_constitutional",
-                payload={**constitutional_verdict, "epoch_id": active_epoch_id},
+                payload={**constitutional_verdict, "epoch_id": active_epoch_id, "decision": "rejected", "evidence": constitutional_verdict},
             )
             if self.dry_run:
                 bias = self.mutation_engine.bias_details(selected)

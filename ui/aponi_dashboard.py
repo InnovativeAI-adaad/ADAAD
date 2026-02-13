@@ -26,7 +26,7 @@ from typing import Dict, List
 
 from app import APP_ROOT
 from runtime import metrics
-from runtime.metrics_analysis import mutation_rate_snapshot
+from runtime.metrics_analysis import mutation_rate_snapshot, rolling_determinism_score
 from security.ledger import journal
 from runtime.evolution import LineageLedgerV2, ReplayEngine
 from runtime.evolution.epoch import CURRENT_EPOCH_PATH
@@ -75,10 +75,16 @@ class AponiDashboard:
                 if self.path.startswith("/state"):
                     state_payload = dict(state_ref)
                     state_payload["mutation_rate_limit"] = self._mutation_rate_state()
+                    state_payload["determinism_panel"] = self._determinism_panel()
                     self._send_json(state_payload)
                     return
                 if self.path.startswith("/metrics"):
-                    self._send_json(metrics.tail(limit=50))
+                    self._send_json(
+                        {
+                            "entries": metrics.tail(limit=50),
+                            "determinism": rolling_determinism_score(window=200),
+                        }
+                    )
                     return
                 if self.path.startswith("/fitness"):
                     self._send_json(self._fitness_events())
@@ -150,6 +156,18 @@ class AponiDashboard:
                     return json.loads(capabilities_path.read_text(encoding="utf-8"))
                 except json.JSONDecodeError:
                     return {}
+
+            @staticmethod
+            def _determinism_panel() -> Dict:
+                summary = rolling_determinism_score(window=200)
+                return {
+                    "title": "Determinism Score (rolling)",
+                    "rolling_score": summary.get("rolling_score", 1.0),
+                    "sample_size": summary.get("sample_size", 0),
+                    "passed": summary.get("passed", 0),
+                    "failed": summary.get("failed", 0),
+                    "cause_buckets": summary.get("cause_buckets", {}),
+                }
 
             @staticmethod
             def _mutation_rate_state() -> Dict:

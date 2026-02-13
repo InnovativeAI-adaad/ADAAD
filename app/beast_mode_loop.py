@@ -26,6 +26,7 @@ from app.agents.base_agent import promote_offspring
 from app.agents.discovery import agent_path_from_id, iter_agent_dirs, resolve_agent_id
 from runtime import fitness, metrics
 from runtime.capability_graph import get_capabilities, register_capability
+from runtime.evolution.promotion_manifest import PromotionManifestWriter
 from security import cryovant
 from security.ledger import journal
 
@@ -37,9 +38,10 @@ class BeastModeLoop:
     Executes evaluation cycles against mutated offspring.
     """
 
-    def __init__(self, agents_root: Path, lineage_dir: Path):
+    def __init__(self, agents_root: Path, lineage_dir: Path, *, promotion_manifest_dir: Optional[Path] = None):
         self.agents_root = agents_root
         self.lineage_dir = lineage_dir
+        self.promotion_manifest_writer = PromotionManifestWriter(output_dir=promotion_manifest_dir)
         self.threshold = float(os.getenv("ADAAD_FITNESS_THRESHOLD", "0.70"))
         self.cycle_budget = int(os.getenv("ADAAD_BEAST_CYCLE_BUDGET", "50"))
         self.cycle_window_sec = int(os.getenv("ADAAD_BEAST_CYCLE_WINDOW_SEC", "3600"))
@@ -290,15 +292,53 @@ class BeastModeLoop:
         agent_dir = agent_path_from_id(selected, self.agents_root)
         cryovant.evolve_certificate(selected, agent_dir, staged_dir, get_capabilities())
         promoted = promote_offspring(staged_dir, self.lineage_dir)
+
+        constitution_decision = payload.get("constitutional_verdict")
+        if not isinstance(constitution_decision, dict):
+            constitution_decision = {
+                "status": "unknown",
+                "reason": str(payload.get("constitution_decision") or payload.get("constitution_reason") or "unspecified"),
+            }
+        replay_result = payload.get("replay_result")
+        if not isinstance(replay_result, dict):
+            replay_result = {
+                "status": str(payload.get("replay_status") or payload.get("replay_decision") or "unknown"),
+            }
+
+        promotion_rationale = str(payload.get("promotion_rationale") or "fitness threshold met and mutation promoted")
+        manifest_ref = self.promotion_manifest_writer.write(
+            {
+                "parent_id": selected,
+                "child_id": promoted.name,
+                "agent_id": selected,
+                "epoch_id": str(payload.get("epoch_id") or "unknown"),
+                "bundle_id": str(payload.get("bundle_id") or payload.get("mutation_intent") or "unknown"),
+                "fitness_score": score,
+                "constitution_decision": constitution_decision,
+                "replay_mode": str(payload.get("replay_mode") or "off"),
+                "replay_result": replay_result,
+                "recovery_tier": str(payload.get("recovery_tier") or "soft"),
+                "promotion_rationale": promotion_rationale,
+                "staged_path": str(staged_dir),
+                "promoted_path": str(promoted),
+            }
+        )
         journal.write_entry(
             agent_id=selected,
             action="mutation_promoted",
-            payload={"staged": str(staged_dir), "promoted": str(promoted), "score": score},
+            payload={
+                "staged": str(staged_dir),
+                "promoted": str(promoted),
+                "score": score,
+                "promotion_manifest_hash": manifest_ref["manifest_hash"],
+                "promotion_manifest_path": manifest_ref["manifest_path"],
+            },
         )
         evidence = {
             "staged_path": str(staged_dir),
             "promoted_path": str(promoted),
             "fitness_score": score,
+            "promotion_manifest": manifest_ref,
             "ledger_tail_refs": journal.read_entries(limit=5),
         }
         register_capability(

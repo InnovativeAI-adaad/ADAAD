@@ -76,6 +76,8 @@ class EvolutionRuntimeComponentsTest(unittest.TestCase):
             "actual_digest": "sha256:actual",
             "passed": False,
             "decision": "diverge",
+            "replay_score": 0.4,
+            "cause_buckets": {"digest_mismatch": True},
         })
         runtime.ledger.list_epoch_ids = mock.Mock(return_value=["epoch-1"])
         runtime.governor.enter_fail_closed = mock.Mock()
@@ -89,6 +91,8 @@ class EvolutionRuntimeComponentsTest(unittest.TestCase):
         self.assertEqual(detail["expected_digest"], "sha256:expected")
         self.assertEqual(detail["actual_digest"], "sha256:actual")
         self.assertEqual(detail["decision"], "diverge")
+        self.assertLess(detail["replay_score"], 1.0)
+        self.assertTrue(detail["cause_buckets"]["digest_mismatch"])
 
 
 if __name__ == "__main__":

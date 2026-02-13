@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any, Dict
 
 from runtime import ROOT_DIR
+from runtime.evolution.baseline import BaselineStore, create_baseline
 from runtime.evolution.entropy_discipline import deterministic_context, deterministic_token
 from runtime.timeutils import now_iso
 
@@ -24,6 +25,8 @@ class EpochState:
     start_ts: str
     metadata: Dict[str, Any]
     governor_version: str
+    baseline_id: str = ""
+    baseline_hash: str = ""
     mutation_count: int = 0
 
     def to_dict(self) -> Dict[str, Any]:
@@ -32,6 +35,8 @@ class EpochState:
             "start_ts": self.start_ts,
             "metadata": self.metadata,
             "governor_version": self.governor_version,
+            "baseline_id": self.baseline_id,
+            "baseline_hash": self.baseline_hash,
             "mutation_count": self.mutation_count,
         }
 
@@ -46,6 +51,7 @@ class EpochManager:
         max_duration_minutes: int = 30,
         state_path: Path | None = None,
         replay_mode: str = "off",
+        baseline_store: BaselineStore | None = None,
     ) -> None:
         self.governor = governor
         self.ledger = ledger
@@ -53,6 +59,7 @@ class EpochManager:
         self.max_duration_minutes = max_duration_minutes
         self.state_path = state_path or CURRENT_EPOCH_PATH
         self.replay_mode = replay_mode
+        self.baseline_store = baseline_store or BaselineStore()
         self._state: EpochState | None = None
         self._force_end = False
 
@@ -131,11 +138,19 @@ class EpochManager:
         else:
             suffix = uuid.uuid4().hex[:6]
         epoch_id = f"epoch-{timestamp}-{suffix}"
+        baseline = create_baseline(
+            epoch_id=epoch_id,
+            replay_mode=self.replay_mode,
+            recovery_tier=self.governor.recovery_tier.value,
+        )
+        self.baseline_store.append(baseline)
         state = EpochState(
             epoch_id=epoch_id,
             start_ts=now_iso(),
             metadata=metadata or {},
             governor_version="3.0.0",
+            baseline_id=baseline.baseline_id,
+            baseline_hash=baseline.baseline_hash,
             mutation_count=0,
         )
         self.governor.mark_epoch_start(epoch_id, {**state.metadata})
@@ -166,6 +181,8 @@ class EpochManager:
                 start_ts=str(raw.get("start_ts") or now_iso()),
                 metadata=dict(raw.get("metadata") or {}),
                 governor_version=str(raw.get("governor_version") or "3.0.0"),
+                baseline_id=str(raw.get("baseline_id") or ""),
+                baseline_hash=str(raw.get("baseline_hash") or ""),
                 mutation_count=int(raw.get("mutation_count", 0) or 0),
             )
         except Exception:

@@ -12,3 +12,7 @@ By submitting a contribution, you agree that your work is licensed under the Apa
 2. Add tests for functional changes.
 3. Run the test suite for the affected areas.
 4. Submit a pull request describing the change and its impact.
+
+## Starter example
+- Run the minimal single-agent loop: `python examples/single-agent-loop/run.py`.
+- Read the walkthrough in `examples/single-agent-loop/README.md` for expected staged lineage and ledger/metrics checkpoints.

@@ -251,8 +251,29 @@ Telemetry surfaces through runtime metrics and ledger/journal records. A canonic
 git clone https://github.com/InnovativeAI-adaad/ADAAD
 cd ADAAD
 pip install -r requirements.txt
-python -m app.main
+python -m app.main --replay audit
 ```
+
+Expected checkpoints:
+
+* Dashboard: `http://localhost:8080`
+* Key runtime events in `reports/metrics.jsonl`:
+  * `dream_discovery`
+  * `dream_candidate_generated`
+  * `dream_mutation_fitness`
+  * `mutation_promoted` (or `mutation_discarded`)
+  * `replay_verified`
+* Ledger events in `security/ledger/lineage.jsonl`:
+  * `ancestry_validated`
+  * `mutation_promoted`
+  * `replay_verified`
+* Replay manifests: `security/replay_manifests/*.json`
+* Promotion artifacts (mutation bundle metadata): `app/agents/lineage/**/mutation.json` and `dream_manifest.json`
+
+For a time-boxed end-to-end runbook, see [`docs/first-loop-30min.md`](docs/first-loop-30min.md).
+
+For a minimal runnable single-agent loop with constrained dream scope, see
+[`examples/single-agent-loop/README.md`](examples/single-agent-loop/README.md).
 
 ---
 
@@ -341,4 +362,3 @@ ADAAD is a bounded autonomous software organism:
 | `conservative` | Repeated mutation-quality failures | Throttled rate | Stabilize |
 | `governance` | Constitutional/governance pressure | Fail-close + approval required | Human-supervised |
 | `critical` | Ledger integrity or high-severity trust failure | Evolution frozen | Incident response |
-
