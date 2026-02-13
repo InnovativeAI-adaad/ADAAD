@@ -5,17 +5,16 @@ Mutation executor: verifies requests, applies ops, runs post-checks.
 
 from __future__ import annotations
 
-import subprocess
-import sys
 import uuid
 from pathlib import Path
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Sequence
 
 from app.agents.discovery import agent_path_from_id
 from app.agents.mutation_request import MutationRequest
 from runtime import ROOT_DIR
 from runtime.timeutils import now_iso
 from runtime import metrics
+from runtime.test_sandbox import TestSandbox, TestSandboxResult, TestSandboxStatus
 from runtime.fitness_v2 import score_mutation_survival
 from runtime.evolution import EvolutionRuntime
 from security.ledger import journal
@@ -31,31 +30,26 @@ class MutationExecutor:
         self.agents_root = agents_root
         self.evolution_runtime = evolution_runtime or EvolutionRuntime()
         self.governor = self.evolution_runtime.governor
+        self.test_sandbox = TestSandbox(root_dir=ROOT_DIR, timeout_s=60)
 
-    def _run_tests(self) -> Tuple[bool, str]:
-        """
-        Run pytest with timeout and capture results.
-        """
-        try:
-            result = subprocess.run(
-                [sys.executable, "-m", "pytest", "-x", "--tb=short"],
-                capture_output=True,
-                text=True,
-                timeout=30,
-                cwd=str(ROOT_DIR),
-                check=False,
+    def _run_tests(self, args: Sequence[str] | None = None, retries: int = 1) -> TestSandboxResult:
+        """Run project tests through the sandbox wrapper and return sandbox metadata."""
+        return self.test_sandbox.run_tests_with_retry(args=args, retries=retries)
+
+    def _normalize_test_result(self, result: TestSandboxResult | tuple[bool, str]) -> TestSandboxResult:
+        """Normalize legacy tuple mocks into TestSandboxResult."""
+        if isinstance(result, tuple):
+            ok, output = result
+            return TestSandboxResult(
+                ok=ok,
+                output=output,
+                returncode=0 if ok else 1,
+                duration_s=0.0,
+                timeout_s=self.test_sandbox.timeout_s,
+                sandbox_dir="",
+                status=TestSandboxStatus.OK if ok else TestSandboxStatus.FAILED,
             )
-        except subprocess.TimeoutExpired:
-            return False, "Test execution timeout (>30s)"
-        except Exception as exc:  # pragma: no cover
-            return False, f"Test execution error: {exc}"
-
-        if result.returncode in {0, 5}:
-            return True, result.stdout
-
-        stderr_lines = result.stderr.splitlines()
-        failure_summary = "\n".join(stderr_lines[-10:])
-        return False, f"Tests failed:\n{failure_summary}"
+        return result
 
     def execute(self, request: MutationRequest) -> Dict[str, Any]:
         mutation_id = str(uuid.uuid4())
@@ -117,7 +111,9 @@ class MutationExecutor:
                     for target in request.targets:
                         mutation_records.append(tx.apply(target))
                     tx.verify()
-                    tests_ok, test_output = self._run_tests()
+                    test_result = self._normalize_test_result(self._run_tests())
+                    tests_ok = test_result.ok
+                    test_output = test_result.output
                     if tests_ok:
                         tx.commit()
                     else:
@@ -145,6 +141,7 @@ class MutationExecutor:
                 "target_types": target_types,
                 "tests_ok": tests_ok,
                 "mutation_id": mutation_id,
+                "test_result": {"returncode": test_result.returncode, "duration_s": round(test_result.duration_s, 4), "timeout_s": test_result.timeout_s, "status": test_result.status.value, "retries": test_result.retries, "stdout": test_result.stdout, "stderr": test_result.stderr, "memory_mb": test_result.memory_mb},
                 "lineage": [
                     {"path": str(record.path), "checksum": record.checksum, "applied": record.applied, "skipped": record.skipped}
                     for record in mutation_records
@@ -205,7 +202,9 @@ class MutationExecutor:
                     self.evolution_runtime.after_mutation_cycle({"status": "skipped"})
                     return {"status": "failed", "tests_ok": False, "error": "code_mutation_failed", "mutation_id": mutation_id, "epoch_id": epoch_id}
 
-            tests_ok, test_output = self._run_tests()
+            test_result = self._normalize_test_result(self._run_tests())
+            tests_ok = test_result.ok
+            test_output = test_result.output
             payload = {
                 "agent": request.agent_id,
                 "epoch_id": epoch_id,
@@ -213,6 +212,7 @@ class MutationExecutor:
                 "ops": len(request.ops),
                 "tests_ok": tests_ok,
                 "mutation_id": mutation_id,
+                "test_result": {"returncode": test_result.returncode, "duration_s": round(test_result.duration_s, 4), "timeout_s": test_result.timeout_s, "status": test_result.status.value, "retries": test_result.retries, "stdout": test_result.stdout, "stderr": test_result.stderr, "memory_mb": test_result.memory_mb},
                 "lineage": apply_result,
             }
             if not tests_ok:
