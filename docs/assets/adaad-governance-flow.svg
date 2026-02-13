@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="780" viewBox="0 0 1400 780" role="img" aria-label="ADAAD governance flow infographic">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1f2937"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+    <style>
+      .title{font:700 40px 'Inter', 'Segoe UI', Arial, sans-serif; fill:#e2e8f0}
+      .subtitle{font:500 20px 'Inter', 'Segoe UI', Arial, sans-serif; fill:#93c5fd}
+      .head{font:700 22px 'Inter', 'Segoe UI', Arial, sans-serif; fill:#f8fafc}
+      .body{font:500 16px 'Inter', 'Segoe UI', Arial, sans-serif; fill:#cbd5e1}
+      .small{font:500 14px 'Inter', 'Segoe UI', Arial, sans-serif; fill:#bfdbfe}
+      .box{fill:url(#panel); stroke:#334155; stroke-width:2; rx:14}
+      .node{fill:#0b1220; stroke:#60a5fa; stroke-width:2; rx:12}
+      .node2{fill:#0b1220; stroke:#34d399; stroke-width:2; rx:12}
+      .node3{fill:#0b1220; stroke:#f59e0b; stroke-width:2; rx:12}
+      .arrow{stroke:#94a3b8; stroke-width:2.5; marker-end:url(#m)}
+    </style>
+    <marker id="m" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <polygon points="0,0 10,5 0,10" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect width="1400" height="780" fill="url(#bg)"/>
+  <rect x="24" y="24" width="1352" height="732" fill="none" stroke="#334155" stroke-width="2" rx="16"/>
+
+  <text x="52" y="78" class="title">ADAAD Governance Infographic</text>
+  <text x="52" y="108" class="subtitle">He65 Elemental Model • Execution Spine • Ledger Evidence Flow</text>
+
+  <!-- Left: He65 -->
+  <rect class="box" x="48" y="140" width="380" height="590"/>
+  <text x="68" y="178" class="head">He65 Elemental Model</text>
+
+  <rect class="node" x="68" y="204" width="340" height="72"/>
+  <text x="84" y="233" class="head">🌳 Wood — Architect</text>
+  <text x="84" y="255" class="body">Discovery and proposal generation</text>
+
+  <rect class="node" x="68" y="290" width="340" height="72"/>
+  <text x="84" y="319" class="head">🔥 Fire — Dream / Beast</text>
+  <text x="84" y="341" class="body">Mutation drafting and execution loop</text>
+
+  <rect class="node" x="68" y="376" width="340" height="72"/>
+  <text x="84" y="405" class="head">🌍 Earth — Runtime</text>
+  <text x="84" y="427" class="body">Invariants, metrics, capability graph</text>
+
+  <rect class="node" x="68" y="462" width="340" height="72"/>
+  <text x="84" y="491" class="head">🌊 Water — Cryovant / Ledger</text>
+  <text x="84" y="513" class="body">Trust checks and append-only memory</text>
+
+  <rect class="node" x="68" y="548" width="340" height="72"/>
+  <text x="84" y="577" class="head">⚙ Metal — Aponi</text>
+  <text x="84" y="599" class="body">Operational observability endpoints</text>
+
+  <text x="68" y="662" class="small">Mutation authority is granted only when trust + policy pass.</text>
+
+  <!-- Center: Execution Spine -->
+  <rect class="box" x="454" y="140" width="500" height="590"/>
+  <text x="474" y="178" class="head">Execution Spine (Fail-Closed)</text>
+
+  <rect class="node2" x="474" y="204" width="460" height="48"/><text x="492" y="235" class="body">1) Gatekeeper Preflight</text>
+  <rect class="node2" x="474" y="260" width="460" height="48"/><text x="492" y="291" class="body">2) Runtime Invariants</text>
+  <rect class="node2" x="474" y="316" width="460" height="48"/><text x="492" y="347" class="body">3) Cryovant Trust Validation + Certification</text>
+  <rect class="node2" x="474" y="372" width="460" height="48"/><text x="492" y="403" class="body">4) Architect / Dream / Beast Health Checks</text>
+  <rect class="node2" x="474" y="428" width="460" height="48"/><text x="492" y="459" class="body">5) Replay Verification (off/full/strict/epoch)</text>
+  <rect class="node2" x="474" y="484" width="460" height="48"/><text x="492" y="515" class="body">6) Governance Gate → Mutation (optional)</text>
+  <rect class="node2" x="474" y="540" width="460" height="48"/><text x="492" y="571" class="body">7) Capability Registration + Aponi Dashboard</text>
+  <rect class="node2" x="474" y="596" width="460" height="48"/><text x="492" y="627" class="body">8) Ledger Ready Event (`orchestrator_ready`)</text>
+
+  <!-- Right: Ledger Flow -->
+  <rect class="box" x="980" y="140" width="372" height="590"/>
+  <text x="1000" y="178" class="head">Ledger & Evidence Flow</text>
+
+  <rect class="node3" x="1000" y="204" width="332" height="88"/>
+  <text x="1016" y="234" class="head">lineage.jsonl</text>
+  <text x="1016" y="256" class="body">Append-only governance events</text>
+  <text x="1016" y="276" class="body">mutation_cycle, mutation_dry_run, replay_verified</text>
+
+  <rect class="node3" x="1000" y="308" width="332" height="110"/>
+  <text x="1016" y="338" class="head">cryovant_journal.jsonl</text>
+  <text x="1016" y="360" class="body">Hash-linked transactions:</text>
+  <text x="1016" y="382" class="body">prev_hash → hash (SHA-256)</text>
+  <text x="1016" y="404" class="body">Integrity mismatch blocks governance gate</text>
+
+  <rect class="node3" x="1000" y="434" width="332" height="98"/>
+  <text x="1016" y="464" class="head">Replay/Audit</text>
+  <text x="1016" y="486" class="body">strict: fail-close on divergence</text>
+  <text x="1016" y="508" class="body">full: verification signaling</text>
+
+  <rect class="node3" x="1000" y="548" width="332" height="80"/>
+  <text x="1016" y="578" class="head">Evidence Surfaces</text>
+  <text x="1016" y="600" class="body">runtime metrics + ledger continuity</text>
+
+  <!-- arrows -->
+  <line x1="428" y1="436" x2="454" y2="436" class="arrow"/>
+  <line x1="954" y1="436" x2="980" y2="436" class="arrow"/>
+</svg>
