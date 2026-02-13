@@ -160,12 +160,36 @@ class Orchestrator:
             "ts": now_iso(),
         }
         journal.write_entry(agent_id="system", action="replay_verified", payload=outcome)
+        try:
+            self.write_replay_manifest(outcome)
+        except Exception as exc:
+            metrics.log(
+                event_type="replay_manifest_write_failed",
+                payload={"error": str(exc), "mode": outcome["mode"], "target": outcome.get("target")},
+                level="WARN",
+            )
         if has_divergence and mode.fail_closed:
             self._fail("replay_divergence")
         if verify_only:
             dump()
             return {"verify_only": True, **outcome}
         return {"verify_only": False, **outcome}
+
+
+    def write_replay_manifest(self, outcome: Dict[str, Any]) -> os.PathLike[str]:
+        manifests_dir = APP_ROOT.parent / "security" / "replay_manifests"
+        manifests_dir.mkdir(parents=True, exist_ok=True)
+
+        def _sanitize_component(value: Any) -> str:
+            normalized = re.sub(r"[^A-Za-z0-9._-]+", "-", str(value or "unknown")).strip("-._")
+            return normalized or "unknown"
+
+        mode_component = _sanitize_component(outcome.get("mode"))
+        target_component = _sanitize_component(outcome.get("target"))
+        timestamp_component = _sanitize_component(outcome.get("ts"))
+        manifest_path = manifests_dir / f"{mode_component}__{target_component}__{timestamp_component}.json"
+        manifest_path.write_text(json.dumps(outcome, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        return manifest_path
 
     def verify_replay_only(self) -> None:
         metrics.log(event_type="orchestrator_start", payload={"verify_only": True}, level="INFO")
