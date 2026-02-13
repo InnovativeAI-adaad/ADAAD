@@ -117,6 +117,8 @@ class EvolutionGovernor:
             "reason": reason,
             "fail_closed": True,
             "recovery_tier": tier.value,
+            "decision": "fail_closed",
+            "evidence": {"reason": reason, "tier": tier.value},
         }
         self.ledger.append_event("GovernanceDecisionEvent", payload)
 
@@ -128,6 +130,8 @@ class EvolutionGovernor:
             "recovery_signature": recovery_signature,
             "requested_tier": tier.value,
             "fail_closed": True,
+            "decision": "recovery_requested",
+            "evidence": {"signature": recovery_signature},
         }
         if tier == RecoveryTier.CONSTITUTIONAL_RESET:
             self.fail_closed = False

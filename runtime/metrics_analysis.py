@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, Iterable, List, Tuple
 
 from runtime import metrics
+from runtime.evolution.lineage_v2 import LineageLedgerV2
 
 MUTATION_EVENT_TYPES = {
     "mutation_approved_constitutional",
@@ -96,8 +97,70 @@ def top_preflight_rejections(limit: int = 500, top_n: int = 5) -> List[Tuple[str
     return list(reasons.items())[:top_n]
 
 
+def rolling_determinism_score(window: int = 200) -> Dict[str, Any]:
+    """
+    Compute a rolling replay determinism score from recent ReplayVerificationEvent entries.
+    """
+    if window <= 0:
+        window = 1
+    replay_entries: List[Dict[str, Any]] = []
+    for entry in metrics.tail(window):
+        if entry.get("event") == "ReplayVerificationEvent":
+            replay_entries.append(entry)
+
+    lineage_entries = LineageLedgerV2().read_all()
+    for entry in lineage_entries[-window:]:
+        if entry.get("type") != "ReplayVerificationEvent":
+            continue
+        replay_entries.append(
+            {
+                "event": "ReplayVerificationEvent",
+                "payload": entry.get("payload") or {},
+                "timestamp": "",
+                "source": "lineage",
+            }
+        )
+    if not replay_entries:
+        return {
+            "window": window,
+            "sample_size": 0,
+            "rolling_score": 1.0,
+            "passed": 0,
+            "failed": 0,
+            "cause_buckets": {},
+        }
+
+    score_sum = 0.0
+    passed = 0
+    failed = 0
+    buckets: Counter[str] = Counter()
+    for entry in replay_entries:
+        payload = entry.get("payload") or {}
+        score_sum += float(payload.get("replay_score", 1.0 if payload.get("replay_passed") else 0.0))
+        if payload.get("replay_passed"):
+            passed += 1
+        else:
+            failed += 1
+        cause_buckets = payload.get("cause_buckets") or {}
+        if isinstance(cause_buckets, dict):
+            for bucket, active in cause_buckets.items():
+                if active:
+                    buckets[str(bucket)] += 1
+
+    sample_size = len(replay_entries)
+    return {
+        "window": window,
+        "sample_size": sample_size,
+        "rolling_score": round(score_sum / sample_size, 4),
+        "passed": passed,
+        "failed": failed,
+        "cause_buckets": dict(buckets.most_common()),
+    }
+
+
 __all__ = [
     "mutation_rate_snapshot",
     "summarize_preflight_rejections",
     "top_preflight_rejections",
+    "rolling_determinism_score",
 ]

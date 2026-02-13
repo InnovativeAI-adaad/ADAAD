@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
+from runtime.evolution.baseline import BaselineStore
 from runtime.evolution.epoch import EpochManager
 from runtime.evolution.governor import EvolutionGovernor
 from runtime.evolution.lineage_v2 import LineageLedgerV2
@@ -21,12 +22,15 @@ class EvolutionRuntime:
         self.replay_mode = ReplayMode.OFF
         self.replay_engine = ReplayEngine(self.ledger)
         self.replay_verifier = ReplayVerifier(self.ledger, self.replay_engine)
+        self.baseline_store = BaselineStore()
 
         self.current_epoch_id = ""
         self.epoch_metadata: Dict[str, Any] = {}
         self.epoch_mutation_count = 0
         self.epoch_start_ts = ""
         self.epoch_digest: str | None = None
+        self.baseline_id = ""
+        self.baseline_hash = ""
 
     @property
     def fail_closed(self) -> bool:
@@ -61,7 +65,15 @@ class EvolutionRuntime:
 
         expected = self.ledger.get_epoch_digest(epoch_id) or "sha256:0"
         actual = self.replay_engine.compute_incremental_digest(epoch_id)
-        passed = expected == actual
+        verification = self._build_replay_verification(
+            epoch_id=epoch_id,
+            expected_digest=expected,
+            actual_digest=actual,
+            baseline_digest=expected,
+            baseline_source="lineage_epoch_digest",
+            baseline_match=True,
+        )
+        passed = verification["passed"]
 
         replay_result = {
             "epoch_id": epoch_id,
@@ -69,6 +81,9 @@ class EvolutionRuntime:
             "epoch_digest": expected,
             "replay_digest": actual,
             "expected": expected,
+            "replay_score": verification["replay_score"],
+            "cause_buckets": verification["cause_buckets"],
+            "decision": verification["decision"],
         }
         self.epoch_digest = expected
 
@@ -79,6 +94,9 @@ class EvolutionRuntime:
                 "epoch_digest": expected,
                 "replay_digest": actual,
                 "replay_passed": passed,
+                "replay_score": verification["replay_score"],
+                "cause_buckets": verification["cause_buckets"],
+                "decision": verification["decision"],
             },
         )
 
@@ -104,9 +122,31 @@ class EvolutionRuntime:
     def verify_epoch(self, epoch_id: str, expected: str | None = None) -> Dict[str, Any]:
         replay = self.replay_engine.replay_epoch(epoch_id)
         actual_digest = replay["digest"]
-        expected_digest = expected or self.ledger.get_epoch_digest(epoch_id) or "sha256:0"
-        passed = actual_digest == expected_digest
-        decision = "match" if passed else "diverge"
+        ledger_baseline = self.ledger.get_epoch_digest(epoch_id) or "sha256:0"
+        expected_digest = expected or ledger_baseline
+        baseline_source = "provided_expected_digest" if expected is not None else "lineage_epoch_digest"
+
+        baseline_record = self.baseline_store.find_for_epoch(epoch_id)
+        record_baseline_id = str((baseline_record or {}).get("baseline_id") or "")
+        record_baseline_hash = str((baseline_record or {}).get("baseline_hash") or "")
+        referenced_baseline_id = self.baseline_id if epoch_id == self.current_epoch_id else record_baseline_id
+        referenced_baseline_hash = self.baseline_hash if epoch_id == self.current_epoch_id else record_baseline_hash
+        baseline_match = bool(
+            baseline_record
+            and referenced_baseline_id == record_baseline_id
+            and referenced_baseline_hash == record_baseline_hash
+        )
+
+        verification = self._build_replay_verification(
+            epoch_id=epoch_id,
+            expected_digest=expected_digest,
+            actual_digest=actual_digest,
+            baseline_digest=ledger_baseline,
+            baseline_source=baseline_source,
+            baseline_match=baseline_match,
+        )
+        passed = verification["passed"]
+        decision = verification["decision"]
         self.ledger.append_event(
             "ReplayVerificationEvent",
             {
@@ -116,18 +156,71 @@ class EvolutionRuntime:
                 "replay_passed": passed,
                 "expected": expected_digest,
                 "decision": decision,
+                "baseline_id": referenced_baseline_id,
+                "baseline_hash": referenced_baseline_hash,
+                "baseline_match": baseline_match,
+                "trusted": verification["trusted"],
+                "replay_score": verification["replay_score"],
+                "cause_buckets": verification["cause_buckets"],
             },
         )
         return {
             "epoch_id": epoch_id,
             "baseline_epoch": epoch_id,
-            "baseline_source": "lineage_epoch_digest",
+            "baseline_source": baseline_source,
+            "baseline_id": referenced_baseline_id,
+            "baseline_hash": referenced_baseline_hash,
+            "baseline_match": baseline_match,
             "expected_digest": expected_digest,
             "actual_digest": actual_digest,
             "passed": passed,
             "decision": decision,
+            "trusted": verification["trusted"],
+            "digest_match": verification["digest_match"],
             "digest": actual_digest,
             "expected": expected_digest,
+            "replay_score": verification["replay_score"],
+            "cause_buckets": verification["cause_buckets"],
+        }
+
+    def _build_replay_verification(
+        self,
+        *,
+        epoch_id: str,
+        expected_digest: str,
+        actual_digest: str,
+        baseline_digest: str | None = None,
+        baseline_source: str = "lineage_epoch_digest",
+        baseline_match: bool = True,
+    ) -> Dict[str, Any]:
+        digest_match = expected_digest == actual_digest
+        baseline_value = baseline_digest or expected_digest
+        trusted = digest_match and baseline_match
+        cause_buckets = {
+            "digest_mismatch": not digest_match,
+            "baseline_mismatch": baseline_value != expected_digest or not baseline_match,
+            "time_input_variance": False,
+            "external_dependency_variance": False,
+        }
+        score = 1.0
+        if cause_buckets["digest_mismatch"]:
+            score -= 0.6
+        if cause_buckets["baseline_mismatch"]:
+            score -= 0.2
+        if cause_buckets["time_input_variance"]:
+            score -= 0.1
+        if cause_buckets["external_dependency_variance"]:
+            score -= 0.1
+        replay_score = round(max(0.0, min(1.0, score)), 4)
+        return {
+            "epoch_id": epoch_id,
+            "passed": trusted,
+            "decision": "match" if trusted else "diverge",
+            "baseline_source": baseline_source,
+            "replay_score": replay_score,
+            "cause_buckets": cause_buckets,
+            "trusted": trusted,
+            "digest_match": digest_match,
         }
 
     def replay_preflight(self, mode: str | ReplayMode, *, epoch_id: str | None = None) -> Dict[str, Any]:
@@ -176,6 +269,8 @@ class EvolutionRuntime:
         self.epoch_metadata = dict(payload.get("metadata") or {})
         self.epoch_mutation_count = int(payload.get("mutation_count") or 0)
         self.epoch_start_ts = str(payload.get("start_ts") or "")
+        self.baseline_id = str(payload.get("baseline_id") or "")
+        self.baseline_hash = str(payload.get("baseline_hash") or "")
 
 
 __all__ = ["EvolutionRuntime"]

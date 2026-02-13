@@ -288,7 +288,7 @@ class MutationExecutor:
             journal.write_entry(
                 agent_id=request.agent_id,
                 action="mutation_promoted",
-                payload={"mutation_id": mutation_id, "epoch_id": epoch_id, "lineage": payload["lineage"], "ts": now_iso()},
+                payload={"mutation_id": mutation_id, "epoch_id": epoch_id, "lineage": payload["lineage"], "decision": "promoted", "evidence": payload["lineage"], "bundle_id": (decision.certificate or {}).get("bundle_id"), "ts": now_iso()},
             )
             if decision.certificate:
                 self.governor.activate_certificate(epoch_id, decision.certificate.get("bundle_id", ""), True, "tests_passed")
