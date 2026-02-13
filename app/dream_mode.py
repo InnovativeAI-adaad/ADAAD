@@ -68,6 +68,30 @@ class DreamMode:
             return None
         return scope
 
+    def write_dream_manifest(
+        self,
+        *,
+        agent_id: str,
+        epoch_id: str,
+        bundle_id: str,
+        staged_path: Path,
+        fitness: object,
+    ) -> Path:
+        """Persist deterministic dream-cycle metadata for audit and replay analysis."""
+        manifest_path = staged_path / "dream_manifest.json"
+        manifest = {
+            "agent_id": agent_id,
+            "epoch_id": epoch_id,
+            "bundle_id": bundle_id,
+            "staged_path": str(staged_path),
+            "lineage_dir": str(self.lineage_dir),
+            "replay_mode": self.replay_mode,
+            "recovery_tier": self.recovery_tier,
+            "fitness": fitness.to_dict(),
+        }
+        manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        return manifest_path
+
     def discover_tasks(self) -> List[str]:
         """
         Discover mutation-ready agents.
@@ -156,6 +180,13 @@ class DreamMode:
             payload={"agent": selected, "fitness": fitness.to_dict(), "viable": fitness.is_viable()},
             level="INFO" if fitness.is_viable() else "WARNING",
             element_id=ELEMENT_ID,
+        )
+        self.write_dream_manifest(
+            agent_id=selected,
+            epoch_id=epoch_id,
+            bundle_id=bundle_id,
+            staged_path=staged_path,
+            fitness=fitness,
         )
         metrics.log(
             event_type="evolution_cycle_validation",

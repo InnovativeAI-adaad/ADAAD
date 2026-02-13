@@ -199,9 +199,7 @@ Replay outcomes are journaled (`replay_verified`) with baseline epoch, expected 
 
 ### Determinism Scope
 
-Determinism is enforced at control-flow and governance boundaries.
-Outcome reproducibility depends on replayable scoring inputs,
-fitness behavior, and runtime state discipline.
+Determinism is enforced at control-flow and governance boundaries: replay can only be trusted when scoring inputs, fitness behavior, and runtime state transitions are reproducible enough to yield the same governance outcome under the same epoch baseline.
 
 ---
 
