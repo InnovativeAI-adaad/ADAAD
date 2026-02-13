@@ -28,6 +28,8 @@ from app import APP_ROOT
 from runtime import metrics
 from runtime.metrics_analysis import mutation_rate_snapshot
 from security.ledger import journal
+from runtime.evolution import LineageLedgerV2, ReplayEngine
+from runtime.evolution.epoch import CURRENT_EPOCH_PATH
 
 ELEMENT_ID = "Metal"
 
@@ -57,6 +59,8 @@ class AponiDashboard:
         lineage_dir = APP_ROOT / "agents" / "lineage"
         staging_dir = lineage_dir / "_staging"
         capabilities_path = APP_ROOT.parent / "data" / "capabilities.json"
+        lineage_v2 = LineageLedgerV2()
+        replay = ReplayEngine(lineage_v2)
 
         class Handler(SimpleHTTPRequestHandler):
             def _send_json(self, payload) -> None:
@@ -84,6 +88,29 @@ class AponiDashboard:
                     return
                 if self.path.startswith("/lineage"):
                     self._send_json(journal.read_entries(limit=50))
+                    return
+                if self.path.startswith("/evolution/epoch"):
+                    if "epoch_id=" not in self.path:
+                        self._send_json({"ok": False, "error": "missing_epoch_id"})
+                        return
+                    epoch_id = self.path.split("epoch_id=")[-1].strip()
+                    if not epoch_id:
+                        self._send_json({"ok": False, "error": "empty_epoch_id"})
+                        return
+                    data = replay.reconstruct_epoch(epoch_id)
+                    if not data.get("bundles") and not data.get("initial_state") and not data.get("final_state"):
+                        self._send_json({"ok": False, "error": "epoch_not_found", "epoch_id": epoch_id})
+                        return
+                    self._send_json({"ok": True, "epoch": data})
+                    return
+                if self.path.startswith("/evolution/live"):
+                    self._send_json(lineage_v2.read_all()[-50:])
+                    return
+                if self.path.startswith("/evolution/active"):
+                    if CURRENT_EPOCH_PATH.exists():
+                        self._send_json(json.loads(CURRENT_EPOCH_PATH.read_text(encoding="utf-8")))
+                    else:
+                        self._send_json({})
                     return
                 if self.path.startswith("/mutations"):
                     self._send_json(self._collect_mutations(lineage_dir))
@@ -172,7 +199,7 @@ def main(argv: list[str] | None = None) -> int:
     dashboard = AponiDashboard(host=args.host, port=args.port)
     dashboard.start({"status": "dashboard_only"})
     print(f"[APONI] dashboard running on http://{dashboard.host}:{dashboard.port}")
-    print("[APONI] endpoints: /state /metrics /fitness /capabilities /lineage /mutations /staging")
+    print("[APONI] endpoints: /state /metrics /fitness /capabilities /lineage /mutations /staging /evolution/epoch?epoch_id=... /evolution/live /evolution/active")
     try:
         while True:
             time.sleep(1)

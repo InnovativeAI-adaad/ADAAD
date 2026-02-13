@@ -80,6 +80,7 @@ class ArchitectAgent:
                     targets=targets,
                     signature="cryovant-dev-architect",
                     nonce=f"arch-{agent_id}-{now_iso()}",
+                    authority_level="governor-review",
                 )
             )
         metrics.log(

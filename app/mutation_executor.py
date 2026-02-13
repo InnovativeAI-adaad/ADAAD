@@ -17,7 +17,7 @@ from runtime import ROOT_DIR
 from runtime.timeutils import now_iso
 from runtime import metrics
 from runtime.fitness_v2 import score_mutation_survival
-from security import cryovant
+from runtime.evolution import EvolutionRuntime
 from security.ledger import journal
 from runtime.tools.mutation_guard import apply_dna_mutation
 from runtime.tools.code_mutation_guard import apply_code_mutation, extract_targets as extract_code_targets
@@ -27,16 +27,10 @@ ELEMENT_ID = "Fire"
 
 
 class MutationExecutor:
-    def __init__(self, agents_root: Path) -> None:
+    def __init__(self, agents_root: Path, evolution_runtime: EvolutionRuntime | None = None) -> None:
         self.agents_root = agents_root
-
-    def _verify(self, request: MutationRequest) -> Tuple[bool, str]:
-        sig = request.signature or ""
-        if cryovant.verify_signature(sig):
-            return True, "verified"
-        if cryovant.dev_signature_allowed(sig):
-            return True, "dev_signature"
-        return False, "invalid_signature"
+        self.evolution_runtime = evolution_runtime or EvolutionRuntime()
+        self.governor = self.evolution_runtime.governor
 
     def _run_tests(self) -> Tuple[bool, str]:
         """
@@ -64,31 +58,37 @@ class MutationExecutor:
         return False, f"Tests failed:\n{failure_summary}"
 
     def execute(self, request: MutationRequest) -> Dict[str, Any]:
-        ok, reason = self._verify(request)
-        if not ok:
+        mutation_id = str(uuid.uuid4())
+
+
+        epoch_id = self.evolution_runtime.epoch_manager.get_active().epoch_id
+        request.epoch_id = epoch_id
+        if self.evolution_runtime.fail_closed:
+            return {"status": "blocked", "reason": "fail_closed", "epoch_id": epoch_id, "replay_status": "failed"}
+        decision = self.governor.validate_bundle(request, epoch_id=epoch_id)
+        if not decision.accepted:
             metrics.log(
-                event_type="mutation_rejected",
-                payload={"agent": request.agent_id, "reason": reason},
+                event_type="mutation_rejected_governance",
+                payload={"agent": request.agent_id, "reason": decision.reason, "epoch_id": epoch_id, "replay_status": decision.replay_status},
                 level="ERROR",
                 element_id=ELEMENT_ID,
             )
-            return {"status": "rejected", "reason": reason}
-
-        mutation_id = str(uuid.uuid4())
+            return {"status": "rejected", "reason": decision.reason, "epoch_id": epoch_id, "replay_status": decision.replay_status, "evolution": {"epoch_id": epoch_id, "certificate": decision.certificate or {}, "replay": {"passed": decision.replay_status == "ok"}}}
 
         if not request.ops and not request.targets:
             metrics.log(
                 event_type="mutation_noop",
-                payload={"agent": request.agent_id, "mutation_id": mutation_id, "reason": "no_ops"},
+                payload={"agent": request.agent_id, "mutation_id": mutation_id, "reason": "no_ops", "epoch_id": epoch_id},
                 level="INFO",
                 element_id=ELEMENT_ID,
             )
             journal.write_entry(
                 agent_id=request.agent_id,
                 action="mutation_noop",
-                payload={"mutation_id": mutation_id, "ts": now_iso()},
+                payload={"mutation_id": mutation_id, "epoch_id": epoch_id, "ts": now_iso()},
             )
-            return {"status": "skipped", "reason": "no_ops", "mutation_id": mutation_id}
+            self.evolution_runtime.after_mutation_cycle({"status": "skipped"})
+            return {"status": "skipped", "reason": "no_ops", "mutation_id": mutation_id, "epoch_id": epoch_id}
 
         agent_dir = agent_path_from_id(request.agent_id, self.agents_root)
         if request.targets:
@@ -96,7 +96,7 @@ class MutationExecutor:
             journal.write_entry(
                 agent_id=request.agent_id,
                 action="mutation_planned",
-                payload={"mutation_id": mutation_id, "targets": len(request.targets), "target_types": target_types, "ts": now_iso()},
+                payload={"mutation_id": mutation_id, "epoch_id": epoch_id, "targets": len(request.targets), "target_types": target_types, "ts": now_iso()},
             )
             metrics.log(
                 event_type="mutation_planned",
@@ -132,12 +132,15 @@ class MutationExecutor:
                 journal.write_entry(
                     agent_id=request.agent_id,
                     action="mutation_failed",
-                    payload={"mutation_id": mutation_id, "error": str(exc), "ts": now_iso()},
+                    payload={"mutation_id": mutation_id, "epoch_id": epoch_id, "error": str(exc), "ts": now_iso()},
                 )
-                return {"status": "failed", "tests_ok": False, "error": str(exc), "mutation_id": mutation_id}
+                self.evolution_runtime.after_mutation_cycle({"status": "skipped"})
+                return {"status": "failed", "tests_ok": False, "error": str(exc), "mutation_id": mutation_id, "epoch_id": epoch_id}
 
             payload = {
                 "agent": request.agent_id,
+                "epoch_id": epoch_id,
+                "certificate": decision.certificate or {},
                 "targets": len(request.targets),
                 "target_types": target_types,
                 "tests_ok": tests_ok,
@@ -151,7 +154,7 @@ class MutationExecutor:
             journal.write_entry(
                 agent_id=request.agent_id,
                 action="mutation_planned",
-                payload={"mutation_id": mutation_id, "ops": len(request.ops), "ts": now_iso()},
+                payload={"mutation_id": mutation_id, "epoch_id": epoch_id, "ops": len(request.ops), "ts": now_iso()},
             )
             metrics.log(
                 event_type="mutation_planned",
@@ -197,13 +200,16 @@ class MutationExecutor:
                     journal.write_entry(
                         agent_id=request.agent_id,
                         action="mutation_failed",
-                        payload={"mutation_id": mutation_id, "error": "code_mutation_failed", "ts": now_iso()},
+                        payload={"mutation_id": mutation_id, "epoch_id": epoch_id, "error": "code_mutation_failed", "ts": now_iso()},
                     )
-                    return {"status": "failed", "tests_ok": False, "error": "code_mutation_failed", "mutation_id": mutation_id}
+                    self.evolution_runtime.after_mutation_cycle({"status": "skipped"})
+                    return {"status": "failed", "tests_ok": False, "error": "code_mutation_failed", "mutation_id": mutation_id, "epoch_id": epoch_id}
 
             tests_ok, test_output = self._run_tests()
             payload = {
                 "agent": request.agent_id,
+                "epoch_id": epoch_id,
+                "certificate": decision.certificate or {},
                 "ops": len(request.ops),
                 "tests_ok": tests_ok,
                 "mutation_id": mutation_id,
@@ -225,7 +231,7 @@ class MutationExecutor:
                         continue
         survival_payload = {
             **payload,
-            "verified": ok,
+            "verified": True,
             "ops": request.ops,
         }
         survival_score = score_mutation_survival(
@@ -237,30 +243,36 @@ class MutationExecutor:
             metrics.log(event_type="mutation_executed", payload=payload, level="INFO", element_id=ELEMENT_ID)
             metrics.log(
                 event_type="mutation_score",
-                payload={"agent": request.agent_id, "strategy_id": request.intent or "default", "score": survival_score},
+                payload={"agent": request.agent_id, "strategy_id": request.intent or "default", "score": survival_score, "epoch_id": epoch_id},
                 level="INFO",
                 element_id=ELEMENT_ID,
             )
             journal.write_entry(
                 agent_id=request.agent_id,
                 action="mutation_promoted",
-                payload={"mutation_id": mutation_id, "lineage": payload["lineage"], "ts": now_iso()},
+                payload={"mutation_id": mutation_id, "epoch_id": epoch_id, "lineage": payload["lineage"], "ts": now_iso()},
             )
-            return {"status": "executed", "tests_ok": True, "mutation_id": mutation_id}
+            if decision.certificate:
+                self.governor.activate_certificate(epoch_id, decision.certificate.get("bundle_id", ""), True, "tests_passed")
+            evolution_result = self.evolution_runtime.after_mutation_cycle({"status": "executed", "mutation_id": mutation_id, "epoch_id": epoch_id, "evolution": {"certificate": decision.certificate or {}}})
+            return {"status": "executed", "tests_ok": True, "mutation_id": mutation_id, "epoch_id": epoch_id, "evolution": {"epoch_id": epoch_id, "bundle_id": (decision.certificate or {}).get("bundle_id"), "epoch_digest": (decision.certificate or {}).get("epoch_digest") or (evolution_result.get("replay", {}) or {}).get("epoch_digest"), "replay_passed": (evolution_result.get("replay", {}) or {}).get("replay_passed"), "certificate": decision.certificate or {}, "replay": evolution_result.get("replay", {})}}
 
         metrics.log(event_type="mutation_failed", payload={**payload, "error": test_output}, level="ERROR", element_id=ELEMENT_ID)
         metrics.log(
             event_type="mutation_score",
-            payload={"agent": request.agent_id, "strategy_id": request.intent or "default", "score": survival_score},
+            payload={"agent": request.agent_id, "strategy_id": request.intent or "default", "score": survival_score, "epoch_id": epoch_id},
             level="INFO",
             element_id=ELEMENT_ID,
         )
         journal.write_entry(
             agent_id=request.agent_id,
             action="mutation_failed",
-            payload={"mutation_id": mutation_id, "error": test_output, "ts": now_iso()},
+            payload={"mutation_id": mutation_id, "epoch_id": epoch_id, "error": test_output, "ts": now_iso()},
         )
-        return {"status": "failed", "tests_ok": False, "error": test_output, "mutation_id": mutation_id}
+        if decision.certificate:
+            self.governor.activate_certificate(epoch_id, decision.certificate.get("bundle_id", ""), False, "tests_failed")
+        self.evolution_runtime.after_mutation_cycle({"status": "failed", "mutation_id": mutation_id})
+        return {"status": "failed", "tests_ok": False, "error": test_output, "mutation_id": mutation_id, "epoch_id": epoch_id}
 
 
 __all__ = ["MutationExecutor"]
