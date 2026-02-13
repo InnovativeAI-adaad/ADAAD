@@ -1,0 +1,119 @@
+{
+  "version": "0.1.0",
+  "tiers": {
+    "PRODUCTION": 0,
+    "STABLE": 1,
+    "SANDBOX": 2
+  },
+  "severities": [
+    "blocking",
+    "warning",
+    "advisory"
+  ],
+  "immutability_constraints": {
+    "frozen_top_level_keys": [
+      "tiers",
+      "severities",
+      "immutability_constraints.required_rule_keys"
+    ],
+    "required_rule_keys": [
+      "name",
+      "enabled",
+      "severity",
+      "tier_overrides",
+      "reason",
+      "validator"
+    ]
+  },
+  "rules": [
+    {
+      "name": "single_file_scope",
+      "enabled": true,
+      "severity": "blocking",
+      "tier_overrides": {
+        "SANDBOX": "warning"
+      },
+      "reason": "Android memory constraints; reduces blast radius",
+      "validator": "single_file_scope"
+    },
+    {
+      "name": "ast_validity",
+      "enabled": true,
+      "severity": "blocking",
+      "tier_overrides": {},
+      "reason": "Prevent syntax errors from breaking runtime",
+      "validator": "ast_validity"
+    },
+    {
+      "name": "import_smoke_test",
+      "enabled": true,
+      "severity": "warning",
+      "tier_overrides": {
+        "PRODUCTION": "blocking"
+      },
+      "reason": "Catch import errors before execution",
+      "validator": "import_smoke_test"
+    },
+    {
+      "name": "no_banned_tokens",
+      "enabled": true,
+      "severity": "blocking",
+      "tier_overrides": {},
+      "reason": "Security: block eval, exec, os.system",
+      "validator": "no_banned_tokens"
+    },
+    {
+      "name": "signature_required",
+      "enabled": true,
+      "severity": "blocking",
+      "tier_overrides": {
+        "SANDBOX": "warning"
+      },
+      "reason": "Cryptographic lineage enforcement",
+      "validator": "signature_required"
+    },
+    {
+      "name": "max_complexity_delta",
+      "enabled": false,
+      "severity": "warning",
+      "tier_overrides": {},
+      "reason": "Prevent complexity explosions",
+      "validator": "max_complexity_delta"
+    },
+    {
+      "name": "test_coverage_maintained",
+      "enabled": false,
+      "severity": "warning",
+      "tier_overrides": {},
+      "reason": "Ensure mutations don't reduce test coverage",
+      "validator": "test_coverage_maintained"
+    },
+    {
+      "name": "max_mutation_rate",
+      "enabled": true,
+      "severity": "warning",
+      "tier_overrides": {
+        "PRODUCTION": "blocking",
+        "SANDBOX": "advisory"
+      },
+      "reason": "Prevent runaway mutation loops",
+      "validator": "max_mutation_rate"
+    },
+    {
+      "name": "lineage_continuity",
+      "enabled": false,
+      "severity": "blocking",
+      "tier_overrides": {},
+      "reason": "Every mutation must trace to certified ancestor",
+      "validator": "lineage_continuity"
+    },
+    {
+      "name": "resource_bounds",
+      "enabled": false,
+      "severity": "blocking",
+      "tier_overrides": {},
+      "reason": "Mutation cannot exceed memory/CPU/time budgets",
+      "validator": "resource_bounds"
+    }
+  ]
+}

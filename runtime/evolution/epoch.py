@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any, Dict
 
 from runtime import ROOT_DIR
+from runtime.evolution.entropy_discipline import deterministic_context, deterministic_token
 from runtime.timeutils import now_iso
 
 STATE_DIR = ROOT_DIR / "runtime" / "evolution" / "state"
@@ -44,12 +45,14 @@ class EpochManager:
         max_mutations: int = 50,
         max_duration_minutes: int = 30,
         state_path: Path | None = None,
+        replay_mode: str = "off",
     ) -> None:
         self.governor = governor
         self.ledger = ledger
         self.max_mutations = max_mutations
         self.max_duration_minutes = max_duration_minutes
         self.state_path = state_path or CURRENT_EPOCH_PATH
+        self.replay_mode = replay_mode
         self._state: EpochState | None = None
         self._force_end = False
 
@@ -121,7 +124,13 @@ class EpochManager:
         return self._state
 
     def start_new_epoch(self, metadata: Dict[str, Any] | None = None) -> EpochState:
-        epoch_id = f"epoch-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}-{uuid.uuid4().hex[:6]}"
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        if deterministic_context(replay_mode=self.replay_mode, recovery_tier=self.governor.recovery_tier.value):
+            previous_epoch_id = self._state.epoch_id if self._state else "genesis"
+            suffix = deterministic_token(epoch_id=previous_epoch_id, bundle_id=(metadata or {}).get("reason", "boot"), label="epoch", length=6)
+        else:
+            suffix = uuid.uuid4().hex[:6]
+        epoch_id = f"epoch-{timestamp}-{suffix}"
         state = EpochState(
             epoch_id=epoch_id,
             start_ts=now_iso(),

@@ -8,17 +8,22 @@ Every mutation passes through constitutional evaluation before execution.
 
 from __future__ import annotations
 
+import hashlib
+import json
 import os
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Callable, Dict, List
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Mapping
 
 from app.agents.mutation_request import MutationRequest
 from runtime import metrics
 from runtime.metrics_analysis import mutation_rate_snapshot
+from security.ledger import journal
 
 CONSTITUTION_VERSION = "0.1.0"
 ELEMENT_ID = "Earth"
+POLICY_PATH = Path("runtime/governance/constitution.yaml")
 
 
 class Severity(Enum):
@@ -193,88 +198,137 @@ def _validate_resources(_: MutationRequest) -> Dict[str, Any]:
     return {"ok": True, "reason": "not_yet_implemented"}
 
 
-RULES: List[Rule] = [
-    Rule(
-        name="single_file_scope",
-        enabled=True,
-        severity=Severity.BLOCKING,
-        tier_overrides={Tier.SANDBOX: Severity.WARNING},
-        reason="Android memory constraints; reduces blast radius",
-        validator=_validate_single_file,
-    ),
-    Rule(
-        name="ast_validity",
-        enabled=True,
-        severity=Severity.BLOCKING,
-        tier_overrides={},
-        reason="Prevent syntax errors from breaking runtime",
-        validator=_validate_ast,
-    ),
-    Rule(
-        name="import_smoke_test",
-        enabled=True,
-        severity=Severity.WARNING,
-        tier_overrides={Tier.PRODUCTION: Severity.BLOCKING},
-        reason="Catch import errors before execution",
-        validator=_validate_imports,
-    ),
-    Rule(
-        name="no_banned_tokens",
-        enabled=True,
-        severity=Severity.BLOCKING,
-        tier_overrides={},
-        reason="Security: block eval, exec, os.system",
-        validator=_validate_no_banned_tokens,
-    ),
-    Rule(
-        name="signature_required",
-        enabled=True,
-        severity=Severity.BLOCKING,
-        tier_overrides={Tier.SANDBOX: Severity.WARNING},
-        reason="Cryptographic lineage enforcement",
-        validator=_validate_signature,
-    ),
-    Rule(
-        name="max_complexity_delta",
-        enabled=False,
-        severity=Severity.WARNING,
-        tier_overrides={},
-        reason="Prevent complexity explosions",
-        validator=_validate_complexity,
-    ),
-    Rule(
-        name="test_coverage_maintained",
-        enabled=False,
-        severity=Severity.WARNING,
-        tier_overrides={},
-        reason="Ensure mutations don't reduce test coverage",
-        validator=_validate_coverage,
-    ),
-    Rule(
-        name="max_mutation_rate",
-        enabled=True,
-        severity=Severity.WARNING,
-        tier_overrides={Tier.PRODUCTION: Severity.BLOCKING, Tier.SANDBOX: Severity.ADVISORY},
-        reason="Prevent runaway mutation loops",
-        validator=_validate_mutation_rate,
-    ),
-    Rule(
-        name="lineage_continuity",
-        enabled=False,
-        severity=Severity.BLOCKING,
-        tier_overrides={},
-        reason="Every mutation must trace to certified ancestor",
-        validator=_validate_lineage,
-    ),
-    Rule(
-        name="resource_bounds",
-        enabled=False,
-        severity=Severity.BLOCKING,
-        tier_overrides={},
-        reason="Mutation cannot exceed memory/CPU/time budgets",
-        validator=_validate_resources,
-    ),
-]
+VALIDATOR_REGISTRY: Dict[str, Callable[[MutationRequest], Dict[str, Any]]] = {
+    "single_file_scope": _validate_single_file,
+    "ast_validity": _validate_ast,
+    "import_smoke_test": _validate_imports,
+    "signature_required": _validate_signature,
+    "no_banned_tokens": _validate_no_banned_tokens,
+    "lineage_continuity": _validate_lineage,
+    "max_complexity_delta": _validate_complexity,
+    "test_coverage_maintained": _validate_coverage,
+    "max_mutation_rate": _validate_mutation_rate,
+    "resource_bounds": _validate_resources,
+}
+
+
+def _policy_hash(policy_text: str) -> str:
+    return hashlib.sha256(policy_text.encode("utf-8")).hexdigest()
+
+
+def _load_policy_document(path: Path) -> tuple[Mapping[str, Any], str]:
+    if not path.exists():
+        raise ValueError(f"constitution_policy_missing:{path}")
+    raw = path.read_text(encoding="utf-8")
+    try:
+        policy = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"constitution_policy_invalid_json:{exc}") from exc
+    if not isinstance(policy, dict):
+        raise ValueError("constitution_policy_invalid_schema:root_not_object")
+    return policy, _policy_hash(raw)
+
+
+def _validate_policy_schema(policy: Mapping[str, Any], expected_version: str) -> None:
+    version = policy.get("version")
+    if version != expected_version:
+        raise ValueError(f"constitution_version_mismatch:{version}!={expected_version}")
+
+    tiers = policy.get("tiers")
+    if not isinstance(tiers, dict) or not tiers:
+        raise ValueError("constitution_policy_invalid_schema:tiers")
+    for tier in Tier:
+        if tier.name not in tiers:
+            raise ValueError(f"constitution_policy_invalid_schema:missing_tier:{tier.name}")
+        if tiers[tier.name] != tier.value:
+            raise ValueError(f"constitution_policy_invalid_schema:tier_value_mismatch:{tier.name}")
+
+    severities = policy.get("severities")
+    allowed = {severity.value for severity in Severity}
+    if not isinstance(severities, list) or set(severities) != allowed:
+        raise ValueError("constitution_policy_invalid_schema:severities")
+
+    immutability = policy.get("immutability_constraints")
+    if not isinstance(immutability, dict):
+        raise ValueError("constitution_policy_invalid_schema:immutability_constraints")
+    required_rule_keys = immutability.get("required_rule_keys")
+    if not isinstance(required_rule_keys, list) or not required_rule_keys:
+        raise ValueError("constitution_policy_invalid_schema:required_rule_keys")
+
+    rules = policy.get("rules")
+    if not isinstance(rules, list) or not rules:
+        raise ValueError("constitution_policy_invalid_schema:rules")
+    for index, raw_rule in enumerate(rules):
+        if not isinstance(raw_rule, dict):
+            raise ValueError(f"constitution_policy_invalid_schema:rule_not_object:{index}")
+        missing_keys = [key for key in required_rule_keys if key not in raw_rule]
+        if missing_keys:
+            raise ValueError(f"constitution_policy_invalid_schema:rule_missing_keys:{index}:{','.join(missing_keys)}")
+        if raw_rule.get("severity") not in allowed:
+            raise ValueError(f"constitution_policy_invalid_schema:rule_severity:{raw_rule.get('name', index)}")
+        validator_name = raw_rule.get("validator")
+        if validator_name not in VALIDATOR_REGISTRY:
+            raise ValueError(f"constitution_policy_invalid_schema:validator:{validator_name}")
+        overrides = raw_rule.get("tier_overrides")
+        if not isinstance(overrides, dict):
+            raise ValueError(f"constitution_policy_invalid_schema:tier_overrides:{raw_rule.get('name', index)}")
+        for tier_name, severity_name in overrides.items():
+            if tier_name not in tiers:
+                raise ValueError(f"constitution_policy_invalid_schema:override_tier:{raw_rule.get('name', index)}:{tier_name}")
+            if severity_name not in allowed:
+                raise ValueError(
+                    f"constitution_policy_invalid_schema:override_severity:{raw_rule.get('name', index)}:{severity_name}"
+                )
+
+
+def _record_amendment(old_hash: str | None, new_hash: str, version: str) -> None:
+    if old_hash is None or old_hash == new_hash:
+        return
+    payload = {"version": version, "old_policy_hash": old_hash, "new_policy_hash": new_hash}
+    journal.write_entry(agent_id="system", action="constitutional_amendment", payload=payload)
+    journal.append_tx(tx_type="constitutional_amendment", payload=payload)
+
+
+def load_constitution_policy(path: Path = POLICY_PATH, expected_version: str = CONSTITUTION_VERSION) -> tuple[List[Rule], str]:
+    policy, policy_hash = _load_policy_document(path)
+    _validate_policy_schema(policy, expected_version)
+
+    rule_objects: List[Rule] = []
+    for raw_rule in policy["rules"]:
+        tier_overrides = {
+            Tier[tier_name]: Severity(severity_name)
+            for tier_name, severity_name in (raw_rule.get("tier_overrides") or {}).items()
+        }
+        rule_objects.append(
+            Rule(
+                name=str(raw_rule["name"]),
+                enabled=bool(raw_rule["enabled"]),
+                severity=Severity(str(raw_rule["severity"])),
+                tier_overrides=tier_overrides,
+                reason=str(raw_rule["reason"]),
+                validator=VALIDATOR_REGISTRY[str(raw_rule["validator"])],
+            )
+        )
+    return rule_objects, policy_hash
+
+
+try:
+    RULES, POLICY_HASH = load_constitution_policy()
+except ValueError as exc:
+    raise RuntimeError(f"constitution_boot_failed:{exc}") from exc
+
+_record_amendment(old_hash=None, new_hash=POLICY_HASH, version=CONSTITUTION_VERSION)
+
+
+def reload_constitution_policy(path: Path = POLICY_PATH) -> str:
+    """Reload policy artifact and log hash delta as a constitutional amendment."""
+    global RULES, POLICY_HASH
+    old_hash = POLICY_HASH
+    rules, new_hash = load_constitution_policy(path=path, expected_version=CONSTITUTION_VERSION)
+    RULES = rules
+    POLICY_HASH = new_hash
+    _record_amendment(old_hash=old_hash, new_hash=new_hash, version=CONSTITUTION_VERSION)
+    return new_hash
 
 
 def get_rules_for_tier(tier: Tier) -> List[tuple[Rule, Severity]]:
@@ -324,6 +378,7 @@ def evaluate_mutation(request: MutationRequest, tier: Tier) -> Dict[str, Any]:
 
     evaluation = {
         "constitution_version": CONSTITUTION_VERSION,
+        "policy_hash": POLICY_HASH,
         "tier": tier.name,
         "tier_value": tier.value,
         "passed": passed,
@@ -388,8 +443,12 @@ __all__ = [
     "evaluate_mutation",
     "determine_tier",
     "get_forced_tier",
+    "load_constitution_policy",
+    "reload_constitution_policy",
     "Tier",
     "Severity",
     "CONSTITUTION_VERSION",
     "RULES",
+    "POLICY_HASH",
+    "POLICY_PATH",
 ]

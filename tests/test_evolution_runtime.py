@@ -11,6 +11,7 @@ from runtime.evolution.governor import EvolutionGovernor
 from runtime.evolution.lineage_v2 import LineageLedgerV2
 from runtime.evolution.replay import ReplayEngine
 from runtime.evolution.replay_verifier import ReplayVerifier
+from runtime.evolution.runtime import EvolutionRuntime
 
 
 class EvolutionRuntimeComponentsTest(unittest.TestCase):
@@ -64,6 +65,30 @@ class EvolutionRuntimeComponentsTest(unittest.TestCase):
             decision = self.governor.validate_bundle(request, epoch_id="epoch-1")
         self.assertFalse(decision.accepted)
         self.assertEqual(decision.reason, "governor_fail_closed")
+
+    def test_replay_preflight_reports_explicit_divergence_fields(self) -> None:
+        runtime = EvolutionRuntime()
+        runtime.verify_epoch = mock.Mock(return_value={
+            "epoch_id": "epoch-1",
+            "baseline_epoch": "epoch-1",
+            "baseline_source": "lineage_epoch_digest",
+            "expected_digest": "sha256:expected",
+            "actual_digest": "sha256:actual",
+            "passed": False,
+            "decision": "diverge",
+        })
+        runtime.ledger.list_epoch_ids = mock.Mock(return_value=["epoch-1"])
+        runtime.governor.enter_fail_closed = mock.Mock()
+
+        result = runtime.replay_preflight("strict")
+
+        self.assertTrue(result["has_divergence"])
+        self.assertEqual(result["decision"], "fail_closed")
+        detail = result["results"][0]
+        self.assertEqual(detail["baseline_epoch"], "epoch-1")
+        self.assertEqual(detail["expected_digest"], "sha256:expected")
+        self.assertEqual(detail["actual_digest"], "sha256:actual")
+        self.assertEqual(detail["decision"], "diverge")
 
 
 if __name__ == "__main__":

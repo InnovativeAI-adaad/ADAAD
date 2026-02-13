@@ -33,6 +33,16 @@ Mutations only execute when all trust and governance criteria are met. ADAAD evo
 
 ---
 
+
+## 🧭 Governance Philosophy
+
+ADAAD is **governance-first** by design: autonomy is valuable only when behavior remains explainable, replayable, and constitutionally constrained.
+
+- **Determinism is legitimacy**: if a decision cannot be replayed, it cannot be trusted.
+- **Lineage is the primary artifact**: mutation history is append-only, hash-linked, and auditable.
+- **Constitution before capability**: higher capability never bypasses constitutional gates.
+- **Fail-closed over silent drift**: uncertain trust or replay divergence defaults to blocked execution.
+
 ## 🧠 Core Guarantees
 
 | Property          | Enforcement Mechanism                         |
@@ -173,18 +183,19 @@ Each record contains:
 
 ```bash
 python -m app.main --replay off
-python -m app.main --replay full
+python -m app.main --replay audit
 python -m app.main --replay strict
-python -m app.main --replay-epoch <epoch_id>
+python -m app.main --replay audit --replay-epoch <epoch_id>
+python -m app.main --verify-replay --replay strict
 ```
 
-| Mode     | Behavior                 |
-| -------- | ------------------------ |
-| `off`    | No replay check          |
-| `full`   | Verification signal only |
-| `strict` | Fail-close on divergence |
+| Mode     | Guarantees | Failure Behavior | Use Case |
+| -------- | ---------- | ---------------- | -------- |
+| `off`    | No replay baseline enforcement | Continue | Development/local iteration |
+| `audit`  | Baseline digest comparison + divergence reporting | Continue with warning | Staging / observability |
+| `strict` | Full replay equivalence requirement | Fail-close | Production / high-assurance boot |
 
-Replay outcomes are journaled (`replay_verified`).
+Replay outcomes are journaled (`replay_verified`) with baseline epoch, expected digest, actual digest, and decision details. Legacy `full` maps to `audit`.
 
 ### Determinism Scope
 
@@ -306,3 +317,30 @@ ADAAD is a bounded autonomous software organism:
 | Body       | He65 repository            |
 
 **It evolves under law, not impulse.**
+
+---
+
+
+## 🧬 Mutation Lifecycle
+
+```text
+1) Discovery (Dream/Architect candidate search)
+2) Stage mutation proposal
+3) Fitness evaluation
+4) Constitutional + governance checks
+5) Execute or dry-run via MutationExecutor
+6) Append lineage + journal evidence
+7) Replay verification (mode dependent)
+8) Promotion / rejection outcome
+```
+
+## 🪜 Recovery Tier Ladder
+
+| Tier | Trigger Profile | Mutation Policy | Operational Posture |
+| ---- | --------------- | --------------- | ------------------- |
+| `none` | Normal operation | Full rate | Autonomous |
+| `advisory` | Early anomaly signal | Full rate + warning | Observe |
+| `conservative` | Repeated mutation-quality failures | Throttled rate | Stabilize |
+| `governance` | Constitutional/governance pressure | Fail-close + approval required | Human-supervised |
+| `critical` | Ledger integrity or high-severity trust failure | Evolution frozen | Incident response |
+
