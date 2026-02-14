@@ -60,20 +60,22 @@ class HardenedSandboxExecutor:
         validate_manifest(manifest)
         validate_policy(self.policy)
 
-        synthetic_syscalls = ("open", "read", "write", "close")
-        syscall_ok, denied_syscalls = enforce_syscall_allowlist(synthetic_syscalls, self.policy.syscall_allowlist)
+        result = self.test_sandbox.run_tests_with_retry(args=args, retries=retries)
+
+        if not result.observed_syscalls:
+            raise RuntimeError("sandbox_missing_syscall_telemetry")
+
+        syscall_ok, denied_syscalls = enforce_syscall_allowlist(result.observed_syscalls, self.policy.syscall_allowlist)
         if not syscall_ok:
             raise RuntimeError(f"sandbox_syscall_violation:{','.join(denied_syscalls)}")
 
-        write_ok, write_violations = enforce_write_path_allowlist(("reports",), manifest.allowed_write_paths)
+        write_ok, write_violations = enforce_write_path_allowlist(result.attempted_write_paths, manifest.allowed_write_paths)
         if not write_ok:
             raise RuntimeError(f"sandbox_write_path_violation:{','.join(write_violations)}")
 
-        network_ok, network_violations = enforce_network_egress_allowlist((), manifest.allowed_network_hosts)
+        network_ok, network_violations = enforce_network_egress_allowlist(result.attempted_network_hosts, manifest.allowed_network_hosts)
         if not network_ok:
             raise RuntimeError(f"sandbox_network_violation:{','.join(network_violations)}")
-
-        result = self.test_sandbox.run_tests_with_retry(args=args, retries=retries)
         resource_verdict = enforce_resource_quotas(
             observed_cpu_s=result.duration_s,
             observed_memory_mb=float(result.memory_mb or 0.0),
@@ -93,7 +95,7 @@ class HardenedSandboxExecutor:
             manifest=manifest.to_dict(),
             result=result_payload,
             policy_hash=self.policy.policy_hash,
-            syscall_trace=synthetic_syscalls,
+            syscall_trace=result.observed_syscalls,
             provider_ts=self.provider.iso_now(),
         )
         entry = self.evidence_ledger.append(evidence_payload)

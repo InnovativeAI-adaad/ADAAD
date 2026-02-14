@@ -19,6 +19,7 @@ from runtime.evolution.scoring_ledger import ScoringLedger
 from runtime.evolution.scoring_validator import validate_scoring_payload
 from runtime.evolution.replay_verifier import ReplayVerifier
 from runtime.evolution.runtime import EvolutionRuntime
+from runtime.evolution.telemetry_audit import get_epoch_entropy_breakdown
 
 __all__ = [
     "EpochManager",
@@ -53,4 +54,5 @@ __all__ = [
     "ReplayEngine",
     "ReplayVerifier",
     "EvolutionRuntime",
+    "get_epoch_entropy_breakdown",
 ]

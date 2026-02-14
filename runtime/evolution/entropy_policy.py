@@ -26,12 +26,24 @@ class EntropyPolicy:
         )
 
 
-def enforce_entropy_policy(*, policy: EntropyPolicy, mutation_bits: int, epoch_bits: int) -> Dict[str, Any]:
-    mutation_ok = int(mutation_bits) <= int(policy.per_mutation_ceiling_bits)
+def enforce_entropy_policy(
+    *,
+    policy: EntropyPolicy,
+    mutation_bits: int,
+    epoch_bits: int,
+    declared_bits: int | None = None,
+    observed_bits: int = 0,
+) -> Dict[str, Any]:
+    effective_declared_bits = int(mutation_bits if declared_bits is None else declared_bits)
+    effective_observed_bits = max(0, int(observed_bits))
+    mutation_total_bits = effective_declared_bits + effective_observed_bits
+    mutation_ok = mutation_total_bits <= int(policy.per_mutation_ceiling_bits)
     epoch_ok = int(epoch_bits) <= int(policy.per_epoch_ceiling_bits)
     return {
         "passed": bool(mutation_ok and epoch_ok),
-        "mutation_bits": int(mutation_bits),
+        "declared_bits": effective_declared_bits,
+        "observed_bits": effective_observed_bits,
+        "mutation_bits": mutation_total_bits,
         "epoch_bits": int(epoch_bits),
         "policy_id": policy.policy_id,
         "policy_hash": policy.policy_hash,

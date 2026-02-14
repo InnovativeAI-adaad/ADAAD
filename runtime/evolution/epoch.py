@@ -34,6 +34,7 @@ class EpochState:
     baseline_id: str = ""
     baseline_hash: str = ""
     mutation_count: int = 0
+    cumulative_entropy_bits: int = 0
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -44,6 +45,7 @@ class EpochState:
             "baseline_id": self.baseline_id,
             "baseline_hash": self.baseline_hash,
             "mutation_count": self.mutation_count,
+            "cumulative_entropy_bits": self.cumulative_entropy_bits,
         }
 
 
@@ -205,6 +207,7 @@ class EpochManager:
             baseline_id=baseline.baseline_id,
             baseline_hash=baseline.baseline_hash,
             mutation_count=0,
+            cumulative_entropy_bits=0,
         )
         self.governor.mark_epoch_start(epoch_id, {**state.metadata})
         self.ledger.append_event(
@@ -217,6 +220,12 @@ class EpochManager:
     def increment_mutation_count(self) -> EpochState:
         state = self.get_active()
         state.mutation_count += 1
+        self._persist(state)
+        return state
+
+    def add_entropy_bits(self, bits: int) -> EpochState:
+        state = self.get_active()
+        state.cumulative_entropy_bits += max(0, int(bits))
         self._persist(state)
         return state
 
@@ -237,6 +246,7 @@ class EpochManager:
                 baseline_id=str(raw.get("baseline_id") or ""),
                 baseline_hash=str(raw.get("baseline_hash") or ""),
                 mutation_count=int(raw.get("mutation_count", 0) or 0),
+                cumulative_entropy_bits=int(raw.get("cumulative_entropy_bits", 0) or 0),
             )
         except Exception:
             return None

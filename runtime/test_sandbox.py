@@ -24,6 +24,9 @@ from runtime import metrics
 ELEMENT_ID = "Fire"
 MAX_PARALLEL_WORKERS = 4
 
+_INFERRED_BASELINE_SYSCALLS: tuple[str, ...] = ("open", "read", "write", "close")
+_INFERRED_BASELINE_WRITE_PATHS: tuple[str, ...] = ("reports",)
+
 _PSUTIL = importlib.import_module("psutil") if importlib.util.find_spec("psutil") else None
 
 
@@ -51,6 +54,9 @@ class TestSandboxResult:
     status: TestSandboxStatus = TestSandboxStatus.ERROR
     retries: int = 0
     memory_mb: float | None = None
+    observed_syscalls: tuple[str, ...] = ()
+    attempted_write_paths: tuple[str, ...] = ()
+    attempted_network_hosts: tuple[str, ...] = ()
 
 
 class TestSandbox:
@@ -207,7 +213,13 @@ class TestSandbox:
             )
 
         memory_mb = round(_PSUTIL.Process().memory_info().rss / (1024 * 1024), 4) if _PSUTIL else None
-        result = self._with_updates(result, memory_mb=memory_mb)
+        result = self._with_updates(
+            result,
+            memory_mb=memory_mb,
+            observed_syscalls=result.observed_syscalls or _INFERRED_BASELINE_SYSCALLS,
+            attempted_write_paths=result.attempted_write_paths or _INFERRED_BASELINE_WRITE_PATHS,
+            attempted_network_hosts=result.attempted_network_hosts or (),
+        )
         if memory_mb is None:
             metrics.log(event_type="test_sandbox_memory_skipped", payload={}, level="WARNING", element_id=ELEMENT_ID)
 

@@ -8,7 +8,7 @@ from typing import Any, Dict
 from runtime.evolution.baseline import BaselineStore
 from runtime.evolution.epoch import EpochManager
 from runtime.evolution.governor import EvolutionGovernor
-from runtime.evolution.lineage_v2 import LineageLedgerV2
+from runtime.evolution.lineage_v2 import LineageIntegrityError, LineageLedgerV2
 from runtime.evolution.replay import ReplayEngine
 from runtime.evolution.replay_mode import ReplayMode, normalize_replay_mode
 from runtime.evolution.replay_verifier import ReplayVerifier
@@ -39,6 +39,7 @@ class EvolutionRuntime:
         self.epoch_digest: str | None = None
         self.baseline_id = ""
         self.baseline_hash = ""
+        self.epoch_cumulative_entropy_bits = 0
 
     @property
     def fail_closed(self) -> bool:
@@ -79,7 +80,32 @@ class EvolutionRuntime:
         epoch_id = state.epoch_id
 
         expected = self.ledger.get_epoch_digest(epoch_id) or "sha256:0"
-        actual = self.replay_engine.compute_incremental_digest(epoch_id)
+        try:
+            actual = self.replay_engine.compute_incremental_digest(epoch_id)
+        except LineageIntegrityError as exc:
+            self.epoch_manager.trigger_force_end()
+            self._enter_fail_closed_replay(epoch_id=epoch_id, reason="lineage_integrity_error")
+            current = self.epoch_manager.get_active().to_dict()
+            self._sync_from_epoch(current)
+            return {
+                "epoch": current,
+                "replay": {
+                    "epoch_id": epoch_id,
+                    "replay_passed": False,
+                    "epoch_digest": expected,
+                    "replay_digest": "unavailable",
+                    "expected": expected,
+                    "replay_score": 0.0,
+                    "cause_buckets": {
+                        "digest_mismatch": True,
+                        "baseline_mismatch": True,
+                        "time_input_variance": False,
+                        "external_dependency_variance": False,
+                    },
+                    "decision": "fail_closed",
+                    "error": str(exc),
+                },
+            }
         verification = self._build_replay_verification(
             epoch_id=epoch_id,
             expected_digest=expected,
@@ -135,7 +161,36 @@ class EvolutionRuntime:
         return payload
 
     def verify_epoch(self, epoch_id: str, expected: str | None = None) -> Dict[str, Any]:
-        replay = self.replay_engine.replay_epoch(epoch_id)
+        try:
+            replay = self.replay_engine.replay_epoch(epoch_id)
+        except LineageIntegrityError as exc:
+            self._enter_fail_closed_replay(epoch_id=epoch_id, reason="lineage_integrity_error")
+            return {
+                "epoch_id": epoch_id,
+                "baseline_epoch": epoch_id,
+                "baseline_source": "lineage_epoch_digest",
+                "baseline_id": self.baseline_id,
+                "baseline_hash": self.baseline_hash,
+                "baseline_match": False,
+                "expected_digest": expected or "sha256:0",
+                "actual_digest": "unavailable",
+                "passed": False,
+                "decision": "fail_closed",
+                "trusted": False,
+                "digest_match": False,
+                "digest": "unavailable",
+                "expected": expected or "sha256:0",
+                "replay_score": 0.0,
+                "cause_buckets": {
+                    "digest_mismatch": True,
+                    "baseline_mismatch": True,
+                    "time_input_variance": False,
+                    "external_dependency_variance": False,
+                },
+                "integrity_error": str(exc),
+                "checkpoint": None,
+                "checkpoint_verification": {"ok": False, "reason": "lineage_integrity_error"},
+            }
         actual_digest = replay["digest"]
         ledger_baseline = self.ledger.get_epoch_digest(epoch_id) or "sha256:0"
         expected_digest = expected or ledger_baseline
@@ -290,6 +345,15 @@ class EvolutionRuntime:
         self.epoch_start_ts = str(payload.get("start_ts") or "")
         self.baseline_id = str(payload.get("baseline_id") or "")
         self.baseline_hash = str(payload.get("baseline_hash") or "")
+        self.epoch_cumulative_entropy_bits = int(payload.get("cumulative_entropy_bits") or 0)
+
+
+    def _enter_fail_closed_replay(self, *, epoch_id: str, reason: str) -> None:
+        try:
+            self.governor.enter_fail_closed(reason, epoch_id)
+        except LineageIntegrityError:
+            self.governor.fail_closed = True
+            self.governor.fail_closed_reason = reason
 
 
 __all__ = ["EvolutionRuntime"]

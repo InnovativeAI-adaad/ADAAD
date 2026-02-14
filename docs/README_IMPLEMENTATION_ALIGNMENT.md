@@ -1,5 +1,7 @@
 # ADAAD Implementation ↔ Documentation Alignment
 
+**Authoritative version and posture:** `0.65.x` (latest tagged release: `0.65.0`), **Experimental / pre-1.0**. Governance/replay controls are validated in-tree; mutation autonomy and sovereignty federation remain staged.
+
 This document cross-references `README.md` operational claims with concrete implementation modules and tests.
 
 ## Governance Philosophy Alignment
@@ -104,3 +106,35 @@ pytest -q
 Expected status in this repository branch: all tests passing (with one known collection warning from `runtime/test_sandbox.py`).
 
 - Governance schema versioning policy: `docs/governance/schema_versioning_and_migration.md`
+
+
+## Sovereignty Requirements: Implemented vs Planned
+
+| Requirement | Evidence in repository | Status | Validation posture |
+|---|---|---|---|
+| Deterministic substrate | `runtime.governance.foundation.{canonical,hashing,clock,determinism}` plus replay/determinism tests in `tests/determinism/*` | Implemented | Validated guarantee for governance/replay execution paths |
+| Sandbox hardening depth | Sandbox policy + enforcement and evidence tests in `tests/sandbox/test_sandbox_*` | Partially implemented | Baseline validated; deeper hardening remains roadmap |
+| Replay proofs | Replay preflight/runtime harnesses in `runtime/evolution/*` and `tests/determinism/test_replay_runtime_harness.py` | Partially implemented | Deterministic replay verification validated; portable cryptographic proof bundles are roadmap |
+| Federation | No committed cross-instance federation module in current runtime tree | Planned | Not a current guarantee |
+
+## PR Milestone Reconciliation (PR-1 .. PR-6)
+
+| Milestone | Status in docs | Reconciled repository posture |
+|---|---|---|
+| PR-1 | Complete | Keep as complete (scoring + deterministic ledger/test claims present and aligned) |
+| PR-2 | Open | Keep as planned/open (no validated completion claim retained) |
+| PR-3 | In progress | Partial implementation present (checkpoint + entropy policy primitives) |
+| PR-4 | In progress | Partial implementation present (promotion policy/state transitions) |
+| PR-5 | Complete baseline | Keep complete for baseline hardening; additional depth remains roadmap |
+| PR-6 | Planned | Federation scope remains roadmap |
+
+## Release Notes Rule: Guarantees vs Roadmap
+
+For `CHANGELOG.md` and release notes:
+
+- Put only tested, branch-validated behavior under **Validated guarantees**.
+- Put future work and unverified posture claims under **Roadmap**.
+- Do not label planned federation or deep hardening items as production guarantees until explicit validation artifacts/tests are present.
+
+
+- Fail-closed recovery runbook: `docs/governance/fail_closed_recovery_runbook.md`

@@ -18,7 +18,7 @@ from runtime.evolution.entropy_discipline import deterministic_context, determin
 from runtime.evolution.promotion_events import create_promotion_event
 from runtime.evolution.promotion_policy import PromotionPolicyEngine
 from runtime.evolution.promotion_state_machine import PromotionState, require_transition
-from runtime.evolution.entropy_detector import detect_entropy_metadata
+from runtime.evolution.entropy_detector import detect_entropy_metadata, observed_entropy_from_telemetry
 from runtime.evolution.entropy_policy import EntropyPolicy, enforce_entropy_policy
 from runtime.fitness_pipeline import FitnessPipeline, RiskEvaluator, TestOutcomeEvaluator
 from runtime.fitness_v2 import score_mutation_survival
@@ -443,10 +443,23 @@ class MutationExecutor:
             epoch_id=epoch_id,
             sandbox_nondeterministic=bool(self.hardened_sandbox.policy.network_egress_allowlist),
         )
-        epoch_entropy_bits = int(self.evolution_runtime.epoch_mutation_count * entropy_metadata.estimated_bits)
+        telemetry_observed_bits, telemetry_sources = observed_entropy_from_telemetry(
+            {
+                "unseeded_rng_calls": int((self.hardened_sandbox.last_evidence_payload or {}).get("unseeded_rng_calls", 0) or 0),
+                "wall_clock_reads": int((self.hardened_sandbox.last_evidence_payload or {}).get("wall_clock_reads", 0) or 0),
+                "external_io_attempts": int((self.hardened_sandbox.last_evidence_payload or {}).get("external_io_attempts", 0) or 0),
+            }
+        )
+        # Rationale: aggregate declared request entropy with observed runtime telemetry.
+        # Invariants: epoch entropy is monotonically non-decreasing and policy remains fail-closed.
+        prior_epoch_bits = int(getattr(self.evolution_runtime, "epoch_cumulative_entropy_bits", 0) or 0)
+        mutation_total_bits = int(entropy_metadata.estimated_bits) + int(telemetry_observed_bits)
+        epoch_entropy_bits = prior_epoch_bits + mutation_total_bits
         entropy_check = enforce_entropy_policy(
             policy=self.entropy_policy,
-            mutation_bits=entropy_metadata.estimated_bits,
+            mutation_bits=mutation_total_bits,
+            declared_bits=entropy_metadata.estimated_bits,
+            observed_bits=telemetry_observed_bits,
             epoch_bits=epoch_entropy_bits,
         )
         if not entropy_check["passed"]:
@@ -467,10 +480,16 @@ class MutationExecutor:
                 "epoch_id": epoch_id,
             }
 
+        epoch_state = self.evolution_runtime.epoch_manager.add_entropy_bits(mutation_total_bits)
+        self.evolution_runtime.epoch_cumulative_entropy_bits = int(epoch_state.cumulative_entropy_bits)
+
         promotion_mutation_data = {
             "score": float(survival_score),
-            "entropy_bits": int(entropy_metadata.estimated_bits),
+            "entropy_bits": int(mutation_total_bits),
             "risk_tier": self._risk_tier(float(impact.risk_score)),
+            "entropy_declared_bits": int(entropy_metadata.estimated_bits),
+            "entropy_observed_bits": int(telemetry_observed_bits),
+            "entropy_observed_sources": list(telemetry_sources),
             "risk_score": float(impact.risk_score),
             "tests_ok": bool(tests_ok),
         }
