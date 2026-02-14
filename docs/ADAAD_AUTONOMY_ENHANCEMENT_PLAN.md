@@ -67,3 +67,8 @@
   - Keep tests deterministic and isolated.
 - **Risks / mitigations**
   - Risk: flaky checks from shared metrics file. Mitigation: patch metrics paths in tests.
+
+
+## Implementation References
+- Feature schema: `docs/AUTONOMY_FEATURE_SCHEMA.md`
+- Migration guide: `docs/AUTONOMY_MIGRATION_GUIDE.md`

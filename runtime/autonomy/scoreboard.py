@@ -10,18 +10,33 @@ from runtime import metrics
 
 
 def build_scoreboard_views(limit: int = 1000) -> dict[str, Any]:
-    entries = metrics.tail(limit=limit)
+    try:
+        parsed_limit = max(int(limit), 0)
+    except (TypeError, ValueError):
+        parsed_limit = 0
+
+    try:
+        entries = metrics.tail(limit=parsed_limit)
+    except OSError:
+        entries = []
     perf_by_agent: dict[str, list[int]] = defaultdict(list)
     mutation_outcomes: Counter[str] = Counter()
     sandbox_failures: Counter[str] = Counter()
 
     for entry in entries:
+        if not isinstance(entry, dict):
+            continue
         event = entry.get("event")
-        payload = entry.get("payload") or {}
+        payload = entry.get("payload")
+        if not isinstance(payload, dict):
+            payload = {}
 
         if event == "autonomy_action":
             agent = str(payload.get("agent") or "unknown")
-            duration = int(payload.get("duration_ms") or 0)
+            try:
+                duration = int(payload.get("duration_ms") or 0)
+            except (TypeError, ValueError):
+                duration = 0
             perf_by_agent[agent].append(duration)
 
         if event in {"mutation_executed", "mutation_failed", "mutation_rejected_constitutional"}:
