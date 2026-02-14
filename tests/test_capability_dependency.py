@@ -11,12 +11,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import tempfile
+import threading
 import unittest
 from pathlib import Path
+from unittest import mock
 
-from runtime import metrics
 from runtime import capability_graph
+from runtime import metrics
 
 
 class CapabilityDependencyTest(unittest.TestCase):
@@ -40,6 +43,51 @@ class CapabilityDependencyTest(unittest.TestCase):
         )
         self.assertFalse(ok)
         self.assertIn("missing dependencies", message)
+
+    def test_concurrent_register_capability_has_no_lost_records(self) -> None:
+        start_barrier = threading.Barrier(2)
+        original_load = capability_graph._load
+        calls_by_thread: dict[int, int] = {}
+        calls_lock = threading.Lock()
+
+        def synchronized_load() -> dict[str, dict[str, object]]:
+            thread_id = threading.get_ident()
+            with calls_lock:
+                calls_by_thread[thread_id] = calls_by_thread.get(thread_id, 0) + 1
+                first_call = calls_by_thread[thread_id] == 1
+            if first_call:
+                start_barrier.wait(timeout=2)
+            return original_load()
+
+        results: list[tuple[bool, str]] = []
+
+        def register(name: str) -> None:
+            outcome = capability_graph.register_capability(name, "1.0.0", 1.0, "thread-test")
+            results.append(outcome)
+
+        with mock.patch.object(capability_graph, "_load", side_effect=synchronized_load):
+            thread_a = threading.Thread(target=register, args=("cap.alpha",))
+            thread_b = threading.Thread(target=register, args=("cap.beta",))
+            thread_a.start()
+            thread_b.start()
+            thread_a.join(timeout=3)
+            thread_b.join(timeout=3)
+
+        self.assertFalse(thread_a.is_alive())
+        self.assertFalse(thread_b.is_alive())
+        self.assertEqual(len(results), 2)
+        self.assertTrue(all(ok for ok, _ in results))
+
+        registry = capability_graph.get_capabilities()
+        self.assertIn("cap.alpha", registry)
+        self.assertIn("cap.beta", registry)
+
+        metric_entries = [json.loads(line) for line in metrics.METRICS_PATH.read_text(encoding="utf-8").splitlines()]
+        conflict_events = [entry for entry in metric_entries if entry.get("event") == "capability_graph_conflict"]
+        self.assertTrue(conflict_events)
+        outcomes = {entry.get("payload", {}).get("outcome") for entry in conflict_events}
+        self.assertIn("commit_success", outcomes)
+        self.assertIn("conflict_detected", outcomes)
 
 
 if __name__ == "__main__":

@@ -17,13 +17,42 @@ Graph-backed capability registry enforcing dependencies and monotonic scores.
 
 from __future__ import annotations
 
+import fcntl
 import json
+import tempfile
 import time
-from typing import Any, Dict, Iterable, List, Tuple
+from contextlib import contextmanager
+from hashlib import sha256
+from pathlib import Path
+from typing import Any, Dict, Iterable, Iterator, List, Tuple
 
 from runtime import ROOT_DIR, metrics
 
 CAPABILITIES_PATH = ROOT_DIR / "data" / "capabilities.json"
+_CONFLICT_RETRIES = 5
+
+
+def _lock_path() -> Path:
+    return CAPABILITIES_PATH.parent / f"{CAPABILITIES_PATH.name}.lock"
+
+
+@contextmanager
+def _capabilities_lock() -> Iterator[None]:
+    lock_path = _lock_path()
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    with lock_path.open("a+", encoding="utf-8") as handle:
+        fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+
+
+def _file_state(path: Path) -> Tuple[int | None, str]:
+    if not path.exists():
+        return None, sha256(b"{}").hexdigest()
+    raw = path.read_bytes()
+    return path.stat().st_mtime_ns, sha256(raw).hexdigest()
 
 
 def _load() -> Dict[str, Dict[str, Any]]:
@@ -37,7 +66,19 @@ def _load() -> Dict[str, Dict[str, Any]]:
 
 def _save(data: Dict[str, Dict[str, Any]]) -> None:
     CAPABILITIES_PATH.parent.mkdir(parents=True, exist_ok=True)
-    CAPABILITIES_PATH.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    payload = json.dumps(data, indent=2)
+    with tempfile.NamedTemporaryFile(
+        "w",
+        encoding="utf-8",
+        dir=CAPABILITIES_PATH.parent,
+        prefix=f".{CAPABILITIES_PATH.name}.",
+        suffix=".tmp",
+        delete=False,
+    ) as handle:
+        handle.write(payload)
+        handle.flush()
+        temp_path = Path(handle.name)
+    temp_path.replace(CAPABILITIES_PATH)
 
 
 def _now() -> str:
@@ -61,51 +102,91 @@ def register_capability(
     """
 
     requires = requires or []
-    registry = _load()
 
-    missing = _missing_dependencies(registry, requires)
-    if missing:
-        message = f"missing dependencies for {name}: {','.join(missing)}"
+    for attempt in range(1, _CONFLICT_RETRIES + 1):
+        previous_mtime, previous_digest = _file_state(CAPABILITIES_PATH)
+        registry = _load()
+
+        missing = _missing_dependencies(registry, requires)
+        if missing:
+            message = f"missing dependencies for {name}: {','.join(missing)}"
+            metrics.log(
+                event_type="capability_graph_rejected",
+                payload={"name": name, "score": score, "reason": "missing_dependencies", "missing": missing},
+                level="ERROR",
+                element_id=owner_element,
+            )
+            return False, message
+
+        existing = registry.get(name, {})
+        try:
+            existing_score = float(existing.get("score", -1))
+        except (TypeError, ValueError):
+            existing_score = -1
+
+        if score < existing_score:
+            message = f"score regression prevented for {name}"
+            metrics.log(
+                event_type="capability_graph_rejected",
+                payload={
+                    "name": name,
+                    "score": score,
+                    "reason": "score_regression",
+                    "previous": existing_score,
+                },
+                level="ERROR",
+                element_id=owner_element,
+            )
+            return False, message
+
+        registry[name] = {
+            "name": name,
+            "version": version,
+            "score": score,
+            "owner": owner_element,
+            "requires": list(requires),
+            "evidence": evidence or {},
+            "updated_at": _now(),
+        }
+
+        with _capabilities_lock():
+            current_mtime, current_digest = _file_state(CAPABILITIES_PATH)
+            if (current_mtime, current_digest) != (previous_mtime, previous_digest):
+                metrics.log(
+                    event_type="capability_graph_conflict",
+                    payload={
+                        "name": name,
+                        "attempt": attempt,
+                        "outcome": "conflict_detected",
+                        "retries_remaining": _CONFLICT_RETRIES - attempt,
+                    },
+                    level="WARNING",
+                    element_id=owner_element,
+                )
+                continue
+            _save(registry)
+
         metrics.log(
-            event_type="capability_graph_rejected",
-            payload={"name": name, "score": score, "reason": "missing_dependencies", "missing": missing},
-            level="ERROR",
-            element_id=owner_element,
-        )
-        return False, message
-
-    existing = registry.get(name, {})
-    try:
-        existing_score = float(existing.get("score", -1))
-    except (TypeError, ValueError):
-        existing_score = -1
-
-    if score < existing_score:
-        message = f"score regression prevented for {name}"
-        metrics.log(
-            event_type="capability_graph_rejected",
+            event_type="capability_graph_conflict",
             payload={
                 "name": name,
-                "score": score,
-                "reason": "score_regression",
-                "previous": existing_score,
+                "attempt": attempt,
+                "outcome": "commit_success",
+                "retries_used": attempt - 1,
             },
+            level="INFO",
+            element_id=owner_element,
+        )
+        break
+    else:
+        metrics.log(
+            event_type="capability_graph_conflict",
+            payload={"name": name, "outcome": "retry_exhausted", "attempts": _CONFLICT_RETRIES},
             level="ERROR",
             element_id=owner_element,
         )
-        return False, message
+        return False, f"conflict retries exhausted for {name}"
 
-    record = {
-        "name": name,
-        "version": version,
-        "score": score,
-        "owner": owner_element,
-        "requires": list(requires),
-        "evidence": evidence or {},
-        "updated_at": _now(),
-    }
-    registry[name] = record
-    _save(registry)
     metrics.log(
         event_type="capability_graph_registered",
         payload={

@@ -78,3 +78,31 @@ def test_snapshot_manager_list_restore_and_latest(tmp_path: Path) -> None:
     restored = snapshots.restore_snapshot(latest.snapshot_id, lineage, journal)
     assert restored
     assert "EpochStartEvent" in lineage.read_text(encoding="utf-8")
+
+
+def test_snapshot_manager_create_snapshot_set_uses_unique_ids_under_rapid_calls(tmp_path: Path) -> None:
+    source = tmp_path / "lineage_v2.jsonl"
+    source.write_text('{"type":"EpochStartEvent"}\n', encoding="utf-8")
+
+    snapshots = SnapshotManager(tmp_path / "snaps")
+    ids: list[str] = []
+    for _ in range(100):
+        metadata = snapshots.create_snapshot_set([source])
+        ids.append(metadata.snapshot_id)
+
+    assert len(ids) == len(set(ids))
+
+
+def test_snapshot_manager_prunes_deterministically_with_rapid_calls(tmp_path: Path) -> None:
+    source = tmp_path / "lineage_v2.jsonl"
+    source.write_text('{"type":"EpochStartEvent"}\n', encoding="utf-8")
+
+    snapshots = SnapshotManager(tmp_path / "snaps", max_snapshots=5)
+    created = [snapshots.create_snapshot_set([source]) for _ in range(12)]
+
+    remaining = snapshots.list_snapshots()
+    assert len(remaining) == 5
+
+    expected_ids = [item.snapshot_id for item in created[-5:]][::-1]
+    assert [item.snapshot_id for item in remaining] == expected_ids
+    assert [item.creation_sequence for item in remaining] == [12, 11, 10, 9, 8]

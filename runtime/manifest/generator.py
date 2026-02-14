@@ -16,6 +16,7 @@ from runtime.timeutils import now_iso
 from .validator import validate_manifest
 
 EMPTY_SHA = hashlib.sha256(b"").hexdigest()
+MANIFEST_VERSION = "1.0"
 
 
 def _sha256_hex(data: bytes) -> str:
@@ -39,6 +40,14 @@ def _parent_lineage_hash(context: MutationLifecycleContext) -> str:
     return _sha256_hex(lineage_blob)
 
 
+def _cert_references(context: MutationLifecycleContext) -> Dict[str, str]:
+    refs: Dict[str, str] = {}
+    for key, value in dict(context.cert_refs).items():
+        if isinstance(key, str) and key and isinstance(value, str) and value.strip():
+            refs[key] = value
+    return refs
+
+
 def generate_manifest(context: MutationLifecycleContext, terminal_status: str, risk_score: float | None = None) -> Dict[str, Any]:
     stage_timestamps = dict(context.stage_timestamps)
     stage_timestamps.setdefault("proposed", now_iso())
@@ -48,7 +57,7 @@ def generate_manifest(context: MutationLifecycleContext, terminal_status: str, r
     stage_timestamps.setdefault("completed", stage_timestamps.get("executing", now_iso()))
 
     manifest: Dict[str, Any] = {
-        "manifest_version": "1.0",
+        "manifest_version": MANIFEST_VERSION,
         "law_version": LAW_VERSION,
         "capability_snapshot_hash": _capability_snapshot_hash(),
         "mutation_id": context.mutation_id,
@@ -57,7 +66,7 @@ def generate_manifest(context: MutationLifecycleContext, terminal_status: str, r
         "proposer_identity": context.agent_id,
         "target_epoch": context.epoch_id,
         "stage_timestamps": stage_timestamps,
-        "cert_references": dict(context.cert_refs),
+        "cert_references": _cert_references(context),
         "fitness_summary": {
             "score": context.fitness_score,
             "threshold": context.fitness_threshold,
