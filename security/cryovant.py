@@ -39,6 +39,21 @@ def dev_mode() -> bool:
     return os.environ.get("CRYOVANT_DEV_MODE", "0").lower() in {"1", "true", "yes", "on"}
 
 
+
+
+def env_mode() -> str:
+    mode = os.environ.get("ADAAD_ENV", "prod").strip().lower()
+    if mode in {"dev", "prod"}:
+        return mode
+    return "prod"
+
+
+def _keys_configured() -> bool:
+    try:
+        return KEYS_DIR.exists() and any(KEYS_DIR.iterdir())
+    except Exception:
+        return False
+
 def verify_signature(signature: str) -> bool:
     """
     Placeholder signature verification hook. Returns False until real keys are configured.
@@ -61,15 +76,7 @@ def verify_session(token: str) -> bool:
 def _dev_signature_allowed(signature: str) -> bool:
     if not signature.startswith("cryovant-dev-"):
         return False
-    if dev_mode():
-        return True
-    # If no keys are configured or verification is a no-op, default to accepting
-    # the bundled dev certificates to keep local boot flows working.
-    try:
-        has_keys = any(KEYS_DIR.iterdir())
-    except Exception:
-        has_keys = False
-    return not has_keys
+    return env_mode() == "dev" and dev_mode()
 
 
 def _valid_signature(signature: str) -> bool:
@@ -82,9 +89,19 @@ def _valid_signature(signature: str) -> bool:
 
 def signature_valid(signature: str) -> bool:
     """
-    Public validation helper that accepts either a real signature (once supported)
-    or the bundled cryovant-dev-* signatures when no signing keys are present.
+    Public validation helper that accepts either a real signature or explicitly
+    dev-gated cryovant-dev-* signatures.
     """
+    keys_configured = _keys_configured()
+    if not keys_configured:
+        metrics.log(
+            event_type="cryovant_signature_verification_without_keys",
+            payload={"env_mode": env_mode(), "signature_prefix": signature[:24]},
+            level="CRITICAL",
+            element_id=ELEMENT_ID,
+        )
+        if env_mode() != "dev":
+            return False
     return _valid_signature(signature)
 
 

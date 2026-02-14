@@ -13,19 +13,52 @@
 
 """
 Centralized JSONL metrics writer.
+
+Payload sensitivity rules:
+- Never log raw environment variables, secrets, tokens, credentials, or full
+  command lines that may embed sensitive values.
+- Prefer minimal, allowlisted fields and coarse metadata (counts, booleans,
+  status, durations) over raw process/user context.
+- All writes are serialized with a process lock and written as a single UTF-8
+  encoded append operation to keep JSONL records line-atomic under
+  thread/process concurrency.
 """
 
 import json
 import os
+import threading
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+
+import fcntl
 
 from runtime import ROOT_DIR
 
 ELEMENT_ID = "Earth"
 
 METRICS_PATH = ROOT_DIR / "reports" / "metrics.jsonl"
+_THREAD_LOCK = threading.Lock()
+
+
+class _FileLock:
+    def __init__(self, lock_path: Path) -> None:
+        self._lock_path = lock_path
+        self._fd: Optional[int] = None
+
+    def __enter__(self) -> "_FileLock":
+        self._fd = os.open(self._lock_path, os.O_CREAT | os.O_RDWR, 0o644)
+        fcntl.flock(self._fd, fcntl.LOCK_EX)
+        return self
+
+    def __exit__(self, exc_type: object, exc: object, tb: object) -> None:
+        if self._fd is None:
+            return
+        try:
+            fcntl.flock(self._fd, fcntl.LOCK_UN)
+        finally:
+            os.close(self._fd)
+            self._fd = None
 
 
 def _ensure_metrics_file() -> None:
@@ -51,8 +84,15 @@ def log(
         "element": element_id or ELEMENT_ID,
         "payload": payload or {},
     }
-    with METRICS_PATH.open("a", encoding="utf-8") as handle:
-        handle.write(json.dumps(record, ensure_ascii=False) + "\n")
+    line = (json.dumps(record, ensure_ascii=False) + "\n").encode("utf-8")
+    lock_path = METRICS_PATH.with_suffix(METRICS_PATH.suffix + ".lock")
+    with _THREAD_LOCK:
+        with _FileLock(lock_path):
+            fd = os.open(METRICS_PATH, os.O_APPEND | os.O_CREAT | os.O_WRONLY, 0o644)
+            try:
+                os.write(fd, line)
+            finally:
+                os.close(fd)
 
 
 def tail(limit: int = 100) -> List[Dict[str, Any]]:

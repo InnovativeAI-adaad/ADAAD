@@ -13,9 +13,8 @@ from __future__ import annotations
 import ast
 import importlib.util
 import sys
-import tempfile
 from pathlib import Path
-from typing import Any, Dict, Iterable, Optional, Set
+from typing import Any, Dict, Optional, Set
 
 from app.agents.discovery import agent_path_from_id
 from app.agents.mutation_request import MutationRequest
@@ -137,26 +136,40 @@ def _import_smoke_check(target: Path, source: Optional[str]) -> Dict[str, Any]:
     if target.suffix != ".py":
         return {"ok": True, "reason": "not_python"}
     try:
-        if source is not None:
-            with tempfile.TemporaryDirectory() as tmpdir:
-                temp_path = Path(tmpdir) / target.name
-                temp_path.write_text(source, encoding="utf-8")
-                return _import_smoke_check(temp_path, None)
-        if not target.exists():
-            return {"ok": False, "reason": "missing_target"}
-        module_name = f"mutation_preflight_{target.stem}"
-        spec = importlib.util.spec_from_file_location(module_name, target)
-        if spec is None or spec.loader is None:
-            return {"ok": False, "reason": "import_spec_failed"}
-        module = importlib.util.module_from_spec(spec)
-        sys.modules[module_name] = module
+        if source is None:
+            if not target.exists():
+                return {"ok": False, "reason": "missing_target"}
+            source = target.read_text(encoding="utf-8")
+
+        # Baseline: AST parse validates syntax and import statement shape without execution.
         try:
-            spec.loader.exec_module(module)
-        finally:
-            sys.modules.pop(module_name, None)
+            tree = ast.parse(source, filename=str(target))
+        except SyntaxError as exc:
+            return {"ok": False, "reason": f"syntax_error:{exc.msg}"}
+
+        imported_roots: Set[str] = set()
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    root = alias.name.split(".", 1)[0]
+                    if root:
+                        imported_roots.add(root)
+            elif isinstance(node, ast.ImportFrom):
+                if node.level > 0 or not node.module:
+                    continue
+                root = node.module.split(".", 1)[0]
+                if root:
+                    imported_roots.add(root)
+
+        stdlib_modules = getattr(sys, "stdlib_module_names", set())
+        for module_name in sorted(imported_roots):
+            if module_name in stdlib_modules:
+                continue
+            if importlib.util.find_spec(module_name) is None:
+                return {"ok": False, "reason": f"missing_dependency:{module_name}"}
         return {"ok": True}
     except Exception as exc:  # pragma: no cover - defensive guardrail
-        return {"ok": False, "reason": f"import_failed:{exc}"}
+        return {"ok": False, "reason": f"import_analysis_failed:{exc}"}
 
 
 def _legacy_validate_mutation(request: MutationRequest) -> Dict[str, Any]:
@@ -178,9 +191,9 @@ def _legacy_validate_mutation(request: MutationRequest) -> Dict[str, Any]:
             "import_smoke": import_result,
         }
         if not ast_result.get("ok"):
-            result.update({"ok": False, "reason": "ast_parse_failed"})
+            result.update({"ok": False, "reason": ast_result.get("reason", "ast_parse_failed")})
         if not import_result.get("ok"):
-            result.update({"ok": False, "reason": "import_smoke_failed"})
+            result.update({"ok": False, "reason": import_result.get("reason", "import_smoke_failed")})
     result["checks"]["targets"] = per_target
     return result
 

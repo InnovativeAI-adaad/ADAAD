@@ -160,6 +160,20 @@ class TestSandboxTest(unittest.TestCase):
         self.assertTrue(archived.exists())
         shutil.rmtree(archived, ignore_errors=True)
 
+
+    def test_metrics_payload_uses_env_allowlist_only(self) -> None:
+        root = Path(__file__).resolve().parents[1]
+        sandbox = TestSandbox(root_dir=root, timeout_s=5)
+
+        with patch("runtime.test_sandbox.metrics.log") as log_mock:
+            sandbox.run_tests(args=["tests/test_import_roots.py", "-q"])
+
+        metrics_calls = [kwargs for _, kwargs in log_mock.call_args_list if kwargs.get("event_type") == "test_sandbox_metrics"]
+        self.assertTrue(metrics_calls)
+        payload = metrics_calls[-1]["payload"]
+        self.assertNotIn("env_keys", payload)
+        self.assertEqual(payload["env_allowlist"], ["TMPDIR", "TEMP", "TMP", "PYTHONDONTWRITEBYTECODE"])
+
     def test_memory_logging_skipped_when_psutil_missing(self) -> None:
         root = Path(__file__).resolve().parents[1]
         sandbox = TestSandbox(root_dir=root, timeout_s=5)

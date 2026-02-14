@@ -211,13 +211,13 @@ class MutationEngine:
             penalties["multi_file_mutation"] = 0.75
             score -= penalties["multi_file_mutation"]
 
-        if "ast_parse_failed" in reasons and self._has_code_payload(request):
-            penalties["ast_parse_failed"] = 0.4
-            score -= penalties["ast_parse_failed"]
+        if any(reason.startswith("syntax_error:") for reason in reasons) and self._has_code_payload(request):
+            penalties["syntax_error"] = 0.4
+            score -= penalties["syntax_error"]
 
-        if "import_smoke_failed" in reasons and self._mentions_imports(request):
-            penalties["import_smoke_failed"] = 0.3
-            score -= penalties["import_smoke_failed"]
+        if any(reason.startswith("missing_dependency:") for reason in reasons) and self._mentions_imports(request):
+            penalties["missing_dependency"] = 0.3
+            score -= penalties["missing_dependency"]
 
         if penalties:
             metrics.log(
