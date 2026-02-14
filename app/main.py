@@ -69,7 +69,14 @@ class Orchestrator:
     Coordinates boot order and health checks.
     """
 
-    def __init__(self, *, dry_run: bool = False, replay_mode: str | bool | ReplayMode = ReplayMode.OFF, replay_epoch: str = "") -> None:
+    def __init__(
+        self,
+        *,
+        dry_run: bool = False,
+        replay_mode: str | bool | ReplayMode = ReplayMode.OFF,
+        replay_epoch: str = "",
+        verbose: bool = False,
+    ) -> None:
         self.state: Dict[str, Any] = {"status": "initializing", "mutation_enabled": False}
         self.agents_root = APP_ROOT / "agents"
         self.lineage_dir = self.agents_root / "lineage"
@@ -87,9 +94,17 @@ class Orchestrator:
         self.executor = MutationExecutor(self.agents_root, evolution_runtime=self.evolution_runtime)
         self.mutation_engine = MutationEngine(metrics.METRICS_PATH)
         self.dry_run = dry_run
+        self.verbose = verbose
         self.replay_mode = normalize_replay_mode(replay_mode)
         self.replay_epoch = replay_epoch.strip()
         self.evolution_runtime.set_replay_mode(self.replay_mode)
+
+    def _v(self, message: str) -> None:
+        if not self.verbose:
+            return
+        home = os.getenv("HOME", "")
+        safe_message = message.replace(home, "~") if home else message
+        print(f"[ADAAD] {safe_message}")
 
     def _fail(self, reason: str) -> None:
         metrics.log(event_type="orchestrator_error", payload={"reason": reason}, level="ERROR")
@@ -114,15 +129,23 @@ class Orchestrator:
         sys.exit(1)
 
     def boot(self) -> None:
+        self._v(f"Replay mode normalized: {self.replay_mode.value}")
+        if self.dry_run and self.replay_mode == ReplayMode.STRICT:
+            self._v("Warning: dry-run + strict replay may not reflect production execution semantics.")
+        self._v("Starting governance spine initialization")
         metrics.log(event_type="orchestrator_start", payload={}, level="INFO")
         gate = run_gatekeeper()
         if not gate.get("ok"):
             self._fail(f"gatekeeper_failed:{','.join(gate.get('missing', []))}")
+        self._v("Gatekeeper preflight passed")
         self._register_elements()
         self._init_runtime()
+        self._v("Runtime invariants passed")
         self._init_cryovant()
+        self._v("Cryovant validation passed")
         epoch_state = self.evolution_runtime.boot()
         self.state["epoch"] = epoch_state
+        self._v("Replay baseline initialized")
         self.dream = DreamMode(
             self.agents_root,
             self.lineage_dir,
@@ -136,15 +159,22 @@ class Orchestrator:
         self._health_check_dream()
         self._health_check_beast()
         self._run_replay_preflight()
+        self._v(f"Replay decision: {self.state.get('replay_decision')}")
+        self._v(f"Fail-closed state: {self.evolution_runtime.fail_closed}")
+        self._v(f"Replay aggregate score: {self.state.get('replay_score')}")
         if self.state.get("mutation_enabled"):
             if self.evolution_runtime.fail_closed:
                 self.state["replay_divergence"] = True
                 journal.write_entry(agent_id="system", action="mutation_blocked_fail_closed", payload={"epoch_id": self.evolution_runtime.current_epoch_id, "ts": now_iso()})
             elif self._governance_gate():
                 self._run_mutation_cycle()
+        self._v(f"Mutation cycle status: {'enabled' if self.state.get('mutation_enabled') else 'disabled'}")
         self._register_capabilities()
+        self._v("Capability registration complete")
         self._init_ui()
+        self._v("Aponi dashboard started")
         self.state["status"] = "ready"
+        self._v("Boot sequence complete (status=ready)")
         metrics.log(event_type="orchestrator_ready", payload=self.state, level="INFO")
         journal.write_entry(agent_id="system", action="orchestrator_ready", payload=self.state)
         dump()
@@ -159,6 +189,8 @@ class Orchestrator:
         self.state["replay_results"] = preflight.get("results", [])
         self.state["replay_divergence"] = has_divergence
         self.state["status"] = "replay_warning" if has_divergence else "replay_verified"
+        replay_score = self._aggregate_replay_score(preflight.get("results", []))
+        self.state["replay_score"] = replay_score
         outcome = {
             "mode": mode.value,
             "verify_only": verify_only,
@@ -167,12 +199,13 @@ class Orchestrator:
             "target": preflight.get("verify_target"),
             "divergence": has_divergence,
             "results": preflight.get("results", []),
-            "replay_score": self._aggregate_replay_score(preflight.get("results", [])),
+            "replay_score": replay_score,
             "ts": now_iso(),
         }
         journal.write_entry(agent_id="system", action="replay_verified", payload=outcome)
         try:
-            self.write_replay_manifest(outcome)
+            manifest_path = self.write_replay_manifest(outcome)
+            self._v(f"Replay manifest written: {manifest_path}")
         except Exception as exc:
             metrics.log(
                 event_type="replay_manifest_write_failed",
@@ -181,6 +214,11 @@ class Orchestrator:
             )
         if has_divergence and mode.fail_closed:
             self._fail("replay_divergence")
+        self._v("Replay Summary:")
+        self._v(f"  Mode: {mode.value}")
+        self._v(f"  Target: {preflight.get('verify_target')}")
+        self._v(f"  Divergence: {has_divergence}")
+        self._v(f"  Score: {replay_score}")
         if verify_only:
             dump()
             return {"verify_only": True, **outcome}
@@ -210,6 +248,7 @@ class Orchestrator:
         return manifest_path
 
     def verify_replay_only(self) -> None:
+        self._v("Running replay verification-only mode")
         metrics.log(event_type="orchestrator_start", payload={"verify_only": True}, level="INFO")
         gate = run_gatekeeper()
         if not gate.get("ok"):
@@ -594,6 +633,7 @@ class Orchestrator:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="ADAAD orchestrator")
+    parser.add_argument("--verbose", action="store_true", help="Print boot stage diagnostics to stdout.")
     parser.add_argument("--dry-run", action="store_true", help="Evaluate mutations without applying them.")
     parser.add_argument(
         "--replay",
@@ -617,6 +657,7 @@ def main() -> None:
         dry_run=args.dry_run or dry_run_env,
         replay_mode=replay_mode,
         replay_epoch=args.replay_epoch,
+        verbose=args.verbose,
     )
     if args.verify_replay:
         orchestrator.verify_replay_only()
