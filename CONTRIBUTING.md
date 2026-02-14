@@ -16,3 +16,9 @@ By submitting a contribution, you agree that your work is licensed under the Apa
 ## Starter example
 - Run the minimal single-agent loop: `python examples/single-agent-loop/run.py`.
 - Read the walkthrough in `examples/single-agent-loop/README.md` for expected staged lineage and ledger/metrics checkpoints.
+
+## Metrics payload sensitivity
+- Treat metrics payloads as potentially exposed operational telemetry.
+- Do **not** log secrets, credentials, tokens, full environment dumps, or raw command lines that may include sensitive values.
+- Use allowlisted, minimal fields (status, counts, booleans, durations, and explicitly safe identifiers).
+- Keep JSONL entries single-line UTF-8 records to preserve parseability under concurrent writes.

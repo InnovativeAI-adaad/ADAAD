@@ -232,7 +232,7 @@ class TestSandbox:
                 "timeout_s": result.timeout_s,
                 "sandbox_dir": result.sandbox_dir,
                 "memory_mb": result.memory_mb,
-                "env_keys": sorted(env.keys()),
+                "env_allowlist": ["TMPDIR", "TEMP", "TMP", "PYTHONDONTWRITEBYTECODE"],
                 "status": result.status.value,
                 "retries": result.retries,
             },

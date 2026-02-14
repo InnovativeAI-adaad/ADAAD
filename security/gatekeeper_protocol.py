@@ -44,14 +44,29 @@ def run_gatekeeper() -> Dict[str, object]:
     prev = ledger_hash_file.read_text(encoding="utf-8").strip() if ledger_hash_file.exists() else None
     drift = prev is not None and prev != digest
 
+    persistence_error = None
     try:
         ledger_hash_file.parent.mkdir(parents=True, exist_ok=True)
         ledger_hash_file.write_text(digest, encoding="utf-8")
-    except Exception:
-        pass
+    except Exception as exc:
+        persistence_error = f"{type(exc).__name__}: {exc}"
 
-    ok = not missing and not drift
-    payload = {"ok": ok, "missing": missing, "hash": digest}
+    reasons: List[str] = []
+    if missing:
+        reasons.append("missing_paths")
+    if drift:
+        reasons.append("drift_detected")
+    if persistence_error:
+        reasons.append("hash_persist_failed")
+
+    ok = not reasons
+    payload = {
+        "ok": ok,
+        "missing": missing,
+        "hash": digest,
+        "persistence_error": persistence_error,
+        "reasons": reasons,
+    }
     if drift:
         payload["drift"] = True
     return payload
