@@ -14,9 +14,11 @@ from typing import Any, Dict, Iterable, List, Optional
 
 try:
     from runtime import metrics
+    from runtime.autonomy.scoreboard import build_scoreboard_views
 except ModuleNotFoundError:  # pragma: no cover - fallback for direct script execution
     sys.path.append(str(Path(__file__).resolve().parents[1]))
     from runtime import metrics
+    from runtime.autonomy.scoreboard import build_scoreboard_views
 
 
 def _parse_timestamp(value: str) -> datetime:
@@ -143,15 +145,36 @@ def run_audit(
     return f"{table}\n\nViolations:\n{summary}"
 
 
+
+def run_autonomy_scoreboard(limit: int, output: str) -> str:
+    scoreboard = build_scoreboard_views(limit=limit)
+    if output == "json":
+        return json.dumps(scoreboard, indent=2)
+    return (
+        f"performance_by_agent: {json.dumps(scoreboard.get('performance_by_agent', {}), indent=2)}\n"
+        f"mutation_outcomes: {json.dumps(scoreboard.get('mutation_outcomes', {}), indent=2)}\n"
+        f"sandbox_failure_reasons: {json.dumps(scoreboard.get('sandbox_failure_reasons', {}), indent=2)}"
+    )
+
 def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(description="ADAAD constitutional audit")
+    parser.add_argument(
+        "--action",
+        choices=["constitutional-audit", "autonomy-scoreboard"],
+        default="constitutional-audit",
+        help="Choose constitutional audit or autonomy scoreboard reporting.",
+    )
+    parser.add_argument("--limit", type=int, default=1000, help="Tail limit used by autonomy-scoreboard action.")
     parser.add_argument("--agent-id", help="Filter by agent id")
     parser.add_argument("--tier", help="Filter by tier (PRODUCTION/STABLE/SANDBOX)")
     parser.add_argument("--start", help="Filter evaluations starting at timestamp (YYYY-MM-DDTHH:MM:SSZ)")
     parser.add_argument("--end", help="Filter evaluations ending at timestamp (YYYY-MM-DDTHH:MM:SSZ)")
     parser.add_argument("--output", choices=["json", "table"], default="table")
     args = parser.parse_args(argv)
-    report = run_audit(args.agent_id, args.tier, args.start, args.end, args.output)
+    if args.action == "autonomy-scoreboard":
+        report = run_autonomy_scoreboard(limit=args.limit, output=args.output)
+    else:
+        report = run_audit(args.agent_id, args.tier, args.start, args.end, args.output)
     print(report)
     return 0
 

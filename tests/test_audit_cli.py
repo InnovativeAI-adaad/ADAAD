@@ -136,3 +136,50 @@ def test_audit_cli_summary_respects_filters() -> None:
         assert report["violations"]["preflight"]["missing_signature"] == 1
         assert report["violations"]["constitutional"]["signature_required"] == 1
         assert report["violations"]["constitutional"]["policy_violation"] == 1
+
+
+def test_audit_cli_autonomy_scoreboard_action_json() -> None:
+    from tools.adaad_audit import run_autonomy_scoreboard
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        metrics_path = Path(tmpdir) / "metrics.jsonl"
+        entries = [
+            {
+                "timestamp": "2026-02-06T00:00:00Z",
+                "event": "autonomy_action",
+                "level": "INFO",
+                "element": "Earth",
+                "payload": {"agent": "ExecutorAgent", "duration_ms": 40, "ok": True},
+            },
+            {
+                "timestamp": "2026-02-06T00:01:00Z",
+                "event": "mutation_executed",
+                "level": "INFO",
+                "element": "Earth",
+                "payload": {"ok": True},
+            },
+            {
+                "timestamp": "2026-02-06T00:02:00Z",
+                "event": "sandbox_validation_failed",
+                "level": "WARN",
+                "element": "Earth",
+                "payload": {"reason": "missing_signature"},
+            },
+        ]
+        _write_metrics(metrics_path, entries)
+        original = metrics.METRICS_PATH
+        metrics.METRICS_PATH = metrics_path
+        try:
+            output = run_autonomy_scoreboard(limit=10, output="json")
+        finally:
+            metrics.METRICS_PATH = original
+
+        report = json.loads(output)
+        assert set(report.keys()) >= {
+            "performance_by_agent",
+            "mutation_outcomes",
+            "sandbox_failure_reasons",
+        }
+        assert report["performance_by_agent"]["ExecutorAgent"]["calls"] == 1.0
+        assert report["mutation_outcomes"]["mutation_executed"] == 1
+        assert report["sandbox_failure_reasons"]["missing_signature"] == 1

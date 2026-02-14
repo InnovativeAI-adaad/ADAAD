@@ -16,10 +16,12 @@ import os
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from app.agents.base_agent import stage_offspring
 from app.beast_mode_loop import BeastModeLoop
 from runtime import capability_graph, metrics
+from runtime.autonomy.mutation_scaffold import MutationCandidate, rank_mutation_candidates
 from security.ledger import journal
 
 
@@ -44,6 +46,8 @@ class BeastPromotionTest(unittest.TestCase):
 
         self._orig_threshold = os.environ.get("ADAAD_FITNESS_THRESHOLD")
         os.environ["ADAAD_FITNESS_THRESHOLD"] = "0.1"
+        self._orig_autonomy_threshold = os.environ.get("ADAAD_AUTONOMY_THRESHOLD")
+        os.environ["ADAAD_AUTONOMY_THRESHOLD"] = "0.25"
 
         def _restore_threshold() -> None:
             if self._orig_threshold is None:
@@ -53,7 +57,15 @@ class BeastPromotionTest(unittest.TestCase):
 
         self.addCleanup(_restore_threshold)
 
-    def test_beast_promotes(self) -> None:
+        def _restore_autonomy_threshold() -> None:
+            if self._orig_autonomy_threshold is None:
+                os.environ.pop("ADAAD_AUTONOMY_THRESHOLD", None)
+            else:
+                os.environ["ADAAD_AUTONOMY_THRESHOLD"] = self._orig_autonomy_threshold
+
+        self.addCleanup(_restore_autonomy_threshold)
+
+    def _seed_agent(self) -> tuple[Path, Path, Path]:
         agents_root = Path(self.tmp.name) / "agents"
         lineage_dir = agents_root / "lineage"
         agent_dir = agents_root / "agentA"
@@ -65,21 +77,110 @@ class BeastPromotionTest(unittest.TestCase):
         capability_graph.register_capability("orchestrator.boot", "0.1.0", 1.0, "test")
         capability_graph.register_capability("cryovant.gate", "0.1.0", 1.0, "test")
 
-        staged = stage_offspring("agentA", "mutate-me", lineage_dir)
-
         journal.ensure_ledger()
         journal.write_entry(agent_id="agentA", action="seed", payload={})
+        return agents_root, lineage_dir, agent_dir
+
+    @staticmethod
+    def _update_staged_payload(staged: Path, **kwargs: object) -> None:
+        payload = json.loads((staged / "mutation.json").read_text(encoding="utf-8"))
+        payload.update(kwargs)
+        (staged / "mutation.json").write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+    def test_beast_promotes(self) -> None:
+        agents_root, lineage_dir, _ = self._seed_agent()
+        staged = stage_offspring("agentA", "mutate-me", lineage_dir)
+        self._update_staged_payload(
+            staged,
+            mutation_id="m-autonomy-pass",
+            expected_gain=0.8,
+            risk_score=0.1,
+            complexity=0.1,
+            coverage_delta=0.3,
+        )
 
         beast = BeastModeLoop(agents_root, lineage_dir)
-        result = beast.run_cycle("agentA")
+        with mock.patch("app.beast_mode_loop.fitness.score_mutation", return_value=0.2):
+            result = beast.run_cycle("agentA")
 
         self.assertEqual(result["status"], "promoted")
+        self.assertIsNotNone(result["autonomy_composite_score"])
         promoted_path = Path(result["promoted_path"])
         self.assertTrue(promoted_path.exists())
         self.assertFalse(staged.exists())
 
         registry = capability_graph.get_capabilities()
         self.assertIn("agent.agentA.mutation_quality", registry)
+
+    def test_beast_rejects_when_autonomy_score_below_threshold(self) -> None:
+        agents_root, lineage_dir, _ = self._seed_agent()
+        staged = stage_offspring("agentA", "mutate-me", lineage_dir)
+        self._update_staged_payload(
+            staged,
+            mutation_id="m-autonomy-reject",
+            expected_gain=0.2,
+            risk_score=0.9,
+            complexity=0.8,
+            coverage_delta=0.0,
+        )
+
+        beast = BeastModeLoop(agents_root, lineage_dir)
+        with mock.patch("app.beast_mode_loop.fitness.score_mutation", return_value=0.99):
+            result = beast.run_cycle("agentA")
+
+        self.assertEqual(result["status"], "discarded")
+        self.assertLess(float(result["autonomy_composite_score"]), 0.25)
+        self.assertFalse(staged.exists())
+
+    def test_beast_falls_back_to_legacy_gate_when_candidate_features_missing(self) -> None:
+        agents_root, lineage_dir, _ = self._seed_agent()
+        staged = stage_offspring("agentA", "mutate-me", lineage_dir)
+        self._update_staged_payload(staged, mutation_id="m-fallback")
+
+        beast = BeastModeLoop(agents_root, lineage_dir)
+        with mock.patch("app.beast_mode_loop.fitness.score_mutation", return_value=0.95):
+            result = beast.run_cycle("agentA")
+
+        self.assertEqual(result["status"], "promoted")
+        self.assertIsNone(result["autonomy_composite_score"])
+        metrics_rows = [json.loads(line) for line in metrics.METRICS_PATH.read_text(encoding="utf-8").splitlines()]
+        fallback_rows = [row for row in metrics_rows if row.get("event") == "beast_autonomy_fallback"]
+        self.assertTrue(fallback_rows)
+        self.assertIn("expected_gain", fallback_rows[0]["payload"]["missing_candidate_fields"])
+
+    def test_tie_breaking_by_mutation_id_is_deterministic(self) -> None:
+        candidates = [
+            MutationCandidate("mutation-z", expected_gain=0.8, risk_score=0.2, complexity=0.1, coverage_delta=0.1),
+            MutationCandidate("mutation-a", expected_gain=0.8, risk_score=0.2, complexity=0.1, coverage_delta=0.1),
+        ]
+
+        ranked = rank_mutation_candidates(candidates, acceptance_threshold=0.25)
+
+        self.assertEqual([item.mutation_id for item in ranked], ["mutation-a", "mutation-z"])
+
+    def test_mutation_candidate_uses_canonical_payload_hash_when_mutation_id_missing(self) -> None:
+        agents_root, lineage_dir, _ = self._seed_agent()
+        staged = stage_offspring("agentA", "mutate-me", lineage_dir)
+        self._update_staged_payload(
+            staged,
+            expected_gain=0.8,
+            risk_score=0.1,
+            complexity=0.2,
+            coverage_delta=0.3,
+        )
+
+        beast = BeastModeLoop(agents_root, lineage_dir)
+        payload = json.loads((staged / "mutation.json").read_text(encoding="utf-8"))
+        candidate, missing_fields = beast._build_mutation_candidate(payload)
+
+        self.assertEqual(missing_fields, [])
+        self.assertIsNotNone(candidate)
+        self.assertTrue(candidate.mutation_id.startswith("payload-"))
+
+        payload_clone = dict(payload)
+        candidate_clone, _ = beast._build_mutation_candidate(payload_clone)
+        self.assertEqual(candidate_clone.mutation_id, candidate.mutation_id)
+
 
 
 if __name__ == "__main__":

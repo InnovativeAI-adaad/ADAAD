@@ -15,6 +15,7 @@
 Beast mode evaluates mutations and promotes approved staged candidates.
 """
 
+import hashlib
 import json
 import os
 import shutil
@@ -24,6 +25,7 @@ from typing import Dict, List, Optional, Tuple
 
 from app.agents.base_agent import promote_offspring
 from app.agents.discovery import agent_path_from_id, iter_agent_dirs, resolve_agent_id
+from runtime.autonomy.mutation_scaffold import MutationCandidate, rank_mutation_candidates
 from runtime import fitness, metrics
 from runtime.capability_graph import get_capabilities, register_capability
 from runtime.evolution.promotion_manifest import PromotionManifestWriter
@@ -43,6 +45,7 @@ class BeastModeLoop:
         self.lineage_dir = lineage_dir
         self.promotion_manifest_writer = PromotionManifestWriter(output_dir=promotion_manifest_dir)
         self.threshold = float(os.getenv("ADAAD_FITNESS_THRESHOLD", "0.70"))
+        self.autonomy_threshold = float(os.getenv("ADAAD_AUTONOMY_THRESHOLD", "0.25"))
         self.cycle_budget = int(os.getenv("ADAAD_BEAST_CYCLE_BUDGET", "50"))
         self.cycle_window_sec = int(os.getenv("ADAAD_BEAST_CYCLE_WINDOW_SEC", "3600"))
         self.mutation_quota = int(os.getenv("ADAAD_BEAST_MUTATION_QUOTA", "25"))
@@ -193,16 +196,74 @@ class BeastModeLoop:
             return False, "handoff_contract_sandboxed_invalid", None
         return True, "ok", sandboxed
 
-    def _discard(self, staged_dir: Path, payload: Dict[str, object], score: float) -> None:
+    @staticmethod
+    def _float_feature(payload: Dict[str, object], *keys: str) -> Optional[float]:
+        for key in keys:
+            value = payload.get(key)
+            if isinstance(value, (int, float)):
+                return float(value)
+        return None
+
+    @staticmethod
+    def _canonical_mutation_id(payload: Dict[str, object]) -> str:
+        explicit_mutation_id = payload.get("mutation_id")
+        if isinstance(explicit_mutation_id, str) and explicit_mutation_id.strip():
+            return explicit_mutation_id.strip()
+        canonical_payload = json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str)
+        return f"payload-{hashlib.sha256(canonical_payload.encode('utf-8')).hexdigest()[:16]}"
+
+    def _build_mutation_candidate(
+        self,
+        payload: Dict[str, object],
+    ) -> Tuple[Optional[MutationCandidate], List[str]]:
+        expected_gain = self._float_feature(payload, "expected_gain", "fitness_gain", "estimated_gain")
+        risk_score = self._float_feature(payload, "risk_score", "risk", "estimated_risk")
+        complexity = self._float_feature(payload, "complexity", "complexity_score", "estimated_complexity")
+        coverage_delta = self._float_feature(payload, "coverage_delta", "test_coverage_delta", "coverage_change")
+
+        missing_fields: List[str] = []
+        if expected_gain is None:
+            missing_fields.append("expected_gain")
+        if risk_score is None:
+            missing_fields.append("risk_score")
+        if complexity is None:
+            missing_fields.append("complexity")
+        if coverage_delta is None:
+            missing_fields.append("coverage_delta")
+        if missing_fields:
+            return None, missing_fields
+
+        mutation_id = self._canonical_mutation_id(payload)
+        candidate = MutationCandidate(
+            mutation_id=mutation_id,
+            expected_gain=expected_gain,
+            risk_score=risk_score,
+            complexity=complexity,
+            coverage_delta=coverage_delta,
+        )
+        return candidate, []
+
+    def _discard(
+        self,
+        staged_dir: Path,
+        payload: Dict[str, object],
+        legacy_score: float,
+        autonomy_score: Optional[float],
+    ) -> None:
         shutil.rmtree(staged_dir, ignore_errors=True)
         metrics.log(
             event_type="mutation_discarded",
-            payload={"staged": str(staged_dir), "score": score, "parent": payload.get("parent")},
+            payload={
+                "staged": str(staged_dir),
+                "legacy_fitness_score": legacy_score,
+                "autonomy_composite_score": autonomy_score,
+                "parent": payload.get("parent"),
+            },
             level="WARNING",
             element_id=ELEMENT_ID,
         )
 
-    def run_cycle(self, agent_id: Optional[str] = None) -> Dict[str, str]:
+    def run_cycle(self, agent_id: Optional[str] = None) -> Dict[str, object]:
         metrics.log(event_type="beast_cycle_start", payload={"agent": agent_id}, level="INFO", element_id=ELEMENT_ID)
         throttled = self._check_limits()
         if throttled:
@@ -277,17 +338,48 @@ class BeastModeLoop:
                     return {"status": "blocked", "agent": selected, "reason": "invalid_signature"}
 
         score = fitness.score_mutation(selected, payload)
+        autonomy_score: Optional[float] = None
+        candidate, missing_candidate_fields = self._build_mutation_candidate(payload)
+        if candidate is not None:
+            ranked_candidates = rank_mutation_candidates([candidate], acceptance_threshold=self.autonomy_threshold)
+            autonomy_result = ranked_candidates[0]
+            autonomy_score = autonomy_result.score
+            accepted = autonomy_result.accepted
+        else:
+            accepted = score >= self.threshold
+            metrics.log(
+                event_type="beast_autonomy_fallback",
+                payload={
+                    "agent": selected,
+                    "staged": str(staged_dir),
+                    "missing_candidate_fields": missing_candidate_fields,
+                    "legacy_fitness_score": score,
+                    "fallback_threshold": self.threshold,
+                },
+                level="WARNING",
+                element_id=ELEMENT_ID,
+            )
         metrics.log(
             event_type="beast_fitness_scored",
-            payload={"agent": selected, "score": score, "staged": str(staged_dir)},
+            payload={
+                "agent": selected,
+                "legacy_fitness_score": score,
+                "autonomy_composite_score": autonomy_score,
+                "staged": str(staged_dir),
+            },
             level="INFO",
             element_id=ELEMENT_ID,
         )
 
-        if score < self.threshold:
-            self._discard(staged_dir, payload, score)
+        if not accepted:
+            self._discard(staged_dir, payload, score, autonomy_score)
             metrics.log(event_type="beast_cycle_end", payload={"status": "discarded", "agent": selected}, level="INFO", element_id=ELEMENT_ID)
-            return {"status": "discarded", "agent": selected, "score": score}
+            return {
+                "status": "discarded",
+                "agent": selected,
+                "legacy_fitness_score": score,
+                "autonomy_composite_score": autonomy_score,
+            }
 
         agent_dir = agent_path_from_id(selected, self.agents_root)
         cryovant.evolve_certificate(selected, agent_dir, staged_dir, get_capabilities())
@@ -314,6 +406,8 @@ class BeastModeLoop:
                 "epoch_id": str(payload.get("epoch_id") or "unknown"),
                 "bundle_id": str(payload.get("bundle_id") or payload.get("mutation_intent") or "unknown"),
                 "fitness_score": score,
+                "legacy_fitness_score": score,
+                "autonomy_composite_score": autonomy_score,
                 "constitution_decision": constitution_decision,
                 "replay_mode": str(payload.get("replay_mode") or "off"),
                 "replay_result": replay_result,
@@ -329,7 +423,8 @@ class BeastModeLoop:
             payload={
                 "staged": str(staged_dir),
                 "promoted": str(promoted),
-                "score": score,
+                "legacy_fitness_score": score,
+                "autonomy_composite_score": autonomy_score,
                 "promotion_manifest_hash": manifest_ref["manifest_hash"],
                 "promotion_manifest_path": manifest_ref["manifest_path"],
             },
@@ -338,6 +433,8 @@ class BeastModeLoop:
             "staged_path": str(staged_dir),
             "promoted_path": str(promoted),
             "fitness_score": score,
+            "legacy_fitness_score": score,
+            "autonomy_composite_score": autonomy_score,
             "promotion_manifest": manifest_ref,
             "ledger_tail_refs": journal.read_entries(limit=5),
         }
@@ -351,9 +448,20 @@ class BeastModeLoop:
         )
         metrics.log(
             event_type="mutation_promoted",
-            payload={"agent": selected, "promoted_path": str(promoted), "score": score},
+            payload={
+                "agent": selected,
+                "promoted_path": str(promoted),
+                "legacy_fitness_score": score,
+                "autonomy_composite_score": autonomy_score,
+            },
             level="INFO",
             element_id=ELEMENT_ID,
         )
         metrics.log(event_type="beast_cycle_end", payload={"status": "promoted", "agent": selected}, level="INFO", element_id=ELEMENT_ID)
-        return {"status": "promoted", "agent": selected, "score": score, "promoted_path": str(promoted)}
+        return {
+            "status": "promoted",
+            "agent": selected,
+            "legacy_fitness_score": score,
+            "autonomy_composite_score": autonomy_score,
+            "promoted_path": str(promoted),
+        }

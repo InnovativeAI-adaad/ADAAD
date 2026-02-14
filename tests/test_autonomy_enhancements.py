@@ -63,5 +63,30 @@ class AutonomyEnhancementTest(unittest.TestCase):
         self.assertEqual(scoreboard["sandbox_failure_reasons"].get("missing_signature"), 1)
 
 
+    def test_scoreboard_handles_missing_metrics_file(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            metrics_path = Path(tmp) / "missing_metrics.jsonl"
+            with mock.patch("runtime.metrics.METRICS_PATH", metrics_path):
+                scoreboard = build_scoreboard_views(limit=25)
+
+        self.assertEqual(scoreboard["performance_by_agent"], {})
+        self.assertEqual(scoreboard["mutation_outcomes"], {})
+        self.assertEqual(scoreboard["sandbox_failure_reasons"], {})
+
+    def test_scoreboard_ignores_malformed_events(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            metrics_path = Path(tmp) / "metrics.jsonl"
+            metrics_path.write_text(
+                '{"event":"autonomy_action","payload":{"agent":"ExecutorAgent","duration_ms":"not-an-int"}}\n'
+                '{"event":"sandbox_validation_failed","payload":"not-a-dict"}\n',
+                encoding="utf-8",
+            )
+            with mock.patch("runtime.metrics.METRICS_PATH", metrics_path):
+                scoreboard = build_scoreboard_views(limit=50)
+
+        self.assertEqual(scoreboard["performance_by_agent"]["ExecutorAgent"]["avg_duration_ms"], 0.0)
+        self.assertEqual(scoreboard["sandbox_failure_reasons"]["unknown"], 1)
+
+
 if __name__ == "__main__":
     unittest.main()
