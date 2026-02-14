@@ -14,6 +14,12 @@ from runtime import ROOT_DIR
 from runtime.evolution.baseline import BaselineStore, create_baseline
 from runtime.evolution.entropy_discipline import deterministic_context, deterministic_token
 from runtime.founders_law import epoch_law_metadata
+from runtime.governance.founders_law_v2 import LawManifest
+from runtime.governance.law_evolution_certificate import (
+    LawEvolutionCertificate,
+    epoch_law_transition_metadata,
+    validate_law_transition,
+)
 from runtime.timeutils import now_iso
 
 STATE_DIR = ROOT_DIR / "runtime" / "evolution" / "state"
@@ -107,7 +113,15 @@ class EpochManager:
             return self.rotate_epoch(reason)
         return self.get_active()
 
-    def rotate_epoch(self, reason: str) -> EpochState:
+    def rotate_epoch(
+        self,
+        reason: str,
+        *,
+        old_law_manifest: LawManifest | None = None,
+        new_law_manifest: LawManifest | None = None,
+        law_certificate: LawEvolutionCertificate | None = None,
+        require_replay_safe_law_cert: bool = False,
+    ) -> EpochState:
         current = self.get_active()
         epoch_digest = self.ledger.compute_cumulative_epoch_digest(current.epoch_id)
         self.governor.mark_epoch_end(
@@ -127,11 +141,30 @@ class EpochManager:
                 "phase": "end",
             },
         )
+        transition_errors = validate_law_transition(
+            old_manifest=old_law_manifest,
+            new_manifest=new_law_manifest,
+            certificate=law_certificate,
+            require_replay_safe=require_replay_safe_law_cert,
+        )
+        if transition_errors:
+            raise ValueError("invalid law transition: " + "; ".join(transition_errors))
+
         self._force_end = False
-        self._state = self.start_new_epoch({"reason": reason})
+        self._state = self.start_new_epoch(
+            {"reason": reason},
+            law_manifest=new_law_manifest,
+            law_certificate=law_certificate,
+        )
         return self._state
 
-    def start_new_epoch(self, metadata: Dict[str, Any] | None = None) -> EpochState:
+    def start_new_epoch(
+        self,
+        metadata: Dict[str, Any] | None = None,
+        *,
+        law_manifest: LawManifest | None = None,
+        law_certificate: LawEvolutionCertificate | None = None,
+    ) -> EpochState:
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
         if deterministic_context(replay_mode=self.replay_mode, recovery_tier=self.governor.recovery_tier.value):
             previous_epoch_id = self._state.epoch_id if self._state else "genesis"
@@ -145,7 +178,11 @@ class EpochManager:
             recovery_tier=self.governor.recovery_tier.value,
         )
         self.baseline_store.append(baseline)
-        combined_metadata = {**epoch_law_metadata(), **(metadata or {})}
+        combined_metadata = {
+            **epoch_law_metadata(),
+            **epoch_law_transition_metadata(law_manifest, law_certificate),
+            **(metadata or {}),
+        }
         state = EpochState(
             epoch_id=epoch_id,
             start_ts=now_iso(),
