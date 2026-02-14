@@ -5,15 +5,14 @@ from __future__ import annotations
 
 import hashlib
 import json
-import random
 import shutil
 from dataclasses import dataclass
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
 
 from runtime import metrics
 from runtime.evolution.lineage_v2 import LineageIntegrityError, LineageLedgerV2, LineageRecoveryHook
+from runtime.governance.foundation import RuntimeDeterminismProvider, default_provider, require_replay_safe_provider
 from security.ledger.journal import JournalIntegrityError, JournalRecoveryHook, verify_journal_integrity
 
 
@@ -42,9 +41,20 @@ class SnapshotMetadata:
 class SnapshotManager:
     """Manages rotating snapshots with retention policy and metadata."""
 
-    def __init__(self, snapshot_dir: Path, max_snapshots: int = 10):
+    def __init__(
+        self,
+        snapshot_dir: Path,
+        max_snapshots: int = 10,
+        provider: RuntimeDeterminismProvider | None = None,
+        *,
+        replay_mode: str = "off",
+        recovery_tier: str | None = None,
+    ):
         self.snapshot_dir = snapshot_dir
         self.max_snapshots = max_snapshots
+        self.provider = provider or default_provider()
+        self.replay_mode = replay_mode
+        self.recovery_tier = recovery_tier
         self.snapshot_dir.mkdir(parents=True, exist_ok=True)
         self.metadata_path = self.snapshot_dir / "snapshots.json"
         self._metadata: dict[str, SnapshotMetadata] = {}
@@ -118,6 +128,7 @@ class SnapshotManager:
         raise TypeError("create_snapshot expects (source_path) or (lineage_path, journal_path, epoch_id)")
 
     def create_snapshot_set(self, sources: list[Path], epoch_id: str = "") -> SnapshotMetadata:
+        require_replay_safe_provider(self.provider, replay_mode=self.replay_mode, recovery_tier=self.recovery_tier)
         snapshot_id, snapshot_path = self._reserve_snapshot_dir()
 
         file_hashes: dict[str, str] = {}
@@ -135,7 +146,7 @@ class SnapshotManager:
         self._next_creation_sequence += 1
         metadata = SnapshotMetadata(
             snapshot_id=snapshot_id,
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=self.provider.iso_now(),
             file_count=len(sources),
             total_bytes=total_bytes,
             files=file_hashes,
@@ -202,10 +213,9 @@ class SnapshotManager:
                 continue
         raise RuntimeError("unable_to_reserve_unique_snapshot_id")
 
-    @staticmethod
-    def _generate_snapshot_id() -> str:
-        timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S.%fZ")
-        suffix = random.randint(0, 65535)
+    def _generate_snapshot_id(self) -> str:
+        timestamp = self.provider.format_utc("%Y%m%dT%H%M%S.%fZ")
+        suffix = self.provider.next_int(low=0, high=65535, label=f"snapshot:{timestamp}")
         return f"snapshot-{timestamp}-{suffix:04x}"
 
     def get_latest_valid_snapshot(self, source_name: str, validator: Callable[[Path], None]) -> Path | None:
@@ -237,8 +247,18 @@ class SnapshotManager:
 class AutoRecoveryHook(LineageRecoveryHook, JournalRecoveryHook):
     """Attempts ledger/journal recovery from latest valid snapshot."""
 
-    def __init__(self, snapshot_manager: SnapshotManager):
+    def __init__(
+        self,
+        snapshot_manager: SnapshotManager,
+        provider: RuntimeDeterminismProvider | None = None,
+        *,
+        replay_mode: str = "off",
+        recovery_tier: str | None = None,
+    ):
         self.snapshot_manager = snapshot_manager
+        self.provider = provider or snapshot_manager.provider
+        self.replay_mode = replay_mode
+        self.recovery_tier = recovery_tier
         self.recovery_log: list[dict[str, Any]] = []
 
     def on_lineage_integrity_failure(self, *, ledger_path: Path, error: LineageIntegrityError) -> None:
@@ -262,6 +282,7 @@ class AutoRecoveryHook(LineageRecoveryHook, JournalRecoveryHook):
         self._restore_from_snapshot(target_path=journal_path, snapshot_path=snapshot, error=str(error), recovery_type="journal_recovery")
 
     def _restore_from_snapshot(self, *, target_path: Path, snapshot_path: Path, error: str, recovery_type: str) -> None:
+        require_replay_safe_provider(self.provider, replay_mode=self.replay_mode, recovery_tier=self.recovery_tier)
         target_path.parent.mkdir(parents=True, exist_ok=True)
         corrupted_backup = target_path.with_suffix(target_path.suffix + ".corrupted")
         if target_path.exists():
@@ -269,7 +290,7 @@ class AutoRecoveryHook(LineageRecoveryHook, JournalRecoveryHook):
         shutil.copy2(snapshot_path, target_path)
 
         event = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": self.provider.iso_now(),
             "type": recovery_type,
             "error": error,
             "restored_from": str(snapshot_path),
@@ -279,13 +300,14 @@ class AutoRecoveryHook(LineageRecoveryHook, JournalRecoveryHook):
         metrics.log(event_type=recovery_type, payload=event, level="WARNING")
 
     def attempt_recovery(self, lineage_path: Path, cryovant_path: Path, error_type: str) -> dict[str, Any]:
+        require_replay_safe_provider(self.provider, replay_mode=self.replay_mode, recovery_tier=self.recovery_tier)
         latest = self.snapshot_manager.get_latest_snapshot()
         if latest is None:
             result = {
                 "success": False,
                 "reason": "no_snapshots_available",
                 "error_type": error_type,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": self.provider.iso_now(),
             }
             self.recovery_log.append(result)
             metrics.log(event_type="auto_recovery_failed", payload=result, level="ERROR")
@@ -297,7 +319,7 @@ class AutoRecoveryHook(LineageRecoveryHook, JournalRecoveryHook):
             "snapshot_id": latest.snapshot_id,
             "snapshot_epoch": latest.epoch_id,
             "error_type": error_type,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": self.provider.iso_now(),
         }
         self.recovery_log.append(result)
         metrics.log(event_type="auto_recovery_success" if success else "auto_recovery_failed", payload=result, level="WARNING" if success else "ERROR")

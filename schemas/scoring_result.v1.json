@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://adaad.local/schemas/scoring_result.v1.json",
+  "title": "Governance Scoring Result v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "mutation_id",
+    "score",
+    "decision"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "mutation_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "score": {
+      "type": "number"
+    },
+    "decision": {
+      "type": "string",
+      "enum": ["promote", "hold", "reject"]
+    },
+    "reason_codes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "computed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

@@ -4,23 +4,22 @@
 from __future__ import annotations
 
 import json
-import uuid
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict
 
 from runtime import ROOT_DIR
 from runtime.evolution.baseline import BaselineStore, create_baseline
-from runtime.evolution.entropy_discipline import deterministic_context, deterministic_token
+from runtime.evolution.entropy_discipline import deterministic_context
 from runtime.founders_law import epoch_law_metadata
+from runtime.governance.foundation import RuntimeDeterminismProvider, default_provider, require_replay_safe_provider
 from runtime.governance.founders_law_v2 import LawManifest
 from runtime.governance.law_evolution_certificate import (
     LawEvolutionCertificate,
     epoch_law_transition_metadata,
     validate_law_transition,
 )
-from runtime.timeutils import now_iso
 
 STATE_DIR = ROOT_DIR / "runtime" / "evolution" / "state"
 CURRENT_EPOCH_PATH = STATE_DIR / "current_epoch.json"
@@ -59,6 +58,7 @@ class EpochManager:
         state_path: Path | None = None,
         replay_mode: str = "off",
         baseline_store: BaselineStore | None = None,
+        provider: RuntimeDeterminismProvider | None = None,
     ) -> None:
         self.governor = governor
         self.ledger = ledger
@@ -67,6 +67,12 @@ class EpochManager:
         self.state_path = state_path or CURRENT_EPOCH_PATH
         self.replay_mode = replay_mode
         self.baseline_store = baseline_store or BaselineStore()
+        self.provider = provider or default_provider()
+        require_replay_safe_provider(
+            self.provider,
+            replay_mode=self.replay_mode,
+            recovery_tier=self.governor.recovery_tier.value,
+        )
         self._state: EpochState | None = None
         self._force_end = False
 
@@ -165,12 +171,20 @@ class EpochManager:
         law_manifest: LawManifest | None = None,
         law_certificate: LawEvolutionCertificate | None = None,
     ) -> EpochState:
-        timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        require_replay_safe_provider(
+            self.provider,
+            replay_mode=self.replay_mode,
+            recovery_tier=self.governor.recovery_tier.value,
+        )
+        timestamp = self.provider.format_utc("%Y%m%dT%H%M%SZ")
         if deterministic_context(replay_mode=self.replay_mode, recovery_tier=self.governor.recovery_tier.value):
             previous_epoch_id = self._state.epoch_id if self._state else "genesis"
-            suffix = deterministic_token(epoch_id=previous_epoch_id, bundle_id=(metadata or {}).get("reason", "boot"), label="epoch", length=6)
+            suffix = self.provider.next_token(
+                label=f"epoch:{previous_epoch_id}:{(metadata or {}).get('reason', 'boot')}",
+                length=6,
+            )
         else:
-            suffix = uuid.uuid4().hex[:6]
+            suffix = self.provider.next_id(label="epoch", length=6)
         epoch_id = f"epoch-{timestamp}-{suffix}"
         baseline = create_baseline(
             epoch_id=epoch_id,
@@ -185,7 +199,7 @@ class EpochManager:
         }
         state = EpochState(
             epoch_id=epoch_id,
-            start_ts=now_iso(),
+            start_ts=self.provider.iso_now(),
             metadata=combined_metadata,
             governor_version="3.0.0",
             baseline_id=baseline.baseline_id,
@@ -217,7 +231,7 @@ class EpochManager:
             raw = json.loads(self.state_path.read_text(encoding="utf-8"))
             return EpochState(
                 epoch_id=str(raw.get("epoch_id") or ""),
-                start_ts=str(raw.get("start_ts") or now_iso()),
+                start_ts=str(raw.get("start_ts") or self.provider.iso_now()),
                 metadata=dict(raw.get("metadata") or {}),
                 governor_version=str(raw.get("governor_version") or "3.0.0"),
                 baseline_id=str(raw.get("baseline_id") or ""),
@@ -232,7 +246,7 @@ class EpochManager:
             started = datetime.fromisoformat(start_ts.replace("Z", "+00:00"))
         except ValueError:
             return False
-        now = datetime.now(timezone.utc)
+        now = self.provider.now_utc()
         return now - started >= timedelta(minutes=self.max_duration_minutes)
 
 

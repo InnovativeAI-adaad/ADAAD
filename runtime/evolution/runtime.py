@@ -12,6 +12,8 @@ from runtime.evolution.lineage_v2 import LineageLedgerV2
 from runtime.evolution.replay import ReplayEngine
 from runtime.evolution.replay_mode import ReplayMode, normalize_replay_mode
 from runtime.evolution.replay_verifier import ReplayVerifier
+from runtime.evolution.checkpoint_registry import CheckpointRegistry
+from runtime.evolution.checkpoint_verifier import verify_checkpoint_chain
 
 
 class EvolutionRuntime:
@@ -23,6 +25,12 @@ class EvolutionRuntime:
         self.replay_engine = ReplayEngine(self.ledger)
         self.replay_verifier = ReplayVerifier(self.ledger, self.replay_engine)
         self.baseline_store = BaselineStore()
+        self.checkpoint_registry = CheckpointRegistry(
+            self.ledger,
+            provider=self.governor.provider,
+            replay_mode=self.replay_mode.value,
+            recovery_tier=self.governor.recovery_tier.value,
+        )
 
         self.current_epoch_id = ""
         self.epoch_metadata: Dict[str, Any] = {}
@@ -39,6 +47,13 @@ class EvolutionRuntime:
     def set_replay_mode(self, replay_mode: str | bool | ReplayMode) -> None:
         self.replay_mode = normalize_replay_mode(replay_mode)
         self.epoch_manager.replay_mode = self.replay_mode.value
+        self.governor.replay_mode = self.replay_mode.value
+        self.checkpoint_registry = CheckpointRegistry(
+            self.ledger,
+            provider=self.governor.provider,
+            replay_mode=self.replay_mode.value,
+            recovery_tier=self.governor.recovery_tier.value,
+        )
 
     def boot(self) -> Dict[str, Any]:
         epoch = self.epoch_manager.load_or_create()
@@ -164,6 +179,8 @@ class EvolutionRuntime:
                 "cause_buckets": verification["cause_buckets"],
             },
         )
+        checkpoint = self.checkpoint_registry.create_checkpoint(epoch_id)
+        checkpoint_verification = verify_checkpoint_chain(self.ledger, epoch_id)
         return {
             "epoch_id": epoch_id,
             "baseline_epoch": epoch_id,
@@ -181,6 +198,8 @@ class EvolutionRuntime:
             "expected": expected_digest,
             "replay_score": verification["replay_score"],
             "cause_buckets": verification["cause_buckets"],
+            "checkpoint": checkpoint,
+            "checkpoint_verification": checkpoint_verification,
         }
 
     def _build_replay_verification(

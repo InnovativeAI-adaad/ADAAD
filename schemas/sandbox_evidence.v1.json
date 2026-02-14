@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://adaad.local/schemas/sandbox_evidence.v1.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifest_hash",
+    "policy_hash",
+    "stdout_hash",
+    "stderr_hash",
+    "syscall_trace_hash",
+    "resource_usage",
+    "exit_code",
+    "replay_seed",
+    "timestamp",
+    "evidence_hash",
+    "manifest"
+  ],
+  "properties": {
+    "manifest_hash": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "policy_hash": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "stdout_hash": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "stderr_hash": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "syscall_trace_hash": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "resource_usage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["duration_s", "memory_mb", "disk_mb"],
+      "properties": {
+        "duration_s": {"type": "number", "minimum": 0},
+        "memory_mb": {"type": "number", "minimum": 0},
+        "disk_mb": {"type": "number", "minimum": 0}
+      }
+    },
+    "exit_code": {"type": ["integer", "null"]},
+    "replay_seed": {"type": "string", "pattern": "^(?!0{16}$)[a-fA-F0-9]{16}$"},
+    "timestamp": {"type": "string", "minLength": 1},
+    "evidence_hash": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "manifest": {"type": "object"}
+  }
+}

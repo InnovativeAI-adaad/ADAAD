@@ -129,6 +129,18 @@ Replay epochs represent deterministic governance snapshots. Each epoch includes:
 
 Strict replay requires identical epoch reconstruction.
 
+
+## Canonical governance import paths
+
+Use `runtime.*` as the authoritative implementation path for governance and replay primitives:
+
+- Foundation utilities: `runtime.governance.foundation.{canonical,hashing,clock}`
+- Evolution scoring/state machine/checkpoint: `runtime.evolution.{scoring,promotion_state_machine,checkpoint}`
+- Replay/governor integrations import only from `runtime.governance.*` and `runtime.evolution.*`
+- Runtime deterministic provider abstraction: `runtime.governance.foundation.determinism`
+
+A compatibility package `governance.*` exists only as a thin adapter that re-exports `runtime.governance.*` for external callers. New internal code should not add alternate implementation trees.
+
 ## Determinism Scope
 
 ADAAD guarantees deterministic governance decisions given identical:

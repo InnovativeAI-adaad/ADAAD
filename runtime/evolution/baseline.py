@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import hashlib
 import json
 import os
 import uuid
@@ -13,6 +12,7 @@ from typing import Any, Dict
 
 from runtime import ROOT_DIR
 from runtime.constitution import CONSTITUTION_VERSION, POLICY_HASH
+from runtime.governance.foundation.hashing import sha256_prefixed_digest
 from runtime.timeutils import now_iso
 
 BASELINE_LEDGER_PATH = ROOT_DIR / "security" / "ledger" / "baselines.jsonl"
@@ -53,8 +53,7 @@ class BaselineRecord:
 
 
 def _compute_hash(payload: Dict[str, Any]) -> str:
-    canonical = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
-    return f"sha256:{hashlib.sha256(canonical.encode('utf-8')).hexdigest()}"
+    return sha256_prefixed_digest(payload)
 
 
 def _mutation_sampling_from_env() -> Dict[str, Any]:

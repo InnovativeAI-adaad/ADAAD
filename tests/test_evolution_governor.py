@@ -46,10 +46,25 @@ class EvolutionGovernorTest(unittest.TestCase):
         self.assertTrue(decision.accepted)
         self.assertIsNotNone(decision.certificate)
         self.assertEqual(decision.certificate.get("bundle_id_source"), "governor")
+        self.assertTrue(str(decision.certificate.get("bundle_id", "")).startswith("bundle-"))
+        self.assertEqual(len(decision.certificate.get("replay_seed", "")), 16)
+        self.assertNotEqual(decision.certificate.get("replay_seed"), "0000000000000000")
         self.assertTrue(decision.certificate.get("strategy_hash"))
         self.assertTrue(decision.certificate.get("strategy_version_set"))
         entries = self.ledger.read_all()
         self.assertEqual(entries[-1]["type"], "MutationBundleEvent")
+
+    def test_governor_generated_replay_seed_is_deterministic_for_same_input(self) -> None:
+        self.governor.mark_epoch_start("epoch-1")
+        request = self._request()
+        with mock.patch("security.cryovant.signature_valid", return_value=True):
+            decision_one = self.governor.validate_bundle(request, epoch_id="epoch-1")
+            decision_two = self.governor.validate_bundle(request, epoch_id="epoch-1")
+
+        self.assertTrue(decision_one.accepted)
+        self.assertTrue(decision_two.accepted)
+        self.assertEqual(decision_one.certificate.get("bundle_id"), decision_two.certificate.get("bundle_id"))
+        self.assertEqual(decision_one.certificate.get("replay_seed"), decision_two.certificate.get("replay_seed"))
 
     def test_rejects_invalid_signature(self) -> None:
         self.governor.mark_epoch_start("epoch-1")

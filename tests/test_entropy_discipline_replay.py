@@ -9,6 +9,7 @@ from app.agents.mutation_request import MutationRequest
 from app.dream_mode import DreamMode
 from app.mutation_executor import MutationExecutor
 from runtime.evolution.epoch import EpochManager
+from runtime.governance.foundation import SeededDeterminismProvider
 
 
 class _Governor:
@@ -40,7 +41,7 @@ def _request() -> MutationRequest:
 
 
 def test_mutation_executor_deterministic_id_in_strict_mode() -> None:
-    executor = MutationExecutor(agents_root=Path("/tmp"))
+    executor = MutationExecutor(agents_root=Path("/tmp"), provider=SeededDeterminismProvider(seed="strict"))
     executor.evolution_runtime.set_replay_mode("strict")
 
     request = _request()
@@ -52,13 +53,11 @@ def test_mutation_executor_deterministic_id_in_strict_mode() -> None:
 
 def test_epoch_manager_deterministic_epoch_id_in_audit_mode() -> None:
     governor = _Governor("audit")
-    manager = EpochManager(governor, _Ledger(), replay_mode="off")
+    manager = EpochManager(governor, _Ledger(), replay_mode="off", provider=SeededDeterminismProvider(seed="audit"))
 
-    with mock.patch("runtime.evolution.epoch.datetime") as mocked_datetime:
-        mocked_datetime.now.return_value.strftime.return_value = "20260210T140000Z"
-        state_a = manager.start_new_epoch({"reason": "boot"})
-        manager._state = None
-        state_b = manager.start_new_epoch({"reason": "boot"})
+    state_a = manager.start_new_epoch({"reason": "boot"})
+    manager._state = None
+    state_b = manager.start_new_epoch({"reason": "boot"})
 
     assert state_a.epoch_id == state_b.epoch_id
 

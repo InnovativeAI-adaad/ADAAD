@@ -85,7 +85,7 @@ class MutationExecutorIntegrationTest(unittest.TestCase):
             nonce="n-1",
         )
 
-        with mock.patch.dict("os.environ", {"ADAAD_TRUST_MODE": "dev"}, clear=False), mock.patch("app.mutation_executor.verify_all", return_value=(True, [])), mock.patch("app.mutation_executor.journal.write_entry"), mock.patch(
+        with mock.patch.dict("os.environ", {"ADAAD_TRUST_MODE": "dev", "ADAAD_ENV": "dev", "CRYOVANT_DEV_MODE": "1"}, clear=False), mock.patch("app.mutation_executor.verify_all", return_value=(True, [])), mock.patch("app.mutation_executor.journal.write_entry"), mock.patch(
             "app.mutation_executor.journal.append_tx"
         ), mock.patch(
             "app.mutation_executor.metrics.log"
@@ -99,7 +99,47 @@ class MutationExecutorIntegrationTest(unittest.TestCase):
         self.assertTrue(manifest_path.exists())
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         self.assertEqual(manifest["terminal_status"], "completed")
+        replay_seed = manifest["cert_references"].get("replay_seed")
+        self.assertIsInstance(replay_seed, str)
+        self.assertEqual(len(replay_seed), 16)
+        self.assertNotEqual(replay_seed, "0000000000000000")
         self.assertTrue(result["manifest_hash"].startswith("sha256:"))
+
+    def test_executor_rejects_all_zero_replay_seed_before_execution(self) -> None:
+        agents_root = self.tmp_root / "agents"
+        agent_dir = agents_root / "sample"
+        agent_dir.mkdir(parents=True, exist_ok=True)
+        (agent_dir / "meta.json").write_text("{}", encoding="utf-8")
+        (agent_dir / "dna.json").write_text("{}", encoding="utf-8")
+        (agent_dir / "certificate.json").write_text(json.dumps({"signature": "cryovant-dev-seed"}), encoding="utf-8")
+
+        executor = MutationExecutor(agents_root=agents_root)
+        request = MutationRequest(
+            agent_id="sample",
+            generation_ts="now",
+            intent="test",
+            ops=[{"op": "set", "path": "/lineage", "value": "seed"}],
+            signature="cryovant-dev-seed",
+            nonce="n-invalid-seed",
+        )
+
+        with mock.patch.dict("os.environ", {"ADAAD_TRUST_MODE": "dev", "ADAAD_ENV": "dev", "CRYOVANT_DEV_MODE": "1"}, clear=False), mock.patch("app.mutation_executor.verify_all", return_value=(True, [])), mock.patch.object(
+            executor.governor,
+            "validate_bundle",
+            return_value=SimpleNamespace(
+                accepted=True,
+                reason="ok",
+                replay_status="ok",
+                certificate={"bundle_id": "b-1", "replay_seed": "0000000000000000"},
+            ),
+        ), mock.patch("app.mutation_executor.journal.write_entry"), mock.patch("app.mutation_executor.journal.append_tx"), mock.patch("app.mutation_executor.metrics.log") as log_mock, mock.patch.object(executor, "_run_tests", return_value=(True, "ok")) as run_tests_mock:
+            result = executor.execute(request)
+
+        self.assertEqual(result["status"], "rejected")
+        self.assertEqual(result["reason"], "invalid_replay_seed")
+        self.assertFalse(run_tests_mock.called)
+        sandbox_events = [kwargs.get("event_type") for _, kwargs in log_mock.call_args_list]
+        self.assertIn("sandbox_validation_failed", sandbox_events)
 
     def test_executor_noop_does_not_enter_execution_states(self) -> None:
         agents_root = self.tmp_root / "agents"
@@ -125,7 +165,7 @@ class MutationExecutorIntegrationTest(unittest.TestCase):
             transitions.append((current, nxt))
             return nxt
 
-        with mock.patch.dict("os.environ", {"ADAAD_TRUST_MODE": "dev"}, clear=False), mock.patch("app.mutation_executor.verify_all", return_value=(True, [])), mock.patch.object(
+        with mock.patch.dict("os.environ", {"ADAAD_TRUST_MODE": "dev", "ADAAD_ENV": "dev", "CRYOVANT_DEV_MODE": "1"}, clear=False), mock.patch("app.mutation_executor.verify_all", return_value=(True, [])), mock.patch.object(
             executor.governor,
             "validate_bundle",
             return_value=SimpleNamespace(accepted=True, reason="ok", replay_status="ok", certificate={"bundle_id": "b-noop"}),
@@ -155,7 +195,7 @@ class MutationExecutorIntegrationTest(unittest.TestCase):
             nonce="n-dry",
         )
 
-        with mock.patch.dict("os.environ", {"ADAAD_TRUST_MODE": "dev", "ADAAD_LIFECYCLE_DRY_RUN": "1"}, clear=False), mock.patch("app.mutation_executor.verify_all", return_value=(True, [])), mock.patch("app.mutation_executor.journal.write_entry"), mock.patch(
+        with mock.patch.dict("os.environ", {"ADAAD_TRUST_MODE": "dev", "ADAAD_ENV": "dev", "CRYOVANT_DEV_MODE": "1", "ADAAD_LIFECYCLE_DRY_RUN": "1"}, clear=False), mock.patch("app.mutation_executor.verify_all", return_value=(True, [])), mock.patch("app.mutation_executor.journal.write_entry"), mock.patch(
             "app.mutation_executor.journal.append_tx"
         ), mock.patch("app.mutation_executor.metrics.log"):
             result = executor.execute(request)
@@ -164,6 +204,100 @@ class MutationExecutorIntegrationTest(unittest.TestCase):
         self.assertTrue(result["simulated"])
         dna_payload = json.loads((agent_dir / "dna.json").read_text(encoding="utf-8"))
         self.assertNotIn("lineage", dna_payload)
+
+    def test_executor_rejects_when_promotion_policy_rejects(self) -> None:
+        agents_root = self.tmp_root / "agents"
+        agent_dir = agents_root / "sample"
+        agent_dir.mkdir(parents=True, exist_ok=True)
+        (agent_dir / "meta.json").write_text("{}", encoding="utf-8")
+        (agent_dir / "dna.json").write_text("{}", encoding="utf-8")
+        (agent_dir / "certificate.json").write_text(json.dumps({"signature": "cryovant-dev-seed"}), encoding="utf-8")
+
+        executor = MutationExecutor(agents_root=agents_root)
+        request = MutationRequest(
+            agent_id="sample",
+            generation_ts="now",
+            intent="test",
+            ops=[{"op": "set", "path": "/lineage", "value": "seed"}],
+            signature="cryovant-dev-seed",
+            nonce="n-policy-reject",
+        )
+
+        from runtime.evolution.promotion_state_machine import PromotionState
+
+        with mock.patch.dict("os.environ", {"ADAAD_TRUST_MODE": "dev", "ADAAD_ENV": "dev", "CRYOVANT_DEV_MODE": "1"}, clear=False), mock.patch("app.mutation_executor.verify_all", return_value=(True, [])), mock.patch(
+            "app.mutation_executor.journal.write_entry"
+        ), mock.patch("app.mutation_executor.journal.append_tx"), mock.patch("app.mutation_executor.metrics.log"), mock.patch.object(executor, "_run_tests", return_value=(True, "ok")), mock.patch.object(
+            executor.promotion_policy,
+            "evaluate_transition",
+            return_value=PromotionState.REJECTED,
+        ):
+            result = executor.execute(request)
+
+        self.assertEqual(result["status"], "rejected")
+        self.assertEqual(result["reason"], "promotion_policy_rejected")
+
+    def test_executor_failed_tests_do_not_emit_invalid_rejected_to_rejected_transition(self) -> None:
+        agents_root = self.tmp_root / "agents"
+        agent_dir = agents_root / "sample"
+        agent_dir.mkdir(parents=True, exist_ok=True)
+        (agent_dir / "meta.json").write_text("{}", encoding="utf-8")
+        (agent_dir / "dna.json").write_text("{}", encoding="utf-8")
+        (agent_dir / "certificate.json").write_text(json.dumps({"signature": "cryovant-dev-seed"}), encoding="utf-8")
+
+        executor = MutationExecutor(agents_root=agents_root)
+        request = MutationRequest(
+            agent_id="sample",
+            generation_ts="now",
+            intent="test",
+            ops=[{"op": "set", "path": "/lineage", "value": "seed"}],
+            signature="cryovant-dev-seed",
+            nonce="n-failing",
+        )
+
+        from runtime.evolution.promotion_state_machine import PromotionState
+
+        with mock.patch.dict("os.environ", {"ADAAD_TRUST_MODE": "dev", "ADAAD_ENV": "dev", "CRYOVANT_DEV_MODE": "1"}, clear=False), mock.patch("app.mutation_executor.verify_all", return_value=(True, [])), mock.patch(
+            "app.mutation_executor.journal.write_entry"
+        ), mock.patch("app.mutation_executor.journal.append_tx"), mock.patch("app.mutation_executor.metrics.log"), mock.patch.object(executor, "_run_tests", return_value=(False, "tests failed")), mock.patch.object(
+            executor.promotion_policy,
+            "evaluate_transition",
+            return_value=PromotionState.REJECTED,
+        ), mock.patch.object(executor, "_emit_promotion_event", wraps=executor._emit_promotion_event) as emit_mock:
+            result = executor.execute(request)
+
+        self.assertEqual(result["status"], "rejected")
+        self.assertEqual(result["reason"], "promotion_policy_rejected")
+        self.assertEqual(emit_mock.call_count, 1)
+
+    def test_executor_rejects_when_entropy_ceiling_exceeded(self) -> None:
+        agents_root = self.tmp_root / "agents"
+        agent_dir = agents_root / "sample"
+        agent_dir.mkdir(parents=True, exist_ok=True)
+        (agent_dir / "meta.json").write_text("{}", encoding="utf-8")
+        (agent_dir / "dna.json").write_text("{}", encoding="utf-8")
+        (agent_dir / "certificate.json").write_text(json.dumps({"signature": "cryovant-dev-seed"}), encoding="utf-8")
+
+        executor = MutationExecutor(agents_root=agents_root)
+        from runtime.evolution.entropy_policy import EntropyPolicy
+
+        executor.entropy_policy = EntropyPolicy("tight", per_mutation_ceiling_bits=0, per_epoch_ceiling_bits=0)
+        request = MutationRequest(
+            agent_id="sample",
+            generation_ts="now",
+            intent="test",
+            ops=[{"op": "set", "path": "/lineage", "value": "seed"}],
+            signature="cryovant-dev-seed",
+            nonce="n-entropy",
+        )
+
+        with mock.patch.dict("os.environ", {"ADAAD_TRUST_MODE": "dev", "ADAAD_ENV": "dev", "CRYOVANT_DEV_MODE": "1"}, clear=False), mock.patch("app.mutation_executor.verify_all", return_value=(True, [])), mock.patch("app.mutation_executor.journal.write_entry"), mock.patch(
+            "app.mutation_executor.journal.append_tx"
+        ), mock.patch("app.mutation_executor.metrics.log"), mock.patch.object(executor, "_run_tests", return_value=(True, "ok")):
+            result = executor.execute(request)
+
+        self.assertEqual(result["status"], "rejected")
+        self.assertEqual(result["reason"], "entropy_ceiling_exceeded")
 
 
 if __name__ == "__main__":

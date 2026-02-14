@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://adaad.local/schemas/promotion_policy.v1.json",
+  "title": "Governance Promotion Policy v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "policy_id",
+    "minimum_score",
+    "blocked_conditions"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "policy_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "minimum_score": {
+      "type": "number"
+    },
+    "blocked_conditions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "risk_ceiling": {
+      "type": ["number", "null"]
+    }
+  }
+}

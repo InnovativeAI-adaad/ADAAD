@@ -72,3 +72,23 @@ def test_validate_manifest_forward_compatible_for_future_versions() -> None:
 
     assert ok is True
     assert errors == []
+
+
+def test_validate_manifest_rejects_all_zero_replay_seed() -> None:
+    manifest = generate_manifest(_context(), "completed", risk_score=0.1)
+    manifest["cert_references"]["replay_seed"] = "0000000000000000"
+
+    ok, errors = validate_manifest(manifest)
+
+    assert ok is False
+    assert "invalid_replay_seed" in errors
+
+
+def test_validate_manifest_accepts_non_zero_replay_seed() -> None:
+    manifest = generate_manifest(_context(), "completed", risk_score=0.1)
+    manifest["cert_references"]["replay_seed"] = "0000000000000001"
+
+    ok, errors = validate_manifest(manifest)
+
+    assert ok is True
+    assert errors == []

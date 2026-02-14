@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://adaad.local/schemas/entropy_policy.v1.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["policy_id", "per_mutation_ceiling_bits", "per_epoch_ceiling_bits"],
+  "properties": {
+    "policy_id": {"type": "string", "minLength": 1},
+    "per_mutation_ceiling_bits": {"type": "integer", "minimum": 0},
+    "per_epoch_ceiling_bits": {"type": "integer", "minimum": 0}
+  }
+}

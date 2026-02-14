@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://adaad.local/schemas/entropy_metadata.v1.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["mutation_id", "epoch_id", "sources", "estimated_bits", "deterministic"],
+  "properties": {
+    "mutation_id": {"type": "string", "minLength": 1},
+    "epoch_id": {"type": "string", "minLength": 1},
+    "sources": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "estimated_bits": {"type": "integer", "minimum": 0},
+    "deterministic": {"type": "boolean"}
+  }
+}
