@@ -203,6 +203,44 @@ Determinism is enforced at control-flow and governance boundaries: replay can on
 
 ---
 
+
+## 🧬 Formal Mutation Lifecycle
+
+ADAAD enforces a strict, explicit lifecycle for governed mutation execution:
+
+```text
+proposed → staged → certified → executing → completed → pruned
+```
+
+All transitions are guard-checked and journaled (`mutation_lifecycle_transition` / `mutation_lifecycle_rejected`) with transition payloads that include `from_state`, `to_state`, `mutation_id`, and guard results.
+
+### Lifecycle simulation mode (CI-safe)
+
+Set `ADAAD_LIFECYCLE_DRY_RUN=1` to simulate lifecycle transitions without applying file mutations. This is useful for policy/lifecycle CI validation.
+
+```bash
+ADAAD_LIFECYCLE_DRY_RUN=1 python -m app.main --replay audit
+```
+
+---
+
+## 🔐 Trust Mode
+
+`ADAAD_TRUST_MODE` controls trust semantics used by lifecycle and governance checks.
+
+| Value | Behavior |
+| --- | --- |
+| `dev` | Allows dev signatures (`cryovant-dev-*`) where policy permits. |
+| `prod` | Requires production-grade signature validation paths. |
+
+Example:
+
+```bash
+ADAAD_TRUST_MODE=prod python -m app.main --replay strict
+```
+
+---
+
 ## 🏛 Governance Surfaces
 
 | Surface          | Fail Behavior    | Evidence           |

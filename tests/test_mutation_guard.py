@@ -14,6 +14,7 @@
 import json
 import tempfile
 import unittest
+from types import SimpleNamespace
 from unittest import mock
 from pathlib import Path
 
@@ -84,7 +85,9 @@ class MutationExecutorIntegrationTest(unittest.TestCase):
             nonce="n-1",
         )
 
-        with mock.patch("app.mutation_executor.journal.write_entry"), mock.patch(
+        with mock.patch.dict("os.environ", {"ADAAD_TRUST_MODE": "dev"}, clear=False), mock.patch("app.mutation_executor.verify_all", return_value=(True, [])), mock.patch("app.mutation_executor.journal.write_entry"), mock.patch(
+            "app.mutation_executor.journal.append_tx"
+        ), mock.patch(
             "app.mutation_executor.metrics.log"
         ), mock.patch.object(executor, "_run_tests", return_value=(True, "ok")):
             result = executor.execute(request)
@@ -92,6 +95,75 @@ class MutationExecutorIntegrationTest(unittest.TestCase):
         self.assertEqual(result["status"], "executed")
         dna_payload = json.loads((agent_dir / "dna.json").read_text(encoding="utf-8"))
         self.assertEqual(dna_payload["lineage"], "seed")
+        manifest_path = Path(result["manifest_path"])
+        self.assertTrue(manifest_path.exists())
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        self.assertEqual(manifest["terminal_status"], "completed")
+        self.assertTrue(result["manifest_hash"].startswith("sha256:"))
+
+    def test_executor_noop_does_not_enter_execution_states(self) -> None:
+        agents_root = self.tmp_root / "agents"
+        agent_dir = agents_root / "sample"
+        agent_dir.mkdir(parents=True, exist_ok=True)
+        (agent_dir / "meta.json").write_text("{}", encoding="utf-8")
+        (agent_dir / "dna.json").write_text("{}", encoding="utf-8")
+        (agent_dir / "certificate.json").write_text(json.dumps({"signature": "cryovant-dev-seed"}), encoding="utf-8")
+
+        executor = MutationExecutor(agents_root=agents_root)
+        request = MutationRequest(
+            agent_id="sample",
+            generation_ts="now",
+            intent="test",
+            ops=[],
+            signature="cryovant-dev-seed",
+            nonce="n-noop",
+        )
+
+        transitions = []
+
+        def _record_transition(current, nxt, ctx):
+            transitions.append((current, nxt))
+            return nxt
+
+        with mock.patch.dict("os.environ", {"ADAAD_TRUST_MODE": "dev"}, clear=False), mock.patch("app.mutation_executor.verify_all", return_value=(True, [])), mock.patch.object(
+            executor.governor,
+            "validate_bundle",
+            return_value=SimpleNamespace(accepted=True, reason="ok", replay_status="ok", certificate={"bundle_id": "b-noop"}),
+        ), mock.patch("app.mutation_executor.journal.write_entry"), mock.patch(
+            "app.mutation_executor.journal.append_tx"
+        ), mock.patch("app.mutation_executor.metrics.log"), mock.patch("app.mutation_executor.lifecycle_transition", side_effect=_record_transition):
+            result = executor.execute(request)
+
+        self.assertEqual(result["status"], "skipped")
+        self.assertEqual(transitions, [("proposed", "staged")])
+
+    def test_executor_lifecycle_dry_run_simulates_without_mutation(self) -> None:
+        agents_root = self.tmp_root / "agents"
+        agent_dir = agents_root / "sample"
+        agent_dir.mkdir(parents=True, exist_ok=True)
+        (agent_dir / "meta.json").write_text("{}", encoding="utf-8")
+        (agent_dir / "dna.json").write_text("{}", encoding="utf-8")
+        (agent_dir / "certificate.json").write_text(json.dumps({"signature": "cryovant-dev-seed"}), encoding="utf-8")
+
+        executor = MutationExecutor(agents_root=agents_root)
+        request = MutationRequest(
+            agent_id="sample",
+            generation_ts="now",
+            intent="test",
+            ops=[{"op": "set", "path": "/lineage", "value": "seed"}],
+            signature="cryovant-dev-seed",
+            nonce="n-dry",
+        )
+
+        with mock.patch.dict("os.environ", {"ADAAD_TRUST_MODE": "dev", "ADAAD_LIFECYCLE_DRY_RUN": "1"}, clear=False), mock.patch("app.mutation_executor.verify_all", return_value=(True, [])), mock.patch("app.mutation_executor.journal.write_entry"), mock.patch(
+            "app.mutation_executor.journal.append_tx"
+        ), mock.patch("app.mutation_executor.metrics.log"):
+            result = executor.execute(request)
+
+        self.assertEqual(result["status"], "dry_run")
+        self.assertTrue(result["simulated"])
+        dna_payload = json.loads((agent_dir / "dna.json").read_text(encoding="utf-8"))
+        self.assertNotIn("lineage", dna_payload)
 
 
 if __name__ == "__main__":

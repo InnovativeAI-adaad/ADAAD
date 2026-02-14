@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://adaad.local/schemas/mutation_manifest.v1.json",
+  "title": "Mutation Manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifest_version",
+    "law_version",
+    "capability_snapshot_hash",
+    "mutation_id",
+    "parent_lineage_hash",
+    "proposed_at",
+    "proposer_identity",
+    "target_epoch",
+    "stage_timestamps",
+    "cert_references",
+    "fitness_summary",
+    "terminal_status"
+  ],
+  "properties": {
+    "manifest_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "law_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "capability_snapshot_hash": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$"
+    },
+    "mutation_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Immutable"
+    },
+    "parent_lineage_hash": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$",
+      "description": "Immutable"
+    },
+    "proposed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Immutable"
+    },
+    "proposer_identity": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Immutable"
+    },
+    "target_epoch": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Immutable"
+    },
+    "stage_timestamps": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "proposed",
+        "staged",
+        "certified",
+        "executing",
+        "completed"
+      ],
+      "properties": {
+        "proposed": { "type": "string", "format": "date-time" },
+        "staged": { "type": "string", "format": "date-time" },
+        "certified": { "type": "string", "format": "date-time" },
+        "executing": { "type": "string", "format": "date-time" },
+        "completed": { "type": "string", "format": "date-time" },
+        "pruned": { "type": "string", "format": "date-time" }
+      }
+    },
+    "cert_references": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "bundle_id": { "type": "string" },
+        "epoch_digest": { "type": "string" },
+        "issuer": { "type": "string" }
+      }
+    },
+    "fitness_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["score", "threshold", "passed"],
+      "properties": {
+        "score": { "type": ["number", "null"] },
+        "threshold": { "type": "number" },
+        "passed": { "type": "boolean" },
+        "risk_score": { "type": ["number", "null"] },
+        "notes": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "terminal_status": {
+      "type": "string",
+      "enum": ["completed", "pruned", "rejected", "failed"]
+    }
+  }
+}

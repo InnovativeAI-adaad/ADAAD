@@ -40,6 +40,16 @@ from runtime.platform.storage_manager import StorageManager
 from runtime import metrics
 from runtime.capability_graph import register_capability
 from runtime.element_registry import dump, register
+from runtime.founders_law import (
+    RULE_ARCHITECT_SCAN,
+    RULE_CONSTITUTION_VERSION,
+    RULE_KEY_ROTATION,
+    RULE_LEDGER_INTEGRITY,
+    RULE_MUTATION_ENGINE,
+    RULE_PLATFORM_RESOURCES,
+    RULE_WARM_POOL,
+    enforce_law,
+)
 from runtime.invariants import verify_all
 from app.agents.discovery import agent_path_from_id, iter_agent_dirs, resolve_agent_id
 from runtime.constitution import CONSTITUTION_VERSION, determine_tier, evaluate_mutation, get_forced_tier
@@ -274,37 +284,25 @@ class Orchestrator:
         )
 
     def _governance_gate(self) -> bool:
-        failures: list[dict[str, str]] = []
+        checks = [
+            ("constitution_version", RULE_CONSTITUTION_VERSION, *self._check_constitution_version()),
+            ("key_rotation", RULE_KEY_ROTATION, *self._check_key_rotation_status()),
+            ("ledger_integrity", RULE_LEDGER_INTEGRITY, *self._check_ledger_integrity()),
+            ("mutation_engine", RULE_MUTATION_ENGINE, *self._check_mutation_engine_health()),
+            ("warm_pool", RULE_WARM_POOL, *self._check_warm_pool_ready()),
+            ("architect_invariants", RULE_ARCHITECT_SCAN, *self._check_architect_invariants()),
+            ("platform_resources", RULE_PLATFORM_RESOURCES, *self._check_platform_resources()),
+        ]
+        decision = enforce_law(
+            {
+                "mutation_id": f"governance-gate-{self.evolution_runtime.current_epoch_id or 'boot'}",
+                "trust_mode": os.getenv("ADAAD_TRUST_MODE", "dev").strip().lower(),
+                "checks": [{"rule_id": rule_id, "ok": ok, "reason": reason} for _, rule_id, ok, reason in checks],
+            }
+        )
 
-        constitution_ok, constitution_reason = self._check_constitution_version()
-        if not constitution_ok:
-            failures.append({"check": "constitution_version", "reason": constitution_reason})
-
-        key_ok, key_reason = self._check_key_rotation_status()
-        if not key_ok:
-            failures.append({"check": "key_rotation", "reason": key_reason})
-
-        ledger_ok, ledger_reason = self._check_ledger_integrity()
-        if not ledger_ok:
-            failures.append({"check": "ledger_integrity", "reason": ledger_reason})
-
-        mutation_ok, mutation_reason = self._check_mutation_engine_health()
-        if not mutation_ok:
-            failures.append({"check": "mutation_engine", "reason": mutation_reason})
-
-        warm_ok, warm_reason = self._check_warm_pool_ready()
-        if not warm_ok:
-            failures.append({"check": "warm_pool", "reason": warm_reason})
-
-        architect_ok, architect_reason = self._check_architect_invariants()
-        if not architect_ok:
-            failures.append({"check": "architect_invariants", "reason": architect_reason})
-
-        resources_ok, resources_reason = self._check_platform_resources()
-        if not resources_ok:
-            failures.append({"check": "platform_resources", "reason": resources_reason})
-
-        if failures:
+        failures = [{"check": check_name, "reason": reason} for check_name, _, ok, reason in checks if not ok]
+        if not decision.passed:
             tier = self.tier_manager.evaluate_escalation(
                 governance_violations=len(failures),
                 ledger_errors=sum(1 for f in failures if f.get("check") == "ledger_integrity"),

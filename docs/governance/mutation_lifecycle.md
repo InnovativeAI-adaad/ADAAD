@@ -1,0 +1,86 @@
+# Mutation Lifecycle Specification
+
+## Canonical state chain (no implicit transitions)
+
+The lifecycle is strictly:
+
+`proposed -> staged -> certified -> executing -> completed -> pruned`
+
+Only the transitions listed below are legal. Any other transition MUST be rejected and recorded as a failure/rejection event.
+
+## Transition contract
+
+### `proposed -> staged`
+- **Allowed predecessor states**: `proposed` only.
+- **Required guard checks**:
+  - Cryovant signature validity gate: valid verified signature OR `cryovant-dev-*` when trust mode is `dev`.
+  - Founder’s Law invariant gate: runtime invariant suite must pass.
+  - Fitness threshold gate: not applicable.
+  - Trust-mode compatibility gate: trust mode must be one of `dev|prod`.
+- **Required side effects**:
+  - Ledger event: `mutation_lifecycle_transition`.
+  - Ledger payload schema:
+    - `mutation_id`, `agent_id`, `epoch_id`
+    - `from_state`, `to_state`
+    - `trust_mode`
+    - `guard_report` (contains all gate outputs)
+    - `cert_refs`, `fitness_score`, `fitness_threshold`, `stage_timestamps`, `metadata`, `ts`
+  - Journal append record: append `type=mutation_lifecycle_transition` entry using hash-linked `prev_hash` chain.
+  - Failure/rejection event on guard failure: `mutation_lifecycle_rejected` with same payload shape and failing `guard_report`.
+
+### `staged -> certified`
+- **Allowed predecessor states**: `staged` only.
+- **Required guard checks**:
+  - Cryovant signature validity gate.
+  - Founder’s Law invariant gate.
+  - Fitness threshold gate: not applicable.
+  - Trust-mode compatibility gate: `dev|prod`.
+  - Certificate reference gate: certification refs must be present.
+- **Required side effects**:
+  - Ledger event: `mutation_lifecycle_transition` with payload schema above.
+  - Journal append record: hash-linked append.
+  - Failure/rejection event: `mutation_lifecycle_rejected`.
+
+### `certified -> executing`
+- **Allowed predecessor states**: `certified` only.
+- **Required guard checks**:
+  - Cryovant signature validity gate.
+  - Founder’s Law invariant gate.
+  - Fitness threshold gate: required (`fitness_score >= fitness_threshold`).
+  - Trust-mode compatibility gate: `dev|prod`.
+  - Certificate reference gate: required.
+- **Required side effects**:
+  - Ledger event: `mutation_lifecycle_transition` with payload schema above.
+  - Journal append record: hash-linked append.
+  - Failure/rejection event: `mutation_lifecycle_rejected`.
+
+### `executing -> completed`
+- **Allowed predecessor states**: `executing` only.
+- **Required guard checks**:
+  - Cryovant signature validity gate.
+  - Founder’s Law invariant gate.
+  - Fitness threshold gate: not applicable.
+  - Trust-mode compatibility gate: `dev|prod`.
+  - Certificate reference gate: required.
+- **Required side effects**:
+  - Ledger event: `mutation_lifecycle_transition` with payload schema above.
+  - Journal append record: hash-linked append.
+  - Failure/rejection event: `mutation_lifecycle_rejected`.
+
+### `completed -> pruned`
+- **Allowed predecessor states**: `completed` only.
+- **Required guard checks**:
+  - Cryovant signature validity gate.
+  - Founder’s Law invariant gate.
+  - Fitness threshold gate: not applicable.
+  - Trust-mode compatibility gate: `dev|prod`.
+- **Required side effects**:
+  - Ledger event: `mutation_lifecycle_transition` with payload schema above.
+  - Journal append record: hash-linked append.
+  - Failure/rejection event: `mutation_lifecycle_rejected`.
+
+## Runtime enforcement requirements
+
+- Transition enforcement is centralized in `runtime/mutation_lifecycle.py::transition(...)`.
+- Runtime callers (including mutation execution flow) must invoke this function and treat undeclared transitions as hard rejections.
+- No fallback or inferred predecessor transitions are permitted.

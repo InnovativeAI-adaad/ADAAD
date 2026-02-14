@@ -13,6 +13,7 @@ from typing import Any, Dict
 from runtime import ROOT_DIR
 from runtime.evolution.baseline import BaselineStore, create_baseline
 from runtime.evolution.entropy_discipline import deterministic_context, deterministic_token
+from runtime.founders_law import epoch_law_metadata
 from runtime.timeutils import now_iso
 
 STATE_DIR = ROOT_DIR / "runtime" / "evolution" / "state"
@@ -144,10 +145,11 @@ class EpochManager:
             recovery_tier=self.governor.recovery_tier.value,
         )
         self.baseline_store.append(baseline)
+        combined_metadata = {**epoch_law_metadata(), **(metadata or {})}
         state = EpochState(
             epoch_id=epoch_id,
             start_ts=now_iso(),
-            metadata=metadata or {},
+            metadata=combined_metadata,
             governor_version="3.0.0",
             baseline_id=baseline.baseline_id,
             baseline_hash=baseline.baseline_hash,
