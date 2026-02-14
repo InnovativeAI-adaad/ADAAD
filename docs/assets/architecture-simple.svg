@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="330" viewBox="0 0 980 330" role="img" aria-label="ADAAD simplified architecture">
+  <defs>
+    <style>
+      .title { font: 700 26px Arial, sans-serif; fill: #0f172a; }
+      .label { font: 600 16px Arial, sans-serif; fill: #0f172a; }
+      .small { font: 500 13px Arial, sans-serif; fill: #334155; }
+      .box { fill: #f8fafc; stroke: #0ea5e9; stroke-width: 2; rx: 8; }
+      .line { stroke: #475569; stroke-width: 2; marker-end: url(#arrow); }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#475569"/>
+    </marker>
+  </defs>
+
+  <text x="30" y="40" class="title">ADAAD Runtime Architecture (Simplified)</text>
+
+  <rect x="30" y="70" width="180" height="70" class="box"/>
+  <text x="60" y="98" class="label">CLI Entrypoint</text>
+  <text x="82" y="120" class="small">app.main</text>
+
+  <rect x="250" y="70" width="200" height="70" class="box"/>
+  <text x="288" y="98" class="label">Orchestrator</text>
+  <text x="278" y="120" class="small">Boot + governance spine</text>
+
+  <rect x="500" y="20" width="200" height="60" class="box"/>
+  <text x="560" y="55" class="label">Invariants</text>
+
+  <rect x="500" y="100" width="200" height="60" class="box"/>
+  <text x="560" y="135" class="label">Cryovant</text>
+
+  <rect x="500" y="180" width="200" height="60" class="box"/>
+  <text x="573" y="215" class="label">Replay</text>
+
+  <rect x="750" y="60" width="200" height="70" class="box"/>
+  <text x="784" y="88" class="label">Mutation Engine</text>
+  <text x="804" y="110" class="small">Policy-gated</text>
+
+  <rect x="750" y="170" width="200" height="70" class="box"/>
+  <text x="793" y="198" class="label">Aponi UI</text>
+  <text x="782" y="220" class="small">Observability layer</text>
+
+  <line x1="210" y1="105" x2="250" y2="105" class="line"/>
+  <line x1="450" y1="105" x2="500" y2="50" class="line"/>
+  <line x1="450" y1="105" x2="500" y2="130" class="line"/>
+  <line x1="450" y1="105" x2="500" y2="210" class="line"/>
+  <line x1="700" y1="130" x2="750" y2="95" class="line"/>
+  <line x1="700" y1="210" x2="750" y2="205" class="line"/>
+  <rect x="30" y="280" width="350" height="35" fill="#eef6ff" stroke="#0ea5e9" stroke-width="1" rx="6"/>
+  <text x="42" y="301" class="small">Legend: Blue border = governed component · Arrow = control flow</text>
+
+</svg>

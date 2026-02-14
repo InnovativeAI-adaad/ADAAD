@@ -1,402 +1,226 @@
-# 🧬 ADAAD
+# ADAAD
 
-## Autonomous Device-Anchored Adaptive Development
+> **Deterministic, policy-governed autonomous code evolution.**
 
 <p align="center">
-  <img src="docs/assets/adaad-banner.svg" width="850" alt="ADAAD Governed Autonomy Engine banner">
+  <img src="docs/assets/adaad-banner.svg" width="850" alt="ADAAD governed autonomy banner">
 </p>
 
 <p align="center">
-<b>Deterministic Orchestrator • Constitutional Mutation • Cryovant Trust • Aponi Observability</b>
+  <a href="QUICKSTART.md"><img alt="Quick Start" src="https://img.shields.io/badge/Quick_Start-5%20Minutes-success"></a>
+  <img alt="Python" src="https://img.shields.io/badge/python-3.10+-blue.svg">
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-Apache%202.0-blue.svg"></a>
+  <img alt="Governance" src="https://img.shields.io/badge/Governance-Fail--Closed-critical">
+  <img alt="Last Commit" src="https://img.shields.io/github/last-commit/InnovativeAI-adaad/ADAAD">
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Governance-Fail--Closed-critical">
-  <img src="https://img.shields.io/badge/Replay-Strict%20Mode-blue">
-  <img src="https://img.shields.io/badge/Ledger-Hash--Linked-success">
-  <img src="https://img.shields.io/badge/Mutation-Constitutional-orange">
-  <img src="https://img.shields.io/badge/Lineage-Append--Only-informational">
+  <a href="QUICKSTART.md"><strong>Get Started →</strong></a> ·
+  <a href="docs/manifest.txt"><strong>Documentation</strong></a> ·
+  <a href="examples/single-agent-loop/README.md"><strong>Examples</strong></a> ·
+  <a href="https://github.com/InnovativeAI-adaad/ADAAD/issues"><strong>Issues</strong></a>
 </p>
 
----
+## What is ADAAD?
 
-## 🚀 Overview
+ADAAD is an autonomous software development system that proposes and executes code changes under constitutional governance.
 
-**ADAAD** is a governed, lineage-anchored autonomous development environment built to ensure that code mutation and evolution are:
+In plain terms: ADAAD automates code evolution with strict trust, replay, and policy gates so autonomy stays auditable and controlled.
 
-- **Deterministic**
-- **Auditable**
-- **Tamper-evident**
-- **Constitutionally bounded**
+## Project Status
 
-Mutations only execute when all trust and governance criteria are met. ADAAD evolves under law, not impulse.
+- Current version: 0.65.x
+- Stability: Experimental (governance stable, mutation experimental)
+- Recommended environment: Linux / WSL
+- Replay strict: Production-ready
+- Mutation execution: Staging-only
 
----
+Mutation execution is limited to controlled environments. Production use should run in dry-run or strict replay modes unless explicitly authorized by policy.
 
+## Why ADAAD?
 
-## 🧭 Governance Philosophy
+Traditional autonomous systems typically fail in three places:
 
-ADAAD is **governance-first** by design: autonomy is valuable only when behavior remains explainable, replayable, and constitutionally constrained.
+- **Runaway mutations:** autonomous edits exceed policy boundaries.
+- **Weak auditability:** teams cannot explain exactly what changed and why.
+- **Non-reproducible decisions:** governance results drift between runs.
 
-- **Determinism is legitimacy**: if a decision cannot be replayed, it cannot be trusted.
-- **Lineage is the primary artifact**: mutation history is append-only, hash-linked, and auditable.
-- **Constitution before capability**: higher capability never bypasses constitutional gates.
-- **Fail-closed over silent drift**: uncertain trust or replay divergence defaults to blocked execution.
+ADAAD addresses this with constitutional mutation controls, append-only lineage journals, and replay verification.
 
-## 🧠 Core Guarantees
+| Traditional automation | ADAAD |
+|---|---|
+| Pipeline-centric | Governance-first autonomy |
+| Manual policy checks | Constitution-enforced approvals |
+| Limited mutation history | Full lineage + journal trail |
+| Risk of silent drift | Replay verification + fail-closed controls |
 
-| Property          | Enforcement Mechanism                         |
-| ----------------- | --------------------------------------------- |
-| **Determinism**   | Ordered boot spine + replay strict fail-close |
-| **Governance**    | Constitutional mutation tiering + evaluation  |
-| **Trust**         | Cryovant environment + certification checks   |
-| **Lineage**       | Append-only event + hash-linked journal       |
-| **Isolation**     | Fail-closed gates at boot + mutation boundary |
-| **Observability** | Aponi dashboard + runtime metrics             |
+## Quick start
 
----
-
-## 🏗 Architecture
-
-### Execution Spine
-
-```text
-┌──────────────────────────────┐
-│ Gatekeeper Preflight         │
-├──────────────────────────────┤
-│ Runtime Invariants (Fail)    │
-├──────────────────────────────┤
-│ Cryovant Trust Validation    │
-├──────────────────────────────┤
-│ Architect / Dream / Beast    │
-├──────────────────────────────┤
-│ Replay Verification          │
-├──────────────────────────────┤
-│ Governance Gate              │
-├──────────────────────────────┤
-│ Mutation Cycle (Optional)    │
-├──────────────────────────────┤
-│ Capability Registration      │
-├──────────────────────────────┤
-│ Aponi Dashboard              │
-├──────────────────────────────┤
-│ Ledger Ready Event           │
-└──────────────────────────────┘
-```
-
-<p align="center">
-  <img src="docs/assets/adaad-governance-flow.svg" width="960" alt="ADAAD He65 execution spine and ledger evidence flow infographic">
-</p>
-
----
-
-### 🛡 Trust Layer vs Policy Layer
-
-| Layer                           | Responsibility                                            |
-| ------------------------------- | --------------------------------------------------------- |
-| **Trust Layer (Cryovant)**      | Environment validation, certification, ancestry integrity |
-| **Policy Layer (Constitution)** | Tier determination, mutation pass/reject                  |
-
-Both layers are required to authorize any mutation.
-
----
-
-### 🚧 Fail Boundaries
-
-ADAAD enforces fail-closed behavior on:
-
-* Invariant violations
-* Cryovant validation failure
-* Agent certification failure
-* Replay strict divergence
-* Ledger integrity mismatch
-* Constitutional mutation rejection
-
----
-
-## 🔄 Mutation Pipeline
-
-Mutation executes only if all governance conditions pass:
-
-* `mutation_enabled=True`
-* Replay strict passes
-* Cryovant gate passes
-* Architect produces proposals
-* MutationEngine selects candidate
-* Constitutional evaluation passes
-
-### Decision Path
-
-```text
-Dream Enabled?
-   ├─ No → Safe Boot
-   └─ Yes
-        ↓
-Replay Strict Pass?
-        ↓
-Cryovant Trust Pass?
-        ↓
-Architect Proposals?
-        ↓
-Constitutional Pass?
-        ↓
-Dry Run / Execute
-```
-
-### Outcomes
-
-| Outcome            | Action                                                 |
-| ------------------ | ------------------------------------------------------ |
-| Rejected           | Emit telemetry + append rejection event                |
-| Approved + Dry-Run | Simulate + append `mutation_dry_run`                   |
-| Approved + Execute | Apply via `MutationExecutor` + append `mutation_cycle` |
-
----
-
-## 🔐 Ledger Integrity Model
-
-ADAAD maintains two governance artifacts:
-
-```text
-security/ledger/lineage.jsonl
-security/ledger/cryovant_journal.jsonl
-```
-
-### Cryovant Journal Structure
-
-Each record contains:
-
-* `prev_hash`
-* `hash` (SHA-256 over canonicalized record material)
-* `tx`, `ts`, `type`, `payload`
-
-### Integrity Enforcement
-
-* JSON parse validation
-* `prev_hash` continuity verification
-* Hash recomputation consistency
-* Integrity mismatch blocks governance gate
-
----
-
-## 🔁 Replay & Determinism
+Use [QUICKSTART.md](QUICKSTART.md) for the full setup, validation, and reset workflow.
 
 ```bash
-python -m app.main --replay off
-python -m app.main --replay audit
-python -m app.main --replay strict
-python -m app.main --replay audit --replay-epoch <epoch_id>
-python -m app.main --verify-replay --replay strict
-```
-
-| Mode     | Guarantees | Failure Behavior | Use Case |
-| -------- | ---------- | ---------------- | -------- |
-| `off`    | No replay baseline enforcement | Continue | Development/local iteration |
-| `audit`  | Baseline digest comparison + divergence reporting | Continue with warning | Staging / observability |
-| `strict` | Full replay equivalence requirement | Fail-close | Production / high-assurance boot |
-
-Replay outcomes are journaled (`replay_verified`) with baseline epoch, expected digest, actual digest, and decision details. Legacy `full` maps to `audit`.
-
-### Determinism Scope
-
-Determinism is enforced at control-flow and governance boundaries: replay can only be trusted when scoring inputs, fitness behavior, and runtime state transitions are reproducible enough to yield the same governance outcome under the same epoch baseline.
-
----
-
-
-## 🧬 Formal Mutation Lifecycle
-
-ADAAD enforces a strict, explicit lifecycle for governed mutation execution:
-
-```text
-proposed → staged → certified → executing → completed → pruned
-```
-
-All transitions are guard-checked and journaled (`mutation_lifecycle_transition` / `mutation_lifecycle_rejected`) with transition payloads that include `from_state`, `to_state`, `mutation_id`, and guard results.
-
-### Lifecycle simulation mode (CI-safe)
-
-Set `ADAAD_LIFECYCLE_DRY_RUN=1` to simulate lifecycle transitions without applying file mutations. This is useful for policy/lifecycle CI validation.
-
-```bash
-ADAAD_LIFECYCLE_DRY_RUN=1 python -m app.main --replay audit
-```
-
----
-
-## 🔐 Trust Mode
-
-`ADAAD_TRUST_MODE` controls trust semantics used by lifecycle and governance checks.
-
-| Value | Behavior |
-| --- | --- |
-| `dev` | Allows dev signatures (`cryovant-dev-*`) where policy permits. |
-| `prod` | Requires production-grade signature validation paths. |
-
-Example:
-
-```bash
-ADAAD_TRUST_MODE=prod python -m app.main --replay strict
-```
-
----
-
-## 🏛 Governance Surfaces
-
-| Surface          | Fail Behavior    | Evidence           |
-| ---------------- | ---------------- | ------------------ |
-| Invariants       | Boot stop        | Metrics + journal  |
-| Cryovant         | Boot stop        | Metrics + journal  |
-| Constitution     | Mutation reject  | Rejection journal  |
-| Replay Strict    | Boot stop        | `replay_verified`  |
-| Ledger Integrity | Governance block | Journal continuity |
-
----
-
-## 🖥 Aponi Observability
-
-Default host: `http://localhost:8080`
-
-Endpoints:
-
-* `/state`
-* `/metrics`
-* `/fitness`
-* `/capabilities`
-* `/lineage`
-* `/mutations`
-* `/staging`
-
-Telemetry surfaces through runtime metrics and ledger/journal records. A canonical `ILogger` is recommended.
-
----
-
-## 🧩 He65 Elemental Model
-
-| Element  | Directory                                                                 | Responsibility                |
-| -------- | ------------------------------------------------------------------------- | ----------------------------- |
-| 🌳 Wood  | `app/`                                                                    | Architect + orchestration     |
-| 🔥 Fire  | `app/dream_mode.py`, `app/beast_mode_loop.py`, `app/mutation_executor.py` | Mutation flow                 |
-| 🌍 Earth | `runtime/`                                                                | Invariants + capability graph |
-| 🌊 Water | `security/`                                                               | Cryovant + ledger             |
-| ⚙ Metal  | `ui/`                                                                     | Aponi dashboard               |
-
----
-
-## ⚙ Quickstart
-
-```bash
-git clone https://github.com/InnovativeAI-adaad/ADAAD
+git clone https://github.com/InnovativeAI-adaad/ADAAD.git
 cd ADAAD
-pip install -r requirements.txt
-python -m app.main --replay audit
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.server.txt
+python nexus_setup.py
+python -m app.main --replay audit --verbose
 ```
 
-Expected checkpoints:
+## Expected Boot Output (Replay Audit)
 
-* Dashboard: `http://localhost:8080`
-* Key runtime events in `reports/metrics.jsonl`:
-  * `dream_discovery`
-  * `dream_candidate_generated`
-  * `dream_mutation_fitness`
-  * `mutation_promoted` (or `mutation_discarded`)
-  * `replay_verified`
-* Ledger events in `security/ledger/lineage.jsonl`:
-  * `ancestry_validated`
-  * `mutation_promoted`
-  * `replay_verified`
-* Replay manifests: `security/replay_manifests/*.json`
-* Promotion artifacts (mutation bundle metadata): `app/agents/lineage/**/mutation.json` and `dream_manifest.json`
+You should see boot-stage diagnostics including:
 
-For a time-boxed end-to-end runbook, see [`docs/first-loop-30min.md`](docs/first-loop-30min.md).
+- Governance spine initialization
+- Replay baseline comparison
+- Cryovant validation result
+- Capability registration summary
+- Mutation cycle status (enabled / disabled)
 
-For a minimal runnable single-agent loop with constrained dream scope, see
-[`examples/single-agent-loop/README.md`](examples/single-agent-loop/README.md).
+## Architecture at a glance
 
----
+ADAAD is organized into three runtime layers:
 
-## 🛑 Safe Boot Mode
+1. **Trust Layer (Cryovant):** validates environment trust and ancestry signals.
+2. **Governance Layer (Constitution):** evaluates whether a mutation can proceed.
+3. **Execution Layer (Dream / Beast / Architect):** discovers, scores, and runs approved work.
 
-If Dream discovers no tasks:
-
-* `safe_boot=True`
-* mutation disabled
-* telemetry + dashboard remain active
-
----
-
-## 🧪 CI Enforcement (Recommended)
-
-Minimum governance parity:
-
-```bash
-python -m pytest
-python -m app.main --replay strict
-```
-
-Also enforce:
-
-* Invariant validation
-* Cryovant certification checks
-
----
-
-## 📜 Rules of Engagement
-
-* Do not modify ledger files manually
-* Do not bypass constitutional evaluation
-* Do not introduce nondeterministic mutation without governance review
-* Governance-impacting behavior must remain auditable
-
----
-
-## 🛣 Roadmap
-
-* Deterministic mutation entropy discipline (seed control)
-* Multi-agent Dream parallelization
-* Hardware-backed Cryovant signing
-* Replay visualization in Aponi
-* Distributed ADAAD topology
-
----
-
-## 🧬 Conceptual Model
-
-ADAAD is a bounded autonomous software organism:
-
-| Role       | Component                  |
-| ---------- | -------------------------- |
-| Cognition  | Architect + MutationEngine |
-| Law        | Constitution + Cryovant    |
-| Metabolism | Fitness scoring            |
-| Memory     | Append-only ledger         |
-| Eyes       | Aponi dashboard            |
-| Body       | He65 repository            |
-
-**It evolves under law, not impulse.**
-
----
-
-
-## 🧬 Mutation Lifecycle
+Text fallback:
 
 ```text
-1) Discovery (Dream/Architect candidate search)
-2) Stage mutation proposal
-3) Fitness evaluation
-4) Constitutional + governance checks
-5) Execute or dry-run via MutationExecutor
-6) Append lineage + journal evidence
-7) Replay verification (mode dependent)
-8) Promotion / rejection outcome
+app.main
+ ├── Orchestrator
+ │    ├── Invariants
+ │    ├── Cryovant
+ │    ├── Replay
+ │    ├── MutationEngine
+ │    └── GovernanceGate
+ └── Aponi Dashboard
 ```
 
-## 🪜 Recovery Tier Ladder
+<p align="center">
+  <img src="docs/assets/architecture-simple.svg" width="760" alt="ADAAD simplified architecture diagram">
+</p>
 
-| Tier | Trigger Profile | Mutation Policy | Operational Posture |
-| ---- | --------------- | --------------- | ------------------- |
-| `none` | Normal operation | Full rate | Autonomous |
-| `advisory` | Early anomaly signal | Full rate + warning | Observe |
-| `conservative` | Repeated mutation-quality failures | Throttled rate | Stabilize |
-| `governance` | Constitutional/governance pressure | Fail-close + approval required | Human-supervised |
-| `critical` | Ledger integrity or high-severity trust failure | Evolution frozen | Incident response |
+<p align="center">
+  <img src="docs/assets/adaad-governance-flow.svg" width="960" alt="ADAAD governance flow">
+</p>
+
+
+## Governance surfaces
+
+| Surface | Fail behavior | Evidence |
+|---|---|---|
+| Invariants | Boot halt | Metrics + journal |
+| Cryovant | Boot halt | Journal entry |
+| Replay strict | Boot halt | `replay_verified` event |
+| Constitution | Mutation reject | Rejection event |
+| Ledger integrity | Governance stop | Hash continuity checks |
+
+## Replay epochs
+
+Replay epochs represent deterministic governance snapshots. Each epoch includes:
+
+- Baseline digest
+- Ledger state hash
+- Mutation graph fingerprint
+- Constitution version
+
+Strict replay requires identical epoch reconstruction.
+
+## Determinism Scope
+
+ADAAD guarantees deterministic governance decisions given identical:
+
+- Replay baseline
+- Mutation inputs
+- Fitness scoring configuration
+- Trust mode
+
+External nondeterminism (network, time, entropy) must be sandboxed.
+
+## Mutation risk levels
+
+- **Low:** refactor, logging, non-functional changes.
+- **Medium:** algorithmic modifications.
+- **High:** security, ledger, or governance logic.
+
+High-risk mutations require explicit policy elevation.
+
+## Fail-close example
+
+Example: replay strict divergence.
+
+```text
+Expected digest: abc123
+Actual digest:   def456
+Result: Boot halted before mutation stage.
+```
+
+## Real-world use cases
+
+### 1) Governed autonomous refactor
+```text
+[DREAM] Candidate: simplify duplicated parsing logic
+[GOVERNANCE] Tier: low, constitution: pass
+[MUTATION] Applied with lineage + replay evidence
+```
+
+### 2) Staging-only replay-audited mutation
+```text
+[REPLAY] mode=audit baseline=epoch_2026_02_14
+[REPLAY] divergence=none
+[MUTATION] staged for review (dry-run)
+```
+
+### 3) Policy-constrained self-improvement
+```text
+[ARCHITECT] Proposal affects governance path
+[CONSTITUTION] Escalate to high-risk controls
+[RESULT] blocked pending explicit policy elevation
+```
+
+## FAQ
+
+### Is ADAAD a replacement for code review?
+No. ADAAD automates governed mutation workflows and produces auditable artifacts; teams can still require human review where needed.
+
+### Why does ADAAD exit immediately?
+If replay mode is off, Dream mode has no discovered tasks, and no staged mutations exist, ADAAD may boot and exit cleanly.
+
+Use diagnostics:
+
+```bash
+python -m app.main --replay audit --verbose
+```
+
+### Does ADAAD run unsafe mutations automatically?
+No. Mutations must pass trust checks, replay checks, and constitutional policy gates before execution.
+
+### Can I run ADAAD without strict replay?
+Yes. Use `--replay off` or `--replay audit` in development, then `--replay strict` for high-assurance environments.
+
+### Is dry-run supported?
+Yes. Use `--dry-run` to evaluate mutation candidates and governance outcomes without applying file changes.
+
+## Security
+
+Security disclosures: see [docs/SECURITY.md](docs/SECURITY.md). Do not open public issues for vulnerabilities.
+
+## Getting help
+
+- 📖 Docs: [docs/manifest.txt](docs/manifest.txt)
+- 🧪 Example loop: [examples/single-agent-loop/README.md](examples/single-agent-loop/README.md)
+- 🐛 Issues: [GitHub Issues](https://github.com/InnovativeAI-adaad/ADAAD/issues)
+- 💬 Discussions: [GitHub Discussions](https://github.com/InnovativeAI-adaad/ADAAD/discussions)
+
+## Community and contribution
+
+- Contribution guide: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Changelog: [CHANGELOG.md](CHANGELOG.md)
+- Code of conduct: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+
+## License
+
+Apache 2.0. See [LICENSE](LICENSE).
