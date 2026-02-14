@@ -130,7 +130,8 @@ def _gate_state() -> Dict[str, Any]:
             if contents:
                 reason = contents
         except Exception:
-            reason = reason
+            # If reading the lock file fails, keep the existing reason value.
+            pass
 
     if reason:
         reason = reason[:280]
