@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import random
 import shutil
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -24,6 +25,7 @@ class SnapshotMetadata:
     total_bytes: int
     files: dict[str, str]
     epoch_id: str = ""
+    creation_sequence: int = 0
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -33,6 +35,7 @@ class SnapshotMetadata:
             "total_bytes": self.total_bytes,
             "files": self.files,
             "epoch_id": self.epoch_id,
+            "creation_sequence": self.creation_sequence,
         }
 
 
@@ -45,6 +48,7 @@ class SnapshotManager:
         self.snapshot_dir.mkdir(parents=True, exist_ok=True)
         self.metadata_path = self.snapshot_dir / "snapshots.json"
         self._metadata: dict[str, SnapshotMetadata] = {}
+        self._next_creation_sequence = 1
         self._load_metadata()
 
     def _load_metadata(self) -> None:
@@ -60,9 +64,39 @@ class SnapshotManager:
                     total_bytes=int(item.get("total_bytes") or 0),
                     files=dict(item.get("files") or {}),
                     epoch_id=str(item.get("epoch_id") or ""),
+                    creation_sequence=int(item.get("creation_sequence") or 0),
                 )
+            self._repair_creation_sequences()
         except (ValueError, TypeError):
             self._metadata = {}
+            self._next_creation_sequence = 1
+
+    def _repair_creation_sequences(self) -> None:
+        ordered = sorted(
+            self._metadata.items(),
+            key=lambda pair: (
+                pair[1].creation_sequence > 0,
+                pair[1].creation_sequence,
+                pair[1].timestamp,
+                pair[0],
+            ),
+        )
+
+        sequence = 1
+        fixed: dict[str, SnapshotMetadata] = {}
+        for snapshot_id, meta in ordered:
+            fixed[snapshot_id] = SnapshotMetadata(
+                snapshot_id=meta.snapshot_id,
+                timestamp=meta.timestamp,
+                file_count=meta.file_count,
+                total_bytes=meta.total_bytes,
+                files=meta.files,
+                epoch_id=meta.epoch_id,
+                creation_sequence=sequence,
+            )
+            sequence += 1
+        self._metadata = fixed
+        self._next_creation_sequence = sequence
 
     def _save_metadata(self) -> None:
         payload = {sid: meta.to_dict() for sid, meta in self._metadata.items()}
@@ -84,10 +118,7 @@ class SnapshotManager:
         raise TypeError("create_snapshot expects (source_path) or (lineage_path, journal_path, epoch_id)")
 
     def create_snapshot_set(self, sources: list[Path], epoch_id: str = "") -> SnapshotMetadata:
-        timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-        snapshot_id = f"snapshot-{timestamp}"
-        snapshot_path = self.snapshot_dir / snapshot_id
-        snapshot_path.mkdir(parents=True, exist_ok=True)
+        snapshot_id, snapshot_path = self._reserve_snapshot_dir()
 
         file_hashes: dict[str, str] = {}
         total_bytes = 0
@@ -100,6 +131,8 @@ class SnapshotManager:
             file_hashes[source.name] = self._hash_file(target)
             total_bytes += target.stat().st_size
 
+        creation_sequence = self._next_creation_sequence
+        self._next_creation_sequence += 1
         metadata = SnapshotMetadata(
             snapshot_id=snapshot_id,
             timestamp=datetime.now(timezone.utc).isoformat(),
@@ -107,6 +140,7 @@ class SnapshotManager:
             total_bytes=total_bytes,
             files=file_hashes,
             epoch_id=epoch_id,
+            creation_sequence=creation_sequence,
         )
         self._metadata[snapshot_id] = metadata
         self._save_metadata()
@@ -116,7 +150,7 @@ class SnapshotManager:
         return metadata
 
     def list_snapshots(self) -> list[SnapshotMetadata]:
-        return sorted(self._metadata.values(), key=lambda m: m.timestamp, reverse=True)
+        return sorted(self._metadata.values(), key=lambda m: m.creation_sequence, reverse=True)
 
     def get_latest_snapshot(self) -> SnapshotMetadata | None:
         snapshots = self.list_snapshots()
@@ -149,11 +183,30 @@ class SnapshotManager:
         return restored_any
 
     def _prune_old_snapshots(self) -> None:
-        snapshots = sorted(self._metadata.values(), key=lambda m: m.timestamp, reverse=True)
+        snapshots = sorted(self._metadata.values(), key=lambda m: m.creation_sequence, reverse=True)
         for old in snapshots[self.max_snapshots :]:
             shutil.rmtree(self.snapshot_dir / old.snapshot_id, ignore_errors=True)
             self._metadata.pop(old.snapshot_id, None)
         self._save_metadata()
+
+    def _reserve_snapshot_dir(self) -> tuple[str, Path]:
+        for _ in range(32):
+            snapshot_id = self._generate_snapshot_id()
+            if snapshot_id in self._metadata:
+                continue
+            snapshot_path = self.snapshot_dir / snapshot_id
+            try:
+                snapshot_path.mkdir(parents=True, exist_ok=False)
+                return snapshot_id, snapshot_path
+            except FileExistsError:
+                continue
+        raise RuntimeError("unable_to_reserve_unique_snapshot_id")
+
+    @staticmethod
+    def _generate_snapshot_id() -> str:
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S.%fZ")
+        suffix = random.randint(0, 65535)
+        return f"snapshot-{timestamp}-{suffix:04x}"
 
     def get_latest_valid_snapshot(self, source_name: str, validator: Callable[[Path], None]) -> Path | None:
         snapshots = sorted(
