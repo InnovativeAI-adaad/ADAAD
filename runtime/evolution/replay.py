@@ -3,11 +3,11 @@
 
 from __future__ import annotations
 
-import hashlib
-import json
 from typing import Any, Dict
 
 from runtime.evolution.lineage_v2 import LineageLedgerV2
+from runtime.governance.foundation.hashing import sha256_digest
+from runtime.sandbox.replay import replay_sandbox_execution
 
 
 class ReplayEngine:
@@ -19,10 +19,12 @@ class ReplayEngine:
         initial = [e for e in events if e.get("type") == "EpochStartEvent"]
         final = [e for e in events if e.get("type") == "EpochEndEvent"]
         bundles = [e for e in events if e.get("type") == "MutationBundleEvent"]
+        sandbox_events = [e for e in events if e.get("type") == "SandboxEvidenceEvent"]
         return {
             "epoch_id": epoch_id,
             "initial_state": initial[0]["payload"] if initial else {},
             "bundles": bundles,
+            "sandbox_events": sandbox_events,
             "final_state": final[-1]["payload"] if final else {},
         }
 
@@ -32,13 +34,20 @@ class ReplayEngine:
     def replay_epoch(self, epoch_id: str) -> Dict[str, Any]:
         reconstructed = self.reconstruct_epoch(epoch_id)
         replay_digest = self.compute_incremental_digest(epoch_id)
-        replay_material = {"reconstructed": reconstructed, "replay_digest": replay_digest}
-        canonical_digest = hashlib.sha256(json.dumps(replay_material, sort_keys=True, ensure_ascii=False).encode("utf-8")).hexdigest()
+        sandbox_events = reconstructed.get("sandbox_events", [])
+        sandbox_replay = [
+            replay_sandbox_execution((event.get("payload") or {}).get("manifest", {}), (event.get("payload") or {}))
+            for event in sandbox_events
+            if isinstance((event.get("payload") or {}).get("manifest"), dict)
+        ]
+        replay_material = {"reconstructed": reconstructed, "replay_digest": replay_digest, "sandbox_replay": sandbox_replay}
+        canonical_digest = sha256_digest(replay_material)
         return {
             "epoch_id": epoch_id,
             "digest": replay_digest,
             "canonical_digest": canonical_digest,
             "events": len(reconstructed.get("bundles", [])),
+            "sandbox_replay": sandbox_replay,
         }
 
     def deterministic_replay(self, epoch_id: str) -> Dict[str, Any]:

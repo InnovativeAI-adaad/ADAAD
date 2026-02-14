@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://adaad.local/schemas/sandbox_policy.v1.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "profile_id",
+    "syscall_allowlist",
+    "write_path_allowlist",
+    "network_egress_allowlist",
+    "capability_drop",
+    "cpu_seconds",
+    "memory_mb",
+    "disk_mb",
+    "timeout_s"
+  ],
+  "properties": {
+    "profile_id": {"type": "string", "minLength": 1},
+    "syscall_allowlist": {"type": "array", "items": {"type": "string"}},
+    "write_path_allowlist": {"type": "array", "items": {"type": "string"}},
+    "network_egress_allowlist": {"type": "array", "items": {"type": "string"}},
+    "capability_drop": {"type": "array", "items": {"type": "string"}},
+    "cpu_seconds": {"type": "integer", "minimum": 1},
+    "memory_mb": {"type": "integer", "minimum": 1},
+    "disk_mb": {"type": "integer", "minimum": 1},
+    "timeout_s": {"type": "integer", "minimum": 1}
+  }
+}

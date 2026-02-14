@@ -26,7 +26,7 @@ sys.path.append(str(ROOT))
 # 1) Create the top-level package/module at the repo root.
 # 2) Add the new namespace to APPROVED_ROOTS below.
 # 3) Ensure imports use the new root instead of legacy ones.
-APPROVED_ROOTS = {"app", "runtime", "security", "ui", "tests", "tools"}
+APPROVED_ROOTS = {"app", "governance", "runtime", "security", "ui", "tests", "tools"}
 STDLIB_ROOTS = set(getattr(sys, "stdlib_module_names", ())) | set(sys.builtin_module_names)
 SITE_PACKAGES_MARKERS = ("site-packages", "dist-packages")
 EXCLUDED_DIRS = {".venv", "venv", "__pycache__", ".tox", ".mypy_cache", "build", "dist", "archives"}

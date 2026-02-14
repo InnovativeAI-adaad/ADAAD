@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://adaad.local/schemas/sandbox_manifest.v1.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "mutation_id",
+    "epoch_id",
+    "replay_seed",
+    "command",
+    "env",
+    "mounts",
+    "allowed_write_paths",
+    "allowed_network_hosts",
+    "cpu_seconds",
+    "memory_mb",
+    "disk_mb",
+    "timeout_s",
+    "deterministic_clock",
+    "deterministic_random"
+  ],
+  "properties": {
+    "mutation_id": {"type": "string", "minLength": 1},
+    "epoch_id": {"type": "string", "minLength": 1},
+    "replay_seed": {"type": "string", "pattern": "^(?!0{16}$)[a-fA-F0-9]{16}$"},
+    "command": {"type": "array", "items": {"type": "string"}},
+    "env": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "value"],
+        "properties": {
+          "name": {"type": "string"},
+          "value": {"type": "string"}
+        }
+      }
+    },
+    "mounts": {"type": "array", "items": {"type": "string"}},
+    "allowed_write_paths": {"type": "array", "items": {"type": "string"}},
+    "allowed_network_hosts": {"type": "array", "items": {"type": "string"}},
+    "cpu_seconds": {"type": "integer", "minimum": 1},
+    "memory_mb": {"type": "integer", "minimum": 1},
+    "disk_mb": {"type": "integer", "minimum": 1},
+    "timeout_s": {"type": "integer", "minimum": 1},
+    "deterministic_clock": {"type": "boolean"},
+    "deterministic_random": {"type": "boolean"}
+  }
+}

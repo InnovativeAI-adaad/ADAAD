@@ -37,6 +37,11 @@
 
 ### Bundle ID ownership
 `MutationRequest.bundle_id` is treated as a proposal hint. Governor certificate stores `bundle_id` and `bundle_id_source` (`request`/`governor`).
+When governor-generated, `bundle_id` is deterministic from replay-stable request identity fields (no runtime RNG dependency).
+
+### Replay seed integrity
+Governor certificates include `replay_seed` (16 hex chars) used by mutation manifests as a replay witness.
+`replay_seed` must never be the all-zero sentinel (`0000000000000000`); both schema validation and runtime execution guards enforce this.
 
 ### Strategy anchoring
 Certificates include `strategy_snapshot` and `strategy_snapshot_hash`, and cumulative bundle digesting includes those fields.
@@ -64,6 +69,11 @@ Certificates include `strategy_snapshot` and `strategy_snapshot_hash`, and cumul
 - `runtime.evolution.lineage_v2.LineageLedgerV2.compute_cumulative_epoch_digest`
 
 
+## Replay Integration Harness Parity
+- Determinism integration tests use `EvolutionRuntime.verify_epoch(...)` and `EvolutionRuntime.replay_preflight(...)` directly, then cross-check with `ReplayEngine.replay_epoch(...)` so tests execute the same replay primitives as production.
+- Canonical verification artifacts are the lineage cumulative digest (`LineageLedgerV2.get_epoch_digest`) and emitted `ReplayVerificationEvent` payloads; the harness asserts parity instead of maintaining a parallel scoring-only replay implementation.
+- Deterministic fixtures are generated from mutation indices and serialized with sorted-key compact JSON before hashing, so fixture manifests and manifest hashes are stable across runs and environments.
+
 ## Constitutional Invariants
 1. LineageLedgerV2 is the sole source of evolutionary truth.
 2. All epoch digests are cumulative chained hashes (`sha256(previous + bundle_digest)`).
@@ -78,3 +88,30 @@ Certificates include `strategy_snapshot` and `strategy_snapshot_hash`, and cumul
 - In `strict` replay mode and `audit` recovery tier, mutation IDs, epoch suffixes, and dream mutation tokens must be deterministic for identical inputs.
 - Outside strict/audit contexts, runtime may use nondeterministic UUID/time entropy only when explicitly enabled via `ADAAD_ALLOW_NONDETERMINISTIC_IDS=1` (or `true/yes/on`).
 - Deterministic generation is label-scoped (`mutation`, `epoch`, `dream-mutation`) to avoid collisions across domains while preserving replay equivalence.
+
+
+## Deterministic Scoring Foundation
+- Scoring logic lives in `runtime/evolution/scoring_algorithm.py` with bounded input validation and canonical hashing.
+- Payload shape checks live in `runtime/evolution/scoring_validator.py`.
+- Append-only scoring evidence chain lives in `runtime/evolution/scoring_ledger.py`.
+- Determinism invariant: identical scoring payload + seeded provider => identical score, input hash, and component penalties.
+
+
+## Promotion Event Model
+- Deterministic event IDs derive from `(mutation_id, from_state, to_state, prev_event_hash)` in `runtime/evolution/promotion_events.py`.
+- Promotion events are hash-chained with `prev_event_hash` and `event_hash` for replay-stable auditability.
+- `MutationExecutor` now emits only legal transitions (`certified -> activated|rejected`) and fails closed when policy resolves to `rejected`.
+- Policy evaluation is priority-ordered in `runtime/evolution/promotion_policy.py`; highest matching priority wins and no match resolves to `rejected`.
+
+
+## Epoch Checkpoint Registry
+- `CheckpointRegistry` emits deterministic `EpochCheckpointEvent` records with `ZERO_HASH` genesis anchoring and checkpoint hash chaining.
+- `verify_checkpoint_chain(...)` enforces previous-hash continuity and checkpoint hash recomputation.
+
+## Entropy Ceiling Enforcement
+- Mutation execution computes deterministic entropy metadata from mutation request shape and enforces per-mutation/per-epoch ceilings fail-closed.
+
+## Hardened Sandbox Isolation
+- Test execution uses `HardenedSandboxExecutor`, records sandbox evidence hashes in append-only ledger storage, and feeds evidence hashes into epoch checkpoint aggregation.
+- Sandbox enforcement includes deterministic syscall, filesystem, network, and resource policy checks prior to execution.
+- Sandbox replay verification computes deterministic evidence/hash parity via `runtime.sandbox.replay`.

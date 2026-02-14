@@ -12,6 +12,7 @@ from app.dream_mode import DreamMode
 from app.mutation_executor import MutationExecutor
 from runtime.evolution.epoch import EpochManager
 from runtime.evolution.entropy_discipline import deterministic_context
+from runtime.governance.foundation import SeededDeterminismProvider
 
 
 def test_epoch_id_determinism_in_strict_mode() -> None:
@@ -20,18 +21,16 @@ def test_epoch_id_determinism_in_strict_mode() -> None:
     ledger = mock.Mock()
     ledger.append_event = mock.Mock()
 
-    manager_a = EpochManager(governor, ledger, replay_mode="strict")
-    manager_b = EpochManager(governor, ledger, replay_mode="strict")
+    manager_a = EpochManager(governor, ledger, replay_mode="strict", provider=SeededDeterminismProvider(seed="eq"))
+    manager_b = EpochManager(governor, ledger, replay_mode="strict", provider=SeededDeterminismProvider(seed="eq"))
 
-    with mock.patch("runtime.evolution.epoch.datetime") as dt:
-        dt.now.return_value.strftime.return_value = "20260213T100000Z"
-        epoch_a = manager_a.start_new_epoch({"reason": "boot"})
-        epoch_b = manager_b.start_new_epoch({"reason": "boot"})
+    epoch_a = manager_a.start_new_epoch({"reason": "boot"})
+    epoch_b = manager_b.start_new_epoch({"reason": "boot"})
     assert epoch_a.epoch_id == epoch_b.epoch_id
 
 
 def test_mutation_id_determinism() -> None:
-    executor = MutationExecutor(Path("/tmp"))
+    executor = MutationExecutor(Path("/tmp"), provider=SeededDeterminismProvider(seed="eq-exec"))
     executor.evolution_runtime.set_replay_mode("strict")
     request = MutationRequest(
         agent_id="test_agent",

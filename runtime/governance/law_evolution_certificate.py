@@ -4,11 +4,10 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from hashlib import sha256
-import json
 from typing import Any
 
 from runtime.governance.founders_law_v2 import LawManifest
+from runtime.governance.foundation.hashing import sha256_digest
 
 
 @dataclass(frozen=True)
@@ -32,8 +31,7 @@ def _canonical_payload(cert: LawEvolutionCertificate) -> dict[str, Any]:
 
 
 def certificate_digest(cert: LawEvolutionCertificate) -> str:
-    encoded = json.dumps(_canonical_payload(cert), sort_keys=True, separators=(",", ":")).encode("utf-8")
-    return sha256(encoded).hexdigest()
+    return sha256_digest(_canonical_payload(cert))
 
 
 def law_surface_digest(manifest: LawManifest) -> str:
@@ -67,8 +65,7 @@ def law_surface_digest(manifest: LawManifest) -> str:
             for module in manifest.modules
         ],
     }
-    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
-    return sha256(encoded).hexdigest()
+    return sha256_digest(payload)
 
 
 def issue_certificate(
@@ -87,7 +84,7 @@ def issue_certificate(
         f"{old_digest}|{new_digest}|{old_manifest.epoch_id}|{new_manifest.epoch_id}|"
         f"{reason}|{replay_safe}|{signer_key_id}|{signer_algo}"
     ).encode("utf-8")
-    certificate_id = sha256(preimage).hexdigest()
+    certificate_id = sha256_digest(preimage)
     return LawEvolutionCertificate(
         certificate_id=certificate_id,
         old_manifest_digest=old_digest,

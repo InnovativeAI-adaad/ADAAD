@@ -34,6 +34,9 @@ README replay contract (`off`, `audit`, `strict`) is implemented by:
     - `has_divergence`
     - `decision`
     - `results`
+- Integration replay parity harness: `tests/determinism/test_replay_runtime_harness.py`
+  - Calls `EvolutionRuntime.verify_epoch(...)`, `EvolutionRuntime.replay_preflight(...)`, and `ReplayEngine.replay_epoch(...)` directly
+  - Verifies canonical parity against ledger epoch digests and `ReplayVerificationEvent` payload fields
 
 ## Recovery Tier Ladder Alignment
 
@@ -62,7 +65,8 @@ README mutation lifecycle concepts map to:
 - **Discovery + staging**: `app/dream_mode.py`
 - **Mutation ID determinism**: `app/mutation_executor.py`
 - **Epoch lifecycle + digest tracking**: `runtime/evolution/epoch.py`, `runtime/evolution/runtime.py`
-- **Fitness scoring support**: `runtime/evolution/fitness.py`, `runtime/fitness_pipeline.py`
+- **Promotion transition + events**: `runtime/evolution/promotion_state_machine.py`, `runtime/evolution/promotion_events.py`, `runtime/evolution/promotion_policy.py`
+- **Fitness scoring support**: `runtime/evolution/fitness.py`, `runtime/fitness_pipeline.py`, `runtime/evolution/scoring_algorithm.py`, `runtime/evolution/scoring_validator.py`, `runtime/evolution/scoring_ledger.py`
 - **Lineage digest verification**: `runtime/evolution/lineage_v2.py`, `runtime/evolution/replay.py`
 
 ## Validation Coverage
@@ -72,9 +76,22 @@ The following tests validate alignment-critical behavior:
 - `tests/test_orchestrator_replay_mode.py`
 - `tests/test_entropy_discipline_replay.py`
 - `tests/determinism/test_replay_equivalence.py`
+- `tests/determinism/test_replay_runtime_harness.py`
 - `tests/recovery/test_tier_manager.py`
 - `tests/governance/test_ledger_guardian.py`
 - `tests/test_evolution_infrastructure.py`
+- `tests/test_promotion_events.py`
+- `tests/test_promotion_policy.py`
+- `tests/determinism/test_scoring_algorithm_determinism.py`
+- `tests/test_scoring_validator.py`
+- `tests/test_scoring_ledger.py`
+- `tests/test_mutation_guard.py`
+- `tests/evolution/test_checkpoint_registry.py`
+- `tests/evolution/test_entropy_policy.py`
+- `tests/sandbox/test_sandbox_evidence.py`
+- `tests/sandbox/test_sandbox_policy_enforcement.py`
+- `tests/sandbox/test_sandbox_replay.py`
+- `tests/sandbox/test_sandbox_executor.py`
 
 ## Current Validation Status
 
@@ -85,3 +102,5 @@ pytest -q
 ```
 
 Expected status in this repository branch: all tests passing (with one known collection warning from `runtime/test_sandbox.py`).
+
+- Governance schema versioning policy: `docs/governance/schema_versioning_and_migration.md`

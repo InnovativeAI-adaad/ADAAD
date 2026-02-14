@@ -5,14 +5,16 @@ from __future__ import annotations
 
 import hashlib
 import json
-import uuid
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, List
 
 from app.agents.mutation_request import MutationRequest
+from runtime.evolution.checkpoint import checkpoint_digest
 from runtime.evolution.impact import ImpactScorer
 from runtime.evolution.lineage_v2 import EpochEndEvent, EpochStartEvent, LineageEvent, LineageLedgerV2
+from runtime.evolution.scoring import authority_threshold, clamp_score
+from runtime.governance.foundation import RuntimeDeterminismProvider, default_provider, require_replay_safe_provider
 from runtime.timeutils import now_iso
 from security import cryovant
 
@@ -38,10 +40,20 @@ class EvolutionGovernor:
         "high-impact": 1.00,
     }
 
-    def __init__(self, ledger: LineageLedgerV2 | None = None, impact_scorer: ImpactScorer | None = None, max_impact: float = 0.85) -> None:
+    def __init__(
+        self,
+        ledger: LineageLedgerV2 | None = None,
+        impact_scorer: ImpactScorer | None = None,
+        max_impact: float = 0.85,
+        *,
+        replay_mode: str = "off",
+        provider: RuntimeDeterminismProvider | None = None,
+    ) -> None:
         self.ledger = ledger or LineageLedgerV2()
         self.impact_scorer = impact_scorer or ImpactScorer()
         self.max_impact = max_impact
+        self.replay_mode = replay_mode
+        self.provider = provider or default_provider()
         self.fail_closed = False
         self.fail_closed_reason = ""
         self.recovery_tier = RecoveryTier.SOFT
@@ -76,13 +88,13 @@ class EvolutionGovernor:
             return decision
 
         impact = self.impact_scorer.score(request)
-        impact_total = min(max(float(impact.total), 0.0), 1.0)
+        impact_total = clamp_score(float(impact.total))
         if impact_total > self.max_impact:
             decision = GovernanceDecision(accepted=False, reason="impact_threshold_exceeded")
             self._record_decision(request, epoch_id, decision, impact_score=impact_total)
             return decision
 
-        threshold = self.AUTHORITY_MATRIX.get(request.authority_level or "", 0.0)
+        threshold = authority_threshold(request.authority_level or "")
         if impact_total > threshold:
             decision = GovernanceDecision(accepted=False, reason="authority_level_exceeded")
             self._record_decision(request, epoch_id, decision, impact_score=impact_total)
@@ -114,9 +126,9 @@ class EvolutionGovernor:
         self.recovery_tier = tier
         payload = {
             "epoch_id": epoch_id,
-            "reason": reason,
             "fail_closed": True,
-            "recovery_tier": tier.value,
+            "reason": reason,
+            "tier": tier.value,
             "decision": "fail_closed",
             "evidence": {"reason": reason, "tier": tier.value},
         }
@@ -143,7 +155,13 @@ class EvolutionGovernor:
 
     def _issue_certificate(self, request: MutationRequest, epoch_id: str, impact_score: float) -> Dict[str, Any]:
         requested_bundle_id = (request.bundle_id or "").strip()
-        bundle_id = requested_bundle_id or uuid.uuid4().hex
+        require_replay_safe_provider(
+            self.provider,
+            replay_mode=self.replay_mode,
+            recovery_tier=self.recovery_tier.value,
+        )
+        bundle_id = requested_bundle_id or self._deterministic_bundle_id(request=request, epoch_id=epoch_id)
+        replay_seed = self._replay_seed(request=request, epoch_id=epoch_id, bundle_id=bundle_id)
         strategy_set: List[str] = [request.intent or "default"]
         strategy_version_set = [f"{request.intent or 'default'}:current"]
         strategy_snapshot = {
@@ -166,10 +184,25 @@ class EvolutionGovernor:
             "strategy_snapshot_hash": strategy_snapshot_hash,
             "strategy_hash": strategy_snapshot_hash,
             "impact_score": impact_score,
-            "checkpoint_digest": self.ledger.get_epoch_digest(epoch_id) or "sha256:0",
+            "checkpoint_digest": self.ledger.get_epoch_digest(epoch_id)
+            or checkpoint_digest({"epoch_id": epoch_id, "empty": True}),
             "authority_signatures": [request.signature],
             "certificate_activated": False,
+            "replay_seed": replay_seed,
         }
+
+    def _replay_seed(self, *, request: MutationRequest, epoch_id: str, bundle_id: str) -> str:
+        """Return a 16-hex replay seed that never uses the all-zero sentinel.
+
+        In replay-safe contexts this is deterministic from stable inputs.
+        """
+        source = f"{epoch_id}|{bundle_id}|{request.agent_id}|{request.intent or ''}|{request.nonce or ''}"
+        seed = hashlib.sha256(source.encode("utf-8")).hexdigest()[:16]
+        return seed if seed != "0" * 16 else "0" * 15 + "1"
+
+    def _deterministic_bundle_id(self, *, request: MutationRequest, epoch_id: str) -> str:
+        material = f"{epoch_id}|{request.agent_id}|{request.intent or ''}|{request.nonce or ''}|{request.generation_ts or ''}"
+        return f"bundle-{hashlib.sha256(material.encode('utf-8')).hexdigest()[:24]}"
 
     def _record_decision(self, request: MutationRequest, epoch_id: str, decision: GovernanceDecision, impact_score: float) -> None:
         payload: Dict[str, Any] = {

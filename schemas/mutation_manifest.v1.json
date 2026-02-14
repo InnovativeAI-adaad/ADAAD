@@ -67,41 +67,95 @@
         "completed"
       ],
       "properties": {
-        "proposed": { "type": "string", "format": "date-time" },
-        "staged": { "type": "string", "format": "date-time" },
-        "certified": { "type": "string", "format": "date-time" },
-        "executing": { "type": "string", "format": "date-time" },
-        "completed": { "type": "string", "format": "date-time" },
-        "pruned": { "type": "string", "format": "date-time" }
+        "proposed": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "staged": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "certified": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "executing": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "completed": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "pruned": {
+          "type": "string",
+          "format": "date-time"
+        }
       }
     },
     "cert_references": {
       "type": "object",
       "additionalProperties": true,
       "properties": {
-        "bundle_id": { "type": "string" },
-        "epoch_digest": { "type": "string" },
-        "issuer": { "type": "string" }
+        "bundle_id": {
+          "type": "string"
+        },
+        "epoch_digest": {
+          "type": "string"
+        },
+        "issuer": {
+          "type": "string"
+        },
+        "replay_seed": {
+          "type": "string",
+          "pattern": "^(?!0{16}$)[a-fA-F0-9]{16}$",
+          "description": "Replay seed must be 16 hex characters and not all zero"
+        }
       }
     },
     "fitness_summary": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["score", "threshold", "passed"],
+      "required": [
+        "score",
+        "threshold",
+        "passed"
+      ],
       "properties": {
-        "score": { "type": ["number", "null"] },
-        "threshold": { "type": "number" },
-        "passed": { "type": "boolean" },
-        "risk_score": { "type": ["number", "null"] },
+        "score": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "threshold": {
+          "type": "number"
+        },
+        "passed": {
+          "type": "boolean"
+        },
+        "risk_score": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
         "notes": {
           "type": "array",
-          "items": { "type": "string" }
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
     "terminal_status": {
       "type": "string",
-      "enum": ["completed", "pruned", "rejected", "failed"]
+      "enum": [
+        "completed",
+        "pruned",
+        "rejected",
+        "failed"
+      ]
     }
   }
 }

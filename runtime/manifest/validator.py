@@ -23,6 +23,14 @@ def _is_hex64(value: Any) -> bool:
     return all(ch in "0123456789abcdefABCDEF" for ch in value)
 
 
+def _is_replay_seed16_nonzero(value: Any) -> bool:
+    if not isinstance(value, str) or len(value) != 16:
+        return False
+    if not all(ch in "0123456789abcdefABCDEF" for ch in value):
+        return False
+    return value.lower() != "0" * 16
+
+
 def _is_utc_timestamp(value: Any) -> bool:
     if not isinstance(value, str):
         return False
@@ -124,6 +132,9 @@ def _validate_v1_manifest(manifest: Mapping[str, Any], *, strict_version: bool =
                 break
             if not isinstance(value, str) or not value.strip():
                 errors.append(f"invalid_cert_reference_value:{key}")
+        replay_seed = cert_refs.get("replay_seed")
+        if replay_seed is not None and not _is_replay_seed16_nonzero(replay_seed):
+            errors.append("invalid_replay_seed")
 
     terminal = manifest.get("terminal_status")
     if terminal not in _TERMINAL_STATUS_ENUM:

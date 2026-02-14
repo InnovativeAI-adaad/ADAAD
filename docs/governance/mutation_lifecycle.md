@@ -84,3 +84,13 @@ Only the transitions listed below are legal. Any other transition MUST be reject
 - Transition enforcement is centralized in `runtime/mutation_lifecycle.py::transition(...)`.
 - Runtime callers (including mutation execution flow) must invoke this function and treat undeclared transitions as hard rejections.
 - No fallback or inferred predecessor transitions are permitted.
+
+
+## Canonical module paths
+
+- Deterministic foundation helpers: `runtime.governance.foundation.canonical`, `runtime.governance.foundation.hashing`, and `runtime.governance.foundation.clock`.
+- Evolution promotion and checkpoint helpers: `runtime.evolution.promotion_state_machine`, `runtime.evolution.scoring`, and `runtime.evolution.checkpoint`.
+- Mutation execution emits deterministic `PromotionEvent` records through `runtime.evolution.promotion_events`; policy rejection is fail-closed and does not emit invalid self-transitions.
+- Mutation execution also applies deterministic entropy ceiling policy gates before promotion activation.
+- Mutation execution enforces sandbox manifest/policy validation and emits hash-stable sandbox evidence records for replay/audit.
+- Backward-compat imports under `governance.*` are adapters only; runtime code should import from `runtime.*`.
