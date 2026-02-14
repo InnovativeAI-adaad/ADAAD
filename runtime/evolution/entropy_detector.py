@@ -42,4 +42,28 @@ def detect_entropy_metadata(
     )
 
 
-__all__ = ["detect_entropy_metadata"]
+def observed_entropy_from_telemetry(telemetry: dict[str, object] | None) -> tuple[int, tuple[str, ...]]:
+    """Estimate additional entropy observed from runtime/sandbox telemetry."""
+    payload = dict(telemetry or {})
+    sources: list[str] = []
+    bits = 0
+
+    unseeded_rng_calls = int(payload.get("unseeded_rng_calls", 0) or 0)
+    if unseeded_rng_calls > 0:
+        sources.append("runtime_rng")
+        bits += unseeded_rng_calls * 8
+
+    wall_clock_reads = int(payload.get("wall_clock_reads", 0) or 0)
+    if wall_clock_reads > 0:
+        sources.append("runtime_clock")
+        bits += wall_clock_reads * 2
+
+    external_io_attempts = int(payload.get("external_io_attempts", 0) or 0)
+    if external_io_attempts > 0:
+        sources.append("external_io")
+        bits += external_io_attempts * 4
+
+    return bits, normalize_sources(sources)
+
+
+__all__ = ["detect_entropy_metadata", "observed_entropy_from_telemetry"]

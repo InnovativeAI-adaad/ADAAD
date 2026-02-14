@@ -16,6 +16,9 @@ class _Governor:
     def __init__(self, tier: str = "audit") -> None:
         self.recovery_tier = type("Tier", (), {"value": tier})()
 
+    def _epoch_started(self, _epoch_id):
+        return False
+
     def mark_epoch_start(self, epoch_id, metadata):
         return None
 
@@ -77,3 +80,17 @@ def test_dream_mode_deterministic_content_in_strict_replay(_path, stage_offsprin
     content_b = stage_offspring.call_args.kwargs["content"]
 
     assert content_a == content_b
+
+
+def test_epoch_entropy_state_is_durable_across_manager_reload(tmp_path: Path) -> None:
+    governor = _Governor("audit")
+    state_path = tmp_path / "current_epoch.json"
+    manager = EpochManager(governor, _Ledger(), state_path=state_path, replay_mode="off", provider=SeededDeterminismProvider(seed="audit"))
+
+    manager.load_or_create()
+    manager.add_entropy_bits(11)
+    manager.add_entropy_bits(5)
+
+    reloaded = EpochManager(governor, _Ledger(), state_path=state_path, replay_mode="off", provider=SeededDeterminismProvider(seed="audit"))
+    state = reloaded.load_or_create()
+    assert state.cumulative_entropy_bits == 16

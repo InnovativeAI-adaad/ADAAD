@@ -109,7 +109,7 @@ Certificates include `strategy_snapshot` and `strategy_snapshot_hash`, and cumul
 - `verify_checkpoint_chain(...)` enforces previous-hash continuity and checkpoint hash recomputation.
 
 ## Entropy Ceiling Enforcement
-- Mutation execution computes deterministic entropy metadata from mutation request shape and enforces per-mutation/per-epoch ceilings fail-closed.
+- Mutation execution computes deterministic declared entropy metadata from mutation request shape, augments it with observed sandbox/runtime telemetry entropy (e.g., unseeded RNG, wall-clock reads, external IO attempts), persists cumulative epoch entropy in epoch state, and enforces per-mutation/per-epoch ceilings fail-closed.
 
 ## Hardened Sandbox Isolation
 - Test execution uses `HardenedSandboxExecutor`, records sandbox evidence hashes in append-only ledger storage, and feeds evidence hashes into epoch checkpoint aggregation.

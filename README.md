@@ -29,13 +29,18 @@ In plain terms: ADAAD automates code evolution with strict trust, replay, and po
 
 ## Project Status
 
-- Current version: 0.65.x
-- Stability: Experimental (governance stable, mutation experimental)
+- Authoritative current version: 0.65.x (active development line; latest tagged release: 0.65.0)
+- Maturity posture: Experimental / pre-1.0 (validated governance + replay controls, mutation autonomy still staged)
 - Recommended environment: Linux / WSL
 - Replay strict: Production-ready
 - Mutation execution: Staging-only
 
 Mutation execution is limited to controlled environments. Production use should run in dry-run or strict replay modes unless explicitly authorized by policy.
+
+### Validated guarantees vs roadmap
+
+- **Validated guarantees (current branch):** deterministic governance primitives, fail-closed replay enforcement, append-only ledger lineage checks, and staged mutation execution under policy gates.
+- **Roadmap items (not validated as production guarantees):** deep sandbox isolation hardening beyond current checks, cryptographic replay proof bundles for third-party verification, and federation-level governance orchestration.
 
 ## Why ADAAD?
 
@@ -151,6 +156,15 @@ ADAAD guarantees deterministic governance decisions given identical:
 - Trust mode
 
 External nondeterminism (network, time, entropy) must be sandboxed.
+
+## Sovereignty requirements matrix (implemented vs planned)
+
+| Requirement | Current state | Status | Notes |
+|---|---|---|---|
+| Deterministic substrate | Canonical deterministic foundation (`runtime.governance.foundation.*`) with replay-seed propagation and determinism tests | Implemented | Treated as a validated guarantee for governance/replay paths |
+| Sandbox hardening depth | Policy validation + syscall/fs/network/resource enforcement + evidence hashing | Partially implemented | Additional hardening depth remains roadmap (defense-in-depth and broader isolation coverage) |
+| Replay proofs | Deterministic replay verification and parity harnesses in-tree | Partially implemented | Cryptographic/exportable replay proof bundles are roadmap |
+| Federation | No cross-instance sovereignty federation runtime committed in this branch | Planned | Reserved for PR-6 scope |
 
 ## Mutation risk levels
 

@@ -17,3 +17,4 @@ def test_sandbox_evidence_ledger_hash_chain(tmp_path):
     assert first["prev_hash"].startswith("sha256:")
     assert second["prev_hash"] == first["hash"]
     assert payload["evidence_hash"].startswith("sha256:")
+    assert payload["resource_usage_hash"].startswith("sha256:")

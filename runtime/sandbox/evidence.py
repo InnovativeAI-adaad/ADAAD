@@ -21,6 +21,18 @@ def build_sandbox_evidence(
     syscall_trace: tuple[str, ...] = (),
     provider_ts: str,
 ) -> Dict[str, Any]:
+    """Build a canonical sandbox evidence payload for ledger persistence.
+
+    Replay invariants:
+    - `manifest_hash == sha256(manifest)`
+    - `stdout_hash == sha256(stdout)`
+    - `stderr_hash == sha256(stderr)`
+    - `syscall_trace_hash == sha256(syscall_trace)`
+    - `resource_usage_hash == sha256(resource_usage)`
+
+    These fields define the canonical replay check contract consumed by
+    `runtime.sandbox.replay.replay_sandbox_execution`.
+    """
     stdout = str(result.get("stdout", ""))
     stderr = str(result.get("stderr", ""))
     resource_usage = {
@@ -31,10 +43,14 @@ def build_sandbox_evidence(
     payload = {
         "manifest_hash": sha256_prefixed_digest(manifest),
         "policy_hash": policy_hash,
+        "stdout": stdout,
         "stdout_hash": sha256_prefixed_digest(stdout),
+        "stderr": stderr,
         "stderr_hash": sha256_prefixed_digest(stderr),
+        "syscall_trace": list(syscall_trace),
         "syscall_trace_hash": sha256_prefixed_digest(list(syscall_trace)),
         "resource_usage": resource_usage,
+        "resource_usage_hash": sha256_prefixed_digest(resource_usage),
         "exit_code": result.get("returncode"),
         "replay_seed": str(manifest.get("replay_seed") or ""),
         "timestamp": provider_ts,

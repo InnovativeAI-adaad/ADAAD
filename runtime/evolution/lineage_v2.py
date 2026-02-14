@@ -220,6 +220,7 @@ class LineageLedgerV2:
 
     def compute_incremental_epoch_digest(self, epoch_id: str) -> str:
         digest = "sha256:0"
+        self.verify_integrity()
         entries = self._read_entries_unverified()
         for entry in entries:
             if entry.get("payload", {}).get("epoch_id") != epoch_id:

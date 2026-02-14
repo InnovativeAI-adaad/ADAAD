@@ -54,6 +54,21 @@ class TestSandboxTest(unittest.TestCase):
         self.assertTrue(seen["env"]["TMPDIR"].startswith(tempfile.gettempdir()))
         self.assertEqual(seen["env"]["PYTHONDONTWRITEBYTECODE"], "1")
 
+
+    def test_run_tests_infers_baseline_telemetry_when_unobserved(self) -> None:
+        root = Path(__file__).resolve().parents[1]
+        sandbox = TestSandbox(root_dir=root, timeout_s=5)
+
+        with patch(
+            "runtime.test_sandbox.subprocess.run",
+            return_value=subprocess.CompletedProcess(["pytest"], 0, stdout="ok", stderr=""),
+        ):
+            result = sandbox.run_tests(args=["tests/test_import_roots.py", "-q"])
+
+        self.assertEqual(result.observed_syscalls, ("open", "read", "write", "close"))
+        self.assertEqual(result.attempted_write_paths, ("reports",))
+        self.assertEqual(result.attempted_network_hosts, ())
+
     def test_run_tests_captures_stdout_stderr(self) -> None:
         root = Path(__file__).resolve().parents[1]
         sandbox = TestSandbox(root_dir=root, timeout_s=5)
