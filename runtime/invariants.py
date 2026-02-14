@@ -22,6 +22,16 @@ from pathlib import Path
 from typing import List, Tuple
 
 from runtime import ROOT_DIR, metrics
+from runtime.founders_law import (
+    RULE_INVARIANT_ABS_PATHS,
+    RULE_INVARIANT_CAPABILITIES,
+    RULE_INVARIANT_IMPORTS,
+    RULE_INVARIANT_METRICS,
+    RULE_INVARIANT_SECURITY,
+    RULE_INVARIANT_STAGING,
+    RULE_INVARIANT_TREE,
+    enforce_law,
+)
 
 ELEMENT_ID = "Earth"
 
@@ -152,18 +162,27 @@ def scan_absolute_paths() -> Tuple[bool, List[str]]:
 
 def verify_all() -> Tuple[bool, List[str]]:
     checks = [
-        verify_tree(),
-        scan_banned_imports(),
-        scan_absolute_paths(),
-        verify_metrics_path(),
-        verify_security_paths(),
-        ensure_staging_dir(),
-        verify_capabilities_file(),
+        (RULE_INVARIANT_TREE, *verify_tree()),
+        (RULE_INVARIANT_IMPORTS, *scan_banned_imports()),
+        (RULE_INVARIANT_ABS_PATHS, *scan_absolute_paths()),
+        (RULE_INVARIANT_METRICS, *verify_metrics_path()),
+        (RULE_INVARIANT_SECURITY, *verify_security_paths()),
+        (RULE_INVARIANT_STAGING, *ensure_staging_dir()),
+        (RULE_INVARIANT_CAPABILITIES, *verify_capabilities_file()),
     ]
     failures: List[str] = []
-    for ok, msgs in checks:
+    for _rule, ok, msgs in checks:
         if not ok:
             failures.extend(msgs)
+
+    enforce_law(
+        {
+            "mutation_id": "invariants.verify_all",
+            "trust_mode": "runtime",
+            "checks": [{"rule_id": rule_id, "ok": ok, "reason": ";".join(msgs)} for rule_id, ok, msgs in checks],
+        }
+    )
+
     if failures:
         metrics.log(event_type="invariant_check_failed", payload={"failures": failures}, level="ERROR", element_id=ELEMENT_ID)
         return False, failures

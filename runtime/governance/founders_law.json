@@ -1,0 +1,19 @@
+{
+  "law_version": "founders_law@epoch-v1",
+  "rules": [
+    {"rule_id": "FL-INVARIANT-TREE-V1", "enabled": true, "severity": "blocking"},
+    {"rule_id": "FL-INVARIANT-IMPORTS-V1", "enabled": true, "severity": "blocking"},
+    {"rule_id": "FL-INVARIANT-ABS-PATHS-V1", "enabled": true, "severity": "blocking"},
+    {"rule_id": "FL-INVARIANT-METRICS-V1", "enabled": true, "severity": "blocking"},
+    {"rule_id": "FL-INVARIANT-SECURITY-V1", "enabled": true, "severity": "blocking"},
+    {"rule_id": "FL-INVARIANT-STAGING-V1", "enabled": true, "severity": "blocking"},
+    {"rule_id": "FL-INVARIANT-CAPABILITIES-V1", "enabled": true, "severity": "blocking"},
+    {"rule_id": "FL-CONSTITUTION-VERSION-V1", "enabled": true, "severity": "blocking"},
+    {"rule_id": "FL-KEY-ROTATION-V1", "enabled": true, "severity": "warning"},
+    {"rule_id": "FL-LEDGER-INTEGRITY-V1", "enabled": true, "severity": "blocking"},
+    {"rule_id": "FL-MUTATION-ENGINE-V1", "enabled": true, "severity": "blocking"},
+    {"rule_id": "FL-WARM-POOL-V1", "enabled": true, "severity": "blocking"},
+    {"rule_id": "FL-ARCHITECT-SCAN-V1", "enabled": true, "severity": "blocking"},
+    {"rule_id": "FL-PLATFORM-RESOURCES-V1", "enabled": true, "severity": "blocking"}
+  ]
+}
