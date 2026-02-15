@@ -17,4 +17,6 @@ Deterministic replay-sensitive entry points now consume a shared provider abstra
 - Hardened sandbox isolation primitives: `runtime/sandbox/{executor,policy,manifest,evidence}.py` (missing sandbox syscall telemetry is fail-closed).
 - Lineage replay integrity: replay digest paths verify ledger hash-chain integrity before reads; strict replay divergence emits governance fail-closed decisions that block further promotion validation.
 
+- Canonical governance event taxonomy and normalization live in `runtime/governance/event_taxonomy.py`; UI and analytics consumers should normalize mixed legacy/new event strings through this helper before classification.
+
 - Sandbox hardening guidance: `docs/sandbox/README.md`.

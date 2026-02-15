@@ -214,13 +214,20 @@ The UI now highlights intelligence and risk surfaces backed by deterministic API
 
 - `/system/intelligence`
 - `/risk/summary`
+- `/risk/instability`
+- `/policy/simulate`
+- `/alerts/evaluate`
 - `/evolution/timeline`
 - `/replay/divergence`
-- `/replay/diff?epoch_id=...`
+- `/replay/diff?epoch_id=...` (includes deterministic `semantic_drift` class counts and per-key assignments)
 
 The existing machine-facing JSON endpoints (`/state`, `/metrics`, `/fitness`, etc.) are preserved for integrations.
 For safety-critical stability, Aponi V2 is being delivered incrementally inside the current server before any command surface is introduced.
 Aponi intelligence responses include a versioned governance health model for deterministic interpretation.
+Thresholds and model metadata are loaded from `governance/governance_policy_v1.json`, and `/system/intelligence` includes a `policy_fingerprint` hash for auditability.
+`/risk/instability` exposes a deterministic weighted instability index over replay failure rate, escalation frequency, determinism drift, and **drift-class-weighted** semantic drift density (with `governance_drift` weighted above `config_drift`), plus additive momentum signals (`instability_velocity`, `instability_acceleration`), confidence interval modeling, and velocity-spike anomaly flags on absolute velocity deltas.
+`/policy/simulate` provides read-only policy outcome simulation against candidate governance policy artifacts without mutating live governance state.
+`/alerts/evaluate` provides deterministic severity-bucketed governance alerts (critical/warning/info) derived from instability and replay indicators.
 
 ## Enhanced user experience
 

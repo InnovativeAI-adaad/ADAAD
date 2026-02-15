@@ -20,11 +20,54 @@ Returns deterministic replay-state comparison metadata for a specific epoch:
 
 - initial/final state fingerprints (`sha256` over canonical JSON)
 - changed/add/removed keys
+- semantic drift summary (`semantic_drift`) with deterministic class counts and per-key assignments
+- epoch hash-chain anchor (`epoch_chain_anchor`) for tamper-evident replay lineage projection
 - bundle count
+
+`semantic_drift.class_counts` is emitted in a stable order and includes:
+
+- `config_drift`
+- `governance_drift`
+- `trait_drift`
+- `runtime_artifact_drift`
+- `uncategorized_drift`
 
 The endpoint performs read-only epoch reconstruction and does not trigger mutation execution.
 
+### `GET /risk/instability`
+
+Returns a deterministic weighted instability projection with:
+
+- `instability_index` in `[0,1]`
+- `instability_velocity` (difference between latest two fixed momentum windows)
+- `instability_acceleration` (second difference across the latest three fixed momentum windows)
+- explicit `weights`
+- explicit `inputs` (`semantic_drift_density`, `replay_failure_rate`, `escalation_frequency`, `determinism_drift_index`, `timeline_window`, `momentum_window`)
+
+`semantic_drift_density` is computed as a drift-class-weighted projection (with higher `governance_drift` weight than `config_drift`) over recent replay-reconstructable epochs. Momentum metrics use fixed 20-entry windows over the latest 60 timeline entries.
+
+The endpoint also exposes a deterministic Wilson-style confidence interval and `velocity_spike_anomaly` when velocity exceeds a fixed threshold.
+Anomaly mode is `absolute_delta`: both sharp destabilization and sharp stabilization deltas are flagged for operator review.
+
+### `GET /policy/simulate`
+
+Read-only policy simulation endpoint that compares health outcomes under current policy vs a candidate governance policy artifact.
+
+- No mutation or policy state is changed
+- Candidate policy is loaded and validated with the same deterministic policy loader
+- Output includes input telemetry, current policy health, and simulated policy health
+
+### `GET /alerts/evaluate`
+
+Deterministic alert projection endpoint for operator routing.
+
+- Returns `critical`, `warning`, and `info` buckets
+- Uses fixed thresholds over `/risk/instability` and `/risk/summary` outputs
+- Exposes the active thresholds and derived inputs in payload for auditability
+
 ## Governance Health Model (`v1.0.0`)
+
+The model metadata and thresholds are loaded from the versioned policy artifact at `governance/governance_policy_v1.json`.
 
 Inputs:
 
@@ -34,13 +77,15 @@ Inputs:
 - entropy trend slope (linear slope over observed entropy in last 100 events)
 - constitution escalations in last 100 events
 
-Thresholds:
+Thresholds (from policy artifact):
 
-- `PASS`: `determinism_score >= 0.98` and `rate_limiter_ok`
-- `WARN`: `determinism_score >= 0.90`
+- `PASS`: `determinism_score >= determinism_pass` and `rate_limiter_ok`
+- `WARN`: `determinism_score >= determinism_warn`
 - `BLOCK`: otherwise
 
-Constitution escalation count uses exact structured event matching first (`constitution_escalation`, `constitution_escalated`), then deterministic fallback heuristic matching for backward compatibility.
+Auditability: `/system/intelligence` returns a `policy_fingerprint` (`sha256`) of the loaded policy payload.
+
+Constitution escalation count uses canonical event normalization from `runtime/governance/event_taxonomy.py`, with deterministic fallback heuristic matching for backward compatibility.
 
 ## Security Headers
 
