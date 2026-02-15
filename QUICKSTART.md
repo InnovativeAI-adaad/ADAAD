@@ -167,3 +167,19 @@ python -m app.main --replay audit --verbose
 - Repository overview: [README.md](README.md)
 - Minimal runnable example: [examples/single-agent-loop/README.md](examples/single-agent-loop/README.md)
 - Governance model: [docs/CONSTITUTION.md](docs/CONSTITUTION.md)
+
+## Optional UX-first first run
+
+```bash
+python tools/interactive_onboarding.py
+python tools/enhanced_cli.py --replay audit --verbose
+```
+
+The enhanced CLI streams orchestrator output and maps key boot/governance lines to live stage updates.
+
+To view the enhanced dashboard:
+
+```bash
+python -m http.server 8081 --directory ui/enhanced
+# open http://localhost:8081/enhanced_dashboard.html
+```

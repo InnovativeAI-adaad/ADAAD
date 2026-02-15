@@ -207,6 +207,32 @@ Result: Boot halted before mutation stage.
 [RESULT] blocked pending explicit policy elevation
 ```
 
+## Aponi dashboard user entry
+
+Aponi exposes a standard user interface at `http://<host>:<port>/` (or `/index.html`) as a read-only governance nerve center.
+The UI now highlights intelligence and risk surfaces backed by deterministic APIs:
+
+- `/system/intelligence`
+- `/risk/summary`
+- `/evolution/timeline`
+- `/replay/divergence`
+- `/replay/diff?epoch_id=...`
+
+The existing machine-facing JSON endpoints (`/state`, `/metrics`, `/fitness`, etc.) are preserved for integrations.
+For safety-critical stability, Aponi V2 is being delivered incrementally inside the current server before any command surface is introduced.
+Aponi intelligence responses include a versioned governance health model for deterministic interpretation.
+
+## Enhanced user experience
+
+ADAAD includes optional UX helpers for transparency and onboarding:
+
+- Interactive onboarding: `python tools/interactive_onboarding.py`
+- Enhanced CLI wrapper: `python tools/enhanced_cli.py --replay audit --verbose` (real-time stage parsing from orchestrator output)
+- Enhanced dashboard (static): serve `ui/enhanced/enhanced_dashboard.html`
+- Error dictionary helper: `python tools/error_dictionary.py` (includes optional automatic exception hook for operator tools)
+
+These features are observer/operator tools and do not change governance mutation authority.
+
 ## FAQ
 
 ### Is ADAAD a replacement for code review?
