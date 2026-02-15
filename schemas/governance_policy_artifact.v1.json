@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://adaad.local/schemas/governance_policy_artifact.v1.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "payload",
+    "signer",
+    "signature",
+    "previous_artifact_hash",
+    "effective_epoch"
+  ],
+  "properties": {
+    "schema_version": {"type": "string", "const": "governance_policy_artifact.v1"},
+    "payload": {"$ref": "https://adaad.local/schemas/governance_policy_payload.v1.json"},
+    "signer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key_id", "algorithm"],
+      "properties": {
+        "key_id": {"type": "string", "minLength": 1},
+        "algorithm": {"type": "string", "minLength": 1}
+      }
+    },
+    "signature": {"type": "string", "minLength": 1},
+    "previous_artifact_hash": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "effective_epoch": {"type": "integer", "minimum": 0}
+  }
+}

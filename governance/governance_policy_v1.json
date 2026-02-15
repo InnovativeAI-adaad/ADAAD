@@ -1,13 +1,23 @@
 {
-  "schema_version": "governance_policy_v1",
-  "model": {
-    "name": "governance_health",
-    "version": "v1.0.0"
+  "schema_version": "governance_policy_artifact.v1",
+  "payload": {
+    "schema_version": "governance_policy_v1",
+    "model": {
+      "name": "governance_health",
+      "version": "v1.0.0"
+    },
+    "determinism_window": 200,
+    "mutation_rate_window_sec": 3600,
+    "thresholds": {
+      "determinism_pass": 0.98,
+      "determinism_warn": 0.9
+    }
   },
-  "determinism_window": 200,
-  "mutation_rate_window_sec": 3600,
-  "thresholds": {
-    "determinism_pass": 0.98,
-    "determinism_warn": 0.9
-  }
+  "signer": {
+    "key_id": "policy-signer-dev",
+    "algorithm": "ed25519"
+  },
+  "signature": "cryovant-static-governance-policy-v1",
+  "previous_artifact_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "effective_epoch": 0
 }

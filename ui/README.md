@@ -23,7 +23,7 @@ Aponi now follows an incremental control-plane-first path inside the current ser
 
 1. Observability intelligence (`/system/intelligence`)
 2. Evolution timeline (`/evolution/timeline`)
-3. Replay forensics (planned)
+3. Replay forensics (evidence-bundle exports)
 4. Risk intelligence (`/risk/summary`)
 5. Governance command surface (planned, strict-gated)
 
@@ -31,7 +31,7 @@ Replay forensics is now available as deterministic read-only projection endpoint
 `/replay/diff` includes a `semantic_drift` section with stable class counts and per-key class assignment across
 `config_drift`, `governance_drift`, `trait_drift`, `runtime_artifact_drift`, and `uncategorized_drift`.
 
-Current implementation is intentionally read-only and replay-neutral. Existing JSON endpoints remain unchanged for automation clients.
+Current implementation is replay-neutral and deterministic. Forensic endpoints now return `bundle_id` + `export_metadata` and write immutable forensic exports in `reports/forensics/` using canonical JSON ordering.
 
 Dashboard risk and replay classifiers now use canonical governance event types resolved via `runtime/governance/event_taxonomy.py`. Legacy metric event strings remain supported through a strict fallback map for backward compatibility.
 

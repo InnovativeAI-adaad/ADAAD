@@ -493,7 +493,9 @@ class MutationExecutor:
             "risk_score": float(impact.risk_score),
             "tests_ok": bool(tests_ok),
         }
+        # Rationale: canary simulation evidence must gate promotion without mutating runtime state.
         target_state = self.promotion_policy.evaluate_transition(PromotionState.CERTIFIED, promotion_mutation_data)
+        canary_evidence = dict(promotion_mutation_data.get("simulation_verdict") or {})
         scored_event = self._emit_promotion_event(
             mutation_id=mutation_id,
             epoch_id=epoch_id,
@@ -541,7 +543,7 @@ class MutationExecutor:
             metrics.log(event_type="mutation_executed", payload=payload, level="INFO", element_id=ELEMENT_ID)
             metrics.log(event_type="mutation_score", payload={"agent": request.agent_id, "strategy_id": request.intent or "default", "score": survival_score, "epoch_id": epoch_id}, level="INFO", element_id=ELEMENT_ID)
             metrics.log(event_type="mutation_fitness_pipeline", payload={"agent": request.agent_id, "epoch_id": epoch_id, **composed_fitness}, level="INFO", element_id=ELEMENT_ID)
-            journal.write_entry(agent_id=request.agent_id, action="mutation_promoted", payload={"mutation_id": mutation_id, "epoch_id": epoch_id, "lineage": payload["lineage"], "decision": "promoted", "evidence": payload["lineage"], "bundle_id": (decision.certificate or {}).get("bundle_id"), "manifest_hash": manifest_hash, "ts": now_iso()})
+            journal.write_entry(agent_id=request.agent_id, action="mutation_promoted", payload={"mutation_id": mutation_id, "epoch_id": epoch_id, "lineage": payload["lineage"], "decision": "promoted", "evidence": {"lineage": payload["lineage"], "canary": canary_evidence}, "bundle_id": (decision.certificate or {}).get("bundle_id"), "manifest_hash": manifest_hash, "ts": now_iso()})
             if decision.certificate:
                 self.governor.activate_certificate(epoch_id, decision.certificate.get("bundle_id", ""), True, "tests_passed")
             evolution_result = self.evolution_runtime.after_mutation_cycle({"status": "executed", "mutation_id": mutation_id, "epoch_id": epoch_id, "evolution": {"certificate": decision.certificate or {}}})
@@ -565,7 +567,7 @@ class MutationExecutor:
         metrics.log(event_type="mutation_failed", payload={**payload, "error": test_output}, level="ERROR", element_id=ELEMENT_ID)
         metrics.log(event_type="mutation_score", payload={"agent": request.agent_id, "strategy_id": request.intent or "default", "score": survival_score, "epoch_id": epoch_id}, level="INFO", element_id=ELEMENT_ID)
         metrics.log(event_type="mutation_fitness_pipeline", payload={"agent": request.agent_id, "epoch_id": epoch_id, **composed_fitness}, level="INFO", element_id=ELEMENT_ID)
-        journal.write_entry(agent_id=request.agent_id, action="mutation_failed", payload={"mutation_id": mutation_id, "epoch_id": epoch_id, "error": test_output, "ts": now_iso()})
+        journal.write_entry(agent_id=request.agent_id, action="mutation_failed", payload={"mutation_id": mutation_id, "epoch_id": epoch_id, "error": test_output, "canary": canary_evidence, "ts": now_iso()})
         if target_state != PromotionState.REJECTED:
             self._emit_promotion_event(
                 mutation_id=mutation_id,

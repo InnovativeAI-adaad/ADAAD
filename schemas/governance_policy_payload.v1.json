@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://adaad.local/schemas/governance_policy_payload.v1.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "model",
+    "determinism_window",
+    "mutation_rate_window_sec",
+    "thresholds"
+  ],
+  "properties": {
+    "schema_version": {"type": "string", "const": "governance_policy_v1"},
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "version": {"type": "string", "minLength": 1}
+      }
+    },
+    "determinism_window": {"type": "integer", "minimum": 1},
+    "mutation_rate_window_sec": {"type": "integer", "minimum": 1},
+    "thresholds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["determinism_pass", "determinism_warn"],
+      "properties": {
+        "determinism_pass": {"type": "number", "minimum": 0, "maximum": 1},
+        "determinism_warn": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    }
+  }
+}

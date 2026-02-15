@@ -58,6 +58,8 @@ def test_hardened_executor_records_evidence():
     assert result.ok
     assert executor.last_evidence_hash.startswith("sha256:")
     assert executor.last_evidence_payload["resource_usage_hash"].startswith("sha256:")
+    assert executor.last_evidence_payload["isolation_mode"] == "process"
+    assert executor.last_evidence_payload["enforced_controls"]
 
 
 def test_hardened_executor_rejects_observed_syscall_violation():

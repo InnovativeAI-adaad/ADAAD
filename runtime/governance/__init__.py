@@ -10,6 +10,7 @@ from runtime.governance.foundation import (
     canonical_json_bytes,
     sha256_digest,
     sha256_prefixed_digest,
+    ZERO_HASH,
     utc_now_iso,
     utc_timestamp_label,
 )

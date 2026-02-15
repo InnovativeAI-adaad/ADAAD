@@ -2,7 +2,7 @@
 
 import pytest
 
-from runtime.evolution.promotion_state_machine import PromotionState, can_transition, require_transition
+from runtime.evolution.promotion_state_machine import PromotionState, can_transition, canary_stage_definitions, require_transition
 
 
 def test_valid_transitions() -> None:
@@ -13,3 +13,11 @@ def test_valid_transitions() -> None:
 def test_invalid_transition_raises() -> None:
     with pytest.raises(ValueError):
         require_transition(PromotionState.ACTIVATED, PromotionState.PROPOSED)
+
+
+def test_default_canary_stage_definitions_are_deterministic() -> None:
+    first = canary_stage_definitions()
+    second = canary_stage_definitions()
+    assert first == second
+    first[0]["stage_id"] = "mutated"
+    assert canary_stage_definitions()[0]["stage_id"] == "canary_small"

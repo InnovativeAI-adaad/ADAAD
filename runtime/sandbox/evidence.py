@@ -20,6 +20,9 @@ def build_sandbox_evidence(
     policy_hash: str,
     syscall_trace: tuple[str, ...] = (),
     provider_ts: str,
+    isolation_mode: str = "process",
+    enforced_controls: tuple[Dict[str, Any], ...] = (),
+    preflight: Dict[str, Any] | None = None,
 ) -> Dict[str, Any]:
     """Build a canonical sandbox evidence payload for ledger persistence.
 
@@ -55,6 +58,9 @@ def build_sandbox_evidence(
         "replay_seed": str(manifest.get("replay_seed") or ""),
         "timestamp": provider_ts,
         "manifest": dict(manifest),
+        "isolation_mode": isolation_mode,
+        "enforced_controls": [dict(item) for item in enforced_controls],
+        "preflight": dict(preflight or {"ok": True, "reason": "not_provided"}),
     }
     payload["evidence_hash"] = sha256_prefixed_digest(payload)
     return payload

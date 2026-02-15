@@ -9,6 +9,8 @@ from typing import Sequence
 from runtime.governance.foundation import RuntimeDeterminismProvider, default_provider
 from runtime.sandbox.evidence import SandboxEvidenceLedger, build_sandbox_evidence
 from runtime.sandbox.fs_rules import enforce_write_path_allowlist
+from runtime.sandbox.isolation import IsolationBackend, ProcessIsolationBackend
+from runtime.sandbox.preflight import analyze_execution_plan
 from runtime.sandbox.manifest import SandboxManifest, validate_manifest
 from runtime.sandbox.network_rules import enforce_network_egress_allowlist
 from runtime.sandbox.policy import SandboxPolicy, default_sandbox_policy, validate_policy
@@ -24,10 +26,12 @@ class HardenedSandboxExecutor:
         *,
         policy: SandboxPolicy | None = None,
         provider: RuntimeDeterminismProvider | None = None,
+        isolation_backend: IsolationBackend | None = None,
     ) -> None:
         self.test_sandbox = test_sandbox
         self.policy = policy or default_sandbox_policy()
         self.provider = provider or default_provider()
+        self.isolation_backend = isolation_backend or ProcessIsolationBackend()
         self.evidence_ledger = SandboxEvidenceLedger()
         self.last_evidence_hash = ""
         self.last_evidence_payload: dict[str, object] = {}
@@ -60,7 +64,15 @@ class HardenedSandboxExecutor:
         validate_manifest(manifest)
         validate_policy(self.policy)
 
-        result = self.test_sandbox.run_tests_with_retry(args=args, retries=retries)
+        preflight = analyze_execution_plan(manifest=manifest, policy=self.policy)
+        if not preflight.get("ok"):
+            raise RuntimeError(f"sandbox_preflight_violation:{preflight.get('reason', 'unknown')}")
+
+        isolation_preparation = self.isolation_backend.prepare(manifest=manifest, policy=self.policy)
+        if any(not control.enforced for control in isolation_preparation.controls):
+            raise RuntimeError("sandbox_policy_unenforceable:control_not_enforced")
+
+        result = self.isolation_backend.run(test_sandbox=self.test_sandbox, args=args, retries=retries)
 
         if not result.observed_syscalls:
             raise RuntimeError("sandbox_missing_syscall_telemetry")
@@ -97,6 +109,9 @@ class HardenedSandboxExecutor:
             policy_hash=self.policy.policy_hash,
             syscall_trace=result.observed_syscalls,
             provider_ts=self.provider.iso_now(),
+            isolation_mode=isolation_preparation.mode,
+            enforced_controls=tuple(asdict(control) for control in isolation_preparation.controls),
+            preflight=preflight,
         )
         entry = self.evidence_ledger.append(evidence_payload)
         self.last_evidence_payload = dict(evidence_payload)

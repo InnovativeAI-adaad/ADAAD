@@ -14,9 +14,23 @@ Deterministic replay-sensitive entry points now consume a shared provider abstra
 - Epoch checkpoint registry/verifier: `runtime/evolution/checkpoint_registry.py`, `runtime/evolution/checkpoint_verifier.py`.
 - Entropy enforcement primitives: `runtime/evolution/entropy_detector.py`, `runtime/evolution/entropy_policy.py` with declared+observed telemetry accounting and per-epoch durable entropy totals.
 - Entropy observability helper: `runtime/evolution/telemetry_audit.py` (`get_epoch_entropy_breakdown`).
-- Hardened sandbox isolation primitives: `runtime/sandbox/{executor,policy,manifest,evidence}.py` (missing sandbox syscall telemetry is fail-closed).
+- Hardened sandbox isolation primitives: `runtime/sandbox/{executor,policy,manifest,evidence,isolation,preflight}.py` with strict pre-exec enforcement preparation (seccomp/capability/resource profiles) and deterministic preflight blocking before test execution (missing sandbox syscall telemetry is fail-closed).
 - Lineage replay integrity: replay digest paths verify ledger hash-chain integrity before reads; strict replay divergence emits governance fail-closed decisions that block further promotion validation.
+- Federation coordination primitives: `runtime/governance/federation/` provides deterministic policy version exchange, quorum/consensus decision recording, conflict reconciliation actions, and explicit local-vs-federated governance precedence for replay attestation checks.
+
+- Deterministic promotion simulation runner: `runtime/evolution/simulation_runner.py` with CI entrypoint `scripts/run_simulation_runner.py` (machine-readable canary verdicts; no mutation side effects).
 
 - Canonical governance event taxonomy and normalization live in `runtime/governance/event_taxonomy.py`; UI and analytics consumers should normalize mixed legacy/new event strings through this helper before classification.
 
 - Sandbox hardening guidance: `docs/sandbox/README.md`.
+
+- Replay attestation bundles: `runtime/evolution/replay_attestation.py` builds deterministic `security/ledger/replay_proofs/<epoch>.replay_attestation.v1.json` files, signs them with configured key metadata via `security/cryovant.py` deterministic key-resolution helpers, and exposes offline verification helpers used by Aponi replay endpoints.
+
+- Forensic evidence bundles: `runtime/evolution/evidence_bundle.py` exports canonical immutable bundles with signed export metadata (`digest`, `retention_days`, `access_scope`, signer fields), validates against `schemas/evidence_bundle.v1.json`, and fails closed on malformed evidence/schema inputs.
+
+- Governance signing guide: `docs/governance/POLICY_ARTIFACT_SIGNING_GUIDE.md` (deterministic signing + verification workflow, including `scripts/sign_policy_artifact.sh` and `scripts/verify_policy_artifact.sh`).
+- Forensic retention lifecycle: `docs/governance/FORENSIC_BUNDLE_LIFECYCLE.md` (`scripts/enforce_forensic_retention.py` dry-run/enforce operations + optional `ops/systemd/adaad-forensic-retention.timer`).
+- Federation incident response: `docs/governance/FEDERATION_CONFLICT_RUNBOOK.md`.
+
+- Founders-law governance model implementation for federation compatibility: `runtime/governance/founders_law_v2.py` (`docs/governance/founders_law_v2.md`).
+

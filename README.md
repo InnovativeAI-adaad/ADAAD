@@ -125,6 +125,27 @@ If you are running in a lightweight or constrained environment, see the install 
 After setup, run:
 
 ```bash
+./quickstart.sh
+```
+
+Illustrative output:
+
+```text
+🚀 ADAAD Quick Start
+[1/4] validate governance schemas
+governance_schema_validation:ok
+[2/4] run fast confidence tests
+...
+[3/4] run deterministic simulation runner sample
+[4/4] verify federation/founders-law imports
+✅ Quick start checks complete
+```
+
+If founders-law compatibility module is unavailable in your checkout, quickstart logs a warning and skips federation compatibility tests until the module is merged.
+
+Then run a dry-run mutation pass:
+
+```bash
 python -m app.main --dry-run --replay audit --verbose
 ```
 
