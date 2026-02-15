@@ -228,7 +228,11 @@ def _validated_last_hash(
         except JournalIntegrityError:
             # Cached tail state is inconsistent with the current journal; fall back
             # to a full rescan from offset 0 below to rebuild a valid tail state.
-            metrics.counter("ledger_journal_tail_recovery_errors").inc()
+            metrics.log(
+                event_type="ledger_journal_tail_recovery_error",
+                payload={"journal_path": str(path)},
+                level="WARNING",
+            )
 
     last_hash, offset = _scan_chain(
         path=path,
