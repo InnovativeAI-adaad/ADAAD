@@ -14,7 +14,7 @@ def test_rolling_determinism_score_aggregates_metrics_and_lineage(tmp_path: Path
     monkeypatch.setattr(metrics, "METRICS_PATH", metrics_path)
 
     ledger = LineageLedgerV2(tmp_path / "lineage_v2.jsonl")
-    monkeypatch.setattr("runtime.metrics_analysis.LineageLedgerV2", lambda: ledger)
+    monkeypatch.setattr("runtime.metrics_analysis._build_lineage_ledger", lambda: ledger)
 
     metrics.log(
         "ReplayVerificationEvent",

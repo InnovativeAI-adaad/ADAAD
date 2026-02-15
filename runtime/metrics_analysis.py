@@ -5,14 +5,14 @@ Lightweight metrics analysis helpers for mutation outcomes.
 
 from __future__ import annotations
 
+import os
 import time
 from collections import Counter
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Dict, Iterable, List, Tuple
 
 from runtime import metrics
-from runtime.evolution.lineage_v2 import LineageLedgerV2
-
 MUTATION_EVENT_TYPES = {
     "mutation_approved_constitutional",
     "mutation_rejected_constitutional",
@@ -97,6 +97,18 @@ def top_preflight_rejections(limit: int = 500, top_n: int = 5) -> List[Tuple[str
     return list(reasons.items())[:top_n]
 
 
+def _build_lineage_ledger(path: str | Path | None = None) -> "LineageLedgerV2":
+    """Create the lineage ledger lazily to avoid import cycles at module import time."""
+    from runtime.evolution.lineage_v2 import LEDGER_V2_PATH, LineageLedgerV2
+
+    env_path = os.environ.get("ADAAD_LINEAGE_PATH", "").strip()
+    default_path = Path("data/lineage_v2.jsonl")
+    raw_default = LEDGER_V2_PATH if isinstance(LEDGER_V2_PATH, Path) else default_path
+    ledger_path = Path(path) if path else (Path(env_path) if env_path else raw_default)
+    ledger_path.parent.mkdir(parents=True, exist_ok=True)
+    return LineageLedgerV2(ledger_path)
+
+
 def rolling_determinism_score(window: int = 200) -> Dict[str, Any]:
     """
     Compute a rolling replay determinism score from recent ReplayVerificationEvent entries.
@@ -108,7 +120,7 @@ def rolling_determinism_score(window: int = 200) -> Dict[str, Any]:
         if entry.get("event") == "ReplayVerificationEvent":
             replay_entries.append(entry)
 
-    lineage_entries = LineageLedgerV2().read_all()
+    lineage_entries = _build_lineage_ledger().read_all()
     for entry in lineage_entries[-window:]:
         if entry.get("type") != "ReplayVerificationEvent":
             continue
