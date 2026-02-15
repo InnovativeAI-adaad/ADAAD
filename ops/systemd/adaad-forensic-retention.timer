@@ -1,0 +1,10 @@
+[Unit]
+Description=Run ADAAD forensic retention enforcement daily
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+Unit=adaad-forensic-retention.service
+
+[Install]
+WantedBy=timers.target

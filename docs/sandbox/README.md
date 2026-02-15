@@ -7,11 +7,13 @@ This module defines deterministic sandbox governance for mutation test execution
 - **Filesystem write-path allowlist**: `runtime.sandbox.fs_rules`
 - **Network egress allowlist**: `runtime.sandbox.network_rules`
 - **Resource quotas**: `runtime.sandbox.resources`
+- **Isolation backend preparation**: `runtime.sandbox.isolation` (process/container mode abstraction with explicit seccomp/capability/resource profile identifiers)
+- **Deterministic preflight rejection**: `runtime.sandbox.preflight` (rejects disallowed command/env/mount operations before execution)
 
 ## Determinism and replay
-- `HardenedSandboxExecutor` builds deterministic manifests from mutation identity + replay seed and enforces policy using observed sandbox telemetry.
+- `HardenedSandboxExecutor` builds deterministic manifests from mutation identity + replay seed, runs deterministic preflight analysis, and applies fail-closed pre-exec isolation preparation before tests execute.
 - `TestSandbox` supplies inferred deterministic baseline telemetry (`open/read/write/close`, `reports`) when direct tracing is unavailable; missing syscall telemetry is treated fail-closed by the hardened executor.
-- Evidence fields are canonically hashed (`manifest_hash`, `stdout_hash`, `stderr_hash`, `syscall_trace_hash`, `resource_usage_hash`, `evidence_hash`).
+- Evidence fields are canonically hashed (`manifest_hash`, `stdout_hash`, `stderr_hash`, `syscall_trace_hash`, `resource_usage_hash`, `evidence_hash`) and include `isolation_mode`, `enforced_controls`, and `preflight` metadata so audits can distinguish enforced controls from simulations.
 - Evidence is appended to an append-only JSONL ledger (`security/ledger/sandbox_evidence.jsonl`).
 - Replay helper `runtime.sandbox.replay.replay_sandbox_execution` verifies this canonical contract from persisted fields (`manifest`, `stdout`, `stderr`, `syscall_trace`, `resource_usage`).
 

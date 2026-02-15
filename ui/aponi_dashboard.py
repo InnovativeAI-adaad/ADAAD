@@ -36,8 +36,9 @@ from runtime.governance.event_taxonomy import (
     normalize_event_type,
 )
 from runtime.governance.policy_artifact import GovernancePolicyError, load_governance_policy
-from runtime.evolution import LineageLedgerV2, ReplayEngine
+from runtime.evolution import EvidenceBundleBuilder, EvidenceBundleError, LineageLedgerV2, ReplayEngine
 from runtime.evolution.epoch import CURRENT_EPOCH_PATH
+from runtime.evolution.replay_attestation import REPLAY_PROOFS_DIR, load_replay_proof, verify_replay_proof_bundle
 from security.ledger import journal
 
 ELEMENT_ID = "Metal"
@@ -49,7 +50,19 @@ SEMANTIC_DRIFT_CLASSES: tuple[str, ...] = (
     "runtime_artifact_drift",
     "uncategorized_drift",
 )
-GOVERNANCE_POLICY = load_governance_policy()
+GOVERNANCE_POLICY_ERROR: str | None = None
+try:
+    GOVERNANCE_POLICY = load_governance_policy()
+except GovernancePolicyError as _policy_exc:
+    GOVERNANCE_POLICY = None
+    GOVERNANCE_POLICY_ERROR = str(_policy_exc)
+
+
+def _require_governance_policy():
+    if GOVERNANCE_POLICY is None:
+        detail = GOVERNANCE_POLICY_ERROR or "governance policy unavailable"
+        raise GovernancePolicyError(f"policy unavailable (fail-closed): {detail}")
+    return GOVERNANCE_POLICY
 INSTABILITY_WEIGHTS = {
     "semantic_drift": 0.35,
     "replay_failure": 0.25,
@@ -100,9 +113,11 @@ class AponiDashboard:
         capabilities_path = APP_ROOT.parent / "data" / "capabilities.json"
         lineage_v2 = LineageLedgerV2()
         replay = ReplayEngine(lineage_v2)
+        bundle_builder = EvidenceBundleBuilder(ledger=lineage_v2, replay_engine=replay)
 
         class Handler(SimpleHTTPRequestHandler):
             _replay_engine = replay
+            _bundle_builder = bundle_builder
             def _send_json(self, payload) -> None:
                 body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
                 self.send_response(200)
@@ -182,7 +197,7 @@ class AponiDashboard:
                     if not epoch_id:
                         self._send_json({"ok": False, "error": "missing_epoch_id"})
                         return
-                    self._send_json(self._replay_diff(epoch_id))
+                    self._send_json(self._replay_diff_export(epoch_id))
                     return
                 if path.startswith("/capabilities"):
                     self._send_json(self._capabilities())
@@ -195,11 +210,7 @@ class AponiDashboard:
                     if not epoch_id:
                         self._send_json({"ok": False, "error": "missing_epoch_id"})
                         return
-                    data = replay.reconstruct_epoch(epoch_id)
-                    if not data.get("bundles") and not data.get("initial_state") and not data.get("final_state"):
-                        self._send_json({"ok": False, "error": "epoch_not_found", "epoch_id": epoch_id})
-                        return
-                    self._send_json({"ok": True, "epoch": data})
+                    self._send_json(self._epoch_export(epoch_id))
                     return
                 if path.startswith("/evolution/live"):
                     self._send_json(lineage_v2.read_all()[-50:])
@@ -275,7 +286,7 @@ class AponiDashboard:
                 from runtime.metrics_analysis import mutation_rate_snapshot
 
                 max_rate_env = os.getenv("ADAAD_MAX_MUTATIONS_PER_HOUR", "60").strip()
-                window_env = os.getenv("ADAAD_MUTATION_RATE_WINDOW_SEC", str(GOVERNANCE_POLICY.mutation_rate_window_sec)).strip()
+                window_env = os.getenv("ADAAD_MUTATION_RATE_WINDOW_SEC", str(_require_governance_policy().mutation_rate_window_sec)).strip()
                 try:
                     max_rate = float(max_rate_env)
                 except ValueError:
@@ -304,7 +315,7 @@ class AponiDashboard:
 
             @classmethod
             def _intelligence_snapshot(cls) -> Dict:
-                determinism_window = GOVERNANCE_POLICY.determinism_window
+                determinism_window = _require_governance_policy().determinism_window
                 determinism = cls._rolling_determinism_score(window=determinism_window)
                 mutation_rate = cls._mutation_rate_state()
                 recent = metrics.tail(limit=100)
@@ -325,8 +336,9 @@ class AponiDashboard:
                 else:
                     mutation_aggression_index = min(1.0, max(0.0, float(mutation_rate.get("rate_per_hour", 0.0)) / max_rate))
                 rolling_score = float(determinism.get("rolling_score", 1.0))
-                threshold_pass = GOVERNANCE_POLICY.thresholds.determinism_pass
-                threshold_warn = GOVERNANCE_POLICY.thresholds.determinism_warn
+                policy = _require_governance_policy()
+                threshold_pass = policy.thresholds.determinism_pass
+                threshold_warn = policy.thresholds.determinism_warn
                 if rolling_score >= threshold_pass and mutation_rate.get("ok", True):
                     governance_health = "PASS"
                 elif rolling_score >= threshold_warn:
@@ -335,8 +347,8 @@ class AponiDashboard:
                     governance_health = "BLOCK"
                 return {
                     "governance_health": governance_health,
-                    "model_version": GOVERNANCE_POLICY.model.version,
-                    "policy_fingerprint": GOVERNANCE_POLICY.fingerprint,
+                    "model_version": policy.model.version,
+                    "policy_fingerprint": policy.fingerprint,
                     "model_inputs": {
                         "determinism_window": determinism_window,
                         "threshold_pass": threshold_pass,
@@ -495,7 +507,8 @@ class AponiDashboard:
                         return "WARN"
                     return "BLOCK"
 
-                current_health = _health(GOVERNANCE_POLICY)
+                current_policy = _require_governance_policy()
+                current_health = _health(current_policy)
                 simulated_health = _health(candidate)
                 return {
                     "ok": True,
@@ -505,7 +518,7 @@ class AponiDashboard:
                     },
                     "current_policy": {
                         "path": str(Path("governance") / "governance_policy_v1.json"),
-                        "fingerprint": GOVERNANCE_POLICY.fingerprint,
+                        "fingerprint": current_policy.fingerprint,
                         "health": current_health,
                     },
                     "simulated_policy": {
@@ -618,6 +631,37 @@ class AponiDashboard:
                 return f"sha256:{sha256(canonical.encode('utf-8')).hexdigest()}"
 
             @classmethod
+            def _epoch_export(cls, epoch_id: str) -> Dict:
+                epoch = cls._replay_engine.reconstruct_epoch(epoch_id)
+                if not epoch.get("bundles") and not epoch.get("initial_state") and not epoch.get("final_state"):
+                    return {"ok": False, "error": "epoch_not_found", "epoch_id": epoch_id}
+                try:
+                    bundle = cls._bundle_builder.build_bundle(epoch_start=epoch_id, persist=True)
+                except EvidenceBundleError as exc:
+                    return {"ok": False, "error": "bundle_export_failed", "epoch_id": epoch_id, "detail": str(exc)}
+                return {
+                    "ok": True,
+                    "epoch_id": epoch_id,
+                    "bundle_id": bundle.get("bundle_id", ""),
+                    "export_metadata": bundle.get("export_metadata", {}),
+                    "epoch": epoch,
+                }
+
+            @classmethod
+            def _replay_diff_export(cls, epoch_id: str) -> Dict:
+                diff = cls._replay_diff(epoch_id)
+                if not diff.get("ok"):
+                    return diff
+                try:
+                    bundle = cls._bundle_builder.build_bundle(epoch_start=epoch_id, persist=True)
+                except EvidenceBundleError as exc:
+                    return {"ok": False, "error": "bundle_export_failed", "epoch_id": epoch_id, "detail": str(exc)}
+                diff_payload = dict(diff)
+                diff_payload["bundle_id"] = bundle.get("bundle_id", "")
+                diff_payload["export_metadata"] = bundle.get("export_metadata", {})
+                return diff_payload
+
+            @classmethod
             def _replay_diff(cls, epoch_id: str) -> Dict:
                 epoch = cls._replay_engine.reconstruct_epoch(epoch_id)
                 if not epoch.get("bundles") and not epoch.get("initial_state") and not epoch.get("final_state"):
@@ -640,6 +684,30 @@ class AponiDashboard:
                     "semantic_drift": cls._semantic_drift(changed_keys=changed_keys, added_keys=added_keys, removed_keys=removed_keys),
                     "epoch_chain_anchor": cls._epoch_chain_anchors(cls._evolution_timeline()).get(epoch_id, {}),
                     "bundle_count": len(epoch.get("bundles") or []),
+                    "replay_proof": cls._replay_proof_status(epoch_id),
+                }
+
+            @staticmethod
+            def _replay_proof_status(epoch_id: str) -> Dict:
+                proof_path = REPLAY_PROOFS_DIR / f"{epoch_id}.replay_attestation.v1.json"
+                if not proof_path.exists():
+                    return {
+                        "reference": str(proof_path),
+                        "exists": False,
+                        "verification": {"ok": False, "error": "proof_not_found"},
+                    }
+                try:
+                    bundle = load_replay_proof(proof_path)
+                except (OSError, json.JSONDecodeError):
+                    return {
+                        "reference": str(proof_path),
+                        "exists": True,
+                        "verification": {"ok": False, "error": "invalid_proof_bundle"},
+                    }
+                return {
+                    "reference": str(proof_path),
+                    "exists": True,
+                    "verification": verify_replay_proof_bundle(bundle),
                 }
 
             @staticmethod
@@ -680,8 +748,8 @@ class AponiDashboard:
                     class_counts[drift_class] += 1
                 return {"class_counts": class_counts, "per_key": assignments}
 
-            @staticmethod
-            def _replay_divergence() -> Dict:
+            @classmethod
+            def _replay_divergence(cls) -> Dict:
                 recent = metrics.tail(limit=200)
                 divergence_events = [
                     entry
@@ -692,6 +760,10 @@ class AponiDashboard:
                     "window": 200,
                     "divergence_event_count": len(divergence_events),
                     "latest_events": divergence_events[-10:],
+                    "proof_status": {
+                        epoch_id: cls._replay_proof_status(epoch_id)
+                        for epoch_id in lineage_v2.list_epoch_ids()[-10:]
+                    },
                 }
 
             @staticmethod

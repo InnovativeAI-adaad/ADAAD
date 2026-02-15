@@ -26,6 +26,10 @@ GOVERNANCE_SCHEMA_FILES: tuple[str, ...] = (
     "schemas/sandbox_manifest.v1.json",
     "schemas/sandbox_policy.v1.json",
     "schemas/sandbox_evidence.v1.json",
+    "schemas/evidence_bundle.v1.json",
+    "schemas/governance_policy_payload.v1.json",
+    "schemas/governance_policy_artifact.v1.json",
+    "schemas/replay_attestation.v1.json",
 )
 
 _CANONICAL_DIALECT = "https://json-schema.org/draft/2020-12/schema"

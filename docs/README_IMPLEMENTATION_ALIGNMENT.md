@@ -67,7 +67,7 @@ README mutation lifecycle concepts map to:
 - **Discovery + staging**: `app/dream_mode.py`
 - **Mutation ID determinism**: `app/mutation_executor.py`
 - **Epoch lifecycle + digest tracking**: `runtime/evolution/epoch.py`, `runtime/evolution/runtime.py`
-- **Promotion transition + events**: `runtime/evolution/promotion_state_machine.py`, `runtime/evolution/promotion_events.py`, `runtime/evolution/promotion_policy.py`
+- **Promotion transition + events**: `runtime/evolution/promotion_state_machine.py`, `runtime/evolution/promotion_events.py`, `runtime/evolution/promotion_policy.py`, `runtime/evolution/simulation_runner.py`
 - **Fitness scoring support**: `runtime/evolution/fitness.py`, `runtime/fitness_pipeline.py`, `runtime/evolution/scoring_algorithm.py`, `runtime/evolution/scoring_validator.py`, `runtime/evolution/scoring_ledger.py`
 - **Lineage digest verification**: `runtime/evolution/lineage_v2.py`, `runtime/evolution/replay.py`
 
@@ -113,9 +113,9 @@ Expected status in this repository branch: all tests passing (with one known col
 | Requirement | Evidence in repository | Status | Validation posture |
 |---|---|---|---|
 | Deterministic substrate | `runtime.governance.foundation.{canonical,hashing,clock,determinism}` plus replay/determinism tests in `tests/determinism/*` | Implemented | Validated guarantee for governance/replay execution paths |
-| Sandbox hardening depth | Sandbox policy + enforcement and evidence tests in `tests/sandbox/test_sandbox_*` | Partially implemented | Baseline validated; deeper hardening remains roadmap |
-| Replay proofs | Replay preflight/runtime harnesses in `runtime/evolution/*` and `tests/determinism/test_replay_runtime_harness.py` | Partially implemented | Deterministic replay verification validated; portable cryptographic proof bundles are roadmap |
-| Federation | No committed cross-instance federation module in current runtime tree | Planned | Not a current guarantee |
+| Sandbox hardening depth | Sandbox policy + enforcement + isolation/preflight primitives in `runtime/sandbox/*` and tests in `tests/sandbox/test_sandbox_*` | Partially implemented | Enhanced deterministic fail-closed baseline validated; kernel/container hardening depth remains roadmap |
+| Replay proofs | Replay preflight/runtime harnesses in `runtime/evolution/*`, attestation builder `runtime/evolution/replay_attestation.py`, and determinism tests in `tests/determinism/test_replay_*` | Implemented baseline | Deterministic replay verification + signed attestations validated in-tree; external trust-root hardening remains roadmap |
+| Federation | Deterministic federation coordination primitives in `runtime/governance/federation/*` with governance precedence resolution and tests in `tests/governance/test_federation_coordination.py` | Implemented baseline | Coordination + precedence behavior validated in-tree; distributed transport/protocol hardening remains roadmap |
 
 ## PR Milestone Reconciliation (PR-1 .. PR-6)
 

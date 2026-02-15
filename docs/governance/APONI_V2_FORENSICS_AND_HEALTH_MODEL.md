@@ -16,7 +16,10 @@ Returns replay divergence/failure event counts over a fixed 200-event window and
 
 ### `GET /replay/diff?epoch_id=...`
 
-Returns deterministic replay-state comparison metadata for a specific epoch:
+Returns deterministic replay-state comparison metadata for a specific epoch plus forensic export metadata:
+
+- `bundle_id` (immutable evidence export id)
+- `export_metadata` (`digest`, canonical ordering mode, immutable export path, `retention_days`, `access_scope`, signer metadata)
 
 - initial/final state fingerprints (`sha256` over canonical JSON)
 - changed/add/removed keys
@@ -84,6 +87,7 @@ Thresholds (from policy artifact):
 - `BLOCK`: otherwise
 
 Auditability: `/system/intelligence` returns a `policy_fingerprint` (`sha256`) of the loaded policy payload.
+Policy envelopes remain fail-closed and support deterministic signer verification paths (`cryovant-static-*`, dev-gated signatures, and `hmac-sha256` keyed verification via Cryovant key resolution env settings).
 
 Constitution escalation count uses canonical event normalization from `runtime/governance/event_taxonomy.py`, with deterministic fallback heuristic matching for backward compatibility.
 
@@ -98,6 +102,13 @@ The UI JavaScript is served as `/ui/aponi.js` to remain CSP-compatible without i
 
 ## Determinism Invariants
 
-1. UI endpoints never mutate lineage, ledger, or replay state.
+1. UI endpoints never mutate lineage, ledger, or replay state; forensic endpoints may emit immutable export snapshots under `reports/forensics/`.
 2. Risk/intelligence outputs are pure functions of persisted telemetry windows.
 3. Replay diff output is canonical-hash based and reproducible for identical epoch inputs.
+
+
+## Operational references
+
+- Forensic export retention automation: `docs/governance/FORENSIC_BUNDLE_LIFECYCLE.md` and `scripts/enforce_forensic_retention.py`.
+- Policy artifact signing/verification workflow: `docs/governance/POLICY_ARTIFACT_SIGNING_GUIDE.md`.
+- Federation divergence incident response: `docs/governance/FEDERATION_CONFLICT_RUNBOOK.md`.

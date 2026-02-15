@@ -14,7 +14,10 @@
     "replay_seed",
     "timestamp",
     "evidence_hash",
-    "manifest"
+    "manifest",
+    "isolation_mode",
+    "enforced_controls",
+    "preflight"
   ],
   "properties": {
     "manifest_hash": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
@@ -36,6 +39,31 @@
     "replay_seed": {"type": "string", "pattern": "^(?!0{16}$)[a-fA-F0-9]{16}$"},
     "timestamp": {"type": "string", "minLength": 1},
     "evidence_hash": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
-    "manifest": {"type": "object"}
+    "manifest": {"type": "object"},
+    "isolation_mode": {"type": "string", "minLength": 1},
+    "enforced_controls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["control", "profile", "mechanism", "enforced", "simulated"],
+        "properties": {
+          "control": {"type": "string", "minLength": 1},
+          "profile": {"type": "string", "minLength": 1},
+          "mechanism": {"type": "string", "minLength": 1},
+          "enforced": {"type": "boolean"},
+          "simulated": {"type": "boolean"}
+        }
+      }
+    },
+    "preflight": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["ok", "reason"],
+      "properties": {
+        "ok": {"type": "boolean"},
+        "reason": {"type": "string", "minLength": 1}
+      }
+    }
   }
 }

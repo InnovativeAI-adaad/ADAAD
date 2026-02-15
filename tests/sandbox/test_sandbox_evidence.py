@@ -18,3 +18,6 @@ def test_sandbox_evidence_ledger_hash_chain(tmp_path):
     assert second["prev_hash"] == first["hash"]
     assert payload["evidence_hash"].startswith("sha256:")
     assert payload["resource_usage_hash"].startswith("sha256:")
+
+    assert payload["isolation_mode"] == "process"
+    assert payload["preflight"]["ok"] is True

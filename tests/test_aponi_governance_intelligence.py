@@ -363,3 +363,33 @@ def test_alerts_evaluate_returns_empty_when_below_thresholds() -> None:
     assert alerts["critical"] == []
     assert alerts["warning"] == []
     assert alerts["info"] == []
+
+
+def test_replay_diff_export_includes_bundle_export_metadata() -> None:
+    handler = _handler_class()
+    diff = {"ok": True, "epoch_id": "epoch-1", "changed_keys": [], "added_keys": [], "removed_keys": []}
+    bundle = {"bundle_id": "evidence-1234", "export_metadata": {"digest": "sha256:abc"}}
+    with patch.object(handler, "_replay_diff", return_value=diff):
+        with patch.object(handler, "_bundle_builder") as builder:
+            builder.build_bundle.return_value = bundle
+            payload = handler._replay_diff_export("epoch-1")
+
+    assert payload["ok"] is True
+    assert payload["bundle_id"] == "evidence-1234"
+    assert payload["export_metadata"]["digest"] == "sha256:abc"
+
+
+def test_epoch_export_includes_bundle_export_metadata() -> None:
+    handler = _handler_class()
+    epoch = {"bundles": [{"id": "bundle-1"}], "initial_state": {}, "final_state": {}}
+    bundle = {"bundle_id": "evidence-5678", "export_metadata": {"digest": "sha256:def"}}
+    with patch.object(handler, "_replay_engine") as replay:
+        replay.reconstruct_epoch.return_value = epoch
+        with patch.object(handler, "_bundle_builder") as builder:
+            builder.build_bundle.return_value = bundle
+            payload = handler._epoch_export("epoch-1")
+
+    assert payload["ok"] is True
+    assert payload["epoch_id"] == "epoch-1"
+    assert payload["bundle_id"] == "evidence-5678"
+    assert payload["export_metadata"]["digest"] == "sha256:def"

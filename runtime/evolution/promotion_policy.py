@@ -6,6 +6,7 @@ from __future__ import annotations
 from typing import Any, Dict, List
 
 from runtime.evolution.promotion_state_machine import PromotionState
+from runtime.evolution.simulation_runner import SimulationRunner
 
 
 class PromotionPolicyError(ValueError):
@@ -18,6 +19,7 @@ class PromotionPolicyEngine:
         self.policy_version = str(policy.get("version") or policy.get("policy_id") or "v1.0.0")
         self.rules = self._normalize_rules(self.policy)
         self._validate_priorities()
+        self.simulation_runner = SimulationRunner()
 
     @staticmethod
     def _normalize_rules(policy: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -93,9 +95,23 @@ class PromotionPolicyEngine:
             if int(mutation_data.get("entropy_bits", 0) or 0) > int(conditions["max_entropy_bits"]):
                 return False
 
+        if conditions.get("require_simulation_pass"):
+            verdict = dict(mutation_data.get("simulation_verdict") or {})
+            if not verdict or not bool(verdict.get("passed")):
+                return False
+
+        required_statuses = list(conditions.get("simulation_status_in") or [])
+        if required_statuses:
+            verdict_status = str((mutation_data.get("simulation_verdict") or {}).get("status") or "")
+            if verdict_status not in set(str(item) for item in required_statuses):
+                return False
+
         return True
 
     def evaluate_transition(self, current_state: PromotionState, mutation_data: Dict[str, Any]) -> PromotionState:
+        if "simulation_verdict" not in mutation_data and "simulation_candidate" in mutation_data:
+            mutation_data["simulation_verdict"] = self.simulation_runner.run(dict(mutation_data["simulation_candidate"]), dry_run=True)
+
         for rule in self._sorted_rules(current_state):
             conditions = dict(rule.get("conditions") or {})
             if self._rule_matches(conditions, mutation_data):

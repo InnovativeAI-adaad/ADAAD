@@ -94,3 +94,17 @@ Only the transitions listed below are legal. Any other transition MUST be reject
 - Mutation execution also applies deterministic entropy ceiling policy gates before promotion activation.
 - Mutation execution enforces sandbox manifest/policy validation and emits hash-stable sandbox evidence records for replay/audit.
 - Backward-compat imports under `governance.*` are adapters only; runtime code should import from `runtime.*`.
+
+
+## Governance policy artifact lifecycle (new)
+
+- Policy artifacts are now envelope documents (`governance_policy_artifact.v1`) containing:
+  - `payload` (`governance_policy_v1` policy body)
+  - `signer` metadata (`key_id`, `algorithm`)
+  - `signature`
+  - `previous_artifact_hash`
+  - `effective_epoch`
+- Policy consumers must fail closed on envelope validation or signature verification failure.
+- Policy lifecycle states are deterministic and linear:
+  - `authoring -> review-approved -> signed -> deployed`
+- Every successful policy lifecycle transition must include a transition proof and is appended to `security/ledger` as immutable `policy_lifecycle_transition` journal events.

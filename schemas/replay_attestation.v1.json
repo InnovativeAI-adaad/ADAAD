@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://adaad.local/schemas/replay_attestation.v1.json",
+  "title": "Replay Attestation Bundle v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "epoch_id",
+    "checkpoint_chain",
+    "checkpoint_chain_digest",
+    "replay_digest",
+    "canonical_digest",
+    "policy_hashes",
+    "proof_digest",
+    "signatures"
+  ],
+  "properties": {
+    "schema_version": {"type": "string", "const": "1.0"},
+    "epoch_id": {"type": "string", "minLength": 1},
+    "checkpoint_chain": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "checkpoint_id",
+          "checkpoint_hash",
+          "prev_checkpoint_hash",
+          "epoch_digest",
+          "baseline_digest",
+          "created_at"
+        ],
+        "properties": {
+          "checkpoint_id": {"type": "string", "minLength": 1},
+          "checkpoint_hash": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+          "prev_checkpoint_hash": {"type": "string", "pattern": "^sha256:[a-f0-9]{1,64}$"},
+          "epoch_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{1,64}$"},
+          "baseline_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{1,64}$"},
+          "created_at": {"type": "string", "format": "date-time"}
+        }
+      }
+    },
+    "checkpoint_chain_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "replay_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{1,64}$"},
+    "canonical_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "policy_hashes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["promotion_policy_hash", "entropy_policy_hash", "sandbox_policy_hash"],
+      "properties": {
+        "promotion_policy_hash": {"type": "string", "pattern": "^sha256:[a-f0-9]{1,64}$"},
+        "entropy_policy_hash": {"type": "string", "pattern": "^sha256:[a-f0-9]{1,64}$"},
+        "sandbox_policy_hash": {"type": "string", "pattern": "^sha256:[a-f0-9]{1,64}$"}
+      }
+    },
+    "proof_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "signatures": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["key_id", "algorithm", "signed_digest", "signature"],
+        "properties": {
+          "key_id": {"type": "string", "minLength": 1},
+          "algorithm": {"type": "string", "minLength": 1},
+          "signed_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+          "signature": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  }
+}

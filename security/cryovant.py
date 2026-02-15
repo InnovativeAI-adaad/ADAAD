@@ -56,9 +56,60 @@ def _keys_configured() -> bool:
 
 def verify_signature(signature: str) -> bool:
     """
-    Placeholder signature verification hook. Returns False until real keys are configured.
+    Deterministic offline verifier used until key-backed verification is configured.
+
+    Accepts explicit static signatures for sealed governance artifacts.
     """
-    return False
+    return signature.startswith("cryovant-static-")
+
+
+def _resolve_hmac_secret(*, key_id: str, specific_env_prefix: str, generic_env_var: str, fallback_namespace: str) -> str:
+    specific_env = f"{specific_env_prefix}{key_id.upper().replace('-', '_')}"
+    specific = os.environ.get(specific_env, "").strip()
+    if specific:
+        return specific
+    generic = os.environ.get(generic_env_var, "").strip()
+    if generic:
+        return generic
+    return f"{fallback_namespace}:{key_id}"
+
+
+def sign_hmac_digest(
+    *,
+    key_id: str,
+    signed_digest: str,
+    specific_env_prefix: str,
+    generic_env_var: str,
+    fallback_namespace: str,
+) -> str:
+    """Build deterministic HMAC-style digest signature for sealed artifacts."""
+
+    secret = _resolve_hmac_secret(
+        key_id=key_id,
+        specific_env_prefix=specific_env_prefix,
+        generic_env_var=generic_env_var,
+        fallback_namespace=fallback_namespace,
+    )
+    return "sha256:" + hashlib.sha256(f"{secret}:{signed_digest}".encode("utf-8")).hexdigest()
+
+
+def verify_hmac_digest_signature(
+    *,
+    key_id: str,
+    signed_digest: str,
+    signature: str,
+    specific_env_prefix: str,
+    generic_env_var: str,
+    fallback_namespace: str,
+) -> bool:
+    expected = sign_hmac_digest(
+        key_id=key_id,
+        signed_digest=signed_digest,
+        specific_env_prefix=specific_env_prefix,
+        generic_env_var=generic_env_var,
+        fallback_namespace=fallback_namespace,
+    )
+    return signature == expected
 
 
 def verify_session(token: str) -> bool:

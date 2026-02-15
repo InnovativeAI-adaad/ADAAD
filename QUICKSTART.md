@@ -9,6 +9,14 @@ This guide gives you the fastest path to a working ADAAD run, plus a clean reset
 If you only run one command after setup, run this:
 
 ```bash
+./quickstart.sh
+```
+
+This validates schemas, runs a deterministic simulation sample, checks founders-law/federation tests, and prints the dashboard start command. If the founders-law compatibility module is unavailable, quickstart logs a warning and skips federation compatibility tests.
+
+Then run the governed mutation dry-run:
+
+```bash
 python -m app.main --dry-run --replay audit --verbose
 ```
 
