@@ -1,8 +1,28 @@
 # ADAAD Quick Start (5 Minutes)
 
-> 🎥 Prefer video? A short walkthrough is planned; this guide is the canonical setup path today.
+> 🎥 Prefer video? A walkthrough is not published yet; this guide is the canonical setup path today.
 
 This guide gives you the fastest path to a working ADAAD run, plus a clean reset path if state drifts.
+
+## What success looks like in under 2 minutes
+
+If you only run one command after setup, run this:
+
+```bash
+python -m app.main --dry-run --replay audit --verbose
+```
+
+In this mode ADAAD should boot, evaluate governance/replay state, and print mutation-cycle status without writing file changes.
+
+Illustrative output:
+
+```text
+[ADAAD] Starting governance spine initialization
+[ADAAD] Replay decision: audit
+[DREAM] Candidate discovery complete
+[GOVERNANCE] constitution: pass
+[MUTATION] dry-run only, no files modified
+```
 
 ## Prerequisites
 
@@ -50,6 +70,16 @@ pip install -r requirements.server.txt
 pip freeze | rg -i "adaad|aponi|cryovant"
 ```
 
+### Lightweight / constrained environments
+
+If dependency installation fails in constrained environments, retry without pip cache:
+
+```bash
+pip install -r requirements.server.txt --no-cache-dir
+```
+
+ADAAD currently expects a full Python environment; Linux/WSL remains the recommended runtime target.
+
 ## 4) Initialize ADAAD workspace
 
 ```bash
@@ -81,6 +111,12 @@ You should see output that includes lines similar to:
 ```
 
 If you see these signals, your installation is functioning.
+
+## 5.1) Interpret the result quickly
+
+- **Boot + replay signals present, mutation disabled:** environment is healthy; no eligible staged work discovered.
+- **Boot + replay signals present, mutation enabled:** system is ready to evaluate governed mutation flow.
+- **Replay divergence or policy rejection:** expected fail-closed behavior; inspect logs before retrying.
 
 ## 6) Optional replay verification-only mode
 
@@ -117,6 +153,9 @@ PY
 
 # Replay audit verification
 python -m app.main --verify-replay --replay audit --verbose
+
+# Dashboard reachability check (defaults to localhost:8000)
+curl -sS http://127.0.0.1:8000/state | python -m json.tool
 ```
 
 ## Clean reset (if behavior looks inconsistent)
@@ -152,6 +191,23 @@ Inspect divergences first:
 
 ```bash
 python -m app.main --replay audit --verbose
+```
+
+### Policy rejection appears
+
+This is expected fail-closed behavior. Re-run with verbose output and review the rejection reason before changing policy:
+
+```bash
+python -m app.main --dry-run --replay audit --verbose
+```
+
+### Dashboard does not open
+
+Confirm the process started and the endpoint is reachable:
+
+```bash
+python -m app.main --replay audit --verbose
+curl -sS http://127.0.0.1:8000/state
 ```
 
 ### Boot appears to exit quickly

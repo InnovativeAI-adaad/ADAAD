@@ -2,6 +2,8 @@
 
 > **Deterministic, policy-governed autonomous code evolution.**
 
+ADAAD is a governance-first mutation engine designed to make autonomous code changes auditable, reproducible, and policy-bound.
+
 <p align="center">
   <img src="docs/assets/adaad-banner.svg" width="850" alt="ADAAD governed autonomy banner">
 </p>
@@ -21,21 +23,74 @@
   <a href="https://github.com/InnovativeAI-adaad/ADAAD/issues"><strong>Issues</strong></a>
 </p>
 
+## See ADAAD in action
+
+Prefer learning by example? Start with the minimal walkthrough: [Single-Agent Loop Example](examples/single-agent-loop/README.md).
+
 ## What is ADAAD?
 
 ADAAD is an autonomous software development system that proposes and executes code changes under constitutional governance.
 
 In plain terms: ADAAD automates code evolution with strict trust, replay, and policy gates so autonomy stays auditable and controlled.
 
+Replay verification ensures governance decisions produce identical outcomes across runs. If replay diverges from the recorded baseline, mutation halts before execution (fail-closed).
+
+ADAAD governs mutation execution and policy enforcement; it does not generate model intelligence itself.
+
+### Start with one concrete story
+
+Given a repository with duplicated parsing helpers, ADAAD can:
+
+1. Discover a low-risk refactor candidate.
+2. Simulate the mutation in governed mode.
+3. Attach replay and lineage evidence.
+4. Block or stage the change based on policy.
+
+Result: teams get a concrete proposed improvement with deterministic governance evidence, not an opaque autonomous rewrite.
+
+Example dry-run output (illustrative):
+
+```text
+[DREAM] Candidate: consolidate duplicated parsing helper
+[GOVERNANCE] Tier: low-risk refactor | constitution: PASS
+[MUTATION] Would move helper into shared module (dry-run)
+[REPLAY] divergence=none | deterministic=true
+[RESULT] Staged for review (no files modified)
+```
+
+### Who ADAAD is for
+
+- **Engineering teams with strict code standards:** reduce review bottlenecks while preserving auditable policy controls.
+- **Maintainers handling repetitive refactors:** automate low-risk cleanup with replayable outcomes.
+- **Governance and platform operators:** define policy once and enforce deterministic mutation gates consistently.
+
+## What ADAAD is not
+
+- Not a general-purpose LLM coding assistant
+- Not an unattended production auto-merge system
+- Not a CI/CD replacement
+- Not a self-improving model training framework
+
+## Why teams adopt ADAAD
+
+- **Recurring refactor churn in large codebases:** automate low-risk, policy-bounded mutation proposals with deterministic replay evidence.
+- **Regulated or audit-heavy environments:** maintain mutation traceability through governance events, lineage, and fail-closed replay controls.
+- **High-trust repositories where silent drift is unacceptable:** enforce reproducible decisions and halt on replay divergence before mutation execution.
+
 ## Project Status
 
-- Authoritative current version: 0.65.x (active development line; latest tagged release: 0.65.0)
-- Maturity posture: Experimental / pre-1.0 (validated governance + replay controls, mutation autonomy still staged)
-- Recommended environment: Linux / WSL
-- Replay strict: Production-ready
-- Mutation execution: Staging-only
+| Aspect | Status |
+|---|---|
+| Recommended for | Governed audit workflows, replay verification, staged mutation review |
+| Not ready for | Unattended production autonomy |
+| Maturity | Experimental / pre-1.0 |
+| Recommended environment | Linux / WSL |
+| Replay strict | Production-ready |
+| Mutation execution | Staging-only |
 
 Mutation execution is limited to controlled environments. Production use should run in dry-run or strict replay modes unless explicitly authorized by policy.
+
+**Practical readiness summary:** ADAAD is currently safe for governed audit/replay workflows and staged mutation review. It is not positioned yet for unattended production autonomy.
 
 ### Validated guarantees vs roadmap
 
@@ -62,6 +117,22 @@ ADAAD addresses this with constitutional mutation controls, append-only lineage 
 ## Quick start
 
 Use [QUICKSTART.md](QUICKSTART.md) for the full setup, validation, and reset workflow.
+
+If you are running in a lightweight or constrained environment, see the install fallback in [QUICKSTART.md](QUICKSTART.md#lightweight--constrained-environments). ADAAD currently targets a full Python runtime (Linux/WSL recommended).
+
+### 2-minute quick win (first meaningful result)
+
+After setup, run:
+
+```bash
+python -m app.main --dry-run --replay audit --verbose
+```
+
+What you should get:
+
+- A deterministic replay decision (`audit`) and boot-stage diagnostics.
+- Mutation cycle status with governance gate outcomes.
+- No file mutations written (`--dry-run`), so you can safely inspect behavior first.
 
 ```bash
 git clone https://github.com/InnovativeAI-adaad/ADAAD.git
@@ -133,6 +204,14 @@ Replay epochs represent deterministic governance snapshots. Each epoch includes:
 - Constitution version
 
 Strict replay requires identical epoch reconstruction.
+
+Example strict replay failure:
+
+```text
+[REPLAY] mode=strict baseline=epoch_2026_02_14
+[REPLAY] divergence=hash_mismatch
+[RESULT] Boot halted (fail-closed)
+```
 
 
 ## Canonical governance import paths
@@ -212,6 +291,21 @@ Result: Boot halted before mutation stage.
 Aponi exposes a standard user interface at `http://<host>:<port>/` (or `/index.html`) as a read-only governance nerve center.
 The UI now highlights intelligence and risk surfaces backed by deterministic APIs:
 
+- **Operational snapshot:** current governance health, replay state, and mutation posture.
+- **Risk visibility:** instability indicators, risk summary buckets, and drift-class weighting.
+- **Policy simulation:** non-mutating policy outcome previews before applying governance changes.
+- **Replay forensics:** divergence and diff endpoints for deterministic incident review.
+
+For an operator, the dashboard should be read as: *"what is the system doing, what risk is rising, and what is blocked by policy right now?"*
+
+### What to look for first
+
+- **Governance health:** healthy signals indicate replay/trust checks are stable; red flags indicate divergence or gate failures.
+- **Risk trending:** rising instability velocity suggests mutation outcomes are becoming less stable and should be reviewed.
+- **Blocked mutations:** policy rejections provide actionable reasons before any mutation is applied.
+
+Endpoint surface:
+
 - `/system/intelligence`
 - `/risk/summary`
 - `/risk/instability`
@@ -239,6 +333,13 @@ ADAAD includes optional UX helpers for transparency and onboarding:
 - Error dictionary helper: `python tools/error_dictionary.py` (includes optional automatic exception hook for operator tools)
 
 These features are observer/operator tools and do not change governance mutation authority.
+
+## Documentation map by persona
+
+- **I want to run ADAAD quickly:** [QUICKSTART.md](QUICKSTART.md)
+- **I want to understand governance guarantees:** [docs/CONSTITUTION.md](docs/CONSTITUTION.md)
+- **I want mutation lifecycle details:** [docs/governance/mutation_lifecycle.md](docs/governance/mutation_lifecycle.md)
+- **I want dashboard/runbook operations:** [docs/governance/APONI_ALERT_RUNBOOK.md](docs/governance/APONI_ALERT_RUNBOOK.md)
 
 ## FAQ
 
