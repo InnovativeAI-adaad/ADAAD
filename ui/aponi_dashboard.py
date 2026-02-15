@@ -28,14 +28,49 @@ from urllib.parse import parse_qs, urlparse
 
 from app import APP_ROOT
 from runtime import metrics
+from runtime.governance.event_taxonomy import (
+    EVENT_TYPE_CONSTITUTION_ESCALATION,
+    EVENT_TYPE_OPERATOR_OVERRIDE,
+    EVENT_TYPE_REPLAY_DIVERGENCE,
+    EVENT_TYPE_REPLAY_FAILURE,
+    normalize_event_type,
+)
+from runtime.governance.policy_artifact import GovernancePolicyError, load_governance_policy
 from runtime.evolution import LineageLedgerV2, ReplayEngine
 from runtime.evolution.epoch import CURRENT_EPOCH_PATH
 from security.ledger import journal
 
 ELEMENT_ID = "Metal"
 HUMAN_DASHBOARD_TITLE = "Aponi Governance Nerve Center"
-GOVERNANCE_HEALTH_MODEL_VERSION = "v1.0.0"
-CONSTITUTION_ESCALATION_EVENT_TYPES = {"constitution_escalation", "constitution_escalated"}
+SEMANTIC_DRIFT_CLASSES: tuple[str, ...] = (
+    "config_drift",
+    "governance_drift",
+    "trait_drift",
+    "runtime_artifact_drift",
+    "uncategorized_drift",
+)
+GOVERNANCE_POLICY = load_governance_policy()
+INSTABILITY_WEIGHTS = {
+    "semantic_drift": 0.35,
+    "replay_failure": 0.25,
+    "escalation": 0.20,
+    "determinism_drift": 0.20,
+}
+DRIFT_CLASS_WEIGHTS = {
+    "config_drift": 0.8,
+    "governance_drift": 1.4,
+    "trait_drift": 1.0,
+    "runtime_artifact_drift": 1.1,
+    "uncategorized_drift": 0.9,
+}
+VELOCITY_SPIKE_THRESHOLD = 0.2
+WILSON_Z_95 = 1.96
+ALERT_THRESHOLDS = {
+    "instability_critical": 0.7,
+    "instability_warning": 0.5,
+    "replay_failure_warning": 0.05,
+    "velocity_spike": True,
+}
 
 
 class AponiDashboard:
@@ -67,6 +102,7 @@ class AponiDashboard:
         replay = ReplayEngine(lineage_v2)
 
         class Handler(SimpleHTTPRequestHandler):
+            _replay_engine = replay
             def _send_json(self, payload) -> None:
                 body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
                 self.send_response(200)
@@ -129,8 +165,17 @@ class AponiDashboard:
                 if path.startswith("/risk/summary"):
                     self._send_json(self._risk_summary())
                     return
+                if path.startswith("/risk/instability"):
+                    self._send_json(self._risk_instability())
+                    return
                 if path.startswith("/replay/divergence"):
                     self._send_json(self._replay_divergence())
+                    return
+                if path.startswith("/policy/simulate"):
+                    self._send_json(self._policy_simulation(query))
+                    return
+                if path.startswith("/alerts/evaluate"):
+                    self._send_json(self._alerts_evaluate())
                     return
                 if path.startswith("/replay/diff"):
                     epoch_id = query.get("epoch_id", [""])[0].strip()
@@ -230,7 +275,7 @@ class AponiDashboard:
                 from runtime.metrics_analysis import mutation_rate_snapshot
 
                 max_rate_env = os.getenv("ADAAD_MAX_MUTATIONS_PER_HOUR", "60").strip()
-                window_env = os.getenv("ADAAD_MUTATION_RATE_WINDOW_SEC", "3600").strip()
+                window_env = os.getenv("ADAAD_MUTATION_RATE_WINDOW_SEC", str(GOVERNANCE_POLICY.mutation_rate_window_sec)).strip()
                 try:
                     max_rate = float(max_rate_env)
                 except ValueError:
@@ -259,7 +304,8 @@ class AponiDashboard:
 
             @classmethod
             def _intelligence_snapshot(cls) -> Dict:
-                determinism = cls._rolling_determinism_score(window=200)
+                determinism_window = GOVERNANCE_POLICY.determinism_window
+                determinism = cls._rolling_determinism_score(window=determinism_window)
                 mutation_rate = cls._mutation_rate_state()
                 recent = metrics.tail(limit=100)
                 constitution_escalations = cls._constitution_escalations(recent)
@@ -279,8 +325,8 @@ class AponiDashboard:
                 else:
                     mutation_aggression_index = min(1.0, max(0.0, float(mutation_rate.get("rate_per_hour", 0.0)) / max_rate))
                 rolling_score = float(determinism.get("rolling_score", 1.0))
-                threshold_pass = 0.98
-                threshold_warn = 0.90
+                threshold_pass = GOVERNANCE_POLICY.thresholds.determinism_pass
+                threshold_warn = GOVERNANCE_POLICY.thresholds.determinism_warn
                 if rolling_score >= threshold_pass and mutation_rate.get("ok", True):
                     governance_health = "PASS"
                 elif rolling_score >= threshold_warn:
@@ -289,9 +335,10 @@ class AponiDashboard:
                     governance_health = "BLOCK"
                 return {
                     "governance_health": governance_health,
-                    "model_version": GOVERNANCE_HEALTH_MODEL_VERSION,
+                    "model_version": GOVERNANCE_POLICY.model.version,
+                    "policy_fingerprint": GOVERNANCE_POLICY.fingerprint,
                     "model_inputs": {
-                        "determinism_window": 200,
+                        "determinism_window": determinism_window,
                         "threshold_pass": threshold_pass,
                         "threshold_warn": threshold_warn,
                         "rate_limiter_ok": bool(mutation_rate.get("ok", True)),
@@ -307,11 +354,11 @@ class AponiDashboard:
             def _constitution_escalations(entries: List[Dict]) -> int:
                 count = 0
                 for entry in entries:
-                    event_name = str(entry.get("event", "")).lower()
-                    event_type = str(entry.get("event_type", "")).lower()
-                    if event_name in CONSTITUTION_ESCALATION_EVENT_TYPES or event_type in CONSTITUTION_ESCALATION_EVENT_TYPES:
+                    event_type = normalize_event_type(entry)
+                    if event_type == EVENT_TYPE_CONSTITUTION_ESCALATION:
                         count += 1
                         continue
+                    event_name = str(entry.get("event", "")).lower()
                     if "constitution" in event_name and "escalat" in event_name:
                         count += 1
                 return count
@@ -321,8 +368,8 @@ class AponiDashboard:
                 intelligence = cls._intelligence_snapshot()
                 recent = metrics.tail(limit=200)
                 escalation_frequency = intelligence["constitution_escalations_last_100"] / 100.0
-                override_frequency = sum(1 for entry in recent if "override" in str(entry.get("event", "")).lower()) / 200.0
-                replay_failure_rate = sum(1 for entry in recent if "replay" in str(entry.get("event", "")).lower() and "fail" in str(entry.get("event", "")).lower()) / 200.0
+                override_frequency = sum(1 for entry in recent if normalize_event_type(entry) == EVENT_TYPE_OPERATOR_OVERRIDE) / 200.0
+                replay_failure_rate = sum(1 for entry in recent if normalize_event_type(entry) == EVENT_TYPE_REPLAY_FAILURE) / 200.0
                 aggression_trend_variance = intelligence["mutation_aggression_index"] * (1.0 - intelligence["mutation_aggression_index"])
                 determinism_drift_index = max(0.0, 1.0 - intelligence["determinism_score"])
                 return {
@@ -334,13 +381,245 @@ class AponiDashboard:
                 }
 
             @staticmethod
+            def _semantic_drift_density(entries: List[Dict]) -> float:
+                if not entries:
+                    return 0.0
+                return sum(
+                    1
+                    for entry in entries
+                    if str(entry.get("risk_tier", "")).lower() in {"high", "critical", "unknown"}
+                ) / len(entries)
+
+            @staticmethod
+            def _risk_instability_confidence_interval(successes: int, total: int) -> Dict:
+                if total <= 0:
+                    return {"low": 0.0, "high": 0.0, "confidence": 0.95, "sample_size": 0}
+                p_hat = successes / total
+                z2 = WILSON_Z_95 ** 2
+                denom = 1.0 + z2 / total
+                center = (p_hat + z2 / (2.0 * total)) / denom
+                margin = (WILSON_Z_95 / denom) * ((p_hat * (1.0 - p_hat) / total + z2 / (4.0 * total * total)) ** 0.5)
+                low = max(0.0, center - margin)
+                high = min(1.0, center + margin)
+                return {
+                    "low": round(low, 6),
+                    "high": round(high, 6),
+                    "confidence": 0.95,
+                    "sample_size": total,
+                }
+
+            @classmethod
+            def _semantic_drift_weighted_density(cls, timeline: List[Dict], window: int = 10) -> Dict:
+                entries = timeline[-window:]
+                if not entries:
+                    return {"density": 0.0, "window": 0, "considered": 0}
+                weighted_sum = 0.0
+                considered = 0
+                max_weight = max(DRIFT_CLASS_WEIGHTS.values())
+                for entry in entries:
+                    epoch_id = str(entry.get("epoch") or "").strip()
+                    if not epoch_id:
+                        continue
+                    epoch = cls._replay_engine.reconstruct_epoch(epoch_id)
+                    initial_state = epoch.get("initial_state") or {}
+                    final_state = epoch.get("final_state") or {}
+                    if not initial_state and not final_state:
+                        continue
+                    initial_keys = set(initial_state.keys())
+                    final_keys = set(final_state.keys())
+                    changed_keys = sorted(k for k in initial_keys & final_keys if initial_state.get(k) != final_state.get(k))
+                    added_keys = sorted(final_keys - initial_keys)
+                    removed_keys = sorted(initial_keys - final_keys)
+                    semantic = cls._semantic_drift(changed_keys=changed_keys, added_keys=added_keys, removed_keys=removed_keys)
+                    counts = semantic.get("class_counts", {})
+                    total = sum(int(v) for v in counts.values())
+                    if total <= 0:
+                        continue
+                    score = sum(DRIFT_CLASS_WEIGHTS.get(name, 1.0) * int(counts.get(name, 0)) for name in SEMANTIC_DRIFT_CLASSES) / (total * max_weight)
+                    weighted_sum += score
+                    considered += 1
+                if considered == 0:
+                    return {"density": 0.0, "window": len(entries), "considered": 0}
+                return {"density": round(weighted_sum / considered, 6), "window": len(entries), "considered": considered}
+
+            @classmethod
+            def _epoch_chain_anchors(cls, timeline: List[Dict], window: int = 50) -> Dict[str, Dict[str, str]]:
+                anchors: Dict[str, Dict[str, str]] = {}
+                previous_anchor = "sha256:" + ("0" * 64)
+                for entry in timeline[-window:]:
+                    epoch_id = str(entry.get("epoch") or "").strip()
+                    if not epoch_id:
+                        continue
+                    payload = {
+                        "epoch": epoch_id,
+                        "mutation_id": str(entry.get("mutation_id") or ""),
+                        "timestamp": str(entry.get("timestamp") or ""),
+                        "risk_tier": str(entry.get("risk_tier") or ""),
+                        "fitness_score": entry.get("fitness_score", 0.0),
+                        "previous_anchor": previous_anchor,
+                    }
+                    anchor = cls._state_fingerprint(payload)
+                    anchors[epoch_id] = {"anchor": anchor, "previous_anchor": previous_anchor}
+                    previous_anchor = anchor
+                return anchors
+
+            @classmethod
+            def _policy_simulation(cls, query: Dict[str, List[str]]) -> Dict:
+                policy_name = query.get("policy", ["governance_policy_v1.json"])[0].strip() or "governance_policy_v1.json"
+                policy_path = Path("governance") / Path(policy_name).name
+                try:
+                    candidate = load_governance_policy(policy_path)
+                except GovernancePolicyError as exc:
+                    return {"ok": False, "error": "policy_load_failed", "detail": str(exc), "policy": policy_name}
+
+                score_raw = query.get("determinism_score", [""])[0].strip()
+                limiter_raw = query.get("rate_limiter_ok", [""])[0].strip().lower()
+                if score_raw:
+                    try:
+                        score = float(score_raw)
+                    except ValueError:
+                        return {"ok": False, "error": "invalid_determinism_score", "value": score_raw}
+                else:
+                    score = float(cls._intelligence_snapshot().get("determinism_score", 1.0))
+                if limiter_raw in {"true", "1", "yes"}:
+                    rate_limiter_ok = True
+                elif limiter_raw in {"false", "0", "no"}:
+                    rate_limiter_ok = False
+                else:
+                    rate_limiter_ok = bool(cls._mutation_rate_state().get("ok", True))
+
+                def _health(policy_obj):
+                    if score >= policy_obj.thresholds.determinism_pass and rate_limiter_ok:
+                        return "PASS"
+                    if score >= policy_obj.thresholds.determinism_warn:
+                        return "WARN"
+                    return "BLOCK"
+
+                current_health = _health(GOVERNANCE_POLICY)
+                simulated_health = _health(candidate)
+                return {
+                    "ok": True,
+                    "inputs": {
+                        "determinism_score": score,
+                        "rate_limiter_ok": rate_limiter_ok,
+                    },
+                    "current_policy": {
+                        "path": str(Path("governance") / "governance_policy_v1.json"),
+                        "fingerprint": GOVERNANCE_POLICY.fingerprint,
+                        "health": current_health,
+                    },
+                    "simulated_policy": {
+                        "path": str(policy_path),
+                        "fingerprint": candidate.fingerprint,
+                        "health": simulated_health,
+                    },
+                }
+
+            @classmethod
+            def _risk_instability(cls) -> Dict:
+                risk = cls._risk_summary()
+                timeline = cls._evolution_timeline()
+                recent = timeline[-20:]
+                weighted_drift = cls._semantic_drift_weighted_density(timeline, window=10)
+                drift_density = float(weighted_drift.get("density", 0.0))
+
+                momentum_window = 20
+                momentum_span = timeline[-(momentum_window * 3):]
+                density_windows = [
+                    cls._semantic_drift_density(momentum_span[idx:idx + momentum_window])
+                    for idx in range(0, len(momentum_span), momentum_window)
+                    if len(momentum_span[idx:idx + momentum_window]) == momentum_window
+                ]
+                if len(density_windows) >= 2:
+                    instability_velocity = round(density_windows[-1] - density_windows[-2], 6)
+                else:
+                    instability_velocity = 0.0
+                if len(density_windows) >= 3:
+                    instability_acceleration = round(density_windows[-1] - 2 * density_windows[-2] + density_windows[-3], 6)
+                else:
+                    instability_acceleration = 0.0
+
+                drift_successes = sum(1 for entry in recent if str(entry.get("risk_tier", "")).lower() in {"high", "critical", "unknown"})
+                confidence_interval = cls._risk_instability_confidence_interval(drift_successes, len(recent))
+
+                instability = (
+                    INSTABILITY_WEIGHTS["semantic_drift"] * drift_density
+                    + INSTABILITY_WEIGHTS["replay_failure"] * float(risk.get("replay_failure_rate", 0.0))
+                    + INSTABILITY_WEIGHTS["escalation"] * float(risk.get("escalation_frequency", 0.0))
+                    + INSTABILITY_WEIGHTS["determinism_drift"] * float(risk.get("determinism_drift_index", 0.0))
+                )
+                instability_index = min(1.0, max(0.0, round(instability, 6)))
+                velocity_spike = abs(instability_velocity) >= VELOCITY_SPIKE_THRESHOLD
+                return {
+                    "instability_index": instability_index,
+                    "instability_velocity": instability_velocity,
+                    "instability_acceleration": instability_acceleration,
+                    "velocity_spike_anomaly": velocity_spike,
+                    "velocity_anomaly_mode": "absolute_delta",
+                    "confidence_interval": confidence_interval,
+                    "weights": dict(INSTABILITY_WEIGHTS),
+                    "drift_class_weights": dict(DRIFT_CLASS_WEIGHTS),
+                    "inputs": {
+                        "semantic_drift_density": drift_density,
+                        "replay_failure_rate": float(risk.get("replay_failure_rate", 0.0)),
+                        "escalation_frequency": float(risk.get("escalation_frequency", 0.0)),
+                        "determinism_drift_index": float(risk.get("determinism_drift_index", 0.0)),
+                        "timeline_window": len(recent),
+                        "momentum_window": momentum_window,
+                        "drift_window": int(weighted_drift.get("window", 0)),
+                        "drift_considered_epochs": int(weighted_drift.get("considered", 0)),
+                    },
+                }
+
+            @classmethod
+            def _alerts_evaluate(cls) -> Dict:
+                instability = cls._risk_instability()
+                risk = cls._risk_summary()
+                critical: List[Dict] = []
+                warning: List[Dict] = []
+                info: List[Dict] = []
+
+                instability_index = float(instability.get("instability_index", 0.0))
+                replay_failure_rate = float(risk.get("replay_failure_rate", 0.0))
+                velocity_spike = bool(instability.get("velocity_spike_anomaly", False))
+
+                if instability_index >= ALERT_THRESHOLDS["instability_critical"]:
+                    critical.append({"code": "instability_critical", "value": instability_index})
+                elif instability_index >= ALERT_THRESHOLDS["instability_warning"]:
+                    warning.append({"code": "instability_warning", "value": instability_index})
+
+                if replay_failure_rate >= ALERT_THRESHOLDS["replay_failure_warning"]:
+                    warning.append({"code": "replay_failure_warning", "value": replay_failure_rate})
+
+                if ALERT_THRESHOLDS["velocity_spike"] and velocity_spike:
+                    info.append(
+                        {
+                            "code": "instability_velocity_spike",
+                            "value": float(instability.get("instability_velocity", 0.0)),
+                            "mode": str(instability.get("velocity_anomaly_mode", "absolute_delta")),
+                        }
+                    )
+
+                return {
+                    "critical": critical,
+                    "warning": warning,
+                    "info": info,
+                    "thresholds": dict(ALERT_THRESHOLDS),
+                    "inputs": {
+                        "instability_index": instability_index,
+                        "replay_failure_rate": replay_failure_rate,
+                        "velocity_spike_anomaly": velocity_spike,
+                    },
+                }
+
+            @staticmethod
             def _state_fingerprint(value) -> str:
                 canonical = json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
                 return f"sha256:{sha256(canonical.encode('utf-8')).hexdigest()}"
 
             @classmethod
             def _replay_diff(cls, epoch_id: str) -> Dict:
-                epoch = replay.reconstruct_epoch(epoch_id)
+                epoch = cls._replay_engine.reconstruct_epoch(epoch_id)
                 if not epoch.get("bundles") and not epoch.get("initial_state") and not epoch.get("final_state"):
                     return {"ok": False, "error": "epoch_not_found", "epoch_id": epoch_id}
                 initial_state = epoch.get("initial_state") or {}
@@ -358,8 +637,48 @@ class AponiDashboard:
                     "changed_keys": changed_keys,
                     "added_keys": added_keys,
                     "removed_keys": removed_keys,
+                    "semantic_drift": cls._semantic_drift(changed_keys=changed_keys, added_keys=added_keys, removed_keys=removed_keys),
+                    "epoch_chain_anchor": cls._epoch_chain_anchors(cls._evolution_timeline()).get(epoch_id, {}),
                     "bundle_count": len(epoch.get("bundles") or []),
                 }
+
+            @staticmethod
+            def _semantic_drift_class_for_key(key: str) -> str:
+                normalized = key.strip().lower()
+                governance_prefixes = ("constitution", "policy", "governance", "founders_law", "founderslaw")
+                trait_prefixes = ("trait", "traits")
+                runtime_artifact_prefixes = (
+                    "runtime",
+                    "artifact",
+                    "artifacts",
+                    "checkpoint",
+                    "checkpoints",
+                    "metric",
+                    "metrics",
+                    "telemetry",
+                )
+                config_prefixes = ("config", "settings", "env", "feature_flags")
+
+                if normalized.startswith(governance_prefixes) or "constitution" in normalized or "policy" in normalized:
+                    return "governance_drift"
+                if normalized.startswith(trait_prefixes):
+                    return "trait_drift"
+                if normalized.startswith(runtime_artifact_prefixes):
+                    return "runtime_artifact_drift"
+                if normalized.startswith(config_prefixes):
+                    return "config_drift"
+                return "uncategorized_drift"
+
+            @classmethod
+            def _semantic_drift(cls, *, changed_keys: List[str], added_keys: List[str], removed_keys: List[str]) -> Dict:
+                all_keys = sorted(set(changed_keys) | set(added_keys) | set(removed_keys))
+                assignments: Dict[str, str] = {}
+                class_counts = {drift_class: 0 for drift_class in SEMANTIC_DRIFT_CLASSES}
+                for key in all_keys:
+                    drift_class = cls._semantic_drift_class_for_key(key)
+                    assignments[key] = drift_class
+                    class_counts[drift_class] += 1
+                return {"class_counts": class_counts, "per_key": assignments}
 
             @staticmethod
             def _replay_divergence() -> Dict:
@@ -367,11 +686,7 @@ class AponiDashboard:
                 divergence_events = [
                     entry
                     for entry in recent
-                    if "replay" in str(entry.get("event", "")).lower()
-                    and (
-                        "diverg" in str(entry.get("event", "")).lower()
-                        or "fail" in str(entry.get("event", "")).lower()
-                    )
+                    if normalize_event_type(entry) in {EVENT_TYPE_REPLAY_DIVERGENCE, EVENT_TYPE_REPLAY_FAILURE}
                 ]
                 return {
                     "window": 200,
@@ -426,6 +741,7 @@ class AponiDashboard:
     <section><h2>System state</h2><pre id=\"state\">Loading...</pre></section>
     <section><h2>Intelligence snapshot</h2><pre id=\"intelligence\">Loading...</pre></section>
     <section><h2>Risk summary</h2><pre id=\"risk\">Loading...</pre></section>
+    <section><h2>Risk instability</h2><pre id=\"instability\">Loading...</pre></section>
     <section><h2>Replay divergence</h2><pre id=\"replay\">Loading...</pre></section>
     <section><h2>Evolution timeline (latest)</h2><pre id=\"timeline\">Loading...</pre></section>
   </main>
@@ -438,6 +754,7 @@ class AponiDashboard:
             def _user_console_js() -> str:
                 return """async function paint(id, endpoint) {
   const el = document.getElementById(id);
+  if (!el) return;
   try {
     const response = await fetch(endpoint, { cache: 'no-store' });
     const payload = await response.json();
@@ -452,6 +769,7 @@ async function refresh() {
     paint('state', '/state'),
     paint('intelligence', '/system/intelligence'),
     paint('risk', '/risk/summary'),
+    paint('instability', '/risk/instability'),
     paint('replay', '/replay/divergence'),
     paint('timeline', '/evolution/timeline'),
   ]);
@@ -471,6 +789,11 @@ setInterval(refresh, 5000);
 
 
 def main(argv: list[str] | None = None) -> int:
+    try:
+        load_governance_policy()
+    except GovernancePolicyError as exc:
+        raise SystemExit(f"[APONI] governance policy load failed: {exc}") from exc
+
     parser = argparse.ArgumentParser(description="Run Aponi dashboard in standalone mode.")
     parser.add_argument("--host", default=os.environ.get("APONI_HOST", "0.0.0.0"), help="Host interface to bind (env: APONI_HOST)")
     parser.add_argument("--port", type=int, default=int(os.environ.get("APONI_PORT", "8080")), help="Port to bind (env: APONI_PORT)")
@@ -480,7 +803,7 @@ def main(argv: list[str] | None = None) -> int:
     dashboard.start({"status": "dashboard_only"})
     print(f"[APONI] dashboard running on http://{dashboard.host}:{dashboard.port}")
     print(
-        "[APONI] endpoints: / /state /metrics /fitness /system/intelligence /risk/summary /replay/divergence /replay/diff?epoch_id=... "
+        "[APONI] endpoints: / /state /metrics /fitness /system/intelligence /risk/summary /risk/instability /policy/simulate /alerts/evaluate /replay/divergence /replay/diff?epoch_id=... "
         "/capabilities /lineage /mutations /staging /evolution/epoch?epoch_id=... /evolution/live /evolution/active /evolution/timeline"
     )
     try:
