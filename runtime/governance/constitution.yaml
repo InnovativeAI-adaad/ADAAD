@@ -114,6 +114,16 @@
       "tier_overrides": {},
       "reason": "Mutation cannot exceed memory/CPU/time budgets",
       "validator": "resource_bounds"
+    },
+    {
+      "name": "entropy_budget_limit",
+      "enabled": true,
+      "severity": "warning",
+      "tier_overrides": {
+        "PRODUCTION": "blocking"
+      },
+      "reason": "Prevent entropy budget overruns per mutation",
+      "validator": "entropy_budget_limit"
     }
   ]
 }

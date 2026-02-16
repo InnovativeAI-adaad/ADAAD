@@ -5,13 +5,13 @@ from __future__ import annotations
 
 import json
 import os
-import uuid
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict
 
 from runtime import ROOT_DIR
 from runtime.constitution import CONSTITUTION_VERSION, POLICY_HASH
+from runtime.governance.foundation import default_provider
 from runtime.governance.foundation.hashing import sha256_prefixed_digest
 from runtime.timeutils import now_iso
 
@@ -66,7 +66,8 @@ def _mutation_sampling_from_env() -> Dict[str, Any]:
 
 
 def create_baseline(*, epoch_id: str, replay_mode: str, recovery_tier: str) -> BaselineRecord:
-    baseline_id = f"baseline-{uuid.uuid4().hex[:12]}"
+    provider = default_provider()
+    baseline_id = f"baseline-{provider.next_id(label=f'baseline:{epoch_id}', length=12)}"
     material = {
         "baseline_id": baseline_id,
         "epoch_id": epoch_id,

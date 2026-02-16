@@ -1,0 +1,22 @@
+name: Entropy Health
+
+on:
+  schedule:
+    - cron: "17 4 * * *"
+  workflow_dispatch:
+
+jobs:
+  profile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Profile entropy baseline
+        run: |
+          PYTHONPATH=. python tools/profile_entropy_baseline.py --lookback 100 --json > entropy-baseline.json
+          cat entropy-baseline.json
+      - name: Fail on drift or overflow
+        run: |
+          PYTHONPATH=. python tools/profile_entropy_baseline.py --lookback 100 --fail-on-drift --fail-on-overflow

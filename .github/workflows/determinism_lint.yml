@@ -1,0 +1,23 @@
+name: Determinism Lint
+
+on:
+  pull_request:
+    paths:
+      - "runtime/governance/**"
+      - "runtime/evolution/**"
+      - "runtime/autonomy/**"
+      - "security/**"
+      - "app/main.py"
+      - "tools/lint_determinism.py"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Run determinism lint
+        run: |
+          python tools/lint_determinism.py runtime/ security/ app/main.py

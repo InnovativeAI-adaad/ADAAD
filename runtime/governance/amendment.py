@@ -6,12 +6,12 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import List
 
 from runtime import ROOT_DIR
 from runtime.constitution import CONSTITUTION_VERSION, reload_constitution_policy
+from runtime.governance.foundation import default_provider
 from security.ledger import journal
 
 
@@ -36,12 +36,13 @@ class AmendmentEngine:
         self.required_approvals = required_approvals
 
     def propose_amendment(self, *, proposer: str, new_policy_text: str, rationale: str, old_policy_hash: str) -> AmendmentProposal:
+        provider = default_provider()
         new_hash = hashlib.sha256(new_policy_text.encode("utf-8")).hexdigest()
-        proposal_id = f"amendment-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
+        proposal_id = f"amendment-{provider.format_utc('%Y%m%dT%H%M%SZ')}"
         proposal = AmendmentProposal(
             proposal_id=proposal_id,
             proposer=proposer,
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=provider.iso_now(),
             old_policy_hash=old_policy_hash,
             new_policy_text=new_policy_text,
             new_policy_hash=new_hash,

@@ -11,6 +11,7 @@ from runtime.evolution.epoch import EpochManager
 from runtime.evolution.governor import EvolutionGovernor
 from runtime.evolution.lineage_v2 import LineageLedgerV2
 from runtime.evolution.promotion_manifest import PromotionManifestWriter
+from runtime.evolution.runtime import EvolutionRuntime
 from runtime.governance.foundation import SeededDeterminismProvider, SystemDeterminismProvider
 from runtime.recovery.ledger_guardian import SnapshotManager
 
@@ -159,6 +160,76 @@ def test_strict_mode_rejects_live_provider_for_governor(tmp_path: Path) -> None:
 
 def test_strict_mode_rejects_live_provider_for_executor() -> None:
     executor = MutationExecutor(Path("/tmp"), provider=SystemDeterminismProvider())
-    executor.evolution_runtime.set_replay_mode("strict")
     with pytest.raises(RuntimeError, match="strict_replay_requires_deterministic_provider"):
-        executor._build_mutation_id(_request(), "epoch-1")
+        executor.evolution_runtime.set_replay_mode("strict")
+
+
+def test_seeded_provider_protocol_methods_are_deterministic() -> None:
+    provider_a = SeededDeterminismProvider(seed="proto-seed")
+    provider_b = SeededDeterminismProvider(seed="proto-seed")
+
+    assert provider_a.next_id(label="mutation", length=12) == provider_b.next_id(
+        label="mutation", length=12
+    )
+    assert provider_a.next_token(label="checkpoint", length=10) == provider_b.next_token(
+        label="checkpoint", length=10
+    )
+    assert provider_a.next_int(low=10, high=20, label="snapshot") == provider_b.next_int(
+        low=10, high=20, label="snapshot"
+    )
+
+
+def test_seeded_provider_protocol_methods_vary_by_label_and_bounds() -> None:
+    provider = SeededDeterminismProvider(seed="proto-seed")
+
+    id_alpha = provider.next_id(label="alpha", length=8)
+    id_beta = provider.next_id(label="beta", length=8)
+    assert id_alpha != id_beta
+
+    token_alpha = provider.next_token(label="alpha", length=8)
+    token_beta = provider.next_token(label="beta", length=8)
+    assert token_alpha != token_beta
+
+    value = provider.next_int(low=3, high=7, label="bounded")
+    assert 3 <= value <= 7
+
+
+def test_evolution_runtime_reuses_injected_seeded_provider() -> None:
+    provider = SeededDeterminismProvider(seed="runtime-seed")
+    runtime = EvolutionRuntime(provider=provider)
+
+    assert runtime.governor.provider is provider
+    assert runtime.epoch_manager.provider is provider
+    assert runtime.checkpoint_registry.provider is provider
+
+
+def test_evolution_runtime_strict_mode_rejects_system_provider() -> None:
+    runtime = EvolutionRuntime(provider=SystemDeterminismProvider())
+
+    with pytest.raises(RuntimeError, match="strict_replay_requires_deterministic_provider"):
+        runtime.set_replay_mode("strict")
+
+
+def test_mutation_executor_rejects_provider_mismatch_with_injected_runtime() -> None:
+    runtime = EvolutionRuntime(provider=SeededDeterminismProvider(seed="runtime-seed"))
+
+    with pytest.raises(ValueError, match="provider_mismatch_with_evolution_runtime"):
+        MutationExecutor(
+            Path("/tmp"),
+            evolution_runtime=runtime,
+            provider=SeededDeterminismProvider(seed="other-seed"),
+        )
+
+
+def test_seeded_provider_output_is_call_order_independent() -> None:
+    provider_a = SeededDeterminismProvider(seed="order-seed")
+    provider_b = SeededDeterminismProvider(seed="order-seed")
+
+    first_a = provider_a.next_id(label="first", length=10)
+    second_a = provider_a.next_token(label="second", length=10)
+
+    second_b = provider_b.next_token(label="second", length=10)
+    first_b = provider_b.next_id(label="first", length=10)
+
+    assert first_a == first_b
+    assert second_a == second_b

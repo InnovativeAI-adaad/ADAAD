@@ -11,6 +11,7 @@ from runtime.governance.foundation import (
     sha256_digest,
     sha256_prefixed_digest,
     ZERO_HASH,
+    now_iso,
     utc_now_iso,
     utc_timestamp_label,
 )
@@ -26,6 +27,7 @@ __all__ = [
     "sha256_digest",
     "sha256_prefixed_digest",
     "ZERO_HASH",
+    "now_iso",
     "utc_now_iso",
     "utc_timestamp_label",
 ]

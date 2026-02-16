@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import contextlib
+import os
 import unittest
 from unittest import mock
 
@@ -49,6 +50,16 @@ class OrchestratorReplayModeTest(unittest.TestCase):
             stack.enter_context(mock.patch.object(Orchestrator, "_register_capabilities"))
             stack.enter_context(mock.patch.object(Orchestrator, "_init_ui"))
             stack.enter_context(mock.patch("app.main.metrics.log"))
+            stack.enter_context(
+                mock.patch.dict(
+                    os.environ,
+                    {
+                        "ADAAD_FORCE_DETERMINISTIC_PROVIDER": "1",
+                        "ADAAD_DETERMINISTIC_SEED": "orchestrator-test-seed",
+                    },
+                    clear=False,
+                )
+            )
             yield dump
 
     def test_replay_off_skips_verification_and_continues_to_ready(self) -> None:

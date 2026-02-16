@@ -1,8 +1,10 @@
+from datetime import datetime, timezone
+
 # SPDX-License-Identifier: Apache-2.0
 
 from governance.foundation.canonical import canonical_json
 from governance.foundation.hashing import sha256_digest
-from runtime.governance.foundation.clock import utc_now_iso
+from runtime.governance.foundation.clock import now_iso, utc_now_iso
 
 
 def test_canonical_json_is_sorted_and_compact() -> None:
@@ -17,3 +19,8 @@ def test_sha256_digest_uses_canonical_payload() -> None:
 
 def test_utc_now_iso_has_z_suffix() -> None:
     assert utc_now_iso().endswith("Z")
+
+
+def test_now_iso_alias_matches_utc_now_iso() -> None:
+    fixed_now = datetime(2026, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+    assert now_iso(fixed_now) == utc_now_iso(fixed_now)

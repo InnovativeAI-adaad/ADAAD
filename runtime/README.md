@@ -34,3 +34,9 @@ Deterministic replay-sensitive entry points now consume a shared provider abstra
 
 - Founders-law governance model implementation for federation compatibility: `runtime/governance/founders_law_v2.py` (`docs/governance/founders_law_v2.md`).
 
+
+## Determinism and boundary enforcement
+
+- Governance-critical paths (`runtime/governance/`, `runtime/evolution/`, `runtime/autonomy/`, `security/`) are enforced by `tools/lint_determinism.py` as a primary verification gate in `scripts/verify_core.py` and `scripts/verify_core.sh`.
+- The determinism lint blocks dynamic execution/import primitives (`eval`, `exec`, `compile`, `__import__`, `importlib.import_module`) including importlib alias forms.
+- Runtime import boundary blocking uses a PEP 451 `MetaPathFinder`/loader (`runtime/import_guard.py`) and is only activated in explicit strict/test contexts (`ADAAD_RUNTIME_IMPORT_GUARD=strict|test`, `ADAAD_REPLAY_MODE=strict`, or test execution), so normal runtime imports remain unaffected by default.

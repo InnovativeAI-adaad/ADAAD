@@ -53,9 +53,17 @@ class MutationExecutor:
         provider: RuntimeDeterminismProvider | None = None,
     ) -> None:
         self.agents_root = agents_root
-        self.evolution_runtime = evolution_runtime or EvolutionRuntime()
+        if evolution_runtime is None:
+            resolved_provider = provider or default_provider()
+            self.evolution_runtime = EvolutionRuntime(provider=resolved_provider)
+        else:
+            self.evolution_runtime = evolution_runtime
+            runtime_provider = self.evolution_runtime.governor.provider
+            if provider is not None and provider is not runtime_provider:
+                raise ValueError("provider_mismatch_with_evolution_runtime")
+            resolved_provider = runtime_provider
         self.governor = self.evolution_runtime.governor
-        self.provider = provider or default_provider()
+        self.provider = resolved_provider
         self.test_sandbox = TestSandbox(root_dir=ROOT_DIR, timeout_s=60)
         self.hardened_sandbox = HardenedSandboxExecutor(self.test_sandbox, provider=self.provider)
         self.impact_predictor = ImpactPredictor(agents_root)

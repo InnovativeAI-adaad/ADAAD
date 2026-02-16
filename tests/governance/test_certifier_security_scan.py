@@ -39,3 +39,13 @@ def test_token_redacted(tmp_path: Path, monkeypatch) -> None:
     cert = GateCertifier().certify(target, {"cryovant_token": "SENSITIVE"})
     assert cert["passed"] is True
     assert "cryovant_token" not in cert.get("metadata", {})
+
+
+def test_generated_at_uses_injected_clock(tmp_path: Path, monkeypatch) -> None:
+    target = tmp_path / "ok3.py"
+    target.write_text("print('ok')\n", encoding="utf-8")
+    monkeypatch.setattr("security.cryovant.verify_session", lambda token: True)
+    cert = GateCertifier(clock_now_iso=lambda: "2030-01-01T00:00:00Z").certify(
+        target, {"cryovant_token": "fixed"}
+    )
+    assert cert["generated_at"] == "2030-01-01T00:00:00Z"
