@@ -119,5 +119,36 @@ class EvolutionGovernorTest(unittest.TestCase):
         self.assertTrue(replay.assert_reachable("epoch-1", run1["digest"]))
 
 
+    def test_entropy_budget_reads_env_when_arg_omitted(self) -> None:
+        with mock.patch.dict("os.environ", {"ADAAD_GOVERNOR_ENTROPY_BUDGET": "7"}, clear=False):
+            governor = EvolutionGovernor(ledger=self.ledger, max_impact=0.99)
+        self.assertEqual(governor.entropy_budget, 7)
+
+    def test_entropy_budget_arg_overrides_env(self) -> None:
+        with mock.patch.dict("os.environ", {"ADAAD_GOVERNOR_ENTROPY_BUDGET": "7"}, clear=False):
+            governor = EvolutionGovernor(ledger=self.ledger, max_impact=0.99, entropy_budget=3)
+        self.assertEqual(governor.entropy_budget, 3)
+
+    def test_entropy_budget_invalid_env_falls_back_to_default(self) -> None:
+        with mock.patch.dict("os.environ", {"ADAAD_GOVERNOR_ENTROPY_BUDGET": "not-an-int"}, clear=False):
+            governor = EvolutionGovernor(ledger=self.ledger, max_impact=0.99)
+        self.assertEqual(governor.entropy_budget, 100)
+
+
+    def test_entropy_budget_strict_mode_requires_env_or_argument(self) -> None:
+        with mock.patch.dict("os.environ", {"ADAAD_SOVEREIGN_MODE": "strict"}, clear=True):
+            with self.assertRaisesRegex(ValueError, "entropy_budget_required_in_strict_sovereign_mode"):
+                EvolutionGovernor(ledger=self.ledger, max_impact=0.99)
+
+    def test_entropy_budget_strict_mode_rejects_invalid_env(self) -> None:
+        with mock.patch.dict(
+            "os.environ",
+            {"ADAAD_SOVEREIGN_MODE": "strict", "ADAAD_GOVERNOR_ENTROPY_BUDGET": "not-an-int"},
+            clear=True,
+        ):
+            with self.assertRaisesRegex(ValueError, "invalid_entropy_budget_in_strict_sovereign_mode"):
+                EvolutionGovernor(ledger=self.ledger, max_impact=0.99)
+
+
 if __name__ == "__main__":
     unittest.main()

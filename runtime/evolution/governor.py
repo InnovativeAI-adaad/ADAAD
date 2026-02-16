@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import threading
 from dataclasses import dataclass
 from enum import Enum
@@ -56,8 +57,27 @@ class EvolutionGovernor:
         *,
         replay_mode: str = "off",
         provider: RuntimeDeterminismProvider | None = None,
-        entropy_budget: int = 100,
+        entropy_budget: int | None = None,
     ) -> None:
+        sovereign_mode = os.getenv("ADAAD_SOVEREIGN_MODE", "").strip().lower()
+        strict_sovereign_mode = sovereign_mode == "strict"
+
+        if entropy_budget is not None:
+            resolved_entropy_budget: int | str = entropy_budget
+        else:
+            env_entropy_budget = os.getenv("ADAAD_GOVERNOR_ENTROPY_BUDGET")
+            if env_entropy_budget is None:
+                if strict_sovereign_mode:
+                    raise ValueError("entropy_budget_required_in_strict_sovereign_mode")
+                resolved_entropy_budget = 100
+            else:
+                try:
+                    resolved_entropy_budget = int(env_entropy_budget)
+                except (TypeError, ValueError):
+                    if strict_sovereign_mode:
+                        raise ValueError("invalid_entropy_budget_in_strict_sovereign_mode")
+                    resolved_entropy_budget = 100
+
         self.ledger = ledger or LineageLedgerV2()
         self.impact_scorer = impact_scorer or ImpactScorer()
         self.max_impact = max_impact
@@ -66,7 +86,7 @@ class EvolutionGovernor:
         self.fail_closed = False
         self.fail_closed_reason = ""
         self.recovery_tier = RecoveryTier.SOFT
-        self.entropy_budget = max(0, int(entropy_budget))
+        self.entropy_budget = max(0, int(resolved_entropy_budget))
         self._validation_lock = threading.RLock()
 
     def validate_bundle(self, request: MutationRequest, epoch_id: str) -> GovernanceDecision:

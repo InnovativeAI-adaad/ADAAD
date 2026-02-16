@@ -49,6 +49,27 @@ FORBIDDEN_ENTROPY_CALLS: tuple[tuple[str, ...], ...] = (
     ("time", "time"),
 )
 
+FILESYSTEM_ENFORCED_PREFIXES: tuple[str, ...] = (
+    "runtime/governance/",
+    "runtime/evolution/",
+)
+FILESYSTEM_ALLOWLIST_WRAPPERS: frozenset[str] = frozenset(
+    {
+        "read_file_deterministic",
+        "listdir_deterministic",
+        "walk_deterministic",
+        "glob_deterministic",
+        "find_files_deterministic",
+    }
+)
+FORBIDDEN_FILESYSTEM_CALLS: tuple[tuple[str, ...], ...] = (
+    ("open",),
+    ("os", "listdir"),
+    ("os", "walk"),
+    ("glob", "glob"),
+)
+FORBIDDEN_PATH_METHODS: frozenset[str] = frozenset({"read_text", "read_bytes", "open", "glob", "rglob"})
+
 
 @dataclass(frozen=True)
 class LintIssue:
@@ -170,6 +191,63 @@ def _iter_entropy_issues(path: Path, tree: ast.AST, module_aliases: dict[str, st
                 yield LintIssue(path, getattr(node, "lineno", 1), getattr(node, "col_offset", 0), "forbidden_entropy_source")
 
 
+def _is_filesystem_enforced(path: Path) -> bool:
+    normalized = _path_as_posix(path)
+    return any(normalized.endswith(prefix.removesuffix("/")) or f"/{prefix}" in normalized for prefix in FILESYSTEM_ENFORCED_PREFIXES)
+
+
+def _function_scope_by_line(tree: ast.AST) -> dict[int, str]:
+    scope_by_line: dict[int, str] = {}
+    for node in ast.walk(tree):
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        start = getattr(node, "lineno", None)
+        end = getattr(node, "end_lineno", None)
+        if start is None or end is None:
+            continue
+        for line in range(start, end + 1):
+            scope_by_line.setdefault(line, node.name)
+    return scope_by_line
+
+
+def _is_forbidden_filesystem_call(node: ast.Call, module_aliases: dict[str, str]) -> bool:
+    path_parts = _call_path(node.func)
+    if not path_parts:
+        return False
+
+    normalized = path_parts
+    if len(path_parts) >= 2:
+        head, tail = path_parts[0], path_parts[1:]
+        normalized = (module_aliases.get(head, head),) + tail
+
+    if any(normalized == forbidden for forbidden in FORBIDDEN_FILESYSTEM_CALLS):
+        return True
+
+    if isinstance(node.func, ast.Attribute) and node.func.attr in FORBIDDEN_PATH_METHODS:
+        return True
+
+    return False
+
+
+def _iter_filesystem_issues(path: Path, tree: ast.AST, module_aliases: dict[str, str]) -> Iterable[LintIssue]:
+    if not _is_filesystem_enforced(path):
+        return
+
+    function_scope_by_line = _function_scope_by_line(tree)
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        if not _is_forbidden_filesystem_call(node, module_aliases):
+            continue
+
+        line = getattr(node, "lineno", 1)
+        scope_name = function_scope_by_line.get(line)
+        if scope_name in FILESYSTEM_ALLOWLIST_WRAPPERS:
+            continue
+
+        yield LintIssue(path, line, getattr(node, "col_offset", 0), "forbidden_nondeterministic_filesystem_api")
+
+
 def _lint_file(path: Path) -> list[LintIssue]:
     try:
         content = path.read_text(encoding="utf-8")
@@ -195,6 +273,7 @@ def _lint_file(path: Path) -> list[LintIssue]:
             issues.append(LintIssue(path, line, col, "forbidden_dynamic_execution"))
 
     issues.extend(_iter_entropy_issues(path, tree, module_aliases) or [])
+    issues.extend(_iter_filesystem_issues(path, tree, module_aliases) or [])
     return issues
 
 

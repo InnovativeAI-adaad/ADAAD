@@ -117,6 +117,11 @@ Expected status in this repository branch: all tests passing (with one known col
 | Replay proofs | Replay preflight/runtime harnesses in `runtime/evolution/*`, attestation builder `runtime/evolution/replay_attestation.py`, and determinism tests in `tests/determinism/test_replay_*` | Implemented baseline | Deterministic replay verification + signed attestations validated in-tree; external trust-root hardening remains roadmap |
 | Federation | Deterministic federation coordination primitives in `runtime/governance/federation/*` with governance precedence resolution and tests in `tests/governance/test_federation_coordination.py` | Implemented baseline | Coordination + precedence behavior validated in-tree; distributed transport/protocol hardening remains roadmap |
 
+## Phase 2 Migration Checklist
+
+- Treat `tools/lint_determinism.py` as the canonical migration gate for governance/evolution determinism hardening.
+- Phase 2 migration completion requires a clean determinism lint run with no forbidden nondeterministic filesystem API usage in `runtime/governance/` and `runtime/evolution/`.
+
 ## PR Milestone Reconciliation (PR-1 .. PR-6)
 
 | Milestone | Status in docs | Reconciled repository posture |

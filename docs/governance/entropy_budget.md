@@ -93,6 +93,37 @@ jq '.recommended_budget' "$latest"
 
 Budget updates must use the most recent baseline artifact only.
 
+Suggested CI smoke test snippet for entropy/governor + determinism coverage:
+
+```bash
+PYTHONPATH=. pytest -q \
+  tests/test_evolution_governor.py \
+  tests/test_entropy_budget.py \
+  tests/determinism/
+```
+
+## Phase 2 Tuning Decision Log (Append-Only)
+
+To avoid process drift, keep all Phase 2 historical decisions in this single section rather than creating standalone documents. Add one dated entry per approved tuning change and do not edit prior entries other than minor typo fixes.
+
+### 2026-02-16 — Phase 2 tuning decision
+
+- **Baseline artifact reference:** `reports/entropy_baseline_<YYYY-MM-DD>.json` (most recent artifact at decision time).
+- **Observed percentiles:**
+  - `p50`: `<value>`
+  - `p95`: `<value>`
+  - `p99`: `<value>`
+- **Formula and computed recommendation:**
+  - Formula: `recommended_budget = floor(p95 * 1.2 + 10)`
+  - Computation: `floor(<p95> * 1.2 + 10) = <recommended_budget>`
+- **Selected budget and approval metadata:**
+  - Selected budget: `<selected_budget>`
+  - Approver: `<name or role>`
+  - Approval channel: `<ticket/PR/change-request>`
+  - Approval timestamp (UTC): `<YYYY-MM-DDThh:mm:ssZ>`
+- **Applied commit link:** `<commit hash or URL>`
+
+When completing a real decision entry, resolve placeholders with exact values from the baseline JSON and the approval record.
 
 ## Post-Deployment Actions
 
@@ -100,6 +131,21 @@ Budget updates must use the most recent baseline artifact only.
 
   ```bash
   PYTHONPATH=. pytest -q tests/determinism/test_filesystem_wrapper_migration.py
+  ```
+
+- Suggested smoke verification:
+
+  ```bash
+  PYTHONPATH=. pytest -q \
+    tests/test_evolution_governor.py \
+    tests/test_entropy_budget.py \
+    tests/determinism/
+  ```
+
+- If triaging only entropy-related governor behavior:
+
+  ```bash
+  PYTHONPATH=. pytest -q tests/test_evolution_governor.py -k entropy
   ```
 
 - Week 2 baseline profiling and extraction:
