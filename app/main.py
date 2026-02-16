@@ -20,7 +20,6 @@ import json
 import os
 import re
 import sys
-import time
 from typing import Any, Dict, Optional
 
 from app import APP_ROOT
@@ -52,8 +51,15 @@ from runtime.founders_law import (
 )
 from runtime.invariants import verify_all
 from app.agents.discovery import agent_path_from_id, iter_agent_dirs, resolve_agent_id
-from runtime.constitution import CONSTITUTION_VERSION, determine_tier, evaluate_mutation, get_forced_tier
+from runtime.constitution import (
+    CONSTITUTION_VERSION,
+    determine_tier,
+    deterministic_envelope_scope,
+    evaluate_mutation,
+    get_forced_tier,
+)
 from runtime.fitness_v2 import score_mutation_enhanced
+from runtime.governance.foundation import default_provider
 from runtime.timeutils import now_iso
 from runtime.warm_pool import WarmPool
 from runtime.tools.mutation_guard import _apply_ops
@@ -420,7 +426,7 @@ class Orchestrator:
             return False, "no_signing_keys"
         max_age_days = int(os.getenv("ADAAD_KEY_ROTATION_MAX_AGE_DAYS", "90"))
         newest_mtime = max(path.stat().st_mtime for path in key_files)
-        age_days = (time.time() - newest_mtime) / 86400
+        age_days = (default_provider().now_utc().timestamp() - newest_mtime) / 86400
         if age_days > max_age_days:
             return False, f"keys_stale:{age_days:.1f}d>{max_age_days}d"
         return True, "ok"
@@ -496,7 +502,13 @@ class Orchestrator:
                 payload={"agent_id": selected.agent_id, "tier": tier.name},
                 level="INFO",
             )
-        constitutional_verdict = evaluate_mutation(selected, tier)
+        envelope_state = {
+            "epoch_id": active_epoch_id,
+            "epoch_entropy_bits": int(getattr(self.evolution_runtime, "epoch_cumulative_entropy_bits", 0) or 0),
+            "observed_entropy_bits": 0,
+        }
+        with deterministic_envelope_scope(envelope_state):
+            constitutional_verdict = evaluate_mutation(selected, tier)
         if not constitutional_verdict.get("passed"):
             metrics.log(
                 event_type="mutation_rejected_constitutional",

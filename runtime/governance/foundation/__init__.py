@@ -2,7 +2,7 @@
 """Governance foundation primitives."""
 
 from runtime.governance.foundation.canonical import canonical_json, canonical_json_bytes
-from runtime.governance.foundation.clock import utc_now_iso, utc_timestamp_label
+from runtime.governance.foundation.clock import now_iso, utc_now_iso, utc_timestamp_label
 from runtime.governance.foundation.determinism import (
     RuntimeDeterminismProvider,
     SeededDeterminismProvider,
@@ -23,6 +23,7 @@ __all__ = [
     "sha256_digest",
     "sha256_prefixed_digest",
     "ZERO_HASH",
+    "now_iso",
     "utc_now_iso",
     "utc_timestamp_label",
 ]

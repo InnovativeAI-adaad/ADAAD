@@ -3,9 +3,10 @@ from __future__ import annotations
 import ast
 import hashlib
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Set
+from typing import Callable, Dict, Set
+
+from runtime.governance.foundation.clock import utc_now_iso
 
 try:
     from security import cryovant
@@ -36,6 +37,7 @@ def _sha256_text(text: str) -> str:
 class GateCertifier:
     forbidden_tokens: Set[str] = field(default_factory=lambda: set(FORBIDDEN_TOKENS))
     banned_imports: Set[str] = field(default_factory=lambda: set(BANNED_IMPORTS))
+    clock_now_iso: Callable[[], str] = utc_now_iso
 
     def certify(self, file_path: Path, metadata: Dict[str, str] | None = None) -> Dict[str, object]:
         metadata = dict(metadata or {})
@@ -79,7 +81,7 @@ class GateCertifier:
         return {
             "status": "CERTIFIED" if passed else "REJECTED",
             "passed": passed,
-            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "generated_at": self.clock_now_iso(),
             "metadata": metadata,
             **kwargs,
         }

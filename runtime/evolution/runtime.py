@@ -14,13 +14,14 @@ from runtime.evolution.replay_mode import ReplayMode, normalize_replay_mode
 from runtime.evolution.replay_verifier import ReplayVerifier
 from runtime.evolution.checkpoint_registry import CheckpointRegistry
 from runtime.evolution.checkpoint_verifier import verify_checkpoint_chain
+from runtime.governance.foundation import RuntimeDeterminismProvider, require_replay_safe_provider
 
 
 class EvolutionRuntime:
-    def __init__(self) -> None:
+    def __init__(self, *, provider: RuntimeDeterminismProvider | None = None) -> None:
         self.ledger = LineageLedgerV2()
-        self.governor = EvolutionGovernor(ledger=self.ledger)
-        self.epoch_manager = EpochManager(self.governor, self.ledger)
+        self.governor = EvolutionGovernor(ledger=self.ledger, provider=provider)
+        self.epoch_manager = EpochManager(self.governor, self.ledger, provider=self.governor.provider)
         self.replay_mode = ReplayMode.OFF
         self.replay_engine = ReplayEngine(self.ledger)
         self.replay_verifier = ReplayVerifier(self.ledger, self.replay_engine)
@@ -49,6 +50,16 @@ class EvolutionRuntime:
         self.replay_mode = normalize_replay_mode(replay_mode)
         self.epoch_manager.replay_mode = self.replay_mode.value
         self.governor.replay_mode = self.replay_mode.value
+        require_replay_safe_provider(
+            self.governor.provider,
+            replay_mode=self.replay_mode.value,
+            recovery_tier=self.governor.recovery_tier.value,
+        )
+        require_replay_safe_provider(
+            self.epoch_manager.provider,
+            replay_mode=self.replay_mode.value,
+            recovery_tier=self.governor.recovery_tier.value,
+        )
         self.checkpoint_registry = CheckpointRegistry(
             self.ledger,
             provider=self.governor.provider,

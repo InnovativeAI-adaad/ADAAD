@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import threading
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, List
@@ -14,6 +15,13 @@ from runtime.evolution.checkpoint import checkpoint_digest
 from runtime.evolution.impact import ImpactScorer
 from runtime.evolution.lineage_v2 import EpochEndEvent, EpochStartEvent, LineageEvent, LineageLedgerV2
 from runtime.evolution.scoring import authority_threshold, clamp_score
+from runtime.governance.deterministic_envelope import (
+    EntropyBudgetExceeded,
+    EntropySource,
+    charge_entropy,
+    deterministic_envelope,
+    get_current_ledger,
+)
 from runtime.governance.foundation import RuntimeDeterminismProvider, default_provider, require_replay_safe_provider
 from runtime.timeutils import now_iso
 from security import cryovant
@@ -48,6 +56,7 @@ class EvolutionGovernor:
         *,
         replay_mode: str = "off",
         provider: RuntimeDeterminismProvider | None = None,
+        entropy_budget: int = 100,
     ) -> None:
         self.ledger = ledger or LineageLedgerV2()
         self.impact_scorer = impact_scorer or ImpactScorer()
@@ -57,8 +66,34 @@ class EvolutionGovernor:
         self.fail_closed = False
         self.fail_closed_reason = ""
         self.recovery_tier = RecoveryTier.SOFT
+        self.entropy_budget = max(0, int(entropy_budget))
+        self._validation_lock = threading.RLock()
 
     def validate_bundle(self, request: MutationRequest, epoch_id: str) -> GovernanceDecision:
+        with self._validation_lock:
+            try:
+                with deterministic_envelope(
+                    epoch_id=epoch_id or "unknown",
+                    budget=self.entropy_budget,
+                    provider=self.provider,
+                ) as entropy_ledger:
+                    decision = self._validate_bundle_internal(request, epoch_id)
+                    if decision.certificate:
+                        decision.certificate["entropy_consumed"] = entropy_ledger.consumed
+                        decision.certificate["entropy_budget"] = entropy_ledger.budget
+                        decision.certificate["entropy_overflow"] = entropy_ledger.overflow
+                    self._record_entropy_metrics(epoch_id, decision, entropy_ledger)
+                    return decision
+            except EntropyBudgetExceeded:
+                decision = GovernanceDecision(accepted=False, reason="entropy_budget_exceeded", replay_status="failed")
+                self._record_decision(request, epoch_id, decision, impact_score=0.0)
+                ledger = get_current_ledger()
+                if ledger is not None:
+                    self._record_entropy_metrics(epoch_id, decision, ledger)
+                return decision
+
+    def _validate_bundle_internal(self, request: MutationRequest, epoch_id: str) -> GovernanceDecision:
+        charge_entropy(EntropySource.PROVIDER, "governor_validate_bundle:start")
         if self.fail_closed:
             decision = GovernanceDecision(accepted=False, reason="governor_fail_closed", replay_status="failed")
             self._record_decision(request, epoch_id, decision, impact_score=0.0)
@@ -76,6 +111,7 @@ class EvolutionGovernor:
             self._record_decision(request, epoch_id, decision, impact_score=0.0)
             return decision
 
+        charge_entropy(EntropySource.PROVIDER, "governor_validate_bundle:signature_check")
         if not cryovant.signature_valid(request.signature or ""):
             decision = GovernanceDecision(accepted=False, reason="invalid_signature")
             self._record_decision(request, epoch_id, decision, impact_score=0.0)
@@ -87,6 +123,7 @@ class EvolutionGovernor:
             self._record_decision(request, epoch_id, decision, impact_score=0.0)
             return decision
 
+        charge_entropy(EntropySource.PROVIDER, "governor_validate_bundle:impact_score")
         impact = self.impact_scorer.score(request)
         impact_total = clamp_score(float(impact.total))
         if impact_total > self.max_impact:
@@ -104,6 +141,23 @@ class EvolutionGovernor:
         decision = GovernanceDecision(accepted=True, reason="accepted", certificate=certificate, replay_status="ok")
         self._record_decision(request, epoch_id, decision, impact_score=impact_total)
         return decision
+
+    def _record_entropy_metrics(self, epoch_id: str, decision: GovernanceDecision, ledger: Any) -> None:
+        from runtime import metrics
+
+        metrics.log(
+            event_type="entropy_envelope_usage",
+            payload={
+                "epoch_id": epoch_id,
+                "accepted": decision.accepted,
+                "reason": decision.reason,
+                "consumed": int(getattr(ledger, "consumed", 0) or 0),
+                "budget": int(getattr(ledger, "budget", 0) or 0),
+                "overflow": bool(getattr(ledger, "overflow", False)),
+                "remaining": int(getattr(ledger, "remaining", lambda: 0)() or 0),
+            },
+            level="INFO",
+        )
 
     def activate_certificate(self, epoch_id: str, bundle_id: str, activated: bool, reason: str) -> None:
         payload = {
@@ -214,6 +268,12 @@ class EvolutionGovernor:
             "impact_score": impact_score,
             "replay_status": decision.replay_status,
         }
+        entropy_ledger = get_current_ledger()
+        if entropy_ledger is not None:
+            payload["entropy_consumed"] = entropy_ledger.consumed
+            payload["entropy_budget"] = entropy_ledger.budget
+            payload["entropy_overflow"] = entropy_ledger.overflow
+
         if decision.certificate:
             payload["certificate"] = decision.certificate
             payload["bundle_id"] = decision.certificate.get("bundle_id")

@@ -22,7 +22,11 @@ from runtime.evolution.scoring_validator import validate_scoring_payload
 from runtime.evolution.replay_verifier import ReplayVerifier
 from runtime.evolution.replay_attestation import ReplayProofBuilder, verify_replay_proof_bundle
 from runtime.evolution.runtime import EvolutionRuntime
-from runtime.evolution.telemetry_audit import get_epoch_entropy_breakdown
+from runtime.evolution.telemetry_audit import (
+    detect_entropy_drift,
+    get_epoch_entropy_breakdown,
+    get_epoch_entropy_envelope_summary,
+)
 
 __all__ = [
     "EpochManager",
@@ -63,4 +67,6 @@ __all__ = [
     "verify_replay_proof_bundle",
     "EvolutionRuntime",
     "get_epoch_entropy_breakdown",
+    "get_epoch_entropy_envelope_summary",
+    "detect_entropy_drift",
 ]

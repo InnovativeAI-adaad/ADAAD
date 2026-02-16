@@ -17,10 +17,14 @@ Runtime package providing core utilities for the ADAAD orchestrator.
 
 from pathlib import Path
 
+from runtime.import_guard import install_runtime_import_guard
+
 ELEMENT_ID = "Earth"
 
 # Canonical repository root for governance tooling.
 REPO_ROOT = Path(__file__).resolve().parents[1]
 ROOT_DIR = REPO_ROOT
+
+install_runtime_import_guard()
 
 __all__ = ["ROOT_DIR", "REPO_ROOT", "ELEMENT_ID"]

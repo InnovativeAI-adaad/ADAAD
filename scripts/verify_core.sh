@@ -14,6 +14,8 @@ for dir in $REQUIRED_DIRS; do
   fi
 done
 
+python3 "${TARGET}/tools/lint_determinism.py"
+
 if command -v rg >/dev/null 2>&1; then
   SEARCH_PATHS=""
   for dir in app runtime security tests docs data reports scripts ui tools; do

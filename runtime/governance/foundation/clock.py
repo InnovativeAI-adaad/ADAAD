@@ -16,6 +16,12 @@ def utc_now_iso(now: datetime | None = None) -> str:
     return ts.astimezone(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
+def now_iso(now: datetime | None = None) -> str:
+    """Backward-compatible alias for :func:`utc_now_iso`."""
+
+    return utc_now_iso(now)
+
+
 def utc_timestamp_label(now: datetime | None = None) -> str:
     """Return compact UTC timestamp label for file names (YYYYmmddHHMMSS)."""
 
@@ -23,4 +29,4 @@ def utc_timestamp_label(now: datetime | None = None) -> str:
     return ts.astimezone(timezone.utc).strftime("%Y%m%d%H%M%S")
 
 
-__all__ = ["utc_now_iso", "utc_timestamp_label"]
+__all__ = ["utc_now_iso", "now_iso", "utc_timestamp_label"]

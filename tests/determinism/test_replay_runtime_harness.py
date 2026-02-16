@@ -10,6 +10,7 @@ from runtime.evolution.governor import EvolutionGovernor
 from runtime.evolution.lineage_v2 import LineageLedgerV2
 from runtime.evolution.replay import ReplayEngine
 from runtime.evolution.runtime import EvolutionRuntime
+from runtime.governance.foundation import SeededDeterminismProvider
 
 
 def _canonical_json(payload: dict) -> str:
@@ -67,7 +68,7 @@ def _run_replay_harness(tmp_path: Path, mutation_count: int) -> dict:
 
     runtime = EvolutionRuntime()
     runtime.ledger = ledger
-    runtime.governor = EvolutionGovernor(ledger=ledger)
+    runtime.governor = EvolutionGovernor(ledger=ledger, provider=SeededDeterminismProvider(seed="runtime-harness"))
     runtime.replay_engine = ReplayEngine(ledger)
 
     runtime.current_epoch_id = epoch_id

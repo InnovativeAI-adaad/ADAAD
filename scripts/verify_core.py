@@ -16,14 +16,25 @@ Cross-platform verification for ADAAD He65 rules.
 """
 
 import re
+import subprocess
 import sys
-from os import access, W_OK
+from os import W_OK, access
 from pathlib import Path
 
 TARGET = Path(__file__).resolve().parent.parent
 
 REQUIRED_DIRS = ["app", "runtime", "security", "tests", "docs", "data", "reports", "releases", "experiments", "scripts", "ui", "tools", "archives"]
 BANNED_ROOTS = {"core", "engines", "adad_core", "ADAAD22"}
+
+
+def run_determinism_lint() -> None:
+    lint_script = TARGET / "tools" / "lint_determinism.py"
+    if not lint_script.exists():
+        sys.exit(f"Determinism lint script missing: {lint_script}")
+    completed = subprocess.run([sys.executable, str(lint_script)], cwd=TARGET, check=False, capture_output=True, text=True)
+    if completed.returncode != 0:
+        output = (completed.stdout + completed.stderr).strip()
+        sys.exit("Determinism AST lint failed:\n" + output)
 
 
 def ensure_dirs() -> None:
@@ -67,6 +78,7 @@ def ensure_metrics_and_security() -> None:
 
 def main() -> None:
     ensure_dirs()
+    run_determinism_lint()
     scan_imports()
     ensure_metrics_and_security()
     print("Core verification passed.")

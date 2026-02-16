@@ -11,6 +11,8 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+from contextlib import contextmanager
+from contextvars import ContextVar, Token
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
@@ -24,6 +26,7 @@ from security.ledger import journal
 CONSTITUTION_VERSION = "0.1.0"
 ELEMENT_ID = "Earth"
 POLICY_PATH = Path("runtime/governance/constitution.yaml")
+_DETERMINISTIC_ENVELOPE_STATE: ContextVar[Dict[str, Any]] = ContextVar("deterministic_envelope_state", default={})
 
 
 class Severity(Enum):
@@ -198,6 +201,144 @@ def _validate_resources(_: MutationRequest) -> Dict[str, Any]:
     return {"ok": True, "reason": "not_yet_implemented"}
 
 
+def set_deterministic_envelope_state(state: Mapping[str, Any] | None) -> Token[Dict[str, Any]]:
+    """Set request-scoped deterministic envelope context for validators."""
+    return _DETERMINISTIC_ENVELOPE_STATE.set(dict(state or {}))
+
+
+def reset_deterministic_envelope_state(token: Token[Dict[str, Any]]) -> None:
+    """Reset deterministic envelope state to a previously captured context token."""
+    _DETERMINISTIC_ENVELOPE_STATE.reset(token)
+
+
+@contextmanager
+def deterministic_envelope_scope(state: Mapping[str, Any] | None):
+    """Apply deterministic envelope state for the current evaluation scope."""
+    token = set_deterministic_envelope_state(state)
+    try:
+        yield
+    finally:
+        reset_deterministic_envelope_state(token)
+
+
+def get_deterministic_envelope_state() -> Dict[str, Any]:
+    """Get request-scoped deterministic envelope context for validators."""
+    return dict(_DETERMINISTIC_ENVELOPE_STATE.get() or {})
+
+
+def _parse_entropy_limit(value: str, *, field: str) -> tuple[bool, int, str | None]:
+    try:
+        parsed = int(value)
+    except ValueError:
+        return False, 0, f"invalid_{field}"
+    return True, parsed, None
+
+
+def _validate_entropy_budget_limit(request: MutationRequest) -> Dict[str, Any]:
+    """Reject requests whose mutation/epoch entropy exceeds configured constitutional budgets."""
+    from runtime.evolution.entropy_metadata import estimate_entropy_bits
+
+    envelope_state = get_deterministic_envelope_state()
+    tier_name = str(envelope_state.get("tier", "")).strip().upper()
+    is_production = tier_name == Tier.PRODUCTION.name
+
+    mutation_limit_env = os.getenv("ADAAD_MAX_MUTATION_ENTROPY_BITS", "128").strip()
+    mutation_limit_ok, max_mutation_bits, mutation_error = _parse_entropy_limit(
+        mutation_limit_env,
+        field="entropy_budget_limit",
+    )
+    if not mutation_limit_ok:
+        return {"ok": False, "reason": mutation_error, "details": {"value": mutation_limit_env}}
+
+    epoch_limit_env = os.getenv("ADAAD_MAX_EPOCH_ENTROPY_BITS", "4096").strip()
+    epoch_limit_ok, max_epoch_bits, epoch_error = _parse_entropy_limit(
+        epoch_limit_env,
+        field="epoch_entropy_budget_limit",
+    )
+    if not epoch_limit_ok:
+        return {"ok": False, "reason": epoch_error, "details": {"value": epoch_limit_env}}
+
+    if max_mutation_bits <= 0:
+        if is_production:
+            return {
+                "ok": False,
+                "reason": "entropy_budget_disabled_in_production",
+                "details": {"max_mutation_entropy_bits": max_mutation_bits, "tier": tier_name or "UNKNOWN"},
+            }
+        return {
+            "ok": True,
+            "reason": "entropy_budget_disabled",
+            "details": {"max_mutation_entropy_bits": max_mutation_bits, "tier": tier_name or "UNKNOWN"},
+        }
+
+    if max_epoch_bits <= 0:
+        if is_production:
+            return {
+                "ok": False,
+                "reason": "epoch_entropy_budget_disabled_in_production",
+                "details": {"max_epoch_entropy_bits": max_epoch_bits, "tier": tier_name or "UNKNOWN"},
+            }
+        return {
+            "ok": True,
+            "reason": "epoch_entropy_budget_disabled",
+            "details": {"max_epoch_entropy_bits": max_epoch_bits, "tier": tier_name or "UNKNOWN"},
+        }
+
+    declared_bits = estimate_entropy_bits(
+        op_count=len(request.ops),
+        target_count=len(request.targets),
+        uses_random_seed=bool(request.random_seed),
+    )
+
+    observed_bits_raw = envelope_state.get("observed_entropy_bits", 0)
+    try:
+        observed_bits = max(0, int(observed_bits_raw or 0))
+    except (TypeError, ValueError):
+        return {
+            "ok": False,
+            "reason": "invalid_observed_entropy_bits",
+            "details": {"value": observed_bits_raw},
+        }
+
+    mutation_bits = declared_bits + observed_bits
+    epoch_bits_raw = envelope_state.get("epoch_entropy_bits", mutation_bits)
+    try:
+        epoch_bits = max(0, int(epoch_bits_raw or 0))
+    except (TypeError, ValueError):
+        return {
+            "ok": False,
+            "reason": "invalid_epoch_entropy_bits",
+            "details": {"value": epoch_bits_raw},
+        }
+
+    mutation_exceeded = mutation_bits > max_mutation_bits
+    epoch_exceeded = epoch_bits > max_epoch_bits
+    if mutation_exceeded and epoch_exceeded:
+        reason = "mutation_and_epoch_entropy_budget_exceeded"
+    elif mutation_exceeded:
+        reason = "entropy_budget_exceeded"
+    elif epoch_exceeded:
+        reason = "epoch_entropy_budget_exceeded"
+    else:
+        reason = "entropy_budget_ok"
+
+    return {
+        "ok": not (mutation_exceeded or epoch_exceeded),
+        "reason": reason,
+        "details": {
+            "tier": tier_name or "UNKNOWN",
+            "max_mutation_entropy_bits": max_mutation_bits,
+            "max_epoch_entropy_bits": max_epoch_bits,
+            "declared_bits": declared_bits,
+            "observed_bits": observed_bits,
+            "mutation_bits": mutation_bits,
+            "epoch_entropy_bits": epoch_bits,
+            "mutation_exceeded": mutation_exceeded,
+            "epoch_exceeded": epoch_exceeded,
+        },
+    }
+
+
 VALIDATOR_REGISTRY: Dict[str, Callable[[MutationRequest], Dict[str, Any]]] = {
     "single_file_scope": _validate_single_file,
     "ast_validity": _validate_ast,
@@ -209,6 +350,7 @@ VALIDATOR_REGISTRY: Dict[str, Callable[[MutationRequest], Dict[str, Any]]] = {
     "test_coverage_maintained": _validate_coverage,
     "max_mutation_rate": _validate_mutation_rate,
     "resource_bounds": _validate_resources,
+    "entropy_budget_limit": _validate_entropy_budget_limit,
 }
 
 
@@ -354,25 +496,34 @@ def evaluate_mutation(request: MutationRequest, tier: Tier) -> Dict[str, Any]:
     blocking_failures: List[str] = []
     warnings: List[str] = []
 
-    for rule, severity in rules:
-        try:
-            result = rule.validator(request)
-        except Exception as exc:
-            result = {"ok": False, "reason": f"validator_error:{exc}"}
+    prior_state = get_deterministic_envelope_state()
+    evaluation_state = {
+        **prior_state,
+        "tier": tier.name,
+        "tier_value": tier.value,
+        "agent_id": request.agent_id,
+    }
 
-        verdict = {
-            "rule": rule.name,
-            "severity": severity.value,
-            "passed": result.get("ok", False),
-            "details": result,
-        }
-        verdicts.append(verdict)
+    with deterministic_envelope_scope(evaluation_state):
+        for rule, severity in rules:
+            try:
+                result = rule.validator(request)
+            except Exception as exc:
+                result = {"ok": False, "reason": f"validator_error:{exc}"}
 
-        if not verdict["passed"]:
-            if severity == Severity.BLOCKING:
-                blocking_failures.append(rule.name)
-            elif severity == Severity.WARNING:
-                warnings.append(rule.name)
+            verdict = {
+                "rule": rule.name,
+                "severity": severity.value,
+                "passed": result.get("ok", False),
+                "details": result,
+            }
+            verdicts.append(verdict)
+
+            if not verdict["passed"]:
+                if severity == Severity.BLOCKING:
+                    blocking_failures.append(rule.name)
+                elif severity == Severity.WARNING:
+                    warnings.append(rule.name)
 
     passed = len(blocking_failures) == 0
 
@@ -451,4 +602,8 @@ __all__ = [
     "RULES",
     "POLICY_HASH",
     "POLICY_PATH",
+    "set_deterministic_envelope_state",
+    "reset_deterministic_envelope_state",
+    "deterministic_envelope_scope",
+    "get_deterministic_envelope_state",
 ]
