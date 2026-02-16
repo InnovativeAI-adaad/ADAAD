@@ -3,8 +3,6 @@
 
 from __future__ import annotations
 
-import importlib
-import importlib.util
 import os
 import shutil
 import subprocess
@@ -27,7 +25,7 @@ MAX_PARALLEL_WORKERS = 4
 _INFERRED_BASELINE_SYSCALLS: tuple[str, ...] = ("open", "read", "write", "close")
 _INFERRED_BASELINE_WRITE_PATHS: tuple[str, ...] = ("reports",)
 
-_PSUTIL = importlib.import_module("psutil") if importlib.util.find_spec("psutil") else None
+_PSUTIL = None
 
 
 class TestSandboxStatus(str, Enum):

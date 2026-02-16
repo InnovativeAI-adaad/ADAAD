@@ -11,6 +11,7 @@ from typing import Any, Dict, Iterable, List, Mapping
 from runtime import ROOT_DIR
 from runtime.evolution.lineage_v2 import LineageLedgerV2
 from runtime.evolution.replay import ReplayEngine
+from runtime.governance.deterministic_filesystem import read_file_deterministic
 from runtime.governance.foundation import ZERO_HASH, canonical_json, sha256_digest, sha256_prefixed_digest
 from security import cryovant
 
@@ -27,6 +28,8 @@ def _normalize_checkpoint_event(payload: Dict[str, Any]) -> Dict[str, str]:
         "baseline_digest": str(payload.get("baseline_digest") or "sha256:0"),
         "created_at": str(payload.get("created_at") or ""),
     }
+
+
 class ReplayProofBuilder:
     """Collect deterministic replay evidence and emit a signed proof bundle."""
 
@@ -198,7 +201,7 @@ def verify_replay_proof_bundle(bundle: Dict[str, Any], *, keyring: Mapping[str, 
 
 
 def load_replay_proof(path: Path) -> Dict[str, Any]:
-    return json.loads(path.read_text(encoding="utf-8"))
+    return json.loads(read_file_deterministic(path))
 
 
 __all__ = [

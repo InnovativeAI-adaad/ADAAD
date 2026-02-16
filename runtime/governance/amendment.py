@@ -11,6 +11,7 @@ from typing import List
 
 from runtime import ROOT_DIR
 from runtime.constitution import CONSTITUTION_VERSION, reload_constitution_policy
+from runtime.governance.deterministic_filesystem import read_file_deterministic
 from runtime.governance.foundation import default_provider
 from security.ledger import journal
 
@@ -111,7 +112,7 @@ class AmendmentEngine:
 
     def _load_proposal(self, proposal_id: str) -> AmendmentProposal:
         path = self.proposals_dir / f"{proposal_id}.json"
-        data = json.loads(path.read_text(encoding="utf-8"))
+        data = json.loads(read_file_deterministic(path))
         return AmendmentProposal(**data)
 
     def _save_proposal(self, proposal: AmendmentProposal) -> None:

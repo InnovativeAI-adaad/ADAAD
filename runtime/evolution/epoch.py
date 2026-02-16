@@ -13,6 +13,7 @@ from runtime import ROOT_DIR
 from runtime.evolution.baseline import BaselineStore, create_baseline
 from runtime.evolution.entropy_discipline import deterministic_context
 from runtime.founders_law import epoch_law_metadata
+from runtime.governance.deterministic_filesystem import read_file_deterministic
 from runtime.governance.foundation import RuntimeDeterminismProvider, default_provider, require_replay_safe_provider
 from runtime.governance.founders_law_v2 import LawManifest
 from runtime.governance.law_evolution_certificate import (
@@ -237,7 +238,7 @@ class EpochManager:
         if not self.state_path.exists():
             return None
         try:
-            raw = json.loads(self.state_path.read_text(encoding="utf-8"))
+            raw = json.loads(read_file_deterministic(self.state_path))
             return EpochState(
                 epoch_id=str(raw.get("epoch_id") or ""),
                 start_ts=str(raw.get("start_ts") or self.provider.iso_now()),

@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict
 
+from runtime.governance.deterministic_filesystem import read_file_deterministic
 from runtime.governance.foundation import canonical_json, sha256_prefixed_digest
 
 
@@ -30,18 +31,17 @@ class ScoringLedger:
 
     def last_hash(self) -> str:
         last = "sha256:" + ("0" * 64)
-        with self.path.open("r", encoding="utf-8") as handle:
-            for line in handle:
-                row = line.strip()
-                if not row:
-                    continue
-                try:
-                    payload = json.loads(row)
-                except json.JSONDecodeError:
-                    continue
-                value = payload.get("record_hash")
-                if isinstance(value, str):
-                    last = value
+        for line in read_file_deterministic(self.path).splitlines():
+            row = line.strip()
+            if not row:
+                continue
+            try:
+                payload = json.loads(row)
+            except json.JSONDecodeError:
+                continue
+            value = payload.get("record_hash")
+            if isinstance(value, str):
+                last = value
         return last
 
 

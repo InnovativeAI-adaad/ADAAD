@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Protocol
 
 from runtime import ROOT_DIR
+from runtime.governance.deterministic_filesystem import read_file_deterministic
 
 LEDGER_V2_PATH = ROOT_DIR / "security" / "ledger" / "lineage_v2.jsonl"
 
@@ -68,7 +69,7 @@ class LineageLedgerV2:
 
     def _last_hash(self) -> str:
         self.verify_integrity()
-        lines = self.ledger_path.read_text(encoding="utf-8").splitlines()
+        lines = read_file_deterministic(self.ledger_path).splitlines()
         if not lines:
             return "0" * 64
         return str(json.loads(lines[-1]).get("hash", "0" * 64))
@@ -77,38 +78,37 @@ class LineageLedgerV2:
         """Recompute chain from genesis and verify each stored hash."""
         self._ensure()
         prev_hash = "0" * 64
-        with self.ledger_path.open("r", encoding="utf-8") as handle:
-            for line_no, line in enumerate(handle, start=1):
-                entry_text = line.strip()
-                if not entry_text:
-                    continue
-                try:
-                    entry = json.loads(entry_text)
-                except json.JSONDecodeError as exc:
-                    error = LineageIntegrityError(f"lineage_invalid_json:line{line_no}:{exc}")
-                    if recovery_hook is not None:
-                        recovery_hook.on_lineage_integrity_failure(ledger_path=self.ledger_path, error=error)
-                    raise error from exc
-                if not isinstance(entry, dict):
-                    error = LineageIntegrityError(f"lineage_malformed_entry:line{line_no}")
-                    if recovery_hook is not None:
-                        recovery_hook.on_lineage_integrity_failure(ledger_path=self.ledger_path, error=error)
-                    raise error
-                entry_prev_hash = str(entry.get("prev_hash") or "")
-                entry_hash = str(entry.get("hash") or "")
-                if entry_prev_hash != prev_hash:
-                    error = LineageIntegrityError(f"lineage_prev_hash_mismatch:line{line_no}")
-                    if recovery_hook is not None:
-                        recovery_hook.on_lineage_integrity_failure(ledger_path=self.ledger_path, error=error)
-                    raise error
-                payload = {key: value for key, value in entry.items() if key != "hash"}
-                computed = self._compute_hash(prev_hash, payload)
-                if entry_hash != computed:
-                    error = LineageIntegrityError(f"lineage_hash_mismatch:line{line_no}")
-                    if recovery_hook is not None:
-                        recovery_hook.on_lineage_integrity_failure(ledger_path=self.ledger_path, error=error)
-                    raise error
-                prev_hash = entry_hash
+        for line_no, line in enumerate(read_file_deterministic(self.ledger_path).splitlines(), start=1):
+            entry_text = line.strip()
+            if not entry_text:
+                continue
+            try:
+                entry = json.loads(entry_text)
+            except json.JSONDecodeError as exc:
+                error = LineageIntegrityError(f"lineage_invalid_json:line{line_no}:{exc}")
+                if recovery_hook is not None:
+                    recovery_hook.on_lineage_integrity_failure(ledger_path=self.ledger_path, error=error)
+                raise error from exc
+            if not isinstance(entry, dict):
+                error = LineageIntegrityError(f"lineage_malformed_entry:line{line_no}")
+                if recovery_hook is not None:
+                    recovery_hook.on_lineage_integrity_failure(ledger_path=self.ledger_path, error=error)
+                raise error
+            entry_prev_hash = str(entry.get("prev_hash") or "")
+            entry_hash = str(entry.get("hash") or "")
+            if entry_prev_hash != prev_hash:
+                error = LineageIntegrityError(f"lineage_prev_hash_mismatch:line{line_no}")
+                if recovery_hook is not None:
+                    recovery_hook.on_lineage_integrity_failure(ledger_path=self.ledger_path, error=error)
+                raise error
+            payload = {key: value for key, value in entry.items() if key != "hash"}
+            computed = self._compute_hash(prev_hash, payload)
+            if entry_hash != computed:
+                error = LineageIntegrityError(f"lineage_hash_mismatch:line{line_no}")
+                if recovery_hook is not None:
+                    recovery_hook.on_lineage_integrity_failure(ledger_path=self.ledger_path, error=error)
+                raise error
+            prev_hash = entry_hash
 
     @staticmethod
     def _compute_hash(prev_hash: str, entry: Dict[str, Any]) -> str:
@@ -147,7 +147,7 @@ class LineageLedgerV2:
     def _read_entries_unverified(self) -> List[Dict[str, Any]]:
         self._ensure()
         entries: List[Dict[str, Any]] = []
-        for line in self.ledger_path.read_text(encoding="utf-8").splitlines():
+        for line in read_file_deterministic(self.ledger_path).splitlines():
             if not line.strip():
                 continue
             entry = json.loads(line)
