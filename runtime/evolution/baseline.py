@@ -11,6 +11,7 @@ from typing import Any, Dict
 
 from runtime import ROOT_DIR
 from runtime.constitution import CONSTITUTION_VERSION, POLICY_HASH
+from runtime.governance.deterministic_filesystem import read_file_deterministic
 from runtime.governance.foundation import default_provider
 from runtime.governance.foundation.hashing import sha256_prefixed_digest
 from runtime.timeutils import now_iso
@@ -98,17 +99,16 @@ class BaselineStore:
     def find_for_epoch(self, epoch_id: str) -> Dict[str, Any] | None:
         if not self.path.exists():
             return None
-        with self.path.open("r", encoding="utf-8") as handle:
-            for line in handle:
-                row = line.strip()
-                if not row:
-                    continue
-                try:
-                    entry = json.loads(row)
-                except json.JSONDecodeError:
-                    continue
-                if str(entry.get("epoch_id") or "") == epoch_id:
-                    return entry
+        for line in read_file_deterministic(self.path).splitlines():
+            row = line.strip()
+            if not row:
+                continue
+            try:
+                entry = json.loads(row)
+            except json.JSONDecodeError:
+                continue
+            if str(entry.get("epoch_id") or "") == epoch_id:
+                return entry
         return None
 
 

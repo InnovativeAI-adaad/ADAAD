@@ -12,6 +12,7 @@ from typing import Any, Dict, List
 from runtime import ROOT_DIR
 from runtime.evolution.lineage_v2 import LineageLedgerV2
 from runtime.evolution.replay import ReplayEngine
+from runtime.governance.deterministic_filesystem import read_file_deterministic
 from runtime.governance.foundation import ZERO_HASH, canonical_json, sha256_prefixed_digest
 from runtime.governance.policy_artifact import DEFAULT_GOVERNANCE_POLICY_PATH, load_governance_policy
 from runtime.sandbox.evidence import SANDBOX_EVIDENCE_PATH
@@ -45,7 +46,7 @@ def _read_jsonl(path: Path) -> List[Dict[str, Any]]:
     if not path.exists():
         return []
     entries: List[Dict[str, Any]] = []
-    for line_no, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+    for line_no, line in enumerate(read_file_deterministic(path).splitlines(), start=1):
         text = line.strip()
         if not text:
             continue
@@ -293,7 +294,7 @@ class EvidenceBundleBuilder:
             export_path = self.export_dir / f"{bundle_id}.json"
             serialized = canonical_json(bundle)
             if export_path.exists():
-                current = export_path.read_text(encoding="utf-8")
+                current = read_file_deterministic(export_path)
                 if current != serialized:
                     raise EvidenceBundleError("immutable_export_mismatch")
             else:
@@ -304,7 +305,7 @@ class EvidenceBundleBuilder:
         if not self.schema_path.exists():
             raise EvidenceBundleError(f"missing_schema:{self.schema_path}")
         try:
-            schema = json.loads(self.schema_path.read_text(encoding="utf-8"))
+            schema = json.loads(read_file_deterministic(self.schema_path))
         except json.JSONDecodeError as exc:
             raise EvidenceBundleError(f"invalid_schema_json:{self.schema_path}:{exc.msg}") from exc
         return _validate_schema_subset(bundle, schema)

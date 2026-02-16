@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from runtime.governance.deterministic_filesystem import read_file_deterministic
 from runtime.governance.foundation import sha256_prefixed_digest
 from security import cryovant
 
@@ -196,7 +197,7 @@ def load_governance_policy(path: Path = DEFAULT_GOVERNANCE_POLICY_PATH) -> Gover
     if not path.exists():
         raise GovernancePolicyError(f"governance policy not found at {path}")
     try:
-        artifact = json.loads(path.read_text(encoding="utf-8"))
+        artifact = json.loads(read_file_deterministic(path))
     except json.JSONDecodeError as exc:
         raise GovernancePolicyError(f"invalid JSON in governance policy: {exc}") from exc
 

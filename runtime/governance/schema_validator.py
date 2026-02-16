@@ -13,6 +13,7 @@ from typing import Iterable
 from urllib.parse import urlparse
 
 from runtime import ROOT_DIR
+from runtime.governance.deterministic_filesystem import read_file_deterministic
 
 GOVERNANCE_SCHEMA_FILES: tuple[str, ...] = (
     "schemas/mutation_manifest.v1.json",
@@ -47,7 +48,7 @@ def _validate_schema_document(schema_path: Path) -> list[str]:
     errors: list[str] = []
 
     try:
-        document = json.loads(schema_path.read_text(encoding="utf-8"))
+        document = json.loads(read_file_deterministic(schema_path))
     except json.JSONDecodeError as exc:
         return [f"invalid_json:{exc.msg}"]
 

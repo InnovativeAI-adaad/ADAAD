@@ -6,12 +6,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable, Dict, Set
 
+from runtime.governance.deterministic_filesystem import read_file_deterministic
 from runtime.governance.foundation.clock import utc_now_iso
-
-try:
-    from security import cryovant
-except Exception:  # pragma: no cover - defensive import guard
-    cryovant = None  # type: ignore
+from security import cryovant
 
 FORBIDDEN_TOKENS: Set[str] = {"os.system(", "subprocess.Popen", "eval(", "exec(", "socket."}
 BANNED_IMPORTS: Set[str] = {"subprocess", "socket"}
@@ -43,7 +40,7 @@ class GateCertifier:
         metadata = dict(metadata or {})
         if not file_path.exists() or file_path.is_dir():
             return self._result(False, metadata, error="missing_file", file=str(file_path))
-        content = file_path.read_text(encoding="utf-8")
+        content = read_file_deterministic(file_path)
 
         try:
             tree = ast.parse(content)
@@ -56,7 +53,7 @@ class GateCertifier:
 
         token = (metadata.get("cryovant_token") or "").strip()
         auth_ok = False
-        if token and cryovant is not None:
+        if token:
             try:
                 auth_ok = bool(cryovant.verify_session(token))
             except Exception:

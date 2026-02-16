@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, Sequence
 
 from runtime.evolution.promotion_state_machine import canary_stage_definitions
+from runtime.governance.deterministic_filesystem import read_file_deterministic
 
 
 @dataclass(frozen=True)
@@ -142,7 +143,7 @@ class SimulationRunner:
 
 
 def _load_candidate(path: Path) -> Dict[str, Any]:
-    return json.loads(path.read_text(encoding="utf-8"))
+    return json.loads(read_file_deterministic(path))
 
 
 def main(argv: Iterable[str] | None = None) -> int:
