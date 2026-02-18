@@ -1,0 +1,33 @@
+{
+  "_schema_version": "1",
+  "wikipedia": {
+    "provider": "Wikimedia REST API",
+    "cost": "free",
+    "governance_note": "Use only read-only encyclopedia retrieval with deterministic query normalization."
+  },
+  "openalex": {
+    "provider": "OpenAlex API",
+    "cost": "free",
+    "governance_note": "Use bibliographic metadata retrieval for explainability evidence and citations."
+  },
+  "openstreetmap-nominatim": {
+    "provider": "Nominatim",
+    "cost": "free",
+    "governance_note": "Use only coarse geocoding of non-sensitive locations with deterministic normalization; disallow personal/home address resolution."
+  },
+  "crossref": {
+    "provider": "Crossref REST API",
+    "cost": "free",
+    "governance_note": "Use DOI metadata for provenance-rich knowledge references."
+  },
+  "arxiv": {
+    "provider": "arXiv API",
+    "cost": "free",
+    "governance_note": "Use preprint metadata retrieval for transparent research traceability."
+  },
+  "openlibrary": {
+    "provider": "Open Library API",
+    "cost": "free",
+    "governance_note": "Use bibliographic lookup for deterministic reference expansion."
+  }
+}

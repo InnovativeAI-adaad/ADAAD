@@ -27,6 +27,39 @@ Aponi now follows an incremental control-plane-first path inside the current ser
 4. Risk intelligence (`/risk/summary`)
 5. Governance command surface (planned, strict-gated)
 
+## Governance command surface (strict-gated)
+
+Aponi now includes a deterministic governance command queue for operator-issued intents.
+
+- `GET /control/free-sources` — lists approved free capability sources from `data/free_capability_sources.json`.
+- `GET /control/queue` — read-only view of the latest queued command intents.
+- `GET /control/skill-profiles` — exposes governed raw skill profiles (knowledge domains, allowed abilities, allowed capability sources).
+- `GET /control/capability-matrix` — exposes normalized skill→knowledge/ability/capability compatibility for deterministic UI population.
+- `GET /control/policy-summary` — returns control-plane validation envelope (limits, profiles, source inventory).
+- `GET /control/templates` — returns deterministic command-intent templates per governed skill profile.
+- `GET /control/environment-health` — returns deterministic runtime readiness diagnostics for control-plane dependencies, including schema-version compatibility checks.
+- `POST /control/queue` — queues a governance command intent (disabled unless `APONI_COMMAND_SURFACE=1`).
+- `GET /control/queue/verify` — verifies queue continuity (`queue_index`, `command_id`, `previous_digest` chain) and flags malformed payload records.
+
+Supported command intent types:
+
+- `create_agent`
+- `run_task`
+
+Validation invariants:
+
+- `governance_profile` must be `strict` or `high-assurance`.
+- `agent_id` must match deterministic slug constraints.
+- `skill_profile` must be from `data/governed_skill_profiles.json`.
+- `capabilities` must be from `data/free_capability_sources.json` and permitted by selected `skill_profile`.
+- `knowledge_domain` must be allowed by selected `skill_profile`.
+- `create_agent` requires `purpose`; `run_task` requires both `task` and `ability` (ability must be allowed by selected `skill_profile`).
+- `capabilities` are deduplicated deterministically and capped by `CONTROL_CAPABILITIES_MAX`.
+- Text fields are normalized and size-bounded before queue persistence to reduce malformed payload drift.
+- Queue entries include deterministic `previous_digest` continuity and can be validated via `/control/queue/verify`.
+
+This surface queues intents only and does not directly execute mutations.
+
 Replay forensics is now available as deterministic read-only projection endpoints.
 `/replay/diff` includes a `semantic_drift` section with stable class counts and per-key class assignment across
 `config_drift`, `governance_drift`, `trait_drift`, `runtime_artifact_drift`, and `uncategorized_drift`.
@@ -51,3 +84,24 @@ The UI script is served from `/ui/aponi.js` to keep the page compatible with non
 ## Enhanced static dashboard
 
 An optional enhanced dashboard is available at `ui/enhanced/enhanced_dashboard.html` for read-only live visibility over existing Aponi APIs.
+
+
+## Floating observation + command initiator
+
+The default Aponi UI now includes a draggable floating panel that acts as a durable operator cockpit:
+
+- Observes live command queue state (`/control/queue`)
+- Loads governed compatibility matrix (`/control/capability-matrix`) to auto-populate skill profiles, knowledge domains, abilities, and capability defaults
+- Submits governed command intents (`create_agent` / `run_task`) through `POST /control/queue`
+- Persists collapse/position state in browser local storage for session continuity
+- Surfaces capability-matrix load failures and empty profile inventories in the panel status area so operators can distinguish degraded configuration from valid empty inputs
+- Performs a client-side required-field guard for `agent_id` before queue submission to reduce avoidable rejected intents
+
+Safety posture remains unchanged:
+
+- Intelligence endpoints remain read-only
+- Command intent submission is strict-gated (`APONI_COMMAND_SURFACE=1`)
+- Queueing an intent does not execute mutation directly
+
+
+Schema versioning: `data/free_capability_sources.json` and `data/governed_skill_profiles.json` include top-level `_schema_version` for forward-compatible governance artifact evolution. Runtime health now reports compatibility against expected schema version.
