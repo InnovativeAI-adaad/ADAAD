@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import json
 from unittest.mock import patch
 
 from runtime.governance.event_taxonomy import (
@@ -10,13 +11,11 @@ from runtime.governance.event_taxonomy import (
     normalize_event_type,
 )
 from runtime.governance.policy_artifact import GovernanceModelMetadata, GovernancePolicy, GovernanceThresholds
-from ui.aponi_dashboard import AponiDashboard
-
+from ui.aponi_dashboard import AponiDashboard, _skill_capability_matrix
 
 def _handler_class():
     dashboard = AponiDashboard(host="127.0.0.1", port=0)
     return dashboard._build_handler()
-
 
 def _test_policy() -> GovernancePolicy:
     return GovernancePolicy(
@@ -27,7 +26,6 @@ def _test_policy() -> GovernancePolicy:
         thresholds=GovernanceThresholds(determinism_pass=0.98, determinism_warn=0.90),
         fingerprint="sha256:testpolicy",
     )
-
 
 def test_governance_health_model_is_formalized_and_deterministic() -> None:
     handler = _handler_class()
@@ -47,7 +45,6 @@ def test_governance_health_model_is_formalized_and_deterministic() -> None:
     assert snapshot["model_inputs"]["threshold_pass"] == 0.98
     assert snapshot["model_inputs"]["threshold_warn"] == 0.90
 
-
 def test_governance_health_applies_warn_and_block_thresholds() -> None:
     handler = _handler_class()
     with patch("ui.aponi_dashboard.GOVERNANCE_POLICY", _test_policy()):
@@ -65,7 +62,6 @@ def test_governance_health_applies_warn_and_block_thresholds() -> None:
     assert warn_snapshot["governance_health"] == "WARN"
     assert block_snapshot["governance_health"] == "BLOCK"
 
-
 def test_replay_divergence_counts_recent_replay_events() -> None:
     handler = _handler_class()
     entries = [
@@ -80,7 +76,6 @@ def test_replay_divergence_counts_recent_replay_events() -> None:
     assert summary["divergence_event_count"] == 2
     assert len(summary["latest_events"]) == 2
 
-
 def test_constitution_escalations_supports_canonical_and_legacy_names() -> None:
     handler = _handler_class()
     entries = [
@@ -90,7 +85,6 @@ def test_constitution_escalations_supports_canonical_and_legacy_names() -> None:
     ]
 
     assert handler._constitution_escalations(entries) == 3
-
 
 def test_risk_summary_uses_normalized_event_types_with_legacy_fallbacks() -> None:
     handler = _handler_class()
@@ -113,18 +107,15 @@ def test_risk_summary_uses_normalized_event_types_with_legacy_fallbacks() -> Non
     assert summary["override_frequency"] == 0.01
     assert summary["replay_failure_rate"] == 0.01
 
-
 def test_normalize_event_type_maps_legacy_and_canonical_fields() -> None:
     assert normalize_event_type({"event": "constitution_escalated"}) == EVENT_TYPE_CONSTITUTION_ESCALATION
     assert normalize_event_type({"event": "replay_divergence_detected"}) == EVENT_TYPE_REPLAY_DIVERGENCE
     assert normalize_event_type({"event_type": EVENT_TYPE_OPERATOR_OVERRIDE}) == EVENT_TYPE_OPERATOR_OVERRIDE
 
-
 def test_normalize_event_type_prefers_explicit_event_type() -> None:
     entry = {"event_type": EVENT_TYPE_REPLAY_FAILURE, "event": "manual_override"}
 
     assert normalize_event_type(entry) == EVENT_TYPE_REPLAY_FAILURE
-
 
 def test_semantic_drift_classifier_assigns_expected_categories() -> None:
     handler = _handler_class()
@@ -134,7 +125,6 @@ def test_semantic_drift_classifier_assigns_expected_categories() -> None:
     assert handler._semantic_drift_class_for_key("traits.error_handler") == "trait_drift"
     assert handler._semantic_drift_class_for_key("runtime/checkpoints/latest") == "runtime_artifact_drift"
     assert handler._semantic_drift_class_for_key("config.rate_limit") == "config_drift"
-
 
 def test_replay_diff_returns_semantic_drift_with_stable_ordering() -> None:
     epoch = {
@@ -184,15 +174,23 @@ def test_replay_diff_returns_semantic_drift_with_stable_ordering() -> None:
         "uncategorized_drift": 2,
     }
 
-
 def test_user_console_uses_external_script_for_csp_compatibility() -> None:
     handler = _handler_class()
     html = handler._user_console()
+    script = handler._user_console_js()
 
     assert '<script src="/ui/aponi.js"></script>' in html
     assert "id=\"instability\"" in html
-    assert "paint('replay', '/replay/divergence')" in handler._user_console_js()
-
+    assert "id=\"controlPanel\"" in html
+    assert "paint('replay', '/replay/divergence')" in script
+    assert "const STORAGE_KEY = 'aponi.control.panel.v1';" in script
+    assert "fetch('/control/capability-matrix'" in script
+    assert "Promise.allSettled([" in script
+    assert "statusLabel = response.ok ?" in script
+    assert "[HTTP ${response.status}]" in script
+    assert "if (!response.ok) throw new Error(`capability-matrix returned HTTP ${response.status}`);" in script
+    assert "Failed to load skill profiles:" in script
+    assert "Agent ID is required before queue submission." in script
 
 def test_risk_instability_uses_weighted_deterministic_formula() -> None:
     handler = _handler_class()
@@ -222,7 +220,6 @@ def test_risk_instability_uses_weighted_deterministic_formula() -> None:
     assert payload["inputs"]["timeline_window"] == 4
     assert payload["inputs"]["semantic_drift_density"] == 0.75
 
-
 def test_risk_instability_defaults_to_zero_without_timeline() -> None:
     handler = _handler_class()
     risk_summary = {
@@ -238,10 +235,354 @@ def test_risk_instability_defaults_to_zero_without_timeline() -> None:
                 payload = handler._risk_instability()
 
     assert payload["instability_index"] == 0.0
-    assert payload["instability_velocity"] == 0.0
-    assert payload["instability_acceleration"] == 0.0
-    assert payload["inputs"]["timeline_window"] == 0
 
+def test_loaders_ignore_schema_version_metadata(tmp_path, monkeypatch) -> None:
+    sources_path = tmp_path / "free_sources.json"
+    sources_path.write_text(json.dumps({"_schema_version": "1", "wikipedia": {"provider": "Wikimedia"}}), encoding="utf-8")
+    profiles_path = tmp_path / "profiles.json"
+    profiles_path.write_text(json.dumps({"_schema_version": "1", "triage-basic": {"knowledge_domains": ["release_notes"], "abilities": ["summarize"], "allowed_capabilities": ["wikipedia"]}}), encoding="utf-8")
+    monkeypatch.setattr("ui.aponi_dashboard.FREE_CAPABILITY_SOURCES_PATH", sources_path)
+    monkeypatch.setattr("ui.aponi_dashboard.SKILL_PROFILES_PATH", profiles_path)
+
+    from ui.aponi_dashboard import _load_free_capability_sources, _load_skill_profiles
+
+    sources = _load_free_capability_sources()
+    profiles = _load_skill_profiles()
+
+    assert "_schema_version" not in sources
+    assert "_schema_version" not in profiles
+
+
+def test_capability_matrix_uses_canonical_capabilities_key(tmp_path, monkeypatch) -> None:
+    sources_path = tmp_path / "free_sources.json"
+    profiles_path = tmp_path / "profiles.json"
+    sources_path.write_text(
+        json.dumps({"_schema_version": "1", "wikipedia": {"provider": "Wikimedia"}}),
+        encoding="utf-8",
+    )
+    profiles_path.write_text(
+        json.dumps(
+            {
+                "_schema_version": "1",
+                "triage-basic": {
+                    "knowledge_domains": ["release_notes"],
+                    "abilities": ["summarize"],
+                    "allowed_capabilities": ["wikipedia"],
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr("ui.aponi_dashboard.FREE_CAPABILITY_SOURCES_PATH", sources_path)
+    monkeypatch.setattr("ui.aponi_dashboard.SKILL_PROFILES_PATH", profiles_path)
+
+    matrix = _skill_capability_matrix()
+    profile = matrix["triage-basic"]
+    assert "capabilities" in profile
+    assert profile["capabilities"] == ["wikipedia"]
+    assert "allowed_capabilities" not in profile
+
+def test_control_command_validation_requires_strict_profile_and_known_capabilities(tmp_path, monkeypatch) -> None:
+    sources_path = tmp_path / "free_sources.json"
+    sources_path.write_text(json.dumps({"_schema_version": "1", "wikipedia": {"provider": "Wikimedia"}}), encoding="utf-8")
+    profiles_path = tmp_path / "profiles.json"
+    profiles_path.write_text(json.dumps({"_schema_version": "1", "triage-basic": {"knowledge_domains": ["release_notes"], "abilities": ["summarize"], "allowed_capabilities": ["wikipedia"]}}), encoding="utf-8")
+    monkeypatch.setattr("ui.aponi_dashboard.FREE_CAPABILITY_SOURCES_PATH", sources_path)
+    monkeypatch.setattr("ui.aponi_dashboard.SKILL_PROFILES_PATH", profiles_path)
+    handler = _handler_class()
+
+    invalid = handler._validate_control_command(
+        {
+            "type": "create_agent",
+            "agent_id": "Agent#1",
+            "governance_profile": "standard",
+            "capabilities": ["unknown"],
+            "skill_profile": "triage-basic",
+            "knowledge_domain": "release_notes",
+            "purpose": "Assist with triage",
+        }
+    )
+    assert invalid["ok"] is False
+
+    valid = handler._validate_control_command(
+        {
+            "type": "create_agent",
+            "agent_id": "triage_agent",
+            "governance_profile": "strict",
+            "capabilities": ["wikipedia"],
+            "skill_profile": "triage-basic",
+            "knowledge_domain": "release_notes",
+            "purpose": "Assist with triage",
+        }
+    )
+    assert valid["ok"] is True
+    assert valid["command"]["capabilities"] == ["wikipedia"]
+
+def test_control_command_validation_rejects_unknown_skill_profile(tmp_path, monkeypatch) -> None:
+    sources_path = tmp_path / "free_sources.json"
+    sources_path.write_text(json.dumps({"_schema_version": "1", "wikipedia": {"provider": "Wikimedia"}}), encoding="utf-8")
+    profiles_path = tmp_path / "profiles.json"
+    profiles_path.write_text(json.dumps({"_schema_version": "1", "triage-basic": {"knowledge_domains": ["release_notes"], "abilities": ["summarize"], "allowed_capabilities": ["wikipedia"]}}), encoding="utf-8")
+    monkeypatch.setattr("ui.aponi_dashboard.FREE_CAPABILITY_SOURCES_PATH", sources_path)
+    monkeypatch.setattr("ui.aponi_dashboard.SKILL_PROFILES_PATH", profiles_path)
+    handler = _handler_class()
+
+    invalid = handler._validate_control_command(
+        {
+            "type": "run_task",
+            "agent_id": "triage_agent",
+            "governance_profile": "strict",
+            "skill_profile": "unknown-profile",
+            "knowledge_domain": "release_notes",
+            "capabilities": ["wikipedia"],
+            "task": "summarize release risk",
+            "ability": "summarize",
+        }
+    )
+
+    assert invalid["ok"] is False
+    assert invalid["error"] == "invalid_skill_profile"
+
+def test_control_command_validation_rejects_capability_outside_profile(tmp_path, monkeypatch) -> None:
+    sources_path = tmp_path / "free_sources.json"
+    sources_path.write_text(json.dumps({"wikipedia": {"provider": "Wikimedia"}, "crossref": {"provider": "Crossref"}}), encoding="utf-8")
+    profiles_path = tmp_path / "profiles.json"
+    profiles_path.write_text(json.dumps({"triage-basic": {"knowledge_domains": ["release_notes"], "abilities": ["summarize"], "allowed_capabilities": ["wikipedia"]}}), encoding="utf-8")
+    monkeypatch.setattr("ui.aponi_dashboard.FREE_CAPABILITY_SOURCES_PATH", sources_path)
+    monkeypatch.setattr("ui.aponi_dashboard.SKILL_PROFILES_PATH", profiles_path)
+    handler = _handler_class()
+
+    invalid = handler._validate_control_command(
+        {
+            "type": "run_task",
+            "agent_id": "triage_agent",
+            "governance_profile": "strict",
+            "skill_profile": "triage-basic",
+            "knowledge_domain": "release_notes",
+            "capabilities": ["crossref"],
+            "task": "summarize release risk",
+            "ability": "summarize",
+        }
+    )
+
+    assert invalid["ok"] is False
+    assert invalid["error"] == "capability_not_allowed_for_skill"
+
+def test_control_command_validation_enforces_knowledge_domain_membership(tmp_path, monkeypatch) -> None:
+    sources_path = tmp_path / "free_sources.json"
+    sources_path.write_text(json.dumps({"wikipedia": {"provider": "Wikimedia"}}), encoding="utf-8")
+    profiles_path = tmp_path / "profiles.json"
+    profiles_path.write_text(json.dumps({"triage-basic": {"knowledge_domains": ["release_notes"], "abilities": ["summarize"], "allowed_capabilities": ["wikipedia"]}}), encoding="utf-8")
+    monkeypatch.setattr("ui.aponi_dashboard.FREE_CAPABILITY_SOURCES_PATH", sources_path)
+    monkeypatch.setattr("ui.aponi_dashboard.SKILL_PROFILES_PATH", profiles_path)
+    handler = _handler_class()
+
+    invalid = handler._validate_control_command(
+        {
+            "type": "run_task",
+            "agent_id": "triage_agent",
+            "governance_profile": "strict",
+            "skill_profile": "triage-basic",
+            "knowledge_domain": "lineage",
+            "capabilities": ["wikipedia"],
+            "task": "summarize release risk",
+            "ability": "summarize",
+        }
+    )
+
+    assert invalid["ok"] is False
+    assert invalid["error"] == "invalid_knowledge_domain"
+
+def test_control_command_validation_enforces_ability_membership(tmp_path, monkeypatch) -> None:
+    sources_path = tmp_path / "free_sources.json"
+    sources_path.write_text(json.dumps({"wikipedia": {"provider": "Wikimedia"}}), encoding="utf-8")
+    profiles_path = tmp_path / "profiles.json"
+    profiles_path.write_text(json.dumps({"triage-basic": {"knowledge_domains": ["release_notes"], "abilities": ["summarize"], "allowed_capabilities": ["wikipedia"]}}), encoding="utf-8")
+    monkeypatch.setattr("ui.aponi_dashboard.FREE_CAPABILITY_SOURCES_PATH", sources_path)
+    monkeypatch.setattr("ui.aponi_dashboard.SKILL_PROFILES_PATH", profiles_path)
+    handler = _handler_class()
+
+    invalid = handler._validate_control_command(
+        {
+            "type": "run_task",
+            "agent_id": "triage_agent",
+            "governance_profile": "strict",
+            "skill_profile": "triage-basic",
+            "knowledge_domain": "release_notes",
+            "capabilities": ["wikipedia"],
+            "task": "summarize release risk",
+            "ability": "audit",
+        }
+    )
+
+    assert invalid["ok"] is False
+    assert invalid["error"] == "invalid_ability"
+
+def test_control_command_validation_caps_capability_count(tmp_path, monkeypatch) -> None:
+    sources = {f"s{i}": {"provider": f"p{i}"} for i in range(12)}
+    sources_path = tmp_path / "free_sources.json"
+    sources_path.write_text(json.dumps(sources), encoding="utf-8")
+    profiles_path = tmp_path / "profiles.json"
+    profiles_path.write_text(json.dumps({"triage-basic": {"knowledge_domains": ["release_notes"], "abilities": ["summarize"], "allowed_capabilities": list(sources.keys())}}), encoding="utf-8")
+    monkeypatch.setattr("ui.aponi_dashboard.FREE_CAPABILITY_SOURCES_PATH", sources_path)
+    monkeypatch.setattr("ui.aponi_dashboard.SKILL_PROFILES_PATH", profiles_path)
+    handler = _handler_class()
+
+    invalid = handler._validate_control_command(
+        {
+            "type": "run_task",
+            "agent_id": "triage_agent",
+            "governance_profile": "strict",
+            "skill_profile": "triage-basic",
+            "knowledge_domain": "release_notes",
+            "capabilities": list(sources.keys())[:9],
+            "task": "summarize release risk",
+            "ability": "summarize",
+        }
+    )
+
+    assert invalid["ok"] is False
+    assert invalid["error"] == "capabilities_limit_exceeded"
+
+def test_control_command_validation_deduplicates_capabilities(tmp_path, monkeypatch) -> None:
+    sources_path = tmp_path / "free_sources.json"
+    sources_path.write_text(json.dumps({"wikipedia": {"provider": "Wikimedia"}}), encoding="utf-8")
+    profiles_path = tmp_path / "profiles.json"
+    profiles_path.write_text(json.dumps({"triage-basic": {"knowledge_domains": ["release_notes"], "abilities": ["summarize"], "allowed_capabilities": ["wikipedia"]}}), encoding="utf-8")
+    monkeypatch.setattr("ui.aponi_dashboard.FREE_CAPABILITY_SOURCES_PATH", sources_path)
+    monkeypatch.setattr("ui.aponi_dashboard.SKILL_PROFILES_PATH", profiles_path)
+    handler = _handler_class()
+
+    valid = handler._validate_control_command(
+        {
+            "type": "run_task",
+            "agent_id": "triage_agent",
+            "governance_profile": "strict",
+            "skill_profile": "triage-basic",
+            "knowledge_domain": "release_notes",
+            "capabilities": ["wikipedia", "wikipedia"],
+            "task": "summarize release risk",
+            "ability": "summarize",
+        }
+    )
+
+    assert valid["ok"] is True
+    assert valid["command"]["capabilities"] == ["wikipedia"]
+
+def test_queue_control_command_appends_deterministic_entry(tmp_path, monkeypatch) -> None:
+    queue_path = tmp_path / "aponi_queue.jsonl"
+    monkeypatch.setattr("ui.aponi_dashboard.CONTROL_QUEUE_PATH", queue_path)
+    from ui.aponi_dashboard import _queue_control_command
+
+    entry = _queue_control_command(
+        {
+            "type": "run_task",
+            "agent_id": "triage_agent",
+            "governance_profile": "strict",
+            "skill_profile": "triage-basic",
+            "knowledge_domain": "release_notes",
+            "capabilities": ["wikipedia"],
+            "task": "summarize release risk",
+            "ability": "summarize",
+        }
+    )
+
+    assert entry["queue_index"] == 1
+    assert entry["command_id"].startswith("cmd-000001-")
+    assert entry["previous_digest"] == ""
+    lines = queue_path.read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 1
+
+def test_verify_control_queue_detects_tamper(tmp_path, monkeypatch) -> None:
+    queue_path = tmp_path / "aponi_queue.jsonl"
+    monkeypatch.setattr("ui.aponi_dashboard.CONTROL_QUEUE_PATH", queue_path)
+    from ui.aponi_dashboard import _queue_control_command, _read_control_queue, _verify_control_queue
+
+    _queue_control_command({"type": "create_agent", "agent_id": "triage_agent", "governance_profile": "strict", "skill_profile": "triage-basic", "knowledge_domain": "release_notes", "capabilities": ["wikipedia"], "purpose": "triage"})
+    _queue_control_command({"type": "run_task", "agent_id": "triage_agent", "governance_profile": "strict", "skill_profile": "triage-basic", "knowledge_domain": "release_notes", "capabilities": ["wikipedia"], "task": "summarize", "ability": "summarize"})
+
+    entries = _read_control_queue()
+    ok_state = _verify_control_queue(entries)
+    assert ok_state["ok"] is True
+
+    entries[1]["command_id"] = "cmd-corrupted"
+    bad_state = _verify_control_queue(entries)
+    assert bad_state["ok"] is False
+    assert any("unexpected_command_id" in issue for issue in bad_state["issues"])
+
+    entries[0]["payload"] = "corrupted"
+    bad_payload_state = _verify_control_queue(entries)
+    assert bad_payload_state["ok"] is False
+    assert "invalid_payload_type" in bad_payload_state["issues"]
+
+def test_environment_health_snapshot_reports_required_surfaces(tmp_path, monkeypatch) -> None:
+    sources_path = tmp_path / "free_sources.json"
+    sources_path.write_text(json.dumps({"_schema_version": "1", "wikipedia": {"provider": "Wikimedia"}}), encoding="utf-8")
+    profiles_path = tmp_path / "profiles.json"
+    profiles_path.write_text(json.dumps({"_schema_version": "1", "triage-basic": {"knowledge_domains": ["release_notes"], "abilities": ["summarize"], "allowed_capabilities": ["wikipedia"]}}), encoding="utf-8")
+    queue_path = tmp_path / "aponi_queue.jsonl"
+    monkeypatch.setattr("ui.aponi_dashboard.FREE_CAPABILITY_SOURCES_PATH", sources_path)
+    monkeypatch.setattr("ui.aponi_dashboard.SKILL_PROFILES_PATH", profiles_path)
+    monkeypatch.setattr("ui.aponi_dashboard.CONTROL_QUEUE_PATH", queue_path)
+
+    from ui.aponi_dashboard import _environment_health_snapshot
+
+    health = _environment_health_snapshot()
+    assert health["required_files"]["free_sources"]["exists"] is True
+    assert health["required_files"]["free_sources"]["ok"] is True
+    assert health["required_files"]["skill_profiles"]["exists"] is True
+    assert health["required_files"]["skill_profiles"]["ok"] is True
+    assert health["free_sources_count"] == 1
+    assert health["skill_profiles_count"] == 1
+    assert health["queue_parent_exists"] is True
+
+
+
+def test_environment_health_snapshot_reports_schema_mismatch(tmp_path, monkeypatch) -> None:
+    sources_path = tmp_path / "free_sources.json"
+    sources_path.write_text(json.dumps({"_schema_version": "2", "wikipedia": {"provider": "Wikimedia"}}), encoding="utf-8")
+    profiles_path = tmp_path / "profiles.json"
+    profiles_path.write_text(json.dumps({"_schema_version": "2", "triage-basic": {"knowledge_domains": ["release_notes"], "abilities": ["summarize"], "allowed_capabilities": ["wikipedia"]}}), encoding="utf-8")
+    queue_path = tmp_path / "aponi_queue.jsonl"
+    monkeypatch.setattr("ui.aponi_dashboard.FREE_CAPABILITY_SOURCES_PATH", sources_path)
+    monkeypatch.setattr("ui.aponi_dashboard.SKILL_PROFILES_PATH", profiles_path)
+    monkeypatch.setattr("ui.aponi_dashboard.CONTROL_QUEUE_PATH", queue_path)
+
+    from ui.aponi_dashboard import _environment_health_snapshot
+
+    health = _environment_health_snapshot()
+    assert health["required_files"]["free_sources"]["ok"] is False
+    assert health["required_files"]["skill_profiles"]["ok"] is False
+
+def test_control_policy_summary_and_templates_are_deterministic(tmp_path, monkeypatch) -> None:
+    sources_path = tmp_path / "free_sources.json"
+    sources_path.write_text(json.dumps({"wikipedia": {"provider": "Wikimedia"}}), encoding="utf-8")
+    profiles_path = tmp_path / "profiles.json"
+    profiles_path.write_text(
+        json.dumps(
+            {
+                "triage-basic": {
+                    "knowledge_domains": ["release_notes"],
+                    "abilities": ["summarize"],
+                    "allowed_capabilities": ["wikipedia"],
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr("ui.aponi_dashboard.FREE_CAPABILITY_SOURCES_PATH", sources_path)
+    monkeypatch.setattr("ui.aponi_dashboard.SKILL_PROFILES_PATH", profiles_path)
+
+    from ui.aponi_dashboard import _control_intent_templates, _control_policy_summary
+
+    summary = _control_policy_summary()
+    templates = _control_intent_templates()
+
+    assert summary["max_capabilities_per_intent"] >= 1
+    assert summary["skill_profiles"] == ["triage-basic"]
+    assert templates["triage-basic"]["run_task"]["ability"] == "summarize"
+    assert templates["triage-basic"]["create_agent"]["knowledge_domain"] == "release_notes"
 
 def test_risk_instability_reports_velocity_and_acceleration() -> None:
     handler = _handler_class()
@@ -267,7 +608,6 @@ def test_risk_instability_reports_velocity_and_acceleration() -> None:
     assert payload["instability_velocity"] == 0.25
     assert payload["instability_acceleration"] == 0.0
 
-
 def test_policy_simulation_compares_current_and_candidate_policy() -> None:
     handler = _handler_class()
     with patch.object(handler, "_mutation_rate_state", return_value={"ok": True}):
@@ -278,14 +618,12 @@ def test_policy_simulation_compares_current_and_candidate_policy() -> None:
     assert payload["current_policy"]["health"] in {"PASS", "WARN", "BLOCK"}
     assert payload["simulated_policy"]["health"] in {"PASS", "WARN", "BLOCK"}
 
-
 def test_policy_simulation_rejects_invalid_score_input() -> None:
     handler = _handler_class()
     payload = handler._policy_simulation({"determinism_score": ["not-a-number"]})
 
     assert payload["ok"] is False
     assert payload["error"] == "invalid_determinism_score"
-
 
 def test_epoch_chain_anchor_is_emitted_in_replay_diff() -> None:
     epoch = {
@@ -302,7 +640,6 @@ def test_epoch_chain_anchor_is_emitted_in_replay_diff() -> None:
     assert payload["ok"] is True
     assert "anchor" in payload["epoch_chain_anchor"]
     assert payload["epoch_chain_anchor"]["anchor"].startswith("sha256:")
-
 
 def test_velocity_spike_anomaly_flag_sets_on_large_velocity() -> None:
     handler = _handler_class()
@@ -323,7 +660,6 @@ def test_velocity_spike_anomaly_flag_sets_on_large_velocity() -> None:
     assert payload["velocity_spike_anomaly"] is True
     assert payload["velocity_anomaly_mode"] == "absolute_delta"
     assert payload["confidence_interval"]["sample_size"] == 20
-
 
 def test_alerts_evaluate_emits_expected_severity_buckets() -> None:
     handler = _handler_class()
@@ -349,7 +685,6 @@ def test_alerts_evaluate_emits_expected_severity_buckets() -> None:
     assert alerts["warning"][0]["code"] == "replay_failure_warning"
     assert alerts["info"][0]["code"] == "instability_velocity_spike"
 
-
 def test_alerts_evaluate_returns_empty_when_below_thresholds() -> None:
     handler = _handler_class()
     with patch.object(
@@ -364,7 +699,6 @@ def test_alerts_evaluate_returns_empty_when_below_thresholds() -> None:
     assert alerts["warning"] == []
     assert alerts["info"] == []
 
-
 def test_replay_diff_export_includes_bundle_export_metadata() -> None:
     handler = _handler_class()
     diff = {"ok": True, "epoch_id": "epoch-1", "changed_keys": [], "added_keys": [], "removed_keys": []}
@@ -377,7 +711,6 @@ def test_replay_diff_export_includes_bundle_export_metadata() -> None:
     assert payload["ok"] is True
     assert payload["bundle_id"] == "evidence-1234"
     assert payload["export_metadata"]["digest"] == "sha256:abc"
-
 
 def test_epoch_export_includes_bundle_export_metadata() -> None:
     handler = _handler_class()

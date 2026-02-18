@@ -214,6 +214,9 @@ app.main
 | Replay strict | Boot halt | `replay_verified` event |
 | Constitution | Mutation reject | Rejection event |
 | Ledger integrity | Governance stop | Hash continuity checks |
+| Command queue | Intent reject | Queue hash + rejection event |
+
+The Aponi dashboard now also exposes a strict-gated command-intent queue (`/control/queue`) for governance-aligned `create_agent` and `run_task` requests, plus governed skill profile discovery (`/control/skill-profiles`) and normalized compatibility matrix projection (`/control/capability-matrix`), policy envelope summaries (`/control/policy-summary`), and deterministic intent templates (`/control/templates`), environment diagnostics (`/control/environment-health`), and queue continuity verification (`/control/queue/verify`). This surface validates policy profile, skill profile, knowledge-domain and ability membership, plus capability-source allowlists, then records intents for downstream governed processing; queue continuity verification also detects malformed queue records. It does not execute mutations directly. The default dashboard UI includes a draggable floating observation and command-initiator panel for operators, while preserving the same strict gating and queue-only behavior.
 
 ## Replay epochs
 

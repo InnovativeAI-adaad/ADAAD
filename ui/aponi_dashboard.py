@@ -18,6 +18,7 @@ Minimal HTTP dashboard served with the standard library.
 import argparse
 import json
 import os
+import re
 import threading
 import time
 from hashlib import sha256
@@ -84,6 +85,250 @@ ALERT_THRESHOLDS = {
     "replay_failure_warning": 0.05,
     "velocity_spike": True,
 }
+CONTROL_AGENT_ID_RE = re.compile(r"^[a-z0-9_\-]{3,64}$")
+CONTROL_GOVERNANCE_PROFILES = {"strict", "high-assurance"}
+CONTROL_QUEUE_PATH = Path(os.environ.get("APONI_COMMAND_QUEUE_PATH", str(APP_ROOT.parent / "data" / "aponi_command_queue.jsonl")))
+FREE_CAPABILITY_SOURCES_PATH = Path(os.environ.get("APONI_FREE_SOURCES_PATH", str(APP_ROOT.parent / "data" / "free_capability_sources.json")))
+SKILL_PROFILES_PATH = Path(os.environ.get("APONI_SKILL_PROFILES_PATH", str(APP_ROOT.parent / "data" / "governed_skill_profiles.json")))
+CONTROL_CAPABILITIES_MAX = 8
+CONTROL_TEXT_FIELD_MAX = 240
+CONTROL_DATA_SCHEMA_VERSION = "1"
+
+
+def _extract_schema_version(raw: object) -> str:
+    if isinstance(raw, dict):
+        value = raw.get("_schema_version")
+        if isinstance(value, str):
+            return value
+    return ""
+
+
+def _schema_version_status(path: Path) -> Dict[str, object]:
+    if not path.exists():
+        return {"path": str(path), "exists": False, "schema_version": "", "ok": False}
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {"path": str(path), "exists": True, "schema_version": "", "ok": False}
+    version = _extract_schema_version(raw)
+    return {
+        "path": str(path),
+        "exists": True,
+        "schema_version": version,
+        "expected_schema_version": CONTROL_DATA_SCHEMA_VERSION,
+        "ok": version == CONTROL_DATA_SCHEMA_VERSION,
+    }
+
+
+
+
+def _load_free_capability_sources() -> Dict[str, Dict[str, object]]:
+    if not FREE_CAPABILITY_SOURCES_PATH.exists():
+        return {}
+    try:
+        raw = json.loads(FREE_CAPABILITY_SOURCES_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    if not isinstance(raw, dict):
+        return {}
+    normalized: Dict[str, Dict[str, object]] = {}
+    for key, value in raw.items():
+        if not isinstance(key, str) or key.startswith("_") or not isinstance(value, dict):
+            continue
+        normalized[key] = value
+    return normalized
+
+
+
+
+def _load_skill_profiles() -> Dict[str, Dict[str, object]]:
+    if not SKILL_PROFILES_PATH.exists():
+        return {}
+    try:
+        raw = json.loads(SKILL_PROFILES_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    if not isinstance(raw, dict):
+        return {}
+    normalized: Dict[str, Dict[str, object]] = {}
+    for key, value in raw.items():
+        if isinstance(key, str) and (not key.startswith("_")) and isinstance(value, dict):
+            normalized[key] = value
+    return normalized
+
+
+
+def _skill_capability_matrix() -> Dict[str, Dict[str, object]]:
+    profiles = _load_skill_profiles()
+    sources = _load_free_capability_sources()
+    matrix: Dict[str, Dict[str, object]] = {}
+    for skill_profile in sorted(profiles.keys()):
+        profile = profiles.get(skill_profile) or {}
+        allowed_capabilities = profile.get("allowed_capabilities")
+        capabilities: List[str] = []
+        if isinstance(allowed_capabilities, list):
+            capabilities = sorted(str(item) for item in allowed_capabilities if isinstance(item, str) and item in sources)
+        abilities = profile.get("abilities")
+        knowledge_domains = profile.get("knowledge_domains")
+        matrix[skill_profile] = {
+            "abilities": sorted(str(item) for item in (abilities or []) if isinstance(item, str)),
+            "knowledge_domains": sorted(str(item) for item in (knowledge_domains or []) if isinstance(item, str)),
+            "capabilities": capabilities,
+        }
+    return matrix
+
+def _normalized_field(raw_payload: Dict[str, object], key: str, *, lower: bool = False) -> str:
+    value = str(raw_payload.get(key, "")).strip()
+    if lower:
+        value = value.lower()
+    return value[:CONTROL_TEXT_FIELD_MAX]
+
+
+def _control_policy_summary() -> Dict[str, object]:
+    profiles = _load_skill_profiles()
+    sources = _load_free_capability_sources()
+    matrix = _skill_capability_matrix()
+    return {
+        "max_capabilities_per_intent": CONTROL_CAPABILITIES_MAX,
+        "max_text_field_length": CONTROL_TEXT_FIELD_MAX,
+        "governance_profiles": sorted(CONTROL_GOVERNANCE_PROFILES),
+        "skill_profiles": sorted(profiles.keys()),
+        "capability_sources": sorted(sources.keys()),
+        "matrix_profile_count": len(matrix),
+    }
+
+
+def _control_intent_templates() -> Dict[str, Dict[str, object]]:
+    matrix = _skill_capability_matrix()
+    templates: Dict[str, Dict[str, object]] = {}
+    for profile_name in sorted(matrix.keys()):
+        profile = matrix.get(profile_name) or {}
+        domains = profile.get("knowledge_domains") if isinstance(profile.get("knowledge_domains"), list) else []
+        abilities = profile.get("abilities") if isinstance(profile.get("abilities"), list) else []
+        capabilities = profile.get("capabilities") if isinstance(profile.get("capabilities"), list) else []
+        first_domain = domains[0] if domains else ""
+        first_ability = abilities[0] if abilities else ""
+        first_capability = capabilities[0] if capabilities else ""
+        templates[profile_name] = {
+            "create_agent": {
+                "type": "create_agent",
+                "governance_profile": "strict",
+                "agent_id": "example_agent",
+                "skill_profile": profile_name,
+                "knowledge_domain": first_domain,
+                "capabilities": [first_capability] if first_capability else [],
+                "purpose": "Describe the governed role of this agent",
+            },
+            "run_task": {
+                "type": "run_task",
+                "governance_profile": "strict",
+                "agent_id": "example_agent",
+                "skill_profile": profile_name,
+                "knowledge_domain": first_domain,
+                "capabilities": [first_capability] if first_capability else [],
+                "ability": first_ability,
+                "task": "Describe deterministic governed task",
+            },
+        }
+    return templates
+
+
+def _queue_entry_digest(entry: Dict[str, object]) -> str:
+    canonical = json.dumps(entry, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return f"sha256:{sha256(canonical.encode('utf-8')).hexdigest()}"
+
+
+def _verify_control_queue(entries: List[Dict[str, object]]) -> Dict[str, object]:
+    issues: List[str] = []
+    expected_index = 1
+    previous_digest = ""
+    for entry in entries:
+        if not isinstance(entry, dict):
+            issues.append("invalid_entry_type")
+            expected_index += 1
+            continue
+        queue_index = entry.get("queue_index")
+        if queue_index != expected_index:
+            issues.append(f"unexpected_queue_index:{queue_index}:expected:{expected_index}")
+        payload_raw = entry.get("payload")
+        if not isinstance(payload_raw, dict):
+            issues.append("invalid_payload_type")
+            payload: Dict[str, object] = {}
+        else:
+            payload = payload_raw
+        canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+        expected_command_id = f"cmd-{expected_index:06d}-{sha256(canonical.encode('utf-8')).hexdigest()[:12]}"
+        if entry.get("command_id") != expected_command_id:
+            issues.append(f"unexpected_command_id:{entry.get('command_id')}:expected:{expected_command_id}")
+        declared_previous = str(entry.get("previous_digest", "")).strip()
+        if declared_previous != previous_digest:
+            issues.append("previous_digest_mismatch")
+        previous_digest = _queue_entry_digest(entry)
+        expected_index += 1
+    return {
+        "ok": len(issues) == 0,
+        "entries": len(entries),
+        "issues": issues,
+        "latest_digest": previous_digest,
+    }
+
+
+def _environment_health_snapshot() -> Dict[str, object]:
+    queue_parent = CONTROL_QUEUE_PATH.parent
+    queue_path_exists = CONTROL_QUEUE_PATH.exists()
+    sources = _load_free_capability_sources()
+    profiles = _load_skill_profiles()
+    policy_ok = GOVERNANCE_POLICY is not None
+    return {
+        "policy_loaded": policy_ok,
+        "policy_error": GOVERNANCE_POLICY_ERROR or "",
+        "command_surface_enabled": os.getenv("APONI_COMMAND_SURFACE", "0").strip() == "1",
+        "queue_path": str(CONTROL_QUEUE_PATH),
+        "queue_parent_exists": queue_parent.exists(),
+        "queue_parent_writable": os.access(queue_parent, os.W_OK) if queue_parent.exists() else False,
+        "queue_file_exists": queue_path_exists,
+        "free_sources_count": len(sources),
+        "skill_profiles_count": len(profiles),
+        "required_files": {
+            "free_sources": _schema_version_status(FREE_CAPABILITY_SOURCES_PATH),
+            "skill_profiles": _schema_version_status(SKILL_PROFILES_PATH),
+        },
+    }
+
+
+def _read_control_queue() -> List[Dict[str, object]]:
+    if not CONTROL_QUEUE_PATH.exists():
+        return []
+    entries: List[Dict[str, object]] = []
+    try:
+        for line in CONTROL_QUEUE_PATH.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            parsed = json.loads(line)
+            if isinstance(parsed, dict):
+                entries.append(parsed)
+    except (OSError, json.JSONDecodeError):
+        return []
+    return entries
+
+
+def _queue_control_command(payload: Dict[str, object]) -> Dict[str, object]:
+    existing = _read_control_queue()
+    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    command_id = f"cmd-{len(existing) + 1:06d}-{sha256(canonical.encode('utf-8')).hexdigest()[:12]}"
+    previous_digest = _queue_entry_digest(existing[-1]) if existing else ""
+    entry = {
+        "command_id": command_id,
+        "queue_index": len(existing) + 1,
+        "status": "queued",
+        "previous_digest": previous_digest,
+        "payload": payload,
+    }
+    CONTROL_QUEUE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with CONTROL_QUEUE_PATH.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(entry, sort_keys=True, ensure_ascii=False) + "\n")
+    return entry
 
 
 class AponiDashboard:
@@ -230,11 +475,134 @@ class AponiDashboard:
                 if path.startswith("/staging"):
                     self._send_json(self._collect_mutations(staging_dir))
                     return
+                if path.startswith("/control/free-sources"):
+                    self._send_json({"sources": _load_free_capability_sources()})
+                    return
+                if path.startswith("/control/skill-profiles"):
+                    self._send_json({"profiles": _load_skill_profiles()})
+                    return
+                if path.startswith("/control/capability-matrix"):
+                    self._send_json({"matrix": _skill_capability_matrix()})
+                    return
+                if path.startswith("/control/policy-summary"):
+                    self._send_json(_control_policy_summary())
+                    return
+                if path.startswith("/control/templates"):
+                    self._send_json({"templates": _control_intent_templates()})
+                    return
+                if path.startswith("/control/queue/verify"):
+                    entries = _read_control_queue()
+                    self._send_json(_verify_control_queue(entries))
+                    return
+                if path.startswith("/control/queue"):
+                    entries = _read_control_queue()
+                    verification = _verify_control_queue(entries)
+                    self._send_json({"enabled": self._command_surface_enabled(), "entries": entries[-50:], "latest_digest": verification.get("latest_digest", "")})
+                    return
                 self.send_response(404)
                 self.end_headers()
 
+            def do_POST(self):  # noqa: N802 - required by base class
+                parsed = urlparse(self.path)
+                if not parsed.path.startswith("/control/queue"):
+                    self.send_response(404)
+                    self.end_headers()
+                    return
+                if not self._command_surface_enabled():
+                    self._send_json({"ok": False, "error": "command_surface_disabled"})
+                    return
+                content_length = int(self.headers.get("Content-Length", "0") or "0")
+                if content_length <= 0:
+                    self._send_json({"ok": False, "error": "empty_body"})
+                    return
+                try:
+                    payload = json.loads(self.rfile.read(content_length).decode("utf-8"))
+                except json.JSONDecodeError:
+                    self._send_json({"ok": False, "error": "invalid_json"})
+                    return
+                validated = self._validate_control_command(payload)
+                if not validated.get("ok"):
+                    self._send_json(validated)
+                    return
+                entry = _queue_control_command(validated["command"])
+                metrics.log(event_type="aponi_control_command_queued", payload={"command_id": entry["command_id"], "type": validated["command"]["type"]}, level="INFO", element_id=ELEMENT_ID)
+                self._send_json({"ok": True, "entry": entry})
+
             def log_message(self, format, *args):  # pragma: no cover
                 return
+
+            @staticmethod
+            def _command_surface_enabled() -> bool:
+                return os.getenv("APONI_COMMAND_SURFACE", "0").strip() == "1"
+
+            @staticmethod
+            def _validate_control_command(raw_payload) -> Dict[str, object]:
+                if not isinstance(raw_payload, dict):
+                    return {"ok": False, "error": "invalid_payload"}
+                command_type = _normalized_field(raw_payload, "type")
+                if command_type not in {"create_agent", "run_task"}:
+                    return {"ok": False, "error": "unsupported_type"}
+                governance_profile = _normalized_field(raw_payload, "governance_profile", lower=True)
+                if governance_profile not in CONTROL_GOVERNANCE_PROFILES:
+                    return {"ok": False, "error": "invalid_governance_profile", "allowed": sorted(CONTROL_GOVERNANCE_PROFILES)}
+                agent_id = _normalized_field(raw_payload, "agent_id", lower=True)
+                if not CONTROL_AGENT_ID_RE.match(agent_id):
+                    return {"ok": False, "error": "invalid_agent_id"}
+                free_sources = _load_free_capability_sources()
+                skill_profiles = _load_skill_profiles()
+                skill_profile = _normalized_field(raw_payload, "skill_profile")
+                if skill_profile not in skill_profiles:
+                    return {"ok": False, "error": "invalid_skill_profile", "allowed": sorted(skill_profiles.keys())}
+
+                raw_capabilities = raw_payload.get("capabilities") or []
+                if not isinstance(raw_capabilities, list):
+                    return {"ok": False, "error": "invalid_capabilities", "allowed": sorted(free_sources.keys())}
+                capabilities = sorted({_normalized_field({"v": item}, "v") for item in raw_capabilities if isinstance(item, str) and _normalized_field({"v": item}, "v")})
+                if len(capabilities) > CONTROL_CAPABILITIES_MAX:
+                    return {"ok": False, "error": "capabilities_limit_exceeded", "max": CONTROL_CAPABILITIES_MAX}
+                if not all(item in free_sources for item in capabilities):
+                    return {"ok": False, "error": "invalid_capabilities", "allowed": sorted(free_sources.keys())}
+
+                profile_caps = skill_profiles.get(skill_profile, {}).get("allowed_capabilities")
+                if not isinstance(profile_caps, list):
+                    return {"ok": False, "error": "invalid_skill_profile_capabilities"}
+                profile_caps_set = {str(item) for item in profile_caps if isinstance(item, str)}
+                if any(item not in profile_caps_set for item in capabilities):
+                    return {"ok": False, "error": "capability_not_allowed_for_skill", "allowed": sorted(profile_caps_set)}
+
+                knowledge_domain = _normalized_field(raw_payload, "knowledge_domain")
+                allowed_domains = skill_profiles.get(skill_profile, {}).get("knowledge_domains")
+                if not isinstance(allowed_domains, list) or knowledge_domain not in allowed_domains:
+                    return {"ok": False, "error": "invalid_knowledge_domain", "allowed": sorted(allowed_domains or [])}
+
+                if command_type == "run_task":
+                    task = _normalized_field(raw_payload, "task")
+                    if not task:
+                        return {"ok": False, "error": "missing_task"}
+                    ability = _normalized_field(raw_payload, "ability")
+                    allowed_abilities = skill_profiles.get(skill_profile, {}).get("abilities")
+                    if not isinstance(allowed_abilities, list) or ability not in allowed_abilities:
+                        return {"ok": False, "error": "invalid_ability", "allowed": sorted(allowed_abilities or [])}
+
+                if command_type == "create_agent":
+                    purpose = _normalized_field(raw_payload, "purpose")
+                    if not purpose:
+                        return {"ok": False, "error": "missing_purpose"}
+
+                command = {
+                    "type": command_type,
+                    "agent_id": agent_id,
+                    "governance_profile": governance_profile,
+                    "skill_profile": skill_profile,
+                    "knowledge_domain": knowledge_domain,
+                    "capabilities": capabilities,
+                }
+                if command_type == "run_task":
+                    command["task"] = task
+                    command["ability"] = ability
+                if command_type == "create_agent":
+                    command["purpose"] = purpose
+                return {"ok": True, "command": command}
 
             @staticmethod
             def _collect_mutations(lineage_root: Path) -> List[str]:
@@ -787,52 +1155,284 @@ class AponiDashboard:
             @staticmethod
             def _user_console() -> str:
                 return f"""<!doctype html>
-<html lang=\"en\">
+<html lang="en">
 <head>
-  <meta charset=\"utf-8\" />
-  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{HUMAN_DASHBOARD_TITLE}</title>
   <style>
     body {{ font-family: Arial, sans-serif; margin: 0; background: #0e1624; color: #e8eef6; }}
     header {{ background: #17243a; padding: 1rem 1.25rem; }}
     main {{ padding: 1rem 1.25rem 2rem; display: grid; gap: 1rem; }}
     section {{ border: 1px solid #273751; border-radius: 8px; padding: 0.9rem; background: #121d30; }}
-    h1, h2 {{ margin: 0 0 0.75rem; }}
+    h1, h2, h3 {{ margin: 0 0 0.75rem; }}
     h1 {{ font-size: 1.3rem; }}
     h2 {{ font-size: 1rem; color: #9ac0ff; }}
+    h3 {{ font-size: 0.9rem; color: #bcd4ff; margin-top: 0.9rem; }}
     pre {{ overflow-x: auto; white-space: pre-wrap; margin: 0; }}
     .meta {{ color: #a8b8cc; font-size: 0.9rem; margin-top: 0.3rem; }}
+    .floating-panel {{ position: fixed; right: 1rem; bottom: 1rem; width: min(420px, calc(100vw - 2rem)); z-index: 20; border: 1px solid #2f4768; border-radius: 10px; background: #0f1d30; box-shadow: 0 12px 30px rgba(0,0,0,0.45); }}
+    .floating-header {{ cursor: move; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; background: #18314d; padding: 0.55rem 0.7rem; border-bottom: 1px solid #2f4768; border-top-left-radius: 10px; border-top-right-radius: 10px; }}
+    .floating-body {{ padding: 0.7rem; display: grid; gap: 0.6rem; }}
+    .floating-panel.collapsed .floating-body {{ display: none; }}
+    .floating-label {{ font-size: 0.82rem; color: #b8cae1; }}
+    .floating-input, .floating-select, .floating-textarea {{ width: 100%; background: #0a1422; color: #e8eef6; border: 1px solid #2f4768; border-radius: 6px; padding: 0.45rem; box-sizing: border-box; }}
+    .floating-textarea {{ min-height: 70px; resize: vertical; }}
+    .floating-actions {{ display: flex; gap: 0.5rem; }}
+    .floating-btn {{ border: 1px solid #3f5f89; color: #e6f0ff; background: #1f3555; padding: 0.45rem 0.7rem; border-radius: 6px; cursor: pointer; }}
+    .floating-status {{ font-size: 0.8rem; color: #9cc0f5; white-space: pre-wrap; }}
   </style>
 </head>
 <body>
   <header>
     <h1>{HUMAN_DASHBOARD_TITLE}</h1>
-    <div class=\"meta\">Read-only governance control plane view. No mutation execution is exposed by this UI.</div>
+    <div class="meta">Read-only governance intelligence view plus strict-gated command intent initiator.</div>
   </header>
   <main>
-    <section><h2>System state</h2><pre id=\"state\">Loading...</pre></section>
-    <section><h2>Intelligence snapshot</h2><pre id=\"intelligence\">Loading...</pre></section>
-    <section><h2>Risk summary</h2><pre id=\"risk\">Loading...</pre></section>
-    <section><h2>Risk instability</h2><pre id=\"instability\">Loading...</pre></section>
-    <section><h2>Replay divergence</h2><pre id=\"replay\">Loading...</pre></section>
-    <section><h2>Evolution timeline (latest)</h2><pre id=\"timeline\">Loading...</pre></section>
+    <section><h2>System state</h2><pre id="state">Loading...</pre></section>
+    <section><h2>Intelligence snapshot</h2><pre id="intelligence">Loading...</pre></section>
+    <section><h2>Risk summary</h2><pre id="risk">Loading...</pre></section>
+    <section><h2>Risk instability</h2><pre id="instability">Loading...</pre></section>
+    <section><h2>Replay divergence</h2><pre id="replay">Loading...</pre></section>
+    <section><h2>Evolution timeline (latest)</h2><pre id="timeline">Loading...</pre></section>
   </main>
-  <script src=\"/ui/aponi.js\"></script>
+  <aside id="controlPanel" class="floating-panel" aria-label="Aponi command initiator">
+    <div id="controlPanelHeader" class="floating-header">
+      <strong>Aponi Command Initiator</strong>
+      <button id="controlToggle" type="button" class="floating-btn">Collapse</button>
+    </div>
+    <div class="floating-body">
+      <div class="floating-label">Command queue status</div>
+      <pre id="queueSummary">Loading...</pre>
+      <h3>Queue new governed intent</h3>
+      <label class="floating-label" for="controlType">Type</label>
+      <select id="controlType" class="floating-select">
+        <option value="create_agent">create_agent</option>
+        <option value="run_task">run_task</option>
+      </select>
+      <label class="floating-label" for="controlAgentId">Agent ID</label>
+      <input id="controlAgentId" class="floating-input" value="triage_agent" />
+      <label class="floating-label" for="controlGovernance">Governance profile</label>
+      <select id="controlGovernance" class="floating-select">
+        <option value="strict">strict</option>
+        <option value="high-assurance">high-assurance</option>
+      </select>
+      <label class="floating-label" for="controlSkillProfile">Skill profile</label>
+      <select id="controlSkillProfile" class="floating-select"></select>
+      <label class="floating-label" for="controlKnowledgeDomain">Knowledge domain</label>
+      <select id="controlKnowledgeDomain" class="floating-select"></select>
+      <label class="floating-label" for="controlCapabilities">Capabilities (comma-separated allowlist keys)</label>
+      <input id="controlCapabilities" class="floating-input" value="wikipedia" />
+      <label class="floating-label" for="controlAbility">Ability (required for run_task)</label>
+      <input id="controlAbility" class="floating-input" value="summarize" />
+      <label class="floating-label" for="controlTask">Task (run_task) / Purpose (create_agent)</label>
+      <textarea id="controlTask" class="floating-textarea"></textarea>
+      <div class="floating-actions">
+        <button id="queueSubmit" type="button" class="floating-btn">Queue intent</button>
+        <button id="queueRefresh" type="button" class="floating-btn">Refresh queue</button>
+      </div>
+      <div id="controlStatus" class="floating-status">Awaiting command input.</div>
+    </div>
+  </aside>
+  <script src="/ui/aponi.js"></script>
 </body>
 </html>
 """
 
             @staticmethod
             def _user_console_js() -> str:
-                return """async function paint(id, endpoint) {
+                return """const STORAGE_KEY = 'aponi.control.panel.v1';
+
+async function paint(id, endpoint) {
   const el = document.getElementById(id);
   if (!el) return;
   try {
     const response = await fetch(endpoint, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`capability-matrix returned HTTP ${response.status}`);
     const payload = await response.json();
     el.textContent = JSON.stringify(payload, null, 2);
   } catch (err) {
     el.textContent = 'Failed to load ' + endpoint + ': ' + err;
+  }
+}
+
+function restorePanelState() {
+  const panel = document.getElementById('controlPanel');
+  if (!panel) return;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    if (parsed && parsed.collapsed) panel.classList.add('collapsed');
+    if (parsed && typeof parsed.right === 'number') panel.style.right = parsed.right + 'px';
+    if (parsed && typeof parsed.bottom === 'number') panel.style.bottom = parsed.bottom + 'px';
+  } catch (_) {
+    return;
+  }
+}
+
+function persistPanelState() {
+  const panel = document.getElementById('controlPanel');
+  if (!panel) return;
+  const payload = {
+    collapsed: panel.classList.contains('collapsed'),
+    right: parseInt(panel.style.right || '16', 10),
+    bottom: parseInt(panel.style.bottom || '16', 10),
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+}
+
+function setupFloatingPanel() {
+  const panel = document.getElementById('controlPanel');
+  const header = document.getElementById('controlPanelHeader');
+  const toggle = document.getElementById('controlToggle');
+  if (!panel || !header || !toggle) return;
+  restorePanelState();
+  toggle.textContent = panel.classList.contains('collapsed') ? 'Expand' : 'Collapse';
+  toggle.addEventListener('click', () => {
+    panel.classList.toggle('collapsed');
+    toggle.textContent = panel.classList.contains('collapsed') ? 'Expand' : 'Collapse';
+    persistPanelState();
+  });
+
+  let dragging = false;
+  let startX = 0;
+  let startY = 0;
+  let startRight = 16;
+  let startBottom = 16;
+
+  header.addEventListener('mousedown', (event) => {
+    dragging = true;
+    startX = event.clientX;
+    startY = event.clientY;
+    startRight = parseInt(panel.style.right || '16', 10);
+    startBottom = parseInt(panel.style.bottom || '16', 10);
+  });
+  window.addEventListener('mousemove', (event) => {
+    if (!dragging) return;
+    const dx = event.clientX - startX;
+    const dy = event.clientY - startY;
+    panel.style.right = Math.max(10, startRight - dx) + 'px';
+    panel.style.bottom = Math.max(10, startBottom - dy) + 'px';
+  });
+  window.addEventListener('mouseup', () => {
+    if (!dragging) return;
+    dragging = false;
+    persistPanelState();
+  });
+}
+
+async function refreshSkillProfiles() {
+  const profileSelect = document.getElementById('controlSkillProfile');
+  const domainSelect = document.getElementById('controlKnowledgeDomain');
+  const capabilityInput = document.getElementById('controlCapabilities');
+  const abilityInput = document.getElementById('controlAbility');
+  const status = document.getElementById('controlStatus');
+  if (!profileSelect || !domainSelect) return;
+  try {
+    const response = await fetch('/control/capability-matrix', { cache: 'no-store' });
+    if (!response.ok) throw new Error(`capability-matrix returned HTTP ${response.status}`);
+    const payload = await response.json();
+    const matrix = payload && payload.matrix ? payload.matrix : {};
+    const keys = Object.keys(matrix).sort();
+    if (!keys.length) {
+      if (status) status.textContent = 'No governed skill profiles were returned by /control/capability-matrix.';
+      return;
+    }
+    profileSelect.innerHTML = keys.map((key) => `<option value="${key}">${key}</option>`).join('');
+
+    const applyProfile = () => {
+      const selected = profileSelect.value;
+      const profile = matrix[selected] || {};
+      const domains = Array.isArray(profile.knowledge_domains) ? profile.knowledge_domains : [];
+      const abilities = Array.isArray(profile.abilities) ? profile.abilities : [];
+      const capabilities = Array.isArray(profile.capabilities) ? profile.capabilities : [];
+      domainSelect.innerHTML = domains.map((item) => `<option value="${item}">${item}</option>`).join('');
+      if (abilityInput && abilities.length) abilityInput.value = abilities[0];
+      if (capabilityInput && capabilities.length) capabilityInput.value = capabilities[0];
+    };
+
+    profileSelect.onchange = applyProfile;
+    applyProfile();
+  } catch (err) {
+    if (status) status.textContent = 'Failed to load skill profiles: ' + err;
+  }
+}
+
+async function refreshControlQueue() {
+  const el = document.getElementById('queueSummary');
+  if (!el) return;
+  try {
+    const [queueResponse, verifyResponse] = await Promise.all([
+      fetch('/control/queue', { cache: 'no-store' }),
+      fetch('/control/queue/verify', { cache: 'no-store' }),
+    ]);
+    const [queueResult, verifyResult] = await Promise.allSettled([
+      queueResponse.json(),
+      verifyResponse.json(),
+    ]);
+    const payload = queueResult.status === 'fulfilled' ? queueResult.value : {};
+    const verify = verifyResult.status === 'fulfilled' ? verifyResult.value : {};
+    const summary = {
+      enabled: !!payload.enabled,
+      latest_digest: payload.latest_digest || '',
+      queue_parse_error: queueResult.status === 'rejected' ? String(queueResult.reason) : null,
+      verify_ok: !!verify.ok,
+      verify_issue_count: Array.isArray(verify.issues) ? verify.issues.length : 0,
+      verify_parse_error: verifyResult.status === 'rejected' ? String(verifyResult.reason) : null,
+      latest_entries: Array.isArray(payload.entries) ? payload.entries.slice(-3) : [],
+    };
+    el.textContent = JSON.stringify(summary, null, 2);
+  } catch (err) {
+    el.textContent = 'Failed to load queue surfaces: ' + err;
+  }
+}
+
+function readCommandPayload() {
+  const type = (document.getElementById('controlType') || {}).value || 'create_agent';
+  const agentId = (document.getElementById('controlAgentId') || {}).value || '';
+  const governanceProfile = (document.getElementById('controlGovernance') || {}).value || 'strict';
+  const skillProfile = (document.getElementById('controlSkillProfile') || {}).value || '';
+  const capabilitiesRaw = (document.getElementById('controlCapabilities') || {}).value || '';
+  const ability = (document.getElementById('controlAbility') || {}).value || '';
+  const taskOrPurpose = (document.getElementById('controlTask') || {}).value || '';
+  const payload = {
+    type: type,
+    agent_id: agentId,
+    governance_profile: governanceProfile,
+    skill_profile: skillProfile,
+    knowledge_domain: ((document.getElementById('controlKnowledgeDomain') || {}).value || ""),
+    capabilities: capabilitiesRaw.split(',').map((item) => item.trim()).filter(Boolean),
+  };
+  if (type === 'run_task') {
+    payload.task = taskOrPurpose;
+    payload.ability = ability;
+  } else {
+    payload.purpose = taskOrPurpose;
+  }
+  return payload;
+}
+
+async function queueIntent() {
+  const status = document.getElementById('controlStatus');
+  if (status) status.textContent = 'Submitting command intent...';
+  const commandPayload = readCommandPayload();
+  if (!commandPayload.agent_id) {
+    if (status) status.textContent = 'Agent ID is required before queue submission.';
+    return;
+  }
+  try {
+    const response = await fetch('/control/queue', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(commandPayload),
+    });
+    const payload = await response.json();
+    const statusLabel = response.ok ? '' : `[HTTP ${response.status}] `;
+    if (status) status.textContent = statusLabel + JSON.stringify(payload, null, 2);
+    await refreshControlQueue();
+  } catch (err) {
+    if (status) status.textContent = 'Failed to submit intent: ' + err;
   }
 }
 
@@ -844,12 +1444,18 @@ async function refresh() {
     paint('instability', '/risk/instability'),
     paint('replay', '/replay/divergence'),
     paint('timeline', '/evolution/timeline'),
+    refreshControlQueue(),
   ]);
 }
 
+setupFloatingPanel();
+refreshSkillProfiles();
+document.getElementById('queueSubmit')?.addEventListener('click', queueIntent);
+document.getElementById('queueRefresh')?.addEventListener('click', refreshControlQueue);
 refresh();
 setInterval(refresh, 5000);
 """
+
 
         return Handler
 
@@ -876,7 +1482,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"[APONI] dashboard running on http://{dashboard.host}:{dashboard.port}")
     print(
         "[APONI] endpoints: / /state /metrics /fitness /system/intelligence /risk/summary /risk/instability /policy/simulate /alerts/evaluate /replay/divergence /replay/diff?epoch_id=... "
-        "/capabilities /lineage /mutations /staging /evolution/epoch?epoch_id=... /evolution/live /evolution/active /evolution/timeline"
+        "/capabilities /lineage /mutations /staging /evolution/epoch?epoch_id=... /evolution/live /evolution/active /evolution/timeline /control/free-sources /control/skill-profiles /control/capability-matrix /control/policy-summary /control/templates /control/environment-health /control/queue /control/queue/verify"
     )
     try:
         while True:

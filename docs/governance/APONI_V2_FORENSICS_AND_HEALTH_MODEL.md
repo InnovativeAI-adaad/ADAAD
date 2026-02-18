@@ -2,11 +2,72 @@
 
 ## Scope
 
-This document defines deterministic, read-only Aponi V2 intelligence behavior.
+This document defines deterministic Aponi V2 intelligence behavior.
 
-- No mutation surfaces are introduced.
-- All new surfaces are `GET` only.
-- Data is computed from existing append-only metrics/lineage artifacts.
+- No direct mutation execution surfaces are introduced.
+- Intelligence surfaces remain `GET` only.
+- Command surfaces, when enabled, queue validated intents only.
+- Data is computed from existing append-only metrics/lineage artifacts plus append-only command queue records.
+
+## Strict-gated command queue endpoints
+
+### `GET /control/free-sources`
+
+Returns approved free capability sources from `data/free_capability_sources.json`.
+
+### `GET /control/queue`
+
+Returns latest queued command intents and queue status.
+
+### `GET /control/skill-profiles`
+
+Returns governed skill profiles from `data/governed_skill_profiles.json` including deterministic knowledge-domain and ability constraints.
+
+### `GET /control/capability-matrix`
+
+Returns a normalized deterministic compatibility matrix used by the UI to bind `skill_profile` -> `knowledge_domains` / `abilities` / allowed capabilities.
+
+### `GET /control/policy-summary`
+
+Returns deterministic command-surface policy envelope metadata (text/capability bounds, governance profiles, and inventory counts) for operator validation.
+
+### `GET /control/templates`
+
+Returns deterministic starter templates for `create_agent` and `run_task` intents per governed skill profile.
+
+### `GET /control/environment-health`
+
+Returns deterministic control-plane environment diagnostics constrained to governance-safe readiness data: policy load status/error, command-surface gate state, queue path readiness/writability, required governance data file presence, and schema-version compatibility status against the expected control data schema version. It does not expose secrets, tokens, or arbitrary host environment dumps.
+
+### `GET /control/queue/verify`
+
+Verifies append-only queue continuity and deterministic integrity (`queue_index`, `command_id`, `previous_digest` chain), and reports malformed payload records.
+
+### `POST /control/queue`
+
+Queues a governance command intent only when `APONI_COMMAND_SURFACE=1`.
+
+Supported intent types:
+
+- `create_agent`
+- `run_task`
+
+Deterministic validations:
+
+- strict governance profile (`strict`/`high-assurance`)
+- deterministic `agent_id` format
+- skill profile allowlist (`data/governed_skill_profiles.json`)
+- capability source allowlist plus skill-profile capability envelope
+- knowledge-domain membership in selected skill profile
+- type-specific required fields (`purpose` or `task`)
+- `run_task` ability membership in selected skill profile
+- deterministic capability deduplication with fixed max envelope
+- normalized and size-bounded text fields prior to queue append
+- deterministic queue continuity via `previous_digest` chain and verifier endpoint
+
+Queueing an intent does not execute mutations and does not bypass constitutional gates.
+
+Governance data artifacts `data/free_capability_sources.json` and `data/governed_skill_profiles.json` are versioned with top-level `_schema_version` for deterministic schema evolution controls.
 
 ## Replay Forensics Endpoints
 
@@ -102,7 +163,7 @@ The UI JavaScript is served as `/ui/aponi.js` to remain CSP-compatible without i
 
 ## Determinism Invariants
 
-1. UI endpoints never mutate lineage, ledger, or replay state; forensic endpoints may emit immutable export snapshots under `reports/forensics/`.
+1. Intelligence endpoints never mutate lineage, ledger, or replay state; forensic endpoints may emit immutable export snapshots under `reports/forensics/`. Strict-gated command endpoints append validated intents to the command queue only.
 2. Risk/intelligence outputs are pure functions of persisted telemetry windows.
 3. Replay diff output is canonical-hash based and reproducible for identical epoch inputs.
 

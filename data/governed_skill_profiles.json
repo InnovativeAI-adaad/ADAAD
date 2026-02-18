@@ -1,0 +1,68 @@
+{
+  "_schema_version": "1",
+  "triage-basic": {
+    "knowledge_domains": [
+      "release_notes",
+      "governance_events"
+    ],
+    "abilities": [
+      "summarize",
+      "classify_risk",
+      "propose_followups"
+    ],
+    "allowed_capabilities": [
+      "wikipedia",
+      "crossref",
+      "openalex"
+    ]
+  },
+  "governance-audit": {
+    "knowledge_domains": [
+      "constitution",
+      "replay_forensics",
+      "lineage"
+    ],
+    "abilities": [
+      "audit",
+      "explain_decision",
+      "forensic_diff"
+    ],
+    "allowed_capabilities": [
+      "crossref",
+      "openalex"
+    ]
+  },
+  "research-scout": {
+    "knowledge_domains": [
+      "literature",
+      "benchmarking"
+    ],
+    "abilities": [
+      "discover_sources",
+      "summarize",
+      "map_dependencies"
+    ],
+    "allowed_capabilities": [
+      "crossref",
+      "openalex",
+      "arxiv",
+      "openlibrary"
+    ]
+  },
+  "incident-response": {
+    "knowledge_domains": [
+      "runtime_incidents",
+      "policy_exceptions",
+      "lineage"
+    ],
+    "abilities": [
+      "triage",
+      "audit",
+      "recommend_mitigation"
+    ],
+    "allowed_capabilities": [
+      "wikipedia",
+      "crossref"
+    ]
+  }
+}
