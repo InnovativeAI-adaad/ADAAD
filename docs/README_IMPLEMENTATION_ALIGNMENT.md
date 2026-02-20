@@ -70,6 +70,7 @@ README mutation lifecycle concepts map to:
 - **Promotion transition + events**: `runtime/evolution/promotion_state_machine.py`, `runtime/evolution/promotion_events.py`, `runtime/evolution/promotion_policy.py`, `runtime/evolution/simulation_runner.py`
 - **Fitness scoring support**: `runtime/evolution/fitness.py`, `runtime/fitness_pipeline.py`, `runtime/evolution/scoring_algorithm.py`, `runtime/evolution/scoring_validator.py`, `runtime/evolution/scoring_ledger.py`
 - **Lineage digest verification**: `runtime/evolution/lineage_v2.py`, `runtime/evolution/replay.py`
+- **Null-safe governance accessors for mutable logs/state**: `runtime/governance/foundation/safe_access.py`, consumed in `app/beast_mode_loop.py`, `runtime/evolution/checkpoint_registry.py`, and audit/entropy tools under `tools/`.
 
 ## Validation Coverage
 
@@ -89,6 +90,7 @@ The following tests validate alignment-critical behavior:
 - `tests/test_scoring_ledger.py`
 - `tests/test_mutation_guard.py`
 - `tests/evolution/test_checkpoint_registry.py`
+- `tests/stability/test_null_guards.py`
 - `tests/evolution/test_entropy_policy.py`
 - `tests/sandbox/test_sandbox_evidence.py`
 - `tests/sandbox/test_sandbox_policy_enforcement.py`

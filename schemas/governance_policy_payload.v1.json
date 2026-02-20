@@ -8,29 +8,185 @@
     "model",
     "determinism_window",
     "mutation_rate_window_sec",
-    "thresholds"
+    "state_backend",
+    "thresholds",
+    "risk"
   ],
   "properties": {
-    "schema_version": {"type": "string", "const": "governance_policy_v1"},
+    "schema_version": {
+      "type": "string",
+      "const": "governance_policy_v1"
+    },
     "model": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "version"],
+      "required": [
+        "name",
+        "version"
+      ],
       "properties": {
-        "name": {"type": "string", "minLength": 1},
-        "version": {"type": "string", "minLength": 1}
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     },
-    "determinism_window": {"type": "integer", "minimum": 1},
-    "mutation_rate_window_sec": {"type": "integer", "minimum": 1},
+    "determinism_window": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "mutation_rate_window_sec": {
+      "type": "integer",
+      "minimum": 1
+    },
     "thresholds": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["determinism_pass", "determinism_warn"],
+      "required": [
+        "determinism_pass",
+        "determinism_warn"
+      ],
       "properties": {
-        "determinism_pass": {"type": "number", "minimum": 0, "maximum": 1},
-        "determinism_warn": {"type": "number", "minimum": 0, "maximum": 1}
+        "determinism_pass": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "determinism_warn": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
       }
+    },
+    "risk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "instability_weights",
+        "drift_class_weights",
+        "velocity_spike_threshold",
+        "wilson_z_95",
+        "alerts_thresholds"
+      ],
+      "properties": {
+        "instability_weights": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0
+          },
+          "required": [
+            "semantic_drift",
+            "replay_failure",
+            "escalation",
+            "determinism_drift"
+          ],
+          "properties": {
+            "semantic_drift": {
+              "type": "number",
+              "minimum": 0
+            },
+            "replay_failure": {
+              "type": "number",
+              "minimum": 0
+            },
+            "escalation": {
+              "type": "number",
+              "minimum": 0
+            },
+            "determinism_drift": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "drift_class_weights": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0
+          },
+          "required": [
+            "config_drift",
+            "governance_drift",
+            "trait_drift",
+            "runtime_artifact_drift",
+            "uncategorized_drift"
+          ],
+          "properties": {
+            "config_drift": {
+              "type": "number",
+              "minimum": 0
+            },
+            "governance_drift": {
+              "type": "number",
+              "minimum": 0
+            },
+            "trait_drift": {
+              "type": "number",
+              "minimum": 0
+            },
+            "runtime_artifact_drift": {
+              "type": "number",
+              "minimum": 0
+            },
+            "uncategorized_drift": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "velocity_spike_threshold": {
+          "type": "number",
+          "minimum": 0
+        },
+        "wilson_z_95": {
+          "type": "number",
+          "minimum": 0
+        },
+        "alerts_thresholds": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "instability_critical",
+            "instability_warning",
+            "replay_failure_warning",
+            "velocity_spike"
+          ],
+          "properties": {
+            "instability_critical": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "instability_warning": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "replay_failure_warning": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "velocity_spike": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "state_backend": {
+      "type": "string",
+      "enum": [
+        "json",
+        "sqlite"
+      ]
     }
   }
 }

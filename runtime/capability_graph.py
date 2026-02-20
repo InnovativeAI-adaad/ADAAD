@@ -18,8 +18,6 @@ Graph-backed capability registry enforcing dependencies and monotonic scores.
 from __future__ import annotations
 
 import fcntl
-import json
-import tempfile
 import time
 from contextlib import contextmanager
 from hashlib import sha256
@@ -27,6 +25,8 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, Iterator, List, Tuple
 
 from runtime import ROOT_DIR, metrics
+from runtime.governance.policy_artifact import GovernancePolicyError, load_governance_policy
+from runtime.state.registry_store import CryovantRegistryStore
 
 CAPABILITIES_PATH = ROOT_DIR / "data" / "capabilities.json"
 _CONFLICT_RETRIES = 5
@@ -56,29 +56,31 @@ def _file_state(path: Path) -> Tuple[int | None, str]:
 
 
 def _load() -> Dict[str, Dict[str, Any]]:
-    if not CAPABILITIES_PATH.exists():
-        return {}
+    backend = "json"
     try:
-        return json.loads(CAPABILITIES_PATH.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return {}
+        backend = load_governance_policy().state_backend
+    except GovernancePolicyError:
+        backend = "json"
+    store = CryovantRegistryStore(
+        json_path=CAPABILITIES_PATH,
+        sqlite_path=CAPABILITIES_PATH.with_suffix(".sqlite"),
+        backend=backend,
+    )
+    return store.load_registry()
 
 
 def _save(data: Dict[str, Dict[str, Any]]) -> None:
-    CAPABILITIES_PATH.parent.mkdir(parents=True, exist_ok=True)
-    payload = json.dumps(data, indent=2)
-    with tempfile.NamedTemporaryFile(
-        "w",
-        encoding="utf-8",
-        dir=CAPABILITIES_PATH.parent,
-        prefix=f".{CAPABILITIES_PATH.name}.",
-        suffix=".tmp",
-        delete=False,
-    ) as handle:
-        handle.write(payload)
-        handle.flush()
-        temp_path = Path(handle.name)
-    temp_path.replace(CAPABILITIES_PATH)
+    backend = "json"
+    try:
+        backend = load_governance_policy().state_backend
+    except GovernancePolicyError:
+        backend = "json"
+    store = CryovantRegistryStore(
+        json_path=CAPABILITIES_PATH,
+        sqlite_path=CAPABILITIES_PATH.with_suffix(".sqlite"),
+        backend=backend,
+    )
+    store.save_registry(data)
 
 
 def _now() -> str:

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://adaad.local/schemas/aponi_responses/policy_simulate.schema.json",
+  "type": "object",
+  "required": ["ok"],
+  "properties": {
+    "ok": {"type": "boolean"},
+    "inputs": {"type": "object"},
+    "current_policy": {"type": "object"},
+    "simulated_policy": {"type": "object"},
+    "error": {"type": "string"},
+    "detail": {"type": "string"},
+    "policy": {"type": "string"},
+    "blocked_flag": {"type": "string"}
+  }
+}

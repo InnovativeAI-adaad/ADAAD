@@ -1,0 +1,110 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.server.txt
+          pip install ruff mypy
+      - name: Ruff
+        run: ruff check .
+      - name: Mypy
+        run: |
+          mypy app/ runtime/ --ignore-missing-imports --python-version 3.10 --strict-optional --no-error-summary
+          mypy governance/ security/ ui/ --ignore-missing-imports --python-version 3.10 --no-error-summary
+
+  determinism-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.server.txt
+      - name: Validate setup
+        run: python nexus_setup.py --validate-only
+      - name: Run determinism tests
+        run: PYTHONPATH=. pytest tests/determinism/
+
+  governance-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.server.txt
+      - name: Validate governance policy schemas
+        run: python scripts/validate_governance_schemas.py
+      - name: Run governance tests
+        run: |
+          set -euo pipefail
+          targets=(tests/governance/)
+          if [ -d tests/stability/ ]; then
+            targets+=(tests/stability/)
+          fi
+          PYTHONPATH=. pytest "${targets[@]}"
+
+  replay-audit-boot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.server.txt
+      - name: Run replay audit boot and assert marker
+        env:
+          ADAAD_ENV: dev
+          CRYOVANT_DEV_MODE: "1"
+        run: |
+          set +e
+          output=$(PYTHONPATH=. python -m app.main --replay audit --dry-run --exit-after-boot 2>&1)
+          status=$?
+          set -e
+          printf '%s\n' "$output"
+          if [ "$status" -ne 0 ]; then
+            echo "Expected exit code 0 but got $status"
+            exit 1
+          fi
+          echo "$output" | grep -F "ADAAD_BOOT_OK"
+
+  sandbox-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.server.txt
+      - name: Run sandbox tests
+        run: PYTHONPATH=. pytest tests/sandbox/

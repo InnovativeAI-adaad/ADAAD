@@ -17,6 +17,7 @@ Minimal HTTP dashboard served with the standard library.
 
 import argparse
 import json
+import logging
 import os
 import re
 import threading
@@ -36,7 +37,9 @@ from runtime.governance.event_taxonomy import (
     EVENT_TYPE_REPLAY_FAILURE,
     normalize_event_type,
 )
+from runtime.governance.instability_calculator import load_instability_policy
 from runtime.governance.policy_artifact import GovernancePolicyError, load_governance_policy
+from runtime.governance.response_schema_validator import validate_response
 from runtime.evolution import EvidenceBundleBuilder, EvidenceBundleError, LineageLedgerV2, ReplayEngine
 from runtime.evolution.epoch import CURRENT_EPOCH_PATH
 from runtime.evolution.replay_attestation import REPLAY_PROOFS_DIR, load_replay_proof, verify_replay_proof_bundle
@@ -64,27 +67,6 @@ def _require_governance_policy():
         detail = GOVERNANCE_POLICY_ERROR or "governance policy unavailable"
         raise GovernancePolicyError(f"policy unavailable (fail-closed): {detail}")
     return GOVERNANCE_POLICY
-INSTABILITY_WEIGHTS = {
-    "semantic_drift": 0.35,
-    "replay_failure": 0.25,
-    "escalation": 0.20,
-    "determinism_drift": 0.20,
-}
-DRIFT_CLASS_WEIGHTS = {
-    "config_drift": 0.8,
-    "governance_drift": 1.4,
-    "trait_drift": 1.0,
-    "runtime_artifact_drift": 1.1,
-    "uncategorized_drift": 0.9,
-}
-VELOCITY_SPIKE_THRESHOLD = 0.2
-WILSON_Z_95 = 1.96
-ALERT_THRESHOLDS = {
-    "instability_critical": 0.7,
-    "instability_warning": 0.5,
-    "replay_failure_warning": 0.05,
-    "velocity_spike": True,
-}
 CONTROL_AGENT_ID_RE = re.compile(r"^[a-z0-9_\-]{3,64}$")
 CONTROL_GOVERNANCE_PROFILES = {"strict", "high-assurance"}
 CONTROL_QUEUE_PATH = Path(os.environ.get("APONI_COMMAND_QUEUE_PATH", str(APP_ROOT.parent / "data" / "aponi_command_queue.jsonl")))
@@ -93,6 +75,24 @@ SKILL_PROFILES_PATH = Path(os.environ.get("APONI_SKILL_PROFILES_PATH", str(APP_R
 CONTROL_CAPABILITIES_MAX = 8
 CONTROL_TEXT_FIELD_MAX = 240
 CONTROL_DATA_SCHEMA_VERSION = "1"
+
+
+INSTABILITY_POLICY_ERROR: str | None = None
+try:
+    INSTABILITY_POLICY = load_instability_policy()
+except GovernancePolicyError as _instability_policy_exc:
+    INSTABILITY_POLICY = None
+    INSTABILITY_POLICY_ERROR = str(_instability_policy_exc)
+    logging.getLogger(__name__).error(
+        "ADAAD: instability policy failed to load at module init: %s", _instability_policy_exc
+    )
+
+
+def _require_instability_policy():
+    if INSTABILITY_POLICY is None:
+        detail = INSTABILITY_POLICY_ERROR or "instability policy unavailable"
+        raise GovernancePolicyError(f"policy unavailable (fail-closed): {detail}")
+    return INSTABILITY_POLICY
 
 
 def _extract_schema_version(raw: object) -> str:
@@ -363,14 +363,43 @@ class AponiDashboard:
         class Handler(SimpleHTTPRequestHandler):
             _replay_engine = replay
             _bundle_builder = bundle_builder
-            def _send_json(self, payload) -> None:
+            def _send_json(self, payload, *, status_code: int = 200) -> None:
                 body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-                self.send_response(200)
+                self.send_response(status_code)
                 self.send_header("Content-Type", "application/json")
                 self.send_header("Cache-Control", "no-store")
                 self.send_header("Content-Length", str(len(body)))
                 self.end_headers()
                 self.wfile.write(body)
+
+            def _send_schema_violation(self, endpoint: str, violations: List[str]) -> None:
+                self._send_json(
+                    {
+                        "ok": False,
+                        "governance_error": "response_schema_violation",
+                        "endpoint": endpoint,
+                        "violations": violations,
+                    },
+                    status_code=500,
+                )
+
+            def _send_governance_error(self, endpoint: str, code: str, detail: str) -> None:
+                self._send_json(
+                    {
+                        "ok": False,
+                        "governance_error": code,
+                        "endpoint": endpoint,
+                        "detail": detail,
+                    },
+                    status_code=500,
+                )
+
+            def _send_validated_response(self, endpoint: str, schema_filename: str, payload: Dict | List[Dict]) -> None:
+                violations = validate_response(schema_filename, payload)
+                if violations:
+                    self._send_schema_violation(endpoint, violations)
+                    return
+                self._send_json(payload)
 
             def _send_js(self, script: str) -> None:
                 body = script.encode("utf-8")
@@ -420,29 +449,42 @@ class AponiDashboard:
                     self._send_json(self._fitness_events())
                     return
                 if path.startswith("/system/intelligence"):
-                    self._send_json(self._intelligence_snapshot())
+                    self._send_validated_response("/system/intelligence", "system_intelligence.schema.json", self._intelligence_snapshot())
                     return
                 if path.startswith("/risk/summary"):
-                    self._send_json(self._risk_summary())
+                    self._send_validated_response("/risk/summary", "risk_summary.schema.json", self._risk_summary())
                     return
                 if path.startswith("/risk/instability"):
-                    self._send_json(self._risk_instability())
+                    try:
+                        payload = self._risk_instability()
+                    except GovernancePolicyError as exc:
+                        self._send_governance_error("/risk/instability", "instability_policy_unavailable", str(exc))
+                        return
+                    self._send_validated_response("/risk/instability", "risk_instability.schema.json", payload)
                     return
                 if path.startswith("/replay/divergence"):
-                    self._send_json(self._replay_divergence())
+                    self._send_validated_response("/replay/divergence", "replay_divergence.schema.json", self._replay_divergence())
                     return
                 if path.startswith("/policy/simulate"):
-                    self._send_json(self._policy_simulation(query))
+                    if self.command != "GET":
+                        self._send_json({"ok": False, "error": "method_not_allowed", "detail": "policy/simulate is GET only"}, status_code=405)
+                        return
+                    self._send_validated_response("/policy/simulate", "policy_simulate.schema.json", self._policy_simulation(query))
                     return
                 if path.startswith("/alerts/evaluate"):
-                    self._send_json(self._alerts_evaluate())
+                    try:
+                        payload = self._alerts_evaluate()
+                    except GovernancePolicyError as exc:
+                        self._send_governance_error("/alerts/evaluate", "instability_policy_unavailable", str(exc))
+                        return
+                    self._send_validated_response("/alerts/evaluate", "alerts_evaluate.schema.json", payload)
                     return
                 if path.startswith("/replay/diff"):
                     epoch_id = query.get("epoch_id", [""])[0].strip()
                     if not epoch_id:
                         self._send_json({"ok": False, "error": "missing_epoch_id"})
                         return
-                    self._send_json(self._replay_diff_export(epoch_id))
+                    self._send_validated_response("/replay/diff", "replay_diff.schema.json", self._replay_diff_export(epoch_id))
                     return
                 if path.startswith("/capabilities"):
                     self._send_json(self._capabilities())
@@ -467,7 +509,7 @@ class AponiDashboard:
                         self._send_json({})
                     return
                 if path.startswith("/evolution/timeline"):
-                    self._send_json(self._evolution_timeline())
+                    self._send_validated_response("/evolution/timeline", "evolution_timeline.schema.json", self._evolution_timeline())
                     return
                 if path.startswith("/mutations"):
                     self._send_json(self._collect_mutations(lineage_dir))
@@ -504,6 +546,9 @@ class AponiDashboard:
 
             def do_POST(self):  # noqa: N802 - required by base class
                 parsed = urlparse(self.path)
+                if parsed.path.startswith("/policy/simulate"):
+                    self._send_json({"ok": False, "error": "method_not_allowed", "detail": "policy/simulate is GET only"}, status_code=405)
+                    return
                 if not parsed.path.startswith("/control/queue"):
                     self.send_response(404)
                     self.end_headers()
@@ -775,10 +820,12 @@ class AponiDashboard:
                 if total <= 0:
                     return {"low": 0.0, "high": 0.0, "confidence": 0.95, "sample_size": 0}
                 p_hat = successes / total
-                z2 = WILSON_Z_95 ** 2
+                instability_policy = _require_instability_policy()
+                z_value = instability_policy.wilson_z_95
+                z2 = z_value ** 2
                 denom = 1.0 + z2 / total
                 center = (p_hat + z2 / (2.0 * total)) / denom
-                margin = (WILSON_Z_95 / denom) * ((p_hat * (1.0 - p_hat) / total + z2 / (4.0 * total * total)) ** 0.5)
+                margin = (z_value / denom) * ((p_hat * (1.0 - p_hat) / total + z2 / (4.0 * total * total)) ** 0.5)
                 low = max(0.0, center - margin)
                 high = min(1.0, center + margin)
                 return {
@@ -795,7 +842,8 @@ class AponiDashboard:
                     return {"density": 0.0, "window": 0, "considered": 0}
                 weighted_sum = 0.0
                 considered = 0
-                max_weight = max(DRIFT_CLASS_WEIGHTS.values())
+                instability_policy = _require_instability_policy()
+                max_weight = max(instability_policy.drift_class_weights.values())
                 for entry in entries:
                     epoch_id = str(entry.get("epoch") or "").strip()
                     if not epoch_id:
@@ -815,7 +863,7 @@ class AponiDashboard:
                     total = sum(int(v) for v in counts.values())
                     if total <= 0:
                         continue
-                    score = sum(DRIFT_CLASS_WEIGHTS.get(name, 1.0) * int(counts.get(name, 0)) for name in SEMANTIC_DRIFT_CLASSES) / (total * max_weight)
+                    score = sum(instability_policy.drift_class_weights.get(name, 1.0) * int(counts.get(name, 0)) for name in SEMANTIC_DRIFT_CLASSES) / (total * max_weight)
                     weighted_sum += score
                     considered += 1
                 if considered == 0:
@@ -845,6 +893,11 @@ class AponiDashboard:
 
             @classmethod
             def _policy_simulation(cls, query: Dict[str, List[str]]) -> Dict:
+                guard_flags = ("apply", "write", "mutate", "commit")
+                for flag in guard_flags:
+                    if query.get(flag, [""])[0].strip().lower() in {"1", "true", "yes"}:
+                        return {"ok": False, "error": "read_only_endpoint", "blocked_flag": flag}
+
                 policy_name = query.get("policy", ["governance_policy_v1.json"])[0].strip() or "governance_policy_v1.json"
                 policy_path = Path("governance") / Path(policy_name).name
                 try:
@@ -923,14 +976,16 @@ class AponiDashboard:
                 drift_successes = sum(1 for entry in recent if str(entry.get("risk_tier", "")).lower() in {"high", "critical", "unknown"})
                 confidence_interval = cls._risk_instability_confidence_interval(drift_successes, len(recent))
 
+                instability_policy = _require_instability_policy()
+                instability_weights = instability_policy.instability_weights
                 instability = (
-                    INSTABILITY_WEIGHTS["semantic_drift"] * drift_density
-                    + INSTABILITY_WEIGHTS["replay_failure"] * float(risk.get("replay_failure_rate", 0.0))
-                    + INSTABILITY_WEIGHTS["escalation"] * float(risk.get("escalation_frequency", 0.0))
-                    + INSTABILITY_WEIGHTS["determinism_drift"] * float(risk.get("determinism_drift_index", 0.0))
+                    instability_weights["semantic_drift"] * drift_density
+                    + instability_weights["replay_failure"] * float(risk.get("replay_failure_rate", 0.0))
+                    + instability_weights["escalation"] * float(risk.get("escalation_frequency", 0.0))
+                    + instability_weights["determinism_drift"] * float(risk.get("determinism_drift_index", 0.0))
                 )
                 instability_index = min(1.0, max(0.0, round(instability, 6)))
-                velocity_spike = abs(instability_velocity) >= VELOCITY_SPIKE_THRESHOLD
+                velocity_spike = abs(instability_velocity) >= instability_policy.velocity_spike_threshold
                 return {
                     "instability_index": instability_index,
                     "instability_velocity": instability_velocity,
@@ -938,8 +993,8 @@ class AponiDashboard:
                     "velocity_spike_anomaly": velocity_spike,
                     "velocity_anomaly_mode": "absolute_delta",
                     "confidence_interval": confidence_interval,
-                    "weights": dict(INSTABILITY_WEIGHTS),
-                    "drift_class_weights": dict(DRIFT_CLASS_WEIGHTS),
+                    "weights": dict(instability_weights),
+                    "drift_class_weights": dict(instability_policy.drift_class_weights),
                     "inputs": {
                         "semantic_drift_density": drift_density,
                         "replay_failure_rate": float(risk.get("replay_failure_rate", 0.0)),
@@ -964,15 +1019,17 @@ class AponiDashboard:
                 replay_failure_rate = float(risk.get("replay_failure_rate", 0.0))
                 velocity_spike = bool(instability.get("velocity_spike_anomaly", False))
 
-                if instability_index >= ALERT_THRESHOLDS["instability_critical"]:
+                alert_thresholds = _require_instability_policy().alert_thresholds
+
+                if instability_index >= float(alert_thresholds["instability_critical"]):
                     critical.append({"code": "instability_critical", "value": instability_index})
-                elif instability_index >= ALERT_THRESHOLDS["instability_warning"]:
+                elif instability_index >= float(alert_thresholds["instability_warning"]):
                     warning.append({"code": "instability_warning", "value": instability_index})
 
-                if replay_failure_rate >= ALERT_THRESHOLDS["replay_failure_warning"]:
+                if replay_failure_rate >= float(alert_thresholds["replay_failure_warning"]):
                     warning.append({"code": "replay_failure_warning", "value": replay_failure_rate})
 
-                if ALERT_THRESHOLDS["velocity_spike"] and velocity_spike:
+                if bool(alert_thresholds["velocity_spike"]) and velocity_spike:
                     info.append(
                         {
                             "code": "instability_velocity_spike",
@@ -985,7 +1042,7 @@ class AponiDashboard:
                     "critical": critical,
                     "warning": warning,
                     "info": info,
-                    "thresholds": dict(ALERT_THRESHOLDS),
+                    "thresholds": dict(alert_thresholds),
                     "inputs": {
                         "instability_index": instability_index,
                         "replay_failure_rate": replay_failure_rate,

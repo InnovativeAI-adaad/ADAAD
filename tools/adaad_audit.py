@@ -15,10 +15,12 @@ from typing import Any, Dict, Iterable, List, Optional
 try:
     from runtime import metrics
     from runtime.autonomy.scoreboard import build_scoreboard_views
+    from runtime.governance.foundation import coerce_log_entry, safe_get, safe_list, safe_str
 except ModuleNotFoundError:  # pragma: no cover - fallback for direct script execution
     sys.path.append(str(Path(__file__).resolve().parents[1]))
     from runtime import metrics
     from runtime.autonomy.scoreboard import build_scoreboard_views
+    from runtime.governance.foundation import coerce_log_entry, safe_get, safe_list, safe_str
 
 
 def _parse_timestamp(value: str) -> datetime:
@@ -49,19 +51,20 @@ def _filter_entries(
     end_dt = _parse_timestamp(end) if end else None
     filtered: List[Dict[str, Any]] = []
     for entry in entries:
-        payload = entry.get("payload") or {}
-        event = entry.get("event")
+        normalized = coerce_log_entry(entry)
+        payload = safe_get(entry, "payload", default={})
+        event = safe_str(safe_get(entry, "event"), default=normalized["status"])
         if event != "constitutional_evaluation":
             if not include_rejections or event not in {
                 "mutation_rejected_preflight",
                 "mutation_rejected_constitutional",
             }:
                 continue
-        if agent_id and payload.get("agent_id") != agent_id:
+        if agent_id and safe_get(payload, "agent_id", default="") != agent_id:
             continue
-        if tier and payload.get("tier") != tier:
+        if tier and safe_get(payload, "tier", default="") != tier:
             continue
-        ts = entry.get("timestamp")
+        ts = safe_str(safe_get(entry, "timestamp"), default=normalized["timestamp"])
         if ts and (start_dt or end_dt):
             ts_dt = _parse_timestamp(ts)
             if start_dt and ts_dt < start_dt:
@@ -76,13 +79,13 @@ def _summarize_violations(entries: Iterable[Dict[str, Any]]) -> Dict[str, Any]:
     preflight_counts: Dict[str, int] = {}
     constitutional_counts: Dict[str, int] = {}
     for entry in entries:
-        if entry.get("event") == "mutation_rejected_preflight":
-            payload = entry.get("payload") or {}
-            reason = payload.get("reason", "unknown")
+        if safe_get(entry, "event", default="") == "mutation_rejected_preflight":
+            payload = safe_get(entry, "payload", default={})
+            reason = safe_str(safe_get(payload, "reason"), default="unknown")
             preflight_counts[reason] = preflight_counts.get(reason, 0) + 1
-        if entry.get("event") == "mutation_rejected_constitutional":
-            payload = entry.get("payload") or {}
-            failures = payload.get("blocking_failures") or []
+        if safe_get(entry, "event", default="") == "mutation_rejected_constitutional":
+            payload = safe_get(entry, "payload", default={})
+            failures = safe_list(safe_get(payload, "blocking_failures"))
             for failure in failures:
                 constitutional_counts[failure] = constitutional_counts.get(failure, 0) + 1
     return {
@@ -95,15 +98,15 @@ def _format_table(entries: List[Dict[str, Any]]) -> str:
     headers = ["timestamp", "agent", "tier", "passed", "blocking", "warnings"]
     rows = []
     for entry in entries:
-        payload = entry.get("payload") or {}
+        payload = safe_get(entry, "payload", default={})
         rows.append(
             [
-                entry.get("timestamp", ""),
-                payload.get("agent_id", ""),
-                payload.get("tier", ""),
-                str(payload.get("passed")),
-                ",".join(payload.get("blocking_failures") or []),
-                ",".join(payload.get("warnings") or []),
+                safe_str(safe_get(entry, "timestamp")),
+                safe_str(safe_get(payload, "agent_id")),
+                safe_str(safe_get(payload, "tier")),
+                str(safe_get(payload, "passed")),
+                ",".join(safe_list(safe_get(payload, "blocking_failures"))),
+                ",".join(safe_list(safe_get(payload, "warnings"))),
             ]
         )
     widths = [len(header) for header in headers]

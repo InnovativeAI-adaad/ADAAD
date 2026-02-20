@@ -29,6 +29,7 @@ Deterministic replay-sensitive entry points now consume a shared provider abstra
 - Forensic evidence bundles: `runtime/evolution/evidence_bundle.py` exports canonical immutable bundles with signed export metadata (`digest`, `retention_days`, `access_scope`, signer fields), validates against `schemas/evidence_bundle.v1.json`, and fails closed on malformed evidence/schema inputs.
 
 - Governance signing guide: `docs/governance/POLICY_ARTIFACT_SIGNING_GUIDE.md` (deterministic signing + verification workflow, including `scripts/sign_policy_artifact.sh` and `scripts/verify_policy_artifact.sh`).
+- State persistence toggle: governance policy payload now supports `state_backend` (`json` default, optional `sqlite`) for deterministic registry/ledger persistence through `runtime/state/` stores with parity checks and JSON→SQLite migration helpers.
 - Forensic retention lifecycle: `docs/governance/FORENSIC_BUNDLE_LIFECYCLE.md` (`scripts/enforce_forensic_retention.py` dry-run/enforce operations + optional `ops/systemd/adaad-forensic-retention.timer`).
 - Federation incident response: `docs/governance/FEDERATION_CONFLICT_RUNBOOK.md`.
 

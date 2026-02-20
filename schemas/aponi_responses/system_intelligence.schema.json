@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://adaad.local/schemas/aponi_responses/system_intelligence.schema.json",
+  "type": "object",
+  "required": ["governance_health", "model_version", "policy_fingerprint", "model_inputs", "determinism_score", "mutation_aggression_index", "entropy_trend_slope", "replay_mode", "constitution_escalations_last_100"],
+  "properties": {
+    "governance_health": {"type": "string"},
+    "model_version": {"type": "string"},
+    "policy_fingerprint": {"type": "string"},
+    "model_inputs": {"type": "object"},
+    "determinism_score": {"type": "number"},
+    "mutation_aggression_index": {"type": "number"},
+    "entropy_trend_slope": {"type": "number"},
+    "replay_mode": {"type": "string"},
+    "constitution_escalations_last_100": {"type": "integer"}
+  }
+}

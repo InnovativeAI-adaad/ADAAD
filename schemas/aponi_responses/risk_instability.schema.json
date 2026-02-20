@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://adaad.local/schemas/aponi_responses/risk_instability.schema.json",
+  "type": "object",
+  "required": ["instability_index", "instability_velocity", "instability_acceleration", "velocity_spike_anomaly", "velocity_anomaly_mode", "confidence_interval", "weights", "drift_class_weights", "inputs"],
+  "properties": {
+    "instability_index": {"type": "number"},
+    "instability_velocity": {"type": "number"},
+    "instability_acceleration": {"type": "number"},
+    "velocity_spike_anomaly": {"type": "boolean"},
+    "velocity_anomaly_mode": {"type": "string"},
+    "confidence_interval": {"type": "object"},
+    "weights": {"type": "object"},
+    "drift_class_weights": {"type": "object"},
+    "inputs": {"type": "object"}
+  }
+}

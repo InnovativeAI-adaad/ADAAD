@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://adaad.local/schemas/aponi_responses/replay_diff.schema.json",
+  "type": "object",
+  "required": ["ok"],
+  "properties": {
+    "ok": {"type": "boolean"},
+    "error": {"type": "string"},
+    "epoch_id": {"type": "string"},
+    "initial_fingerprint": {"type": "string"},
+    "final_fingerprint": {"type": "string"},
+    "changed_keys": {"type": "array", "items": {"type": "string"}},
+    "added_keys": {"type": "array", "items": {"type": "string"}},
+    "removed_keys": {"type": "array", "items": {"type": "string"}},
+    "semantic_drift": {"type": "object"},
+    "epoch_chain_anchor": {"type": "object"},
+    "bundle_count": {"type": "integer"},
+    "replay_proof": {"type": "object"},
+    "bundle_id": {"type": "string"},
+    "export_metadata": {"type": "object"}
+  }
+}

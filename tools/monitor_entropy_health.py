@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from runtime.evolution.lineage_v2 import LineageLedgerV2
+from runtime.governance.foundation import safe_get, safe_str
 
 
 def _parse_ts(raw: Any) -> datetime | None:
@@ -31,14 +32,14 @@ def _parse_ts(raw: Any) -> datetime | None:
 def _epoch_windows(entries: list[dict[str, Any]]) -> dict[str, dict[str, datetime]]:
     windows: dict[str, dict[str, datetime]] = {}
     for entry in entries:
-        event_type = str(entry.get("type") or "")
+        event_type = safe_str(safe_get(entry, "type"))
         if event_type not in {"EpochStartEvent", "EpochEndEvent"}:
             continue
-        payload = dict(entry.get("payload") or {})
-        epoch_id = str(payload.get("epoch_id") or "").strip()
+        payload = safe_get(entry, "payload", default={})
+        epoch_id = safe_str(safe_get(payload, "epoch_id")).strip()
         if not epoch_id:
             continue
-        ts = _parse_ts(payload.get("ts"))
+        ts = _parse_ts(safe_get(payload, "ts"))
         if ts is None:
             continue
         record = windows.setdefault(epoch_id, {})
@@ -82,16 +83,16 @@ def build_health_report(entries: list[dict[str, Any]], epoch_ids: list[str]) -> 
     max_budget_observed = 0
 
     for entry in entries:
-        payload = dict(entry.get("payload") or {})
-        epoch_id = str(payload.get("epoch_id") or "")
+        payload = safe_get(entry, "payload", default={})
+        epoch_id = safe_str(safe_get(payload, "epoch_id"))
         if epoch_id not in epoch_set:
             continue
         if "entropy_consumed" not in payload:
             continue
 
-        consumed = max(0, int(payload.get("entropy_consumed", 0) or 0))
-        budget = max(0, int(payload.get("entropy_budget", 0) or 0))
-        overflow = bool(payload.get("entropy_overflow", False))
+        consumed = max(0, int(safe_get(payload, "entropy_consumed", default=0)))
+        budget = max(0, int(safe_get(payload, "entropy_budget", default=0)))
+        overflow = bool(safe_get(payload, "entropy_overflow", default=False))
 
         max_consumption_observed = max(max_consumption_observed, consumed)
         max_budget_observed = max(max_budget_observed, budget)

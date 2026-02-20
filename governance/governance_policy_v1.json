@@ -8,9 +8,33 @@
     },
     "determinism_window": 200,
     "mutation_rate_window_sec": 3600,
+    "state_backend": "json",
     "thresholds": {
       "determinism_pass": 0.98,
       "determinism_warn": 0.9
+    },
+    "risk": {
+      "instability_weights": {
+        "semantic_drift": 0.35,
+        "replay_failure": 0.25,
+        "escalation": 0.2,
+        "determinism_drift": 0.2
+      },
+      "drift_class_weights": {
+        "config_drift": 0.8,
+        "governance_drift": 1.4,
+        "trait_drift": 1.0,
+        "runtime_artifact_drift": 1.1,
+        "uncategorized_drift": 0.9
+      },
+      "velocity_spike_threshold": 0.2,
+      "wilson_z_95": 1.96,
+      "alerts_thresholds": {
+        "instability_critical": 0.7,
+        "instability_warning": 0.5,
+        "replay_failure_warning": 0.05,
+        "velocity_spike": true
+      }
     }
   },
   "signer": {

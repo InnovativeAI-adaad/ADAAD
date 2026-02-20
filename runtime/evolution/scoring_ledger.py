@@ -3,46 +3,27 @@
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any, Dict
 
-from runtime.governance.deterministic_filesystem import read_file_deterministic
-from runtime.governance.foundation import canonical_json, sha256_prefixed_digest
+from runtime.governance.policy_artifact import GovernancePolicyError, load_governance_policy
+from runtime.state.ledger_store import ScoringLedgerStore
 
 
 class ScoringLedger:
     def __init__(self, path: Path) -> None:
-        self.path = path
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        if not self.path.exists():
-            self.path.touch()
+        backend = "json"
+        try:
+            backend = load_governance_policy().state_backend
+        except GovernancePolicyError:
+            backend = "json"
+        self.store = ScoringLedgerStore(path=path, backend=backend)
 
     def append(self, scoring_result: Dict[str, Any]) -> Dict[str, Any]:
-        prev_hash = self.last_hash()
-        record = {
-            "scoring_result": dict(scoring_result),
-            "prev_hash": prev_hash,
-        }
-        record["record_hash"] = sha256_prefixed_digest(canonical_json(record))
-        with self.path.open("a", encoding="utf-8") as handle:
-            handle.write(json.dumps(record, sort_keys=True, ensure_ascii=False) + "\n")
-        return record
+        return self.store.append(scoring_result)
 
     def last_hash(self) -> str:
-        last = "sha256:" + ("0" * 64)
-        for line in read_file_deterministic(self.path).splitlines():
-            row = line.strip()
-            if not row:
-                continue
-            try:
-                payload = json.loads(row)
-            except json.JSONDecodeError:
-                continue
-            value = payload.get("record_hash")
-            if isinstance(value, str):
-                last = value
-        return last
+        return self.store.last_hash()
 
 
 __all__ = ["ScoringLedger"]

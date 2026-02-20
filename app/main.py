@@ -81,6 +81,7 @@ class Orchestrator:
         dry_run: bool = False,
         replay_mode: str | bool | ReplayMode = ReplayMode.OFF,
         replay_epoch: str = "",
+        exit_after_boot: bool = False,
         verbose: bool = False,
     ) -> None:
         self.state: Dict[str, Any] = {"status": "initializing", "mutation_enabled": False}
@@ -103,6 +104,7 @@ class Orchestrator:
         self.verbose = verbose
         self.replay_mode = normalize_replay_mode(replay_mode)
         self.replay_epoch = replay_epoch.strip()
+        self.exit_after_boot = exit_after_boot
         self.evolution_runtime.set_replay_mode(self.replay_mode)
 
     def _v(self, message: str) -> None:
@@ -173,17 +175,23 @@ class Orchestrator:
                 self.state["replay_divergence"] = True
                 journal.write_entry(agent_id="system", action="mutation_blocked_fail_closed", payload={"epoch_id": self.evolution_runtime.current_epoch_id, "ts": now_iso()})
             elif self._governance_gate():
-                self._run_mutation_cycle()
+                if self.exit_after_boot:
+                    self.state["mutation_cycle_skipped"] = "exit_after_boot"
+                else:
+                    self._run_mutation_cycle()
         self._v(f"Mutation cycle status: {'enabled' if self.state.get('mutation_enabled') else 'disabled'}")
         self._register_capabilities()
         self._v("Capability registration complete")
-        self._init_ui()
-        self._v("Aponi dashboard started")
         self.state["status"] = "ready"
         self._v("Boot sequence complete (status=ready)")
         metrics.log(event_type="orchestrator_ready", payload=self.state, level="INFO")
         journal.write_entry(agent_id="system", action="orchestrator_ready", payload=self.state)
         dump()
+        if self.exit_after_boot:
+            print("ADAAD_BOOT_OK")
+            sys.exit(0)
+        self._init_ui()
+        self._v("Aponi dashboard started")
 
     def _run_replay_preflight(self, *, verify_only: bool = False) -> Dict[str, Any]:
         mode = self.replay_mode
@@ -657,6 +665,11 @@ def main() -> None:
     )
     parser.add_argument("--replay-epoch", default="", help="Replay a specific epoch id as the verification target.")
     parser.add_argument("--verify-replay", action="store_true", help="Run replay verification and exit after reporting result.")
+    parser.add_argument(
+        "--exit-after-boot",
+        action="store_true",
+        help="Complete one governed boot (including replay audit) and exit before any mutation cycle.",
+    )
     args = parser.parse_args()
 
     dry_run_env = os.getenv("ADAAD_DRY_RUN", "").lower() in {"1", "true", "yes", "on"}
@@ -669,6 +682,7 @@ def main() -> None:
         dry_run=args.dry_run or dry_run_env,
         replay_mode=replay_mode,
         replay_epoch=args.replay_epoch,
+        exit_after_boot=args.exit_after_boot,
         verbose=args.verbose,
     )
     if args.verify_replay:

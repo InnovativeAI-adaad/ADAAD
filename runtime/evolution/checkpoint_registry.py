@@ -12,6 +12,7 @@ from runtime.governance.foundation import (
     ZERO_HASH,
     default_provider,
     require_replay_safe_provider,
+    safe_get,
     sha256_prefixed_digest,
 )
 
@@ -39,10 +40,9 @@ class CheckpointRegistry:
     def _latest_checkpoint_hash(self, epoch_id: str) -> str:
         latest = ZERO_HASH
         for entry in self.ledger.read_epoch(epoch_id):
-            if entry.get("type") != "EpochCheckpointEvent":
+            if safe_get(entry, "type", default="") != "EpochCheckpointEvent":
                 continue
-            payload = entry.get("payload") or {}
-            candidate = payload.get("checkpoint_hash")
+            candidate = safe_get(entry, "payload", "checkpoint_hash")
             if isinstance(candidate, str) and candidate:
                 latest = candidate
         return latest
@@ -50,13 +50,13 @@ class CheckpointRegistry:
     def create_checkpoint(self, epoch_id: str) -> Dict[str, Any]:
         require_replay_safe_provider(self.provider, replay_mode=self.replay_mode, recovery_tier=self.recovery_tier)
         epoch_events = self.ledger.read_epoch(epoch_id)
-        mutation_count = sum(1 for e in epoch_events if e.get("type") == "MutationBundleEvent")
-        promotion_count = sum(1 for e in epoch_events if e.get("type") == "PromotionEvent")
-        scoring_count = sum(1 for e in epoch_events if e.get("type") == "ScoringEvent")
+        mutation_count = sum(1 for e in epoch_events if safe_get(e, "type", default="") == "MutationBundleEvent")
+        promotion_count = sum(1 for e in epoch_events if safe_get(e, "type", default="") == "PromotionEvent")
+        scoring_count = sum(1 for e in epoch_events if safe_get(e, "type", default="") == "ScoringEvent")
         sandbox_evidence = [
-            (e.get("payload") or {}).get("evidence_hash")
+            safe_get(e, "payload", "evidence_hash")
             for e in epoch_events
-            if e.get("type") == "SandboxEvidenceEvent"
+            if safe_get(e, "type", default="") == "SandboxEvidenceEvent"
         ]
         evidence_hash = sha256_prefixed_digest(sorted(v for v in sandbox_evidence if isinstance(v, str)))
 

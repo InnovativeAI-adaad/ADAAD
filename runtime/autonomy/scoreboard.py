@@ -7,6 +7,7 @@ from collections import Counter, defaultdict
 from typing import Any
 
 from runtime import metrics
+from runtime.governance.foundation import safe_get, safe_str
 
 
 def build_scoreboard_views(limit: int = 1000) -> dict[str, Any]:
@@ -26,15 +27,15 @@ def build_scoreboard_views(limit: int = 1000) -> dict[str, Any]:
     for entry in entries:
         if not isinstance(entry, dict):
             continue
-        event = entry.get("event")
-        payload = entry.get("payload")
+        event = safe_str(safe_get(entry, "event"))
+        payload = safe_get(entry, "payload", default={})
         if not isinstance(payload, dict):
             payload = {}
 
         if event == "autonomy_action":
-            agent = str(payload.get("agent") or "unknown")
+            agent = safe_str(safe_get(payload, "agent"), default="unknown")
             try:
-                duration = int(payload.get("duration_ms") or 0)
+                duration = int(safe_get(payload, "duration_ms", default=0) or 0)
             except (TypeError, ValueError):
                 duration = 0
             perf_by_agent[agent].append(duration)
@@ -43,7 +44,7 @@ def build_scoreboard_views(limit: int = 1000) -> dict[str, Any]:
             mutation_outcomes[event] += 1
 
         if event in {"mutation_rejected_preflight", "sandbox_validation_failed"}:
-            reason = str(payload.get("reason") or "unknown")
+            reason = safe_str(safe_get(payload, "reason"), default="unknown")
             sandbox_failures[reason] += 1
 
     performance_view: dict[str, dict[str, float]] = {}
