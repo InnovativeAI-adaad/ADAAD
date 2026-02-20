@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://adaad.local/schemas/aponi_responses/alerts_evaluate.schema.json",
+  "type": "object",
+  "required": ["critical", "warning", "info", "thresholds", "inputs"],
+  "properties": {
+    "critical": {"type": "array", "items": {"type": "object"}},
+    "warning": {"type": "array", "items": {"type": "object"}},
+    "info": {"type": "array", "items": {"type": "object"}},
+    "thresholds": {"type": "object"},
+    "inputs": {"type": "object"}
+  }
+}

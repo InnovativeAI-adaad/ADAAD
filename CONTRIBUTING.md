@@ -6,7 +6,7 @@ By submitting a contribution, you agree that your work is licensed under the Apa
 
 1. Create and activate a virtual environment.
 2. Install dependencies from `requirements.server.txt`.
-3. Initialize local workspace with `python nexus_setup.py`.
+3. Initialize local workspace with `python nexus_setup.py` and run `python nexus_setup.py --validate-only` (or `--validate-only --json` for machine-readable output).
 4. Verify boot diagnostics with `python -m app.main --replay audit --verbose`.
 
 ## Branch naming

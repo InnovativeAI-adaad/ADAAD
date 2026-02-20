@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://adaad.local/schemas/aponi_responses/replay_divergence.schema.json",
+  "type": "object",
+  "required": ["window", "divergence_event_count", "latest_events", "proof_status"],
+  "properties": {
+    "window": {"type": "integer"},
+    "divergence_event_count": {"type": "integer"},
+    "latest_events": {"type": "array", "items": {"type": "object"}},
+    "proof_status": {"type": "object"}
+  }
+}

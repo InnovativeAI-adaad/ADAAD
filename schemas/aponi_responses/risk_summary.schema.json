@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://adaad.local/schemas/aponi_responses/risk_summary.schema.json",
+  "type": "object",
+  "required": ["escalation_frequency", "override_frequency", "replay_failure_rate", "aggression_trend_variance", "determinism_drift_index"],
+  "properties": {
+    "escalation_frequency": {"type": "number"},
+    "override_frequency": {"type": "number"},
+    "replay_failure_rate": {"type": "number"},
+    "aggression_trend_variance": {"type": "number"},
+    "determinism_drift_index": {"type": "number"}
+  }
+}

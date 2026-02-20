@@ -9,6 +9,7 @@ ADAAD is a governance-first mutation engine designed to make autonomous code cha
 </p>
 
 <p align="center">
+  <a href="https://github.com/InnovativeAI-adaad/ADAAD/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/InnovativeAI-adaad/ADAAD/actions/workflows/ci.yml/badge.svg"></a>
   <a href="QUICKSTART.md"><img alt="Quick Start" src="https://img.shields.io/badge/Quick_Start-5%20Minutes-success"></a>
   <img alt="Python" src="https://img.shields.io/badge/python-3.10+-blue.svg">
   <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-Apache%202.0-blue.svg"></a>
@@ -155,6 +156,14 @@ What you should get:
 - Mutation cycle status with governance gate outcomes.
 - No file mutations written (`--dry-run`), so you can safely inspect behavior first.
 
+For CI-safe replay boot validation without entering a mutation cycle:
+
+```bash
+python -m app.main --replay audit --exit-after-boot
+```
+
+Prints `ADAAD_BOOT_OK` and exits `0` on success. Exits `1` on any governance failure.
+
 ```bash
 git clone https://github.com/InnovativeAI-adaad/ADAAD.git
 cd ADAAD
@@ -162,6 +171,8 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.server.txt
 python nexus_setup.py
+python nexus_setup.py --validate-only        # read-only preflight: required checks + optional local port probe
+python nexus_setup.py --validate-only --json # same report in machine-readable form (no workspace writes)
 python -m app.main --replay audit --verbose
 ```
 
@@ -344,7 +355,7 @@ For safety-critical stability, Aponi V2 is being delivered incrementally inside 
 Aponi intelligence responses include a versioned governance health model for deterministic interpretation.
 Thresholds and model metadata are loaded from `governance/governance_policy_v1.json`, and `/system/intelligence` includes a `policy_fingerprint` hash for auditability.
 `/risk/instability` exposes a deterministic weighted instability index over replay failure rate, escalation frequency, determinism drift, and **drift-class-weighted** semantic drift density (with `governance_drift` weighted above `config_drift`), plus additive momentum signals (`instability_velocity`, `instability_acceleration`), confidence interval modeling, and velocity-spike anomaly flags on absolute velocity deltas.
-`/policy/simulate` provides read-only policy outcome simulation against candidate governance policy artifacts without mutating live governance state.
+`/policy/simulate` provides read-only policy outcome simulation against candidate governance policy artifacts without mutating live governance state, and rejects explicit mutation flags (`apply`, `write`, `mutate`, `commit`).
 `/alerts/evaluate` provides deterministic severity-bucketed governance alerts (critical/warning/info) derived from instability and replay indicators.
 
 ## Enhanced user experience
@@ -408,3 +419,5 @@ Security disclosures: see [docs/SECURITY.md](docs/SECURITY.md). Do not open publ
 ## License
 
 Apache 2.0. See [LICENSE](LICENSE).
+
+Aponi governance intelligence responses are validated against draft-2020-12 schemas in `schemas/aponi_responses/`; validation failures return structured `governance_error: "response_schema_violation"` fail-closed responses.

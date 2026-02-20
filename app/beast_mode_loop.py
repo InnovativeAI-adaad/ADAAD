@@ -29,6 +29,7 @@ from runtime.autonomy.mutation_scaffold import MutationCandidate, rank_mutation_
 from runtime import fitness, metrics
 from runtime.capability_graph import get_capabilities, register_capability
 from runtime.evolution.promotion_manifest import PromotionManifestWriter
+from runtime.governance.foundation import safe_get
 from security import cryovant
 from security.ledger import journal
 
@@ -176,7 +177,7 @@ class BeastModeLoop:
                 payload = json.loads(mutation_file.read_text(encoding="utf-8"))
             except json.JSONDecodeError:
                 continue
-            if payload.get("parent") == agent_id:
+            if safe_get(payload, "parent", default="") == agent_id:
                 return candidate, payload
         return None, None
 
@@ -188,10 +189,10 @@ class BeastModeLoop:
         missing = sorted(list(required - set(contract)))
         if missing:
             return False, f"handoff_contract_missing:{','.join(missing)}", None
-        constraints = contract.get("constraints")
+        constraints = safe_get(contract, "constraints", default={})
         if not isinstance(constraints, dict):
             return False, "handoff_contract_constraints_invalid", None
-        sandboxed = constraints.get("sandboxed")
+        sandboxed = safe_get(constraints, "sandboxed")
         if not isinstance(sandboxed, bool):
             return False, "handoff_contract_sandboxed_invalid", None
         return True, "ok", sandboxed

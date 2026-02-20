@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://adaad.local/schemas/aponi_responses/evolution_timeline.schema.json",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "epoch",
+      "mutation_id",
+      "fitness_score",
+      "risk_tier",
+      "applied",
+      "timestamp"
+    ],
+    "properties": {
+      "epoch": {
+        "type": "string"
+      },
+      "mutation_id": {
+        "type": "string"
+      },
+      "fitness_score": {
+        "type": "number"
+      },
+      "risk_tier": {
+        "type": "string"
+      },
+      "applied": {
+        "type": [
+          "boolean",
+          "integer"
+        ]
+      },
+      "timestamp": {
+        "type": "string",
+        "format": "date-time"
+      }
+    }
+  }
+}

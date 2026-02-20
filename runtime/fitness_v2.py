@@ -10,6 +10,7 @@ import json
 from typing import Any, Dict, Tuple
 
 from runtime import metrics
+from runtime.governance.foundation import safe_get
 
 
 def score_trait_addition(mutation_payload: Dict[str, Any]) -> float:
@@ -122,9 +123,8 @@ def _score_stability_heuristics(payload: Dict[str, Any]) -> float:
     else:
         base = 0.6
 
-    lineage = payload.get("lineage") or {}
-    applied = lineage.get("applied") if isinstance(lineage, dict) else None
-    skipped = lineage.get("skipped") if isinstance(lineage, dict) else None
+    applied = safe_get(payload, "lineage", "applied")
+    skipped = safe_get(payload, "lineage", "skipped")
     if isinstance(applied, (int, float)) and isinstance(skipped, (int, float)):
         denom = max(applied + skipped, 1.0)
         success_ratio = float(applied) / denom
@@ -151,8 +151,7 @@ def _score_resource_efficiency(payload: Dict[str, Any]) -> float:
 
 
 def _score_lineage_distance(payload: Dict[str, Any]) -> float:
-    lineage = payload.get("lineage") or {}
-    applied = lineage.get("applied") if isinstance(lineage, dict) else None
+    applied = safe_get(payload, "lineage", "applied")
     if not isinstance(applied, (int, float)):
         return 0.5
     if applied <= 0:

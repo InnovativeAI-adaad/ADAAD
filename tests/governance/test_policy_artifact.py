@@ -22,6 +22,7 @@ def _artifact(*, signature: str = "sig", previous_hash: str = "sha256:" + "0" * 
             "model": {"name": "governance_health", "version": "v1.2.3"},
             "determinism_window": 180,
             "mutation_rate_window_sec": 3600,
+            "state_backend": "json",
             "thresholds": {"determinism_pass": 0.97, "determinism_warn": 0.9},
         },
         "signer": {"key_id": "policy-signer-dev", "algorithm": "ed25519"},
@@ -42,7 +43,30 @@ def test_load_governance_policy_valid(tmp_path, monkeypatch) -> None:
     assert policy.model.version == "v1.2.3"
     assert policy.determinism_window == 180
     assert policy.thresholds.determinism_pass == 0.97
+    assert policy.state_backend == "json"
     assert policy.fingerprint.startswith("sha256:")
+
+
+def test_load_governance_policy_defaults_state_backend_to_json(tmp_path, monkeypatch) -> None:
+    monkeypatch.setattr("runtime.governance.policy_artifact.cryovant.verify_signature", lambda _sig: True)
+    artifact = _artifact()
+    artifact["payload"].pop("state_backend")
+    policy_path = tmp_path / "default_backend.json"
+    policy_path.write_text(json.dumps(artifact), encoding="utf-8")
+
+    policy = load_governance_policy(policy_path)
+    assert policy.state_backend == "json"
+
+
+def test_load_governance_policy_rejects_invalid_state_backend(tmp_path, monkeypatch) -> None:
+    monkeypatch.setattr("runtime.governance.policy_artifact.cryovant.verify_signature", lambda _sig: True)
+    artifact = _artifact()
+    artifact["payload"]["state_backend"] = "postgres"
+    policy_path = tmp_path / "invalid_backend.json"
+    policy_path.write_text(json.dumps(artifact), encoding="utf-8")
+
+    with pytest.raises(GovernancePolicyError, match="payload.state_backend"):
+        load_governance_policy(policy_path)
 
 
 def test_load_governance_policy_rejects_invalid_signature(tmp_path, monkeypatch) -> None:

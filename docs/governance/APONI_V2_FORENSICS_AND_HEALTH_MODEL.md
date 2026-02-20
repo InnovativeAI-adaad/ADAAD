@@ -173,3 +173,5 @@ The UI JavaScript is served as `/ui/aponi.js` to remain CSP-compatible without i
 - Forensic export retention automation: `docs/governance/FORENSIC_BUNDLE_LIFECYCLE.md` and `scripts/enforce_forensic_retention.py`.
 - Policy artifact signing/verification workflow: `docs/governance/POLICY_ARTIFACT_SIGNING_GUIDE.md`.
 - Federation divergence incident response: `docs/governance/FEDERATION_CONFLICT_RUNBOOK.md`.
+
+Aponi governance intelligence responses are validated against draft-2020-12 schemas in `schemas/aponi_responses/`; validation failures return structured `governance_error: "response_schema_violation"` fail-closed responses.

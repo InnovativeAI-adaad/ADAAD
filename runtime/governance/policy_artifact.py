@@ -4,12 +4,12 @@
 from __future__ import annotations
 
 import json
+from hashlib import sha256
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from runtime.governance.deterministic_filesystem import read_file_deterministic
-from runtime.governance.foundation import sha256_prefixed_digest
 from security import cryovant
 
 DEFAULT_GOVERNANCE_POLICY_PATH = Path(__file__).resolve().parents[2] / "governance" / "governance_policy_v1.json"
@@ -20,6 +20,12 @@ POLICY_PAYLOAD_SCHEMA_VERSION = "governance_policy_v1"
 class GovernancePolicyError(ValueError):
     """Raised when a governance policy artifact is missing or invalid."""
 
+
+
+
+def canonical_policy_fingerprint(payload: Any) -> str:
+    canonical = json.dumps(payload, sort_keys=True)
+    return f"sha256:{sha256(canonical.encode('utf-8')).hexdigest()}"
 
 @dataclass(frozen=True)
 class GovernanceThresholds:
@@ -47,6 +53,7 @@ class GovernancePolicy:
     mutation_rate_window_sec: int
     thresholds: GovernanceThresholds
     fingerprint: str
+    state_backend: str = "json"
     signer: GovernanceSignerMetadata = GovernanceSignerMetadata(key_id="unknown", algorithm="unknown")
     signature: str = ""
     previous_artifact_hash: str = "sha256:" + ("0" * 64)
@@ -96,7 +103,7 @@ def _require_hash(value: Any, field_name: str) -> str:
     return digest
 
 
-def _parse_payload(root: dict[str, Any]) -> tuple[str, GovernanceModelMetadata, GovernanceThresholds, int, int]:
+def _parse_payload(root: dict[str, Any]) -> tuple[str, GovernanceModelMetadata, GovernanceThresholds, int, int, str]:
     schema_version = _require_str(root.get("schema_version"), "payload.schema_version")
     if schema_version != POLICY_PAYLOAD_SCHEMA_VERSION:
         raise GovernancePolicyError(
@@ -119,11 +126,15 @@ def _parse_payload(root: dict[str, Any]) -> tuple[str, GovernanceModelMetadata, 
 
     determinism_window = _require_int(root.get("determinism_window"), "payload.determinism_window")
     mutation_rate_window_sec = _require_int(root.get("mutation_rate_window_sec"), "payload.mutation_rate_window_sec")
+    state_backend_raw = root.get("state_backend", "json")
+    state_backend = _require_str(state_backend_raw, "payload.state_backend")
+    if state_backend not in {"json", "sqlite"}:
+        raise GovernancePolicyError("payload.state_backend must be one of: json, sqlite")
     if determinism_window <= 0:
         raise GovernancePolicyError("payload.determinism_window must be > 0")
     if mutation_rate_window_sec <= 0:
         raise GovernancePolicyError("payload.mutation_rate_window_sec must be > 0")
-    return schema_version, model, thresholds, determinism_window, mutation_rate_window_sec
+    return schema_version, model, thresholds, determinism_window, mutation_rate_window_sec, state_backend
 
 
 def policy_artifact_digest(envelope: GovernancePolicyArtifactEnvelope) -> str:
@@ -136,7 +147,7 @@ def policy_artifact_digest(envelope: GovernancePolicyArtifactEnvelope) -> str:
         "previous_artifact_hash": envelope.previous_artifact_hash,
         "effective_epoch": envelope.effective_epoch,
     }
-    return sha256_prefixed_digest(digest_payload)
+    return canonical_policy_fingerprint(digest_payload)
 
 
 def _parse_envelope(artifact: dict[str, Any]) -> GovernancePolicyArtifactEnvelope:
@@ -203,7 +214,9 @@ def load_governance_policy(path: Path = DEFAULT_GOVERNANCE_POLICY_PATH) -> Gover
 
     root = _require_mapping(artifact, "root")
     envelope = _parse_envelope(root)
-    schema_version, model, thresholds, determinism_window, mutation_rate_window_sec = _parse_payload(envelope.payload)
+    schema_version, model, thresholds, determinism_window, mutation_rate_window_sec, state_backend = _parse_payload(
+        envelope.payload
+    )
 
     return GovernancePolicy(
         schema_version=schema_version,
@@ -211,6 +224,7 @@ def load_governance_policy(path: Path = DEFAULT_GOVERNANCE_POLICY_PATH) -> Gover
         determinism_window=determinism_window,
         mutation_rate_window_sec=mutation_rate_window_sec,
         thresholds=thresholds,
+        state_backend=state_backend,
         fingerprint=policy_artifact_digest(envelope),
         signer=envelope.signer,
         signature=envelope.signature,
@@ -231,5 +245,6 @@ __all__ = [
     "POLICY_PAYLOAD_SCHEMA_VERSION",
     "load_governance_policy",
     "policy_artifact_digest",
+    "canonical_policy_fingerprint",
     "verify_policy_artifact_chain",
 ]

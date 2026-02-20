@@ -92,6 +92,8 @@ ADAAD currently expects a full Python environment; Linux/WSL remains the recomme
 
 ```bash
 python nexus_setup.py
+python nexus_setup.py --validate-only        # read-only preflight (required checks + optional local port probe)
+python nexus_setup.py --validate-only --json # machine-readable preflight report (no workspace writes)
 ```
 
 ## 5) Verify boot works (recommended)
@@ -172,14 +174,18 @@ macOS/Linux:
 
 ```bash
 rm -rf reports security/ledger security/replay_manifests
-python nexus_setup.py
+python nexus_setup.py                          # re-initialize workspace
+python nexus_setup.py --validate-only          # confirm all checks pass
+python nexus_setup.py --validate-only --json   # machine-readable output for scripting
 ```
 
 Windows (PowerShell):
 
 ```powershell
 Remove-Item -Recurse -Force reports, security\ledger, security\replay_manifests
-python nexus_setup.py
+python nexus_setup.py                          # re-initialize workspace
+python nexus_setup.py --validate-only          # confirm all checks pass
+python nexus_setup.py --validate-only --json   # machine-readable output for scripting
 ```
 
 ## Troubleshooting
