@@ -29,6 +29,7 @@ from runtime.autonomy.mutation_scaffold import MutationCandidate, rank_mutation_
 from runtime import fitness, metrics
 from runtime.capability_graph import get_capabilities, register_capability
 from runtime.evolution.promotion_manifest import PromotionManifestWriter
+from runtime.evolution.evolution_kernel import EvolutionKernel
 from runtime.governance.foundation import safe_get
 from security import cryovant
 from security.ledger import journal
@@ -36,7 +37,7 @@ from security.ledger import journal
 ELEMENT_ID = "Fire"
 
 
-class BeastModeLoop:
+class LegacyBeastModeCompatibilityAdapter:
     """
     Executes evaluation cycles against mutated offspring.
     """
@@ -466,3 +467,25 @@ class BeastModeLoop:
             "autonomy_composite_score": autonomy_score,
             "promoted_path": str(promoted),
         }
+
+
+class BeastModeLoop:
+    """Public beast loop API backed by EvolutionKernel orchestration."""
+
+    def __init__(self, agents_root: Path, lineage_dir: Path, *, promotion_manifest_dir: Optional[Path] = None):
+        self._legacy = LegacyBeastModeCompatibilityAdapter(
+            agents_root,
+            lineage_dir,
+            promotion_manifest_dir=promotion_manifest_dir,
+        )
+        self._kernel = EvolutionKernel(
+            agents_root=agents_root,
+            lineage_dir=lineage_dir,
+            compatibility_adapter=self._legacy,
+        )
+
+    def run_cycle(self, agent_id: Optional[str] = None) -> Dict[str, object]:
+        return self._kernel.run_cycle(agent_id=agent_id)
+
+    def __getattr__(self, item: str):
+        return getattr(self._legacy, item)

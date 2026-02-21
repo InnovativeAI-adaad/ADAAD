@@ -9,6 +9,7 @@ from runtime.evolution.baseline import BaselineStore
 from runtime.evolution.epoch import EpochManager
 from runtime.evolution.governor import EvolutionGovernor
 from runtime.evolution.lineage_v2 import LineageIntegrityError, LineageLedgerV2
+from runtime.evolution.metrics_schema import EvolutionMetricsEmitter
 from runtime.evolution.replay import ReplayEngine
 from runtime.evolution.replay_mode import ReplayMode, normalize_replay_mode
 from runtime.evolution.replay_verifier import ReplayVerifier
@@ -32,6 +33,7 @@ class EvolutionRuntime:
             replay_mode=self.replay_mode.value,
             recovery_tier=self.governor.recovery_tier.value,
         )
+        self.metrics_emitter = EvolutionMetricsEmitter(self.ledger)
 
         self.current_epoch_id = ""
         self.epoch_metadata: Dict[str, Any] = {}
@@ -66,6 +68,7 @@ class EvolutionRuntime:
             replay_mode=self.replay_mode.value,
             recovery_tier=self.governor.recovery_tier.value,
         )
+        self.metrics_emitter = EvolutionMetricsEmitter(self.ledger)
 
     def boot(self) -> Dict[str, Any]:
         epoch = self.epoch_manager.load_or_create()
@@ -89,6 +92,8 @@ class EvolutionRuntime:
     def after_mutation_cycle(self, result: Dict[str, Any]) -> Dict[str, Any]:
         state = self.epoch_manager.get_active()
         epoch_id = state.epoch_id
+        cycle_id = str(result.get("cycle_id") or result.get("mutation_id") or f"cycle-{state.mutation_count:06d}")
+        cycle_metrics = self.metrics_emitter.emit_cycle_metrics(epoch_id=epoch_id, cycle_id=cycle_id, result=result)
 
         expected = self.ledger.get_epoch_digest(epoch_id) or "sha256:0"
         try:
@@ -100,6 +105,7 @@ class EvolutionRuntime:
             self._sync_from_epoch(current)
             return {
                 "epoch": current,
+                "metrics": cycle_metrics,
                 "replay": {
                     "epoch_id": epoch_id,
                     "replay_passed": False,
@@ -158,7 +164,7 @@ class EvolutionRuntime:
 
         current = self.epoch_manager.get_active().to_dict()
         self._sync_from_epoch(current)
-        return {"epoch": current, "replay": replay_result}
+        return {"epoch": current, "replay": replay_result, "metrics": cycle_metrics}
 
     def before_epoch_rotation(self, reason: str) -> Dict[str, Any]:
         current = self.epoch_manager.get_active()

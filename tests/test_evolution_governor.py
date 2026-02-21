@@ -7,6 +7,7 @@ from unittest import mock
 
 from app.agents.mutation_request import MutationRequest, MutationTarget
 from runtime.evolution import EvolutionGovernor, LineageLedgerV2, ReplayEngine
+from runtime.evolution.mutation_budget import MutationBudgetManager
 
 
 class EvolutionGovernorTest(unittest.TestCase):
@@ -118,6 +119,110 @@ class EvolutionGovernorTest(unittest.TestCase):
         self.assertEqual(run1["digest"], run2["digest"])
         self.assertTrue(replay.assert_reachable("epoch-1", run1["digest"]))
 
+
+
+    def test_budget_decision_fields_emitted_to_governance_event(self) -> None:
+        self.governor.mark_epoch_start("epoch-1")
+        with mock.patch("security.cryovant.signature_valid", return_value=True):
+            decision = self.governor.validate_bundle(self._request(), epoch_id="epoch-1")
+        self.assertTrue(decision.accepted)
+        self.assertGreaterEqual(decision.mutation_cost, 0.0)
+        entries = self.ledger.read_all()
+        payload = entries[-1]["payload"]
+        self.assertIn("mutation_cost", payload)
+        self.assertIn("fitness_gain", payload)
+        self.assertIn("roi", payload)
+        self.assertIn("accepted", payload)
+
+    def test_budget_manager_can_reject_before_certificate_activation(self) -> None:
+        self.governor = EvolutionGovernor(
+            ledger=self.ledger,
+            max_impact=0.99,
+            mutation_budget_manager=MutationBudgetManager(
+                per_cycle_budget=1_000.0,
+                per_epoch_budget=10_000.0,
+                roi_threshold=0.9,
+                exploration_rate=0.0,
+            ),
+        )
+        self.governor.mark_epoch_start("epoch-1")
+        with mock.patch("security.cryovant.signature_valid", return_value=True):
+            decision = self.governor.validate_bundle(self._request(), epoch_id="epoch-1")
+        self.assertFalse(decision.accepted)
+        self.assertEqual(decision.reason, "mutation_roi_below_threshold")
+        self.assertIsNone(decision.certificate)
+
+
+    def test_feedback_loop_adjusts_entropy_budget_from_metrics(self) -> None:
+        self.governor.mark_epoch_start("epoch-1")
+        history = [
+            {
+                "epoch_id": "epoch-0",
+                "cycle_id": "c-1",
+                "mutation_acceptance_rate": 0.1,
+                "entropy": {"utilization": 0.9},
+                "efficiency_cost_signals": {"cost_units": 100.0, "accepted_mutation_count": 1},
+            }
+        ]
+        baseline_budget = self.governor.entropy_budget
+        with mock.patch.object(self.governor.metrics_emitter, "_read_history", return_value=history), mock.patch(
+            "security.cryovant.signature_valid", return_value=True
+        ):
+            decision = self.governor.validate_bundle(self._request(), epoch_id="epoch-1")
+        self.assertIsNotNone(decision)
+        self.assertLessEqual(self.governor.entropy_budget, baseline_budget)
+
+
+    def test_feedback_loop_records_governor_config_events(self) -> None:
+        self.governor.mark_epoch_start("epoch-1")
+        history = [
+            {
+                "epoch_id": "epoch-0",
+                "cycle_id": "c-1",
+                "mutation_acceptance_rate": 0.1,
+                "entropy": {"utilization": 0.95},
+                "efficiency_cost_signals": {"cost_units": 100.0, "accepted_mutation_count": 1},
+            }
+        ]
+        metrics_dir = self.governor.metrics_emitter.metrics_dir
+        epoch_summary = metrics_dir / "epoch-1" / "summary.json"
+        epoch_summary.parent.mkdir(parents=True, exist_ok=True)
+        epoch_summary.write_text('{"local_optima_risk": true}', encoding="utf-8")
+
+        with mock.patch.object(self.governor.metrics_emitter, "_read_history", return_value=history), mock.patch(
+            "security.cryovant.signature_valid", return_value=True
+        ):
+            self.governor.validate_bundle(self._request(), epoch_id="epoch-1")
+
+        entries = self.ledger.read_all()
+        types = [entry.get("type") for entry in entries]
+        self.assertIn("GovernorConfigEvent", types)
+        config_keys = [
+            (entry.get("payload") or {}).get("config_key")
+            for entry in entries
+            if entry.get("type") == "GovernorConfigEvent"
+        ]
+        self.assertIn("mutation_budget_params", config_keys)
+
+
+    def test_feedback_loop_prefers_acceptance_signal_over_entropy_floor(self) -> None:
+        self.governor.mark_epoch_start("epoch-1")
+        history = [
+            {
+                "epoch_id": "epoch-0",
+                "cycle_id": "c-1",
+                "mutation_acceptance_rate": 0.1,
+                "entropy": {"utilization": 0.1},
+                "efficiency_cost_signals": {"cost_units": 5.0, "accepted_mutation_count": 1},
+            }
+        ]
+        old_budget = self.governor.entropy_budget
+        with mock.patch.object(self.governor.metrics_emitter, "_read_history", return_value=history), mock.patch(
+            "security.cryovant.signature_valid", return_value=True
+        ):
+            self.governor.validate_bundle(self._request(), epoch_id="epoch-1")
+
+        self.assertLessEqual(self.governor.entropy_budget, old_budget)
 
     def test_entropy_budget_reads_env_when_arg_omitted(self) -> None:
         with mock.patch.dict("os.environ", {"ADAAD_GOVERNOR_ENTROPY_BUDGET": "7"}, clear=False):

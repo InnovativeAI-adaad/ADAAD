@@ -16,6 +16,7 @@ from runtime.analysis.impact_predictor import ImpactPredictor
 from runtime.evolution import EvolutionRuntime
 from runtime.evolution.entropy_discipline import deterministic_context, deterministic_id
 from runtime.evolution.promotion_events import create_promotion_event
+from runtime.evolution.goal_graph import GoalGraph
 from runtime.evolution.promotion_policy import PromotionPolicyEngine
 from runtime.evolution.promotion_state_machine import PromotionState, require_transition
 from runtime.evolution.entropy_detector import detect_entropy_metadata, observed_entropy_from_telemetry
@@ -80,6 +81,10 @@ class MutationExecutor:
             per_mutation_ceiling_bits=128,
             per_epoch_ceiling_bits=4096,
         )
+        try:
+            self.goal_graph = GoalGraph.load(ROOT_DIR / "runtime" / "evolution" / "goal_graph.json")
+        except Exception:
+            self.goal_graph = GoalGraph(())
 
     def _run_tests(
         self,
@@ -444,6 +449,34 @@ class MutationExecutor:
         survival_payload = {**payload, "verified": True, "ops": request.ops, "impact_risk_score": impact.risk_score}
         survival_score = score_mutation_survival(request.agent_id, request.intent or "default", survival_payload)
         composed_fitness = self.fitness_pipeline.evaluate({"tests_ok": tests_ok, "impact_risk_score": impact.risk_score})
+        fitness_component_scores = {
+            "correctness_score": 1.0 if tests_ok else 0.0,
+            "efficiency_score": float(composed_fitness.get("score", 0.0) or 0.0),
+            "policy_compliance_score": 1.0,
+            "goal_alignment_score": 0.0,
+            "simulated_market_score": max(0.0, 1.0 - float(impact.risk_score)),
+        }
+        goal_graph_score = self.goal_graph.compute_goal_score(
+            {
+                "metrics": {
+                    "tests_ok": 1.0 if tests_ok else 0.0,
+                    "survival_score": float(survival_score),
+                    "risk_score_inverse": max(0.0, 1.0 - float(impact.risk_score)),
+                    "entropy_compliance": 1.0,
+                    "deterministic_replay_seed": 1.0 if _is_valid_replay_seed(replay_seed) else 0.0,
+                },
+                "capabilities": [
+                    "mutation_execution",
+                    "test_validation",
+                    "impact_analysis",
+                    "entropy_discipline",
+                    "audit_logging",
+                ],
+            }
+        )
+        payload["goal_graph_score"] = goal_graph_score
+        survival_payload["goal_graph_score"] = goal_graph_score
+        fitness_component_scores["goal_alignment_score"] = float(goal_graph_score)
 
         entropy_metadata = detect_entropy_metadata(
             request,
@@ -479,7 +512,7 @@ class MutationExecutor:
             )
             if decision.certificate:
                 self.governor.activate_certificate(epoch_id, decision.certificate.get("bundle_id", ""), False, "entropy_ceiling_exceeded")
-            self.evolution_runtime.after_mutation_cycle({"status": "rejected", "mutation_id": mutation_id, "epoch_id": epoch_id, "reason": "entropy_ceiling_exceeded"})
+            self.evolution_runtime.after_mutation_cycle({"status": "rejected", "mutation_id": mutation_id, "epoch_id": epoch_id, "reason": "entropy_ceiling_exceeded", "goal_score_delta": 0.0, "entropy_spent": float(mutation_total_bits), "mutation_operator": request.intent or "default", "fitness_component_scores": fitness_component_scores})
             return {
                 "status": "rejected",
                 "tests_ok": bool(tests_ok),
@@ -493,6 +526,7 @@ class MutationExecutor:
 
         promotion_mutation_data = {
             "score": float(survival_score),
+            "goal_graph_score": float(goal_graph_score),
             "entropy_bits": int(mutation_total_bits),
             "risk_tier": self._risk_tier(float(impact.risk_score)),
             "entropy_declared_bits": int(entropy_metadata.estimated_bits),
@@ -521,11 +555,12 @@ class MutationExecutor:
             )
             if decision.certificate:
                 self.governor.activate_certificate(epoch_id, decision.certificate.get("bundle_id", ""), False, "promotion_policy_rejected")
-            self.evolution_runtime.after_mutation_cycle({"status": "rejected", "mutation_id": mutation_id, "epoch_id": epoch_id, "reason": "promotion_policy_rejected"})
+            self.evolution_runtime.after_mutation_cycle({"status": "rejected", "mutation_id": mutation_id, "epoch_id": epoch_id, "reason": "promotion_policy_rejected", "goal_score_delta": 0.0, "entropy_spent": float(mutation_total_bits), "mutation_operator": request.intent or "default", "fitness_component_scores": fitness_component_scores})
             return {
                 "status": "rejected",
                 "tests_ok": bool(tests_ok),
                 "reason": "promotion_policy_rejected",
+                "goal_graph_score": float(goal_graph_score),
                 "mutation_id": mutation_id,
                 "epoch_id": epoch_id,
             }
@@ -549,17 +584,18 @@ class MutationExecutor:
                 return {"status": "rejected", "reason": f"manifest_failed:{exc}", "mutation_id": mutation_id, "epoch_id": epoch_id}
 
             metrics.log(event_type="mutation_executed", payload=payload, level="INFO", element_id=ELEMENT_ID)
-            metrics.log(event_type="mutation_score", payload={"agent": request.agent_id, "strategy_id": request.intent or "default", "score": survival_score, "epoch_id": epoch_id}, level="INFO", element_id=ELEMENT_ID)
-            metrics.log(event_type="mutation_fitness_pipeline", payload={"agent": request.agent_id, "epoch_id": epoch_id, **composed_fitness}, level="INFO", element_id=ELEMENT_ID)
+            metrics.log(event_type="mutation_score", payload={"agent": request.agent_id, "strategy_id": request.intent or "default", "score": survival_score, "goal_graph_score": goal_graph_score, "epoch_id": epoch_id}, level="INFO", element_id=ELEMENT_ID)
+            metrics.log(event_type="mutation_fitness_pipeline", payload={"agent": request.agent_id, "epoch_id": epoch_id, "goal_graph_score": goal_graph_score, "fitness_component_scores": fitness_component_scores, **composed_fitness}, level="INFO", element_id=ELEMENT_ID)
             journal.write_entry(agent_id=request.agent_id, action="mutation_promoted", payload={"mutation_id": mutation_id, "epoch_id": epoch_id, "lineage": payload["lineage"], "decision": "promoted", "evidence": {"lineage": payload["lineage"], "canary": canary_evidence}, "bundle_id": (decision.certificate or {}).get("bundle_id"), "manifest_hash": manifest_hash, "ts": now_iso()})
             if decision.certificate:
                 self.governor.activate_certificate(epoch_id, decision.certificate.get("bundle_id", ""), True, "tests_passed")
-            evolution_result = self.evolution_runtime.after_mutation_cycle({"status": "executed", "mutation_id": mutation_id, "epoch_id": epoch_id, "evolution": {"certificate": decision.certificate or {}}})
+            evolution_result = self.evolution_runtime.after_mutation_cycle({"status": "executed", "mutation_id": mutation_id, "epoch_id": epoch_id, "goal_score_delta": float(goal_graph_score), "entropy_spent": float(mutation_total_bits), "mutation_operator": request.intent or "default", "fitness_component_scores": fitness_component_scores, "evolution": {"certificate": decision.certificate or {}}})
             return {
                 "status": "executed",
                 "tests_ok": True,
                 "mutation_id": mutation_id,
                 "epoch_id": epoch_id,
+                "goal_graph_score": float(goal_graph_score),
                 "manifest_path": str(manifest_path),
                 "manifest_hash": manifest_hash,
                 "evolution": {
@@ -573,8 +609,8 @@ class MutationExecutor:
             }
 
         metrics.log(event_type="mutation_failed", payload={**payload, "error": test_output}, level="ERROR", element_id=ELEMENT_ID)
-        metrics.log(event_type="mutation_score", payload={"agent": request.agent_id, "strategy_id": request.intent or "default", "score": survival_score, "epoch_id": epoch_id}, level="INFO", element_id=ELEMENT_ID)
-        metrics.log(event_type="mutation_fitness_pipeline", payload={"agent": request.agent_id, "epoch_id": epoch_id, **composed_fitness}, level="INFO", element_id=ELEMENT_ID)
+        metrics.log(event_type="mutation_score", payload={"agent": request.agent_id, "strategy_id": request.intent or "default", "score": survival_score, "goal_graph_score": goal_graph_score, "epoch_id": epoch_id}, level="INFO", element_id=ELEMENT_ID)
+        metrics.log(event_type="mutation_fitness_pipeline", payload={"agent": request.agent_id, "epoch_id": epoch_id, "goal_graph_score": goal_graph_score, "fitness_component_scores": fitness_component_scores, **composed_fitness}, level="INFO", element_id=ELEMENT_ID)
         journal.write_entry(agent_id=request.agent_id, action="mutation_failed", payload={"mutation_id": mutation_id, "epoch_id": epoch_id, "error": test_output, "canary": canary_evidence, "ts": now_iso()})
         if target_state != PromotionState.REJECTED:
             self._emit_promotion_event(
@@ -586,8 +622,8 @@ class MutationExecutor:
             )
         if decision.certificate:
             self.governor.activate_certificate(epoch_id, decision.certificate.get("bundle_id", ""), False, "tests_failed")
-        self.evolution_runtime.after_mutation_cycle({"status": "failed", "mutation_id": mutation_id})
-        return {"status": "failed", "tests_ok": False, "error": test_output, "mutation_id": mutation_id, "epoch_id": epoch_id}
+        self.evolution_runtime.after_mutation_cycle({"status": "failed", "mutation_id": mutation_id, "epoch_id": epoch_id, "goal_score_delta": 0.0, "entropy_spent": float(mutation_total_bits), "mutation_operator": request.intent or "default", "fitness_component_scores": fitness_component_scores})
+        return {"status": "failed", "tests_ok": False, "error": test_output, "goal_graph_score": float(goal_graph_score), "mutation_id": mutation_id, "epoch_id": epoch_id}
 
 
 __all__ = ["MutationExecutor"]

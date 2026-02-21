@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "weights": {
+    "correctness_score": 0.3,
+    "efficiency_score": 0.2,
+    "policy_compliance_score": 0.2,
+    "goal_alignment_score": 0.15,
+    "simulated_market_score": 0.15
+  }
+}

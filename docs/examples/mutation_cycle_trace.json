@@ -1,0 +1,9 @@
+{
+  "cycle_id": "cycle-001",
+  "agent": "sample_agent",
+  "status": "promoted",
+  "mutation_acceptance_rate": 1.0,
+  "roi": 0.42,
+  "remaining_entropy": 4095.0,
+  "exploration_rate": 0.25
+}

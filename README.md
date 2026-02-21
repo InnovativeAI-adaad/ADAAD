@@ -249,6 +249,12 @@ Example strict replay failure:
 ```
 
 
+
+## Evolution kernel routing (current behavior)
+- Default runtime invocation (`run_cycle()` with no explicit `agent_id`) may use the configured compatibility adapter for legacy orchestration.
+- Explicit target invocation (`run_cycle(agent_id=...)`) executes the kernel-native pipeline and returns `kernel_path: true` on success.
+- Explicit agent lookup is path-normalized (`Path.resolve()`) for both discovered agents and requested targets to ensure stable behavior across symlinks and lexical aliases (e.g., `..`).
+
 ## Canonical governance import paths
 
 Use `runtime.*` as the authoritative implementation path for governance and replay primitives:

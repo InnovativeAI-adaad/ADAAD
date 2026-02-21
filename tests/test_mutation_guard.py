@@ -89,10 +89,13 @@ class MutationExecutorIntegrationTest(unittest.TestCase):
             "app.mutation_executor.journal.append_tx"
         ), mock.patch(
             "app.mutation_executor.metrics.log"
-        ), mock.patch.object(executor, "_run_tests", return_value=(True, "ok")):
+        ) as log_mock, mock.patch.object(executor, "_run_tests", return_value=(True, "ok")):
             result = executor.execute(request)
 
         self.assertEqual(result["status"], "executed")
+        self.assertIn("goal_graph_score", result)
+        self.assertGreaterEqual(float(result["goal_graph_score"]), 0.0)
+        self.assertLessEqual(float(result["goal_graph_score"]), 1.0)
         dna_payload = json.loads((agent_dir / "dna.json").read_text(encoding="utf-8"))
         self.assertEqual(dna_payload["lineage"], "seed")
         manifest_path = Path(result["manifest_path"])
@@ -104,6 +107,13 @@ class MutationExecutorIntegrationTest(unittest.TestCase):
         self.assertEqual(len(replay_seed), 16)
         self.assertNotEqual(replay_seed, "0000000000000000")
         self.assertTrue(result["manifest_hash"].startswith("sha256:"))
+        mutation_score_payloads = [
+            kwargs.get("payload") or {}
+            for _, kwargs in log_mock.call_args_list
+            if kwargs.get("event_type") == "mutation_score"
+        ]
+        self.assertTrue(mutation_score_payloads)
+        self.assertTrue(all("goal_graph_score" in payload for payload in mutation_score_payloads))
 
     def test_executor_rejects_all_zero_replay_seed_before_execution(self) -> None:
         agents_root = self.tmp_root / "agents"

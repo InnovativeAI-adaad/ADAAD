@@ -15,6 +15,8 @@ from app.agents.mutation_request import MutationRequest
 from runtime.evolution.checkpoint import checkpoint_digest
 from runtime.evolution.impact import ImpactScorer
 from runtime.evolution.lineage_v2 import EpochEndEvent, EpochStartEvent, LineageEvent, LineageLedgerV2
+from runtime.evolution.mutation_budget import MutationBudgetDecision, MutationBudgetManager
+from runtime.evolution.metrics_schema import EvolutionMetricsEmitter
 from runtime.evolution.scoring import authority_threshold, clamp_score
 from runtime.governance.deterministic_envelope import (
     EntropyBudgetExceeded,
@@ -34,6 +36,9 @@ class GovernanceDecision:
     reason: str
     certificate: Dict[str, Any] | None = None
     replay_status: str = "unknown"
+    mutation_cost: float = 0.0
+    fitness_gain: float = 0.0
+    roi: float = 0.0
 
 
 class RecoveryTier(Enum):
@@ -58,6 +63,7 @@ class EvolutionGovernor:
         replay_mode: str = "off",
         provider: RuntimeDeterminismProvider | None = None,
         entropy_budget: int | None = None,
+        mutation_budget_manager: MutationBudgetManager | None = None,
     ) -> None:
         sovereign_mode = os.getenv("ADAAD_SOVEREIGN_MODE", "").strip().lower()
         strict_sovereign_mode = sovereign_mode == "strict"
@@ -87,6 +93,16 @@ class EvolutionGovernor:
         self.fail_closed_reason = ""
         self.recovery_tier = RecoveryTier.SOFT
         self.entropy_budget = max(0, int(resolved_entropy_budget))
+        self.mutation_budget_manager = mutation_budget_manager or MutationBudgetManager(
+            per_cycle_budget=float(os.getenv("ADAAD_MUTATION_PER_CYCLE_BUDGET", "100") or 100.0),
+            per_epoch_budget=float(os.getenv("ADAAD_MUTATION_PER_EPOCH_BUDGET", "10000") or 10000.0),
+            roi_threshold=float(os.getenv("ADAAD_MUTATION_MIN_ROI", "0.1") or 0.1),
+            exploration_rate=float(os.getenv("ADAAD_MUTATION_EXPLORATION_RATE", "0.1") or 0.1),
+            exploration_step=float(os.getenv("ADAAD_MUTATION_EXPLORATION_STEP", "0.05") or 0.05),
+            min_exploration_rate=float(os.getenv("ADAAD_MUTATION_MIN_EXPLORATION", "0.0") or 0.0),
+            max_exploration_rate=float(os.getenv("ADAAD_MUTATION_MAX_EXPLORATION", "0.5") or 0.5),
+        )
+        self.metrics_emitter = EvolutionMetricsEmitter(self.ledger)
         self._validation_lock = threading.RLock()
 
     def validate_bundle(self, request: MutationRequest, epoch_id: str) -> GovernanceDecision:
@@ -157,10 +173,142 @@ class EvolutionGovernor:
             self._record_decision(request, epoch_id, decision, impact_score=impact_total)
             return decision
 
-        certificate = self._issue_certificate(request, epoch_id, impact_total)
-        decision = GovernanceDecision(accepted=True, reason="accepted", certificate=certificate, replay_status="ok")
+        bundle_id = (request.bundle_id or "").strip() or self._deterministic_bundle_id(request=request, epoch_id=epoch_id)
+        self._apply_metrics_feedback_loop(epoch_id=epoch_id)
+        budget_decision = self._evaluate_mutation_budget(request, epoch_id, bundle_id, impact_total)
+        if not budget_decision.accepted:
+            decision = GovernanceDecision(
+                accepted=False,
+                reason=budget_decision.reason,
+                replay_status="failed",
+                mutation_cost=budget_decision.mutation_cost,
+                fitness_gain=budget_decision.fitness_gain,
+                roi=budget_decision.roi,
+            )
+            self._record_decision(request, epoch_id, decision, impact_score=impact_total)
+            return decision
+
+        certificate = self._issue_certificate(request, epoch_id, impact_total, bundle_id=bundle_id)
+        certificate.update(
+            {
+                "mutation_cost": budget_decision.mutation_cost,
+                "fitness_gain": budget_decision.fitness_gain,
+                "roi": budget_decision.roi,
+                "budget_threshold": budget_decision.threshold,
+                "exploration_rate": budget_decision.exploration_rate,
+            }
+        )
+        decision = GovernanceDecision(
+            accepted=True,
+            reason="accepted",
+            certificate=certificate,
+            replay_status="ok",
+            mutation_cost=budget_decision.mutation_cost,
+            fitness_gain=budget_decision.fitness_gain,
+            roi=budget_decision.roi,
+        )
         self._record_decision(request, epoch_id, decision, impact_score=impact_total)
         return decision
+
+
+    def _apply_metrics_feedback_loop(self, *, epoch_id: str) -> None:
+        history = self.metrics_emitter._read_history()
+        budget_config_before = {
+            "roi_threshold": float(self.mutation_budget_manager.roi_threshold),
+            "per_cycle_budget": float(self.mutation_budget_manager.per_cycle_budget),
+            "exploration_rate": float(self.mutation_budget_manager.exploration_rate),
+        }
+        feedback = self.mutation_budget_manager.ingest_rolling_metrics(history)
+
+        acceptance_rate = float(feedback.get("acceptance_rate", 0.0) or 0.0)
+        avg_entropy_utilization = float(feedback.get("avg_entropy_utilization", 0.0) or 0.0)
+        cost_per_accepted = float(feedback.get("cost_per_accepted", 0.0) or 0.0)
+
+        old_entropy_budget = int(self.entropy_budget)
+        if acceptance_rate < 0.25:
+            self.entropy_budget = max(10, int(self.entropy_budget * 0.95))
+        elif avg_entropy_utilization < 0.20:
+            self.entropy_budget = min(100_000, int(self.entropy_budget * 1.05))
+
+        summary_path = self.metrics_emitter.metrics_dir / epoch_id / "summary.json"
+        if summary_path.exists():
+            try:
+                summary_payload = json.loads(summary_path.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                summary_payload = {}
+            if bool(summary_payload.get("local_optima_risk", False)):
+                self.mutation_budget_manager.exploration_rate = min(
+                    self.mutation_budget_manager.max_exploration_rate,
+                    self.mutation_budget_manager.exploration_rate + max(self.mutation_budget_manager.exploration_step, 0.1),
+                )
+
+        budget_config_after = {
+            "roi_threshold": float(self.mutation_budget_manager.roi_threshold),
+            "per_cycle_budget": float(self.mutation_budget_manager.per_cycle_budget),
+            "exploration_rate": float(self.mutation_budget_manager.exploration_rate),
+        }
+        if budget_config_after != budget_config_before:
+            self.ledger.append_event(
+                "GovernorConfigEvent",
+                {
+                    "epoch_id": epoch_id,
+                    "config_key": "mutation_budget_params",
+                    "old_value": budget_config_before,
+                    "new_value": budget_config_after,
+                    "reason": "metrics_feedback_loop",
+                    "ts": now_iso(),
+                },
+            )
+
+        if int(self.entropy_budget) != old_entropy_budget:
+            self.ledger.append_event(
+                "GovernorConfigEvent",
+                {
+                    "epoch_id": epoch_id,
+                    "config_key": "entropy_budget",
+                    "old_value": old_entropy_budget,
+                    "new_value": int(self.entropy_budget),
+                    "reason": "metrics_feedback_loop",
+                    "ts": now_iso(),
+                },
+            )
+
+        from runtime import metrics
+
+        metrics.log(
+            event_type="governor_feedback_loop",
+            payload={
+                "epoch_id": epoch_id,
+                "acceptance_rate": acceptance_rate,
+                "avg_entropy_utilization": avg_entropy_utilization,
+                "cost_per_accepted": cost_per_accepted,
+                "entropy_budget": int(self.entropy_budget),
+                "roi_threshold": float(self.mutation_budget_manager.roi_threshold),
+                "per_cycle_budget": float(self.mutation_budget_manager.per_cycle_budget),
+                "exploration_rate": float(self.mutation_budget_manager.exploration_rate),
+            },
+            level="INFO",
+        )
+
+    def _evaluate_mutation_budget(
+        self,
+        request: MutationRequest,
+        epoch_id: str,
+        bundle_id: str,
+        impact_total: float,
+    ) -> MutationBudgetDecision:
+        runtime_cost = float(len(request.ops) + sum(len(target.ops) for target in request.targets))
+        entropy_delta = float(max(0, int(request.random_seed != 0)))
+        complexity_delta = float(max(0, len(request.targets) - 1))
+        fitness_gain = max(0.0, 1.0 - impact_total)
+        return self.mutation_budget_manager.evaluate(
+            cycle_id=bundle_id,
+            epoch_id=epoch_id,
+            runtime_cost=runtime_cost,
+            entropy_delta=entropy_delta,
+            complexity_delta=complexity_delta,
+            fitness_gain=fitness_gain,
+        )
 
     def _record_entropy_metrics(self, epoch_id: str, decision: GovernanceDecision, ledger: Any) -> None:
         from runtime import metrics
@@ -180,11 +328,19 @@ class EvolutionGovernor:
         )
 
     def activate_certificate(self, epoch_id: str, bundle_id: str, activated: bool, reason: str) -> None:
+        budget_decision = self.mutation_budget_manager.decision_for_cycle(bundle_id)
+        if activated and budget_decision is not None and not budget_decision.accepted:
+            activated = False
+            reason = budget_decision.reason
         payload = {
             "epoch_id": epoch_id,
             "bundle_id": bundle_id,
             "certificate_activated": activated,
             "reason": reason,
+            "mutation_cost": float((budget_decision.mutation_cost if budget_decision is not None else 0.0)),
+            "fitness_gain": float((budget_decision.fitness_gain if budget_decision is not None else 0.0)),
+            "roi": float((budget_decision.roi if budget_decision is not None else 0.0)),
+            "accepted": bool(activated),
         }
         self.ledger.append_event("CertificateActivationEvent", payload)
 
@@ -227,15 +383,15 @@ class EvolutionGovernor:
         self.ledger.append_event("GovernanceDecisionEvent", payload)
         return tier == RecoveryTier.CONSTITUTIONAL_RESET
 
-    def _issue_certificate(self, request: MutationRequest, epoch_id: str, impact_score: float) -> Dict[str, Any]:
+    def _issue_certificate(self, request: MutationRequest, epoch_id: str, impact_score: float, *, bundle_id: str | None = None) -> Dict[str, Any]:
         requested_bundle_id = (request.bundle_id or "").strip()
         require_replay_safe_provider(
             self.provider,
             replay_mode=self.replay_mode,
             recovery_tier=self.recovery_tier.value,
         )
-        bundle_id = requested_bundle_id or self._deterministic_bundle_id(request=request, epoch_id=epoch_id)
-        replay_seed = self._replay_seed(request=request, epoch_id=epoch_id, bundle_id=bundle_id)
+        resolved_bundle_id = bundle_id or requested_bundle_id or self._deterministic_bundle_id(request=request, epoch_id=epoch_id)
+        replay_seed = self._replay_seed(request=request, epoch_id=epoch_id, bundle_id=resolved_bundle_id)
         strategy_set: List[str] = [request.intent or "default"]
         strategy_version_set = [f"{request.intent or 'default'}:current"]
         strategy_snapshot = {
@@ -250,7 +406,7 @@ class EvolutionGovernor:
         ).hexdigest()
         return {
             "epoch_id": epoch_id,
-            "bundle_id": bundle_id,
+            "bundle_id": resolved_bundle_id,
             "bundle_id_source": "request" if requested_bundle_id else "governor",
             "strategy_set": strategy_set,
             "strategy_version_set": strategy_version_set,
@@ -285,6 +441,9 @@ class EvolutionGovernor:
             "intent": request.intent,
             "accepted": decision.accepted,
             "reason": decision.reason,
+            "mutation_cost": decision.mutation_cost,
+            "fitness_gain": decision.fitness_gain,
+            "roi": decision.roi,
             "impact_score": impact_score,
             "replay_status": decision.replay_status,
         }
@@ -302,6 +461,22 @@ class EvolutionGovernor:
             self.ledger.append_bundle_with_digest(epoch_id, payload)
         else:
             self.ledger.append(LineageEvent("GovernanceDecisionEvent", payload))
+
+        from runtime import metrics
+
+        metrics.log(
+            event_type="governance_mutation_budget_decision",
+            payload={
+                "epoch_id": epoch_id,
+                "agent_id": request.agent_id,
+                "accepted": decision.accepted,
+                "reason": decision.reason,
+                "mutation_cost": decision.mutation_cost,
+                "fitness_gain": decision.fitness_gain,
+                "roi": decision.roi,
+            },
+            level="INFO" if decision.accepted else "WARNING",
+        )
 
     def _epoch_started(self, epoch_id: str) -> bool:
         epoch_events = self.ledger.read_epoch(epoch_id)

@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0",
+  "goals": [
+    {
+      "objective": {
+        "id": "mutation-safety",
+        "name": "Mutation safety and correctness"
+      },
+      "metrics": [
+        {
+          "name": "tests_ok",
+          "target": 1.0
+        },
+        {
+          "name": "survival_score",
+          "target": 0.8
+        }
+      ],
+      "required_capabilities": [
+        "mutation_execution",
+        "test_validation"
+      ],
+      "completion_threshold": 0.75,
+      "reward_weight": 0.6,
+      "child_goals": [
+        {
+          "objective": {
+            "id": "risk-hygiene",
+            "name": "Operational risk hygiene"
+          },
+          "metrics": [
+            {
+              "name": "risk_score_inverse",
+              "target": 0.8
+            }
+          ],
+          "required_capabilities": [
+            "impact_analysis"
+          ],
+          "completion_threshold": 0.6,
+          "reward_weight": 0.4,
+          "child_goals": []
+        }
+      ]
+    },
+    {
+      "objective": {
+        "id": "replay-auditability",
+        "name": "Replay-safe evidence completeness"
+      },
+      "metrics": [
+        {
+          "name": "entropy_compliance",
+          "target": 1.0
+        },
+        {
+          "name": "deterministic_replay_seed",
+          "target": 1.0
+        }
+      ],
+      "required_capabilities": [
+        "entropy_discipline",
+        "audit_logging"
+      ],
+      "completion_threshold": 0.7,
+      "reward_weight": 0.4,
+      "child_goals": []
+    }
+  ]
+}
