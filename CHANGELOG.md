@@ -39,6 +39,9 @@
 - Added regression coverage for mixed lexical-vs-resolved agent path forms in `tests/test_evolution_kernel.py`.
 
 ### Added
+- Constitution framework advanced to `0.2.0`; PR-2 rule set is now active for `max_complexity_delta`, `test_coverage_maintained`, `max_mutation_rate`, `lineage_continuity`, and `resource_bounds` with tier-aware severities from policy.
+- Constitutional enforcement semantics now consistently apply enabled-rule gating with applicability pass-through (`rule_not_applicable`) and tier override resolution, improving deterministic verdict replay behavior.
+- Replay/determinism posture updated for constitutional evaluation: active PR-2 rules increase deterministic evidence surface while preserving reproducible policy-hash/version coupling across audits.
 - Added read-only Aponi replay forensics endpoints (`/replay/divergence`, `/replay/diff?epoch_id=...`) and versioned governance health model metadata (`v1.0.0`).
 - Added Aponi V2 governance docs: replay forensics + health model, red-team pressure scenario, and 0.70.0 draft release notes.
 - Added epoch entropy observability helper (`runtime/evolution/telemetry_audit.py`) for declared vs observed entropy breakdown by epoch.
@@ -54,6 +57,11 @@
 - Evolution governance helpers for deterministic checkpoint digests, promotion transition enforcement, and authority score clamping/threshold resolution.
 - Unit tests covering governance foundation canonicalization/hash determinism and promotion state transitions.
 
+
+### Security
+- Enabled blocking constitutional checks for `lineage_continuity` and `resource_bounds`, strengthening mutation safety controls while retaining policy-defined tier behavior.
+- Enabled warning-path governance checks for `max_complexity_delta` and `test_coverage_maintained`, and enforced `max_mutation_rate` tier escalation/demotion semantics for production/sandbox replay consistency.
+
 ### Milestone reconciliation (PR-1 .. PR-6)
 
 Authoritative current version/maturity for these notes: **0.65.x, Experimental / pre-1.0**.
@@ -61,7 +69,7 @@ Authoritative current version/maturity for these notes: **0.65.x, Experimental /
 | Milestone | Status | Reconciled claim |
 |---|---|---|
 | PR-1 | Implemented | Scoring foundation + deterministic governance/scoring ledger/test coverage landed in this branch |
-| PR-2 | Planned | No finalized release-note completion claim retained in this branch notes |
+| PR-2 | Implemented | Constitutional rule set v0.2.0 enabled with deterministic validators, governance envelope digest, drift detection, and coverage artifact pipeline contracts |
 | PR-3 | Partial | Checkpoint registry/verifier and entropy policy primitives landed; full scope still open |
 | PR-4 | Partial | Promotion policy/state-machine hardening landed; remaining milestone scope still open |
 | PR-5 | Implemented (baseline) | Deterministic sandbox policy checks and evidence hashing landed |

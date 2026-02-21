@@ -99,7 +99,7 @@ def test_invalid_schema_fail_close(tmp_path: Path) -> None:
     invalid = tmp_path / "constitution.yaml"
     _write_policy(
         invalid,
-        '{"version":"0.1.0","tiers":{"PRODUCTION":0},"severities":["blocking"],"immutability_constraints":{},"rules":[]}',
+        '{"version":"0.2.0","tiers":{"PRODUCTION":0},"severities":["blocking"],"immutability_constraints":{},"rules":[]}',
     )
     with pytest.raises(ValueError, match="invalid_schema"):
         constitution.load_constitution_policy(path=invalid)
@@ -144,7 +144,7 @@ def test_reload_logs_amendment_hashes(tmp_path: Path, monkeypatch: pytest.Monkey
 
 def test_version_mismatch_fails_close(tmp_path: Path) -> None:
     mismatch = tmp_path / "constitution.yaml"
-    body = constitution.POLICY_PATH.read_text(encoding="utf-8").replace('"0.1.0"', '"9.9.9"', 1)
+    body = constitution.POLICY_PATH.read_text(encoding="utf-8").replace('"0.2.0"', '"9.9.9"', 1)
     _write_policy(mismatch, body)
     with pytest.raises(ValueError, match="version_mismatch"):
         constitution.load_constitution_policy(path=mismatch, expected_version=constitution.CONSTITUTION_VERSION)
@@ -204,3 +204,189 @@ def test_evaluate_mutation_emits_applicability_matrix() -> None:
     by_rule = {row["rule"]: row for row in verdict["applicability_matrix"]}
     assert by_rule["single_file_scope"]["applicable"] is False
     assert by_rule["signature_required"]["applicable"] is False
+
+
+def test_resource_bounds_validator_uses_env_overrides_and_telemetry(monkeypatch: pytest.MonkeyPatch) -> None:
+    validator = constitution.VALIDATOR_REGISTRY["resource_bounds"]
+    request = MutationRequest(
+        agent_id="test_subject",
+        generation_ts="now",
+        intent="test",
+        ops=[],
+        signature="",
+        nonce="n",
+    )
+    monkeypatch.setenv("ADAAD_RESOURCE_MEMORY_MB", "100")
+    monkeypatch.setenv("ADAAD_RESOURCE_CPU_SECONDS", "5")
+    monkeypatch.setenv("ADAAD_RESOURCE_WALL_SECONDS", "10")
+
+    with constitution.deterministic_envelope_scope(
+        {
+            "agent_id": request.agent_id,
+            "epoch_id": "epoch-1",
+            "platform_telemetry": {"memory_mb": 256.0, "cpu_percent": 50.0, "battery_percent": 90.0, "storage_mb": 2048.0},
+            "resource_measurements": {"peak_rss_mb": 128.0, "cpu_seconds": 1.0, "wall_seconds": 2.0},
+        }
+    ):
+        result = validator(request)
+
+    assert result["ok"] is False
+    assert result["reason"] == "resource_bounds_exceeded"
+    assert "memory" in result["details"]["violations"]
+
+
+def test_resource_bounds_violation_emits_metrics_and_journal(monkeypatch: pytest.MonkeyPatch) -> None:
+    validator = constitution.VALIDATOR_REGISTRY["resource_bounds"]
+    request = MutationRequest(
+        agent_id="test_subject",
+        generation_ts="now",
+        intent="test",
+        ops=[],
+        signature="",
+        nonce="n",
+    )
+    monkeypatch.setenv("ADAAD_RESOURCE_MEMORY_MB", "10")
+    monkeypatch.setenv("ADAAD_RESOURCE_CPU_SECONDS", "1")
+    monkeypatch.setenv("ADAAD_RESOURCE_WALL_SECONDS", "1")
+
+    metric_events = []
+    journal_events = []
+    ledger_events = []
+
+    def _capture_metric(*, event_type: str, payload: dict, level: str = "INFO", element_id: str | None = None) -> None:
+        metric_events.append({"event_type": event_type, "payload": payload, "level": level, "element_id": element_id})
+
+    def _capture_journal(agent_id: str, action: str, payload: dict | None = None) -> None:
+        journal_events.append({"agent_id": agent_id, "action": action, "payload": payload or {}})
+
+    def _capture_tx(tx_type: str, payload: dict, tx_id: str | None = None) -> dict:
+        ledger_events.append({"tx_type": tx_type, "payload": payload, "tx_id": tx_id})
+        return {"hash": "captured"}
+
+    monkeypatch.setattr(constitution.metrics, "log", _capture_metric)
+    monkeypatch.setattr(constitution.journal, "write_entry", _capture_journal)
+    monkeypatch.setattr(constitution.journal, "append_tx", _capture_tx)
+
+    with constitution.deterministic_envelope_scope(
+        {
+            "agent_id": request.agent_id,
+            "epoch_id": "epoch-2",
+            "resource_measurements": {"peak_rss_mb": 11.0, "cpu_seconds": 2.0, "wall_seconds": 2.0},
+        }
+    ):
+        result = validator(request)
+
+    assert result["ok"] is False
+    assert metric_events and metric_events[-1]["event_type"] == "resource_bounds_exceeded"
+    assert journal_events and journal_events[-1]["action"] == "resource_bounds_exceeded"
+    assert ledger_events and ledger_events[-1]["tx_type"] == "resource_bounds_exceeded"
+
+
+def test_resource_bounds_validator_rejects_invalid_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    validator = constitution.VALIDATOR_REGISTRY["resource_bounds"]
+    request = MutationRequest(
+        agent_id="test_subject",
+        generation_ts="now",
+        intent="test",
+        ops=[],
+        signature="",
+        nonce="n",
+    )
+    monkeypatch.setenv("ADAAD_RESOURCE_MEMORY_MB", "bad")
+    with constitution.deterministic_envelope_scope({"resource_measurements": {"peak_rss_mb": 1.0}}):
+        result = validator(request)
+    assert result["ok"] is False
+    assert result["reason"] == "invalid_resource_memory_bound"
+
+
+def test_evaluation_emits_governance_envelope_digest() -> None:
+    request = MutationRequest(
+        agent_id="test_subject",
+        generation_ts="now",
+        intent="test",
+        ops=[],
+        signature="",
+        nonce="n",
+    )
+    first = constitution.evaluate_mutation(request, constitution.Tier.SANDBOX)
+    second = constitution.evaluate_mutation(request, constitution.Tier.SANDBOX)
+
+    assert "governance_envelope" in first
+    assert first["governance_envelope"]["digest"]
+    assert first["governance_envelope"]["digest"] == second["governance_envelope"]["digest"]
+
+
+def test_rule_dependency_ordering_places_lineage_before_mutation_rate() -> None:
+    request = MutationRequest(
+        agent_id="test_subject",
+        generation_ts="now",
+        intent="test",
+        ops=[],
+        signature="",
+        nonce="n",
+    )
+    verdict = constitution.evaluate_mutation(request, constitution.Tier.SANDBOX)
+    names = [item["rule"] for item in verdict["verdicts"]]
+    assert names.index("lineage_continuity") < names.index("max_mutation_rate")
+
+
+def test_verdicts_include_validator_provenance() -> None:
+    request = MutationRequest(
+        agent_id="test_subject",
+        generation_ts="now",
+        intent="test",
+        ops=[],
+        signature="",
+        nonce="n",
+    )
+    verdict = constitution.evaluate_mutation(request, constitution.Tier.SANDBOX)
+    row = next(item for item in verdict["verdicts"] if item["rule"] == "lineage_continuity")
+    provenance = row["provenance"]
+    assert provenance["constitution_version"] == constitution.CONSTITUTION_VERSION
+    assert provenance["validator_name"]
+    assert len(provenance["validator_source_hash"]) == 64
+
+
+def test_coverage_not_configured_is_non_blocking() -> None:
+    validator = constitution.VALIDATOR_REGISTRY["test_coverage_maintained"]
+    request = MutationRequest(
+        agent_id="test_subject",
+        generation_ts="now",
+        intent="test",
+        ops=[],
+        signature="",
+        nonce="n",
+    )
+    with constitution.deterministic_envelope_scope({}):
+        result = validator(request)
+    assert result["ok"] is True
+    assert result["reason"] == "coverage_artifact_not_configured"
+
+
+def test_validator_provenance_handles_source_unavailable(monkeypatch: pytest.MonkeyPatch) -> None:
+    validator = constitution.VALIDATOR_REGISTRY["lineage_continuity"]
+
+    def _raise(_obj):
+        raise OSError("source unavailable")
+
+    monkeypatch.setattr(constitution.inspect, "getsource", _raise)
+    constitution._validator_source_hash.cache_clear()
+    row = constitution._validator_provenance(next(rule for rule in constitution.RULES if rule.validator is validator))
+    assert row["validator_source_hash"] == "source_unavailable"
+    constitution._validator_source_hash.cache_clear()
+
+
+def test_governance_drift_blocks_production(monkeypatch: pytest.MonkeyPatch) -> None:
+    request = MutationRequest(
+        agent_id="runtime_core",
+        generation_ts="now",
+        intent="test",
+        ops=[],
+        signature="",
+        nonce="n",
+    )
+    monkeypatch.setattr(constitution, "_current_governance_fingerprint", lambda: "drifted")
+    monkeypatch.setattr(constitution, "_BASE_GOVERNANCE_FINGERPRINT", "baseline")
+    verdict = constitution.evaluate_mutation(request, constitution.Tier.PRODUCTION)
+    assert verdict["governance_drift_detected"] is True
+    assert "governance_drift_detected" in verdict["blocking_failures"]
