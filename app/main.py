@@ -17,6 +17,7 @@ Deterministic orchestrator entrypoint.
 
 import argparse
 import json
+import logging
 import os
 import re
 import time
@@ -39,6 +40,7 @@ from runtime.platform.android_monitor import AndroidMonitor
 from runtime.platform.storage_manager import StorageManager
 from runtime import metrics
 from runtime.capability_graph import register_capability
+from runtime.manifest.generator import generate_tool_manifest
 from runtime.element_registry import dump, register
 from runtime.founders_law import (
     RULE_ARCHITECT_SCAN,
@@ -63,12 +65,28 @@ from runtime.fitness_v2 import score_mutation_enhanced
 from runtime.governance.foundation import default_provider
 from runtime.timeutils import now_iso
 from runtime.warm_pool import WarmPool
-from runtime.tools.mutation_guard import _apply_ops
+from adaad.orchestrator.bootstrap import bootstrap_tool_registry
+from adaad.orchestrator.dispatcher import dispatch
 from security import cryovant
 from security.gatekeeper_protocol import run_gatekeeper
 from security.ledger import journal
 from security.ledger.journal import JournalIntegrityError
 from ui.aponi_dashboard import AponiDashboard
+
+
+ORCHESTRATOR_LOGGER = "adaad.orchestrator"
+
+
+def _get_orchestrator_logger() -> logging.Logger:
+    logger = logging.getLogger(ORCHESTRATOR_LOGGER)
+    if logger.handlers:
+        return logger
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(logging.Formatter("%(message)s"))
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+    logger.propagate = False
+    return logger
 
 
 def _governance_ci_mode_enabled() -> bool:
@@ -98,6 +116,7 @@ class Orchestrator:
         verbose: bool = False,
     ) -> None:
         self.state: Dict[str, Any] = {"status": "initializing", "mutation_enabled": False}
+        self.logger = _get_orchestrator_logger()
         self.agents_root = APP_ROOT / "agents"
         self.lineage_dir = self.agents_root / "lineage"
         self.warm_pool = WarmPool(size=2)
@@ -125,7 +144,7 @@ class Orchestrator:
             return
         home = os.getenv("HOME", "")
         safe_message = message.replace(home, "~") if home else message
-        print(f"[ADAAD] {safe_message}")
+        self.logger.info(f"[ADAAD] {safe_message}")
 
     def _fail(self, reason: str) -> None:
         metrics.log(event_type="orchestrator_error", payload={"reason": reason}, level="ERROR")
@@ -159,6 +178,7 @@ class Orchestrator:
         if not gate.get("ok"):
             self._fail(f"gatekeeper_failed:{','.join(gate.get('missing', []))}")
         self._v("Gatekeeper preflight passed")
+        bootstrap_tool_registry()
         self._register_elements()
         self._init_runtime()
         self._v("Runtime invariants passed")
@@ -201,7 +221,7 @@ class Orchestrator:
         journal.write_entry(agent_id="system", action="orchestrator_ready", payload=self.state)
         dump()
         if self.exit_after_boot:
-            print("ADAAD_BOOT_OK")
+            self.logger.info("ADAAD_BOOT_OK")
             sys.exit(0)
         self._init_ui()
         self._v("Aponi dashboard started")
@@ -662,12 +682,17 @@ class Orchestrator:
         )
 
     def _register_capabilities(self) -> None:
-        register_capability("orchestrator.boot", "0.65.0", 1.0, "Earth")
-        register_capability("cryovant.gate", "0.65.0", 1.0, "Water")
-        register_capability("architect.scan", "0.65.0", 1.0, "Wood")
-        register_capability("dream.cycle", "0.65.0", 1.0, "Fire")
-        register_capability("beast.evaluate", "0.65.0", 1.0, "Fire")
-        register_capability("ui.dashboard", "0.65.0", 1.0, "Metal")
+        registrations = [
+            ("orchestrator.boot", "0.65.0", "Earth"),
+            ("cryovant.gate", "0.65.0", "Water"),
+            ("architect.scan", "0.65.0", "Wood"),
+            ("dream.cycle", "0.65.0", "Fire"),
+            ("beast.evaluate", "0.65.0", "Fire"),
+            ("ui.dashboard", "0.65.0", "Metal"),
+        ]
+        for capability_name, capability_version, owner in registrations:
+            identity = generate_tool_manifest(__name__, capability_name, capability_version)
+            register_capability(capability_name, capability_version, 1.0, owner, identity=identity)
 
     def _init_ui(self) -> None:
         self.dashboard.start(self.state)
@@ -682,9 +707,9 @@ class Orchestrator:
         if request.targets:
             for target in request.targets:
                 if target.path == "dna.json":
-                    _apply_ops(simulated, target.ops)
+                    dispatch("mutation.apply_ops", simulated, target.ops)
         else:
-            _apply_ops(simulated, request.ops)
+            dispatch("mutation.apply_ops", simulated, request.ops)
         payload = {
             "parent": dna.get("lineage") or "dry_run",
             "intent": request.intent,

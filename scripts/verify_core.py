@@ -76,11 +76,43 @@ def ensure_metrics_and_security() -> None:
         sys.exit("Keys directory missing")
 
 
+def run_tool_contract_check() -> None:
+    if str(TARGET) not in sys.path:
+        sys.path.insert(0, str(TARGET))
+    from adaad.core.tool_contract import validate_tool_contracts
+
+    result = validate_tool_contracts(TARGET)
+    if result["ok"]:
+        return
+    failures = []
+    for module in result["failing_modules"]:
+        violations = ", ".join(item["message"] for item in module["violations"])
+        failures.append(f"{module['module']}: {violations}")
+    sys.exit("Tool contract validation failed:\n" + "\n".join(failures))
+
+
+def run_agent_contract_check() -> None:
+    if str(TARGET) not in sys.path:
+        sys.path.insert(0, str(TARGET))
+    from adaad.core.agent_contract import validate_agent_contracts
+
+    result = validate_agent_contracts(TARGET, include_legacy_bridge=True)
+    if result["ok"]:
+        return
+    failures = []
+    for module in result["failing_modules"]:
+        violations = ", ".join(item["message"] for item in module["violations"])
+        failures.append(f"{module['module']}: {violations}")
+    sys.exit("Agent contract validation failed:\n" + "\n".join(failures))
+
+
 def main() -> None:
     ensure_dirs()
     run_determinism_lint()
     scan_imports()
     ensure_metrics_and_security()
+    run_tool_contract_check()
+    run_agent_contract_check()
     print("Core verification passed.")
 
 

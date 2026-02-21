@@ -33,7 +33,10 @@ import time
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
+
+TOOL_ID: str = "asset_generator"
+VERSION: str = "1.0.0"
 
 try:
     from PIL import Image
@@ -346,6 +349,28 @@ def main() -> None:
     print(f"Dist: {DIST_DIR}")
     print(f"Zip: {ZIP_PATH}")
     print(f"Metrics: {METRICS_PATH}")
+
+
+def get_tool_manifest() -> Dict[str, Any]:
+    return {
+        "tool_id": TOOL_ID,
+        "version": VERSION,
+        "entrypoint": "main",
+        "description": "Normalize, validate, and package ADAAD icon assets.",
+    }
+
+
+def run_tool(params: Dict[str, Any]) -> Dict[str, Any]:
+    if params.get("dry_run"):
+        return {"ok": True, "dry_run": True, "manifest": get_tool_manifest()}
+    main()
+    return {
+        "ok": True,
+        "tool_id": TOOL_ID,
+        "version": VERSION,
+        "zip": str(ZIP_PATH),
+        "metrics": str(METRICS_PATH),
+    }
 
 
 if __name__ == "__main__":

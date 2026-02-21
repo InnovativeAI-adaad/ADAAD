@@ -19,6 +19,7 @@ from pathlib import Path
 from unittest import mock
 
 from runtime import capability_graph
+from runtime.manifest.generator import generate_tool_manifest
 from runtime import metrics
 
 
@@ -40,6 +41,7 @@ class CapabilityDependencyTest(unittest.TestCase):
             score=0.5,
             owner_element="test",
             requires=["missing.capability"],
+            identity=generate_tool_manifest(__name__, "agent.sample", "1.0.0"),
         )
         self.assertFalse(ok)
         self.assertIn("missing dependencies", message)
@@ -62,7 +64,7 @@ class CapabilityDependencyTest(unittest.TestCase):
         results: list[tuple[bool, str]] = []
 
         def register(name: str) -> None:
-            outcome = capability_graph.register_capability(name, "1.0.0", 1.0, "thread-test")
+            outcome = capability_graph.register_capability(name, "1.0.0", 1.0, "thread-test", identity=generate_tool_manifest(__name__, name, "1.0.0"))
             results.append(outcome)
 
         with mock.patch.object(capability_graph, "_load", side_effect=synchronized_load):

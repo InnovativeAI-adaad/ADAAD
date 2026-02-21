@@ -17,9 +17,11 @@ Legacy compatibility wrapper for the capability graph registry.
 New code should import runtime.capability_graph.
 """
 
-from runtime.capability_graph import get_capabilities, register_capability
+from runtime import capability_graph
 
-# The public API is preserved for backward compatibility. New code should import
-# runtime.capability_graph instead of this module.
+get_capabilities = capability_graph.get_capabilities
+register_capability = capability_graph.register_capability
+dispatch_capability = capability_graph.dispatch_capability
+list_capabilities = capability_graph.list_capabilities
 
-__all__ = ["get_capabilities", "register_capability"]
+__all__ = ["dispatch_capability", "get_capabilities", "list_capabilities", "register_capability"]

@@ -22,6 +22,7 @@ from app.agents.base_agent import stage_offspring
 from app.beast_mode_loop import BeastModeLoop
 from runtime import capability_graph, metrics
 from runtime.autonomy.mutation_scaffold import MutationCandidate, rank_mutation_candidates
+from runtime.manifest.generator import generate_tool_manifest
 from security.ledger import journal
 
 
@@ -74,8 +75,8 @@ class BeastPromotionTest(unittest.TestCase):
         (agent_dir / "dna.json").write_text(json.dumps({"seq": "abc"}), encoding="utf-8")
         (agent_dir / "certificate.json").write_text(json.dumps({"signature": "cryovant-dev-seed"}), encoding="utf-8")
 
-        capability_graph.register_capability("orchestrator.boot", "0.1.0", 1.0, "test")
-        capability_graph.register_capability("cryovant.gate", "0.1.0", 1.0, "test")
+        capability_graph.register_capability("orchestrator.boot", "0.1.0", 1.0, "test", identity=generate_tool_manifest(__name__, "orchestrator.boot", "0.1.0"))
+        capability_graph.register_capability("cryovant.gate", "0.1.0", 1.0, "test", identity=generate_tool_manifest(__name__, "cryovant.gate", "0.1.0"))
 
         journal.ensure_ledger()
         journal.write_entry(agent_id="agentA", action="seed", payload={})

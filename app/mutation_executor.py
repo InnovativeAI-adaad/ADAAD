@@ -30,8 +30,8 @@ from runtime.mutation_lifecycle import LifecycleTransitionError, MutationLifecyc
 from runtime.test_sandbox import TestSandbox, TestSandboxResult, TestSandboxStatus
 from runtime.sandbox.executor import HardenedSandboxExecutor
 from runtime.timeutils import now_iso
-from runtime.tools.code_mutation_guard import apply_code_mutation, extract_targets as extract_code_targets
-from runtime.tools.mutation_guard import apply_dna_mutation
+from adaad.orchestrator.bootstrap import bootstrap_tool_registry
+from adaad.orchestrator.dispatcher import dispatch
 from runtime.tools.mutation_tx import MutationTargetError, MutationTransaction
 from security.ledger import journal
 
@@ -53,6 +53,7 @@ class MutationExecutor:
         *,
         provider: RuntimeDeterminismProvider | None = None,
     ) -> None:
+        bootstrap_tool_registry()
         self.agents_root = agents_root
         if evolution_runtime is None:
             resolved_provider = provider or default_provider()
@@ -414,14 +415,14 @@ class MutationExecutor:
                 else:
                     dna_ops.append(op)
 
-            code_targets = extract_code_targets(code_ops) if code_ops else []
+            code_targets = dispatch("mutation.extract_code_targets", code_ops)["result"] if code_ops else []
             code_backups = {path: (path.read_bytes() if path.exists() else None) for path in code_targets}
 
             apply_result: Dict[str, Any] = {}
             if dna_ops:
-                apply_result["dna"] = apply_dna_mutation(agent_fs_id, dna_ops)
+                apply_result["dna"] = dispatch("mutation.apply_dna", agent_fs_id, dna_ops)["result"]
             if code_ops:
-                apply_result["code"] = apply_code_mutation(code_ops)
+                apply_result["code"] = dispatch("mutation.apply_code", code_ops)["result"]
                 if apply_result["code"].get("status") == "failed":
                     metrics.log(event_type="mutation_failed", payload={"agent": request.agent_id, "mutation_id": mutation_id, "error": "code_mutation_failed"}, level="ERROR", element_id=ELEMENT_ID)
                     journal.write_entry(agent_id=request.agent_id, action="mutation_failed", payload={"mutation_id": mutation_id, "epoch_id": epoch_id, "error": "code_mutation_failed", "ts": now_iso()})

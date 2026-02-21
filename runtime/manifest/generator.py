@@ -8,6 +8,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict
 
+from adaad.core.cryovant import build_identity
 from runtime import ROOT_DIR
 from runtime.founders_law import LAW_VERSION
 from runtime.mutation_lifecycle import MutationLifecycleContext
@@ -91,3 +92,9 @@ def write_manifest(path: Path, manifest: Dict[str, Any]) -> str:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
     return f"sha256:{manifest_hash(manifest)}"
+
+
+def generate_tool_manifest(module: str, tool_id: str, version: str) -> Dict[str, Any]:
+    identity = build_identity(module, tool_id, version)
+    identity["timestamp"] = now_iso()
+    return identity

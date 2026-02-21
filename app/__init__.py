@@ -17,6 +17,8 @@ Application package for ADAAD orchestrator.
 
 from pathlib import Path
 
+from adaad.core.root import ROOT_DIR, get_root_dir
+
 APP_ROOT = Path(__file__).resolve().parent
 
-__all__ = ["APP_ROOT"]
+__all__ = ["APP_ROOT", "ROOT_DIR", "get_root_dir"]
