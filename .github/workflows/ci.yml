@@ -68,6 +68,16 @@ jobs:
           fi
           PYTHONPATH=. pytest "${targets[@]}"
 
+  import-path-compliance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run import path compliance lint
+        run: PYTHONPATH=. python tools/lint_import_paths.py
+
   replay-audit-boot:
     runs-on: ubuntu-latest
     steps:
