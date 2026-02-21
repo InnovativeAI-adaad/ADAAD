@@ -67,7 +67,7 @@ class EvolutionAuditGradeTest(unittest.TestCase):
         Path(self.ledger.ledger_path).write_text("\n".join(__import__("json").dumps(e) for e in entries) + "\n", encoding="utf-8")
         reloaded = LineageLedgerV2(Path(self.tmp.name) / "lineage_v2.jsonl")
         replay = ReplayEngine(reloaded)
-        self.assertNotEqual(original_digest, replay.compute_incremental_digest("epoch-1"))
+        self.assertNotEqual(original_digest, replay.compute_incremental_digest_unverified("epoch-1"))
 
     def test_journal_projection_matches_lineage(self) -> None:
         event = {"type": "GovernanceDecisionEvent", "payload": {"agent_id": "alpha", "epoch_id": "epoch-1"}}

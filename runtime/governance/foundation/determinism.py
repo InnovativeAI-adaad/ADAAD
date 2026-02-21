@@ -94,12 +94,16 @@ class SeededDeterminismProvider:
 
 
 def require_replay_safe_provider(provider: RuntimeDeterminismProvider, *, replay_mode: str = "off", recovery_tier: str | None = None) -> None:
-    """Reject non-deterministic providers when strict replay determinism is mandatory."""
+    """Reject non-deterministic providers when strict replay determinism is mandatory.
+
+    Both ``strict`` replay mode and ``audit`` recovery tier require deterministic
+    providers so replay/audit evidence remains reproducible.
+    """
 
     if (replay_mode or "off").strip().lower() == "strict" and not getattr(provider, "deterministic", False):
         raise RuntimeError("strict_replay_requires_deterministic_provider")
     if (recovery_tier or "").strip().lower() == "audit" and not getattr(provider, "deterministic", False):
-        raise RuntimeError("strict_replay_requires_deterministic_provider")
+        raise RuntimeError("audit_tier_requires_deterministic_provider")
 
 
 def default_provider() -> RuntimeDeterminismProvider:

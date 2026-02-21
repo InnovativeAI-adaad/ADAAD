@@ -52,6 +52,8 @@ class EvolutionRuntime:
         self.replay_mode = normalize_replay_mode(replay_mode)
         self.epoch_manager.replay_mode = self.replay_mode.value
         self.governor.replay_mode = self.replay_mode.value
+        # Keep epoch manager aligned when tests or callers swap governor.provider directly.
+        self.epoch_manager.provider = self.governor.provider
         require_replay_safe_provider(
             self.governor.provider,
             replay_mode=self.replay_mode.value,

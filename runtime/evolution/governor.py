@@ -104,9 +104,77 @@ class EvolutionGovernor:
         )
         self.metrics_emitter = EvolutionMetricsEmitter(self.ledger)
         self._validation_lock = threading.RLock()
+        # Strict-replay nonce ordering uses a dedicated plain Lock + Condition so
+        # that Condition.wait() releases correctly.
+        self._ordering_lock = threading.Lock()
+        self._validation_order = threading.Condition(self._ordering_lock)
+        self._epoch_next_nonce_index: Dict[str, int] = {}
+
+    @staticmethod
+    def _nonce_index(nonce: str) -> int | None:
+        """Parse the trailing integer from a nonce of the form ``<prefix>-<int>``."""
+
+        tail = (nonce or "").rsplit("-", 1)
+        if len(tail) != 2 or not tail[1].isdigit():
+            return None
+        return int(tail[1])
+
+    _STRICT_ORDER_TIMEOUT_S: float = 0.25
+    _STRICT_ORDER_POLL_S: float = 0.005
+
+    def _wait_for_strict_turn(self, epoch_id: str, request: MutationRequest) -> None:
+        """Best-effort nonce-ordered serialisation for strict replay lanes."""
+
+        if (self.replay_mode or "off").strip().lower() != "strict":
+            return
+
+        nonce_index = self._nonce_index(request.nonce)
+        if nonce_index is None:
+            from runtime import metrics as _metrics
+
+            _metrics.log(
+                event_type="strict_replay_malformed_nonce",
+                payload={
+                    "epoch_id": epoch_id,
+                    "agent_id": request.agent_id,
+                    "nonce": str(request.nonce or ""),
+                    "reason": "malformed_nonce_index",
+                },
+                level="WARNING",
+            )
+            return
+
+        deadline = self._STRICT_ORDER_TIMEOUT_S
+        with self._validation_order:
+            expected = self._epoch_next_nonce_index.setdefault(epoch_id, nonce_index)
+            elapsed = 0.0
+            while nonce_index != expected and elapsed < deadline:
+                self._validation_order.wait(timeout=self._STRICT_ORDER_POLL_S)
+                elapsed += self._STRICT_ORDER_POLL_S
+                expected = self._epoch_next_nonce_index.get(epoch_id, nonce_index)
+
+            if nonce_index != expected:
+                from runtime import metrics as _metrics
+
+                _metrics.log(
+                    event_type="strict_replay_ordering_timeout",
+                    payload={
+                        "epoch_id": epoch_id,
+                        "agent_id": request.agent_id,
+                        "nonce": str(request.nonce or ""),
+                        "nonce_index": nonce_index,
+                        "expected_index": expected,
+                        "waited_s": round(elapsed, 4),
+                    },
+                    level="WARNING",
+                )
+
+            self._epoch_next_nonce_index[epoch_id] = max(expected, nonce_index) + 1
+            self._validation_order.notify_all()
 
     def validate_bundle(self, request: MutationRequest, epoch_id: str) -> GovernanceDecision:
         with self._validation_lock:
+            self._wait_for_strict_turn(epoch_id, request)
             try:
                 with deterministic_envelope(
                     epoch_id=epoch_id or "unknown",

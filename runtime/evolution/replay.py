@@ -28,7 +28,19 @@ class ReplayEngine:
             "final_state": final[-1]["payload"] if final else {},
         }
 
+    def compute_incremental_digest_unverified(self, epoch_id: str) -> str:
+        """Recompute digest from event payloads without hash-chain integrity checks.
+
+        Intended for forensic / tamper-analysis workflows where the ledger chain
+        may already be compromised. For production replay verification use
+        :meth:`compute_incremental_digest` which enforces chain integrity first.
+        """
+
+        return self.ledger.compute_incremental_epoch_digest_unverified(epoch_id)
+
     def compute_incremental_digest(self, epoch_id: str) -> str:
+        """Recompute digest with chain-integrity verification enforced."""
+
         return self.ledger.compute_incremental_epoch_digest(epoch_id)
 
     def replay_epoch(self, epoch_id: str) -> Dict[str, Any]:

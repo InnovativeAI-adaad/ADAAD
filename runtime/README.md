@@ -15,7 +15,9 @@ Deterministic replay-sensitive entry points now consume a shared provider abstra
 - Entropy enforcement primitives: `runtime/evolution/entropy_detector.py`, `runtime/evolution/entropy_policy.py` with declared+observed telemetry accounting and per-epoch durable entropy totals.
 - Entropy observability helper: `runtime/evolution/telemetry_audit.py` (`get_epoch_entropy_breakdown`).
 - Hardened sandbox isolation primitives: `runtime/sandbox/{executor,policy,manifest,evidence,isolation,preflight}.py` with strict pre-exec enforcement preparation (seccomp/capability/resource profiles) and deterministic preflight blocking before test execution (missing sandbox syscall telemetry is fail-closed).
-- Lineage replay integrity: replay digest paths verify ledger hash-chain integrity before reads; strict replay divergence emits governance fail-closed decisions that block further promotion validation.
+- Lineage replay integrity now distinguishes two paths: verified replay digests (chain-integrity prevalidated) for strict/production checks, and explicit unverified forensic digest recomputation for tamper analysis workflows.
+- Strict replay determinism requires deterministic providers; audit tier enforcement also requires deterministic providers to preserve forensic replay value.
+- Strict replay invariants reference: `docs/governance/STRICT_REPLAY_INVARIANTS.md` (verified vs unverified digest policy, provider requirements, and replay-equivalence guarantees).
 - Federation coordination primitives: `runtime/governance/federation/` provides deterministic policy version exchange, quorum/consensus decision recording, conflict reconciliation actions, and explicit local-vs-federated governance precedence for replay attestation checks.
 
 - Deterministic promotion simulation runner: `runtime/evolution/simulation_runner.py` with CI entrypoint `scripts/run_simulation_runner.py` (machine-readable canary verdicts; no mutation side effects).
