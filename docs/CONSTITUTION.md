@@ -1,4 +1,4 @@
-# ADAAD Constitutional Framework v0.1.0
+# ADAAD Constitutional Framework v0.2.0
 
 ## Philosophy
 
@@ -39,11 +39,11 @@ Every mutation passes through constitutional evaluation. Every rule is versioned
 | `import_smoke_test` | ✅ | WARNING | Catches dependency issues |
 | `no_banned_tokens` | ✅ | BLOCKING | Security guardrails (no eval/exec) |
 | `signature_required` | ✅ | BLOCKING | Cryptographic lineage |
-| `max_complexity_delta` | ❌ | WARNING | Prevents code rot (not yet implemented) |
-| `test_coverage_maintained` | ❌ | WARNING | Quality preservation (not yet implemented) |
-| `max_mutation_rate` | ❌ | ADVISORY | Prevents runaway loops (not yet implemented) |
-| `lineage_continuity` | ❌ | BLOCKING | Traceability (not yet implemented) |
-| `resource_bounds` | ❌ | BLOCKING | Android/mobile safety (not yet implemented) |
+| `max_complexity_delta` | ✅ | WARNING | Prevents code rot |
+| `test_coverage_maintained` | ✅ | WARNING | Quality preservation |
+| `max_mutation_rate` | ✅ | WARNING (SANDBOX: ADVISORY, PRODUCTION: BLOCKING) | Prevents runaway loops |
+| `lineage_continuity` | ✅ | BLOCKING | Traceability |
+| `resource_bounds` | ✅ | BLOCKING | Android/mobile safety |
 
 ---
 
@@ -63,7 +63,7 @@ Constitutional rules can themselves evolve through governance:
 
 1. Propose rule change as tier-0 mutation
 2. Human review + approval required
-3. Version bumped (`0.1.0` → `0.2.0`)
+3. Version bumped (`0.2.0` → next)
 4. All subsequent mutations use new constitution
 5. Change logged in Cryovant ledger
 
@@ -78,7 +78,7 @@ Every constitutional evaluation generates:
 {
   "event": "constitutional_evaluation",
   "payload": {
-    "constitution_version": "0.1.0",
+    "constitution_version": "0.2.0",
     "tier": "SANDBOX",
     "passed": true,
     "verdicts": [...],
@@ -98,7 +98,7 @@ summary = summarize_preflight_rejections(limit=1000)
 
 ## Future Extensions
 
-- Rule 6-10 implementations
+- Further hardening and richer validator signals
 - Multi-objective fitness integration
 - Constitutional amendment proposals
 - Community-contributed rules
@@ -106,7 +106,7 @@ summary = summarize_preflight_rejections(limit=1000)
 
 ---
 
-**Version**: 0.1.0  
+**Version**: 0.2.0  
 **Last Updated**: 2026-02-06  
 **Next Review**: After 1000 mutations logged
 

@@ -19,6 +19,7 @@ import argparse
 import json
 import os
 import re
+import time
 import sys
 from typing import Any, Dict, Optional
 
@@ -68,6 +69,18 @@ from security.gatekeeper_protocol import run_gatekeeper
 from security.ledger import journal
 from security.ledger.journal import JournalIntegrityError
 from ui.aponi_dashboard import AponiDashboard
+
+
+def _governance_ci_mode_enabled() -> bool:
+    return os.getenv("ADAAD_GOVERNANCE_CI_MODE", "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _apply_governance_ci_mode_defaults() -> None:
+    os.environ.setdefault("ADAAD_FORCE_DETERMINISTIC_PROVIDER", "1")
+    os.environ.setdefault("ADAAD_DETERMINISTIC_SEED", "adaad-governance-ci")
+    os.environ.setdefault("ADAAD_RESOURCE_MEMORY_MB", "2048")
+    os.environ.setdefault("ADAAD_RESOURCE_CPU_SECONDS", "30")
+    os.environ.setdefault("ADAAD_RESOURCE_WALL_SECONDS", "60")
 
 
 class Orchestrator:
@@ -510,13 +523,42 @@ class Orchestrator:
                 payload={"agent_id": selected.agent_id, "tier": tier.name},
                 level="INFO",
             )
+        platform_snapshot = self.resource_monitor.snapshot()
+        eval_wall_start = time.monotonic()
+        eval_cpu_start = time.process_time()
         envelope_state = {
             "epoch_id": active_epoch_id,
             "epoch_entropy_bits": int(getattr(self.evolution_runtime, "epoch_cumulative_entropy_bits", 0) or 0),
             "observed_entropy_bits": 0,
+            "platform_telemetry": {
+                "battery_percent": round(platform_snapshot.battery_percent, 4),
+                "memory_mb": round(platform_snapshot.memory_mb, 4),
+                "storage_mb": round(platform_snapshot.storage_mb, 4),
+                "cpu_percent": round(platform_snapshot.cpu_percent, 4),
+            },
+            # Pre-evaluation snapshot for headroom checks: resource_bounds validates
+            # platform capacity here, while post-evaluation timing is logged separately.
+            "resource_measurements": {
+                "wall_seconds": 0.0,
+                "cpu_seconds": 0.0,
+                "peak_rss_mb": round(platform_snapshot.memory_mb, 4),
+            },
         }
         with deterministic_envelope_scope(envelope_state):
             constitutional_verdict = evaluate_mutation(selected, tier)
+        eval_wall_elapsed = max(0.0, time.monotonic() - eval_wall_start)
+        eval_cpu_elapsed = max(0.0, time.process_time() - eval_cpu_start)
+        metrics.log(
+            event_type="constitutional_evaluation_resource_measurements",
+            payload={
+                "epoch_id": active_epoch_id,
+                "agent_id": selected.agent_id,
+                "wall_seconds": round(eval_wall_elapsed, 6),
+                "cpu_seconds": round(eval_cpu_elapsed, 6),
+                "peak_rss_mb": round(platform_snapshot.memory_mb, 4),
+            },
+            level="INFO",
+        )
         if not constitutional_verdict.get("passed"):
             metrics.log(
                 event_type="mutation_rejected_constitutional",
@@ -677,6 +719,9 @@ def main() -> None:
         replay_mode = normalize_replay_mode(args.replay)
     except ValueError as exc:
         parser.error(str(exc))
+
+    if _governance_ci_mode_enabled():
+        _apply_governance_ci_mode_defaults()
 
     orchestrator = Orchestrator(
         dry_run=args.dry_run or dry_run_env,

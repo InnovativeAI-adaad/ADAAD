@@ -5,7 +5,7 @@ import os
 import unittest
 from unittest import mock
 
-from app.main import Orchestrator
+from app.main import Orchestrator, _apply_governance_ci_mode_defaults, _governance_ci_mode_enabled
 from runtime.evolution.replay_mode import ReplayMode, normalize_replay_mode, parse_replay_args
 
 
@@ -118,6 +118,18 @@ class OrchestratorReplayModeTest(unittest.TestCase):
             })
             orch.verify_replay_only()
             dump.assert_called_once()
+
+
+class GovernanceCIModeTest(unittest.TestCase):
+    def test_governance_ci_mode_env_toggle(self) -> None:
+        with mock.patch.dict(os.environ, {"ADAAD_GOVERNANCE_CI_MODE": "1"}, clear=False):
+            self.assertTrue(_governance_ci_mode_enabled())
+
+    def test_apply_governance_ci_mode_defaults_sets_provider_env(self) -> None:
+        with mock.patch.dict(os.environ, {}, clear=True):
+            _apply_governance_ci_mode_defaults()
+            self.assertEqual(os.getenv("ADAAD_FORCE_DETERMINISTIC_PROVIDER"), "1")
+            self.assertEqual(os.getenv("ADAAD_DETERMINISTIC_SEED"), "adaad-governance-ci")
 
 
 if __name__ == "__main__":

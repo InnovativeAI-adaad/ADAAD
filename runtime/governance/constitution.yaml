@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "tiers": {
     "PRODUCTION": 0,
     "STABLE": 1,
@@ -74,7 +74,7 @@
     },
     {
       "name": "max_complexity_delta",
-      "enabled": false,
+      "enabled": true,
       "severity": "warning",
       "tier_overrides": {},
       "reason": "Prevent complexity explosions",
@@ -82,7 +82,7 @@
     },
     {
       "name": "test_coverage_maintained",
-      "enabled": false,
+      "enabled": true,
       "severity": "warning",
       "tier_overrides": {},
       "reason": "Ensure mutations don't reduce test coverage",
@@ -101,7 +101,7 @@
     },
     {
       "name": "lineage_continuity",
-      "enabled": false,
+      "enabled": true,
       "severity": "blocking",
       "tier_overrides": {},
       "reason": "Every mutation must trace to certified ancestor",
@@ -109,7 +109,7 @@
     },
     {
       "name": "resource_bounds",
-      "enabled": false,
+      "enabled": true,
       "severity": "blocking",
       "tier_overrides": {},
       "reason": "Mutation cannot exceed memory/CPU/time budgets",
