@@ -18,6 +18,12 @@ VIOLATION_MESSAGE = (
     "direct governance.* import is forbidden; use runtime.* adapter paths "
     "(see docs/governance/mutation_lifecycle.md)"
 )
+GOVERNANCE_IMPL_VIOLATION_MESSAGE = (
+    "implementation code detected in governance/ adapter layer; "
+    "move logic to runtime.* and re-export from governance/ "
+    "(see docs/governance/mutation_lifecycle.md)"
+)
+GOVERNANCE_IMPL_ALLOWED_ASSIGNMENTS: frozenset[str] = frozenset({"__all__", "__version__", "__author__"})
 
 
 @dataclass(frozen=True)
@@ -84,6 +90,46 @@ def _iter_issues(path: Path, tree: ast.AST) -> Iterable[LintIssue]:
                 )
 
 
+def _iter_governance_impl_issues(path: Path, tree: ast.AST) -> Iterable[LintIssue]:
+    rel = _relative_path(path)
+    if not rel.startswith("governance/"):
+        return
+
+    module = tree if isinstance(tree, ast.Module) else None
+    if module is None:
+        return
+
+    for node in module.body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            yield LintIssue(
+                path,
+                getattr(node, "lineno", 1),
+                getattr(node, "col_offset", 0),
+                GOVERNANCE_IMPL_VIOLATION_MESSAGE,
+            )
+        elif isinstance(node, ast.Assign):
+            target_names = {
+                target.id
+                for target in node.targets
+                if isinstance(target, ast.Name)
+            }
+            if not target_names or not target_names.issubset(GOVERNANCE_IMPL_ALLOWED_ASSIGNMENTS):
+                yield LintIssue(
+                    path,
+                    getattr(node, "lineno", 1),
+                    getattr(node, "col_offset", 0),
+                    GOVERNANCE_IMPL_VIOLATION_MESSAGE,
+                )
+        elif isinstance(node, ast.AnnAssign):
+            if not isinstance(node.target, ast.Name) or node.target.id not in GOVERNANCE_IMPL_ALLOWED_ASSIGNMENTS:
+                yield LintIssue(
+                    path,
+                    getattr(node, "lineno", 1),
+                    getattr(node, "col_offset", 0),
+                    GOVERNANCE_IMPL_VIOLATION_MESSAGE,
+                )
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     args = list(argv or sys.argv[1:])
     targets = args or list(DEFAULT_TARGETS)
@@ -100,6 +146,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             issues.append(LintIssue(file_path, exc.lineno or 1, exc.offset or 0, "syntax_error"))
             continue
         issues.extend(_iter_issues(file_path, tree))
+        issues.extend(_iter_governance_impl_issues(file_path, tree))
 
     if not issues:
         print("import path lint passed")
