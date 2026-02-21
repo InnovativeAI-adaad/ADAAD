@@ -3,6 +3,7 @@
 import json
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 from app.agents.mutation_request import MutationTarget
@@ -36,7 +37,8 @@ class MutationTransactionTest(unittest.TestCase):
         payload = json.loads((self.agent_dir / "dna.json").read_text(encoding="utf-8"))
         self.assertEqual(payload["version"], 1)
 
-    def test_transaction_rolls_back_on_error(self) -> None:
+    @mock.patch("runtime.tools.mutation_tx.issue_rollback_certificate")
+    def test_transaction_rolls_back_on_error(self, issue_cert) -> None:
         dna_hash = file_hash(self.agent_dir / "dna.json")
         target = MutationTarget(
             agent_id="alpha",
@@ -51,6 +53,7 @@ class MutationTransactionTest(unittest.TestCase):
                 raise MutationTargetError("forced")
         payload = json.loads((self.agent_dir / "dna.json").read_text(encoding="utf-8"))
         self.assertEqual(payload["version"], 0)
+        issue_cert.assert_called_once()
 
 
 if __name__ == "__main__":

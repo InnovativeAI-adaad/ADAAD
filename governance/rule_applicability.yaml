@@ -1,17 +1,30 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Rule applicability metadata for constitutional evaluation and PR checklist generation.",
   "rules": [
     {
       "name": "single_file_scope",
       "scope": {
-        "directories": ["app", "runtime", "security", "tools", "ui"],
-        "change_types": ["mutation_request", "code"]
+        "directories": [
+          "app",
+          "runtime",
+          "security",
+          "tools",
+          "ui"
+        ],
+        "change_types": [
+          "mutation_request",
+          "code"
+        ]
       },
       "triggers": {
         "requires_targets": true,
         "min_ops": 1,
-        "tiers": ["PRODUCTION", "STABLE", "SANDBOX"]
+        "tiers": [
+          "PRODUCTION",
+          "STABLE",
+          "SANDBOX"
+        ]
       },
       "severity": "blocking",
       "fail_behavior": {
@@ -30,13 +43,26 @@
     {
       "name": "ast_validity",
       "scope": {
-        "directories": ["app", "runtime", "security", "tools", "ui"],
-        "change_types": ["mutation_request", "code"]
+        "directories": [
+          "app",
+          "runtime",
+          "security",
+          "tools",
+          "ui"
+        ],
+        "change_types": [
+          "mutation_request",
+          "code"
+        ]
       },
       "triggers": {
         "requires_targets": true,
         "min_ops": 1,
-        "tiers": ["PRODUCTION", "STABLE", "SANDBOX"]
+        "tiers": [
+          "PRODUCTION",
+          "STABLE",
+          "SANDBOX"
+        ]
       },
       "severity": "blocking",
       "fail_behavior": {
@@ -53,13 +79,26 @@
     {
       "name": "import_smoke_test",
       "scope": {
-        "directories": ["app", "runtime", "security", "tools", "ui"],
-        "change_types": ["mutation_request", "code"]
+        "directories": [
+          "app",
+          "runtime",
+          "security",
+          "tools",
+          "ui"
+        ],
+        "change_types": [
+          "mutation_request",
+          "code"
+        ]
       },
       "triggers": {
         "requires_targets": true,
         "min_ops": 1,
-        "tiers": ["PRODUCTION", "STABLE", "SANDBOX"]
+        "tiers": [
+          "PRODUCTION",
+          "STABLE",
+          "SANDBOX"
+        ]
       },
       "severity": "warning",
       "fail_behavior": {
@@ -76,13 +115,26 @@
     {
       "name": "no_banned_tokens",
       "scope": {
-        "directories": ["app", "runtime", "security", "tools", "ui"],
-        "change_types": ["mutation_request", "code"]
+        "directories": [
+          "app",
+          "runtime",
+          "security",
+          "tools",
+          "ui"
+        ],
+        "change_types": [
+          "mutation_request",
+          "code"
+        ]
       },
       "triggers": {
         "requires_targets": true,
         "min_ops": 1,
-        "tiers": ["PRODUCTION", "STABLE", "SANDBOX"]
+        "tiers": [
+          "PRODUCTION",
+          "STABLE",
+          "SANDBOX"
+        ]
       },
       "severity": "blocking",
       "fail_behavior": {
@@ -99,13 +151,30 @@
     {
       "name": "signature_required",
       "scope": {
-        "directories": ["app", "runtime", "security", "tools", "ui", "docs", "tests"],
-        "change_types": ["mutation_request", "code", "docs", "tests"]
+        "directories": [
+          "app",
+          "runtime",
+          "security",
+          "tools",
+          "ui",
+          "docs",
+          "tests"
+        ],
+        "change_types": [
+          "mutation_request",
+          "code",
+          "docs",
+          "tests"
+        ]
       },
       "triggers": {
         "requires_signature": true,
         "min_ops": 0,
-        "tiers": ["PRODUCTION", "STABLE", "SANDBOX"]
+        "tiers": [
+          "PRODUCTION",
+          "STABLE",
+          "SANDBOX"
+        ]
       },
       "severity": "blocking",
       "fail_behavior": {
@@ -124,12 +193,29 @@
     {
       "name": "max_mutation_rate",
       "scope": {
-        "directories": ["app", "runtime", "security", "tools", "ui", "docs", "tests"],
-        "change_types": ["mutation_request", "code", "docs", "tests"]
+        "directories": [
+          "app",
+          "runtime",
+          "security",
+          "tools",
+          "ui",
+          "docs",
+          "tests"
+        ],
+        "change_types": [
+          "mutation_request",
+          "code",
+          "docs",
+          "tests"
+        ]
       },
       "triggers": {
         "min_ops": 0,
-        "tiers": ["PRODUCTION", "STABLE", "SANDBOX"]
+        "tiers": [
+          "PRODUCTION",
+          "STABLE",
+          "SANDBOX"
+        ]
       },
       "severity": "warning",
       "fail_behavior": {
@@ -142,17 +228,42 @@
       ],
       "required_log_output": [
         "constitutional_evaluation.payload.verdicts[].details.details"
-      ]
+      ],
+      "limits": {
+        "domain_limits": {
+          "security": 4,
+          "payments": 3,
+          "schema": 6,
+          "docs": 20
+        }
+      }
     },
     {
       "name": "entropy_budget_limit",
       "scope": {
-        "directories": ["app", "runtime", "security", "tools", "ui", "docs", "tests"],
-        "change_types": ["mutation_request", "code", "docs", "tests"]
+        "directories": [
+          "app",
+          "runtime",
+          "security",
+          "tools",
+          "ui",
+          "docs",
+          "tests"
+        ],
+        "change_types": [
+          "mutation_request",
+          "code",
+          "docs",
+          "tests"
+        ]
       },
       "triggers": {
         "min_ops": 0,
-        "tiers": ["PRODUCTION", "STABLE", "SANDBOX"]
+        "tiers": [
+          "PRODUCTION",
+          "STABLE",
+          "SANDBOX"
+        ]
       },
       "severity": "warning",
       "fail_behavior": {
@@ -165,18 +276,39 @@
       ],
       "required_log_output": [
         "constitutional_evaluation.payload.verdicts[].details.details"
-      ]
+      ],
+      "limits": {
+        "domain_limits": {
+          "security": 96,
+          "payments": 80,
+          "schema": 112,
+          "docs": 256
+        }
+      }
     },
     {
       "name": "max_complexity_delta",
       "scope": {
-        "directories": ["app", "runtime", "security", "tools", "ui"],
-        "change_types": ["mutation_request", "code"]
+        "directories": [
+          "app",
+          "runtime",
+          "security",
+          "tools",
+          "ui"
+        ],
+        "change_types": [
+          "mutation_request",
+          "code"
+        ]
       },
       "triggers": {
         "requires_targets": true,
         "min_ops": 1,
-        "tiers": ["PRODUCTION", "STABLE", "SANDBOX"]
+        "tiers": [
+          "PRODUCTION",
+          "STABLE",
+          "SANDBOX"
+        ]
       },
       "severity": "warning",
       "fail_behavior": {
@@ -193,13 +325,28 @@
     {
       "name": "test_coverage_maintained",
       "scope": {
-        "directories": ["app", "runtime", "security", "tools", "ui", "tests"],
-        "change_types": ["mutation_request", "code", "tests"]
+        "directories": [
+          "app",
+          "runtime",
+          "security",
+          "tools",
+          "ui",
+          "tests"
+        ],
+        "change_types": [
+          "mutation_request",
+          "code",
+          "tests"
+        ]
       },
       "triggers": {
         "requires_targets": true,
         "min_ops": 1,
-        "tiers": ["PRODUCTION", "STABLE", "SANDBOX"]
+        "tiers": [
+          "PRODUCTION",
+          "STABLE",
+          "SANDBOX"
+        ]
       },
       "severity": "warning",
       "fail_behavior": {
@@ -216,13 +363,26 @@
     {
       "name": "lineage_continuity",
       "scope": {
-        "directories": ["app", "runtime", "security", "tools", "ui"],
-        "change_types": ["mutation_request", "code"]
+        "directories": [
+          "app",
+          "runtime",
+          "security",
+          "tools",
+          "ui"
+        ],
+        "change_types": [
+          "mutation_request",
+          "code"
+        ]
       },
       "triggers": {
         "requires_signature": true,
         "min_ops": 1,
-        "tiers": ["PRODUCTION", "STABLE", "SANDBOX"]
+        "tiers": [
+          "PRODUCTION",
+          "STABLE",
+          "SANDBOX"
+        ]
       },
       "severity": "blocking",
       "fail_behavior": {
@@ -239,13 +399,26 @@
     {
       "name": "resource_bounds",
       "scope": {
-        "directories": ["app", "runtime", "security", "tools", "ui"],
-        "change_types": ["mutation_request", "code"]
+        "directories": [
+          "app",
+          "runtime",
+          "security",
+          "tools",
+          "ui"
+        ],
+        "change_types": [
+          "mutation_request",
+          "code"
+        ]
       },
       "triggers": {
         "requires_targets": true,
         "min_ops": 1,
-        "tiers": ["PRODUCTION", "STABLE", "SANDBOX"]
+        "tiers": [
+          "PRODUCTION",
+          "STABLE",
+          "SANDBOX"
+        ]
       },
       "severity": "blocking",
       "fail_behavior": {
@@ -259,5 +432,42 @@
         "constitutional_evaluation.payload.verdicts[].details.reason"
       ]
     }
-  ]
+  ],
+  "domain_classification": {
+    "default_domain": "general",
+    "rules": [
+      {
+        "domain": "security",
+        "patterns": [
+          "security/*",
+          "security/**"
+        ]
+      },
+      {
+        "domain": "payments",
+        "patterns": [
+          "payments/*",
+          "payments/**"
+        ]
+      },
+      {
+        "domain": "schema",
+        "patterns": [
+          "schema/*",
+          "schema/**",
+          "schemas/*",
+          "schemas/**"
+        ]
+      },
+      {
+        "domain": "docs",
+        "patterns": [
+          "docs/*",
+          "docs/**",
+          "*.md",
+          "*.txt"
+        ]
+      }
+    ]
+  }
 }

@@ -47,6 +47,7 @@ Only the transitions listed below are legal. Any other transition MUST be reject
   - Cryovant signature validity gate.
   - Founder’s Law invariant gate.
   - Fitness threshold gate: required (`fitness_score >= fitness_threshold`).
+- Operator note: acceptance is threshold-gated on base fitness; ranking order can still be determined by downstream weighted ranking signals.
   - Trust-mode compatibility gate: `dev|prod`.
   - Certificate reference gate: required.
 - **Required side effects**:

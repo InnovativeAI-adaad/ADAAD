@@ -3,11 +3,20 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.responses import FileResponse
+
+from runtime import metrics
+from runtime.evolution.evidence_bundle import EvidenceBundleBuilder, FORENSIC_EXPORT_DIR
+from runtime.evolution.lineage_v2 import LineageLedgerV2
+from runtime.evolution.replay_attestation import REPLAY_PROOFS_DIR, load_replay_proof, verify_replay_proof_bundle
+from runtime.governance.deterministic_filesystem import read_file_deterministic
+from runtime.governance.review_quality import DEFAULT_REVIEW_SLA_SECONDS, summarize_review_quality
+from security.ledger import journal
 
 
 ROOT = Path(__file__).resolve().parent
@@ -36,6 +45,101 @@ PLACEHOLDER_HTML = """<!doctype html>
 
 
 app = FastAPI(title="InnovativeAI-adaad Unified Server")
+
+AUDIT_READ_SCOPE = "audit:read"
+
+
+def _load_audit_tokens() -> dict[str, set[str]]:
+    raw_tokens = (os.getenv("ADAAD_AUDIT_TOKENS") or "").strip()
+    token_map: dict[str, set[str]] = {}
+    if raw_tokens:
+        try:
+            parsed = json.loads(raw_tokens)
+        except json.JSONDecodeError:
+            parsed = {}
+        if isinstance(parsed, dict):
+            for token, scopes in parsed.items():
+                if not isinstance(token, str):
+                    continue
+                if isinstance(scopes, list):
+                    token_map[token.strip()] = {str(scope).strip() for scope in scopes if str(scope).strip()}
+    dev_token = (os.getenv("ADAAD_AUDIT_DEV_TOKEN") or "").strip()
+    if dev_token:
+        token_map.setdefault(dev_token, {AUDIT_READ_SCOPE})
+    return token_map
+
+
+def _authenticate_audit_request(
+    authorization: str | None = Header(default=None),
+    x_client_cert_subject: str | None = Header(default=None),
+) -> dict[str, Any]:
+    token_map = _load_audit_tokens()
+    if authorization:
+        parts = authorization.strip().split(" ", 1)
+        if len(parts) == 2 and parts[0].lower() == "bearer":
+            token = parts[1].strip()
+            scopes = token_map.get(token)
+            if scopes is not None:
+                return {"scheme": "bearer", "principal": "token", "scopes": sorted(scopes)}
+            raise HTTPException(status_code=401, detail="invalid_token")
+
+    if x_client_cert_subject:
+        mtls_scope = (os.getenv("ADAAD_AUDIT_MTLS_SCOPE") or AUDIT_READ_SCOPE).strip()
+        return {
+            "scheme": "mtls",
+            "principal": x_client_cert_subject.strip(),
+            "scopes": [mtls_scope],
+        }
+
+    raise HTTPException(status_code=401, detail="missing_authentication")
+
+
+def _require_scope(auth_ctx: dict[str, Any], required_scope: str) -> None:
+    scopes = {str(scope) for scope in auth_ctx.get("scopes", [])}
+    if required_scope not in scopes:
+        raise HTTPException(status_code=403, detail="insufficient_scope")
+
+
+def _apply_redaction(payload: Any, redaction: str) -> Any:
+    if redaction == "none":
+        return payload
+    if isinstance(payload, list):
+        return [_apply_redaction(item, redaction) for item in payload]
+    if not isinstance(payload, dict):
+        return payload
+
+    redacted = {k: _apply_redaction(v, redaction) for k, v in payload.items()}
+    if redaction in {"sensitive", "strict"}:
+        redacted.pop("signature", None)
+        redacted.pop("signatures", None)
+        redacted.pop("certificate", None)
+        if isinstance(redacted.get("export_metadata"), dict):
+            signer = dict(redacted["export_metadata"].get("signer") or {})
+            signer.pop("signature", None)
+            redacted["export_metadata"]["signer"] = signer
+    if redaction == "strict":
+        redacted.pop("principal", None)
+        redacted.pop("sandbox_replay", None)
+    return redacted
+
+
+def _audit_envelope(*, data: Any, auth_ctx: dict[str, Any], redaction: str) -> dict[str, Any]:
+    return {
+        "schema_version": "1.0",
+        "authn": {
+            "scheme": auth_ctx["scheme"],
+            "scope": AUDIT_READ_SCOPE,
+            "redaction": redaction,
+        },
+        "data": _apply_redaction(data, redaction),
+    }
+
+
+def _display_path(path: Path) -> str:
+    try:
+        return str(path.relative_to(ROOT))
+    except ValueError:
+        return str(path)
 
 
 def _resolve_ui_paths(*, create_placeholder: bool) -> tuple[Path, Path, Path, str]:
@@ -100,6 +204,83 @@ def api_health() -> dict[str, Any]:
 @app.get("/health")
 def health() -> dict[str, Any]:
     return api_health()
+
+
+@app.get("/metrics/review-quality")
+def metrics_review_quality(
+    limit: int = Query(default=500, ge=1, le=5000),
+    sla_seconds: int = Query(default=DEFAULT_REVIEW_SLA_SECONDS, ge=1, le=604800),
+) -> dict[str, Any]:
+    entries = metrics.tail(limit)
+    summary = summarize_review_quality(entries, default_sla_seconds=sla_seconds)
+    summary["window_limit"] = limit
+    summary["sla_seconds"] = sla_seconds
+    return summary
+
+
+@app.get("/api/audit/epochs/{epoch_id}/replay-proof")
+def api_audit_replay_proof(
+    epoch_id: str,
+    redaction: Literal["none", "sensitive", "strict"] = Query(default="sensitive"),
+    auth_ctx: dict[str, Any] = Depends(_authenticate_audit_request),
+) -> dict[str, Any]:
+    _require_scope(auth_ctx, AUDIT_READ_SCOPE)
+    bundle_path = REPLAY_PROOFS_DIR / f"{epoch_id}.replay_attestation.v1.json"
+    if not bundle_path.exists():
+        raise HTTPException(status_code=404, detail="replay_proof_not_found")
+    bundle = load_replay_proof(bundle_path)
+    verification = verify_replay_proof_bundle(bundle)
+    payload = {
+        "epoch_id": epoch_id,
+        "bundle_path": _display_path(bundle_path),
+        "bundle": bundle,
+        "verification": verification,
+    }
+    return _audit_envelope(data=payload, auth_ctx=auth_ctx, redaction=redaction)
+
+
+@app.get("/api/audit/epochs/{epoch_id}/lineage")
+def api_audit_epoch_lineage(
+    epoch_id: str,
+    redaction: Literal["none", "sensitive", "strict"] = Query(default="sensitive"),
+    auth_ctx: dict[str, Any] = Depends(_authenticate_audit_request),
+) -> dict[str, Any]:
+    _require_scope(auth_ctx, AUDIT_READ_SCOPE)
+    ledger = LineageLedgerV2()
+    entries = ledger.read_epoch(epoch_id)
+    if not entries:
+        raise HTTPException(status_code=404, detail="epoch_not_found")
+    journal_entries = [entry for entry in journal.read_entries(limit=200) if entry.get("epoch_id") == epoch_id]
+    payload = {
+        "epoch_id": epoch_id,
+        "lineage": entries,
+        "lineage_digest": ledger.compute_incremental_epoch_digest(epoch_id),
+        "expected_epoch_digest": ledger.get_expected_epoch_digest(epoch_id),
+        "journal_entries": journal_entries,
+    }
+    return _audit_envelope(data=payload, auth_ctx=auth_ctx, redaction=redaction)
+
+
+@app.get("/api/audit/bundles/{bundle_id}")
+def api_audit_bundle(
+    bundle_id: str,
+    redaction: Literal["none", "sensitive", "strict"] = Query(default="sensitive"),
+    auth_ctx: dict[str, Any] = Depends(_authenticate_audit_request),
+) -> dict[str, Any]:
+    _require_scope(auth_ctx, AUDIT_READ_SCOPE)
+    bundle_path = FORENSIC_EXPORT_DIR / f"{bundle_id}.json"
+    if not bundle_path.exists():
+        raise HTTPException(status_code=404, detail="bundle_not_found")
+    bundle = json.loads(read_file_deterministic(bundle_path))
+    validator = EvidenceBundleBuilder(export_dir=FORENSIC_EXPORT_DIR)
+    validation_errors = validator.validate_bundle(bundle)
+    payload = {
+        "bundle_id": bundle_id,
+        "bundle_path": _display_path(bundle_path),
+        "bundle": bundle,
+        "validation": {"ok": not validation_errors, "errors": validation_errors},
+    }
+    return _audit_envelope(data=payload, auth_ctx=auth_ctx, redaction=redaction)
 
 
 MOCK_ENDPOINTS = ["status", "agents", "tree", "kpis", "changes", "suggestions"]

@@ -34,6 +34,16 @@ def _evaluate(mutation_payload: Dict[str, Any]) -> Dict[str, Any]:
         "goal_alignment": round(result.goal_alignment_score, 6),
         "simulated_market": round(result.simulated_market_score, 6),
     }
+    explainability = {
+        "weighted_contributions": result.weighted_contributions,
+        "fitness_threshold": result.fitness_threshold,
+        "threshold_rationale": (
+            "accept" if result.score >= result.fitness_threshold else "reject"
+        )
+        + f":score={result.score:.4f},threshold={result.fitness_threshold:.4f}",
+        "config_version": result.config_version,
+        "config_hash": result.config_hash,
+    }
     return {
         "score": result.score,
         "reasons": reasons,
@@ -43,6 +53,11 @@ def _evaluate(mutation_payload: Dict[str, Any]) -> Dict[str, Any]:
         "passed_tests": result.passed_tests,
         "passed_constitution": result.passed_constitution,
         "performance_delta": result.performance_delta,
+        "weighted_contributions": result.weighted_contributions,
+        "fitness_threshold": result.fitness_threshold,
+        "config_version": result.config_version,
+        "config_hash": result.config_hash,
+        "explainability": explainability,
     }
 
 

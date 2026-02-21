@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from app.agents.mutation_request import MutationRequest
+from app.agents.mutation_request import MutationRequest, MutationTarget
 from runtime import constitution
 
 
@@ -390,3 +390,114 @@ def test_governance_drift_blocks_production(monkeypatch: pytest.MonkeyPatch) -> 
     verdict = constitution.evaluate_mutation(request, constitution.Tier.PRODUCTION)
     assert verdict["governance_drift_detected"] is True
     assert "governance_drift_detected" in verdict["blocking_failures"]
+
+
+
+def test_domain_classification_is_deterministic_for_mixed_targets() -> None:
+    request = MutationRequest(
+        agent_id="test_subject",
+        generation_ts="now",
+        intent="test",
+        ops=[],
+        signature="",
+        nonce="n",
+        targets=[
+            MutationTarget(agent_id="test_subject", path="docs/guide.md", target_type="file", ops=[]),
+            MutationTarget(agent_id="test_subject", path="security/policy.py", target_type="file", ops=[]),
+        ],
+    )
+
+    first = constitution._classify_request_domains(request)
+    second = constitution._classify_request_domains(request)
+
+    assert first == second
+    assert first["domains"] == ["docs", "security"]
+    assert first["path_domains"][0]["domain"] == "docs"
+    assert first["path_domains"][1]["domain"] == "security"
+
+
+def test_effective_limit_uses_strictest_domain_ceiling_for_rate(monkeypatch: pytest.MonkeyPatch) -> None:
+    request = MutationRequest(
+        agent_id="test_subject",
+        generation_ts="now",
+        intent="test",
+        ops=[],
+        signature="",
+        nonce="n",
+        targets=[
+            MutationTarget(agent_id="test_subject", path="docs/guide.md", target_type="file", ops=[]),
+            MutationTarget(agent_id="test_subject", path="security/policy.py", target_type="file", ops=[]),
+        ],
+    )
+
+    monkeypatch.setenv("ADAAD_MAX_MUTATION_RATE", "10")
+    monkeypatch.setenv("CRYOVANT_DEV_MODE", "1")
+    monkeypatch.setattr(constitution, "_deterministic_mutation_count", lambda window_sec, epoch_id: {
+        "window_sec": window_sec,
+        "window_start_ts": 0.0,
+        "window_end_ts": 0.0,
+        "count": 5,
+        "rate_per_hour": 5.0,
+        "event_types": [],
+        "entries_considered": 0,
+        "entries_scoped": 0,
+        "scope": {"epoch_id": "*"},
+        "source": "test",
+    })
+
+    with constitution.deterministic_envelope_scope(
+        {
+            "tier": constitution.Tier.PRODUCTION.name,
+            "domain_classification": constitution._classify_request_domains(request),
+        }
+    ):
+        result = constitution._validate_mutation_rate(request)
+
+    assert result["ok"] is False
+    assert result["details"]["tier_limit"] == 10.0
+    assert result["details"]["domain_limit"] == 4.0
+    assert result["details"]["applied_ceiling"] == 4.0
+    assert result["details"]["resolved_domain"] == "security"
+
+
+def test_evaluate_mutation_emits_domain_ceiling_ledger_event(monkeypatch: pytest.MonkeyPatch) -> None:
+    request = MutationRequest(
+        agent_id="test_subject",
+        generation_ts="now",
+        intent="test",
+        ops=[],
+        signature="cryovant-dev-test",
+        nonce="n",
+        epoch_id="epoch-domain-1",
+        targets=[MutationTarget(agent_id="test_subject", path="security/policy.py", target_type="file", ops=[])],
+    )
+    ledger_writes = []
+    ledger_txs = []
+
+    monkeypatch.setenv("CRYOVANT_DEV_MODE", "1")
+    monkeypatch.setenv("ADAAD_MAX_MUTATION_RATE", "10")
+    monkeypatch.setattr(constitution, "_deterministic_mutation_count", lambda window_sec, epoch_id: {
+        "window_sec": window_sec,
+        "window_start_ts": 0.0,
+        "window_end_ts": 0.0,
+        "count": 1,
+        "rate_per_hour": 1.0,
+        "event_types": [],
+        "entries_considered": 0,
+        "entries_scoped": 0,
+        "scope": {"epoch_id": "*"},
+        "source": "test",
+    })
+
+    monkeypatch.setattr(constitution.journal, "write_entry", lambda agent_id, action, payload=None: ledger_writes.append({"agent_id": agent_id, "action": action, "payload": payload or {}}))
+    monkeypatch.setattr(constitution.journal, "append_tx", lambda tx_type, payload, tx_id=None: ledger_txs.append({"tx_type": tx_type, "payload": payload}))
+
+    verdict = constitution.evaluate_mutation(request, constitution.Tier.STABLE)
+
+    assert verdict["resolved_domain"] == "security"
+    assert ledger_writes
+    event = ledger_writes[-1]
+    assert event["action"] == "constitutional_evaluation_domain_ceiling"
+    assert event["payload"]["resolved_domain"] == "security"
+    assert any(item["rule"] == "max_mutation_rate" and item["applied_ceiling"] == 4.0 for item in event["payload"]["applied_ceilings"])
+    assert ledger_txs and ledger_txs[-1]["tx_type"] == "constitutional_evaluation_domain_ceiling"

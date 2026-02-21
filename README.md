@@ -95,8 +95,8 @@ Mutation execution is limited to controlled environments. Production use should 
 
 ### Validated guarantees vs roadmap
 
-- **Validated guarantees (current branch):** deterministic governance primitives, fail-closed replay enforcement, append-only ledger lineage checks, and staged mutation execution under policy gates.
-- **Roadmap items (not validated as production guarantees):** deep sandbox isolation hardening beyond current checks, cryptographic replay proof bundles for third-party verification, and federation-level governance orchestration.
+- **Validated guarantees (current branch):** deterministic governance primitives, fail-closed replay enforcement, append-only ledger lineage checks, deterministic replay proof bundle generation/verification, and policy-gated federation coordination + precedence resolution in local runtime flows.
+- **Roadmap items (not validated as production guarantees):** additional sandbox isolation hardening depth beyond current checks, external trust-root and third-party verification hardening for replay attestations, and full distributed federation transport/protocol hardening.
 
 ## Why ADAAD?
 
@@ -283,8 +283,8 @@ External nondeterminism (network, time, entropy) must be sandboxed.
 |---|---|---|---|
 | Deterministic substrate | Canonical deterministic foundation (`runtime.governance.foundation.*`) with replay-seed propagation and determinism tests | Implemented | Treated as a validated guarantee for governance/replay paths |
 | Sandbox hardening depth | Policy validation + syscall/fs/network/resource enforcement + evidence hashing | Partially implemented | Additional hardening depth remains roadmap (defense-in-depth and broader isolation coverage) |
-| Replay proofs | Deterministic replay verification and parity harnesses in-tree | Partially implemented | Cryptographic/exportable replay proof bundles are roadmap |
-| Federation | No cross-instance sovereignty federation runtime committed in this branch | Planned | Reserved for PR-6 scope |
+| Replay proofs | Deterministic replay verification/parity harnesses plus signed replay attestation bundle generation + offline verification (`runtime/evolution/replay_attestation.py`) | Implemented baseline | Deterministic in-tree attestations are validated; external trust-root distribution and production hardening remain roadmap |
+| Federation | Deterministic federation coordination primitives with quorum/conflict classification, governance precedence resolution, and lineage persistence (`runtime/governance/federation/coordination.py`) | Implemented baseline | In-tree coordination behavior is validated by federation governance tests; full multi-instance transport/protocol hardening remains roadmap |
 
 ## Mutation risk levels
 

@@ -68,3 +68,16 @@ To reproduce CI strict replay behavior locally, run replay verification with the
 ADAAD_ENV=dev CRYOVANT_DEV_MODE=1 ADAAD_FORCE_DETERMINISTIC_PROVIDER=1 ADAAD_DETERMINISTIC_SEED=ci-strict-replay \
   python -m app.main --verify-replay --replay strict
 ```
+
+
+## Governance review telemetry SLO checks
+
+For governance-impact PRs, operators should verify review-quality KPIs in addition to CI jobs:
+
+- Query `/metrics/review-quality?limit=500&sla_seconds=86400`.
+- Alert when:
+  - `reviewed_within_sla_percent < 95.0`
+  - `reviewer_participation_concentration.largest_reviewer_share > 0.60`
+  - `review_depth_proxies.override_rate_percent > 20.0`
+
+This endpoint is intended for dashboard ingestion and automated threshold alerting.

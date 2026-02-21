@@ -60,3 +60,18 @@ If integrity verification fails, treat as potentially malicious until proven oth
 ## 5) Observability companion
 
 Use `runtime.evolution.telemetry_audit.get_epoch_entropy_breakdown(...)` for declared vs observed entropy inspection during incident triage.
+
+
+## 6) Review quality telemetry validation
+
+After fail-closed recovery, confirm governance review process health:
+
+```bash
+curl -fsS "http://localhost:5000/metrics/review-quality?limit=500&sla_seconds=86400"
+```
+
+Escalate if:
+- `reviewed_within_sla_percent < 95.0`
+- `review_latency_distribution_seconds.p95 > 86400`
+- `reviewer_participation_concentration.largest_reviewer_share > 0.60`
+- `review_depth_proxies.override_rate_percent > 20.0`
