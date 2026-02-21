@@ -162,6 +162,33 @@ Depending on local state, the first strict replay check can fail until replay ar
 python -m app.main --dry-run --replay audit --verbose
 ```
 
+## Launch the dashboard quickly
+
+Start the unified API + dashboard server directly:
+
+```bash
+scripts/run_dashboard.sh
+```
+
+Equivalent explicit command:
+
+```bash
+python server.py --host 0.0.0.0 --port 8000 --reload
+```
+
+Then open:
+
+- `http://127.0.0.1:8000/` for the dashboard UI
+- `http://127.0.0.1:8000/api/health` for API health (`0.0.0.0` bind still answers on `127.0.0.1`)
+
+UI preload/fallback behavior:
+
+- Preferred: `ui/aponi/index.html`
+- Fallback: `ui/enhanced/enhanced_dashboard.html`
+- If neither exists, `python server.py` auto-creates `ui/aponi/index.html` placeholder so first launch still works
+
+`python server.py ...` and `uvicorn server:app ...` share the same startup UI resolution behavior.
+
 ## Quick health checks
 
 ```bash
