@@ -24,6 +24,8 @@ class RealMutationCycleTest(unittest.TestCase):
 
         self._orig_dev_mode = os.environ.get("CRYOVANT_DEV_MODE")
         os.environ["CRYOVANT_DEV_MODE"] = "1"
+        self._orig_adaad_env = os.environ.get("ADAAD_ENV")
+        os.environ["ADAAD_ENV"] = "dev"
         self.addCleanup(self._restore_dev_mode)
 
         self.agents_root = Path(self.tmp.name) / "agents"
@@ -41,6 +43,10 @@ class RealMutationCycleTest(unittest.TestCase):
             os.environ.pop("CRYOVANT_DEV_MODE", None)
         else:
             os.environ["CRYOVANT_DEV_MODE"] = self._orig_dev_mode
+        if self._orig_adaad_env is None:
+            os.environ.pop("ADAAD_ENV", None)
+        else:
+            os.environ["ADAAD_ENV"] = self._orig_adaad_env
 
     def _create_test_agent(self, agent_id: str) -> None:
         agent_dir = self.agents_root / agent_id

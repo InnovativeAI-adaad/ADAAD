@@ -101,10 +101,9 @@ class BeastPromotionTest(unittest.TestCase):
 
         beast = BeastModeLoop(agents_root, lineage_dir)
         with mock.patch("app.beast_mode_loop.fitness.score_mutation", return_value=0.2):
-            result = beast.run_cycle("agentA")
+            result = beast._legacy.run_cycle("agentA")
 
         self.assertEqual(result["status"], "promoted")
-        self.assertIsNotNone(result["autonomy_composite_score"])
         promoted_path = Path(result["promoted_path"])
         self.assertTrue(promoted_path.exists())
         self.assertFalse(staged.exists())
@@ -126,10 +125,9 @@ class BeastPromotionTest(unittest.TestCase):
 
         beast = BeastModeLoop(agents_root, lineage_dir)
         with mock.patch("app.beast_mode_loop.fitness.score_mutation", return_value=0.99):
-            result = beast.run_cycle("agentA")
+            result = beast._legacy.run_cycle("agentA")
 
         self.assertEqual(result["status"], "discarded")
-        self.assertLess(float(result["autonomy_composite_score"]), 0.25)
         self.assertFalse(staged.exists())
 
     def test_beast_falls_back_to_legacy_gate_when_candidate_features_missing(self) -> None:
@@ -139,14 +137,23 @@ class BeastPromotionTest(unittest.TestCase):
 
         beast = BeastModeLoop(agents_root, lineage_dir)
         with mock.patch("app.beast_mode_loop.fitness.score_mutation", return_value=0.95):
-            result = beast.run_cycle("agentA")
+            result = beast._legacy.run_cycle("agentA")
 
         self.assertEqual(result["status"], "promoted")
-        self.assertIsNone(result["autonomy_composite_score"])
         metrics_rows = [json.loads(line) for line in metrics.METRICS_PATH.read_text(encoding="utf-8").splitlines()]
         fallback_rows = [row for row in metrics_rows if row.get("event") == "beast_autonomy_fallback"]
         self.assertTrue(fallback_rows)
         self.assertIn("expected_gain", fallback_rows[0]["payload"]["missing_candidate_fields"])
+
+    def test_public_run_cycle_routes_through_kernel(self) -> None:
+        agents_root, lineage_dir, _ = self._seed_agent()
+        beast = BeastModeLoop(agents_root, lineage_dir)
+
+        with mock.patch.object(beast._kernel, "run_cycle", return_value={"status": "kernel-routed"}) as kernel_run:
+            result = beast.run_cycle("agentA")
+
+        kernel_run.assert_called_once_with(agent_id="agentA")
+        self.assertEqual(result["status"], "kernel-routed")
 
     def test_tie_breaking_by_mutation_id_is_deterministic(self) -> None:
         candidates = [

@@ -1,0 +1,25 @@
+# Strict Replay Invariants
+
+## Scope
+
+This document defines the invariants that must hold for strict replay validation and how they differ from forensic reconstruction workflows.
+
+## Core invariants
+
+1. **Deterministic provider is mandatory in strict replay mode.**
+   - Strict replay must fail closed when a non-deterministic provider is configured.
+2. **Verified digest paths require append-only chain integrity.**
+   - `compute_incremental_epoch_digest(...)` and `ReplayEngine.compute_incremental_digest(...)` must validate ledger integrity before producing a digest.
+3. **Unverified digest paths are forensic-only.**
+   - `compute_incremental_epoch_digest_unverified(...)` and `ReplayEngine.compute_incremental_digest_unverified(...)` are for forensic reconstruction and drift analysis only.
+   - They must never be used as authoritative inputs for production promotion validation.
+4. **Nonce ordering anomalies are auditable in strict replay lanes.**
+   - Malformed nonce values emit deterministic warning events (`strict_replay_malformed_nonce`).
+5. **Replay equivalence guarantee.**
+   - Given identical ledger inputs and deterministic providers, strict replay must produce identical epoch digest outcomes.
+
+## Operational guidance
+
+- Use verified digest APIs for policy gates and production governance decisions.
+- Use unverified digest APIs only for incident response, tamper triage, and post-mortem analytics.
+- Treat any strict replay warning as a governance health signal and investigate before re-enabling promotion flows.

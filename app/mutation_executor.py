@@ -104,6 +104,33 @@ class MutationExecutor:
             retries=retries,
         )
 
+    @staticmethod
+    def _accepts_replay_kwargs(fn: object) -> bool:
+        """Return True when *fn* accepts mutation_id/epoch_id/replay_seed keyword args.
+
+        Uses signature introspection rather than exception-based detection so
+        that genuine TypeErrors raised *inside* _run_tests are never silently
+        swallowed and misinterpreted as a missing-parameter signal.
+        """
+        import inspect
+
+        try:
+            sig = inspect.signature(fn)  # type: ignore[arg-type]
+        except (TypeError, ValueError):
+            return False
+        return all(k in sig.parameters for k in ("mutation_id", "epoch_id", "replay_seed"))
+
+    def _call_run_tests(self, *, mutation_id: str, epoch_id: str, replay_seed: str) -> TestSandboxResult | tuple[bool, str]:
+        """Invoke _run_tests with keyword args when supported, fall back for legacy monkeypatches.
+
+        Introspects the actual callable signature *before* calling so that
+        TypeErrors raised inside _run_tests propagate normally and are not
+        mistaken for a compatibility signal.
+        """
+        if self._accepts_replay_kwargs(self._run_tests):
+            return self._run_tests(mutation_id=mutation_id, epoch_id=epoch_id, replay_seed=replay_seed)
+        return self._run_tests()  # type: ignore[misc]  # legacy monkeypatch path
+
     def _normalize_test_result(self, result: TestSandboxResult | tuple[bool, str]) -> TestSandboxResult:
         """Normalize legacy tuple mocks into TestSandboxResult."""
         if isinstance(result, tuple):
@@ -331,7 +358,7 @@ class MutationExecutor:
                     for target in request.targets:
                         mutation_records.append(tx.apply(target))
                     tx.verify()
-                    test_result = self._normalize_test_result(self._run_tests(mutation_id=mutation_id, epoch_id=epoch_id, replay_seed=str(replay_seed or "0000000000000001")))
+                    test_result = self._normalize_test_result(self._call_run_tests(mutation_id=mutation_id, epoch_id=epoch_id, replay_seed=str(replay_seed or "0000000000000001")))
                     tests_ok = test_result.ok
                     test_output = test_result.output
                     if tests_ok:
@@ -401,7 +428,7 @@ class MutationExecutor:
                     self.evolution_runtime.after_mutation_cycle({"status": "skipped"})
                     return {"status": "failed", "tests_ok": False, "error": "code_mutation_failed", "mutation_id": mutation_id, "epoch_id": epoch_id}
 
-            test_result = self._normalize_test_result(self._run_tests(mutation_id=mutation_id, epoch_id=epoch_id, replay_seed=str(replay_seed or "0000000000000001")))
+            test_result = self._normalize_test_result(self._call_run_tests(mutation_id=mutation_id, epoch_id=epoch_id, replay_seed=str(replay_seed or "0000000000000001")))
             evidence_hash = str(self.hardened_sandbox.last_evidence_hash or "")
             if evidence_hash:
                 sandbox_evidence_payload = dict(self.hardened_sandbox.last_evidence_payload or {})

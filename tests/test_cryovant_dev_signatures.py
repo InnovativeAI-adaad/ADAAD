@@ -64,8 +64,9 @@ class CryovantDevSignatureTest(unittest.TestCase):
         with mock.patch("security.cryovant.metrics.log") as metrics_log:
             self.assertTrue(cryovant.signature_valid("cryovant-dev-sample"))
 
-        metrics_log.assert_called_once()
-        self.assertEqual(metrics_log.call_args.kwargs["event_type"], "cryovant_signature_verification_without_keys")
+        event_types = [call.kwargs.get("event_type") for call in metrics_log.call_args_list]
+        self.assertIn("cryovant_signature_verification_without_keys", event_types)
+        self.assertIn("cryovant_dev_signature_accepted", event_types)
 
     def test_prod_valid_real_signature_accepts(self) -> None:
         os.environ["ADAAD_ENV"] = "prod"

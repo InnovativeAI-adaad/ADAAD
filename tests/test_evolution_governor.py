@@ -8,6 +8,7 @@ from unittest import mock
 from app.agents.mutation_request import MutationRequest, MutationTarget
 from runtime.evolution import EvolutionGovernor, LineageLedgerV2, ReplayEngine
 from runtime.evolution.mutation_budget import MutationBudgetManager
+from runtime.governance.foundation import SeededDeterminismProvider
 
 
 class EvolutionGovernorTest(unittest.TestCase):
@@ -66,6 +67,24 @@ class EvolutionGovernorTest(unittest.TestCase):
         self.assertTrue(decision_two.accepted)
         self.assertEqual(decision_one.certificate.get("bundle_id"), decision_two.certificate.get("bundle_id"))
         self.assertEqual(decision_one.certificate.get("replay_seed"), decision_two.certificate.get("replay_seed"))
+
+    def test_strict_mode_malformed_nonce_emits_warning_metric(self) -> None:
+        self.governor = EvolutionGovernor(ledger=self.ledger, max_impact=0.99, replay_mode="strict", provider=SeededDeterminismProvider(seed="strict-nonce-test"))
+        self.governor.mark_epoch_start("epoch-1")
+        malformed = self._request(nonce="bad-nonce")
+        with mock.patch("security.cryovant.signature_valid", return_value=True), mock.patch("runtime.metrics.log") as log_metric:
+            self.governor.validate_bundle(malformed, epoch_id="epoch-1")
+
+        matching = [
+            call
+            for call in log_metric.call_args_list
+            if call.kwargs.get("event_type") == "strict_replay_malformed_nonce"
+        ]
+        self.assertTrue(matching)
+        payload = matching[-1].kwargs.get("payload", {})
+        self.assertEqual(payload.get("epoch_id"), "epoch-1")
+        self.assertEqual(payload.get("agent_id"), "alpha")
+        self.assertEqual(payload.get("nonce"), "bad-nonce")
 
     def test_rejects_invalid_signature(self) -> None:
         self.governor.mark_epoch_start("epoch-1")

@@ -127,6 +127,7 @@ def verify_session(token: str) -> bool:
 def _dev_signature_allowed(signature: str) -> bool:
     if not signature.startswith("cryovant-dev-"):
         return False
+    # Defense in depth: require explicit dev environment *and* dev-mode opt-in.
     return env_mode() == "dev" and dev_mode()
 
 
@@ -153,7 +154,18 @@ def signature_valid(signature: str) -> bool:
         )
         if env_mode() != "dev":
             return False
-    return _valid_signature(signature)
+
+    if verify_signature(signature):
+        return True
+    if _dev_signature_allowed(signature):
+        metrics.log(
+            event_type="cryovant_dev_signature_accepted",
+            payload={"env_mode": env_mode(), "signature_prefix": signature[:24], "dev_mode": dev_mode()},
+            level="WARNING",
+            element_id=ELEMENT_ID,
+        )
+        return True
+    return False
 
 
 def dev_signature_allowed(signature: str) -> bool:

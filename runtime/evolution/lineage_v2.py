@@ -218,9 +218,10 @@ class LineageLedgerV2:
     def _update_epoch_digest(self, epoch_id: str, digest: str) -> None:
         self._epoch_digest_index[epoch_id] = digest
 
-    def compute_incremental_epoch_digest(self, epoch_id: str) -> str:
+    def compute_incremental_epoch_digest_unverified(self, epoch_id: str) -> str:
+        """Recompute epoch digest from recorded bundle payloads without hash-chain integrity checks."""
+
         digest = "sha256:0"
-        self.verify_integrity()
         entries = self._read_entries_unverified()
         for entry in entries:
             if entry.get("payload", {}).get("epoch_id") != epoch_id:
@@ -231,6 +232,12 @@ class LineageLedgerV2:
             bundle_digest = self.compute_bundle_digest(payload)
             digest = "sha256:" + hashlib.sha256((digest + bundle_digest).encode("utf-8")).hexdigest()
         return digest
+
+    def compute_incremental_epoch_digest(self, epoch_id: str) -> str:
+        """Recompute epoch digest after verifying append-only ledger chain integrity."""
+
+        self.verify_integrity()
+        return self.compute_incremental_epoch_digest_unverified(epoch_id)
 
     def compute_cumulative_epoch_digest(self, epoch_id: str) -> str:
         return self.compute_incremental_epoch_digest(epoch_id)

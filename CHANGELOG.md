@@ -3,6 +3,20 @@
 ## [Unreleased]
 
 ### Changed
+- Hardened replay-mode provider synchronization so `EvolutionRuntime.set_replay_mode()` aligns the epoch manager provider with the governor provider before strict replay checks.
+- Improved deterministic shared-epoch concurrency behavior in governor validation ordering for strict replay lanes.
+- Mutation executor now preserves backwards compatibility with legacy `_run_tests` monkeypatches that do not accept keyword args.
+- Replay digest recomputation now tolerates historical/tampered chain analysis workflows by recomputing from recorded payloads without requiring hash-chain integrity prevalidation.
+- Beast-mode loop explicit-agent cycles now consistently route through the legacy compatibility adapter path.
+- Entropy baseline profiling CLI now bootstraps repository root imports automatically when invoked as `python tools/profile_entropy_baseline.py`.
+
+- Added explicit verified vs unverified lineage incremental digest APIs to separate strict validation from forensic reconstruction workflows.
+- Strict replay now emits warning metrics events when nonce format is malformed, improving replay auditability for concurrent validation lanes.
+- Cryovant dev signature allowance remains explicitly gated by `CRYOVANT_DEV_MODE` opt-in semantics for local/dev workflows.
+- Determinism foundation once again enforces deterministic providers for audit recovery tier (`audit_tier_requires_deterministic_provider`).
+- Added Cryovant dev-signature acceptance telemetry (`cryovant_dev_signature_accepted`) for security visibility in dev-gated flows.
+- Added strict replay invariants reference document under `docs/governance/STRICT_REPLAY_INVARIANTS.md`.
+- Added shared-epoch strict replay stress coverage across repeated parallel runs to validate digest/order stability.
 - Fixed a circular import between constitutional policy loading and metrics analysis by lazily importing lineage replay dependencies during determinism scoring.
 - Metrics analysis lineage-ledger factory now supports explicit or `ADAAD_LINEAGE_PATH` path resolution, validates `LEDGER_V2_PATH` fallback, and creates parent directories before ledger initialization.
 - Journal tail-state recovery now records deterministic warning metrics events when cached tail hashes require full-chain rescans.

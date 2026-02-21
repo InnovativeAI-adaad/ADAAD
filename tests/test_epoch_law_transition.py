@@ -6,6 +6,7 @@ import pytest
 
 from runtime.evolution.epoch import EpochManager
 from runtime.governance.founders_law_v2 import LawManifest, LawModule, LawRef, LawRuleV2, ManifestSignature
+from runtime.governance.foundation import SeededDeterminismProvider
 from runtime.governance.law_evolution_certificate import issue_certificate, law_surface_digest
 
 
@@ -68,7 +69,7 @@ def _manifest(epoch_id: str, version: str) -> LawManifest:
 
 
 def test_rotate_epoch_requires_certificate_for_law_surface_change(tmp_path: Path) -> None:
-    manager = EpochManager(_Governor(), _Ledger(), state_path=tmp_path / "current_epoch.json")
+    manager = EpochManager(_Governor(), _Ledger(), state_path=tmp_path / "current_epoch.json", provider=SeededDeterminismProvider(seed="epoch-law-test"))
     manager.load_or_create()
 
     old_manifest = _manifest("epoch-old", "2.0.0")
@@ -83,7 +84,7 @@ def test_rotate_epoch_requires_certificate_for_law_surface_change(tmp_path: Path
 
 
 def test_rotate_epoch_embeds_law_metadata_with_valid_certificate(tmp_path: Path) -> None:
-    manager = EpochManager(_Governor(), _Ledger(), state_path=tmp_path / "current_epoch.json")
+    manager = EpochManager(_Governor(), _Ledger(), state_path=tmp_path / "current_epoch.json", provider=SeededDeterminismProvider(seed="epoch-law-test"))
     manager.load_or_create()
 
     old_manifest = _manifest("epoch-old", "2.0.0")
