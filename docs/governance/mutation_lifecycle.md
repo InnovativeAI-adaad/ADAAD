@@ -108,3 +108,9 @@ Only the transitions listed below are legal. Any other transition MUST be reject
 - Policy lifecycle states are deterministic and linear:
   - `authoring -> review-approved -> signed -> deployed`
 - Every successful policy lifecycle transition must include a transition proof and is appended to `security/ledger` as immutable `policy_lifecycle_transition` journal events.
+
+## Import-path compliance operational follow-ups
+
+- CI job `import-path-compliance` must be configured as a **required status check** in repository branch protection to guarantee merge blocking when the lint fails.
+- `tools/lint_import_paths.py` intentionally allowlists `governance/` as an adapter layer; add a future governance implementation-detection pass to flag non-re-export implementation code added under `governance/`.
+
