@@ -112,5 +112,5 @@ Only the transitions listed below are legal. Any other transition MUST be reject
 ## Import-path compliance operational follow-ups
 
 - CI job `import-path-compliance` must be configured as a **required status check** in repository branch protection to guarantee merge blocking when the lint fails.
-- `tools/lint_import_paths.py` intentionally allowlists `governance/` as an adapter layer; add a future governance implementation-detection pass to flag non-re-export implementation code added under `governance/`.
+- ✅ `tools/lint_import_paths.py` now includes a governance implementation-detection pass that flags non-re-export implementation code added under `governance/` while preserving adapter-layer import allowlisting for compatibility shims.
 
