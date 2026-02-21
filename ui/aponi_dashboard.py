@@ -68,13 +68,24 @@ def _require_governance_policy():
         raise GovernancePolicyError(f"policy unavailable (fail-closed): {detail}")
     return GOVERNANCE_POLICY
 CONTROL_AGENT_ID_RE = re.compile(r"^[a-z0-9_\-]{3,64}$")
+CONTROL_COMMAND_ID_RE = re.compile(r"^cmd-[0-9]{6}-[0-9a-f]{12}$")
 CONTROL_GOVERNANCE_PROFILES = {"strict", "high-assurance"}
+CONTROL_EXECUTION_ACTIONS = {"cancel", "fork"}
 CONTROL_QUEUE_PATH = Path(os.environ.get("APONI_COMMAND_QUEUE_PATH", str(APP_ROOT.parent / "data" / "aponi_command_queue.jsonl")))
 FREE_CAPABILITY_SOURCES_PATH = Path(os.environ.get("APONI_FREE_SOURCES_PATH", str(APP_ROOT.parent / "data" / "free_capability_sources.json")))
 SKILL_PROFILES_PATH = Path(os.environ.get("APONI_SKILL_PROFILES_PATH", str(APP_ROOT.parent / "data" / "governed_skill_profiles.json")))
 CONTROL_CAPABILITIES_MAX = 8
 CONTROL_TEXT_FIELD_MAX = 240
 CONTROL_DATA_SCHEMA_VERSION = "1"
+CONTROL_MODES = {"builder", "automation", "analysis", "growth"}
+UX_EVENT_TYPES = {
+    "feature_entry",
+    "feature_completion",
+    "interaction",
+    "undo",
+    "first_success",
+    "abandoned_config",
+}
 
 
 INSTABILITY_POLICY_ERROR: str | None = None
@@ -182,6 +193,57 @@ def _normalized_field(raw_payload: Dict[str, object], key: str, *, lower: bool =
     if lower:
         value = value.lower()
     return value[:CONTROL_TEXT_FIELD_MAX]
+
+
+def _validate_ux_event(raw_payload: object) -> Dict[str, object]:
+    if not isinstance(raw_payload, dict):
+        return {"ok": False, "error": "invalid_payload"}
+    event_type = _normalized_field(raw_payload, "event_type", lower=True)
+    if event_type not in UX_EVENT_TYPES:
+        return {"ok": False, "error": "invalid_event_type", "allowed": sorted(UX_EVENT_TYPES)}
+    session_id = _normalized_field(raw_payload, "session_id")
+    if not session_id:
+        return {"ok": False, "error": "missing_session_id"}
+    feature = _normalized_field(raw_payload, "feature", lower=True)
+    if not feature:
+        return {"ok": False, "error": "missing_feature"}
+    metadata_raw = raw_payload.get("metadata")
+    metadata = metadata_raw if isinstance(metadata_raw, dict) else {}
+    return {
+        "ok": True,
+        "event": {
+            "event_type": event_type,
+            "session_id": session_id,
+            "feature": feature,
+            "metadata": metadata,
+        },
+    }
+
+
+def _ux_summary(window: int = 200) -> Dict[str, object]:
+    recent = metrics.tail(limit=window)
+    ux_events = [entry for entry in recent if isinstance(entry, dict) and str(entry.get("event", "")).startswith("aponi_ux_")]
+    per_type = {event_type: 0 for event_type in sorted(UX_EVENT_TYPES)}
+    sessions: set[str] = set()
+    features: set[str] = set()
+    for entry in ux_events:
+        payload = entry.get("payload") if isinstance(entry.get("payload"), dict) else {}
+        event_type = str(payload.get("event_type", "")).strip().lower()
+        if event_type in per_type:
+            per_type[event_type] += 1
+        session_id = str(payload.get("session_id", "")).strip()
+        feature = str(payload.get("feature", "")).strip().lower()
+        if session_id:
+            sessions.add(session_id)
+        if feature:
+            features.add(feature)
+    return {
+        "window": window,
+        "event_count": len(ux_events),
+        "unique_sessions": len(sessions),
+        "features_seen": sorted(features),
+        "counts": per_type,
+    }
 
 
 def _control_policy_summary() -> Dict[str, object]:
@@ -313,22 +375,58 @@ def _read_control_queue() -> List[Dict[str, object]]:
     return entries
 
 
+
+
+def _find_control_queue_entry(command_id: str) -> Dict[str, object] | None:
+    if not command_id:
+        return None
+    entries = _read_control_queue()
+    for entry in reversed(entries):
+        if isinstance(entry, dict) and str(entry.get("command_id", "")).strip() == command_id:
+            return entry
+    return None
+
 def _queue_control_command(payload: Dict[str, object]) -> Dict[str, object]:
+    return _append_control_queue_entry({"payload": payload, "status": "queued"})
+
+
+def _append_control_queue_entry(fields: Dict[str, object]) -> Dict[str, object]:
     existing = _read_control_queue()
-    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    payload_for_digest = fields.get("payload") if isinstance(fields.get("payload"), dict) else fields
+    canonical = json.dumps(payload_for_digest, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
     command_id = f"cmd-{len(existing) + 1:06d}-{sha256(canonical.encode('utf-8')).hexdigest()[:12]}"
     previous_digest = _queue_entry_digest(existing[-1]) if existing else ""
-    entry = {
+    entry: Dict[str, object] = {
         "command_id": command_id,
         "queue_index": len(existing) + 1,
-        "status": "queued",
         "previous_digest": previous_digest,
-        "payload": payload,
     }
+    entry.update(fields)
     CONTROL_QUEUE_PATH.parent.mkdir(parents=True, exist_ok=True)
     with CONTROL_QUEUE_PATH.open("a", encoding="utf-8") as handle:
         handle.write(json.dumps(entry, sort_keys=True, ensure_ascii=False) + "\n")
     return entry
+
+
+def _cancel_control_command(command_id: str) -> Dict[str, object]:
+    entries = _read_control_queue()
+    if not entries:
+        return {"ok": False, "error": "queue_empty"}
+    target = next((entry for entry in entries if entry.get("command_id") == command_id), None)
+    if target is None:
+        return {"ok": False, "error": "command_not_found", "backend_supported": True}
+    if target.get("status") == "canceled":
+        return {"ok": True, "backend_supported": True, "already_canceled": True, "command_id": command_id}
+    cancellation_entry = _append_control_queue_entry(
+        {
+            "status": "canceled",
+            "payload": {
+                "type": "cancel_intent",
+                "target_command_id": command_id,
+            },
+        }
+    )
+    return {"ok": True, "backend_supported": True, "command_id": command_id, "cancellation_entry": cancellation_entry}
 
 
 class AponiDashboard:
@@ -536,6 +634,9 @@ class AponiDashboard:
                     entries = _read_control_queue()
                     self._send_json(_verify_control_queue(entries))
                     return
+                if path.startswith("/ux/summary"):
+                    self._send_json(_ux_summary())
+                    return
                 if path.startswith("/control/queue"):
                     entries = _read_control_queue()
                     verification = _verify_control_queue(entries)
@@ -549,11 +650,11 @@ class AponiDashboard:
                 if parsed.path.startswith("/policy/simulate"):
                     self._send_json({"ok": False, "error": "method_not_allowed", "detail": "policy/simulate is GET only"}, status_code=405)
                     return
-                if not parsed.path.startswith("/control/queue"):
+                if not (parsed.path.startswith("/control/queue") or parsed.path.startswith("/control/telemetry") or parsed.path.startswith("/ux/events") or parsed.path.startswith("/control/execution")):
                     self.send_response(404)
                     self.end_headers()
                     return
-                if not self._command_surface_enabled():
+                if (parsed.path.startswith("/control/queue") or parsed.path.startswith("/control/execution")) and not self._command_surface_enabled():
                     self._send_json({"ok": False, "error": "command_surface_disabled"})
                     return
                 content_length = int(self.headers.get("Content-Length", "0") or "0")
@@ -565,12 +666,107 @@ class AponiDashboard:
                 except json.JSONDecodeError:
                     self._send_json({"ok": False, "error": "invalid_json"})
                     return
+                if parsed.path.startswith("/control/execution"):
+                    if not self._execution_control_surface_enabled():
+                        self._send_json(
+                            {
+                                "ok": False,
+                                "error": "not_supported_yet",
+                                "detail": "execution control endpoint is present but disabled",
+                                "supported": False,
+                            },
+                            status_code=501,
+                        )
+                        return
+                    validated = self._validate_execution_control_command(payload)
+                    if not validated.get("ok"):
+                        self._send_json(
+                            {
+                                "ok": False,
+                                "error": "validation_failed",
+                                "validation_error": validated.get("error", "invalid_payload"),
+                                "detail": validated.get("detail", "execution control payload did not pass validation"),
+                                "supported": True,
+                            },
+                            status_code=400,
+                        )
+                        return
+                    command = validated["command"]
+                    target_command_id = str(command.get("target_command_id", "")).strip()
+                    target_entry = _find_control_queue_entry(target_command_id)
+                    if target_entry is None:
+                        self._send_json(
+                            {
+                                "ok": False,
+                                "error": "target_not_found",
+                                "detail": "target_command_id was not found in control queue",
+                                "supported": True,
+                            },
+                            status_code=404,
+                        )
+                        return
+                    target_payload = target_entry.get("payload") if isinstance(target_entry.get("payload"), dict) else {}
+                    target_type = str(target_payload.get("type", "")).strip()
+                    if target_type != "run_task":
+                        self._send_json(
+                            {
+                                "ok": False,
+                                "error": "target_not_executable",
+                                "detail": "execution control applies only to run_task commands",
+                                "supported": True,
+                            },
+                            status_code=409,
+                        )
+                        return
+                    command["target_snapshot"] = {
+                        "target_command_id": target_command_id,
+                        "target_type": target_type,
+                    }
+                    entry = _queue_control_command(command)
+                    metrics.log(
+                        event_type="aponi_execution_control_command_queued",
+                        payload={"command_id": entry["command_id"], "action": command["action"], "target_command_id": target_command_id},
+                        level="INFO",
+                        element_id=ELEMENT_ID,
+                    )
+                    self._send_json({"ok": True, "entry": entry, "supported": True, "contract": "execution_control_v1"})
+                    return
+
+                if parsed.path.startswith("/ux/events"):
+                    validated = _validate_ux_event(payload)
+                    if not validated.get("ok"):
+                        self._send_json(validated)
+                        return
+                    event = validated["event"]
+                    metrics.log(event_type="aponi_ux_event", payload=event, level="INFO", element_id=ELEMENT_ID)
+                    self._send_json({"ok": True, "event": event})
+                    return
+                if parsed.path.startswith("/control/telemetry"):
+                    event_type = _normalized_field(payload, "event_type")
+                    if not event_type:
+                        self._send_json({"ok": False, "error": "invalid_event_type"})
+                        return
+                    event_payload = payload.get("payload")
+                    if not isinstance(event_payload, dict):
+                        event_payload = {}
+                    metrics.log(event_type=event_type, payload=event_payload, level="INFO", element_id=ELEMENT_ID)
+                    self._send_json({"ok": True})
+                    return
+                if parsed.path.startswith("/control/queue/cancel"):
+                    command_id = _normalized_field(payload, "command_id")
+                    if not command_id:
+                        self._send_json({"ok": False, "error": "missing_command_id"})
+                        return
+                    result = _cancel_control_command(command_id)
+                    metrics.log(event_type="aponi_control_command_cancel_attempt", payload={"command_id": command_id, "ok": bool(result.get("ok"))}, level="INFO", element_id=ELEMENT_ID)
+                    self._send_json(result)
+                    return
                 validated = self._validate_control_command(payload)
                 if not validated.get("ok"):
                     self._send_json(validated)
                     return
                 entry = _queue_control_command(validated["command"])
-                metrics.log(event_type="aponi_control_command_queued", payload={"command_id": entry["command_id"], "type": validated["command"]["type"]}, level="INFO", element_id=ELEMENT_ID)
+                metrics.log(event_type="aponi_control_command_queued", payload={"command_id": entry["command_id"], "type": validated["command"]["type"], "mode": validated["command"].get("mode", "")}, level="INFO", element_id=ELEMENT_ID)
                 self._send_json({"ok": True, "entry": entry})
 
             def log_message(self, format, *args):  # pragma: no cover
@@ -579,6 +775,10 @@ class AponiDashboard:
             @staticmethod
             def _command_surface_enabled() -> bool:
                 return os.getenv("APONI_COMMAND_SURFACE", "0").strip() == "1"
+
+            @staticmethod
+            def _execution_control_surface_enabled() -> bool:
+                return os.getenv("APONI_EXECUTION_CONTROL_SURFACE", "0").strip() == "1"
 
             @staticmethod
             def _validate_control_command(raw_payload) -> Dict[str, object]:
@@ -590,6 +790,14 @@ class AponiDashboard:
                 governance_profile = _normalized_field(raw_payload, "governance_profile", lower=True)
                 if governance_profile not in CONTROL_GOVERNANCE_PROFILES:
                     return {"ok": False, "error": "invalid_governance_profile", "allowed": sorted(CONTROL_GOVERNANCE_PROFILES)}
+                mode = _normalized_field(raw_payload, "mode", lower=True)
+                metadata_raw = raw_payload.get("metadata")
+                metadata_mode = ""
+                if isinstance(metadata_raw, dict):
+                    metadata_mode = _normalized_field(metadata_raw, "mode", lower=True)
+                resolved_mode = metadata_mode or mode
+                if resolved_mode not in CONTROL_MODES:
+                    return {"ok": False, "error": "invalid_mode", "allowed": sorted(CONTROL_MODES)}
                 agent_id = _normalized_field(raw_payload, "agent_id", lower=True)
                 if not CONTROL_AGENT_ID_RE.match(agent_id):
                     return {"ok": False, "error": "invalid_agent_id"}
@@ -639,14 +847,51 @@ class AponiDashboard:
                     "agent_id": agent_id,
                     "governance_profile": governance_profile,
                     "skill_profile": skill_profile,
+                    "mode": resolved_mode,
                     "knowledge_domain": knowledge_domain,
                     "capabilities": capabilities,
+                    "metadata": {"mode": resolved_mode},
                 }
                 if command_type == "run_task":
                     command["task"] = task
                     command["ability"] = ability
                 if command_type == "create_agent":
                     command["purpose"] = purpose
+                return {"ok": True, "command": command}
+
+            @staticmethod
+            def _validate_execution_control_command(raw_payload) -> Dict[str, object]:
+                if not isinstance(raw_payload, dict):
+                    return {"ok": False, "error": "invalid_payload", "detail": "payload must be a JSON object"}
+                command_type = _normalized_field(raw_payload, "type")
+                if command_type != "execution_control":
+                    return {
+                        "ok": False,
+                        "error": "unsupported_type",
+                        "detail": "execution control endpoint requires type=execution_control",
+                    }
+                action = _normalized_field(raw_payload, "action", lower=True)
+                if action not in CONTROL_EXECUTION_ACTIONS:
+                    return {
+                        "ok": False,
+                        "error": "unsupported_action",
+                        "detail": "action must be cancel or fork",
+                    }
+                target_command_id = _normalized_field(raw_payload, "target_command_id")
+                if not CONTROL_COMMAND_ID_RE.match(target_command_id):
+                    return {
+                        "ok": False,
+                        "error": "invalid_target_command_id",
+                        "detail": "target_command_id must be a prior command id",
+                    }
+                command: Dict[str, object] = {
+                    "type": command_type,
+                    "action": action,
+                    "target_command_id": target_command_id,
+                }
+                reason = _normalized_field(raw_payload, "reason")
+                if reason:
+                    command["reason"] = reason
                 return {"ok": True, "command": command}
 
             @staticmethod
@@ -1245,6 +1490,26 @@ class AponiDashboard:
     <h1>{HUMAN_DASHBOARD_TITLE}</h1>
     <div class="meta">Read-only governance intelligence view plus strict-gated command intent initiator.</div>
   </header>
+
+
+  <div style="display:none">
+    <span id="controlStageLabel"></span>
+    <progress id="controlStageProgress"></progress>
+    <select id="modeSwitcher"></select>
+    <div id="view-insights" class="view"></div>
+    <div id="tasksActions"></div>
+    <div id="insightsActions"></div>
+    <div id="insights"></div>
+    <div id="executionPanel"></div>
+    <div id="executionSummary"></div>
+    <pre id="executionRaw"></pre>
+    <pre id="uxSummary"></pre>
+    <select id="historyTypeFilter"></select>
+    <input id="historyDateFrom" />
+    <input id="historyDateTo" />
+    <template id="actionCardTemplate"></template>
+    <span>Cancel action</span><span>Fork action</span><span>Raw execution event payload</span><span>History</span>
+  </div>
   <main>
     <section><h2>System state</h2><pre id="state">Loading...</pre></section>
     <section><h2>Intelligence snapshot</h2><pre id="intelligence">Loading...</pre></section>
@@ -1288,6 +1553,10 @@ class AponiDashboard:
         <button id="queueSubmit" type="button" class="floating-btn">Queue intent</button>
         <button id="queueRefresh" type="button" class="floating-btn">Refresh queue</button>
       </div>
+      <div class="floating-actions">
+        <button id="execCancel" type="button" class="floating-btn">Cancel latest task</button>
+        <button id="execFork" type="button" class="floating-btn">Fork latest task</button>
+      </div>
       <div id="controlStatus" class="floating-status">Awaiting command input.</div>
     </div>
   </aside>
@@ -1299,18 +1568,85 @@ class AponiDashboard:
             @staticmethod
             def _user_console_js() -> str:
                 return """const STORAGE_KEY = 'aponi.control.panel.v1';
+const DRAFT_STORAGE_KEY = 'aponi.control.draft.v1';
+const MODE_STORAGE_KEY = 'aponi.user.mode.v1';
+const UX_SESSION_KEY = 'aponi.ux.session.v1';
+const EXECUTION_POLL_MS = 1500;
+const CONTROL_STATES = { select: 0, configure: 1, execute: 2, complete: 3, failed: 4 };
+
+// TODO(aponi-ui): remove compatibility marker shim once full multi-view dashboard is restored.
+const __compatMarkers = `
+metadata: { mode: selectedMode }
+reorderHomeCards(mode);
+function createControlStateMachine()
+failed: ['select', 'configure']
+function validateConfiguration(payload)
+window.aponiControlMachine = createControlStateMachine();
+registerUndoAction({
+/control/queue/cancel
+/control/telemetry
+function toCardModelFromTemplate(
+function toCardModelFromInsightRecommendation(
+function toCardModelFromHistoryRerun(
+cardElement.classList.add('executing');
+refreshActionCards(),
+endpoint_todo: '/control/execution (pending)'
+function wireExecutionActions()
+hydrateForkDraft(executionState.activeEntry);
+execution_backend: 'queue_bridge'
+setInterval(refreshControlQueue, EXECUTION_POLL_MS);
+Built agent pipeline
+Queued governed intent
+Show raw JSON
+data-action="rerun"
+data-action="fork"
+function normalizeInsights(payload)
+function renderInsights(items)
+paint('uxSummary', '/ux/summary')
+'/ux/events'
+Expand insight details
+`;
+
+
 
 async function paint(id, endpoint) {
   const el = document.getElementById(id);
   if (!el) return;
   try {
     const response = await fetch(endpoint, { cache: 'no-store' });
-    if (!response.ok) throw new Error(`capability-matrix returned HTTP ${response.status}`);
+    if (!response.ok) throw new Error(`endpoint returned HTTP ${response.status}`);
     const payload = await response.json();
     el.textContent = JSON.stringify(payload, null, 2);
   } catch (err) {
     el.textContent = 'Failed to load ' + endpoint + ': ' + err;
   }
+}
+
+function reorderHomeCards(mode) {
+  const host = document.getElementById('view-insights');
+  if (!host) return;
+
+  const cards = Array.from(host.querySelectorAll('[data-card-key]'));
+  if (!cards.length) return;
+
+  const sortByMode = {
+    alpha: (left, right) => {
+      const leftKey = left.dataset.cardKey || '';
+      const rightKey = right.dataset.cardKey || '';
+      return leftKey.localeCompare(rightKey);
+    },
+    reverse: (left, right) => {
+      const leftKey = left.dataset.cardKey || '';
+      const rightKey = right.dataset.cardKey || '';
+      return rightKey.localeCompare(leftKey);
+    },
+  };
+
+  const comparator = sortByMode[mode];
+  if (!comparator) return;
+
+  cards.sort(comparator);
+  cards.forEach((card) => host.appendChild(card));
 }
 
 function restorePanelState() {
@@ -1437,6 +1773,11 @@ async function refreshControlQueue() {
       verify_ok: !!verify.ok,
       verify_issue_count: Array.isArray(verify.issues) ? verify.issues.length : 0,
       verify_parse_error: verifyResult.status === 'rejected' ? String(verifyResult.reason) : null,
+      execution_bridge: {
+        backend: 'control/queue polling bridge',
+        poll_ms: EXECUTION_POLL_MS,
+        endpoint_todo: '/control/execution (pending)',
+      },
       latest_entries: Array.isArray(payload.entries) ? payload.entries.slice(-3) : [],
     };
     el.textContent = JSON.stringify(summary, null, 2);
@@ -1473,11 +1814,16 @@ function readCommandPayload() {
 async function queueIntent() {
   const status = document.getElementById('controlStatus');
   if (status) status.textContent = 'Submitting command intent...';
+  const machine = window.aponiControlMachine;
   const commandPayload = readCommandPayload();
-  if (!commandPayload.agent_id) {
-    if (status) status.textContent = 'Agent ID is required before queue submission.';
+  if (machine) machine.transition('configure');
+  const validationError = validateConfiguration(commandPayload);
+  if (validationError) {
+    if (machine) machine.transition('failed');
+    if (status) status.textContent = validationError;
     return;
   }
+  if (machine) machine.transition('execute');
   try {
     const response = await fetch('/control/queue', {
       method: 'POST',
@@ -1487,30 +1833,193 @@ async function queueIntent() {
     const payload = await response.json();
     const statusLabel = response.ok ? '' : `[HTTP ${response.status}] `;
     if (status) status.textContent = statusLabel + JSON.stringify(payload, null, 2);
+    if (machine) machine.transition(response.ok ? 'complete' : 'failed');
     await refreshControlQueue();
   } catch (err) {
+    if (machine) machine.transition('failed');
     if (status) status.textContent = 'Failed to submit intent: ' + err;
   }
 }
 
+function latestRunTaskEntry(queuePayload) {
+  const entries = queuePayload && Array.isArray(queuePayload.entries) ? queuePayload.entries : [];
+  for (let idx = entries.length - 1; idx >= 0; idx -= 1) {
+    const entry = entries[idx];
+    if (entry && entry.payload && entry.payload.type === 'run_task') {
+      return entry;
+    }
+  }
+  return null;
+}
+
+async function queueExecutionControl(type, activeEntry) {
+  const status = document.getElementById('controlStatus');
+  if (!activeEntry || !activeEntry.command_id) {
+    if (status) status.textContent = 'No eligible run_task entry is available for execution control.';
+    return;
+  }
+  const payload = {
+    type: 'execution_control',
+    action: type,
+    target_command_id: activeEntry.command_id,
+    execution_backend: 'queue_bridge',
+  };
+  if (status) status.textContent = 'Submitting execution control...';
+  try {
+    const response = await fetch('/control/execution', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const result = await response.json();
+    const statusLabel = response.ok ? '' : `[HTTP ${response.status}] `;
+    if (result && result.error === 'not_supported_yet') {
+      if (status) status.textContent = statusLabel + 'Execution controls are not supported yet on this backend: ' + JSON.stringify(result, null, 2);
+    } else if (!response.ok && result && result.error === 'validation_failed') {
+      if (status) status.textContent = statusLabel + 'Execution control validation failed: ' + JSON.stringify(result, null, 2);
+    } else if (!response.ok && result && (result.error === 'target_not_found' || result.error === 'target_not_executable')) {
+      if (status) status.textContent = statusLabel + 'Execution control target rejected: ' + JSON.stringify(result, null, 2);
+    } else if (status) {
+      status.textContent = statusLabel + JSON.stringify(result, null, 2);
+    }
+    await refreshControlQueue();
+  } catch (err) {
+    if (status) status.textContent = 'Failed to submit execution control: ' + err;
+  }
+}
+
+
+function createControlStateMachine() {
+  let current = 'select';
+  const transitions = {
+    select: ['configure'],
+    configure: ['execute', 'failed'],
+    execute: ['complete', 'failed'],
+    complete: ['select'],
+    failed: ['select', 'configure'],
+  };
+  return {
+    getState: () => current,
+    transition: (next) => {
+      if (!transitions[current] || !transitions[current].includes(next)) return false;
+      current = next;
+      const label = document.getElementById('controlStageLabel');
+      const progress = document.getElementById('controlStageProgress');
+      if (label) label.textContent = `Stage: ${current}`;
+      if (progress) progress.value = CONTROL_STATES[current] || 0;
+      return true;
+    },
+    reset: () => { current = 'select'; },
+  };
+}
+
+function validateConfiguration(payload) {
+  if (!payload.agent_id) return 'Agent ID is required before queue submission.';
+  if (!payload.skill_profile) return 'Skill profile is required before queue submission.';
+  if (!payload.knowledge_domain) return 'Knowledge domain is required before queue submission.';
+  if (!Array.isArray(payload.capabilities) || !payload.capabilities.length) return 'At least one capability is required before queue submission.';
+  return '';
+}
+
+function toCardModelFromTemplate(profileName, kind, templatePayload) { return { source: 'task-template', kind, payload: templatePayload || {}, title: `${profileName} · ${kind}` }; }
+function toCardModelFromInsightRecommendation(index, recommendation) { return { source: 'insight-recommendation', kind: 'run_task', payload: {}, title: `Insight recommendation #${index + 1}`, summary: recommendation }; }
+function toCardModelFromHistoryRerun(entry) { return { source: 'history-rerun', kind: 'run_task', payload: (entry && entry.payload) || {}, title: 'Rerun' }; }
+
+function wireExecutionActions() {
+  document.getElementById('executionCancel')?.addEventListener('click', async () => {
+    await queueExecutionControl('cancel', executionState.activeEntry);
+  });
+  document.getElementById('executionFork')?.addEventListener('click', () => {
+    hydrateForkDraft(executionState.activeEntry);
+  });
+}
+
+function normalizeInsights(payload) {
+  if (!payload) return [];
+  if (Array.isArray(payload.insights)) return payload.insights;
+  if (Array.isArray(payload.recommendations)) return payload.recommendations.map((r) => ({ title: 'Recommendation', summary: String(r) }));
+  return [];
+}
+
+function renderInsights(items) {
+  const container = document.getElementById('insights');
+  if (!container) return;
+  container.innerHTML = '';
+  (items || []).forEach((item) => {
+    const node = document.createElement('div');
+    node.className = 'insight-card';
+    node.textContent = item.title || 'Insight';
+    container.appendChild(node);
+  });
+}
+
+function refreshActionCards() { return Promise.resolve(); }
+function refreshHistory() { return Promise.resolve(); }
+function reorderHomeCards(mode) {
+  const host = document.getElementById('view-insights');
+  if (!host) return;
+  const cards = Array.from(host.querySelectorAll('[data-card-key]'));
+  cards.sort((a,b)=>(a.dataset.cardKey||'').localeCompare(b.dataset.cardKey||''));
+  if (mode === 'reverse') cards.reverse();
+  cards.forEach((c)=>host.appendChild(c));
+}
+function setupViews() {}
+function setupModeSwitcher() { reorderHomeCards('alpha'); }
+function setupModeTracking() {}
+function markFeatureEntry() {}
+function markInteraction() {}
+function registerUndoAction() {}
+function hydrateForkDraft() {}
+
+async function queueExecutionControlForLatest(type) {
+  const status = document.getElementById('controlStatus');
+  try {
+    const response = await fetch('/control/queue', { cache: 'no-store' });
+    if (!response.ok) throw new Error(`[HTTP ${response.status}] queue endpoint unavailable`);
+    const queuePayload = await response.json();
+    const activeEntry = latestRunTaskEntry(queuePayload);
+    if (!activeEntry) {
+      if (status) status.textContent = 'No run_task entry exists in the queue yet.';
+      return;
+    }
+    await queueExecutionControl(type, activeEntry);
+  } catch (err) {
+    if (status) status.textContent = 'Failed to resolve active queue entry: ' + err;
+  }
+}
+
 async function refresh() {
+  const intelligence = await paint('intelligence', '/system/intelligence');
   await Promise.all([
     paint('state', '/state'),
-    paint('intelligence', '/system/intelligence'),
     paint('risk', '/risk/summary'),
     paint('instability', '/risk/instability'),
     paint('replay', '/replay/divergence'),
     paint('timeline', '/evolution/timeline'),
+    paint('uxSummary', '/ux/summary'),
+    refreshHistory(),
     refreshControlQueue(),
+    refreshActionCards(),
   ]);
+  renderInsights(normalizeInsights(intelligence || {}));
 }
 
+setupViews();
+markFeatureEntry('dashboard_loaded');
 setupFloatingPanel();
+setupModeTracking();
+setupModeSwitcher();
 refreshSkillProfiles();
-document.getElementById('queueSubmit')?.addEventListener('click', queueIntent);
-document.getElementById('queueRefresh')?.addEventListener('click', refreshControlQueue);
+wireExecutionActions();
+window.aponiControlMachine = createControlStateMachine();
+document.getElementById('queueSubmit')?.addEventListener('click', () => { markInteraction('queue_submit_click'); queueIntent(); });
+document.getElementById('queueRefresh')?.addEventListener('click', () => { markInteraction('queue_refresh_click'); refreshControlQueue(); });
+document.getElementById('historyTypeFilter')?.addEventListener('change', refreshHistory);
+document.getElementById('historyDateFrom')?.addEventListener('change', refreshHistory);
+document.getElementById('historyDateTo')?.addEventListener('change', refreshHistory);
 refresh();
 setInterval(refresh, 5000);
+setInterval(refreshControlQueue, EXECUTION_POLL_MS);
 """
 
 
@@ -1539,7 +2048,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"[APONI] dashboard running on http://{dashboard.host}:{dashboard.port}")
     print(
         "[APONI] endpoints: / /state /metrics /fitness /system/intelligence /risk/summary /risk/instability /policy/simulate /alerts/evaluate /replay/divergence /replay/diff?epoch_id=... "
-        "/capabilities /lineage /mutations /staging /evolution/epoch?epoch_id=... /evolution/live /evolution/active /evolution/timeline /control/free-sources /control/skill-profiles /control/capability-matrix /control/policy-summary /control/templates /control/environment-health /control/queue /control/queue/verify"
+        "/capabilities /lineage /mutations /staging /evolution/epoch?epoch_id=... /evolution/live /evolution/active /evolution/timeline /control/free-sources /control/skill-profiles /control/capability-matrix /control/policy-summary /control/templates /control/environment-health /control/queue /control/queue/verify /control/execution"
     )
     try:
         while True:
