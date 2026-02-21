@@ -9,6 +9,7 @@ from adaad.core.cryovant_identity import build_identity
 from adaad.core.health import health_report
 from adaad.core.manifest import build_manifest
 from adaad.core.root import get_root_dir
+from adaad.orchestrator import bootstrap as bootstrap_module
 from adaad.orchestrator.dispatcher import dispatch
 from adaad.orchestrator.registry import clear_registry, register_tool
 
@@ -36,6 +37,7 @@ def test_identity_builder() -> None:
 
 def test_registry_and_dispatch_flow() -> None:
     clear_registry()
+    bootstrap_module._BOOTSTRAPPED = False
     register_tool("test.echo", lambda params: {"status": "success", "echo": params.get("message", "")})
 
     envelope = dispatch("test.echo", {"message": "hi"})
@@ -45,3 +47,4 @@ def test_registry_and_dispatch_flow() -> None:
     assert envelope["_dispatch_meta"]["latency_ns"] >= 0
 
     clear_registry()
+    bootstrap_module._BOOTSTRAPPED = False
