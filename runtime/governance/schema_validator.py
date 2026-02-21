@@ -31,6 +31,8 @@ GOVERNANCE_SCHEMA_FILES: tuple[str, ...] = (
     "schemas/governance_policy_payload.v1.json",
     "schemas/governance_policy_artifact.v1.json",
     "schemas/replay_attestation.v1.json",
+    "schemas/pr_lifecycle_event.v1.json",
+    "schemas/pr_lifecycle_event_stream.v1.json",
 )
 
 _CANONICAL_DIALECT = "https://json-schema.org/draft/2020-12/schema"

@@ -58,6 +58,11 @@ Authoritative current version/maturity for these notes: **0.65.x, Experimental /
 - Deterministic governance/replay substrate for canonical runtime paths.
 - Fail-closed replay decision flow and strict replay enforcement behavior.
 - Append-only lineage/scoring ledger behavior and related determinism coverage.
+- PR lifecycle ledger event contract with schema-backed event types (`pr_lifecycle_event.v1.json`, `pr_lifecycle_event_stream.v1.json`), deterministic idempotency derivation, and append-only invariant validation helpers.
+- Rule applicability system: `governance/rule_applicability.yaml` is loaded at constitutional boot; evaluations emit `applicability_matrix`, and inapplicable rules are emitted as `rule_not_applicable` pass-through verdicts.
+- CI tiering classifier with conditional strict/evidence/promotion suites and audit-ready gating summary emission per run.
+- Release evidence gate enforcing `docs/comms/claims_evidence_matrix.md` completeness and resolvable evidence links for governance/public-readiness tags.
+- CodeQL workflow enabled for push/PR on `main` with scheduled analysis.
 
 ### Roadmap (not yet validated guarantees)
 

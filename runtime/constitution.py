@@ -13,7 +13,7 @@ import json
 import os
 from contextlib import contextmanager
 from contextvars import ContextVar, Token
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Mapping
@@ -26,6 +26,7 @@ from security.ledger import journal
 CONSTITUTION_VERSION = "0.1.0"
 ELEMENT_ID = "Earth"
 POLICY_PATH = Path("runtime/governance/constitution.yaml")
+RULE_APPLICABILITY_PATH = Path("governance/rule_applicability.yaml")
 _DETERMINISTIC_ENVELOPE_STATE: ContextVar[Dict[str, Any]] = ContextVar("deterministic_envelope_state", default={})
 
 
@@ -55,6 +56,7 @@ class Rule:
     tier_overrides: Dict[Tier, Severity]
     reason: str
     validator: Callable[[MutationRequest], Dict[str, Any]]
+    applicability: Dict[str, Any] = field(default_factory=dict)
 
 
 def _validate_single_file(request: MutationRequest) -> Dict[str, Any]:
@@ -199,6 +201,104 @@ def _validate_mutation_rate(_: MutationRequest) -> Dict[str, Any]:
 def _validate_resources(_: MutationRequest) -> Dict[str, Any]:
     """Enforce resource bounds (stub for now)."""
     return {"ok": True, "reason": "not_yet_implemented"}
+
+
+def _load_rule_applicability(path: Path = RULE_APPLICABILITY_PATH) -> Dict[str, Dict[str, Any]]:
+    if not path.exists():
+        raise ValueError(f"rule_applicability_missing:{path}")
+    raw = path.read_text(encoding="utf-8")
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"rule_applicability_invalid_json:{exc}") from exc
+    if not isinstance(payload, dict):
+        raise ValueError("rule_applicability_invalid_schema:root_not_object")
+    rules = payload.get("rules")
+    if not isinstance(rules, list):
+        raise ValueError("rule_applicability_invalid_schema:rules")
+    indexed: Dict[str, Dict[str, Any]] = {}
+    for idx, entry in enumerate(rules):
+        if not isinstance(entry, dict):
+            raise ValueError(f"rule_applicability_invalid_schema:rule_not_object:{idx}")
+        name = str(entry.get("name", "")).strip()
+        if not name:
+            raise ValueError(f"rule_applicability_invalid_schema:missing_name:{idx}")
+        indexed[name] = entry
+    return indexed
+
+
+def _extract_request_paths(request: MutationRequest) -> List[str]:
+    paths: List[str] = []
+    for target in request.targets:
+        path = str(getattr(target, "path", "")).strip()
+        if path:
+            paths.append(path)
+    return paths
+
+
+def _path_in_scope(path: str, directories: List[str]) -> bool:
+    normalized = path.strip("/")
+    for directory in directories:
+        scoped = str(directory).strip("/")
+        if not scoped:
+            continue
+        if normalized == scoped or normalized.startswith(f"{scoped}/"):
+            return True
+    return False
+
+
+def _evaluate_rule_applicability(rule: Rule, request: MutationRequest, tier: Tier) -> Dict[str, Any]:
+    metadata = rule.applicability or {}
+    scope = metadata.get("scope") if isinstance(metadata.get("scope"), dict) else {}
+    triggers = metadata.get("triggers") if isinstance(metadata.get("triggers"), dict) else {}
+    directories = [str(item) for item in scope.get("directories") or []]
+    change_types = {str(item) for item in scope.get("change_types") or []}
+
+    request_paths = _extract_request_paths(request)
+    has_paths = bool(request_paths)
+
+    requires_targets = bool(triggers.get("requires_targets"))
+    scope_match = (
+        not directories
+        or (has_paths and any(_path_in_scope(path, directories) for path in request_paths))
+        or (not has_paths and not requires_targets)
+    )
+
+    request_change_types = {"mutation_request"}
+    if request.ops:
+        request_change_types.add("code")
+    if request_paths and all(path.startswith("docs/") for path in request_paths):
+        request_change_types.add("docs")
+    if request_paths and any(path.startswith("tests/") for path in request_paths):
+        request_change_types.add("tests")
+
+    change_type_match = not change_types or bool(request_change_types.intersection(change_types))
+
+    requires_signature = bool(triggers.get("requires_signature"))
+    min_ops = int(triggers.get("min_ops", 0) or 0)
+    tiers = {str(item) for item in triggers.get("tiers") or []}
+
+    trigger_results = {
+        "requires_targets": (not requires_targets) or has_paths,
+        "requires_signature": (not requires_signature) or bool(request.signature),
+        "min_ops": len(request.ops) >= min_ops,
+        "tiers": (not tiers) or (tier.name in tiers),
+    }
+    trigger_match = all(trigger_results.values())
+    applicable = bool(rule.enabled and scope_match and change_type_match and trigger_match)
+    return {
+        "rule": rule.name,
+        "applicable": applicable,
+        "enabled": rule.enabled,
+        "scope_match": scope_match,
+        "change_type_match": change_type_match,
+        "trigger_match": trigger_match,
+        "trigger_results": trigger_results,
+        "scope": scope,
+        "triggers": triggers,
+        "fail_behavior": metadata.get("fail_behavior", {}),
+        "required_evidence": metadata.get("required_evidence", []),
+    }
 
 
 def set_deterministic_envelope_state(state: Mapping[str, Any] | None) -> Token[Dict[str, Any]]:
@@ -434,6 +534,7 @@ def _record_amendment(old_hash: str | None, new_hash: str, version: str) -> None
 def load_constitution_policy(path: Path = POLICY_PATH, expected_version: str = CONSTITUTION_VERSION) -> tuple[List[Rule], str]:
     policy, policy_hash = _load_policy_document(path)
     _validate_policy_schema(policy, expected_version)
+    applicability = _load_rule_applicability()
 
     rule_objects: List[Rule] = []
     for raw_rule in policy["rules"]:
@@ -449,6 +550,7 @@ def load_constitution_policy(path: Path = POLICY_PATH, expected_version: str = C
                 tier_overrides=tier_overrides,
                 reason=str(raw_rule["reason"]),
                 validator=VALIDATOR_REGISTRY[str(raw_rule["validator"])],
+                applicability=dict(applicability.get(str(raw_rule["name"]), {})),
             )
         )
     return rule_objects, policy_hash
@@ -505,7 +607,25 @@ def evaluate_mutation(request: MutationRequest, tier: Tier) -> Dict[str, Any]:
     }
 
     with deterministic_envelope_scope(evaluation_state):
+        applicability_matrix: List[Dict[str, Any]] = []
         for rule, severity in rules:
+            applicability_row = _evaluate_rule_applicability(rule, request, tier)
+            applicability_matrix.append(applicability_row)
+            if not applicability_row["applicable"]:
+                verdicts.append(
+                    {
+                        "rule": rule.name,
+                        "severity": severity.value,
+                        "passed": True,
+                        "applicable": False,
+                        "details": {
+                            "ok": True,
+                            "reason": "rule_not_applicable",
+                            "applicability": applicability_row,
+                        },
+                    }
+                )
+                continue
             try:
                 result = rule.validator(request)
             except Exception as exc:
@@ -515,6 +635,7 @@ def evaluate_mutation(request: MutationRequest, tier: Tier) -> Dict[str, Any]:
                 "rule": rule.name,
                 "severity": severity.value,
                 "passed": result.get("ok", False),
+                "applicable": True,
                 "details": result,
             }
             verdicts.append(verdict)
@@ -536,6 +657,7 @@ def evaluate_mutation(request: MutationRequest, tier: Tier) -> Dict[str, Any]:
         "verdicts": verdicts,
         "blocking_failures": blocking_failures,
         "warnings": warnings,
+        "applicability_matrix": applicability_matrix,
         "agent_id": request.agent_id,
         "intent": request.intent,
     }

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://adaad.local/schemas/pr_lifecycle_event_stream.v1.json",
+  "title": "PR Lifecycle Governance Event Stream v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "events"],
+  "properties": {
+    "schema_version": {"type": "string", "const": "1.0"},
+    "events": {
+      "type": "array",
+      "items": {
+        "$ref": "https://adaad.local/schemas/pr_lifecycle_event.v1.json"
+      }
+    }
+  }
+}

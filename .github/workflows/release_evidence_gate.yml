@@ -1,0 +1,20 @@
+name: Release Evidence Gate
+
+on:
+  push:
+    tags:
+      - "v*-governance-*"
+      - "v*-public-readiness-*"
+      - "governance-*"
+      - "public-readiness-*"
+
+jobs:
+  validate-release-evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Require complete claims evidence before milestone tag acceptance
+        run: python scripts/validate_release_evidence.py --require-complete

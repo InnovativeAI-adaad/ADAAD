@@ -96,6 +96,15 @@ python nexus_setup.py --validate-only        # read-only preflight (required che
 python nexus_setup.py --validate-only --json # machine-readable preflight report (no workspace writes)
 ```
 
+## Governance boot-critical artifacts
+
+The following files are required for fail-closed constitutional boot and must exist/parse cleanly:
+
+- `runtime/governance/constitution.yaml`
+- `governance/rule_applicability.yaml`
+
+If either file is missing or malformed, ADAAD intentionally halts boot with a constitutional initialization error.
+
 ## 5) Verify boot works (recommended)
 
 Run with verbose diagnostics:
@@ -130,15 +139,19 @@ If you see these signals, your installation is functioning.
 
 ## 6) Optional replay verification-only mode
 
+For CI-equivalent strict replay behavior, use the deterministic provider + seed used in CI:
+
 ```bash
-python -m app.main --verify-replay --replay strict --verbose
+ADAAD_ENV=dev CRYOVANT_DEV_MODE=1 ADAAD_FORCE_DETERMINISTIC_PROVIDER=1 ADAAD_DETERMINISTIC_SEED=ci-strict-replay \
+  python -m app.main --verify-replay --replay strict --verbose
 ```
 
 On first-time setup, run audit mode first to establish a baseline signal:
 
 ```bash
 python -m app.main --replay audit --verbose
-python -m app.main --verify-replay --replay strict --verbose
+ADAAD_ENV=dev CRYOVANT_DEV_MODE=1 ADAAD_FORCE_DETERMINISTIC_PROVIDER=1 ADAAD_DETERMINISTIC_SEED=ci-strict-replay \
+  python -m app.main --verify-replay --replay strict --verbose
 ```
 
 Depending on local state, the first strict replay check can fail until replay artifacts are stabilized.

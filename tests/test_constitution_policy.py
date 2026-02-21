@@ -21,6 +21,7 @@ def test_load_constitution_policy_parses_rules() -> None:
     mutation_rate = next(rule for rule in rules if rule.name == "max_mutation_rate")
     assert mutation_rate.tier_overrides[constitution.Tier.PRODUCTION] == constitution.Severity.BLOCKING
     assert mutation_rate.tier_overrides[constitution.Tier.SANDBOX] == constitution.Severity.ADVISORY
+    assert mutation_rate.applicability["name"] == "max_mutation_rate"
 
 
 def test_entropy_budget_validator_contract() -> None:
@@ -186,3 +187,20 @@ def test_entropy_epoch_budget_exceeded_blocks_in_production(monkeypatch: pytest.
     entropy_verdict = next(item for item in verdict["verdicts"] if item["rule"] == "entropy_budget_limit")
     assert entropy_verdict["passed"] is False
     assert entropy_verdict["details"]["reason"] == "epoch_entropy_budget_exceeded"
+
+
+def test_evaluate_mutation_emits_applicability_matrix() -> None:
+    request = MutationRequest(
+        agent_id="test_subject",
+        generation_ts="now",
+        intent="docs",
+        ops=[],
+        signature="",
+        nonce="n",
+    )
+    verdict = constitution.evaluate_mutation(request, constitution.Tier.SANDBOX)
+    assert "applicability_matrix" in verdict
+    assert verdict["applicability_matrix"]
+    by_rule = {row["rule"]: row for row in verdict["applicability_matrix"]}
+    assert by_rule["single_file_scope"]["applicable"] is False
+    assert by_rule["signature_required"]["applicable"] is False

@@ -22,3 +22,6 @@ Briefly describe the change and why it is needed.
 - [ ] Documentation updated (if applicable)
 - [ ] CHANGELOG updated (if applicable)
 - [ ] No secrets or sensitive data added
+
+## CI gating
+Review the CI gating policy: [`docs/governance/ci-gating.md`](../docs/governance/ci-gating.md).
