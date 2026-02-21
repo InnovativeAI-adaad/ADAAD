@@ -31,6 +31,7 @@ from runtime.capability_graph import get_capabilities, register_capability
 from runtime.evolution.promotion_manifest import PromotionManifestWriter
 from runtime.evolution.evolution_kernel import EvolutionKernel
 from runtime.governance.foundation import safe_get
+from runtime.manifest.generator import generate_tool_manifest
 from security import cryovant
 from security.ledger import journal
 
@@ -440,13 +441,16 @@ class LegacyBeastModeCompatibilityAdapter:
             "promotion_manifest": manifest_ref,
             "ledger_tail_refs": journal.read_entries(limit=5),
         }
+        capability_name = f"agent.{selected}.mutation_quality"
+        capability_version = "0.1.0"
         register_capability(
-            f"agent.{selected}.mutation_quality",
-            version="0.1.0",
+            capability_name,
+            version=capability_version,
             score=score,
             owner_element=ELEMENT_ID,
             requires=["cryovant.gate", "orchestrator.boot"],
             evidence=evidence,
+            identity=generate_tool_manifest(__name__, capability_name, capability_version),
         )
         metrics.log(
             event_type="mutation_promoted",

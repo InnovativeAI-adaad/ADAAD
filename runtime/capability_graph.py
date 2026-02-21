@@ -22,7 +22,7 @@ import time
 from contextlib import contextmanager
 from hashlib import sha256
 from pathlib import Path
-from typing import Any, Dict, Iterable, Iterator, List, Tuple
+from typing import Any, Dict, Iterable, Iterator, List, Mapping, Tuple, cast
 
 from runtime import ROOT_DIR, metrics
 from runtime.governance.policy_artifact import GovernancePolicyError, load_governance_policy
@@ -91,6 +91,13 @@ def _missing_dependencies(registry: Dict[str, Dict[str, Any]], requires: Iterabl
     return [req for req in requires if req not in registry]
 
 
+def _has_identity_fields(identity: Mapping[str, Any] | None) -> bool:
+    if not isinstance(identity, Mapping):
+        return False
+    required = ("tool_id", "version", "hash", "timestamp")
+    return all(isinstance(identity.get(key), str) and str(identity.get(key)).strip() for key in required)
+
+
 def register_capability(
     name: str,
     version: str,
@@ -98,12 +105,20 @@ def register_capability(
     owner_element: str,
     requires: List[str] | None = None,
     evidence: Dict[str, Any] | None = None,
+    identity: Dict[str, str] | None = None,
 ) -> Tuple[bool, str]:
-    """
-    Register or update a capability while enforcing dependency presence and monotonic score.
-    """
+    """Register or update capability while enforcing deps and monotonic score."""
 
     requires = requires or []
+
+    if not _has_identity_fields(identity):
+        metrics.log(
+            event_type="capability_graph_rejected",
+            payload={"name": name, "score": score, "reason": "missing_identity_fields"},
+            level="ERROR",
+            element_id=owner_element,
+        )
+        return False, "missing identity fields"
 
     for attempt in range(1, _CONFLICT_RETRIES + 1):
         previous_mtime, previous_digest = _file_state(CAPABILITIES_PATH)
@@ -130,12 +145,7 @@ def register_capability(
             message = f"score regression prevented for {name}"
             metrics.log(
                 event_type="capability_graph_rejected",
-                payload={
-                    "name": name,
-                    "score": score,
-                    "reason": "score_regression",
-                    "previous": existing_score,
-                },
+                payload={"name": name, "score": score, "reason": "score_regression", "previous": existing_score},
                 level="ERROR",
                 element_id=owner_element,
             )
@@ -148,6 +158,7 @@ def register_capability(
             "owner": owner_element,
             "requires": list(requires),
             "evidence": evidence or {},
+            "identity": dict(identity or {}),
             "updated_at": _now(),
         }
 
@@ -156,12 +167,7 @@ def register_capability(
             if (current_mtime, current_digest) != (previous_mtime, previous_digest):
                 metrics.log(
                     event_type="capability_graph_conflict",
-                    payload={
-                        "name": name,
-                        "attempt": attempt,
-                        "outcome": "conflict_detected",
-                        "retries_remaining": _CONFLICT_RETRIES - attempt,
-                    },
+                    payload={"name": name, "attempt": attempt, "outcome": "conflict_detected", "retries_remaining": _CONFLICT_RETRIES - attempt},
                     level="WARNING",
                     element_id=owner_element,
                 )
@@ -170,12 +176,7 @@ def register_capability(
 
         metrics.log(
             event_type="capability_graph_conflict",
-            payload={
-                "name": name,
-                "attempt": attempt,
-                "outcome": "commit_success",
-                "retries_used": attempt - 1,
-            },
+            payload={"name": name, "attempt": attempt, "outcome": "commit_success", "retries_used": attempt - 1},
             level="INFO",
             element_id=owner_element,
         )
@@ -191,13 +192,7 @@ def register_capability(
 
     metrics.log(
         event_type="capability_graph_registered",
-        payload={
-            "name": name,
-            "version": version,
-            "score": score,
-            "owner": owner_element,
-            "requires": list(requires),
-        },
+        payload={"name": name, "version": version, "score": score, "owner": owner_element, "requires": list(requires)},
         level="INFO",
         element_id=owner_element,
     )
@@ -206,3 +201,32 @@ def register_capability(
 
 def get_capabilities() -> Dict[str, Dict[str, Any]]:
     return _load()
+
+
+def dispatch_capability(name: str) -> Tuple[bool, str, Dict[str, Any] | None]:
+    registry = _load()
+    entry = registry.get(name)
+    if not entry:
+        return False, "capability_not_found", None
+    if not _has_identity_fields(entry.get("identity")):  # type: ignore[arg-type]
+        return False, "missing identity fields", None
+    return True, "ok", entry
+
+
+def list_capabilities() -> List[Dict[str, Any]]:
+    registry = _load()
+    listing: List[Dict[str, Any]] = []
+    for name in sorted(registry):
+        entry = registry[name]
+        raw_identity = entry.get("identity")
+        identity = cast(Mapping[str, Any], raw_identity) if isinstance(raw_identity, dict) else {}
+        listing.append(
+            {
+                "name": name,
+                "version": entry.get("version"),
+                "tool_id": identity.get("tool_id"),
+                "identity_hash": identity.get("hash"),
+                "identity_timestamp": identity.get("timestamp"),
+            }
+        )
+    return listing

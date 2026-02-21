@@ -14,10 +14,13 @@ import ast
 import importlib.util
 import sys
 from pathlib import Path
-from typing import Any, Dict, Optional, Set
+from typing import Any, Dict, Optional, Sequence, Set
 
 from app.agents.discovery import agent_path_from_id
 from app.agents.mutation_request import MutationRequest
+
+from adaad.core.agent_contract import DEFAULT_AGENT_SCOPES, validate_agent_contracts
+from adaad.core.tool_contract import DEFAULT_DISCOVERY_SCOPES, validate_tool_contracts
 
 from runtime import ROOT_DIR
 
@@ -198,6 +201,16 @@ def _legacy_validate_mutation(request: MutationRequest) -> Dict[str, Any]:
     return result
 
 
+def validate_tool_contract_preflight(scopes: Sequence[Path] = DEFAULT_DISCOVERY_SCOPES) -> Dict[str, Any]:
+    """Run tool contract checks as part of preflight governance validation."""
+    return validate_tool_contracts(ROOT_DIR, scopes=scopes)
+
+
+def validate_agent_contract_preflight(scopes: Sequence[Path] = DEFAULT_AGENT_SCOPES, *, include_legacy_bridge: bool = True) -> Dict[str, Any]:
+    """Run agent contract checks as part of preflight governance validation."""
+    return validate_agent_contracts(ROOT_DIR, scopes=scopes, include_legacy_bridge=include_legacy_bridge)
+
+
 def validate_mutation(request: MutationRequest, tier: Optional[Any] = None) -> Dict[str, Any]:
     """
     Preflight validation - delegates to constitutional evaluation when tier is provided.
@@ -209,4 +222,4 @@ def validate_mutation(request: MutationRequest, tier: Optional[Any] = None) -> D
     return evaluate_mutation(request, tier)
 
 
-__all__ = ["validate_mutation"]
+__all__ = ["validate_mutation", "validate_tool_contract_preflight", "validate_agent_contract_preflight"]

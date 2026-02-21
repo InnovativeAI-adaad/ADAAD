@@ -70,6 +70,12 @@ FORBIDDEN_FILESYSTEM_CALLS: tuple[tuple[str, ...], ...] = (
 )
 FORBIDDEN_PATH_METHODS: frozenset[str] = frozenset({"read_text", "read_bytes", "open", "glob", "rglob"})
 
+PRINT_POLICY_ENFORCED_PREFIXES: tuple[str, ...] = (
+    "app/",
+    "runtime/",
+    "security/",
+)
+
 
 @dataclass(frozen=True)
 class LintIssue:
@@ -248,6 +254,20 @@ def _iter_filesystem_issues(path: Path, tree: ast.AST, module_aliases: dict[str,
         yield LintIssue(path, line, getattr(node, "col_offset", 0), "forbidden_nondeterministic_filesystem_api")
 
 
+def _is_print_policy_enforced(path: Path) -> bool:
+    normalized = _path_as_posix(path)
+    return any(normalized.endswith(prefix.removesuffix("/")) or f"/{prefix}" in normalized for prefix in PRINT_POLICY_ENFORCED_PREFIXES)
+
+
+def _iter_print_policy_issues(path: Path, tree: ast.AST) -> Iterable[LintIssue]:
+    if not _is_print_policy_enforced(path):
+        return
+
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call) and _call_path(node.func) == ("print",):
+            yield LintIssue(path, getattr(node, "lineno", 1), getattr(node, "col_offset", 0), "forbidden_direct_print")
+
+
 def _lint_file(path: Path) -> list[LintIssue]:
     try:
         content = path.read_text(encoding="utf-8")
@@ -274,6 +294,7 @@ def _lint_file(path: Path) -> list[LintIssue]:
 
     issues.extend(_iter_entropy_issues(path, tree, module_aliases) or [])
     issues.extend(_iter_filesystem_issues(path, tree, module_aliases) or [])
+    issues.extend(_iter_print_policy_issues(path, tree) or [])
     return issues
 
 

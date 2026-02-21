@@ -149,3 +149,23 @@ def find_files_deterministic(path):
     issues = lint_determinism._lint_file(target)
 
     assert issues == []
+
+
+def test_lint_determinism_flags_direct_print_in_operational_modules(tmp_path: Path) -> None:
+    target = tmp_path / "app" / "main.py"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text("def run():\n    print('status')\n", encoding="utf-8")
+
+    issues = lint_determinism._lint_file(target)
+
+    assert any(issue.message == "forbidden_direct_print" for issue in issues)
+
+
+def test_lint_determinism_allows_direct_print_in_tools_cli_scripts(tmp_path: Path) -> None:
+    target = tmp_path / "tools" / "cli.py"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text("def run():\n    print('user output')\n", encoding="utf-8")
+
+    issues = lint_determinism._lint_file(target)
+
+    assert all(issue.message != "forbidden_direct_print" for issue in issues)
