@@ -183,3 +183,42 @@ def test_audit_cli_autonomy_scoreboard_action_json() -> None:
         assert report["performance_by_agent"]["ExecutorAgent"]["calls"] == 1.0
         assert report["mutation_outcomes"]["mutation_executed"] == 1
         assert report["sandbox_failure_reasons"]["missing_signature"] == 1
+
+
+def test_audit_cli_pr_applicability_action_json() -> None:
+    from tools.adaad_audit import run_pr_applicability
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        metrics_path = Path(tmpdir) / "metrics.jsonl"
+        entries = [
+            {
+                "timestamp": "2026-02-06T00:00:00Z",
+                "event": "constitutional_evaluation",
+                "level": "INFO",
+                "element": "Earth",
+                "payload": {
+                    "agent_id": "alpha",
+                    "tier": "STABLE",
+                    "passed": True,
+                    "applicability_matrix": [
+                        {
+                            "rule": "ast_validity",
+                            "applicable": True,
+                            "scope_match": True,
+                            "trigger_match": True,
+                            "change_type_match": True,
+                            "fail_behavior": {"on_fail": "block"},
+                        }
+                    ],
+                },
+            }
+        ]
+        _write_metrics(metrics_path, entries)
+        original = metrics.METRICS_PATH
+        metrics.METRICS_PATH = metrics_path
+        try:
+            output = run_pr_applicability("alpha", "STABLE", "json")
+        finally:
+            metrics.METRICS_PATH = original
+        report = json.loads(output)
+        assert report["payload"]["applicability_matrix"][0]["rule"] == "ast_validity"

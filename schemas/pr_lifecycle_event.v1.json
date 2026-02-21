@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://adaad.local/schemas/pr_lifecycle_event.v1.json",
+  "title": "PR Lifecycle Governance Event v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "event_id",
+    "event_type",
+    "pr_number",
+    "commit_sha",
+    "idempotency_key",
+    "attempt",
+    "sequence",
+    "emitted_at",
+    "correlation_id",
+    "previous_event_digest",
+    "event_digest",
+    "payload"
+  ],
+  "properties": {
+    "schema_version": {"type": "string", "const": "1.0"},
+    "event_id": {"type": "string", "minLength": 1},
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "pr_merged",
+        "constitution_evaluated",
+        "replay_verified",
+        "promotion_policy_evaluated",
+        "sandbox_preflight_passed",
+        "forensic_bundle_exported"
+      ]
+    },
+    "pr_number": {"type": "integer", "minimum": 1},
+    "commit_sha": {"type": "string", "pattern": "^[a-f0-9]{40}$"},
+    "idempotency_key": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "attempt": {"type": "integer", "minimum": 1},
+    "sequence": {"type": "integer", "minimum": 1},
+    "emitted_at": {"type": "string", "format": "date-time"},
+    "correlation_id": {"type": "string", "minLength": 1},
+    "causation_event_id": {"type": "string", "minLength": 1},
+    "previous_event_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "event_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "payload": {"type": "object"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"event_type": {"const": "pr_merged"}}},
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["merged_at", "merged_by", "base_branch", "head_branch", "merge_commit_sha"],
+            "properties": {
+              "merged_at": {"type": "string", "format": "date-time"},
+              "merged_by": {"type": "string", "minLength": 1},
+              "base_branch": {"type": "string", "minLength": 1},
+              "head_branch": {"type": "string", "minLength": 1},
+              "merge_commit_sha": {"type": "string", "pattern": "^[a-f0-9]{40}$"}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"event_type": {"const": "constitution_evaluated"}}},
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["constitution_version", "evaluation_result", "evidence_digest"],
+            "properties": {
+              "constitution_version": {"type": "string", "minLength": 1},
+              "evaluation_result": {"type": "string", "enum": ["pass", "fail"]},
+              "evidence_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"event_type": {"const": "replay_verified"}}},
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["replay_run_id", "replay_digest", "verification_result"],
+            "properties": {
+              "replay_run_id": {"type": "string", "minLength": 1},
+              "replay_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+              "verification_result": {"type": "string", "enum": ["pass", "fail"]}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"event_type": {"const": "promotion_policy_evaluated"}}},
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["policy_version", "evaluation_result", "decision_id"],
+            "properties": {
+              "policy_version": {"type": "string", "minLength": 1},
+              "evaluation_result": {"type": "string", "enum": ["allow", "deny"]},
+              "decision_id": {"type": "string", "minLength": 1}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"event_type": {"const": "sandbox_preflight_passed"}}},
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["preflight_profile", "sandbox_policy_hash", "result"],
+            "properties": {
+              "preflight_profile": {"type": "string", "minLength": 1},
+              "sandbox_policy_hash": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+              "result": {"type": "string", "const": "pass"}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"event_type": {"const": "forensic_bundle_exported"}}},
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["bundle_uri", "bundle_digest", "exported_at"],
+            "properties": {
+              "bundle_uri": {"type": "string", "minLength": 1},
+              "bundle_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+              "exported_at": {"type": "string", "format": "date-time"}
+            }
+          }
+        }
+      }
+    }
+  ]
+}

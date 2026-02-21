@@ -53,7 +53,13 @@ REQUIRED_DIRS = [
 
 BANNED_ROOTS = {"core", "engines", "adad_core", "ADAAD22"}
 BANNED_ABSOLUTE_PATTERNS = ["/workspace/", "/home/", "/sdcard/", "/storage/"]
+IGNORED_SCAN_DIRS = {"archives", ".venv", "venv", "env", ".git", "__pycache__"}
 
+
+
+
+def _should_scan_python_file(path: Path) -> bool:
+    return not any(part in IGNORED_SCAN_DIRS for part in path.parts)
 
 def verify_tree() -> Tuple[bool, List[str]]:
     missing = [name for name in REQUIRED_DIRS if not (ROOT_DIR / name).exists()]
@@ -67,7 +73,7 @@ def verify_tree() -> Tuple[bool, List[str]]:
 def scan_banned_imports() -> Tuple[bool, List[str]]:
     failures: List[str] = []
     for path in ROOT_DIR.rglob("*.py"):
-        if "archives" in path.parts:
+        if not _should_scan_python_file(path):
             continue
         content = path.read_text(encoding="utf-8").splitlines()
         for lineno, line in enumerate(content, start=1):
@@ -145,7 +151,7 @@ def verify_capabilities_file() -> Tuple[bool, List[str]]:
 def scan_absolute_paths() -> Tuple[bool, List[str]]:
     failures: List[str] = []
     for path in ROOT_DIR.rglob("*.py"):
-        if "archives" in path.parts:
+        if not _should_scan_python_file(path):
             continue
         if path.resolve() == Path(__file__).resolve():
             continue

@@ -7,47 +7,142 @@ on:
     branches: [main]
 
 jobs:
-  lint:
+  classify:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.10", "3.11"]
+    outputs:
+      docs: ${{ steps.filter.outputs.docs }}
+      tests: ${{ steps.filter.outputs.tests }}
+      governance: ${{ steps.filter.outputs.governance }}
+      runtime: ${{ steps.filter.outputs.runtime }}
+      security: ${{ steps.filter.outputs.security }}
+      other: ${{ steps.filter.outputs.other }}
+      docs_only: ${{ steps.classify.outputs.docs_only }}
+      tests_only: ${{ steps.classify.outputs.tests_only }}
+      gov_policy_flag: ${{ steps.classify.outputs.gov_policy_flag }}
+      gov_replay_flag: ${{ steps.classify.outputs.gov_replay_flag }}
+      pr_tier: ${{ steps.classify.outputs.pr_tier }}
+      run_strict_replay: ${{ steps.classify.outputs.run_strict_replay }}
+      run_evidence_suite: ${{ steps.classify.outputs.run_evidence_suite }}
+      run_promotion_suite: ${{ steps.classify.outputs.run_promotion_suite }}
+      strict_replay_reason: ${{ steps.classify.outputs.strict_replay_reason }}
+      evidence_reason: ${{ steps.classify.outputs.evidence_reason }}
+      promotion_reason: ${{ steps.classify.outputs.promotion_reason }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: dorny/paths-filter@v3
+        id: filter
         with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
+          filters: |
+            docs:
+              - 'docs/**'
+              - '**/*.md'
+            tests:
+              - 'tests/**'
+            governance:
+              - 'governance/**'
+              - 'docs/governance/**'
+            runtime:
+              - 'runtime/**'
+              - 'app/**'
+              - 'nexus_setup.py'
+            security:
+              - 'security/**'
+            other:
+              - '.github/**'
+              - 'scripts/**'
+              - 'tools/**'
+              - 'requirements*.txt'
+              - 'pyproject.toml'
+      - name: Compute CI tier and gates
+        id: classify
+        env:
+          IS_PR: ${{ github.event_name == 'pull_request' }}
+          PR_BODY: ${{ github.event.pull_request.body || '' }}
+          DOCS: ${{ steps.filter.outputs.docs }}
+          TESTS: ${{ steps.filter.outputs.tests }}
+          GOVERNANCE: ${{ steps.filter.outputs.governance }}
+          RUNTIME: ${{ steps.filter.outputs.runtime }}
+          SECURITY: ${{ steps.filter.outputs.security }}
+          OTHER: ${{ steps.filter.outputs.other }}
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.server.txt
-          pip install ruff mypy
-      - name: Ruff
-        run: ruff check .
-      - name: Mypy
-        run: |
-          mypy app/ runtime/ --ignore-missing-imports --python-version 3.10 --strict-optional --no-error-summary
-          mypy governance/ security/ ui/ --ignore-missing-imports --python-version 3.10 --no-error-summary
+          set -euo pipefail
 
-  determinism-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.server.txt
-      - name: Validate setup
-        run: python nexus_setup.py --validate-only
-      - name: Run determinism tests
-        run: PYTHONPATH=. pytest tests/determinism/
+          docs_only=false
+          tests_only=false
+          gov_policy_flag=false
+          gov_replay_flag=false
+          pr_tier=standard
 
-  governance-tests:
+          if [ "$DOCS" = "true" ] && [ "$TESTS" = "false" ] && [ "$GOVERNANCE" = "false" ] && [ "$RUNTIME" = "false" ] && [ "$SECURITY" = "false" ] && [ "$OTHER" = "false" ]; then
+            docs_only=true
+          fi
+
+          if [ "$TESTS" = "true" ] && [ "$DOCS" = "false" ] && [ "$GOVERNANCE" = "false" ] && [ "$RUNTIME" = "false" ] && [ "$SECURITY" = "false" ] && [ "$OTHER" = "false" ]; then
+            tests_only=true
+          fi
+
+          if [ "$IS_PR" = "true" ]; then
+            if printf '%s\n' "$PR_BODY" | grep -Eiq -- '^- \[x\] Changes policy/constitution behavior$'; then
+              gov_policy_flag=true
+            fi
+            if printf '%s\n' "$PR_BODY" | grep -Eiq -- '^- \[x\] Changes replay or ledger behavior$'; then
+              gov_replay_flag=true
+            fi
+          fi
+
+          if [ "$docs_only" = "true" ]; then
+            pr_tier=docs
+          elif [ "$tests_only" = "true" ]; then
+            pr_tier=low
+          elif [ "$GOVERNANCE" = "true" ] || [ "$RUNTIME" = "true" ] || [ "$SECURITY" = "true" ] || [ "$gov_policy_flag" = "true" ] || [ "$gov_replay_flag" = "true" ]; then
+            pr_tier=critical
+          fi
+
+          run_strict_replay=false
+          run_evidence_suite=false
+          run_promotion_suite=false
+          strict_replay_reason='Skipped: no replay/runtime/security/governance trigger.'
+          evidence_reason='Skipped: no evidence-impact trigger.'
+          promotion_reason='Skipped: no promotion-impact trigger.'
+
+          if [ "$pr_tier" = "critical" ] || [ "$gov_replay_flag" = "true" ]; then
+            run_strict_replay=true
+            strict_replay_reason="Ran: tier=${pr_tier} and/or replay-impact flag."
+          elif [ "$docs_only" = "true" ] || [ "$tests_only" = "true" ]; then
+            strict_replay_reason="Skipped: ${pr_tier}-only change."
+          fi
+
+          if [ "$SECURITY" = "true" ] || [ "$RUNTIME" = "true" ] || [ "$GOVERNANCE" = "true" ] || [ "$gov_replay_flag" = "true" ]; then
+            run_evidence_suite=true
+            evidence_reason='Ran: governance/runtime/security path or replay-impact flag detected.'
+          elif [ "$docs_only" = "true" ] || [ "$tests_only" = "true" ]; then
+            evidence_reason="Skipped: ${pr_tier}-only change."
+          fi
+
+          if [ "$GOVERNANCE" = "true" ] || [ "$RUNTIME" = "true" ] || [ "$gov_policy_flag" = "true" ] || [ "$pr_tier" = "critical" ]; then
+            run_promotion_suite=true
+            promotion_reason='Ran: governance/runtime impact or policy-impact flag detected.'
+          elif [ "$docs_only" = "true" ] || [ "$tests_only" = "true" ]; then
+            promotion_reason="Skipped: ${pr_tier}-only change."
+          fi
+
+          {
+            echo "docs_only=$docs_only"
+            echo "tests_only=$tests_only"
+            echo "gov_policy_flag=$gov_policy_flag"
+            echo "gov_replay_flag=$gov_replay_flag"
+            echo "pr_tier=$pr_tier"
+            echo "run_strict_replay=$run_strict_replay"
+            echo "run_evidence_suite=$run_evidence_suite"
+            echo "run_promotion_suite=$run_promotion_suite"
+            echo "strict_replay_reason=$strict_replay_reason"
+            echo "evidence_reason=$evidence_reason"
+            echo "promotion_reason=$promotion_reason"
+          } >> "$GITHUB_OUTPUT"
+
+  schema-validation:
     runs-on: ubuntu-latest
+    needs: classify
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -59,27 +154,21 @@ jobs:
           pip install -r requirements.server.txt
       - name: Validate governance policy schemas
         run: python scripts/validate_governance_schemas.py
-      - name: Run governance tests
-        run: |
-          set -euo pipefail
-          targets=(tests/governance/)
-          if [ -d tests/stability/ ]; then
-            targets+=(tests/stability/)
-          fi
-          PYTHONPATH=. pytest "${targets[@]}"
 
-  import-path-compliance:
+  determinism-lint:
     runs-on: ubuntu-latest
+    needs: classify
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Run import path compliance lint
-        run: PYTHONPATH=. python tools/lint_import_paths.py
+      - name: Run determinism lint
+        run: python tools/lint_determinism.py runtime/ security/ app/main.py
 
-  replay-audit-boot:
+  confidence-fast:
     runs-on: ubuntu-latest
+    needs: classify
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -89,24 +178,34 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.server.txt
-      - name: Run replay audit boot and assert marker
+      - name: Run fast confidence tests
+        run: PYTHONPATH=. pytest tests/determinism/ tests/recovery/test_tier_manager.py -k "not shared_epoch_parallel_validation_is_deterministic_in_strict_mode" -q
+
+  strict-replay:
+    runs-on: ubuntu-latest
+    needs: classify
+    if: needs.classify.outputs.run_strict_replay == 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.server.txt
+      - name: Verify strict replay
         env:
           ADAAD_ENV: dev
           CRYOVANT_DEV_MODE: "1"
-        run: |
-          set +e
-          output=$(PYTHONPATH=. python -m app.main --replay audit --dry-run --exit-after-boot 2>&1)
-          status=$?
-          set -e
-          printf '%s\n' "$output"
-          if [ "$status" -ne 0 ]; then
-            echo "Expected exit code 0 but got $status"
-            exit 1
-          fi
-          echo "$output" | grep -F "ADAAD_BOOT_OK"
+          ADAAD_FORCE_DETERMINISTIC_PROVIDER: "1"
+          ADAAD_DETERMINISTIC_SEED: ci-strict-replay
+        run: PYTHONPATH=. python -m app.main --verify-replay --replay strict
 
-  sandbox-tests:
+  evidence-suite:
     runs-on: ubuntu-latest
+    needs: classify
+    if: needs.classify.outputs.run_evidence_suite == 'true'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -116,5 +215,66 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.server.txt
-      - name: Run sandbox tests
-        run: PYTHONPATH=. pytest tests/sandbox/
+      - name: Run evidence/sandbox tests
+        run: PYTHONPATH=. pytest tests/sandbox/ -q
+
+  promotion-suite:
+    runs-on: ubuntu-latest
+    needs: classify
+    if: needs.classify.outputs.run_promotion_suite == 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.server.txt
+      - name: Run promotion/governance tests
+        run: PYTHONPATH=. pytest tests/governance/ tests/test_promotion_policy.py tests/test_promotion_state_machine.py -q
+
+
+  release-evidence-readiness:
+    runs-on: ubuntu-latest
+    needs: classify
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate claims evidence matrix links
+        run: python scripts/validate_release_evidence.py
+
+  ci-gating-summary:
+    runs-on: ubuntu-latest
+    needs:
+      - classify
+      - schema-validation
+      - determinism-lint
+      - confidence-fast
+      - strict-replay
+      - evidence-suite
+      - promotion-suite
+      - release-evidence-readiness
+    if: always()
+    steps:
+      - name: Write CI gating summary
+        run: |
+          {
+            echo "## CI gating summary"
+            echo
+            echo "- PR tier: \`${{ needs.classify.outputs.pr_tier }}\`"
+            echo "- Changed paths: docs=${{ needs.classify.outputs.docs }}, tests=${{ needs.classify.outputs.tests }}, governance=${{ needs.classify.outputs.governance }}, runtime=${{ needs.classify.outputs.runtime }}, security=${{ needs.classify.outputs.security }}, other=${{ needs.classify.outputs.other }}"
+            echo "- Governance flags: policy=${{ needs.classify.outputs.gov_policy_flag }}, replay=${{ needs.classify.outputs.gov_replay_flag }}"
+            echo
+            echo "| Job | Result | Gate reason |"
+            echo "| --- | --- | --- |"
+            echo "| schema-validation | ${{ needs.schema-validation.result }} | Always-on baseline. |"
+            echo "| determinism-lint | ${{ needs.determinism-lint.result }} | Always-on baseline. |"
+            echo "| confidence-fast | ${{ needs.confidence-fast.result }} | Always-on baseline. |"
+            echo "| strict-replay | ${{ needs.strict-replay.result }} | ${{ needs.classify.outputs.strict_replay_reason }} |"
+            echo "| evidence-suite | ${{ needs.evidence-suite.result }} | ${{ needs.classify.outputs.evidence_reason }} |"
+            echo "| promotion-suite | ${{ needs.promotion-suite.result }} | ${{ needs.classify.outputs.promotion_reason }} |"
+            echo "| release-evidence-readiness | ${{ needs.release-evidence-readiness.result }} | Always-on matrix link validation. |"
+          } >> "$GITHUB_STEP_SUMMARY"

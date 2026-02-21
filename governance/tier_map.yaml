@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "rules": [
+    {"glob": "governance/**", "tier": "Tier-0"},
+    {"glob": "runtime/governance/**", "tier": "Tier-0"},
+    {"glob": "runtime/evolution/**", "tier": "Tier-0"},
+    {"glob": "schemas/governance_policy*.json", "tier": "Tier-0"},
+    {"glob": "schemas/governance_policy_artifact*.json", "tier": "Tier-0"},
+    {"glob": "schemas/replay_attestation*.json", "tier": "Tier-0"},
+
+    {"glob": ".github/workflows/**", "tier": "Tier-1"},
+    {"glob": "runtime/**", "tier": "Tier-1"},
+    {"glob": "scripts/**", "tier": "Tier-1"},
+    {"glob": "tests/**", "tier": "Tier-1"},
+    {"glob": "tools/**", "tier": "Tier-1"},
+    {"glob": "app/**", "tier": "Tier-1"},
+    {"glob": "security/**", "tier": "Tier-1"},
+    {"glob": "ui/**", "tier": "Tier-1"},
+    {"glob": "server.py", "tier": "Tier-1"},
+    {"glob": "requirements*.txt", "tier": "Tier-1"},
+
+    {"glob": ".github/**", "tier": "Tier-2"},
+    {"glob": "docs/**", "tier": "Tier-2"},
+    {"glob": "examples/**", "tier": "Tier-2"},
+    {"glob": "ops/**", "tier": "Tier-2"},
+    {"glob": "experiments/**", "tier": "Tier-2"},
+    {"glob": "*.md", "tier": "Tier-2"},
+    {"glob": "*.json", "tier": "Tier-2"},
+    {"glob": "*.sh", "tier": "Tier-2"},
+    {"glob": "VERSION", "tier": "Tier-2"}
+  ]
+}

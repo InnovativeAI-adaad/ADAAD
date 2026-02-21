@@ -109,3 +109,16 @@ summary = summarize_preflight_rejections(limit=1000)
 **Version**: 0.1.0  
 **Last Updated**: 2026-02-06  
 **Next Review**: After 1000 mutations logged
+
+---
+
+## Boot-Critical Constitutional Artifacts
+
+ADAAD boot is fail-closed for constitutional policy inputs. The following artifacts are required at boot:
+
+- `runtime/governance/constitution.yaml`
+- `governance/rule_applicability.yaml`
+
+If either artifact is missing or invalid, constitutional initialization fails and runtime start is blocked (`constitution_boot_failed`).
+
+`governance/rule_applicability.yaml` is therefore treated as constitution-adjacent policy, not optional metadata.

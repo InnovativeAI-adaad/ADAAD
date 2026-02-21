@@ -1,0 +1,263 @@
+{
+  "version": "1.0.0",
+  "description": "Rule applicability metadata for constitutional evaluation and PR checklist generation.",
+  "rules": [
+    {
+      "name": "single_file_scope",
+      "scope": {
+        "directories": ["app", "runtime", "security", "tools", "ui"],
+        "change_types": ["mutation_request", "code"]
+      },
+      "triggers": {
+        "requires_targets": true,
+        "min_ops": 1,
+        "tiers": ["PRODUCTION", "STABLE", "SANDBOX"]
+      },
+      "severity": "blocking",
+      "fail_behavior": {
+        "on_fail": "block",
+        "log_level": "ERROR"
+      },
+      "required_evidence": [
+        "target_count",
+        "targets"
+      ],
+      "required_log_output": [
+        "constitutional_evaluation.payload.verdicts[].details.target_count",
+        "constitutional_evaluation.payload.verdicts[].details.targets"
+      ]
+    },
+    {
+      "name": "ast_validity",
+      "scope": {
+        "directories": ["app", "runtime", "security", "tools", "ui"],
+        "change_types": ["mutation_request", "code"]
+      },
+      "triggers": {
+        "requires_targets": true,
+        "min_ops": 1,
+        "tiers": ["PRODUCTION", "STABLE", "SANDBOX"]
+      },
+      "severity": "blocking",
+      "fail_behavior": {
+        "on_fail": "block",
+        "log_level": "ERROR"
+      },
+      "required_evidence": [
+        "targets"
+      ],
+      "required_log_output": [
+        "constitutional_evaluation.payload.verdicts[].details.targets"
+      ]
+    },
+    {
+      "name": "import_smoke_test",
+      "scope": {
+        "directories": ["app", "runtime", "security", "tools", "ui"],
+        "change_types": ["mutation_request", "code"]
+      },
+      "triggers": {
+        "requires_targets": true,
+        "min_ops": 1,
+        "tiers": ["PRODUCTION", "STABLE", "SANDBOX"]
+      },
+      "severity": "warning",
+      "fail_behavior": {
+        "on_fail": "warn_or_block_by_tier_override",
+        "log_level": "WARN"
+      },
+      "required_evidence": [
+        "targets"
+      ],
+      "required_log_output": [
+        "constitutional_evaluation.payload.verdicts[].details.targets"
+      ]
+    },
+    {
+      "name": "no_banned_tokens",
+      "scope": {
+        "directories": ["app", "runtime", "security", "tools", "ui"],
+        "change_types": ["mutation_request", "code"]
+      },
+      "triggers": {
+        "requires_targets": true,
+        "min_ops": 1,
+        "tiers": ["PRODUCTION", "STABLE", "SANDBOX"]
+      },
+      "severity": "blocking",
+      "fail_behavior": {
+        "on_fail": "block",
+        "log_level": "ERROR"
+      },
+      "required_evidence": [
+        "found"
+      ],
+      "required_log_output": [
+        "constitutional_evaluation.payload.verdicts[].details.found"
+      ]
+    },
+    {
+      "name": "signature_required",
+      "scope": {
+        "directories": ["app", "runtime", "security", "tools", "ui", "docs", "tests"],
+        "change_types": ["mutation_request", "code", "docs", "tests"]
+      },
+      "triggers": {
+        "requires_signature": true,
+        "min_ops": 0,
+        "tiers": ["PRODUCTION", "STABLE", "SANDBOX"]
+      },
+      "severity": "blocking",
+      "fail_behavior": {
+        "on_fail": "block_or_warn_by_tier_override",
+        "log_level": "ERROR"
+      },
+      "required_evidence": [
+        "method",
+        "reason"
+      ],
+      "required_log_output": [
+        "constitutional_evaluation.payload.verdicts[].details.method",
+        "constitutional_evaluation.payload.verdicts[].details.reason"
+      ]
+    },
+    {
+      "name": "max_mutation_rate",
+      "scope": {
+        "directories": ["app", "runtime", "security", "tools", "ui", "docs", "tests"],
+        "change_types": ["mutation_request", "code", "docs", "tests"]
+      },
+      "triggers": {
+        "min_ops": 0,
+        "tiers": ["PRODUCTION", "STABLE", "SANDBOX"]
+      },
+      "severity": "warning",
+      "fail_behavior": {
+        "on_fail": "warn_or_block_by_tier_override",
+        "log_level": "WARN"
+      },
+      "required_evidence": [
+        "details.max_mutations_per_hour",
+        "details.rate_per_hour"
+      ],
+      "required_log_output": [
+        "constitutional_evaluation.payload.verdicts[].details.details"
+      ]
+    },
+    {
+      "name": "entropy_budget_limit",
+      "scope": {
+        "directories": ["app", "runtime", "security", "tools", "ui", "docs", "tests"],
+        "change_types": ["mutation_request", "code", "docs", "tests"]
+      },
+      "triggers": {
+        "min_ops": 0,
+        "tiers": ["PRODUCTION", "STABLE", "SANDBOX"]
+      },
+      "severity": "warning",
+      "fail_behavior": {
+        "on_fail": "warn_or_block_by_tier_override",
+        "log_level": "WARN"
+      },
+      "required_evidence": [
+        "details.max_mutation_entropy_bits",
+        "details.epoch_entropy_bits"
+      ],
+      "required_log_output": [
+        "constitutional_evaluation.payload.verdicts[].details.details"
+      ]
+    },
+    {
+      "name": "max_complexity_delta",
+      "scope": {
+        "directories": ["app", "runtime", "security", "tools", "ui"],
+        "change_types": ["mutation_request", "code"]
+      },
+      "triggers": {
+        "requires_targets": true,
+        "min_ops": 1,
+        "tiers": ["PRODUCTION", "STABLE", "SANDBOX"]
+      },
+      "severity": "warning",
+      "fail_behavior": {
+        "on_fail": "warn",
+        "log_level": "WARN"
+      },
+      "required_evidence": [
+        "reason"
+      ],
+      "required_log_output": [
+        "constitutional_evaluation.payload.verdicts[].details.reason"
+      ]
+    },
+    {
+      "name": "test_coverage_maintained",
+      "scope": {
+        "directories": ["app", "runtime", "security", "tools", "ui", "tests"],
+        "change_types": ["mutation_request", "code", "tests"]
+      },
+      "triggers": {
+        "requires_targets": true,
+        "min_ops": 1,
+        "tiers": ["PRODUCTION", "STABLE", "SANDBOX"]
+      },
+      "severity": "warning",
+      "fail_behavior": {
+        "on_fail": "warn",
+        "log_level": "WARN"
+      },
+      "required_evidence": [
+        "reason"
+      ],
+      "required_log_output": [
+        "constitutional_evaluation.payload.verdicts[].details.reason"
+      ]
+    },
+    {
+      "name": "lineage_continuity",
+      "scope": {
+        "directories": ["app", "runtime", "security", "tools", "ui"],
+        "change_types": ["mutation_request", "code"]
+      },
+      "triggers": {
+        "requires_signature": true,
+        "min_ops": 1,
+        "tiers": ["PRODUCTION", "STABLE", "SANDBOX"]
+      },
+      "severity": "blocking",
+      "fail_behavior": {
+        "on_fail": "block",
+        "log_level": "ERROR"
+      },
+      "required_evidence": [
+        "reason"
+      ],
+      "required_log_output": [
+        "constitutional_evaluation.payload.verdicts[].details.reason"
+      ]
+    },
+    {
+      "name": "resource_bounds",
+      "scope": {
+        "directories": ["app", "runtime", "security", "tools", "ui"],
+        "change_types": ["mutation_request", "code"]
+      },
+      "triggers": {
+        "requires_targets": true,
+        "min_ops": 1,
+        "tiers": ["PRODUCTION", "STABLE", "SANDBOX"]
+      },
+      "severity": "blocking",
+      "fail_behavior": {
+        "on_fail": "block",
+        "log_level": "ERROR"
+      },
+      "required_evidence": [
+        "reason"
+      ],
+      "required_log_output": [
+        "constitutional_evaluation.payload.verdicts[].details.reason"
+      ]
+    }
+  ]
+}
