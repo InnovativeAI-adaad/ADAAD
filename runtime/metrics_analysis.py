@@ -97,7 +97,7 @@ def top_preflight_rejections(limit: int = 500, top_n: int = 5) -> List[Tuple[str
     return list(reasons.items())[:top_n]
 
 
-def _build_lineage_ledger(path: str | Path | None = None) -> "LineageLedgerV2":
+def _build_lineage_ledger(path: str | Path | None = None) -> Any:
     """Create the lineage ledger lazily to avoid import cycles at module import time."""
     from runtime.evolution.lineage_v2 import LEDGER_V2_PATH, LineageLedgerV2
 

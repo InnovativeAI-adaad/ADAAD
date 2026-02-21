@@ -60,6 +60,16 @@ Certificates include `strategy_snapshot` and `strategy_snapshot_hash`, and cumul
 - `max_duration_minutes = 30`
 - force-end when replay divergence occurs
 
+
+## EvolutionKernel Execution Routing
+- `runtime.evolution.evolution_kernel.EvolutionKernel.run_cycle(agent_id=None)` preserves legacy behavior by delegating to `compatibility_adapter.run_cycle(None)` when an adapter is configured and no explicit target agent is requested.
+- `run_cycle(agent_id=...)` executes the kernel-native pipeline (`load_agent -> propose_mutation -> validate_mutation -> execute_in_sandbox -> evaluate_fitness -> sign_certificate`) and marks the response with `kernel_path: true`.
+- Agent resolution is canonicalized via `Path.resolve()` for both discovered agent directories and explicit `agent_id` candidate paths to avoid false-negative lookup failures under symlinked or aliased roots.
+- Deterministic failure semantics:
+  - `RuntimeError("no_agents_available")` when discovery yields no valid agents.
+  - `RuntimeError("agent_not_found:<agent_id>")` when explicit target lookup fails after canonicalization.
+  - Structured policy rejection payload (`status="rejected", reason="policy_invalid"`) when validation fails.
+
 ## Interfaces
 - `runtime.evolution.runtime.EvolutionRuntime`
 - `runtime.evolution.epoch.EpochManager`

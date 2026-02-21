@@ -1,9 +1,12 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Mutation fitness scoring for dream-mode candidate viability."""
+"""Deprecated compatibility layer for mutation fitness scoring."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any, Dict
+
+from runtime.evolution.economic_fitness import EconomicFitnessEvaluator
 
 
 @dataclass(frozen=True)
@@ -17,7 +20,7 @@ class FitnessScore:
     def is_viable(self) -> bool:
         return self.score >= 0.7
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> Dict[str, Any]:
         return {
             "score": self.score,
             "passed_syntax": self.passed_syntax,
@@ -28,23 +31,20 @@ class FitnessScore:
 
 
 class FitnessEvaluator:
-    """Lightweight fitness evaluator for staged mutation content."""
+    """Legacy facade backed by :class:`EconomicFitnessEvaluator`."""
+
+    def __init__(self) -> None:
+        self._economic_evaluator = EconomicFitnessEvaluator()
 
     def evaluate_content(self, mutation_content: str, *, constitution_ok: bool = True) -> FitnessScore:
-        syntax_ok = bool(mutation_content and "mutation" in mutation_content)
-        if not syntax_ok:
-            return FitnessScore(0.0, False, False, constitution_ok, 0.0)
-
-        tests_ok = True
-        if not tests_ok:
-            return FitnessScore(0.3, True, False, constitution_ok, 0.0)
-
-        if not constitution_ok:
-            return FitnessScore(0.5, True, True, False, 0.0)
-
-        perf_delta = 0.0
-        score = 0.7 + (perf_delta * 0.3)
-        return FitnessScore(score, True, True, True, perf_delta)
+        result = self._economic_evaluator.evaluate_content(mutation_content, constitution_ok=constitution_ok)
+        return FitnessScore(
+            score=result.score,
+            passed_syntax=result.passed_syntax,
+            passed_tests=result.passed_tests,
+            passed_constitution=result.passed_constitution,
+            performance_delta=result.performance_delta,
+        )
 
 
 __all__ = ["FitnessScore", "FitnessEvaluator"]

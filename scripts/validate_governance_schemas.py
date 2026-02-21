@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# ruff: noqa: E402
 # SPDX-License-Identifier: Apache-2.0
 """Validate governance schema files against repository conventions."""
 

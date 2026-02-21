@@ -18,7 +18,6 @@ Termux-safe and avoids heavy dependencies.
 
 import queue
 import threading
-import time
 from typing import Callable, List
 
 from runtime import metrics

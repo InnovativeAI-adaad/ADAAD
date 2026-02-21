@@ -20,6 +20,9 @@
 - Bug template field for expected governance surface to accelerate triage.
 - README clarified staging-only mutation semantics for production posture.
 - CONTRIBUTING now requires strict replay verification for governance-impact PRs and adds determinism guardrails.
+- Evolution kernel `run_cycle()` now supports a kernel-native execution path for explicit `agent_id` runs while preserving compatibility-adapter routing for default/no-agent flows.
+- Hardened `EvolutionKernel` agent lookup by resolving discovered and requested paths before membership checks, eliminating alias/symlink/`..` false `agent_not_found` failures.
+- Added regression coverage for mixed lexical-vs-resolved agent path forms in `tests/test_evolution_kernel.py`.
 
 ### Added
 - Added read-only Aponi replay forensics endpoints (`/replay/divergence`, `/replay/diff?epoch_id=...`) and versioned governance health model metadata (`v1.0.0`).

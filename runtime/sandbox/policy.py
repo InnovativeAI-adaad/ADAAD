@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from typing import Any, Dict, Mapping, Tuple
+from typing import Any, Mapping, Tuple
 
 from runtime.governance.foundation import sha256_prefixed_digest
 

@@ -17,70 +17,33 @@ Deterministic fitness evaluator for mutations.
 
 from __future__ import annotations
 
-import hashlib
-import json
 from typing import Any, Dict
 
 from runtime import metrics
+from runtime.evolution.economic_fitness import EconomicFitnessEvaluator
 
-
-def _hash_content(value: Any) -> str:
-    if isinstance(value, (dict, list)):
-        normalized = json.dumps(value, sort_keys=True)
-    else:
-        normalized = str(value)
-    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
-
-
-def _schema_valid(payload: Dict[str, Any]) -> tuple[bool, str]:
-    required = {"parent", "content"}
-    missing = sorted(list(required - set(payload)))
-    if missing:
-        return False, f"missing:{','.join(missing)}"
-    return True, "ok"
-
-
-def _size_within_bounds(payload: Dict[str, Any]) -> tuple[bool, str]:
-    content = payload.get("content", "")
-    size = len(str(content))
-    if size > 10_000:
-        return False, "content_too_large"
-    return True, "ok"
-
-
-def _novelty(payload: Dict[str, Any]) -> tuple[bool, str, float]:
-    parent_content = payload.get("parent_content", "")
-    mutation_content = payload.get("content", "")
-    parent_hash = _hash_content(parent_content)
-    mutation_hash = _hash_content(mutation_content)
-    if parent_hash == mutation_hash:
-        return False, "no_change", 0.0
-    # simple heuristic: difference contributes positively
-    distance_score = 1.0
-    return True, "changed", distance_score
+_ECONOMIC_EVALUATOR = EconomicFitnessEvaluator()
 
 
 def _evaluate(mutation_payload: Dict[str, Any]) -> Dict[str, Any]:
-    score = 1.0
-    schema_ok, schema_reason = _schema_valid(mutation_payload)
-    if not schema_ok:
-        score *= 0.0
-    size_ok, size_reason = _size_within_bounds(mutation_payload)
-    if not size_ok:
-        score *= 0.2
-    novelty_ok, novelty_reason, novelty_score = _novelty(mutation_payload)
-    if novelty_ok:
-        score *= novelty_score
-    else:
-        score *= 0.3
-
-    score = float(max(0.0, min(score, 1.0)))
+    result = _ECONOMIC_EVALUATOR.evaluate(mutation_payload)
     reasons = {
-        "schema": schema_reason,
-        "size": size_reason,
-        "novelty": novelty_reason,
+        "correctness": round(result.correctness_score, 6),
+        "efficiency": round(result.efficiency_score, 6),
+        "policy_compliance": round(result.policy_compliance_score, 6),
+        "goal_alignment": round(result.goal_alignment_score, 6),
+        "simulated_market": round(result.simulated_market_score, 6),
     }
-    return {"score": score, "reasons": reasons}
+    return {
+        "score": result.score,
+        "reasons": reasons,
+        "weights": result.weights,
+        "breakdown": result.breakdown,
+        "passed_syntax": result.passed_syntax,
+        "passed_tests": result.passed_tests,
+        "passed_constitution": result.passed_constitution,
+        "performance_delta": result.performance_delta,
+    }
 
 
 def score_mutation(agent_id: str, mutation_payload: Dict[str, Any]) -> float:

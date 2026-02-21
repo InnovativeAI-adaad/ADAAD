@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
+# ruff: noqa: E402
 
 """
 Module: test_aponi_instability_and_policy_simulate

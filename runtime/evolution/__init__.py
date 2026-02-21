@@ -7,6 +7,7 @@ from runtime.evolution.checkpoint_verifier import verify_checkpoint_chain
 from runtime.evolution.entropy_detector import detect_entropy_metadata
 from runtime.evolution.entropy_policy import EntropyPolicy, enforce_entropy_policy
 from runtime.evolution.governor import EvolutionGovernor, GovernanceDecision, RecoveryTier
+from runtime.evolution.goal_graph import GoalGraph, GoalNode
 from runtime.evolution.impact import ImpactScorer, ImpactScore
 from runtime.evolution.lineage_v2 import LineageEvent, LineageLedgerV2, EpochStartEvent, EpochEndEvent, MutationBundleEvent
 from runtime.evolution.promotion_events import create_promotion_event, derive_event_id
@@ -14,6 +15,7 @@ from runtime.evolution.promotion_policy import PromotionPolicyEngine, PromotionP
 from runtime.evolution.promotion_state_machine import PromotionState, can_transition, require_transition
 from runtime.evolution.replay import ReplayEngine
 from runtime.evolution.evidence_bundle import EvidenceBundleBuilder, EvidenceBundleError
+from runtime.evolution.economic_fitness import EconomicFitnessEvaluator, EconomicFitnessResult
 from runtime.evolution.simulation_runner import SimulationRunner
 from runtime.evolution.scoring import authority_threshold, clamp_score
 from runtime.evolution.scoring_algorithm import compute_score
@@ -39,6 +41,8 @@ __all__ = [
     "EvolutionGovernor",
     "GovernanceDecision",
     "RecoveryTier",
+    "GoalGraph",
+    "GoalNode",
     "ImpactScorer",
     "ImpactScore",
     "LineageEvent",
@@ -60,6 +64,8 @@ __all__ = [
     "validate_scoring_payload",
     "ReplayEngine",
     "EvidenceBundleBuilder",
+    "EconomicFitnessEvaluator",
+    "EconomicFitnessResult",
     "EvidenceBundleError",
     "SimulationRunner",
     "ReplayVerifier",
