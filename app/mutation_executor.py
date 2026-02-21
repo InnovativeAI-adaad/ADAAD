@@ -420,7 +420,12 @@ class MutationExecutor:
 
             apply_result: Dict[str, Any] = {}
             if dna_ops:
-                apply_result["dna"] = dispatch("mutation.apply_dna", agent_fs_id, dna_ops)["result"]
+                dna_dispatch = dispatch("mutation.apply_dna", agent_fs_id, dna_ops)
+                if "error" in dna_dispatch:
+                    raise RuntimeError(
+                        f"dispatch_failed:mutation.apply_dna:{dna_dispatch['error']['code']}"
+                    )
+                apply_result["dna"] = dna_dispatch["result"]
             if code_ops:
                 apply_result["code"] = dispatch("mutation.apply_code", code_ops)["result"]
                 if apply_result["code"].get("status") == "failed":

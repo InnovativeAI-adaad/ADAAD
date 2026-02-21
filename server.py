@@ -4,6 +4,7 @@ import argparse
 import json
 import logging
 import os
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Literal
 
@@ -44,7 +45,18 @@ PLACEHOLDER_HTML = """<!doctype html>
 """
 
 
-app = FastAPI(title="InnovativeAI-adaad Unified Server")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    ui_dir, ui_index, mock_dir, ui_source = _resolve_ui_paths(create_placeholder=True)
+    app.state.ui_dir = ui_dir
+    app.state.ui_index = ui_index
+    app.state.mock_dir = mock_dir
+    app.state.ui_source = ui_source
+    logging.getLogger(__name__).info("ADAAD server UI source=%s index=%s", ui_source, ui_index)
+    yield
+
+
+app = FastAPI(title="InnovativeAI-adaad Unified Server", lifespan=lifespan)
 
 AUDIT_READ_SCOPE = "audit:read"
 
@@ -166,16 +178,6 @@ def _current_ui() -> tuple[Path, Path, Path, str]:
     if isinstance(ui_dir, Path) and isinstance(ui_index, Path) and isinstance(mock_dir, Path) and isinstance(ui_source, str):
         return ui_dir, ui_index, mock_dir, ui_source
     return _resolve_ui_paths(create_placeholder=False)
-
-
-@app.on_event("startup")
-def _startup_checks() -> None:
-    ui_dir, ui_index, mock_dir, ui_source = _resolve_ui_paths(create_placeholder=True)
-    app.state.ui_dir = ui_dir
-    app.state.ui_index = ui_index
-    app.state.mock_dir = mock_dir
-    app.state.ui_source = ui_source
-    logging.getLogger(__name__).info("ADAAD server UI source=%s index=%s", ui_source, ui_index)
 
 
 def _load_mock(name: str) -> Any:

@@ -19,9 +19,13 @@ import hashlib
 import json
 import os
 import shutil
+import tempfile
 import time
+from contextlib import contextmanager
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Callable, Dict, Iterator, List, Optional, TextIO, Tuple
+
+import fcntl
 
 from app.agents.base_agent import promote_offspring
 from app.agents.discovery import agent_path_from_id, iter_agent_dirs, resolve_agent_id
@@ -43,9 +47,19 @@ class LegacyBeastModeCompatibilityAdapter:
     Executes evaluation cycles against mutated offspring.
     """
 
-    def __init__(self, agents_root: Path, lineage_dir: Path, *, promotion_manifest_dir: Optional[Path] = None):
+    def __init__(
+        self,
+        agents_root: Path,
+        lineage_dir: Path,
+        *,
+        promotion_manifest_dir: Optional[Path] = None,
+        wall_time_provider: Callable[[], float] = time.time,
+        monotonic_time_provider: Callable[[], float] = time.monotonic,
+    ):
         self.agents_root = agents_root
         self.lineage_dir = lineage_dir
+        self._wall_time_provider = wall_time_provider
+        self._monotonic_time_provider = monotonic_time_provider
         self.promotion_manifest_writer = PromotionManifestWriter(output_dir=promotion_manifest_dir)
         self.threshold = float(os.getenv("ADAAD_FITNESS_THRESHOLD", "0.70"))
         self.autonomy_threshold = float(os.getenv("ADAAD_AUTONOMY_THRESHOLD", "0.25"))
@@ -55,93 +69,230 @@ class LegacyBeastModeCompatibilityAdapter:
         self.mutation_window_sec = int(os.getenv("ADAAD_BEAST_MUTATION_WINDOW_SEC", "3600"))
         self.cooldown_sec = int(os.getenv("ADAAD_BEAST_COOLDOWN_SEC", "300"))
         self.state_path = self.agents_root.parent / "data" / "beast_mode_state.json"
+        self.state_lock_path = self.state_path.with_name(f"{self.state_path.name}.lock")
+        self.lock_contention_threshold_sec = float(os.getenv("ADAAD_BEAST_STATE_LOCK_CONTENTION_SEC", "0.25"))
 
-    def _load_state(self) -> Dict[str, float]:
-        if not self.state_path.exists():
-            return {
-                "cycle_window_start": 0.0,
-                "cycle_count": 0.0,
-                "mutation_window_start": 0.0,
-                "mutation_count": 0.0,
-                "cooldown_until": 0.0,
-            }
-        try:
-            return json.loads(self.state_path.read_text(encoding="utf-8"))
-        except json.JSONDecodeError:
-            return {
-                "cycle_window_start": 0.0,
-                "cycle_count": 0.0,
-                "mutation_window_start": 0.0,
-                "mutation_count": 0.0,
-                "cooldown_until": 0.0,
-            }
+    @staticmethod
+    def _default_state() -> Dict[str, float]:
+        return {
+            "cycle_window_start": 0.0,
+            "cycle_window_start_mono": 0.0,
+            "cycle_count": 0.0,
+            "mutation_window_start": 0.0,
+            "mutation_window_start_mono": 0.0,
+            "mutation_count": 0.0,
+            "cooldown_until": 0.0,
+            "cooldown_until_mono": 0.0,
+        }
 
-    def _save_state(self, state: Dict[str, float]) -> None:
+    @contextmanager
+    def _state_lock(self, operation: str) -> Iterator[TextIO]:
         self.state_path.parent.mkdir(parents=True, exist_ok=True)
-        self.state_path.write_text(json.dumps(state, indent=2, sort_keys=True), encoding="utf-8")
+        started = self._monotonic_time_provider()
+        with self.state_lock_path.open("a+", encoding="utf-8") as lock_file:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+            waited_sec = self._monotonic_time_provider() - started
+            if waited_sec >= self.lock_contention_threshold_sec:
+                metrics.log(
+                    event_type="beast_state_lock_contention",
+                    payload={"operation": operation, "waited_sec": waited_sec, "lock_path": str(self.state_lock_path)},
+                    level="WARNING",
+                    element_id=ELEMENT_ID,
+                )
+            try:
+                yield lock_file
+            finally:
+                fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
 
-    def _refresh_window(self, start_key: str, count_key: str, window_sec: int, now: float, state: Dict[str, float]) -> None:
-        window_start = float(state.get(start_key, 0.0))
-        if window_start <= 0.0 or now - window_start >= window_sec:
-            state[start_key] = now
+    def _load_state(self, *, _lock_file: Optional[TextIO] = None) -> Dict[str, float]:
+        if _lock_file is None:
+            with self._state_lock("load") as lock_file:
+                return self._load_state(_lock_file=lock_file)
+        if not self.state_path.exists():
+            return self._default_state()
+        try:
+            raw_state = json.loads(self.state_path.read_text(encoding="utf-8"))
+            if not isinstance(raw_state, dict):
+                return self._default_state()
+            state: Dict[str, float] = {}
+            for key, value in raw_state.items():
+                if isinstance(value, (int, float)):
+                    state[key] = float(value)
+            return state
+        except json.JSONDecodeError:
+            return self._default_state()
+
+    def _save_state(self, state: Dict[str, float], *, _lock_file: Optional[TextIO] = None) -> None:
+        if _lock_file is None:
+            with self._state_lock("save") as lock_file:
+                self._save_state(state, _lock_file=lock_file)
+            return
+        self.state_path.parent.mkdir(parents=True, exist_ok=True)
+        with tempfile.NamedTemporaryFile("w", encoding="utf-8", dir=self.state_path.parent, delete=False) as temp_state:
+            temp_state.write(json.dumps(state, indent=2, sort_keys=True))
+            temp_state.flush()
+            os.fsync(temp_state.fileno())
+            temp_state_path = Path(temp_state.name)
+        temp_state_path.replace(self.state_path)
+        directory_fd = os.open(self.state_path.parent, os.O_RDONLY)
+        try:
+            os.fsync(directory_fd)
+        finally:
+            os.close(directory_fd)
+
+    @staticmethod
+    def _project_wall_to_monotonic(timestamp: float, now_wall: float, now_monotonic: float) -> float:
+        elapsed = max(0.0, now_wall - timestamp)
+        return max(0.0, now_monotonic - elapsed)
+
+    def _normalize_state(self, state: Dict[str, float], now_wall: float, now_monotonic: float) -> Dict[str, float]:
+        normalized = self._default_state()
+        normalized.update(state)
+        if normalized["cycle_window_start_mono"] <= 0.0 and normalized["cycle_window_start"] > 0.0:
+            normalized["cycle_window_start_mono"] = self._project_wall_to_monotonic(
+                normalized["cycle_window_start"], now_wall, now_monotonic
+            )
+        if normalized["mutation_window_start_mono"] <= 0.0 and normalized["mutation_window_start"] > 0.0:
+            normalized["mutation_window_start_mono"] = self._project_wall_to_monotonic(
+                normalized["mutation_window_start"], now_wall, now_monotonic
+            )
+        if normalized["cooldown_until_mono"] <= 0.0 and normalized["cooldown_until"] > 0.0:
+            remaining = max(0.0, normalized["cooldown_until"] - now_wall)
+            normalized["cooldown_until_mono"] = now_monotonic + remaining
+        return normalized
+
+    def _refresh_window(
+        self,
+        start_wall_key: str,
+        start_mono_key: str,
+        count_key: str,
+        window_sec: int,
+        now_wall: float,
+        now_monotonic: float,
+        state: Dict[str, float],
+    ) -> None:
+        window_start_mono = float(state.get(start_mono_key, 0.0))
+        if window_start_mono <= 0.0 or now_monotonic - window_start_mono >= window_sec:
+            state[start_wall_key] = now_wall
+            state[start_mono_key] = now_monotonic
             state[count_key] = 0.0
 
-    def _throttle(self, reason: str, payload: Dict[str, float], state: Dict[str, float]) -> Dict[str, str]:
+    def _throttle(
+        self,
+        reason: str,
+        payload: Dict[str, float],
+        state: Dict[str, float],
+        *,
+        _lock_file: Optional[TextIO] = None,
+    ) -> Dict[str, object]:
         state["cooldown_until"] = payload["cooldown_until"]
-        self._save_state(state)
+        state["cooldown_until_mono"] = payload["cooldown_until_mono"]
+        self._save_state(state, _lock_file=_lock_file)
         metrics.log(event_type="beast_cycle_throttled", payload=payload, level="WARNING", element_id=ELEMENT_ID)
         return {"status": "throttled", "reason": reason}
 
-    def _check_limits(self) -> Optional[Dict[str, str]]:
-        now = time.time()
-        state = self._load_state()
-        cooldown_until = float(state.get("cooldown_until", 0.0))
-        if cooldown_until and now < cooldown_until:
-            payload = {"cooldown_until": cooldown_until, "now": now}
-            return self._throttle("cooldown", payload, state)
+    def _check_limits(self) -> Optional[Dict[str, object]]:
+        with self._state_lock("check_limits") as lock_file:
+            now_wall = self._wall_time_provider()
+            now_monotonic = self._monotonic_time_provider()
+            state = self._normalize_state(self._load_state(_lock_file=lock_file), now_wall, now_monotonic)
+            cooldown_until_mono = float(state.get("cooldown_until_mono", 0.0))
+            if cooldown_until_mono and now_monotonic < cooldown_until_mono:
+                remaining = cooldown_until_mono - now_monotonic
+                payload = {
+                    "cooldown_until": now_wall + remaining,
+                    "cooldown_until_mono": cooldown_until_mono,
+                    "now": now_wall,
+                    "now_monotonic": now_monotonic,
+                }
+                return self._throttle("cooldown", payload, state, _lock_file=lock_file)
 
-        self._refresh_window("cycle_window_start", "cycle_count", self.cycle_window_sec, now, state)
-        self._refresh_window("mutation_window_start", "mutation_count", self.mutation_window_sec, now, state)
-
-        if self.cycle_budget > 0 and float(state.get("cycle_count", 0.0)) >= self.cycle_budget:
-            cooldown_until = now + self.cooldown_sec
-            metrics.log(
-                event_type="beast_cycle_budget_exceeded",
-                payload={"budget": self.cycle_budget, "window_sec": self.cycle_window_sec, "count": state.get("cycle_count", 0.0)},
-                level="WARNING",
-                element_id=ELEMENT_ID,
+            self._refresh_window(
+                "cycle_window_start",
+                "cycle_window_start_mono",
+                "cycle_count",
+                self.cycle_window_sec,
+                now_wall,
+                now_monotonic,
+                state,
             )
-            return self._throttle(
-                "cycle_budget",
-                {"cooldown_until": cooldown_until, "now": now, "limit": self.cycle_budget, "count": state.get("cycle_count", 0.0)},
+            self._refresh_window(
+                "mutation_window_start",
+                "mutation_window_start_mono",
+                "mutation_count",
+                self.mutation_window_sec,
+                now_wall,
+                now_monotonic,
                 state,
             )
 
-        state["cycle_count"] = float(state.get("cycle_count", 0.0)) + 1.0
-        self._save_state(state)
+            if self.cycle_budget > 0 and float(state.get("cycle_count", 0.0)) >= self.cycle_budget:
+                cooldown_until_mono = now_monotonic + self.cooldown_sec
+                cooldown_until = now_wall + self.cooldown_sec
+                metrics.log(
+                    event_type="beast_cycle_budget_exceeded",
+                    payload={"budget": self.cycle_budget, "window_sec": self.cycle_window_sec, "count": state.get("cycle_count", 0.0)},
+                    level="WARNING",
+                    element_id=ELEMENT_ID,
+                )
+                return self._throttle(
+                    "cycle_budget",
+                    {
+                        "cooldown_until": cooldown_until,
+                        "cooldown_until_mono": cooldown_until_mono,
+                        "now": now_wall,
+                        "now_monotonic": now_monotonic,
+                        "limit": self.cycle_budget,
+                        "count": state.get("cycle_count", 0.0),
+                    },
+                    state,
+                    _lock_file=lock_file,
+                )
+
+            state["cycle_count"] = float(state.get("cycle_count", 0.0)) + 1.0
+            self._save_state(state, _lock_file=lock_file)
         return None
 
-    def _check_mutation_quota(self) -> Optional[Dict[str, str]]:
-        now = time.time()
-        state = self._load_state()
-        self._refresh_window("mutation_window_start", "mutation_count", self.mutation_window_sec, now, state)
-
-        if self.mutation_quota > 0 and float(state.get("mutation_count", 0.0)) >= self.mutation_quota:
-            cooldown_until = now + self.cooldown_sec
-            metrics.log(
-                event_type="beast_mutation_quota_exceeded",
-                payload={"quota": self.mutation_quota, "window_sec": self.mutation_window_sec, "count": state.get("mutation_count", 0.0)},
-                level="WARNING",
-                element_id=ELEMENT_ID,
-            )
-            return self._throttle(
-                "mutation_quota",
-                {"cooldown_until": cooldown_until, "now": now, "limit": self.mutation_quota, "count": state.get("mutation_count", 0.0)},
+    def _check_mutation_quota(self) -> Optional[Dict[str, object]]:
+        with self._state_lock("check_mutation_quota") as lock_file:
+            now_wall = self._wall_time_provider()
+            now_monotonic = self._monotonic_time_provider()
+            state = self._normalize_state(self._load_state(_lock_file=lock_file), now_wall, now_monotonic)
+            self._refresh_window(
+                "mutation_window_start",
+                "mutation_window_start_mono",
+                "mutation_count",
+                self.mutation_window_sec,
+                now_wall,
+                now_monotonic,
                 state,
             )
 
-        state["mutation_count"] = float(state.get("mutation_count", 0.0)) + 1.0
-        self._save_state(state)
+            if self.mutation_quota > 0 and float(state.get("mutation_count", 0.0)) >= self.mutation_quota:
+                cooldown_until_mono = now_monotonic + self.cooldown_sec
+                cooldown_until = now_wall + self.cooldown_sec
+                metrics.log(
+                    event_type="beast_mutation_quota_exceeded",
+                    payload={"quota": self.mutation_quota, "window_sec": self.mutation_window_sec, "count": state.get("mutation_count", 0.0)},
+                    level="WARNING",
+                    element_id=ELEMENT_ID,
+                )
+                return self._throttle(
+                    "mutation_quota",
+                    {
+                        "cooldown_until": cooldown_until,
+                        "cooldown_until_mono": cooldown_until_mono,
+                        "now": now_wall,
+                        "now_monotonic": now_monotonic,
+                        "limit": self.mutation_quota,
+                        "count": state.get("mutation_count", 0.0),
+                    },
+                    state,
+                    _lock_file=lock_file,
+                )
+
+            state["mutation_count"] = float(state.get("mutation_count", 0.0)) + 1.0
+            self._save_state(state, _lock_file=lock_file)
         return None
 
     def _available_agents(self) -> List[str]:
@@ -236,6 +387,11 @@ class LegacyBeastModeCompatibilityAdapter:
         if missing_fields:
             return None, missing_fields
 
+        assert expected_gain is not None
+        assert risk_score is not None
+        assert complexity is not None
+        assert coverage_delta is not None
+
         mutation_id = self._canonical_mutation_id(payload)
         candidate = MutationCandidate(
             mutation_id=mutation_id,
@@ -265,6 +421,63 @@ class LegacyBeastModeCompatibilityAdapter:
             level="WARNING",
             element_id=ELEMENT_ID,
         )
+
+    def _promote_transactionally(
+        self,
+        *,
+        agent_id: str,
+        agent_dir: Path,
+        staged_dir: Path,
+    ) -> Path:
+        certificate_path = agent_dir / "certificate.json"
+        certificate_snapshot = certificate_path.read_text(encoding="utf-8") if certificate_path.exists() else None
+        metrics.log(
+            event_type="mutation_promotion_intent",
+            payload={"agent": agent_id, "staged": str(staged_dir)},
+            level="INFO",
+            element_id=ELEMENT_ID,
+        )
+        journal.write_entry(
+            agent_id=agent_id,
+            action="mutation_promotion_intent",
+            payload={"staged": str(staged_dir)},
+        )
+
+        promoted: Optional[Path] = None
+        try:
+            cryovant.evolve_certificate(agent_id, agent_dir, staged_dir, get_capabilities())
+            promoted = promote_offspring(staged_dir, self.lineage_dir)
+            return promoted
+        except Exception as exc:
+            if promoted is not None:
+                if promoted.is_dir():
+                    shutil.rmtree(promoted, ignore_errors=True)
+                elif promoted.exists():
+                    promoted.unlink(missing_ok=True)
+
+            if certificate_snapshot is None:
+                certificate_path.unlink(missing_ok=True)
+            else:
+                certificate_path.write_text(certificate_snapshot, encoding="utf-8")
+
+            rollback_payload = {
+                "agent": agent_id,
+                "staged": str(staged_dir),
+                "promoted": str(promoted) if promoted is not None else "",
+                "error": str(exc),
+            }
+            metrics.log(
+                event_type="mutation_promotion_rollback",
+                payload=rollback_payload,
+                level="ERROR",
+                element_id=ELEMENT_ID,
+            )
+            journal.write_entry(
+                agent_id=agent_id,
+                action="mutation_promotion_rollback",
+                payload=rollback_payload,
+            )
+            raise
 
     def run_cycle(self, agent_id: Optional[str] = None) -> Dict[str, object]:
         metrics.log(event_type="beast_cycle_start", payload={"agent": agent_id}, level="INFO", element_id=ELEMENT_ID)
@@ -385,8 +598,11 @@ class LegacyBeastModeCompatibilityAdapter:
             }
 
         agent_dir = agent_path_from_id(selected, self.agents_root)
-        cryovant.evolve_certificate(selected, agent_dir, staged_dir, get_capabilities())
-        promoted = promote_offspring(staged_dir, self.lineage_dir)
+        promoted = self._promote_transactionally(
+            agent_id=selected,
+            agent_dir=agent_dir,
+            staged_dir=staged_dir,
+        )
 
         constitution_decision = payload.get("constitutional_verdict")
         if not isinstance(constitution_decision, dict):
@@ -426,10 +642,10 @@ class LegacyBeastModeCompatibilityAdapter:
             payload={
                 "staged": str(staged_dir),
                 "promoted": str(promoted),
-                "legacy_fitness_score": score,
-                "autonomy_composite_score": autonomy_score,
-                "promotion_manifest_hash": manifest_ref["manifest_hash"],
-                "promotion_manifest_path": manifest_ref["manifest_path"],
+                "legacy_fitness_score": str(score),
+                "autonomy_composite_score": str(autonomy_score if autonomy_score is not None else ""),
+                "promotion_manifest_hash": str(manifest_ref["manifest_hash"]),
+                "promotion_manifest_path": str(manifest_ref["manifest_path"]),
             },
         )
         evidence = {
