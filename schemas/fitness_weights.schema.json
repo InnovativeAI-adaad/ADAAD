@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://adaad.dev/schemas/fitness_weights.schema.json",
+  "title": "Fitness Weights Configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "weights"],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "weights": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "correctness_score",
+        "efficiency_score",
+        "policy_compliance_score",
+        "goal_alignment_score",
+        "simulated_market_score"
+      ],
+      "properties": {
+        "correctness_score": {"type": "number", "minimum": 0.0},
+        "efficiency_score": {"type": "number", "minimum": 0.0},
+        "policy_compliance_score": {"type": "number", "minimum": 0.0},
+        "goal_alignment_score": {"type": "number", "minimum": 0.0},
+        "simulated_market_score": {"type": "number", "minimum": 0.0}
+      }
+    }
+  }
+}

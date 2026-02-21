@@ -22,12 +22,23 @@ class MutationFitnessEvaluator:
                 objective_weight = min(1.0, max(0.0, float(len(objectives)) / 10.0))
 
         weighted_score = max(0.0, min(1.0, base_score * objective_weight))
+        acceptance_threshold = float(explanation.get("fitness_threshold", 0.7) or 0.7)
+        accepted = base_score >= acceptance_threshold
+
         return {
             "score": weighted_score,
             "base_score": base_score,
             "objective_weight": objective_weight,
+            "acceptance_threshold": acceptance_threshold,
+            "accepted": accepted,
+            "passed": accepted,
             "reasons": explanation.get("reasons", {}),
-            "passed": weighted_score >= 0.7,
+            "weights": explanation.get("weights", {}),
+            "weighted_contributions": explanation.get("weighted_contributions", {}),
+            "explainability": explanation.get("explainability", {}),
+            "config_version": explanation.get("config_version"),
+            "config_hash": explanation.get("config_hash"),
+            "ranking_rationale": "ranking uses objective_weight adjusted score; acceptance uses base score threshold",
         }
 
 

@@ -64,6 +64,10 @@ Certificates include `strategy_snapshot` and `strategy_snapshot_hash`, and cumul
 ## EvolutionKernel Execution Routing
 - `runtime.evolution.evolution_kernel.EvolutionKernel.run_cycle(agent_id=None)` preserves legacy behavior by delegating to `compatibility_adapter.run_cycle(None)` when an adapter is configured and no explicit target agent is requested.
 - `run_cycle(agent_id=...)` executes the kernel-native pipeline (`load_agent -> propose_mutation -> validate_mutation -> execute_in_sandbox -> evaluate_fitness -> sign_certificate`) and marks the response with `kernel_path: true`.
+- Fitness acceptance and ranking are intentionally separated:
+  - **Acceptance** uses base fitness score compared to `fitness_threshold` (default `0.70`).
+  - **Ranking** uses objective weighting (`objective_weight`) to prioritize accepted candidates without redefining the acceptance gate.
+  - Explainability payloads include weighted contributions and threshold rationale for every decision.
 - Agent resolution is canonicalized via `Path.resolve()` for both discovered agent directories and explicit `agent_id` candidate paths to avoid false-negative lookup failures under symlinked or aliased roots.
 - Deterministic failure semantics:
   - `RuntimeError("no_agents_available")` when discovery yields no valid agents.

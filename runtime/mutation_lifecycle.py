@@ -11,7 +11,9 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, Mapping
 
 from runtime import ROOT_DIR, metrics
+from runtime.governance.foundation import canonical_json, sha256_prefixed_digest
 from runtime.timeutils import now_iso
+from runtime.tools.rollback_certificate import issue_rollback_certificate
 from security import cryovant
 from security.ledger import journal
 
@@ -224,6 +226,12 @@ def rollback(context: MutationLifecycleContext, to_state: str, reason: str = "ma
         raise LifecycleTransitionError(f"invalid_rollback_target:{to_state}")
 
     from_state = context.current_state
+    prior_snapshot = {
+        "current_state": context.current_state,
+        "stage_timestamps": dict(context.stage_timestamps),
+        "cert_refs": dict(context.cert_refs),
+    }
+    prior_state_digest = sha256_prefixed_digest(canonical_json(prior_snapshot))
     context.current_state = to_state
     context.stage_timestamps[to_state] = now_iso()
     payload = _transition_payload(
@@ -233,6 +241,40 @@ def rollback(context: MutationLifecycleContext, to_state: str, reason: str = "ma
         guard_report={"ok": True, "rollback": True, "reason": reason},
     )
     _record_success(payload)
+    context.persist()
+
+    restored_snapshot = {
+        "current_state": context.current_state,
+        "stage_timestamps": dict(context.stage_timestamps),
+        "cert_refs": dict(context.cert_refs),
+    }
+    restored_state_digest = sha256_prefixed_digest(canonical_json(restored_snapshot))
+    forward_certificate_digest = str(
+        context.cert_refs.get("forward_certificate_digest")
+        or context.cert_refs.get("certificate_digest")
+        or context.cert_refs.get("bundle_id")
+        or ""
+    )
+    cert = issue_rollback_certificate(
+        mutation_id=context.mutation_id,
+        epoch_id=context.epoch_id,
+        prior_state_digest=prior_state_digest,
+        restored_state_digest=restored_state_digest,
+        trigger_reason=reason,
+        actor_class="MutationLifecycle",
+        completeness_checks={
+            "rollback_target_matches_expected": to_state == expected,
+            "state_persisted": context.state_path().exists(),
+            "state_changed": from_state != to_state,
+        },
+        agent_id=context.agent_id,
+        forward_certificate_digest=forward_certificate_digest,
+    )
+    context.metadata["last_rollback_certificate_digest"] = cert.digest
+    if isinstance(context.cert_refs, dict):
+        context.cert_refs["rollback_certificate_digest"] = cert.digest
+        if forward_certificate_digest:
+            context.cert_refs["forward_certificate_digest"] = forward_certificate_digest
     context.persist()
     return to_state
 

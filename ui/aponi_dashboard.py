@@ -25,7 +25,7 @@ import time
 from hashlib import sha256
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
-from typing import Dict, List
+from typing import Any, Dict, List
 from urllib.parse import parse_qs, urlparse
 
 from app import APP_ROOT
@@ -132,6 +132,90 @@ def _schema_version_status(path: Path) -> Dict[str, object]:
 
 
 
+
+
+
+def _review_percentile(sorted_values: List[float], percentile: float) -> float:
+    if not sorted_values:
+        return 0.0
+    n = len(sorted_values)
+    rank = max(1, int((percentile / 100.0) * n + 0.999999999))
+    return float(sorted_values[min(rank, n) - 1])
+
+
+def compute_review_quality_payload(
+    events: List[Dict[str, Any]],
+    *,
+    sla_seconds: int = 86_400,
+    window_limit: int = 500,
+) -> Dict[str, Any]:
+    latencies: List[float] = []
+    reviewer_counts: Dict[str, int] = {}
+    total_comments = 0
+    total_comment_events = 0
+    overrides = 0
+    within_sla = 0
+
+    for event in events:
+        payload = event.get("payload") if isinstance(event.get("payload"), dict) else {}
+
+        latency = payload.get("latency_seconds")
+        if isinstance(latency, (int, float)):
+            value = max(0.0, float(latency))
+            latencies.append(value)
+            if value <= sla_seconds:
+                within_sla += 1
+
+        reviewer = payload.get("reviewer")
+        if isinstance(reviewer, str) and reviewer.strip():
+            key = reviewer.strip()
+            reviewer_counts[key] = reviewer_counts.get(key, 0) + 1
+
+        comment_count = payload.get("comment_count")
+        if isinstance(comment_count, (int, float)):
+            total_comments += max(0, int(comment_count))
+            total_comment_events += 1
+
+        if bool(payload.get("overridden")):
+            overrides += 1
+
+    latencies.sort()
+    total_reviews = len(latencies)
+    p95 = _review_percentile(latencies, 95.0)
+    p99 = _review_percentile(latencies, 99.0)
+
+    largest_reviewer_share = 0.0
+    hhi = 0.0
+    if reviewer_counts:
+        reviewer_total = sum(reviewer_counts.values())
+        shares = [count / reviewer_total for count in reviewer_counts.values()]
+        largest_reviewer_share = max(shares)
+        hhi = sum(share * share for share in shares)
+
+    reviewed_within_sla_percent = (within_sla / total_reviews * 100.0) if total_reviews else 0.0
+    average_comment_count = (total_comments / total_comment_events) if total_comment_events else 0.0
+    override_rate_percent = (overrides / total_reviews * 100.0) if total_reviews else 0.0
+
+    return {
+        "window_limit": int(window_limit),
+        "sla_seconds": int(sla_seconds),
+        "window_count": total_reviews,
+        "review_latency_distribution_seconds": {
+            "count": total_reviews,
+            "p95": round(p95, 6),
+            "p99": round(p99, 6),
+        },
+        "reviewed_within_sla_percent": round(reviewed_within_sla_percent, 3),
+        "reviewer_participation_concentration": {
+            "largest_reviewer_share": round(largest_reviewer_share, 6),
+            "hhi": round(hhi, 6),
+            "distribution": dict(sorted(reviewer_counts.items())),
+        },
+        "review_depth_proxies": {
+            "average_comment_count": round(average_comment_count, 6),
+            "override_rate_percent": round(override_rate_percent, 3),
+        },
+    }
 
 def _load_free_capability_sources() -> Dict[str, Dict[str, object]]:
     if not FREE_CAPABILITY_SOURCES_PATH.exists():
@@ -534,6 +618,25 @@ class AponiDashboard:
                     state_payload["mutation_rate_limit"] = self._mutation_rate_state()
                     state_payload["determinism_panel"] = self._determinism_panel()
                     self._send_json(state_payload)
+                    return
+                if path.startswith("/metrics/review-quality"):
+                    limit_raw = (query.get("limit") or ["500"])[0]
+                    sla_raw = (query.get("sla_seconds") or ["86400"])[0]
+                    try:
+                        limit = max(1, min(2000, int(limit_raw)))
+                    except (TypeError, ValueError):
+                        limit = 500
+                    try:
+                        sla_seconds = max(1, int(sla_raw))
+                    except (TypeError, ValueError):
+                        sla_seconds = 86_400
+                    events = [
+                        entry
+                        for entry in metrics.tail(limit=limit)
+                        if isinstance(entry, dict) and str(entry.get("event", "")) == "governance_review_quality"
+                    ]
+                    payload = compute_review_quality_payload(events, sla_seconds=sla_seconds, window_limit=limit)
+                    self._send_validated_response("/metrics/review-quality", "review_quality.schema.json", payload)
                     return
                 if path.startswith("/metrics"):
                     self._send_json(

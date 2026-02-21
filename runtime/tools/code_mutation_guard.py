@@ -16,7 +16,9 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from runtime import ROOT_DIR, metrics
+from runtime.governance.foundation import canonical_json, sha256_prefixed_digest
 from runtime.timeutils import now_iso
+from runtime.tools.rollback_certificate import issue_rollback_certificate
 
 ELEMENT_ID = "Fire"
 
@@ -82,6 +84,58 @@ def _normalize_ops(ops: Iterable[Dict[str, Any]]) -> List[Dict[str, Any]]:
                 elif isinstance(entry, str):
                     normalized.append({"file": entry})
     return normalized
+
+
+
+
+def _resolve_rollback_context(ops: List[Dict[str, Any]]) -> tuple[str, str, str, str]:
+    for op in ops:
+        mutation_id = str(op.get("mutation_id") or op.get("tx_id") or "").strip()
+        epoch_id = str(op.get("epoch_id") or "").strip()
+        actor_class = str(op.get("actor_class") or "CodeMutationGuard").strip() or "CodeMutationGuard"
+        forward_digest = str(op.get("forward_certificate_digest") or op.get("certificate_digest") or "").strip()
+        if mutation_id or epoch_id or forward_digest:
+            return mutation_id or "code-mutation", epoch_id, actor_class, forward_digest
+    return "code-mutation", "", "CodeMutationGuard", ""
+
+
+def _snapshot_digest(paths: Iterable[Path]) -> str:
+    snapshot = []
+    for path in sorted(set(paths)):
+        snapshot.append(
+            {
+                "path": str(path),
+                "exists": path.exists(),
+                "digest": sha256_prefixed_digest(path.read_bytes()) if path.exists() else "",
+            }
+        )
+    return sha256_prefixed_digest(canonical_json(snapshot))
+
+
+def _emit_rollback_certificate(
+    *,
+    ops: List[Dict[str, Any]],
+    targets: List[Path],
+    prior_state_digest: str,
+    restored_state_digest: str,
+    trigger_reason: str,
+    checks: Dict[str, Any],
+) -> None:
+    mutation_id, epoch_id, actor_class, forward_digest = _resolve_rollback_context(ops)
+    issue_rollback_certificate(
+        mutation_id=mutation_id,
+        epoch_id=epoch_id,
+        prior_state_digest=prior_state_digest,
+        restored_state_digest=restored_state_digest,
+        trigger_reason=trigger_reason,
+        actor_class=actor_class,
+        completeness_checks={
+            **checks,
+            "targets_count": len(targets),
+        },
+        agent_id="system",
+        forward_certificate_digest=forward_digest,
+    )
 
 
 _HUNK_HEADER = re.compile(r"^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@")
@@ -180,6 +234,8 @@ def apply_code_mutation(ops: Iterable[Dict[str, Any]]) -> Dict[str, Any]:
     if not grouped:
         return {**result, "status": "skipped", "reason": "no_targets"}
 
+    rollback_targets = list(grouped.keys())
+    prior_state_digest = _snapshot_digest(rollback_targets)
     updates: Dict[Path, str] = {}
     backups: Dict[Path, Optional[bytes]] = {}
     lineage: List[Dict[str, Any]] = []
@@ -230,6 +286,15 @@ def apply_code_mutation(ops: Iterable[Dict[str, Any]]) -> Dict[str, Any]:
         result["skipped"] += max(len(ops_for_target) - int(applied), 0)
 
     if result["errors"]:
+        restored_state_digest = _snapshot_digest(rollback_targets)
+        _emit_rollback_certificate(
+            ops=normalized,
+            targets=rollback_targets,
+            prior_state_digest=prior_state_digest,
+            restored_state_digest=restored_state_digest,
+            trigger_reason="patch_validation_failure",
+            checks={"errors_detected": len(result["errors"]), "writes_applied": False},
+        )
         metrics.log(
             event_type="code_mutation_rollback",
             payload={"errors": result["errors"], "targets": [str(path) for path in grouped]},
@@ -252,6 +317,15 @@ def apply_code_mutation(ops: Iterable[Dict[str, Any]]) -> Dict[str, Any]:
                     target.unlink()
             else:
                 target.write_bytes(original)
+        restored_state_digest = _snapshot_digest(rollback_targets)
+        _emit_rollback_certificate(
+            ops=normalized,
+            targets=rollback_targets,
+            prior_state_digest=prior_state_digest,
+            restored_state_digest=restored_state_digest,
+            trigger_reason="atomic_write_failure",
+            checks={"errors_detected": 1, "writes_reverted": True},
+        )
         metrics.log(
             event_type="code_mutation_rollback",
             payload={"errors": [str(exc)], "targets": [str(path) for path in grouped]},

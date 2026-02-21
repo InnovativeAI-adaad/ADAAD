@@ -87,11 +87,14 @@ def test_lifecycle_state_persist_and_restore(_dev_sig, _write_entry, _append_tx,
     assert restored.current_state == "executing"
 
 
+@mock.patch("runtime.mutation_lifecycle.issue_rollback_certificate")
 @mock.patch("runtime.mutation_lifecycle.journal.append_tx")
 @mock.patch("runtime.mutation_lifecycle.journal.write_entry")
-def test_rollback_supports_allowed_paths(_write_entry, _append_tx) -> None:
-    context = _context(current_state="executing")
+def test_rollback_supports_allowed_paths(_write_entry, _append_tx, issue_cert) -> None:
+    context = _context(current_state="executing", cert_refs={"forward_certificate_digest": "sha256:fwd"})
+    issue_cert.return_value = mock.Mock(digest="sha256:rollback")
     assert rollback(context, "certified") == "certified"
+    assert issue_cert.called
 
 
 @mock.patch("runtime.mutation_lifecycle.journal.append_tx")

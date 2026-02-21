@@ -13,6 +13,7 @@
 
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 from runtime.tools import code_mutation_guard
@@ -57,7 +58,8 @@ class CodeMutationGuardTest(unittest.TestCase):
         self.assertEqual(file_b.read_text(encoding="utf-8"), "hello\nthere\n")
         self.assertEqual(len(result["targets"]), 2)
 
-    def test_rollback_on_patch_failure(self) -> None:
+    @mock.patch("runtime.tools.code_mutation_guard.issue_rollback_certificate")
+    def test_rollback_on_patch_failure(self, issue_cert) -> None:
         file_a = self.tmp_root / "bad.txt"
         file_a.write_text("alpha\n", encoding="utf-8")
 
@@ -77,6 +79,7 @@ class CodeMutationGuardTest(unittest.TestCase):
 
         self.assertEqual(result["status"], "failed")
         self.assertEqual(file_a.read_text(encoding="utf-8"), "alpha\n")
+        issue_cert.assert_called_once()
 
 
 if __name__ == "__main__":

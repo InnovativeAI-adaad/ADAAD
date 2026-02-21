@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from dataclasses import dataclass
 from pathlib import Path
@@ -17,6 +18,8 @@ DEFAULT_WEIGHTS = {
     "goal_alignment_score": 0.15,
     "simulated_market_score": 0.15,
 }
+DEFAULT_FITNESS_THRESHOLD = 0.7
+ALLOWED_WEIGHT_KEYS = tuple(DEFAULT_WEIGHTS.keys())
 
 
 @dataclass(frozen=True)
@@ -33,9 +36,13 @@ class EconomicFitnessResult:
     passed_tests: bool
     passed_constitution: bool
     performance_delta: float
+    weighted_contributions: Dict[str, float]
+    fitness_threshold: float
+    config_version: int
+    config_hash: str
 
     def is_viable(self) -> bool:
-        return self.score >= 0.7
+        return self.score >= self.fitness_threshold
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -52,33 +59,60 @@ class EconomicFitnessResult:
             "passed_tests": self.passed_tests,
             "passed_constitution": self.passed_constitution,
             "performance_delta": self.performance_delta,
+            "weighted_contributions": dict(self.weighted_contributions),
+            "fitness_threshold": self.fitness_threshold,
+            "config_version": self.config_version,
+            "config_hash": self.config_hash,
         }
 
 
 class EconomicFitnessEvaluator:
     def __init__(self, config_path: Path | None = None, *, rebalance_interval: int = 25):
         self.config_path = config_path or Path(__file__).resolve().parent / "config" / "fitness_weights.json"
-        self.weights = self._load_weights(self.config_path)
+        config_payload = self._read_config_payload(self.config_path)
+        self.weights = self._load_weights(config_payload)
+        self.config_version = self._read_config_version(config_payload)
+        self.config_hash = self._compute_config_hash(config_payload)
+        self.fitness_threshold = DEFAULT_FITNESS_THRESHOLD
         self.rebalance_interval = max(1, int(rebalance_interval))
         self._eval_count = 0
 
     @staticmethod
-    def _load_weights(config_path: Path) -> Dict[str, float]:
-        weights = dict(DEFAULT_WEIGHTS)
-        try:
-            payload = json.loads(config_path.read_text(encoding="utf-8"))
-            configured = payload.get("weights", {}) if isinstance(payload, dict) else {}
-            if isinstance(configured, dict):
-                for key in DEFAULT_WEIGHTS:
-                    if key in configured:
-                        weights[key] = float(configured[key])
-        except Exception:
-            pass
+    def _read_config_payload(config_path: Path) -> Dict[str, Any]:
+        payload = json.loads(config_path.read_text(encoding="utf-8"))
+        if not isinstance(payload, dict):
+            raise ValueError("fitness_config_invalid_payload")
+        return payload
 
-        total = sum(max(0.0, float(value)) for value in weights.values())
+    @staticmethod
+    def _read_config_version(payload: Mapping[str, Any]) -> int:
+        version = int(payload.get("version", 1))
+        return max(1, version)
+
+    @staticmethod
+    def _compute_config_hash(payload: Mapping[str, Any]) -> str:
+        canonical = json.dumps(dict(payload), sort_keys=True, separators=(",", ":"))
+        return f"sha256:{hashlib.sha256(canonical.encode('utf-8')).hexdigest()}"
+
+    @staticmethod
+    def _load_weights(payload: Mapping[str, Any]) -> Dict[str, float]:
+        configured = payload.get("weights")
+        if not isinstance(configured, Mapping):
+            raise ValueError("fitness_config_missing_weights")
+
+        unexpected = sorted(key for key in configured.keys() if key not in ALLOWED_WEIGHT_KEYS)
+        if unexpected:
+            raise ValueError(f"fitness_config_unexpected_weight_keys:{','.join(unexpected)}")
+
+        missing = sorted(key for key in ALLOWED_WEIGHT_KEYS if key not in configured)
+        if missing:
+            raise ValueError(f"fitness_config_missing_weight_keys:{','.join(missing)}")
+
+        weights = {key: max(0.0, float(configured[key])) for key in ALLOWED_WEIGHT_KEYS}
+        total = sum(weights.values())
         if total <= 0.0:
-            return dict(DEFAULT_WEIGHTS)
-        return {key: max(0.0, float(value)) / total for key, value in weights.items()}
+            raise ValueError("fitness_config_zero_total_weight")
+        return {key: value / total for key, value in weights.items()}
 
     @staticmethod
     def _clamp(value: Any) -> float:
@@ -103,7 +137,6 @@ class EconomicFitnessEvaluator:
                 except (TypeError, ValueError):
                     return default
         return default
-
 
     def rebalance_from_history(self, history_entries: List[Mapping[str, Any]]) -> Dict[str, float]:
         """Gradient-free signal amplification using goal-score contribution hints."""
@@ -172,6 +205,10 @@ class EconomicFitnessEvaluator:
             "simulated_market_score": market,
         }
         score = sum(breakdown[name] * self.weights[name] for name in breakdown)
+        weighted_contributions = {
+            name: self._clamp(breakdown[name] * self.weights[name])
+            for name in breakdown
+        }
 
         passed_syntax = self._bool_from(mutation_payload, "passed_syntax", "syntax_ok")
         if not passed_syntax:
@@ -206,6 +243,10 @@ class EconomicFitnessEvaluator:
             passed_tests=passed_tests,
             passed_constitution=passed_constitution,
             performance_delta=performance_delta,
+            weighted_contributions=weighted_contributions,
+            fitness_threshold=self.fitness_threshold,
+            config_version=self.config_version,
+            config_hash=self.config_hash,
         )
 
     def evaluate_content(self, mutation_content: str, *, constitution_ok: bool = True) -> EconomicFitnessResult:

@@ -94,6 +94,20 @@ from runtime.metrics_analysis import summarize_preflight_rejections
 summary = summarize_preflight_rejections(limit=1000)
 ```
 
+
+
+## Governance Review KPI SLOs
+
+Governance review quality is tracked as deterministic telemetry (`governance_review_quality`) mirrored to metrics and Cryovant journal projections.
+
+**SLO targets (rolling window):**
+- **Review latency distribution**: p95 <= 86,400s (24h), p99 <= 172,800s (48h).
+- **Reviewed within SLA**: >= 95% within `sla_seconds` (default 24h).
+- **Reviewer participation concentration**: largest reviewer share <= 0.60 and HHI <= 0.40.
+- **Review depth proxies**: average comment count >= 1.0 and override rate <= 20%.
+
+Operations dashboards should consume `/metrics/review-quality` for aggregate computation + threshold monitoring.
+
 ---
 
 ## Future Extensions

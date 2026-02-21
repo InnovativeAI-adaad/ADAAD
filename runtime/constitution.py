@@ -11,6 +11,7 @@ from __future__ import annotations
 import ast
 import calendar
 import functools
+import fnmatch
 import inspect
 import hashlib
 import json
@@ -611,9 +612,13 @@ def _deterministic_mutation_count(window_sec: int, epoch_id: str) -> Dict[str, A
 def _validate_mutation_rate(request: MutationRequest) -> Dict[str, Any]:
     """Check mutation rate limits against deterministic ledger counters."""
     resolved_name, max_rate_env, default_max_rate = _resolve_mutation_rate_limit()
+    envelope_state = get_deterministic_envelope_state()
+    domain_context = envelope_state.get("domain_classification") if isinstance(envelope_state.get("domain_classification"), Mapping) else {}
+    tier_name = str(envelope_state.get("tier", "")).strip().upper() or Tier.SANDBOX.name
+    tier = Tier[tier_name] if tier_name in Tier.__members__ else Tier.SANDBOX
     window_env = os.getenv("ADAAD_MUTATION_RATE_WINDOW_SEC", "3600").strip()
     try:
-        max_rate = float(max_rate_env)
+        tier_limit = float(max_rate_env)
     except ValueError:
         return {
             "ok": False,
@@ -626,16 +631,27 @@ def _validate_mutation_rate(request: MutationRequest) -> Dict[str, Any]:
                 "legacy_env_supported": ["ADAAD_MAX_MUTATIONS_PER_HOUR"],
             },
         }
+    limit_resolution = _resolve_effective_limit(
+        rule_name="max_mutation_rate",
+        tier=tier,
+        domain_context=domain_context,
+        tier_limit=tier_limit,
+    )
     try:
         window_sec = int(window_env)
     except ValueError:
         return {"ok": False, "reason": "invalid_window_sec", "details": {"value": window_env}}
-    if max_rate <= 0:
+    if limit_resolution["effective_limit"] <= 0:
         return {
             "ok": True,
             "reason": "rate_limit_disabled",
             "details": {
-                "max_mutations_per_hour": max_rate,
+                "max_mutations_per_hour": limit_resolution["effective_limit"],
+                "tier_limit": limit_resolution["tier_limit"],
+                "domain_limit": limit_resolution["domain_limit"],
+                "resolved_domain": limit_resolution["resolved_domain"],
+                "applied_ceiling": limit_resolution["effective_limit"],
+                "matched_domain_limits": limit_resolution["matched_domain_limits"],
                 "window_sec": window_sec,
                 "validator": "max_mutation_rate",
                 "resolved_from_env": resolved_name,
@@ -644,12 +660,17 @@ def _validate_mutation_rate(request: MutationRequest) -> Dict[str, Any]:
             },
         }
     snapshot = _deterministic_mutation_count(window_sec=window_sec, epoch_id=str(request.epoch_id or "").strip())
-    exceeded = snapshot["rate_per_hour"] > max_rate
+    exceeded = snapshot["rate_per_hour"] > limit_resolution["effective_limit"]
     return {
         "ok": not exceeded,
         "reason": "rate_limit_exceeded" if exceeded else "rate_limit_ok",
         "details": {
-            "max_mutations_per_hour": max_rate,
+            "max_mutations_per_hour": limit_resolution["effective_limit"],
+            "tier_limit": limit_resolution["tier_limit"],
+            "domain_limit": limit_resolution["domain_limit"],
+            "resolved_domain": limit_resolution["resolved_domain"],
+            "applied_ceiling": limit_resolution["effective_limit"],
+            "matched_domain_limits": limit_resolution["matched_domain_limits"],
             "resolved_from_env": resolved_name,
             "default_max_mutation_rate": default_max_rate,
             "legacy_env_supported": ["ADAAD_MAX_MUTATIONS_PER_HOUR"],
@@ -797,6 +818,109 @@ def _load_rule_applicability(path: Path = RULE_APPLICABILITY_PATH) -> Dict[str, 
     return indexed
 
 
+def _extract_domain_classification_config() -> Dict[str, Any]:
+    policy_doc = _load_policy_document(RULE_APPLICABILITY_PATH)[0]
+    raw = policy_doc.get("domain_classification") if isinstance(policy_doc, dict) else {}
+    if not isinstance(raw, dict):
+        return {"default_domain": "general", "rules": []}
+    default_domain = str(raw.get("default_domain") or "general").strip() or "general"
+    rules: List[Dict[str, Any]] = []
+    for item in raw.get("rules") or []:
+        if not isinstance(item, dict):
+            continue
+        domain = str(item.get("domain") or "").strip()
+        patterns = [str(pattern).strip() for pattern in (item.get("patterns") or []) if str(pattern).strip()]
+        if not domain or not patterns:
+            continue
+        rules.append({"domain": domain, "patterns": patterns})
+    return {"default_domain": default_domain, "rules": rules}
+
+
+def _classify_request_domains(request: MutationRequest) -> Dict[str, Any]:
+    config = _extract_domain_classification_config()
+    default_domain = str(config.get("default_domain") or "general")
+    rules = config.get("rules") if isinstance(config.get("rules"), list) else []
+    request_paths = sorted(_extract_request_paths(request))
+    if not request_paths:
+        return {
+            "default_domain": default_domain,
+            "path_domains": [],
+            "resolved_domain": default_domain,
+            "domains": [default_domain],
+            "strategy": "default_no_targets",
+        }
+
+    path_domains: List[Dict[str, str]] = []
+    resolved_domains: List[str] = []
+    for path in request_paths:
+        normalized = path.strip()
+        matched_domain = default_domain
+        matched_pattern = "default"
+        for rule in rules:
+            domain = str(rule.get("domain") or "").strip()
+            patterns = [str(pattern).strip() for pattern in (rule.get("patterns") or []) if str(pattern).strip()]
+            if not domain or not patterns:
+                continue
+            matched = next((pattern for pattern in patterns if fnmatch.fnmatch(normalized, pattern)), None)
+            if matched:
+                matched_domain = domain
+                matched_pattern = matched
+                break
+        resolved_domains.append(matched_domain)
+        path_domains.append({"path": normalized, "domain": matched_domain, "pattern": matched_pattern})
+
+    domains = sorted(set(resolved_domains))
+    return {
+        "default_domain": default_domain,
+        "path_domains": path_domains,
+        "domains": domains,
+        "resolved_domain": domains[0] if domains else default_domain,
+        "strategy": "first_matching_rule_then_lexical",
+    }
+
+
+def _resolve_effective_limit(
+    *,
+    rule_name: str,
+    tier: Tier,
+    domain_context: Mapping[str, Any],
+    tier_limit: float,
+) -> Dict[str, Any]:
+    rule = next((candidate for candidate in RULES if candidate.name == rule_name), None)
+    applicability = rule.applicability if rule else {}
+    limits = applicability.get("limits") if isinstance(applicability.get("limits"), dict) else {}
+    domain_limits = limits.get("domain_limits") if isinstance(limits.get("domain_limits"), dict) else {}
+
+    matched_domains: List[Dict[str, Any]] = []
+    for domain in list(domain_context.get("domains") or []):
+        if domain not in domain_limits:
+            continue
+        raw_limit = domain_limits.get(domain)
+        try:
+            parsed_limit = float(raw_limit)
+        except (TypeError, ValueError):
+            continue
+        if parsed_limit > 0:
+            matched_domains.append({"domain": domain, "domain_limit": parsed_limit})
+
+    resolved_domain = str(domain_context.get("resolved_domain") or "general")
+    domain_limit = float(tier_limit)
+    if matched_domains:
+        strictest = min(matched_domains, key=lambda item: (item["domain_limit"], item["domain"]))
+        resolved_domain = strictest["domain"]
+        domain_limit = float(strictest["domain_limit"])
+
+    effective_limit = min(float(tier_limit), float(domain_limit))
+    return {
+        "tier": tier.name,
+        "tier_limit": float(tier_limit),
+        "domain_limit": float(domain_limit),
+        "effective_limit": float(effective_limit),
+        "resolved_domain": resolved_domain,
+        "matched_domain_limits": matched_domains,
+    }
+
+
 def _extract_request_paths(request: MutationRequest) -> List[str]:
     paths: List[str] = []
     for target in request.targets:
@@ -920,6 +1044,16 @@ def _validate_entropy_budget_limit(request: MutationRequest) -> Dict[str, Any]:
     if not mutation_limit_ok:
         return {"ok": False, "reason": mutation_error, "details": {"value": mutation_limit_env}}
 
+    domain_context = envelope_state.get("domain_classification") if isinstance(envelope_state.get("domain_classification"), Mapping) else {}
+    tier = Tier[tier_name] if tier_name in Tier.__members__ else Tier.SANDBOX
+    mutation_limit_resolution = _resolve_effective_limit(
+        rule_name="entropy_budget_limit",
+        tier=tier,
+        domain_context=domain_context,
+        tier_limit=float(max_mutation_bits),
+    )
+    max_mutation_bits = int(mutation_limit_resolution["effective_limit"])
+
     epoch_limit_env = os.getenv("ADAAD_MAX_EPOCH_ENTROPY_BITS", "4096").strip()
     epoch_limit_ok, max_epoch_bits, epoch_error = _parse_entropy_limit(
         epoch_limit_env,
@@ -933,12 +1067,28 @@ def _validate_entropy_budget_limit(request: MutationRequest) -> Dict[str, Any]:
             return {
                 "ok": False,
                 "reason": "entropy_budget_disabled_in_production",
-                "details": {"max_mutation_entropy_bits": max_mutation_bits, "tier": tier_name or "UNKNOWN"},
+                "details": {
+                    "max_mutation_entropy_bits": max_mutation_bits,
+                    "tier": tier_name or "UNKNOWN",
+                    "tier_limit": mutation_limit_resolution["tier_limit"],
+                    "domain_limit": mutation_limit_resolution["domain_limit"],
+                    "resolved_domain": mutation_limit_resolution["resolved_domain"],
+                    "applied_ceiling": mutation_limit_resolution["effective_limit"],
+                    "matched_domain_limits": mutation_limit_resolution["matched_domain_limits"],
+                },
             }
         return {
             "ok": True,
             "reason": "entropy_budget_disabled",
-            "details": {"max_mutation_entropy_bits": max_mutation_bits, "tier": tier_name or "UNKNOWN"},
+            "details": {
+                "max_mutation_entropy_bits": max_mutation_bits,
+                "tier": tier_name or "UNKNOWN",
+                "tier_limit": mutation_limit_resolution["tier_limit"],
+                "domain_limit": mutation_limit_resolution["domain_limit"],
+                "resolved_domain": mutation_limit_resolution["resolved_domain"],
+                "applied_ceiling": mutation_limit_resolution["effective_limit"],
+                "matched_domain_limits": mutation_limit_resolution["matched_domain_limits"],
+            },
         }
 
     if max_epoch_bits <= 0:
@@ -999,6 +1149,11 @@ def _validate_entropy_budget_limit(request: MutationRequest) -> Dict[str, Any]:
             "tier": tier_name or "UNKNOWN",
             "max_mutation_entropy_bits": max_mutation_bits,
             "max_epoch_entropy_bits": max_epoch_bits,
+            "tier_limit": mutation_limit_resolution["tier_limit"],
+            "domain_limit": mutation_limit_resolution["domain_limit"],
+            "resolved_domain": mutation_limit_resolution["resolved_domain"],
+            "applied_ceiling": mutation_limit_resolution["effective_limit"],
+            "matched_domain_limits": mutation_limit_resolution["matched_domain_limits"],
             "declared_bits": declared_bits,
             "observed_bits": observed_bits,
             "mutation_bits": mutation_bits,
@@ -1171,11 +1326,14 @@ def evaluate_mutation(request: MutationRequest, tier: Tier) -> Dict[str, Any]:
     warnings: List[str] = []
 
     prior_state = get_deterministic_envelope_state()
+    domain_classification = _classify_request_domains(request)
     evaluation_state = {
         **prior_state,
         "tier": tier.name,
         "tier_value": tier.value,
         "agent_id": request.agent_id,
+        "epoch_id": str(request.epoch_id or ""),
+        "domain_classification": domain_classification,
     }
 
     with deterministic_envelope_scope(evaluation_state):
@@ -1266,6 +1424,8 @@ def evaluate_mutation(request: MutationRequest, tier: Tier) -> Dict[str, Any]:
         "applicability_matrix": applicability_matrix,
         "agent_id": request.agent_id,
         "intent": request.intent,
+        "resolved_domain": domain_classification.get("resolved_domain"),
+        "domain_classification": domain_classification,
         "rule_dependency_graph": RULE_DEPENDENCY_GRAPH,
         "governance_envelope": governance_envelope,
         "governance_fingerprint": drift_fingerprint,
@@ -1273,6 +1433,51 @@ def evaluate_mutation(request: MutationRequest, tier: Tier) -> Dict[str, Any]:
         "governance_fingerprint_components": fingerprint_components,
         "governance_drift_detected": drift_detected,
     }
+
+
+
+    ceiling_events = []
+    for item in verdicts:
+        details = item.get("details") if isinstance(item.get("details"), dict) else {}
+        detail_payload = details.get("details") if isinstance(details.get("details"), dict) else {}
+        if not detail_payload or "applied_ceiling" not in detail_payload:
+            continue
+        ceiling_events.append(
+            {
+                "rule": item.get("rule"),
+                "resolved_domain": detail_payload.get("resolved_domain", domain_classification.get("resolved_domain")),
+                "applied_ceiling": detail_payload.get("applied_ceiling"),
+                "tier_limit": detail_payload.get("tier_limit"),
+                "domain_limit": detail_payload.get("domain_limit"),
+            }
+        )
+
+    epoch_id = str(evaluation_state.get("epoch_id", "")).strip()
+    if epoch_id:
+        journal.write_entry(
+            agent_id=request.agent_id or "system",
+            action="constitutional_evaluation_domain_ceiling",
+            payload={
+                "agent_id": request.agent_id,
+                "epoch_id": epoch_id,
+                "tier": tier.name,
+                "resolved_domain": domain_classification.get("resolved_domain"),
+                "domain_classification": domain_classification,
+                "applied_ceilings": ceiling_events,
+                "passed": passed,
+            },
+        )
+        journal.append_tx(
+            tx_type="constitutional_evaluation_domain_ceiling",
+            payload={
+                "agent_id": request.agent_id,
+                "epoch_id": epoch_id,
+                "tier": tier.name,
+                "resolved_domain": domain_classification.get("resolved_domain"),
+                "applied_ceilings": ceiling_events,
+                "passed": passed,
+            },
+        )
 
     metrics.log(
         event_type="constitutional_evaluation",
