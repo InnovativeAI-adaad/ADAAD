@@ -37,6 +37,7 @@
 - Evolution kernel `run_cycle()` now supports a kernel-native execution path for explicit `agent_id` runs while preserving compatibility-adapter routing for default/no-agent flows.
 - Hardened `EvolutionKernel` agent lookup by resolving discovered and requested paths before membership checks, eliminating alias/symlink/`..` false `agent_not_found` failures.
 - Added regression coverage for mixed lexical-vs-resolved agent path forms in `tests/test_evolution_kernel.py`.
+- Aponi execution-control now validates queue targets by command id, returning explicit `target_not_found` or `target_not_executable` errors before orchestration.
 
 ### Added
 - Constitution framework advanced to `0.2.0`; PR-2 rule set is now active for `max_complexity_delta`, `test_coverage_maintained`, `max_mutation_rate`, `lineage_continuity`, and `resource_bounds` with tier-aware severities from policy.
