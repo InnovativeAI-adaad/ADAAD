@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
+# ruff: noqa: E402
 """Deprecated compatibility shim for mutation budget manager."""
 
 from __future__ import annotations

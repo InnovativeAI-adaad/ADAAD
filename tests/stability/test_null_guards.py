@@ -2,15 +2,13 @@
 
 from __future__ import annotations
 
-"""
-Module: test_null_guards
-Purpose: Verify null-safe access and checkpoint registry behavior under malformed payloads.
-Author: ADAAD / InnovativeAI-adaad
-Integration points:
-  - Imports from: runtime.governance.foundation, runtime.evolution.checkpoint_registry
-  - Consumed by: pytest stability suite
-  - Governance impact: low — validation coverage for fail-safe deserialization paths
-"""
+# Module: test_null_guards
+# Purpose: Verify null-safe access and checkpoint registry behavior under malformed payloads.
+# Author: ADAAD / InnovativeAI-adaad
+# Integration points:
+#   - Imports from: runtime.governance.foundation, runtime.evolution.checkpoint_registry
+#   - Consumed by: pytest stability suite
+#   - Governance impact: low — validation coverage for fail-safe deserialization paths
 
 from typing import Any
 

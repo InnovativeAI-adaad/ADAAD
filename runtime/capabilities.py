@@ -21,3 +21,5 @@ from runtime.capability_graph import get_capabilities, register_capability
 
 # The public API is preserved for backward compatibility. New code should import
 # runtime.capability_graph instead of this module.
+
+__all__ = ["get_capabilities", "register_capability"]

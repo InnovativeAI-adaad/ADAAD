@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 import math
 from pathlib import Path
-from typing import Any, Dict, List, Mapping
+from typing import Any, Dict, List
 
 from runtime import ROOT_DIR
 from runtime.evolution.lineage_v2 import LineageLedgerV2

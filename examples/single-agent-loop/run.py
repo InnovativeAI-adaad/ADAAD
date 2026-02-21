@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# ruff: noqa: E402
 """Minimal runnable loop: single constrained agent -> dream -> beast."""
 
 from __future__ import annotations
