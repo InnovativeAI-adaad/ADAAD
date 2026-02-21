@@ -10,11 +10,13 @@ from typing import Any, Dict, Mapping, Optional
 from app.agents.discovery import iter_agent_dirs
 from app.agents.mutation_engine import MutationEngine
 from app.agents.mutation_request import MutationRequest
-from app.agents.mutation_strategies import load_skill_weights, select_strategy
+from app.agents.mutation_strategies import adapt_generated_request_payload, load_skill_weights, select_strategy
 from app.mutation_executor import MutationExecutor
 from runtime import ROOT_DIR
+from runtime.evolution.change_classifier import apply_metadata_updates, classify_mutation_change
 from runtime.evolution.mutation_fitness_evaluator import MutationFitnessEvaluator
 from runtime.governance.policy_validator import PolicyValidator
+from runtime.preflight import validate_mutation_proposal_schema
 from security import cryovant
 
 
@@ -102,7 +104,15 @@ class EvolutionKernel:
     def execute_in_sandbox(self, agent: Mapping[str, Any], mutation: Mapping[str, Any]) -> Dict[str, Any]:
         """Execute mutation through current MutationExecutor sandbox workflow."""
         request_payload = mutation.get("request") if "request" in mutation else mutation
-        request = MutationRequest.from_dict(dict(request_payload))
+        adapted_payload = adapt_generated_request_payload(dict(request_payload))
+        proposal_validation = validate_mutation_proposal_schema(adapted_payload)
+        if not proposal_validation.get("ok"):
+            return {
+                "status": "rejected",
+                "reason": proposal_validation.get("reason", "invalid_mutation_proposal_schema"),
+                "errors": list(proposal_validation.get("errors") or []),
+            }
+        request = MutationRequest.from_dict(adapted_payload)
         if not request.agent_id:
             request.agent_id = str(agent.get("agent_id") or "")
         return self.mutation_executor.execute(request)
@@ -142,6 +152,21 @@ class EvolutionKernel:
 
         agent = self.load_agent(target_agent_path)
         mutation = self.propose_mutation(agent)
+        change_decision = classify_mutation_change(target_agent_path, mutation.get("request") or mutation)
+        if not change_decision.run_mutation:
+            metadata = apply_metadata_updates(target_agent_path)
+            return {
+                "status": "metadata_only",
+                "agent_id": agent.get("agent_id"),
+                "change_classification": change_decision.classification,
+                "change_reason": change_decision.reason,
+                "metadata": {
+                    "mutation_count": metadata.get("mutation_count"),
+                    "version": metadata.get("version"),
+                    "last_mutation": metadata.get("last_mutation"),
+                },
+                "kernel_path": True,
+            }
         validation = self.validate_mutation(None, mutation.get("request") or mutation)
         if not validation.get("valid"):
             return {
@@ -149,6 +174,8 @@ class EvolutionKernel:
                 "reason": "policy_invalid",
                 "agent_id": agent.get("agent_id"),
                 **validation,
+                "change_classification": change_decision.classification,
+                "change_reason": change_decision.reason,
             }
 
         execution_result = self.execute_in_sandbox(agent, mutation)
@@ -159,6 +186,8 @@ class EvolutionKernel:
             "agent_id": agent.get("agent_id"),
             "fitness": fitness_result,
             "certificate": certificate_result,
+            "change_classification": change_decision.classification,
+            "change_reason": change_decision.reason,
             "kernel_path": True,
         }
 

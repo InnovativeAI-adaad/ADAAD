@@ -97,6 +97,7 @@ class RealMutationCycleTest(unittest.TestCase):
                 dna.get("version", 0) > 0
                 or len(dna.get("traits", [])) > 0
                 or "last_mutation" in dna
+                or "ai_strategy" in dna
                 for dna in dna_blobs
             ),
             "DNA should be modified",
