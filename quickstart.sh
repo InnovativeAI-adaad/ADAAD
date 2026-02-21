@@ -50,4 +50,4 @@ fi
 
 echo "✅ Quick start checks complete"
 echo "   - Simulation verdict: reports/quickstart/simulation_verdict.json"
-echo "   - Start dashboard: PYTHONPATH=. python -m ui.aponi_dashboard --host 127.0.0.1 --port 8080"
+echo "   - Start dashboard: scripts/run_dashboard.sh [host] [port]"
