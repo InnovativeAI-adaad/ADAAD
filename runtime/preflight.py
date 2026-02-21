@@ -12,9 +12,10 @@ from __future__ import annotations
 
 import ast
 import importlib.util
+import json
 import sys
 from pathlib import Path
-from typing import Any, Dict, Optional, Sequence, Set
+from typing import Any, Dict, Mapping, Optional, Sequence, Set
 
 from app.agents.discovery import agent_path_from_id
 from app.agents.mutation_request import MutationRequest
@@ -27,6 +28,61 @@ from runtime import ROOT_DIR
 
 _FILE_KEYS = ("file", "filepath", "target")
 _CONTENT_KEYS = ("content", "source", "code", "value")
+
+
+_MUTATION_PROPOSAL_SCHEMA_PATH = ROOT_DIR / "schemas" / "llm_mutation_proposal.v1.json"
+
+
+def _is_schema_type(value: Any, expected: str) -> bool:
+    if expected == "object":
+        return isinstance(value, dict)
+    if expected == "array":
+        return isinstance(value, list)
+    if expected == "string":
+        return isinstance(value, str)
+    if expected == "number":
+        return isinstance(value, (int, float)) and not isinstance(value, bool)
+    if expected == "integer":
+        return isinstance(value, int) and not isinstance(value, bool)
+    if expected == "boolean":
+        return isinstance(value, bool)
+    return True
+
+
+def _validate_against_schema(schema: Dict[str, Any], payload: Any, path: str = "$") -> list[str]:
+    errors: list[str] = []
+    expected_type = schema.get("type")
+    if isinstance(expected_type, str) and not _is_schema_type(payload, expected_type):
+        return [f"{path}:expected_{expected_type}"]
+
+    if isinstance(payload, dict):
+        required = schema.get("required") if isinstance(schema.get("required"), list) else []
+        for key in required:
+            if isinstance(key, str) and key not in payload:
+                errors.append(f"{path}.{key}:missing_required")
+
+        properties = schema.get("properties") if isinstance(schema.get("properties"), dict) else {}
+        for key, value in payload.items():
+            if key in properties and isinstance(properties[key], dict):
+                errors.extend(_validate_against_schema(properties[key], value, f"{path}.{key}"))
+            elif schema.get("additionalProperties") is False:
+                errors.append(f"{path}.{key}:additional_property")
+
+    if isinstance(payload, list) and isinstance(schema.get("items"), dict):
+        item_schema = schema["items"]
+        for index, item in enumerate(payload):
+            errors.extend(_validate_against_schema(item_schema, item, f"{path}[{index}]"))
+
+    return errors
+
+
+def validate_mutation_proposal_schema(proposal: Mapping[str, Any]) -> Dict[str, Any]:
+    schema = json.loads(_MUTATION_PROPOSAL_SCHEMA_PATH.read_text(encoding="utf-8"))
+    payload = dict(proposal)
+    errors = _validate_against_schema(schema, payload)
+    if errors:
+        return {"ok": False, "reason": "invalid_mutation_proposal_schema", "errors": errors}
+    return {"ok": True, "reason": "ok", "errors": []}
 
 
 def _extract_targets(request: MutationRequest) -> Set[Path]:
@@ -222,4 +278,9 @@ def validate_mutation(request: MutationRequest, tier: Optional[Any] = None) -> D
     return evaluate_mutation(request, tier)
 
 
-__all__ = ["validate_mutation", "validate_tool_contract_preflight", "validate_agent_contract_preflight"]
+__all__ = [
+    "validate_mutation",
+    "validate_tool_contract_preflight",
+    "validate_agent_contract_preflight",
+    "validate_mutation_proposal_schema",
+]
