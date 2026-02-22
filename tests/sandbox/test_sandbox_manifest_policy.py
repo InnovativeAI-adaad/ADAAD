@@ -33,6 +33,7 @@ def test_policy_validation_rejects_empty_profile():
         syscall_allowlist=("read",),
         write_path_allowlist=("reports",),
         network_egress_allowlist=(),
+        dns_resolution_allowed=False,
         capability_drop=(),
         cpu_seconds=1,
         memory_mb=1,

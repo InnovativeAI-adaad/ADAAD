@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
+from app.agents.mutation_request import MutationRequest
 from runtime.evolution.baseline import BaselineStore
 from runtime.evolution.epoch import EpochManager
 from runtime.evolution.governor import EvolutionGovernor
@@ -15,6 +16,7 @@ from runtime.evolution.replay_mode import ReplayMode, normalize_replay_mode
 from runtime.evolution.replay_verifier import ReplayVerifier
 from runtime.evolution.checkpoint_registry import CheckpointRegistry
 from runtime.evolution.checkpoint_verifier import verify_checkpoint_chain
+from runtime import constitution
 from runtime.governance.foundation import RuntimeDeterminismProvider, require_replay_safe_provider
 
 
@@ -73,6 +75,21 @@ class EvolutionRuntime:
         self.metrics_emitter = EvolutionMetricsEmitter(self.ledger)
 
     def boot(self) -> Dict[str, Any]:
+        lineage_check = constitution.VALIDATOR_REGISTRY["lineage_continuity"](
+            MutationRequest(
+                agent_id="runtime_bootstrap",
+                generation_ts="boot",
+                intent="lineage_verification",
+                ops=[],
+                signature="cryovant-static-bootstrap",
+                nonce="boot-0",
+            )
+        )
+        fail_closed_reasons = {"lineage_violation_detected"}
+        if not bool(lineage_check.get("ok")) and str(lineage_check.get("reason") or "") in fail_closed_reasons:
+            self._enter_fail_closed_replay(epoch_id=self.current_epoch_id or "boot", reason="lineage_continuity_failed")
+            raise RuntimeError("lineage_continuity_failed")
+
         epoch = self.epoch_manager.load_or_create()
         self._sync_from_epoch(epoch.to_dict())
         self.epoch_digest = self.ledger.get_epoch_digest(epoch.epoch_id)
@@ -335,8 +352,10 @@ class EvolutionRuntime:
             verify_target = "all_epochs"
 
         has_divergence = any(not result["passed"] for result in results)
-        if has_divergence and replay_mode.fail_closed:
-            self.governor.enter_fail_closed("replay_divergence", self.current_epoch_id or "unknown")
+        federation_drift_detected = any(bool(result.get("federation_drift_detected")) for result in results)
+        if (has_divergence or federation_drift_detected) and replay_mode.fail_closed:
+            reason = "federation_drift_detected" if federation_drift_detected else "replay_divergence"
+            self.governor.enter_fail_closed(reason, self.current_epoch_id or "unknown")
             decision = "fail_closed"
         else:
             decision = "continue"
@@ -344,6 +363,7 @@ class EvolutionRuntime:
             "mode": replay_mode.value,
             "verify_target": verify_target,
             "has_divergence": has_divergence,
+            "federation_drift_detected": federation_drift_detected,
             "decision": decision,
             "results": results,
         }

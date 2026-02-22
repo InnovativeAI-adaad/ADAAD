@@ -34,3 +34,9 @@ This policy governs JSON schemas under `schemas/` that define governance artifac
   1. `python scripts/validate_governance_schemas.py`
   2. Relevant test targets covering schema consumers and validators.
 - Pull requests that introduce mixed drafts or non-canonical `$id` values must be rejected.
+
+
+## Release gate semantics migration (strict governance release workflow)
+- Releases are now gated by `.github/workflows/governance_strict_release_gate.yml` for governance/public-readiness tag flows.
+- Migration impact: release candidates must pass determinism lint, entropy discipline checks, governance strict-mode validation (including rule activation assertions), strict replay validation, and constitution fingerprint stability checks before gate completion.
+- Operational expectation: any non-success state in a required strict-release job is release-blocking until resolved; there is no permissive skip path for these checks.

@@ -5,7 +5,7 @@ import os
 import unittest
 from unittest import mock
 
-from app.main import Orchestrator, _apply_governance_ci_mode_defaults, _governance_ci_mode_enabled
+from app.main import Orchestrator, _apply_governance_ci_mode_defaults, _governance_ci_mode_enabled, main
 from runtime.evolution.replay_mode import ReplayMode, normalize_replay_mode, parse_replay_args
 
 
@@ -134,3 +134,20 @@ class GovernanceCIModeTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ReplayProofExportCliTest(unittest.TestCase):
+    def test_export_replay_proof_uses_epoch_flag_and_deterministic_path(self) -> None:
+        fake_builder = mock.Mock()
+        fake_builder.write_bundle.return_value = mock.Mock(as_posix=mock.Mock(return_value="security/ledger/replay_proofs/epoch-42.replay_attestation.v1.json"))
+        with mock.patch("app.main.ReplayProofBuilder", return_value=fake_builder):
+            with mock.patch("sys.argv", ["app.main", "--export-replay-proof", "--epoch", "epoch-42"]):
+                with mock.patch("builtins.print") as printer:
+                    main()
+        fake_builder.write_bundle.assert_called_once_with("epoch-42")
+        printer.assert_called_once_with("security/ledger/replay_proofs/epoch-42.replay_attestation.v1.json")
+
+    def test_export_replay_proof_requires_epoch(self) -> None:
+        with mock.patch("sys.argv", ["app.main", "--export-replay-proof"]):
+            with self.assertRaises(SystemExit):
+                main()

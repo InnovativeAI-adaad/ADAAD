@@ -6,9 +6,11 @@
   "required": [
     "manifest_hash",
     "policy_hash",
+    "sandbox_policy_hash",
     "stdout_hash",
     "stderr_hash",
     "syscall_trace_hash",
+    "syscall_fingerprint",
     "resource_usage",
     "exit_code",
     "replay_seed",
@@ -17,52 +19,151 @@
     "manifest",
     "isolation_mode",
     "enforced_controls",
-    "preflight"
+    "preflight",
+    "events"
   ],
   "properties": {
-    "manifest_hash": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
-    "policy_hash": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
-    "stdout_hash": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
-    "stderr_hash": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
-    "syscall_trace_hash": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "manifest_hash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "policy_hash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "stdout_hash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "stderr_hash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "syscall_trace_hash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
     "resource_usage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["duration_s", "memory_mb", "disk_mb"],
+      "required": [
+        "duration_s",
+        "memory_mb",
+        "disk_mb"
+      ],
       "properties": {
-        "duration_s": {"type": "number", "minimum": 0},
-        "memory_mb": {"type": "number", "minimum": 0},
-        "disk_mb": {"type": "number", "minimum": 0}
+        "duration_s": {
+          "type": "number",
+          "minimum": 0
+        },
+        "memory_mb": {
+          "type": "number",
+          "minimum": 0
+        },
+        "disk_mb": {
+          "type": "number",
+          "minimum": 0
+        }
       }
     },
-    "exit_code": {"type": ["integer", "null"]},
-    "replay_seed": {"type": "string", "pattern": "^(?!0{16}$)[a-fA-F0-9]{16}$"},
-    "timestamp": {"type": "string", "minLength": 1},
-    "evidence_hash": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
-    "manifest": {"type": "object"},
-    "isolation_mode": {"type": "string", "minLength": 1},
+    "exit_code": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "replay_seed": {
+      "type": "string",
+      "pattern": "^(?!0{16}$)[a-fA-F0-9]{16}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "minLength": 1
+    },
+    "evidence_hash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "manifest": {
+      "type": "object"
+    },
+    "isolation_mode": {
+      "type": "string",
+      "minLength": 1
+    },
     "enforced_controls": {
       "type": "array",
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["control", "profile", "mechanism", "enforced", "simulated"],
+        "required": [
+          "control",
+          "profile",
+          "mechanism",
+          "enforced",
+          "simulated"
+        ],
         "properties": {
-          "control": {"type": "string", "minLength": 1},
-          "profile": {"type": "string", "minLength": 1},
-          "mechanism": {"type": "string", "minLength": 1},
-          "enforced": {"type": "boolean"},
-          "simulated": {"type": "boolean"}
+          "control": {
+            "type": "string",
+            "minLength": 1
+          },
+          "profile": {
+            "type": "string",
+            "minLength": 1
+          },
+          "mechanism": {
+            "type": "string",
+            "minLength": 1
+          },
+          "enforced": {
+            "type": "boolean"
+          },
+          "simulated": {
+            "type": "boolean"
+          }
         }
       }
     },
     "preflight": {
       "type": "object",
       "additionalProperties": true,
-      "required": ["ok", "reason"],
+      "required": [
+        "ok",
+        "reason"
+      ],
       "properties": {
-        "ok": {"type": "boolean"},
-        "reason": {"type": "string", "minLength": 1}
+        "ok": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "sandbox_policy_hash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "syscall_fingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "event"
+        ],
+        "properties": {
+          "event": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
       }
     }
   }

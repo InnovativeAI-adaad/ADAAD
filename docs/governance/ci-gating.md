@@ -81,3 +81,22 @@ For governance-impact PRs, operators should verify review-quality KPIs in additi
   - `review_depth_proxies.override_rate_percent > 20.0`
 
 This endpoint is intended for dashboard ingestion and automated threshold alerting.
+
+
+## Strict release gate workflow
+
+Release-tag pushes and manual release gate runs now use `.github/workflows/governance_strict_release_gate.yml`.
+
+Required jobs (all blocking):
+
+- `determinism-lint`
+- `entropy-discipline-checks`
+- `governance-strict-mode-validation`
+  - Includes a rule-activation assertion that fails when any constitution rule with baseline `severity=blocking` or a `tier_overrides` blocking severity is disabled in `runtime/governance/constitution.yaml`.
+- `replay-strict-validation`
+- `constitution-fingerprint-stability`
+
+The terminal `release-gate` job is fail-closed and requires each upstream job result to be `success`; any failure, cancellation, or skip state blocks release gating.
+
+
+- The strict release rule-activation assertion uses the runtime constitution policy loader (`runtime.constitution.load_constitution_policy`) to avoid parser drift between CI checks and runtime governance evaluation.

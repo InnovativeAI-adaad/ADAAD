@@ -18,6 +18,7 @@ from runtime.evolution.lineage_v2 import EpochEndEvent, EpochStartEvent, Lineage
 from runtime.evolution.mutation_budget import MutationBudgetDecision, MutationBudgetManager
 from runtime.evolution.metrics_schema import EvolutionMetricsEmitter
 from runtime.evolution.scoring import authority_threshold, clamp_score
+from runtime import constitution
 from runtime.governance.deterministic_envelope import (
     EntropyBudgetExceeded,
     EntropySource,
@@ -224,6 +225,13 @@ class EvolutionGovernor:
         continuity_ok = bool(request.nonce and request.generation_ts)
         if not continuity_ok:
             decision = GovernanceDecision(accepted=False, reason="lineage_continuity_failed")
+            self._record_decision(request, epoch_id, decision, impact_score=0.0)
+            return decision
+
+        lineage_verdict = constitution.VALIDATOR_REGISTRY["lineage_continuity"](request)
+        if not bool(lineage_verdict.get("ok")) and str(lineage_verdict.get("reason") or "") == "lineage_violation_detected":
+            self.enter_fail_closed("lineage_continuity_failed", epoch_id)
+            decision = GovernanceDecision(accepted=False, reason="lineage_continuity_failed", replay_status="failed")
             self._record_decision(request, epoch_id, decision, impact_score=0.0)
             return decision
 

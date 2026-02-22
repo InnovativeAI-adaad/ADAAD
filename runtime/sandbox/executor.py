@@ -4,18 +4,18 @@
 from __future__ import annotations
 
 from dataclasses import asdict
-from typing import Sequence
+from typing import Any, Sequence
 
 from runtime.governance.foundation import RuntimeDeterminismProvider, default_provider
 from runtime.sandbox.evidence import SandboxEvidenceLedger, build_sandbox_evidence
 from runtime.sandbox.fs_rules import enforce_write_path_allowlist
 from runtime.sandbox.isolation import IsolationBackend, ProcessIsolationBackend
-from runtime.sandbox.preflight import analyze_execution_plan
 from runtime.sandbox.manifest import SandboxManifest, validate_manifest
 from runtime.sandbox.network_rules import enforce_network_egress_allowlist
 from runtime.sandbox.policy import SandboxPolicy, default_sandbox_policy, validate_policy
+from runtime.sandbox.preflight import analyze_execution_plan
 from runtime.sandbox.resources import enforce_resource_quotas
-from runtime.sandbox.syscall_filter import enforce_syscall_allowlist
+from runtime.sandbox.syscall_filter import enforce_syscall_allowlist_with_fingerprint
 from runtime.test_sandbox import TestSandbox, TestSandboxResult
 
 
@@ -35,6 +35,35 @@ class HardenedSandboxExecutor:
         self.evidence_ledger = SandboxEvidenceLedger()
         self.last_evidence_hash = ""
         self.last_evidence_payload: dict[str, object] = {}
+
+    def _record_evidence(
+        self,
+        *,
+        manifest: SandboxManifest,
+        result_payload: dict[str, Any],
+        syscall_fingerprint: str,
+        syscall_trace: tuple[str, ...],
+        isolation_mode: str,
+        enforced_controls: tuple[dict[str, Any], ...],
+        preflight: dict[str, Any],
+        events: tuple[dict[str, Any], ...],
+    ) -> None:
+        evidence_payload = build_sandbox_evidence(
+            manifest=manifest.to_dict(),
+            result=result_payload,
+            policy_hash=self.policy.policy_hash,
+            sandbox_policy_hash=self.policy.policy_hash,
+            syscall_trace=syscall_trace,
+            syscall_fingerprint=syscall_fingerprint,
+            provider_ts=self.provider.iso_now(),
+            isolation_mode=isolation_mode,
+            enforced_controls=enforced_controls,
+            preflight=preflight,
+            events=events,
+        )
+        entry = self.evidence_ledger.append(evidence_payload)
+        self.last_evidence_payload = dict(evidence_payload)
+        self.last_evidence_hash = str((entry.get("payload") or {}).get("evidence_hash") or "")
 
     def run_tests_with_retry(
         self,
@@ -73,21 +102,97 @@ class HardenedSandboxExecutor:
             raise RuntimeError("sandbox_policy_unenforceable:control_not_enforced")
 
         result = self.isolation_backend.run(test_sandbox=self.test_sandbox, args=args, retries=retries)
+        result_payload = asdict(result)
+        result_payload["disk_mb"] = 0.0
 
         if not result.observed_syscalls:
+            self._record_evidence(
+                manifest=manifest,
+                result_payload=result_payload,
+                syscall_fingerprint="",
+                syscall_trace=(),
+                isolation_mode=isolation_preparation.mode,
+                enforced_controls=tuple(asdict(control) for control in isolation_preparation.controls),
+                preflight=preflight,
+                events=(
+                    {
+                        "event": "sandbox_integrity_violation",
+                        "violation_type": "missing_syscall_telemetry",
+                        "fail_closed": True,
+                    },
+                ),
+            )
             raise RuntimeError("sandbox_missing_syscall_telemetry")
 
-        syscall_ok, denied_syscalls = enforce_syscall_allowlist(result.observed_syscalls, self.policy.syscall_allowlist)
+        syscall_ok, denied_syscalls, syscall_fingerprint = enforce_syscall_allowlist_with_fingerprint(
+            result.observed_syscalls, self.policy.syscall_allowlist
+        )
         if not syscall_ok:
+            self._record_evidence(
+                manifest=manifest,
+                result_payload=result_payload,
+                syscall_fingerprint=syscall_fingerprint,
+                syscall_trace=result.observed_syscalls,
+                isolation_mode=isolation_preparation.mode,
+                enforced_controls=tuple(asdict(control) for control in isolation_preparation.controls),
+                preflight=preflight,
+                events=(
+                    {
+                        "event": "sandbox_integrity_violation",
+                        "violation_type": "syscall_allowlist",
+                        "details": list(denied_syscalls),
+                        "fail_closed": True,
+                    },
+                ),
+            )
             raise RuntimeError(f"sandbox_syscall_violation:{','.join(denied_syscalls)}")
 
         write_ok, write_violations = enforce_write_path_allowlist(result.attempted_write_paths, manifest.allowed_write_paths)
         if not write_ok:
+            self._record_evidence(
+                manifest=manifest,
+                result_payload=result_payload,
+                syscall_fingerprint=syscall_fingerprint,
+                syscall_trace=result.observed_syscalls,
+                isolation_mode=isolation_preparation.mode,
+                enforced_controls=tuple(asdict(control) for control in isolation_preparation.controls),
+                preflight=preflight,
+                events=(
+                    {
+                        "event": "sandbox_integrity_violation",
+                        "violation_type": "write_path_allowlist",
+                        "details": list(write_violations),
+                        "fail_closed": True,
+                    },
+                ),
+            )
             raise RuntimeError(f"sandbox_write_path_violation:{','.join(write_violations)}")
 
-        network_ok, network_violations = enforce_network_egress_allowlist(result.attempted_network_hosts, manifest.allowed_network_hosts)
+        network_ok, network_violations = enforce_network_egress_allowlist(
+            result.attempted_network_hosts,
+            manifest.allowed_network_hosts,
+            dns_resolution_allowed=self.policy.dns_resolution_allowed,
+        )
         if not network_ok:
+            self._record_evidence(
+                manifest=manifest,
+                result_payload=result_payload,
+                syscall_fingerprint=syscall_fingerprint,
+                syscall_trace=result.observed_syscalls,
+                isolation_mode=isolation_preparation.mode,
+                enforced_controls=tuple(asdict(control) for control in isolation_preparation.controls),
+                preflight=preflight,
+                events=(
+                    {
+                        "event": "sandbox_integrity_violation",
+                        "violation_type": "network_egress_allowlist",
+                        "details": list(network_violations),
+                        "fail_closed": True,
+                    },
+                ),
+            )
             raise RuntimeError(f"sandbox_network_violation:{','.join(network_violations)}")
+
         resource_verdict = enforce_resource_quotas(
             observed_cpu_s=result.duration_s,
             observed_memory_mb=float(result.memory_mb or 0.0),
@@ -99,23 +204,40 @@ class HardenedSandboxExecutor:
             timeout_s=manifest.timeout_s,
         )
         if not resource_verdict["passed"]:
+            self._record_evidence(
+                manifest=manifest,
+                result_payload=result_payload,
+                syscall_fingerprint=syscall_fingerprint,
+                syscall_trace=result.observed_syscalls,
+                isolation_mode=isolation_preparation.mode,
+                enforced_controls=tuple(asdict(control) for control in isolation_preparation.controls),
+                preflight=preflight,
+                events=(
+                    {
+                        "event": "sandbox_integrity_violation",
+                        "violation_type": "resource_quota",
+                        "details": dict(resource_verdict),
+                        "fail_closed": True,
+                    },
+                ),
+            )
             raise RuntimeError("sandbox_resource_quota_violation")
 
-        result_payload = asdict(result)
-        result_payload["disk_mb"] = 0.0
-        evidence_payload = build_sandbox_evidence(
-            manifest=manifest.to_dict(),
-            result=result_payload,
-            policy_hash=self.policy.policy_hash,
+        self._record_evidence(
+            manifest=manifest,
+            result_payload=result_payload,
+            syscall_fingerprint=syscall_fingerprint,
             syscall_trace=result.observed_syscalls,
-            provider_ts=self.provider.iso_now(),
             isolation_mode=isolation_preparation.mode,
             enforced_controls=tuple(asdict(control) for control in isolation_preparation.controls),
             preflight=preflight,
+            events=(
+                {
+                    "event": "sandbox_integrity_verified",
+                    "status": "ok",
+                },
+            ),
         )
-        entry = self.evidence_ledger.append(evidence_payload)
-        self.last_evidence_payload = dict(evidence_payload)
-        self.last_evidence_hash = str((entry.get("payload") or {}).get("evidence_hash") or "")
         return result
 
 

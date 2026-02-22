@@ -9,6 +9,7 @@ from typing import Any, Dict
 
 from runtime import ROOT_DIR
 from runtime.governance.foundation import ZERO_HASH, canonical_json, sha256_prefixed_digest
+from runtime.sandbox.syscall_filter import syscall_trace_fingerprint
 
 SANDBOX_EVIDENCE_PATH = ROOT_DIR / "security" / "ledger" / "sandbox_evidence.jsonl"
 
@@ -18,11 +19,14 @@ def build_sandbox_evidence(
     manifest: Dict[str, Any],
     result: Dict[str, Any],
     policy_hash: str,
+    sandbox_policy_hash: str | None = None,
     syscall_trace: tuple[str, ...] = (),
+    syscall_fingerprint: str | None = None,
     provider_ts: str,
     isolation_mode: str = "process",
     enforced_controls: tuple[Dict[str, Any], ...] = (),
     preflight: Dict[str, Any] | None = None,
+    events: tuple[Dict[str, Any], ...] = (),
 ) -> Dict[str, Any]:
     """Build a canonical sandbox evidence payload for ledger persistence.
 
@@ -32,12 +36,10 @@ def build_sandbox_evidence(
     - `stderr_hash == sha256(stderr)`
     - `syscall_trace_hash == sha256(syscall_trace)`
     - `resource_usage_hash == sha256(resource_usage)`
-
-    These fields define the canonical replay check contract consumed by
-    `runtime.sandbox.replay.replay_sandbox_execution`.
     """
     stdout = str(result.get("stdout", ""))
     stderr = str(result.get("stderr", ""))
+    trace = tuple(str(item) for item in syscall_trace)
     resource_usage = {
         "duration_s": float(result.get("duration_s", 0.0) or 0.0),
         "memory_mb": float(result.get("memory_mb", 0.0) or 0.0),
@@ -46,12 +48,14 @@ def build_sandbox_evidence(
     payload = {
         "manifest_hash": sha256_prefixed_digest(manifest),
         "policy_hash": policy_hash,
+        "sandbox_policy_hash": sandbox_policy_hash or policy_hash,
         "stdout": stdout,
         "stdout_hash": sha256_prefixed_digest(stdout),
         "stderr": stderr,
         "stderr_hash": sha256_prefixed_digest(stderr),
-        "syscall_trace": list(syscall_trace),
-        "syscall_trace_hash": sha256_prefixed_digest(list(syscall_trace)),
+        "syscall_trace": list(trace),
+        "syscall_trace_hash": sha256_prefixed_digest(list(trace)),
+        "syscall_fingerprint": syscall_fingerprint or syscall_trace_fingerprint(trace),
         "resource_usage": resource_usage,
         "resource_usage_hash": sha256_prefixed_digest(resource_usage),
         "exit_code": result.get("returncode"),
@@ -61,6 +65,7 @@ def build_sandbox_evidence(
         "isolation_mode": isolation_mode,
         "enforced_controls": [dict(item) for item in enforced_controls],
         "preflight": dict(preflight or {"ok": True, "reason": "not_provided"}),
+        "events": [dict(item) for item in events],
     }
     payload["evidence_hash"] = sha256_prefixed_digest(payload)
     return payload

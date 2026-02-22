@@ -125,5 +125,18 @@
       "reason": "Prevent entropy budget overruns per mutation",
       "validator": "entropy_budget_limit"
     }
-  ]
+  ],
+  "resource_bounds_policy": {
+    "policy_version": "1.0.0",
+    "limits": {
+      "memory_mb": 2048,
+      "cpu_seconds": 30,
+      "wall_seconds": 60
+    },
+    "allow_env_overrides": [
+      "memory_mb",
+      "cpu_seconds",
+      "wall_seconds"
+    ]
+  }
 }

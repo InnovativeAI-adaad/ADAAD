@@ -1,0 +1,153 @@
+name: Governance Strict Release Gate
+
+on:
+  push:
+    tags:
+      - "v*-governance-*"
+      - "v*-public-readiness-*"
+      - "governance-*"
+      - "public-readiness-*"
+  workflow_dispatch:
+
+jobs:
+  determinism-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run determinism lint
+        run: python tools/lint_determinism.py runtime/ security/ app/main.py
+
+  entropy-discipline-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.server.txt
+      - name: Run entropy discipline checks
+        run: |
+          PYTHONPATH=. pytest tests/test_entropy_budget.py tests/test_evolution_infrastructure.py tests/test_entropy_discipline_replay.py -q
+
+  governance-strict-mode-validation:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: "."
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.server.txt
+      - name: Validate governance schemas
+        run: python scripts/validate_governance_schemas.py
+      - name: Import evolution runtime module
+        run: python -c "import runtime.evolution.runtime; from runtime.constitution import RULES, POLICY_HASH; assert RULES and POLICY_HASH"
+      - name: Assert blocking constitutional rules are enabled
+        run: |
+          python - <<'PY'
+          from runtime.constitution import load_constitution_policy
+
+          rules, _policy_hash = load_constitution_policy()
+          constitution = {"rules": []}
+          for rule in rules:
+            constitution["rules"].append(
+              {
+                "name": rule.name,
+                "enabled": bool(rule.enabled),
+                "severity": rule.severity.value,
+                "tier_overrides": {tier.name: severity.value for tier, severity in rule.tier_overrides.items()},
+              }
+            )
+          missing = []
+          for rule in constitution.get("rules", []):
+            name = rule.get("name", "<unnamed>")
+            severity = str(rule.get("severity", "")).strip().lower()
+            tier_overrides = rule.get("tier_overrides", {}) or {}
+            has_blocking_override = any(str(value).strip().lower() == "blocking" for value in tier_overrides.values())
+            if (severity == "blocking" or has_blocking_override) and not bool(rule.get("enabled")):
+              missing.append(name)
+
+          if missing:
+            raise SystemExit(
+              "Blocking constitutional rules must remain enabled in runtime/governance/constitution.yaml: "
+              + ", ".join(sorted(missing))
+            )
+
+          print("All blocking constitutional rules are enabled.")
+          PY
+
+  replay-strict-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.server.txt
+      - name: Verify strict replay
+        env:
+          ADAAD_ENV: dev
+          CRYOVANT_DEV_MODE: "1"
+          ADAAD_FORCE_DETERMINISTIC_PROVIDER: "1"
+          ADAAD_DETERMINISTIC_SEED: release-gate-strict-replay
+        run: PYTHONPATH=. python -m app.main --verify-replay --replay strict
+
+  constitution-fingerprint-stability:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.server.txt
+      - name: Validate governance fingerprint stability contracts
+        run: PYTHONPATH=. pytest tests/governance/contracts/test_governance_contracts.py -q
+
+  release-gate:
+    runs-on: ubuntu-latest
+    if: always()
+    needs:
+      - determinism-lint
+      - entropy-discipline-checks
+      - governance-strict-mode-validation
+      - replay-strict-validation
+      - constitution-fingerprint-stability
+    steps:
+      - name: Enforce strict release gate
+        env:
+          DETERMINISM_RESULT: ${{ needs.determinism-lint.result }}
+          ENTROPY_RESULT: ${{ needs.entropy-discipline-checks.result }}
+          GOVERNANCE_RESULT: ${{ needs.governance-strict-mode-validation.result }}
+          REPLAY_RESULT: ${{ needs.replay-strict-validation.result }}
+          FINGERPRINT_RESULT: ${{ needs.constitution-fingerprint-stability.result }}
+        run: |
+          set -euo pipefail
+          echo "determinism-lint => $DETERMINISM_RESULT"
+          echo "entropy-discipline-checks => $ENTROPY_RESULT"
+          echo "governance-strict-mode-validation => $GOVERNANCE_RESULT"
+          echo "replay-strict-validation => $REPLAY_RESULT"
+          echo "constitution-fingerprint-stability => $FINGERPRINT_RESULT"
+
+          test "$DETERMINISM_RESULT" = "success"
+          test "$ENTROPY_RESULT" = "success"
+          test "$GOVERNANCE_RESULT" = "success"
+          test "$REPLAY_RESULT" = "success"
+          test "$FINGERPRINT_RESULT" = "success"
+
+          echo "All required governance strict release-gate jobs passed."

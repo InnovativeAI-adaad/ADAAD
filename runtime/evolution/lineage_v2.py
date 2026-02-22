@@ -15,6 +15,53 @@ from runtime.governance.deterministic_filesystem import read_file_deterministic
 LEDGER_V2_PATH = ROOT_DIR / "security" / "ledger" / "lineage_v2.jsonl"
 
 
+def resolve_certified_ancestor_path(entry: Dict[str, Any]) -> Dict[str, Any]:
+    """Resolve canonical mutation identity + ancestry links for a lineage entry.
+
+    Expected invariant: ``ancestor_chain`` is ordered oldest->newest, so the tail
+    (last element) must match ``parent_mutation_id`` when both are present.
+    """
+
+    payload = dict(entry.get("payload") or {})
+    certificate = payload.get("certificate") if isinstance(payload.get("certificate"), dict) else {}
+    lineage = payload.get("lineage") if isinstance(payload.get("lineage"), dict) else {}
+
+    mutation_id = str(
+        payload.get("mutation_id")
+        or payload.get("bundle_id")
+        or certificate.get("mutation_id")
+        or certificate.get("bundle_id")
+        or ""
+    )
+    parent_mutation_id = str(
+        payload.get("parent_mutation_id")
+        or payload.get("parent_bundle_id")
+        or certificate.get("parent_mutation_id")
+        or certificate.get("parent_bundle_id")
+        or lineage.get("parent_mutation_id")
+        or ""
+    )
+
+    ancestors_raw = (
+        payload.get("ancestor_chain")
+        or payload.get("ancestor_mutation_ids")
+        or certificate.get("ancestor_chain")
+        or certificate.get("ancestor_mutation_ids")
+        or lineage.get("ancestor_chain")
+        or []
+    )
+    ancestor_chain = [str(item) for item in ancestors_raw if str(item)] if isinstance(ancestors_raw, list) else []
+
+    certified_signature = str(certificate.get("signature") or "")
+
+    return {
+        "mutation_id": mutation_id,
+        "parent_mutation_id": parent_mutation_id,
+        "ancestor_chain": ancestor_chain,
+        "certified_signature": certified_signature,
+    }
+
+
 class LineageIntegrityError(RuntimeError):
     """Raised when lineage_v2 ledger integrity verification fails."""
 
