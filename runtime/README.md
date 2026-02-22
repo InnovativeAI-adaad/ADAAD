@@ -17,6 +17,8 @@ Deterministic replay-sensitive entry points now consume a shared provider abstra
 - Hardened sandbox isolation primitives: `runtime/sandbox/{executor,policy,manifest,evidence,isolation,preflight}.py` with strict pre-exec enforcement preparation (seccomp/capability/resource profiles) and deterministic preflight blocking before test execution (missing sandbox syscall telemetry is fail-closed).
 - Lineage replay integrity now distinguishes two paths: verified replay digests (chain-integrity prevalidated) for strict/production checks, and explicit unverified forensic digest recomputation for tamper analysis workflows.
 - Strict replay determinism requires deterministic providers; audit tier enforcement also requires deterministic providers to preserve forensic replay value.
+- Mutation transactions (`runtime/tools/mutation_tx.py`) derive transaction IDs from the shared determinism provider using epoch/agent/mutation/replay context labels, so strict/audit replay mode emits replay-safe stable IDs while off-mode remains provider-default behavior.
+- Mutation transaction verification (`runtime/tools/mutation_tx.py`) enforces deterministic invariants before commit: every recorded path must resolve under `agent_root`, touched-file sets must be stable/non-empty when mutations were requested, and per-record metadata (`checksum`, `applied`, `skipped`) must remain internally consistent; invariant failures raise a verification error and trigger rollback.
 - Strict replay invariants reference: `docs/governance/STRICT_REPLAY_INVARIANTS.md` (verified vs unverified digest policy, provider requirements, and replay-equivalence guarantees).
 - Federation coordination primitives: `runtime/governance/federation/` provides deterministic policy version exchange, quorum/consensus decision recording, conflict reconciliation actions, and explicit local-vs-federated governance precedence for replay attestation checks.
 
@@ -43,3 +45,11 @@ Deterministic replay-sensitive entry points now consume a shared provider abstra
 - Governance-critical paths (`runtime/governance/`, `runtime/evolution/`, `runtime/autonomy/`, `security/`) are enforced by `tools/lint_determinism.py` as a primary verification gate in `scripts/verify_core.py` and `scripts/verify_core.sh`.
 - The determinism lint blocks dynamic execution/import primitives (`eval`, `exec`, `compile`, `__import__`, `importlib.import_module`) including importlib alias forms.
 - Runtime import boundary blocking uses a PEP 451 `MetaPathFinder`/loader (`runtime/import_guard.py`) and is only activated in explicit strict/test contexts (`ADAAD_RUNTIME_IMPORT_GUARD=strict|test`, `ADAAD_REPLAY_MODE=strict`, or test execution), so normal runtime imports remain unaffected by default.
+
+
+## Architecture ownership contract
+
+- Canonical entrypoint: `app/main.py` (`python -m app.main`).
+- `runtime/__init__.py` is an adapter-only root surface (`ROOT_DIR`, `REPO_ROOT`, import-guard install), not an orchestration layer.
+- Import boundary checks are enforced by `tools/lint_import_paths.py` and must pass in CI.
+- See `docs/ARCHITECTURE_CONTRACT.md` for strict layer ownership and forbidden import edges.
