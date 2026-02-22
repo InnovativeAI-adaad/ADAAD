@@ -64,6 +64,7 @@ from runtime.constitution import (
 )
 from runtime.fitness_v2 import score_mutation_enhanced
 from runtime.governance.foundation import default_provider
+from runtime.preflight import validate_boot_runtime_profile
 from runtime.timeutils import now_iso
 from runtime.warm_pool import WarmPool
 from adaad.orchestrator.bootstrap import bootstrap_tool_registry
@@ -179,6 +180,10 @@ class Orchestrator:
         if not gate.get("ok"):
             self._fail(f"gatekeeper_failed:{','.join(gate.get('missing', []))}")
         self._v("Gatekeeper preflight passed")
+        boot_profile = validate_boot_runtime_profile(replay_mode=self.replay_mode.value)
+        if not boot_profile.get("ok"):
+            self._fail(f"boot_runtime_profile_failed:{boot_profile.get('reason', 'unknown')}")
+        self.state["runtime_profile"] = boot_profile.get("checks", {})
         bootstrap_tool_registry()
         self._register_elements()
         self._init_runtime()

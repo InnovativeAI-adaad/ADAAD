@@ -16,9 +16,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from hashlib import sha256
 import json
-from typing import Dict, Iterable, List, Literal
+from typing import TYPE_CHECKING, Dict, Iterable, List, Literal
 
-from runtime.evolution.lineage_v2 import LineageLedgerV2
+if TYPE_CHECKING:
+    from runtime.evolution.lineage_v2 import LineageLedgerV2
 
 DECISION_CLASS_CONSENSUS = "consensus"
 DECISION_CLASS_QUORUM = "quorum"
@@ -180,7 +181,7 @@ def resolve_governance_precedence(
 
 
 def persist_federation_decision(
-    ledger: LineageLedgerV2,
+    ledger: "LineageLedgerV2",
     *,
     epoch_id: str,
     exchange: FederationPolicyExchange,

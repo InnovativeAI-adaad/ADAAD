@@ -11,8 +11,10 @@ Validations are intentionally minimal and deterministic:
 from __future__ import annotations
 
 import ast
+import hashlib
 import importlib.util
 import json
+import os
 import sys
 from pathlib import Path
 from typing import Any, Dict, Mapping, Optional, Sequence, Set
@@ -24,6 +26,7 @@ from adaad.core.agent_contract import DEFAULT_AGENT_SCOPES, validate_agent_contr
 from adaad.core.tool_contract import DEFAULT_DISCOVERY_SCOPES, validate_tool_contracts
 
 from runtime import ROOT_DIR
+from runtime.governance.foundation import default_provider
 
 
 _FILE_KEYS = ("file", "filepath", "target")
@@ -31,6 +34,101 @@ _CONTENT_KEYS = ("content", "source", "code", "value")
 
 
 _MUTATION_PROPOSAL_SCHEMA_PATH = ROOT_DIR / "schemas" / "llm_mutation_proposal.v1.json"
+_RUNTIME_PROFILE_PATH = ROOT_DIR / "governance_runtime_profile.lock.json"
+
+
+def _is_truthy_env(value: str) -> bool:
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _parse_csv_env(value: str) -> set[str]:
+    return {part.strip() for part in value.split(",") if part.strip()}
+
+
+def _dependency_fingerprint(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _check_surface_contract(manifest: Mapping[str, Any], key: str) -> Dict[str, Any]:
+    section = manifest.get(key)
+    if not isinstance(section, Mapping):
+        return {"ok": False, "reason": f"runtime_manifest_invalid:{key}"}
+    disable_env = str(section.get("disable_env", "")).strip()
+    allowlist_env = str(section.get("allowlist_env", "")).strip()
+    approved = {str(item) for item in section.get("allowlist", []) if isinstance(item, str)}
+    disabled = _is_truthy_env(os.getenv(disable_env, "")) if disable_env else False
+    configured = _parse_csv_env(os.getenv(allowlist_env, "")) if allowlist_env else set()
+    if disabled:
+        return {"ok": True, "status": "disabled", "configured": sorted(configured)}
+    if configured and configured.issubset(approved):
+        return {"ok": True, "status": "allowlisted", "configured": sorted(configured)}
+    return {
+        "ok": False,
+        "reason": f"{key}_surface_must_be_disabled_or_allowlisted",
+        "approved": sorted(approved),
+        "configured": sorted(configured),
+    }
+
+
+def validate_boot_runtime_profile(*, replay_mode: str = "off", recovery_tier: str | None = None) -> Dict[str, Any]:
+    """Validate hermetic runtime profile required by strict/audit governance modes."""
+    normalized_mode = (replay_mode or "off").strip().lower()
+    normalized_tier = (recovery_tier or "").strip().lower()
+    checks: Dict[str, Any] = {}
+
+    try:
+        profile = json.loads(_RUNTIME_PROFILE_PATH.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return {"ok": False, "reason": "missing_runtime_profile_lock", "checks": checks}
+
+    dependency_lock = profile.get("dependency_lock")
+    if not isinstance(dependency_lock, Mapping):
+        return {"ok": False, "reason": "runtime_profile_missing_dependency_lock", "checks": checks}
+    dependency_path = ROOT_DIR / str(dependency_lock.get("path", ""))
+    expected_fingerprint = str(dependency_lock.get("sha256", ""))
+    if not dependency_path.exists():
+        return {"ok": False, "reason": "dependency_lock_target_missing", "checks": checks}
+    actual_fingerprint = _dependency_fingerprint(dependency_path)
+    dependency_ok = bool(expected_fingerprint) and actual_fingerprint == expected_fingerprint
+    checks["dependency_fingerprint"] = {
+        "ok": dependency_ok,
+        "path": str(dependency_path.relative_to(ROOT_DIR)),
+        "expected": expected_fingerprint,
+        "actual": actual_fingerprint,
+    }
+    if not dependency_ok:
+        return {"ok": False, "reason": "dependency_fingerprint_mismatch", "checks": checks}
+
+    runtime_manifest = profile.get("runtime_manifest")
+    if not isinstance(runtime_manifest, Mapping):
+        return {"ok": False, "reason": "runtime_profile_missing_runtime_manifest", "checks": checks}
+
+    governance_modes = {str(item).strip().lower() for item in runtime_manifest.get("governance_modes", []) if isinstance(item, str)}
+    governance_mode_active = normalized_mode in governance_modes or normalized_tier in governance_modes
+    checks["governance_mode_active"] = governance_mode_active
+    if not governance_mode_active:
+        return {"ok": True, "reason": "ok", "checks": checks}
+
+    provider = default_provider()
+    provider_ok = bool(getattr(provider, "deterministic", False))
+    checks["deterministic_provider"] = {
+        "ok": provider_ok,
+        "provider": type(provider).__name__,
+    }
+    if not provider_ok:
+        return {"ok": False, "reason": "governance_mode_requires_deterministic_provider", "checks": checks}
+
+    filesystem_check = _check_surface_contract(runtime_manifest, "mutable_filesystem")
+    checks["mutable_filesystem"] = filesystem_check
+    if not filesystem_check.get("ok"):
+        return {"ok": False, "reason": filesystem_check.get("reason", "filesystem_surface_violation"), "checks": checks}
+
+    network_check = _check_surface_contract(runtime_manifest, "network")
+    checks["network"] = network_check
+    if not network_check.get("ok"):
+        return {"ok": False, "reason": network_check.get("reason", "network_surface_violation"), "checks": checks}
+
+    return {"ok": True, "reason": "ok", "checks": checks}
 
 
 def _is_schema_type(value: Any, expected: str) -> bool:
@@ -283,4 +381,5 @@ __all__ = [
     "validate_tool_contract_preflight",
     "validate_agent_contract_preflight",
     "validate_mutation_proposal_schema",
+    "validate_boot_runtime_profile",
 ]

@@ -34,3 +34,14 @@ Operational guidance for deterministic alerts from `GET /alerts/evaluate`.
 - Alerts are read-only projections.
 - Alert outputs are deterministic functions of persisted telemetry and fixed thresholds.
 - Alert routing does not mutate governance policy or mutation authority.
+
+
+## Scenario Rehearsal Narratives
+
+Use the rehearsal narratives for drill execution and escalation timing:
+
+- [Replay divergence](incident_playbooks/scenario_narratives.md#1-replay-divergence-narrative)
+- [Governance halt](incident_playbooks/scenario_narratives.md#2-governance-halt-narrative)
+- [Mutation rejection](incident_playbooks/scenario_narratives.md#3-mutation-rejection-narrative)
+- [Instability spike](incident_playbooks/scenario_narratives.md#4-instability-spike-narrative)
+- [Ledger corruption recovery](incident_playbooks/scenario_narratives.md#5-ledger-corruption-recovery-narrative)

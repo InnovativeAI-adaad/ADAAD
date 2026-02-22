@@ -43,3 +43,22 @@ Escalate immediately when:
 
 - Founders-law compatibility helpers used by federation tests are implemented at `runtime/governance/founders_law_v2.py`.
 - Verify local availability with: `PYTHONPATH=. pytest -q tests/test_founders_law_v2.py tests/governance/test_federation_coordination.py`.
+
+
+## Protocol-level incident triage (handshake v1)
+
+1. Capture raw handshake envelopes for the failing `exchange_id`:
+   - `init`, `manifest_exchange`, `compatibility_decision`, and terminal `bind`/`reject`.
+2. Validate each envelope against protocol schemas:
+   - `schemas/federation_handshake_envelope.v1.json`
+   - `schemas/federation_handshake_request.v1.json`
+   - `schemas/federation_handshake_response.v1.json`
+3. Verify signature metadata (`algorithm`, `key_id`, `value`) and canonical payload digest consistency.
+4. Classify deterministic outcome:
+   - `conflict_class` (`policy_version_split`, `manifest_digest_mismatch`, etc.)
+   - `error_class` (`invalid_signature`, `schema_validation_failed`, `replay_detected`, `quorum_unmet`)
+5. Confirm retry safety:
+   - same `(exchange_id, retry_counter, retry_token)` must map to same decision.
+   - retries increment `retry_counter` monotonically.
+6. For ordering disputes, re-run deterministic vote sorting and confirm identical `vote_digest` across permutations.
+7. If protocol checks pass but divergence remains, escalate to governance precedence review and freeze federated upgrades until closed.

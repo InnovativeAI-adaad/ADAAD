@@ -70,6 +70,21 @@ ADAAD_ENV=dev CRYOVANT_DEV_MODE=1 ADAAD_FORCE_DETERMINISTIC_PROVIDER=1 ADAAD_DET
 ```
 
 
+
+## Constitutional acceptance gate
+
+`tests/governance/inviolability/` is the constitutional acceptance gate for non-bypass governance invariants.
+
+Required invariant coverage (positive + adversarial cases):
+
+- mutation execution cannot proceed without constitutional/lifecycle guard pass
+- strict replay divergence fail-closes, while audit mode remains observable/non-fail-closed
+- nondeterministic providers are rejected on strict replay and audit-tier governance paths
+- policy authority cannot expand via undeclared lifecycle jumps; only explicit classified transitions are allowed
+- governance self-mutation requires explicit high-risk authority approval
+
+The suite asserts auditable artifacts (ledger/journal event types and required payload keys) for rejection and transition paths to preserve deterministic forensic evidence in CI.
+
 ## Governance review telemetry SLO checks
 
 For governance-impact PRs, operators should verify review-quality KPIs in addition to CI jobs:

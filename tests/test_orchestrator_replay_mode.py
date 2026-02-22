@@ -56,6 +56,8 @@ class OrchestratorReplayModeTest(unittest.TestCase):
                     {
                         "ADAAD_FORCE_DETERMINISTIC_PROVIDER": "1",
                         "ADAAD_DETERMINISTIC_SEED": "orchestrator-test-seed",
+                        "ADAAD_DISABLE_MUTABLE_FS": "1",
+                        "ADAAD_DISABLE_NETWORK": "1",
                     },
                     clear=False,
                 )

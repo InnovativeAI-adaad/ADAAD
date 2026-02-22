@@ -18,6 +18,13 @@ This document defines the invariants that must hold for strict replay validation
 5. **Replay equivalence guarantee.**
    - Given identical ledger inputs and deterministic providers, strict replay must produce identical epoch digest outcomes.
 
+6. **Hermetic runtime profile must validate before governance-critical boot.**
+   - `governance_runtime_profile.lock.json` is the canonical runtime lock artifact.
+   - dependency fingerprint must match the pinned lock target (`requirements.server.txt`).
+   - mutable filesystem and network surfaces must be disabled or explicitly allowlisted.
+7. **Fail-closed boot posture.**
+   - Any runtime profile mismatch (fingerprint/provider/surface policy) must halt boot prior to mutation execution.
+
 ## Operational guidance
 
 - Use verified digest APIs for policy gates and production governance decisions.
