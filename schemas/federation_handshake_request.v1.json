@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://adaad.local/schemas/federation_handshake_request.v1.json",
+  "title": "Federation Handshake Request v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_id",
+    "phase",
+    "local_peer_id",
+    "local_policy_version",
+    "local_manifest_digest",
+    "peer_versions",
+    "local_certificate",
+    "peer_certificates",
+    "votes",
+    "retry_counter"
+  ],
+  "properties": {
+    "schema_id": {
+      "type": "string",
+      "const": "https://adaad.local/schemas/federation_handshake_request.v1.json"
+    },
+    "phase": {
+      "type": "string",
+      "enum": ["init", "manifest_exchange", "compatibility_decision"]
+    },
+    "local_peer_id": {"type": "string", "minLength": 1},
+    "local_policy_version": {"type": "string", "minLength": 1},
+    "local_manifest_digest": {"type": "string", "pattern": "^sha256:[a-zA-Z0-9]+"},
+    "peer_versions": {
+      "type": "object",
+      "additionalProperties": {"type": "string", "minLength": 1}
+    },
+    "local_certificate": {
+      "type": "object",
+      "additionalProperties": {"type": "string"}
+    },
+    "peer_certificates": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {"type": "string"}
+      }
+    },
+    "votes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["peer_id", "policy_version", "manifest_digest", "decision"],
+        "properties": {
+          "peer_id": {"type": "string", "minLength": 1},
+          "policy_version": {"type": "string", "minLength": 1},
+          "manifest_digest": {"type": "string", "pattern": "^sha256:[a-zA-Z0-9]+"},
+          "decision": {"type": "string", "enum": ["accept", "reject"]}
+        }
+      }
+    },
+    "retry_counter": {"type": "integer", "minimum": 0},
+    "retry_token": {"type": "string", "minLength": 1}
+  }
+}

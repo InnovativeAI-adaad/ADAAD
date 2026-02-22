@@ -169,3 +169,26 @@ def test_lint_determinism_allows_direct_print_in_tools_cli_scripts(tmp_path: Pat
     issues = lint_determinism._lint_file(target)
 
     assert all(issue.message != "forbidden_direct_print" for issue in issues)
+
+
+def test_lint_determinism_flags_direct_nondeterministic_calls_in_governance_critical_scope(tmp_path: Path) -> None:
+    target = tmp_path / "security" / "entropy.py"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text("import uuid\n\ndef run():\n    return uuid.uuid4().hex\n", encoding="utf-8")
+
+    issues = lint_determinism._lint_file(target)
+
+    assert any(issue.message == "forbidden_governance_nondeterminism_api" for issue in issues)
+
+
+def test_lint_determinism_allows_approved_wrapper_for_nondeterminism_calls(tmp_path: Path) -> None:
+    target = tmp_path / "runtime" / "governance" / "provider.py"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(
+        "import uuid\n\ndef next_id():\n    return uuid.uuid4().hex\n",
+        encoding="utf-8",
+    )
+
+    issues = lint_determinism._lint_file(target)
+
+    assert all(issue.message != "forbidden_governance_nondeterminism_api" for issue in issues)

@@ -9,7 +9,7 @@ from typing import Any, Dict, Iterable
 
 from runtime.evolution.lineage_v2 import LineageLedgerV2
 from runtime.evolution.replay import ReplayEngine
-from runtime.governance.federation import (
+from runtime.governance.federation.coordination import (
     POLICY_PRECEDENCE_BOTH,
     resolve_governance_precedence,
 )

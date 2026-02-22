@@ -88,6 +88,23 @@ pip install -r requirements.server.txt --no-cache-dir
 
 ADAAD currently expects a full Python environment; Linux/WSL remains the recommended runtime target.
 
+### Hermetic runtime profile (required for audit/strict replay)
+
+Boot-time governance checks read `governance_runtime_profile.lock.json` and fail closed when:
+
+- dependency fingerprint does not match `requirements.server.txt`;
+- deterministic provider is not enabled;
+- mutable filesystem/network are neither disabled nor explicitly allowlisted.
+
+Recommended environment for governance-critical replay:
+
+```bash
+export ADAAD_FORCE_DETERMINISTIC_PROVIDER=1
+export ADAAD_DETERMINISTIC_SEED=ci-strict-replay
+export ADAAD_DISABLE_MUTABLE_FS=1
+export ADAAD_DISABLE_NETWORK=1
+```
+
 ## 4) Initialize ADAAD workspace
 
 ```bash

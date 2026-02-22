@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "dependency_lock": {
+    "path": "requirements.server.txt",
+    "sha256": "a0287155b780872798be33b64f103b8080f1093cabdac573df8e548bd3a9bc04"
+  },
+  "runtime_manifest": {
+    "governance_modes": [
+      "strict",
+      "audit"
+    ],
+    "deterministic_provider_required": true,
+    "mutable_filesystem": {
+      "disable_env": "ADAAD_DISABLE_MUTABLE_FS",
+      "allowlist_env": "ADAAD_MUTABLE_FS_ALLOWLIST",
+      "allowlist": [
+        "reports",
+        "security/ledger",
+        "security/replay_manifests",
+        "experiments/branches"
+      ]
+    },
+    "network": {
+      "disable_env": "ADAAD_DISABLE_NETWORK",
+      "allowlist_env": "ADAAD_NETWORK_ALLOWLIST",
+      "allowlist": [
+        "127.0.0.1",
+        "localhost"
+      ]
+    }
+  }
+}

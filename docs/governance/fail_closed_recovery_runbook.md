@@ -75,3 +75,14 @@ Escalate if:
 - `review_latency_distribution_seconds.p95 > 86400`
 - `reviewer_participation_concentration.largest_reviewer_share > 0.60`
 - `review_depth_proxies.override_rate_percent > 20.0`
+
+
+## 7) Scenario rehearsal narratives
+
+Rehearse fail-closed incidents using the dedicated scenario narratives:
+
+- [Replay divergence](incident_playbooks/scenario_narratives.md#1-replay-divergence-narrative)
+- [Governance halt](incident_playbooks/scenario_narratives.md#2-governance-halt-narrative)
+- [Mutation rejection](incident_playbooks/scenario_narratives.md#3-mutation-rejection-narrative)
+- [Instability spike](incident_playbooks/scenario_narratives.md#4-instability-spike-narrative)
+- [Ledger corruption recovery](incident_playbooks/scenario_narratives.md#5-ledger-corruption-recovery-narrative)

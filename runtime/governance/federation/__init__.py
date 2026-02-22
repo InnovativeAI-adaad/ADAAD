@@ -17,6 +17,13 @@ from runtime.governance.federation.coordination import (
     persist_federation_decision,
     resolve_governance_precedence,
 )
+from runtime.governance.federation.protocol import (
+    FederationProtocolValidationError,
+    decode_handshake_request_envelope,
+    decode_handshake_response_envelope,
+    encode_handshake_request_envelope,
+    encode_handshake_response_envelope,
+)
 
 __all__ = [
     "DECISION_CLASS_CONFLICT",
@@ -33,4 +40,9 @@ __all__ = [
     "evaluate_federation_decision",
     "persist_federation_decision",
     "resolve_governance_precedence",
+    "FederationProtocolValidationError",
+    "decode_handshake_request_envelope",
+    "decode_handshake_response_envelope",
+    "encode_handshake_request_envelope",
+    "encode_handshake_response_envelope",
 ]

@@ -117,7 +117,7 @@ Expected status in this repository branch: all tests passing (with one known col
 | Deterministic substrate | `runtime.governance.foundation.{canonical,hashing,clock,determinism}` plus replay/determinism tests in `tests/determinism/*` | Implemented | Validated guarantee for governance/replay execution paths |
 | Sandbox hardening depth | Sandbox policy + enforcement + isolation/preflight primitives in `runtime/sandbox/*` and tests in `tests/sandbox/test_sandbox_*` | Partially implemented | Enhanced deterministic fail-closed baseline validated; kernel/container hardening depth remains roadmap |
 | Replay proofs | Replay preflight/runtime harnesses in `runtime/evolution/*`, attestation builder `runtime/evolution/replay_attestation.py`, and determinism tests in `tests/determinism/test_replay_*` | Implemented baseline | Deterministic replay verification + signed attestations validated in-tree; external trust-root hardening remains roadmap |
-| Federation | Deterministic federation coordination primitives in `runtime/governance/federation/*` with governance precedence resolution and tests in `tests/governance/test_federation_coordination.py` | Implemented baseline | Coordination + precedence behavior validated in-tree; distributed transport/protocol hardening remains roadmap |
+| Federation | Deterministic federation coordination primitives + handshake envelope serializers in `runtime/governance/federation/*`, schemas `schemas/federation_handshake_*.v1.json`, and tests in `tests/governance/test_federation_coordination.py` + `tests/governance/test_federation_protocol_contract.py` | Implemented baseline | Coordination/protocol contract behavior validated in-tree; distributed transport hardening remains roadmap |
 
 ## Phase 2 Migration Checklist
 

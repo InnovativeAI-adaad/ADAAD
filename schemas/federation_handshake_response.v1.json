@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://adaad.local/schemas/federation_handshake_response.v1.json",
+  "title": "Federation Handshake Response v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_id",
+    "phase",
+    "decision_class",
+    "selected_policy_version",
+    "peer_ids",
+    "manifest_digests",
+    "reconciliation_actions",
+    "quorum_size",
+    "vote_digest",
+    "conflict_class",
+    "error_class",
+    "retry_counter"
+  ],
+  "properties": {
+    "schema_id": {
+      "type": "string",
+      "const": "https://adaad.local/schemas/federation_handshake_response.v1.json"
+    },
+    "phase": {
+      "type": "string",
+      "enum": ["bind", "reject"]
+    },
+    "decision_class": {
+      "type": "string",
+      "enum": ["consensus", "quorum", "conflict", "rejected", "local_override"]
+    },
+    "selected_policy_version": {"type": "string", "minLength": 1},
+    "peer_ids": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "minItems": 1
+    },
+    "manifest_digests": {
+      "type": "object",
+      "additionalProperties": {"type": "string", "pattern": "^sha256:[a-zA-Z0-9]+"}
+    },
+    "reconciliation_actions": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "quorum_size": {"type": "integer", "minimum": 1},
+    "vote_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "conflict_class": {
+      "type": "string",
+      "enum": [
+        "none",
+        "policy_version_split",
+        "manifest_digest_mismatch",
+        "signature_mismatch",
+        "governance_precedence_conflict"
+      ]
+    },
+    "error_class": {
+      "type": "string",
+      "enum": ["none", "invalid_signature", "schema_validation_failed", "replay_detected", "quorum_unmet"]
+    },
+    "retry_counter": {"type": "integer", "minimum": 0},
+    "retry_token": {"type": "string", "minLength": 1}
+  }
+}

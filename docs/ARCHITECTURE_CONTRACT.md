@@ -66,3 +66,15 @@ Legitimate boundary exceptions require:
 
 - Any non-canonical entrypoint-like path is treated as **adapter-only**.
 - Adapter modules may re-export or translate interfaces, but must not accumulate new domain logic.
+
+
+## Deterministic runtime contract (boot enforcement)
+
+For governance-critical replay modes (`audit`/`strict`), boot must enforce:
+
+- root lock artifact: `governance_runtime_profile.lock.json`;
+- dependency fingerprint parity for `requirements.server.txt`;
+- deterministic provider requirement (`ADAAD_FORCE_DETERMINISTIC_PROVIDER=1`);
+- mutable filesystem/network either disabled or explicitly allowlisted by environment contract.
+
+Enforcement path: `runtime.preflight.validate_boot_runtime_profile(...)` called from `app/main.py` during orchestrator boot before runtime initialization.

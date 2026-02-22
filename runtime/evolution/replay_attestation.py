@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 import os
 import re
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping
 
@@ -91,6 +92,17 @@ def _validate_schema_subset(instance: Any, schema: Dict[str, Any], path: str = "
             errors.append(f"{path}:pattern_violation")
 
     return errors
+
+
+def _parse_iso8601_utc(value: str) -> datetime | None:
+    if not isinstance(value, str) or not value:
+        return None
+    if value.endswith("Z"):
+        value = value[:-1] + "+00:00"
+    try:
+        return datetime.fromisoformat(value)
+    except ValueError:
+        return None
 
 
 class ReplayProofBuilder:
@@ -206,7 +218,15 @@ class ReplayProofBuilder:
         return target
 
 
-def verify_replay_proof_bundle(bundle: Dict[str, Any], *, keyring: Mapping[str, str] | None = None) -> Dict[str, Any]:
+def verify_replay_proof_bundle(
+    bundle: Dict[str, Any],
+    *,
+    keyring: Mapping[str, str] | None = None,
+    accepted_issuers: Iterable[str] | None = None,
+    key_validity_windows: Mapping[str, Mapping[str, str]] | None = None,
+    revocation_source: Any | None = None,
+    trust_policy_version: str | None = None,
+) -> Dict[str, Any]:
     """Offline replay proof verification without runtime state dependencies."""
 
     schema_errors = validate_replay_proof_schema(bundle)
@@ -220,6 +240,31 @@ def verify_replay_proof_bundle(bundle: Dict[str, Any], *, keyring: Mapping[str, 
     signature_bundle = bundle.get("signature_bundle")
     if signature_bundle != signatures[0]:
         return {"ok": False, "error": "signature_bundle_mismatch"}
+
+    trust_metadata = bundle.get("trust_root_metadata")
+    enforced_policy = any(
+        item is not None
+        for item in (accepted_issuers, key_validity_windows, revocation_source, trust_policy_version)
+    )
+    if enforced_policy and not isinstance(trust_metadata, dict):
+        return {"ok": False, "error": "trust_root_metadata_required"}
+
+    accepted_issuer_set = set(accepted_issuers or [])
+    if isinstance(trust_metadata, dict) and accepted_issuer_set:
+        issuer_chain = trust_metadata.get("issuer_chain")
+        if not isinstance(issuer_chain, list) or not issuer_chain:
+            return {"ok": False, "error": "invalid_issuer_chain"}
+        if not any(str(issuer) in accepted_issuer_set for issuer in issuer_chain):
+            return {"ok": False, "error": "issuer_not_accepted"}
+
+    if isinstance(trust_metadata, dict) and trust_policy_version is not None:
+        if str(trust_metadata.get("trust_policy_version") or "") != trust_policy_version:
+            return {
+                "ok": False,
+                "error": "trust_policy_version_mismatch",
+                "expected_trust_policy_version": trust_policy_version,
+                "actual_trust_policy_version": trust_metadata.get("trust_policy_version"),
+            }
 
     unsigned_bundle = {
         "schema_version": bundle.get("schema_version"),
@@ -235,6 +280,8 @@ def verify_replay_proof_bundle(bundle: Dict[str, Any], *, keyring: Mapping[str, 
         "canonical_digest": bundle.get("canonical_digest"),
         "policy_hashes": bundle.get("policy_hashes", {}),
     }
+    if "trust_root_metadata" in bundle:
+        unsigned_bundle["trust_root_metadata"] = bundle.get("trust_root_metadata")
     expected_proof_digest = sha256_prefixed_digest(unsigned_bundle)
     if bundle.get("proof_digest") != expected_proof_digest:
         return {
@@ -265,6 +312,58 @@ def verify_replay_proof_bundle(bundle: Dict[str, Any], *, keyring: Mapping[str, 
                 }
             )
             continue
+
+        if isinstance(trust_metadata, dict) and key_validity_windows is not None:
+            key_epoch = trust_metadata.get("key_epoch")
+            if not isinstance(key_epoch, dict):
+                validation.append({"ok": False, "key_id": key_id, "algorithm": algorithm, "error": "missing_key_epoch"})
+                continue
+            epoch_id = str(key_epoch.get("id") or "")
+            window = key_validity_windows.get(epoch_id)
+            if window is None:
+                validation.append(
+                    {
+                        "ok": False,
+                        "key_id": key_id,
+                        "algorithm": algorithm,
+                        "error": "unknown_key_epoch",
+                        "key_epoch_id": epoch_id,
+                    }
+                )
+                continue
+            actual_from = _parse_iso8601_utc(str(key_epoch.get("valid_from") or ""))
+            actual_until = _parse_iso8601_utc(str(key_epoch.get("valid_until") or ""))
+            expected_from = _parse_iso8601_utc(str(window.get("valid_from") or ""))
+            expected_until = _parse_iso8601_utc(str(window.get("valid_until") or ""))
+            if None in (actual_from, actual_until, expected_from, expected_until):
+                validation.append(
+                    {
+                        "ok": False,
+                        "key_id": key_id,
+                        "algorithm": algorithm,
+                        "error": "invalid_key_validity_window",
+                        "key_epoch_id": epoch_id,
+                    }
+                )
+                continue
+            if actual_from < expected_from or actual_until > expected_until:
+                validation.append(
+                    {
+                        "ok": False,
+                        "key_id": key_id,
+                        "algorithm": algorithm,
+                        "error": "key_validity_window_violation",
+                        "key_epoch_id": epoch_id,
+                    }
+                )
+                continue
+
+        if isinstance(trust_metadata, dict) and revocation_source is not None:
+            revocation_reference = trust_metadata.get("revocation_reference")
+            revoked = bool(revocation_source(key_id=key_id, trust_metadata=trust_metadata, revocation_reference=revocation_reference))
+            if revoked:
+                validation.append({"ok": False, "key_id": key_id, "algorithm": algorithm, "error": "key_revoked"})
+                continue
         if keyring is not None:
             secret = (keyring or {}).get(key_id)
             if not secret:

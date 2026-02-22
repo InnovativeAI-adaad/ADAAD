@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://adaad.local/schemas/federation_handshake_envelope.v1.json",
+  "title": "Federation Handshake Envelope v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_id",
+    "protocol",
+    "protocol_version",
+    "message_id",
+    "exchange_id",
+    "message_type",
+    "signature",
+    "payload"
+  ],
+  "properties": {
+    "schema_id": {
+      "type": "string",
+      "const": "https://adaad.local/schemas/federation_handshake_envelope.v1.json"
+    },
+    "protocol": {
+      "type": "string",
+      "const": "adaad.federation.handshake"
+    },
+    "protocol_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "message_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "exchange_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "message_type": {
+      "type": "string",
+      "enum": ["request", "response"]
+    },
+    "signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "key_id", "value"],
+      "properties": {
+        "algorithm": {"type": "string", "minLength": 1},
+        "key_id": {"type": "string", "minLength": 1},
+        "value": {"type": "string", "minLength": 1}
+      }
+    },
+    "payload": {
+      "type": "object"
+    }
+  }
+}

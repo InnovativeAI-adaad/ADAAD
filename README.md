@@ -172,6 +172,14 @@ python -m app.main --export-replay-proof --epoch <epoch-id>
 
 This writes `security/ledger/replay_proofs/<epoch-id>.replay_attestation.v1.json` with signed top-level replay-proof contract fields.
 
+### Hermetic runtime profile (governance-critical modes)
+
+ADAAD enforces `governance_runtime_profile.lock.json` at boot for `--replay audit` and `--replay strict`.
+
+- `dependency_lock.sha256` must match `requirements.server.txt`.
+- deterministic provider must be active (`ADAAD_FORCE_DETERMINISTIC_PROVIDER=1`).
+- mutable filesystem/network surfaces must be disabled (`ADAAD_DISABLE_MUTABLE_FS=1`, `ADAAD_DISABLE_NETWORK=1`) or constrained to explicit allowlists (`ADAAD_MUTABLE_FS_ALLOWLIST`, `ADAAD_NETWORK_ALLOWLIST`).
+
 ```bash
 git clone https://github.com/InnovativeAI-adaad/ADAAD.git
 cd ADAAD
