@@ -166,6 +166,19 @@ jobs:
       - name: Run determinism lint
         run: python tools/lint_determinism.py runtime/ security/ app/main.py
 
+  import-boundary-lint:
+    runs-on: ubuntu-latest
+    needs: classify
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run import boundary lint
+        # No pip install required — lint_import_paths.py uses stdlib only.
+        run: python tools/lint_import_paths.py
+
   confidence-fast:
     runs-on: ubuntu-latest
     needs: classify
@@ -252,6 +265,7 @@ jobs:
       - classify
       - schema-validation
       - determinism-lint
+      - import-boundary-lint
       - confidence-fast
       - strict-replay
       - evidence-suite
@@ -264,6 +278,8 @@ jobs:
           {
             echo "## CI gating summary"
             echo
+            echo '> **Legend:** `success` = passed · `failure` = blocking · `skipped` = conditional (check reason) · `cancelled` = pipeline aborted'
+            echo
             echo "- PR tier: \`${{ needs.classify.outputs.pr_tier }}\`"
             echo "- Changed paths: docs=${{ needs.classify.outputs.docs }}, tests=${{ needs.classify.outputs.tests }}, governance=${{ needs.classify.outputs.governance }}, runtime=${{ needs.classify.outputs.runtime }}, security=${{ needs.classify.outputs.security }}, other=${{ needs.classify.outputs.other }}"
             echo "- Governance flags: policy=${{ needs.classify.outputs.gov_policy_flag }}, replay=${{ needs.classify.outputs.gov_replay_flag }}"
@@ -272,6 +288,7 @@ jobs:
             echo "| --- | --- | --- |"
             echo "| schema-validation | ${{ needs.schema-validation.result }} | Always-on baseline. |"
             echo "| determinism-lint | ${{ needs.determinism-lint.result }} | Always-on baseline. |"
+            echo "| import-boundary-lint | ${{ needs.import-boundary-lint.result }} | Always-on architecture boundary gate. |"
             echo "| confidence-fast | ${{ needs.confidence-fast.result }} | Always-on baseline. |"
             echo "| strict-replay | ${{ needs.strict-replay.result }} | ${{ needs.classify.outputs.strict_replay_reason }} |"
             echo "| evidence-suite | ${{ needs.evidence-suite.result }} | ${{ needs.classify.outputs.evidence_reason }} |"

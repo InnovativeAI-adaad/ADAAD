@@ -12,7 +12,10 @@
 # limitations under the License.
 
 """
-Runtime package providing core utilities for the ADAAD orchestrator.
+Runtime package stable adapter surface.
+
+Canonical orchestration entrypoint is app.main.
+This module is adapter-only and must not depend on app/ or adaad/orchestrator/.
 """
 
 from adaad.core.root import ROOT_DIR, get_root_dir

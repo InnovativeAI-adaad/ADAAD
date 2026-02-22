@@ -19,7 +19,7 @@ from unittest import mock
 from pathlib import Path
 
 from app.mutation_executor import MutationExecutor
-from app.agents.mutation_request import MutationRequest
+from app.agents.mutation_request import MutationRequest, MutationTarget
 from runtime.tools import mutation_guard
 from runtime.tools.mutation_guard import apply_dna_mutation
 from runtime import metrics
@@ -279,6 +279,66 @@ class MutationExecutorIntegrationTest(unittest.TestCase):
         self.assertEqual(result["status"], "rejected")
         self.assertEqual(result["reason"], "promotion_policy_rejected")
         self.assertEqual(emit_mock.call_count, 1)
+
+
+    def _execute_failure_request(self, *, use_targets: bool) -> tuple[dict, dict]:
+        agents_root = self.tmp_root / "agents"
+        agent_dir = agents_root / "sample"
+        agent_dir.mkdir(parents=True, exist_ok=True)
+        (agent_dir / "meta.json").write_text("{}", encoding="utf-8")
+        (agent_dir / "dna.json").write_text(json.dumps({"lineage": "original"}), encoding="utf-8")
+        (agent_dir / "certificate.json").write_text(json.dumps({"signature": "cryovant-dev-seed"}), encoding="utf-8")
+
+        executor = MutationExecutor(agents_root=agents_root)
+        request = MutationRequest(
+            agent_id="sample",
+            generation_ts="now",
+            intent="test",
+            ops=[{"op": "set", "path": "/lineage", "value": "updated"}],
+            targets=[
+                MutationTarget(
+                    agent_id="sample",
+                    path="dna.json",
+                    target_type="dna",
+                    ops=[{"op": "set", "path": "/lineage", "value": "updated"}],
+                )
+            ]
+            if use_targets
+            else [],
+            signature="cryovant-dev-seed",
+            nonce=f"n-failure-{'targets' if use_targets else 'ops'}",
+        )
+
+        from runtime.evolution.promotion_state_machine import PromotionState
+
+        with mock.patch.dict("os.environ", {"ADAAD_TRUST_MODE": "dev", "ADAAD_ENV": "dev", "CRYOVANT_DEV_MODE": "1"}, clear=False), mock.patch("app.mutation_executor.verify_all", return_value=(True, [])), mock.patch(
+            "app.mutation_executor.journal.write_entry"
+        ), mock.patch("app.mutation_executor.journal.append_tx"), mock.patch("app.mutation_executor.metrics.log"), mock.patch.object(executor, "_run_tests", return_value=(False, "tests failed")), mock.patch.object(
+            executor.governor,
+            "validate_bundle",
+            return_value=SimpleNamespace(accepted=True, reason="", replay_status="ok", certificate={"bundle_id": "bundle-test", "replay_seed": "0000000000000001"}),
+        ), mock.patch.object(
+            executor.promotion_policy,
+            "evaluate_transition",
+            return_value=PromotionState.REJECTED,
+        ):
+            result = executor.execute(request)
+
+        dna_payload = json.loads((agent_dir / "dna.json").read_text(encoding="utf-8"))
+        return result, dna_payload
+
+    def test_executor_ops_and_targets_fail_closed_equivalently_on_test_failure(self) -> None:
+        ops_result, ops_dna = self._execute_failure_request(use_targets=False)
+        targets_result, targets_dna = self._execute_failure_request(use_targets=True)
+
+        self.assertEqual(ops_result["status"], "rejected")
+        self.assertEqual(targets_result["status"], "rejected")
+        self.assertFalse(ops_result["tests_ok"])
+        self.assertFalse(targets_result["tests_ok"])
+        self.assertEqual(ops_result["reason"], "promotion_policy_rejected")
+        self.assertEqual(targets_result["reason"], "promotion_policy_rejected")
+        self.assertEqual(ops_dna["lineage"], "original")
+        self.assertEqual(targets_dna["lineage"], "original")
 
     def test_executor_rejects_when_entropy_ceiling_exceeded(self) -> None:
         agents_root = self.tmp_root / "agents"

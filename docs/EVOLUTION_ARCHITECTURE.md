@@ -46,6 +46,16 @@ Governor certificates include `replay_seed` (16 hex chars) used by mutation mani
 ### Strategy anchoring
 Certificates include `strategy_snapshot` and `strategy_snapshot_hash`, and cumulative bundle digesting includes those fields.
 
+### Mutation target normalization
+`MutationExecutor.execute` preserves backward compatibility for both `MutationRequest.targets` and legacy `MutationRequest.ops`, but both forms are normalized into a shared `MutationTarget[]` plan before applying any file changes.
+
+Rationale: a single transaction gate keeps governance/test/journal/lineage handling consistent across request formats.
+
+Expected invariants:
+- all mutation applications run through `MutationTransaction`
+- test failures always rollback mutated targets before returning
+- mutation lineage payload shape is consistent (`[{path, checksum, applied, skipped}]`) for both request forms
+
 ## Runtime Hooks
 - `boot()`
 - `before_mutation_cycle()`

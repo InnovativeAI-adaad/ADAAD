@@ -145,3 +145,10 @@ For `CHANGELOG.md` and release notes:
 
 
 - Fail-closed recovery runbook: `docs/governance/fail_closed_recovery_runbook.md`
+
+
+## Architecture contract and boundary enforcement
+
+- Canonical platform entrypoint is `app/main.py`; legacy adapter paths are documented as adapter-only in app/runtime READMEs.
+- Layer ownership and forbidden cross-layer imports are defined in `docs/ARCHITECTURE_CONTRACT.md`.
+- CI enforces import boundaries via `python tools/lint_import_paths.py` plus `tests/test_lint_import_paths.py` guard tests, including relative-import boundary checks.
