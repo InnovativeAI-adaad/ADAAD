@@ -45,13 +45,23 @@ class FederationPolicyExchange:
     local_policy_version: str
     local_manifest_digest: str
     peer_versions: Dict[str, str] = field(default_factory=dict)
+    local_certificate: Dict[str, str] = field(default_factory=dict)
+    peer_certificates: Dict[str, Dict[str, str]] = field(default_factory=dict)
 
     def canonical_payload(self) -> Dict[str, object]:
         return {
             "local_peer_id": self.local_peer_id,
             "local_policy_version": self.local_policy_version,
             "local_manifest_digest": self.local_manifest_digest,
+            "local_certificate": {key: self.local_certificate[key] for key in sorted(self.local_certificate)},
             "peer_versions": {key: self.peer_versions[key] for key in sorted(self.peer_versions)},
+            "peer_certificates": {
+                peer_id: {
+                    cert_key: self.peer_certificates[peer_id][cert_key]
+                    for cert_key in sorted(self.peer_certificates[peer_id])
+                }
+                for peer_id in sorted(self.peer_certificates)
+            },
         }
 
     def exchange_digest(self) -> str:

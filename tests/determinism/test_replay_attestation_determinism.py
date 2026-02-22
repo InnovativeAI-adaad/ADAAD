@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 
 from runtime.evolution.lineage_v2 import LineageLedgerV2
-from runtime.evolution.replay_attestation import ReplayProofBuilder, verify_replay_proof_bundle
+from runtime.evolution.replay_attestation import ReplayProofBuilder, validate_replay_proof_schema, verify_replay_proof_bundle
 from runtime.governance.foundation import canonical_json
 
 
@@ -67,6 +67,7 @@ def test_replay_attestation_digest_is_identical_for_identical_input(tmp_path) ->
     bundle_b = builder_b.build_bundle(epoch_id)
 
     assert bundle_a["proof_digest"] == bundle_b["proof_digest"]
+    assert bundle_a["signature_bundle"] == bundle_b["signature_bundle"]
     assert canonical_json(bundle_a) == canonical_json(bundle_b)
 
     path_a = builder_a.write_bundle(epoch_id)
@@ -82,6 +83,7 @@ def test_replay_attestation_rejects_tampered_bundle(tmp_path) -> None:
     builder = ReplayProofBuilder(ledger=ledger, proofs_dir=tmp_path / "proofs", key_id="proof-key")
     bundle = builder.build_bundle(epoch_id)
 
+    assert validate_replay_proof_schema(bundle) == []
     assert verify_replay_proof_bundle(bundle)["ok"]
 
     digest_tampered = json.loads(json.dumps(bundle))
@@ -90,8 +92,22 @@ def test_replay_attestation_rejects_tampered_bundle(tmp_path) -> None:
     assert not digest_result["ok"]
     assert digest_result["error"] == "proof_digest_mismatch"
 
+
+    signature_bundle_tampered = json.loads(json.dumps(bundle))
+    signature_bundle_tampered["signature_bundle"]["signed_digest"] = "sha256:" + ("9" * 64)
+    signature_bundle_result = verify_replay_proof_bundle(signature_bundle_tampered)
+    assert not signature_bundle_result["ok"]
+    assert signature_bundle_result["error"] == "signature_bundle_mismatch"
+
+    schema_pattern_tampered = json.loads(json.dumps(bundle))
+    schema_pattern_tampered["ledger_state_hash"] = "not-a-sha256"
+    schema_pattern_result = verify_replay_proof_bundle(schema_pattern_tampered)
+    assert not schema_pattern_result["ok"]
+    assert schema_pattern_result["error"] == "schema_validation_failed"
+
     signature_tampered = json.loads(json.dumps(bundle))
     signature_tampered["signatures"][0]["signature"] = "bad-signature"
+    signature_tampered["signature_bundle"]["signature"] = "bad-signature"
     signature_result = verify_replay_proof_bundle(signature_tampered)
     assert not signature_result["ok"]
     assert signature_result["signature_results"][0]["error"] == "signature_mismatch"

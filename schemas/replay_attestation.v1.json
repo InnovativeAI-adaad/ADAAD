@@ -7,17 +7,28 @@
   "required": [
     "schema_version",
     "epoch_id",
+    "baseline_digest",
+    "ledger_state_hash",
+    "mutation_graph_fingerprint",
+    "constitution_version",
+    "sandbox_policy_hash",
     "checkpoint_chain",
     "checkpoint_chain_digest",
     "replay_digest",
     "canonical_digest",
     "policy_hashes",
     "proof_digest",
+    "signature_bundle",
     "signatures"
   ],
   "properties": {
     "schema_version": {"type": "string", "const": "1.0"},
     "epoch_id": {"type": "string", "minLength": 1},
+    "baseline_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{1,64}$"},
+    "ledger_state_hash": {"type": "string", "pattern": "^sha256:[a-f0-9]{1,64}$"},
+    "mutation_graph_fingerprint": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "constitution_version": {"type": "string", "minLength": 1},
+    "sandbox_policy_hash": {"type": "string", "pattern": "^sha256:[a-f0-9]{1,64}$"},
     "checkpoint_chain": {
       "type": "array",
       "items": {
@@ -55,6 +66,17 @@
       }
     },
     "proof_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "signature_bundle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key_id", "algorithm", "signed_digest", "signature"],
+      "properties": {
+        "key_id": {"type": "string", "minLength": 1},
+        "algorithm": {"type": "string", "minLength": 1},
+        "signed_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+        "signature": {"type": "string", "minLength": 1}
+      }
+    },
     "signatures": {
       "type": "array",
       "minItems": 1,

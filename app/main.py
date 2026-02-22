@@ -32,6 +32,7 @@ from app.beast_mode_loop import BeastModeLoop
 from app.dream_mode import DreamMode
 from app.mutation_executor import MutationExecutor
 from runtime.evolution import EvolutionRuntime
+from runtime.evolution.replay_attestation import ReplayProofBuilder
 from runtime.evolution.replay_mode import ReplayMode, normalize_replay_mode
 from runtime.evolution.lineage_v2 import LineageIntegrityError
 from runtime.recovery.ledger_guardian import AutoRecoveryHook, SnapshotManager
@@ -731,11 +732,17 @@ def main() -> None:
         ),
     )
     parser.add_argument("--replay-epoch", default="", help="Replay a specific epoch id as the verification target.")
+    parser.add_argument("--epoch", default="", help="Epoch identifier used for replay-proof export or replay targeting.")
     parser.add_argument("--verify-replay", action="store_true", help="Run replay verification and exit after reporting result.")
     parser.add_argument(
         "--exit-after-boot",
         action="store_true",
         help="Complete one governed boot (including replay audit) and exit before any mutation cycle.",
+    )
+    parser.add_argument(
+        "--export-replay-proof",
+        action="store_true",
+        help="Export a signed replay proof bundle for --epoch and exit.",
     )
     args = parser.parse_args()
 
@@ -748,10 +755,21 @@ def main() -> None:
     if _governance_ci_mode_enabled():
         _apply_governance_ci_mode_defaults()
 
+    selected_epoch = (args.epoch or args.replay_epoch).strip()
+    if args.epoch and args.replay_epoch and args.epoch.strip() != args.replay_epoch.strip():
+        logging.warning("Both --epoch (%s) and --replay-epoch (%s) were provided; using --epoch.", args.epoch, args.replay_epoch)
+
+    if args.export_replay_proof:
+        if not selected_epoch:
+            parser.error("--export-replay-proof requires --epoch <id>")
+        proof_path = ReplayProofBuilder().write_bundle(selected_epoch)
+        print(proof_path.as_posix())
+        return
+
     orchestrator = Orchestrator(
         dry_run=args.dry_run or dry_run_env,
         replay_mode=replay_mode,
-        replay_epoch=args.replay_epoch,
+        replay_epoch=selected_epoch,
         exit_after_boot=args.exit_after_boot,
         verbose=args.verbose,
     )

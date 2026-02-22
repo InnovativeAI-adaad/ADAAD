@@ -164,6 +164,14 @@ python -m app.main --replay audit --exit-after-boot
 
 Prints `ADAAD_BOOT_OK` and exits `0` on success. Exits `1` on any governance failure.
 
+To export a deterministic replay proof bundle for independent verification:
+
+```bash
+python -m app.main --export-replay-proof --epoch <epoch-id>
+```
+
+This writes `security/ledger/replay_proofs/<epoch-id>.replay_attestation.v1.json` with signed top-level replay-proof contract fields.
+
 ```bash
 git clone https://github.com/InnovativeAI-adaad/ADAAD.git
 cd ADAAD
@@ -284,7 +292,7 @@ External nondeterminism (network, time, entropy) must be sandboxed.
 | Deterministic substrate | Canonical deterministic foundation (`runtime.governance.foundation.*`) with replay-seed propagation and determinism tests | Implemented | Treated as a validated guarantee for governance/replay paths |
 | Sandbox hardening depth | Policy validation + syscall/fs/network/resource enforcement + evidence hashing | Partially implemented | Additional hardening depth remains roadmap (defense-in-depth and broader isolation coverage) |
 | Replay proofs | Deterministic replay verification/parity harnesses plus signed replay attestation bundle generation + offline verification (`runtime/evolution/replay_attestation.py`) | Implemented baseline | Deterministic in-tree attestations are validated; external trust-root distribution and production hardening remain roadmap |
-| Federation | Deterministic federation coordination primitives with quorum/conflict classification, governance precedence resolution, and lineage persistence (`runtime/governance/federation/coordination.py`) | Implemented baseline | In-tree coordination behavior is validated by federation governance tests; full multi-instance transport/protocol hardening remains roadmap |
+| Federation | Deterministic federation coordination primitives with quorum/conflict classification, governance precedence resolution, handshake certificate metadata canonicalization, federation state snapshot persistence (`federation_state.json`), and lineage persistence (`runtime/governance/federation/coordination.py`) | Implemented baseline | In-tree coordination behavior is validated by federation governance tests; successful convergence emits `federation_verified` and drift classes emit explicit divergence events that fail-close mutation execution in strict replay mode; full multi-instance transport/protocol hardening remains roadmap |
 
 ## Mutation risk levels
 

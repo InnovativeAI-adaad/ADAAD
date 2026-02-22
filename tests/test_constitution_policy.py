@@ -50,9 +50,10 @@ def test_entropy_budget_validator_fails_closed_on_invalid_observed_bits() -> Non
         agent_id="test_subject",
         generation_ts="now",
         intent="test",
-        ops=[],
-        signature="",
+        ops=[{"op": "replace", "path": "runtime/constitution.py", "value": "x"}],
+        signature="cryovant-dev-test",
         nonce="n",
+        targets=[MutationTarget(agent_id="test_subject", path="runtime/constitution.py", target_type="file", ops=[])],
     )
     with constitution.deterministic_envelope_scope({"tier": "PRODUCTION", "observed_entropy_bits": "not-an-int"}):
         result = validator(request)
@@ -246,6 +247,7 @@ def test_resource_bounds_violation_emits_metrics_and_journal(monkeypatch: pytest
         nonce="n",
     )
     monkeypatch.setenv("ADAAD_RESOURCE_MEMORY_MB", "10")
+    monkeypatch.setenv("CRYOVANT_DEV_MODE", "1")
     monkeypatch.setenv("ADAAD_RESOURCE_CPU_SECONDS", "1")
     monkeypatch.setenv("ADAAD_RESOURCE_WALL_SECONDS", "1")
 
@@ -281,6 +283,123 @@ def test_resource_bounds_violation_emits_metrics_and_journal(monkeypatch: pytest
     assert journal_events and journal_events[-1]["action"] == "resource_bounds_exceeded"
     assert ledger_events and ledger_events[-1]["tx_type"] == "resource_bounds_exceeded"
 
+
+
+def test_resource_bounds_policy_precedes_env_when_overrides_disabled(monkeypatch: pytest.MonkeyPatch) -> None:
+    validator = constitution.VALIDATOR_REGISTRY["resource_bounds"]
+    request = MutationRequest(
+        agent_id="test_subject",
+        generation_ts="now",
+        intent="test",
+        ops=[],
+        signature="",
+        nonce="n",
+    )
+    monkeypatch.setenv("ADAAD_RESOURCE_MEMORY_MB", "1")
+    original_policy = dict(constitution._POLICY_DOCUMENT)
+    patched_policy = dict(original_policy)
+    patched_policy["resource_bounds_policy"] = {
+        "policy_version": "1.0.0",
+        "limits": {"memory_mb": 2048, "cpu_seconds": 30, "wall_seconds": 60},
+        "allow_env_overrides": [],
+    }
+    monkeypatch.setattr(constitution, "_POLICY_DOCUMENT", patched_policy)
+
+    with constitution.deterministic_envelope_scope({"resource_measurements": {"peak_rss_mb": 128.0}}):
+        result = validator(request)
+
+    assert result["ok"] is True
+    assert result["details"]["bounds_policy_version"] == "1.0.0"
+
+
+def test_governance_rejection_event_contains_resource_snapshot(monkeypatch: pytest.MonkeyPatch) -> None:
+    request = MutationRequest(
+        agent_id="test_subject",
+        generation_ts="now",
+        intent="test",
+        ops=[{"op": "replace", "path": "runtime/constitution.py", "value": "x"}],
+        signature="cryovant-dev-test",
+        nonce="n",
+        targets=[MutationTarget(agent_id="test_subject", path="runtime/constitution.py", target_type="file", ops=[])],
+    )
+    monkeypatch.setenv("ADAAD_RESOURCE_MEMORY_MB", "10")
+
+    metric_events = []
+    journal_events = []
+    ledger_events = []
+
+    monkeypatch.setattr(
+        constitution.metrics,
+        "log",
+        lambda *, event_type, payload, level="INFO", element_id=None: metric_events.append(
+            {"event_type": event_type, "payload": payload, "level": level}
+        ),
+    )
+    monkeypatch.setattr(
+        constitution.journal,
+        "write_entry",
+        lambda agent_id, action, payload=None: journal_events.append(
+            {"agent_id": agent_id, "action": action, "payload": payload or {}}
+        ),
+    )
+    monkeypatch.setattr(
+        constitution.journal,
+        "append_tx",
+        lambda tx_type, payload, tx_id=None: ledger_events.append(
+            {"tx_type": tx_type, "payload": payload, "tx_id": tx_id}
+        ) or {"hash": "captured"},
+    )
+
+    with constitution.deterministic_envelope_scope(
+        {
+            "agent_id": request.agent_id,
+            "epoch_id": "epoch-rj",
+            "resource_measurements": {"peak_rss_mb": 64.0, "cpu_seconds": 1.0, "wall_seconds": 1.0},
+        }
+    ):
+        verdict = constitution.evaluate_mutation(request, constitution.Tier.SANDBOX)
+
+    assert verdict["passed"] is False
+    rejection_metric = next(item for item in metric_events if item["event_type"] == "governance_rejection")
+    assert rejection_metric["payload"]["resource_usage_snapshot"]["memory_mb"] == 64.0
+    assert rejection_metric["payload"]["bounds_policy_version"] == "1.0.0"
+    assert journal_events[-1]["action"] == "governance_rejection"
+    assert ledger_events[-1]["tx_type"] == "governance_rejection"
+
+
+def test_replay_determinism_resource_accounting_and_verdict_stable(monkeypatch: pytest.MonkeyPatch) -> None:
+    request = MutationRequest(
+        agent_id="test_subject",
+        generation_ts="now",
+        intent="test",
+        ops=[],
+        signature="",
+        nonce="n",
+    )
+    monkeypatch.setenv("ADAAD_RESOURCE_MEMORY_MB", "50")
+    monkeypatch.setenv("CRYOVANT_DEV_MODE", "1")
+
+    with constitution.deterministic_envelope_scope(
+        {
+            "agent_id": request.agent_id,
+            "epoch_id": "epoch-deterministic",
+            "resource_measurements": {"peak_rss_mb": 64.0, "cpu_seconds": 1.0, "wall_seconds": 1.0},
+        }
+    ):
+        first = constitution.evaluate_mutation(request, constitution.Tier.SANDBOX)
+    with constitution.deterministic_envelope_scope(
+        {
+            "agent_id": request.agent_id,
+            "epoch_id": "epoch-deterministic",
+            "resource_measurements": {"peak_rss_mb": 64.0, "cpu_seconds": 1.0, "wall_seconds": 1.0},
+        }
+    ):
+        second = constitution.evaluate_mutation(request, constitution.Tier.SANDBOX)
+
+    first_resource = next(item for item in first["verdicts"] if item["rule"] == "resource_bounds")
+    second_resource = next(item for item in second["verdicts"] if item["rule"] == "resource_bounds")
+    assert first_resource["details"].get("details", {}).get("resource_usage_snapshot") == second_resource["details"].get("details", {}).get("resource_usage_snapshot")
+    assert first_resource["passed"] == second_resource["passed"]
 
 def test_resource_bounds_validator_rejects_invalid_env(monkeypatch: pytest.MonkeyPatch) -> None:
     validator = constitution.VALIDATOR_REGISTRY["resource_bounds"]
@@ -496,8 +615,36 @@ def test_evaluate_mutation_emits_domain_ceiling_ledger_event(monkeypatch: pytest
 
     assert verdict["resolved_domain"] == "security"
     assert ledger_writes
-    event = ledger_writes[-1]
-    assert event["action"] == "constitutional_evaluation_domain_ceiling"
+    event = next(item for item in ledger_writes if item["action"] == "constitutional_evaluation_domain_ceiling")
     assert event["payload"]["resolved_domain"] == "security"
     assert any(item["rule"] == "max_mutation_rate" and item["applied_ceiling"] == 4.0 for item in event["payload"]["applied_ceilings"])
-    assert ledger_txs and ledger_txs[-1]["tx_type"] == "constitutional_evaluation_domain_ceiling"
+    assert any(item["tx_type"] == "constitutional_evaluation_domain_ceiling" for item in ledger_txs)
+
+
+
+def test_resource_bounds_logs_warning_when_policy_document_empty(monkeypatch: pytest.MonkeyPatch) -> None:
+    validator = constitution.VALIDATOR_REGISTRY["resource_bounds"]
+    request = MutationRequest(
+        agent_id="test_subject",
+        generation_ts="now",
+        intent="test",
+        ops=[],
+        signature="",
+        nonce="n",
+    )
+    events = []
+    monkeypatch.setattr(
+        constitution.metrics,
+        "log",
+        lambda *, event_type, payload, level="INFO", element_id=None: events.append(
+            {"event_type": event_type, "payload": payload, "level": level, "element_id": element_id}
+        ),
+    )
+    monkeypatch.setattr(constitution, "_POLICY_DOCUMENT", {})
+
+    with constitution.deterministic_envelope_scope({"resource_measurements": {"peak_rss_mb": 1.0}}):
+        result = validator(request)
+
+    assert result["ok"] is True
+    warning = next(item for item in events if item["event_type"] == "resource_bounds_policy_unavailable")
+    assert warning["level"] == "WARNING"

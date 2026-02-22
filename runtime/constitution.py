@@ -26,6 +26,7 @@ from typing import Any, Callable, Dict, List, Mapping
 
 from app.agents.mutation_request import MutationRequest
 from runtime import metrics
+from runtime.governance.resource_accounting import coalesce_resource_usage_snapshot, normalize_resource_usage_snapshot
 from security.ledger import journal
 
 CONSTITUTION_VERSION = "0.2.0"
@@ -44,14 +45,15 @@ VALIDATOR_VERSIONS: Dict[str, str] = {
     "_validate_imports": "1.0.0",
     "_validate_signature": "1.0.0",
     "_validate_no_banned_tokens": "1.0.0",
-    "_validate_lineage": "2.1.0",
+    "_validate_lineage": "2.2.0",
     "_validate_complexity": "1.1.0",
     "_validate_coverage": "1.1.0",
     "_validate_mutation_rate": "2.1.0",
-    "_validate_resources": "1.1.0",
+    "_validate_resources": "1.2.0",
     "_validate_entropy_budget_limit": "1.0.0",
 }
 _LINEAGE_VALIDATION_CACHE: Dict[str, Any] = {}
+_POLICY_DOCUMENT: Dict[str, Any] = {}
 
 
 def _canonical_json(value: Any) -> str:
@@ -246,6 +248,9 @@ def _validate_no_banned_tokens(request: MutationRequest) -> Dict[str, Any]:
 
 def _validate_lineage(_: MutationRequest) -> Dict[str, Any]:
     """Resolve and verify append-only lineage chain up to certified genesis."""
+    from runtime.evolution.lineage_v2 import resolve_certified_ancestor_path
+    from security import cryovant
+
     genesis_path = journal.GENESIS_PATH
     journal_path = journal.JOURNAL_PATH
 
@@ -259,6 +264,8 @@ def _validate_lineage(_: MutationRequest) -> Dict[str, Any]:
         "journal_path": str(journal_path),
         "genesis_mtime_ns": genesis_path.stat().st_mtime_ns,
         "journal_mtime_ns": journal_path.stat().st_mtime_ns,
+        "genesis_size": genesis_path.stat().st_size,
+        "journal_size": journal_path.stat().st_size,
     }
     prior_key = _LINEAGE_VALIDATION_CACHE.get("key")
     prior_result = _LINEAGE_VALIDATION_CACHE.get("result")
@@ -274,6 +281,32 @@ def _validate_lineage(_: MutationRequest) -> Dict[str, Any]:
 
     chain: List[Dict[str, Any]] = []
     prev_hash = "0" * 64
+
+    seen_mutations: Dict[str, Dict[str, Any]] = {}
+
+    def _lineage_violation(
+        *,
+        epoch_id: str,
+        mutation_or_bundle_id: str,
+        missing_or_invalid_link: str,
+        expected_ancestor: str,
+        observed_reference: str,
+        details: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        event_payload = {
+            "epoch_id": epoch_id,
+            "mutation_or_bundle_id": mutation_or_bundle_id,
+            "missing_or_invalid_link": missing_or_invalid_link,
+            "expected_ancestor": expected_ancestor,
+            "observed_reference": observed_reference,
+        }
+        metrics.log(event_type="lineage_violation_detected", payload=event_payload, level="CRITICAL", element_id=ELEMENT_ID)
+        return {
+            "ok": False,
+            "reason": "lineage_violation_detected",
+            "event": "lineage_violation_detected",
+            "details": {**details, **event_payload},
+        }
 
     for source_name, path in (("genesis", genesis_path), ("journal", journal_path)):
         lines = path.read_text(encoding="utf-8").splitlines()
@@ -327,12 +360,73 @@ def _validate_lineage(_: MutationRequest) -> Dict[str, Any]:
                 }
 
             prev_hash = entry_hash
+            resolved = resolve_certified_ancestor_path(entry)
+            mutation_or_bundle_id = resolved["mutation_id"]
+            parent_mutation_id = resolved["parent_mutation_id"]
+            ancestor_chain = resolved["ancestor_chain"]
+            certified_signature = resolved["certified_signature"]
+            payload = entry.get("payload") if isinstance(entry.get("payload"), dict) else {}
+            epoch_id = str(payload.get("epoch_id") or payload.get("epoch") or "")
+
+            if parent_mutation_id:
+                expected_parent = seen_mutations.get(parent_mutation_id)
+                if expected_parent is None:
+                    return _lineage_violation(
+                        epoch_id=epoch_id,
+                        mutation_or_bundle_id=mutation_or_bundle_id,
+                        missing_or_invalid_link="parent_mutation_id",
+                        expected_ancestor="known_mutation_id",
+                        observed_reference=parent_mutation_id,
+                        details={"source": source_name, "path": str(path), "line": line_no},
+                    )
+                if ancestor_chain and ancestor_chain[-1] != parent_mutation_id:
+                    return _lineage_violation(
+                        epoch_id=epoch_id,
+                        mutation_or_bundle_id=mutation_or_bundle_id,
+                        missing_or_invalid_link="ancestor_chain_tail",
+                        expected_ancestor=parent_mutation_id,
+                        observed_reference=ancestor_chain[-1],
+                        details={"source": source_name, "path": str(path), "line": line_no},
+                    )
+
+            if ancestor_chain:
+                missing = next((ancestor for ancestor in ancestor_chain if ancestor not in seen_mutations), "")
+                if missing:
+                    return _lineage_violation(
+                        epoch_id=epoch_id,
+                        mutation_or_bundle_id=mutation_or_bundle_id,
+                        missing_or_invalid_link="ancestor_chain",
+                        expected_ancestor="known_mutation_id",
+                        observed_reference=missing,
+                        details={"source": source_name, "path": str(path), "line": line_no},
+                    )
+
+            if certified_signature and bool(payload.get("lineage_signature_required")) and not cryovant.signature_valid(certified_signature):
+                return _lineage_violation(
+                    epoch_id=epoch_id,
+                    mutation_or_bundle_id=mutation_or_bundle_id,
+                    missing_or_invalid_link="cryovant_signature",
+                    expected_ancestor="valid_cryovant_signature",
+                    observed_reference=certified_signature,
+                    details={"source": source_name, "path": str(path), "line": line_no},
+                )
+
+            if mutation_or_bundle_id:
+                seen_mutations[mutation_or_bundle_id] = {
+                    "hash": entry_hash,
+                    "epoch_id": epoch_id,
+                    "line": line_no,
+                    "source": source_name,
+                }
+
             chain.append(
                 {
                     "source": source_name,
                     "path": str(path),
                     "line": line_no,
                     "tx": str(entry.get("tx") or ""),
+                    "epoch_id": epoch_id,
+                    "mutation_or_bundle_id": mutation_or_bundle_id,
                     "type": str(entry.get("type") or ""),
                     "hash": entry_hash,
                     "prev_hash": entry_prev,
@@ -699,24 +793,40 @@ def _validate_resources(_: MutationRequest) -> Dict[str, Any]:
         except ValueError:
             return 0.0, raw
 
-    def _safe_float(value: Any) -> float | None:
-        try:
-            parsed = float(value)
-        except (TypeError, ValueError):
-            return None
-        if parsed < 0:
-            return 0.0
-        return parsed
-
     envelope_state = get_deterministic_envelope_state()
     telemetry = envelope_state.get("platform_telemetry")
     observed = envelope_state.get("resource_measurements")
     observed_map = observed if isinstance(observed, Mapping) else {}
     telemetry_map = telemetry if isinstance(telemetry, Mapping) else {}
 
-    memory_limit_mb, bad_memory_bound = _bound_from_env("ADAAD_RESOURCE_MEMORY_MB", 2048.0)
-    cpu_limit_s, bad_cpu_bound = _bound_from_env("ADAAD_RESOURCE_CPU_SECONDS", 30.0)
-    wall_limit_s, bad_wall_bound = _bound_from_env("ADAAD_RESOURCE_WALL_SECONDS", 60.0)
+    policy_document_loaded = isinstance(_POLICY_DOCUMENT, dict) and bool(_POLICY_DOCUMENT)
+    resource_policy = _POLICY_DOCUMENT.get("resource_bounds_policy") if isinstance(_POLICY_DOCUMENT, dict) else {}
+    resource_policy = resource_policy if isinstance(resource_policy, dict) else {}
+    if not policy_document_loaded:
+        metrics.log(
+            event_type="resource_bounds_policy_unavailable",
+            payload={"reason": "policy_document_empty", "fallback_defaults_applied": True},
+            level="WARNING",
+            element_id=ELEMENT_ID,
+        )
+    bounds_policy_version = str(resource_policy.get("policy_version") or "0")
+    limits = resource_policy.get("limits") if isinstance(resource_policy.get("limits"), dict) else {}
+    allow_overrides = {
+        str(item).strip()
+        for item in (resource_policy.get("allow_env_overrides") or [])
+        if str(item).strip()
+    }
+
+    memory_limit_mb = float(limits.get("memory_mb", 2048.0) or 2048.0)
+    cpu_limit_s = float(limits.get("cpu_seconds", 30.0) or 30.0)
+    wall_limit_s = float(limits.get("wall_seconds", 60.0) or 60.0)
+    bad_memory_bound = bad_cpu_bound = bad_wall_bound = None
+    if "memory_mb" in allow_overrides:
+        memory_limit_mb, bad_memory_bound = _bound_from_env("ADAAD_RESOURCE_MEMORY_MB", memory_limit_mb)
+    if "cpu_seconds" in allow_overrides:
+        cpu_limit_s, bad_cpu_bound = _bound_from_env("ADAAD_RESOURCE_CPU_SECONDS", cpu_limit_s)
+    if "wall_seconds" in allow_overrides:
+        wall_limit_s, bad_wall_bound = _bound_from_env("ADAAD_RESOURCE_WALL_SECONDS", wall_limit_s)
     if bad_memory_bound is not None:
         return {"ok": False, "reason": "invalid_resource_memory_bound", "details": {"value": bad_memory_bound}}
     if bad_cpu_bound is not None:
@@ -724,49 +834,32 @@ def _validate_resources(_: MutationRequest) -> Dict[str, Any]:
     if bad_wall_bound is not None:
         return {"ok": False, "reason": "invalid_resource_wall_bound", "details": {"value": bad_wall_bound}}
 
-    rss_candidates = [
-        _safe_float(observed_map.get("peak_rss_mb")),
-        _safe_float(observed_map.get("memory_mb")),
-        _safe_float(telemetry_map.get("memory_mb")),
-    ]
-    cpu_candidates = [_safe_float(observed_map.get("cpu_seconds")), _safe_float(observed_map.get("cpu_time_seconds"))]
-    wall_candidates = [
-        _safe_float(observed_map.get("wall_seconds")),
-        _safe_float(observed_map.get("wall_time_seconds")),
-    ]
-
-    if not any(value is not None for value in rss_candidates):
-        rss_candidates.append(0.0)
-    if not any(value is not None for value in cpu_candidates):
-        cpu_candidates.append(0.0)
-    if not any(value is not None for value in wall_candidates):
-        wall_candidates.append(0.0)
-
-    peak_rss_mb = max((value for value in rss_candidates if value is not None), default=0.0)
-    cpu_seconds = max((value for value in cpu_candidates if value is not None), default=0.0)
-    wall_seconds = max((value for value in wall_candidates if value is not None), default=0.0)
+    resource_usage_snapshot = coalesce_resource_usage_snapshot(observed=observed_map, telemetry=telemetry_map)
+    peak_rss_mb = resource_usage_snapshot["memory_mb"]
+    cpu_seconds = resource_usage_snapshot["cpu_seconds"]
+    wall_seconds = resource_usage_snapshot["wall_seconds"]
 
     memory_exceeded = memory_limit_mb > 0 and peak_rss_mb > memory_limit_mb
     cpu_exceeded = cpu_limit_s > 0 and cpu_seconds > cpu_limit_s
     wall_exceeded = wall_limit_s > 0 and wall_seconds > wall_limit_s
     exceeded = memory_exceeded or cpu_exceeded or wall_exceeded
 
+    limits_snapshot = normalize_resource_usage_snapshot(
+        memory_mb=memory_limit_mb,
+        cpu_seconds=cpu_limit_s,
+        wall_seconds=wall_limit_s,
+        disk_mb=0.0,
+    )
     details = {
-        "limits": {
-            "memory_mb": round(memory_limit_mb, 4),
-            "cpu_seconds": round(cpu_limit_s, 4),
-            "wall_seconds": round(wall_limit_s, 4),
-        },
-        "observed": {
-            "peak_rss_mb": round(peak_rss_mb, 4),
-            "cpu_seconds": round(cpu_seconds, 4),
-            "wall_seconds": round(wall_seconds, 4),
-        },
+        "bounds_policy_version": bounds_policy_version,
+        "limits": {"memory_mb": limits_snapshot["memory_mb"], "cpu_seconds": limits_snapshot["cpu_seconds"], "wall_seconds": limits_snapshot["wall_seconds"]},
+        "observed": {"peak_rss_mb": peak_rss_mb, "cpu_seconds": cpu_seconds, "wall_seconds": wall_seconds},
+        "resource_usage_snapshot": resource_usage_snapshot,
         "telemetry": {
-            "memory_mb": _safe_float(telemetry_map.get("memory_mb")),
-            "cpu_percent": _safe_float(telemetry_map.get("cpu_percent")),
-            "battery_percent": _safe_float(telemetry_map.get("battery_percent")),
-            "storage_mb": _safe_float(telemetry_map.get("storage_mb")),
+            "memory_mb": resource_usage_snapshot["memory_mb"],
+            "cpu_percent": float(telemetry_map.get("cpu_percent", 0.0) or 0.0),
+            "battery_percent": float(telemetry_map.get("battery_percent", 0.0) or 0.0),
+            "storage_mb": float(telemetry_map.get("storage_mb", 0.0) or 0.0),
         },
         "violations": [
             name
@@ -784,6 +877,8 @@ def _validate_resources(_: MutationRequest) -> Dict[str, Any]:
             "reason": "resource_bounds_exceeded",
             "agent_id": str(envelope_state.get("agent_id", "")),
             "epoch_id": str(envelope_state.get("epoch_id", "")),
+            "bounds_policy_version": bounds_policy_version,
+            "resource_usage_snapshot": resource_usage_snapshot,
             "details": details,
         }
         metrics.log(event_type="resource_bounds_exceeded", payload=failure_payload, level="ERROR", element_id=ELEMENT_ID)
@@ -1247,6 +1342,30 @@ def _validate_policy_schema(policy: Mapping[str, Any], expected_version: str) ->
                     f"constitution_policy_invalid_schema:override_severity:{raw_rule.get('name', index)}:{severity_name}"
                 )
 
+    resource_bounds_policy = policy.get("resource_bounds_policy")
+    if not isinstance(resource_bounds_policy, dict):
+        raise ValueError("constitution_policy_invalid_schema:resource_bounds_policy")
+    if not str(resource_bounds_policy.get("policy_version", "")).strip():
+        raise ValueError("constitution_policy_invalid_schema:resource_bounds_policy_version")
+    limits = resource_bounds_policy.get("limits")
+    if not isinstance(limits, dict):
+        raise ValueError("constitution_policy_invalid_schema:resource_bounds_limits")
+    for key in ("memory_mb", "cpu_seconds", "wall_seconds"):
+        try:
+            if float(limits.get(key, 0.0)) < 0:
+                raise ValueError(f"constitution_policy_invalid_schema:resource_bounds_limit_negative:{key}")
+        except (TypeError, ValueError) as exc:
+            if isinstance(exc, ValueError) and str(exc).startswith("constitution_policy_invalid_schema"):
+                raise
+            raise ValueError(f"constitution_policy_invalid_schema:resource_bounds_limit_invalid:{key}") from exc
+    allow_env_overrides = resource_bounds_policy.get("allow_env_overrides")
+    if not isinstance(allow_env_overrides, list):
+        raise ValueError("constitution_policy_invalid_schema:resource_bounds_allow_env_overrides")
+    allowed_override_keys = {"memory_mb", "cpu_seconds", "wall_seconds"}
+    for entry in allow_env_overrides:
+        if str(entry) not in allowed_override_keys:
+            raise ValueError(f"constitution_policy_invalid_schema:resource_bounds_allow_env_override:{entry}")
+
 
 def _record_amendment(old_hash: str | None, new_hash: str, version: str) -> None:
     if old_hash is None or old_hash == new_hash:
@@ -1257,8 +1376,10 @@ def _record_amendment(old_hash: str | None, new_hash: str, version: str) -> None
 
 
 def load_constitution_policy(path: Path = POLICY_PATH, expected_version: str = CONSTITUTION_VERSION) -> tuple[List[Rule], str]:
+    global _POLICY_DOCUMENT
     policy, policy_hash = _load_policy_document(path)
     _validate_policy_schema(policy, expected_version)
+    _POLICY_DOCUMENT = dict(policy)
     applicability = _load_rule_applicability()
 
     rule_objects: List[Rule] = []
@@ -1517,6 +1638,26 @@ def evaluate_mutation(request: MutationRequest, tier: Tier) -> Dict[str, Any]:
         level="INFO",
         element_id=ELEMENT_ID,
     )
+
+    if not passed:
+        resource_verdict = next((item for item in verdicts if item.get("rule") == "resource_bounds"), {})
+        resource_details = resource_verdict.get("details") if isinstance(resource_verdict, dict) else {}
+        detail_map = resource_details.get("details") if isinstance(resource_details, dict) else {}
+        detail_map = detail_map if isinstance(detail_map, dict) else {}
+        rejection_payload = {
+            "event_schema": "governance.rejection.v1",
+            "agent_id": request.agent_id,
+            "epoch_id": str(evaluation_state.get("epoch_id", "")),
+            "tier": tier.name,
+            "blocking_failures": list(blocking_failures),
+            "warnings": list(warnings),
+            "policy_hash": POLICY_HASH,
+            "bounds_policy_version": detail_map.get("bounds_policy_version", "unknown"),
+            "resource_usage_snapshot": detail_map.get("resource_usage_snapshot", {}),
+        }
+        metrics.log(event_type="governance_rejection", payload=rejection_payload, level="ERROR", element_id=ELEMENT_ID)
+        journal.write_entry(agent_id=request.agent_id or "system", action="governance_rejection", payload=rejection_payload)
+        journal.append_tx(tx_type="governance_rejection", payload=rejection_payload)
 
     return evaluation
 

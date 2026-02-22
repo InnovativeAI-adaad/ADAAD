@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import json
 
 from runtime.evolution.lineage_v2 import LineageLedgerV2
 from runtime.evolution.replay import ReplayEngine
@@ -95,7 +96,8 @@ def test_federation_split_brain_classifies_deterministically(tmp_path: Path) -> 
         policy_precedence=POLICY_PRECEDENCE_BOTH,
     )
 
-    assert result["divergence_class"] == "federated_split_brain"
+    assert result["divergence_class"] == "drift_federated_split_brain"
+    assert result["federation_drift_detected"] is True
     assert result["replay_passed"] is False
 
 
@@ -159,3 +161,46 @@ def test_deterministic_convergence_stable_for_vote_ordering(tmp_path: Path) -> N
     verifier = ReplayVerifier(ledger, ReplayEngine(ledger), verify_every_n_mutations=1)
     replay = verifier.verify_epoch("epoch-3", epoch_digest, policy_precedence=POLICY_PRECEDENCE_LOCAL)
     assert replay["replay_passed"] is True
+
+
+
+def test_federation_exchange_digest_includes_certificate_metadata() -> None:
+    exchange_a = FederationPolicyExchange(
+        local_peer_id="node-a",
+        local_policy_version="2.0.0",
+        local_manifest_digest="sha256:m-local",
+        local_certificate={"issuer": "root-a", "serial": "1001"},
+        peer_versions={"node-b": "2.1.0"},
+        peer_certificates={"node-b": {"issuer": "root-b", "serial": "2002"}},
+    )
+    exchange_b = FederationPolicyExchange(
+        local_peer_id="node-a",
+        local_policy_version="2.0.0",
+        local_manifest_digest="sha256:m-local",
+        local_certificate={"serial": "1001", "issuer": "root-a"},
+        peer_versions={"node-b": "2.1.0"},
+        peer_certificates={"node-b": {"serial": "2002", "issuer": "root-b"}},
+    )
+
+    assert exchange_a.exchange_digest() == exchange_b.exchange_digest()
+
+
+def test_federation_state_snapshot_records_epoch_fingerprint(tmp_path: Path) -> None:
+    ledger = LineageLedgerV2(tmp_path / "lineage_v2.jsonl")
+    expected = _seed_epoch(ledger, "epoch-4")
+    state_path = tmp_path / "federation_state.json"
+    verifier = ReplayVerifier(ledger, ReplayEngine(ledger), verify_every_n_mutations=1, federation_state_path=state_path)
+
+    verifier.verify_epoch(
+        "epoch-4",
+        expected,
+        attestations=[
+            {"peer_id": "peer-a", "attested_digest": expected, "manifest_digest": "m1", "policy_version": "2.1.0"},
+        ],
+        policy_precedence=POLICY_PRECEDENCE_LOCAL,
+    )
+
+    payload = json.loads(state_path.read_text(encoding="utf-8"))
+    assert payload["version"] == 1
+    assert payload["records"][0]["epoch_id"] == "epoch-4"
+    assert payload["records"][0]["epoch_fingerprint"].startswith("sha256:")

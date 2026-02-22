@@ -15,6 +15,7 @@ class SandboxPolicy:
     syscall_allowlist: Tuple[str, ...]
     write_path_allowlist: Tuple[str, ...]
     network_egress_allowlist: Tuple[str, ...]
+    dns_resolution_allowed: bool
     capability_drop: Tuple[str, ...]
     cpu_seconds: int
     memory_mb: int
@@ -41,6 +42,7 @@ def policy_from_mapping(raw: Mapping[str, Any]) -> SandboxPolicy:
         syscall_allowlist=tuple(sorted(str(x) for x in (raw.get("syscall_allowlist") or []))),
         write_path_allowlist=tuple(sorted(str(x) for x in (raw.get("write_path_allowlist") or []))),
         network_egress_allowlist=tuple(sorted(str(x) for x in (raw.get("network_egress_allowlist") or []))),
+        dns_resolution_allowed=bool(raw.get("dns_resolution_allowed", False)),
         capability_drop=tuple(sorted(str(x) for x in (raw.get("capability_drop") or []))),
         cpu_seconds=int(raw.get("cpu_seconds", 1) or 1),
         memory_mb=int(raw.get("memory_mb", 1) or 1),
@@ -55,6 +57,7 @@ def default_sandbox_policy() -> SandboxPolicy:
         syscall_allowlist=("close", "fstat", "mmap", "open", "read", "stat", "write"),
         write_path_allowlist=("reports", "runtime/lifecycle_states"),
         network_egress_allowlist=(),
+        dns_resolution_allowed=False,
         capability_drop=("net_admin", "sys_admin"),
         cpu_seconds=60,
         memory_mb=1024,
