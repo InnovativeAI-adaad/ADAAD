@@ -426,8 +426,8 @@
       "version": "9.50.0"
     }
   },
-  "last_agent_state_sync_digest": "gsync-3a88727d5a4020e4",
-  "last_completed_phase": "Phase 124 \u00b7 adaad-core Extraction",
+  "last_agent_state_sync_digest": "gsync-d95049b2087be26b",
+  "last_completed_phase": "Phase 05 \u00b7 Phase 124 \u00b7 adaad-core Extraction",
   "last_completed_pr": "feat/phase124-adaad-core-extract",
   "last_gate_results": {
     "tier_0": "pass",
@@ -439,7 +439,7 @@
   "last_innovation_name": "Deterministic Audit Sandbox",
   "last_invocation": "2026-04-05",
   "last_phase_completed": 124,
-  "last_sync_sha": "e0567ff",
+  "last_sync_sha": "1de8809",
   "last_updated": "2026-04-05",
   "next_phase": 125,
   "next_pr": "feature/phase116-ide-impl",
