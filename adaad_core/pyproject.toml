@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "adaad-core"
+version = "9.57.0"
+description = "ADAAD Constitutional Governance Kernel — stable API surface for governed autonomous software evolution"
+readme = "../../README.md"
+license = { text = "Apache-2.0" }
+authors = [
+    { name = "Innovative AI LLC", email = "devadaad@innovativeai.dev" }
+]
+keywords = ["adaad", "governance", "autonomous", "constitutional", "ai-safety"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Security",
+]
+requires-python = ">=3.11"
+dependencies = [
+    "cryptography>=42.0",
+    "pydantic>=2.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/InnovativeAI-adaad/adaad"
+Repository = "https://github.com/InnovativeAI-adaad/adaad"
+Documentation = "https://github.com/InnovativeAI-adaad/adaad/blob/main/docs/ADAAD_CORE_API.md"
+
+[tool.setuptools.packages.find]
+where = ["../.."]
+include = ["adaad_core*"]

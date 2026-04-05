@@ -1,0 +1,93 @@
+# SPDX-License-Identifier: Apache-2.0
+# adaad-core API stability contract — CORE-EXPORT-0 / CORE-IMPORT-0
+# Fails CI on any breaking change to the adaad_core public surface.
+
+name: adaad-core API Stability
+
+on:
+  push:
+    paths:
+      - "adaad_core/**"
+      - "runtime/governance/gate.py"
+      - "runtime/innovations30/constitutional_rollback.py"
+      - "runtime/innovations30/invariant_discovery.py"
+      - "runtime/innovations30/mirror_test.py"
+      - "runtime/autonomy/epoch_memory_store.py"
+      - "runtime/innovations30/deterministic_audit_sandbox.py"
+  pull_request:
+    paths:
+      - "adaad_core/**"
+      - "runtime/governance/gate.py"
+      - "runtime/innovations30/constitutional_rollback.py"
+      - "runtime/innovations30/invariant_discovery.py"
+      - "runtime/innovations30/mirror_test.py"
+      - "runtime/autonomy/epoch_memory_store.py"
+      - "runtime/innovations30/deterministic_audit_sandbox.py"
+
+jobs:
+  api-import-contract:
+    name: CORE-EXPORT-0 / CORE-IMPORT-0
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -e ".[dev]" --quiet
+
+      - name: CORE-EXPORT-0 — all six symbols importable
+        run: |
+          python - <<'PYEOF'
+          import sys, importlib
+          required = [
+              "GovernanceGate",
+              "ConstitutionalRollbackEngine",
+              "InvariantDiscoveryEngine",
+              "MirrorTestEngine",
+              "EpochMemoryStore",
+              "verify_ledger",
+          ]
+          import adaad_core
+          missing = [s for s in required if not hasattr(adaad_core, s)]
+          if missing:
+              print(f"CORE-EXPORT-0 VIOLATION: missing symbols: {missing}", file=sys.stderr)
+              sys.exit(1)
+          print(f"CORE-EXPORT-0 PASS: all {len(required)} symbols present")
+          PYEOF
+
+      - name: CORE-IMPORT-0 — no forbidden module initialised on import
+        run: |
+          python - <<'PYEOF'
+          import sys
+          # Record modules before import
+          before = set(sys.modules.keys())
+          import adaad_core  # noqa: F401
+          after = set(sys.modules.keys())
+          new = after - before
+          forbidden_prefixes = ("aponi", "spie", "federation", "flask", "fastapi", "uvicorn")
+          violations = [m for m in new if any(m.startswith(p) for p in forbidden_prefixes)]
+          if violations:
+              print(f"CORE-IMPORT-0 VIOLATION: forbidden modules loaded: {violations}", file=sys.stderr)
+              sys.exit(1)
+          print(f"CORE-IMPORT-0 PASS: no forbidden modules initialised ({len(new)} new modules OK)")
+          PYEOF
+
+      - name: CORE-SEMVER-0 — __version__ present and semver-formatted
+        run: |
+          python - <<'PYEOF'
+          import re, sys
+          import adaad_core
+          v = getattr(adaad_core, "__version__", None)
+          if not v:
+              print("CORE-SEMVER-0 VIOLATION: __version__ missing", file=sys.stderr)
+              sys.exit(1)
+          if not re.fullmatch(r"\d+\.\d+\.\d+", v):
+              print(f"CORE-SEMVER-0 VIOLATION: __version__={v!r} not semver", file=sys.stderr)
+              sys.exit(1)
+          print(f"CORE-SEMVER-0 PASS: __version__={v!r}")
+          PYEOF
