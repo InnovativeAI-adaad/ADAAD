@@ -1,0 +1,29 @@
+{
+  "phase": 124,
+  "version": "9.57.0",
+  "tier_results": {
+    "tier_0": "pass",
+    "tier_1": "pass",
+    "tier_2": "pass",
+    "tier_3": "pass"
+  },
+  "invariants_introduced": [
+    {
+      "id": "CORE-EXPORT-0",
+      "class": "Hard",
+      "description": "All six public symbols importable from adaad_core"
+    },
+    {
+      "id": "CORE-IMPORT-0",
+      "class": "Hard",
+      "description": "Import must not trigger Aponi/SPIE/federation init"
+    },
+    {
+      "id": "CORE-SEMVER-0",
+      "class": "Hard",
+      "description": "Breaking API changes require major version bump + HUMAN-0 ratification"
+    }
+  ],
+  "cumulative_hard_class": 165,
+  "date": "2026-04-05"
+}

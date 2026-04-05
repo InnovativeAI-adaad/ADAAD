@@ -147,7 +147,7 @@ adaad propose "<description>"   # Submits mutation proposal to local evolution l
 ### Phase 124 — adaad-core Extraction
 
 **Target:** v9.57.0 · **Branch:** `feat/adaad-core-extract` · **Track:** A (skeleton + CI) + B (PyPI publication)  
-**Status:** 🔜 planned · **Dependency:** Phase 123 shipped
+**Status:** ✅ shipped (v9.57.0) · **Gate:** HUMAN-0 ratified · **Tests:** T124-CORE-01..30 (30/30 PASS) · **Evidence:** ILA-124-2026-04-05-001
 
 Extracts the constitutional governance kernel as an independently importable package.
 
@@ -2345,4 +2345,4 @@ World-first skin-in-the-game governance — agents stake credits on proposals, f
 ---
 
 *This roadmap is governed by `docs/CONSTITUTION.md`. Amendments require ArchitectAgent approval, HUMAN-0 sign-off, and a CHANGELOG entry.*
-**Next:** Phase 119 — pipeline evolution continues
+**Next:** Phase 125 — pipeline evolution continues

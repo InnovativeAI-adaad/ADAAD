@@ -4362,6 +4362,21 @@ def dork_alias() -> Response:
     return serve_whaledic_asset("whaledic.html")
 
 
+# ── Phase 124 — adaad-core package info endpoint ──────────────────────────
+@app.get("/api/core/info")
+def core_info():
+    """CORE-EXPORT-0: Return adaad-core package metadata and exported symbol inventory."""
+    import adaad_core
+    return {
+        "package": "adaad-core",
+        "version": adaad_core.__version__,
+        "license": adaad_core.__license__,
+        "exports": adaad_core.__all__,
+        "semver_governed_since": "9.57.0",
+        "phase": 124,
+    }
+
+
 app.mount("/", SPAStaticFiles(directory=str(APONI_DIR), html=True, index_path=INDEX), name="aponi")
 
 

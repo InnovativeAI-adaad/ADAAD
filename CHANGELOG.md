@@ -1,3 +1,26 @@
+
+## [9.57.0] — 2026-04-05 · Phase 124 · adaad-core Extraction
+
+### Added
+- `adaad_core/` package — constitutional governance kernel as standalone importable surface
+- `adaad_core/__init__.py` — six semver-governed exports: `GovernanceGate`, `ConstitutionalRollbackEngine`, `InvariantDiscoveryEngine`, `MirrorTestEngine`, `EpochMemoryStore`, `verify_ledger`
+- `adaad_core/pyproject.toml` — independent semver line; `adaad-core` PyPI target
+- `docs/ADAAD_CORE_API.md` — stable API reference, semver-governed from v9.57.0
+- `.github/workflows/adaad-core-api-stability.yml` — CI enforces CORE-EXPORT-0, CORE-IMPORT-0, CORE-SEMVER-0 on every PR touching `adaad_core/`
+- `GET /api/core/info` — REST endpoint returning package metadata and export inventory
+- `tests/test_phase124_adaad_core.py` — 30/30 acceptance tests (T124-CORE-01..30)
+
+### Constitutional invariants introduced (Hard-class)
+- `CORE-EXPORT-0` — All six public symbols importable from `adaad_core`
+- `CORE-IMPORT-0` — Import must not trigger Aponi UI, SPIE, or federation module init
+- `CORE-SEMVER-0` — Breaking API changes require major version bump and HUMAN-0 ratification
+
+**Cumulative Hard-class invariants: 165**
+
+### Governance
+- Attestation: ILA-124-2026-04-05-001 · Governor: DUSTIN L REID
+- World-first: first governed constitutional kernel extraction as independently semver-managed package
+
 ## [9.56.0] — 2026-04-05 · Phase 123 · CLI Entry Point
 
 ### Added

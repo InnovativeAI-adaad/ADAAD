@@ -1,0 +1,16 @@
+{
+  "phase": 124,
+  "track": "A",
+  "agent": "DEVADAAD",
+  "deliverables": [
+    "adaad_core/__init__.py",
+    "adaad_core/pyproject.toml",
+    "docs/ADAAD_CORE_API.md",
+    ".github/workflows/adaad-core-api-stability.yml",
+    "tests/test_phase124_adaad_core.py",
+    "server.py /api/core/info endpoint"
+  ],
+  "test_result": "30/30 PASS",
+  "completed": "2026-04-05T00:00:00Z",
+  "agent_digest": "ff818503edcb47ed"
+}

@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.56.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": "v9.57.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -189,16 +189,24 @@
     "phase118-kbep-verify-0-enforced",
     "phase118-world-first-federation-bundle-exchange",
     "v9.51.0-released",
-    "phase118-complete"
+    "phase118-complete",
+    "phase124-plan-authored",
+    "phase124-human0-ratified",
+    "phase124-adaad-core-extracted",
+    "phase124-core-export-0-enforced",
+    "phase124-core-import-0-enforced",
+    "phase124-core-semver-0-enforced",
+    "v9.57.0-released",
+    "phase124-complete"
   ],
   "constitutional_invariants": {
-    "cumulative": 130,
-    "hard_class_count": 130
+    "cumulative": 133,
+    "hard_class_count": 133
   },
-  "current_phase": 123,
-  "current_version": "9.56.0",
-  "hard_class_count": 135,
-  "hard_class_invariants_cumulative": 162,
+  "current_phase": 124,
+  "current_version": "9.57.0",
+  "hard_class_count": 138,
+  "hard_class_invariants_cumulative": 165,
   "human0_signoffs": [
     {
       "date": "2026-03-27",
@@ -365,6 +373,13 @@
       "governor": "DUSTIN L REID",
       "scope": "Phase 116 INNOV-31 Invariant Discovery Engine (IDE) -- 30/30 tests green -- 5 IDE invariants -- 130 cumulative Hard-class invariants -- v9.49.0 release",
       "session_digest": "phase116-ide-impl-2026-04-04"
+    },
+    {
+      "attestation_ref": "ILA-124-2026-04-05-001",
+      "date": "2026-04-05",
+      "governor": "DUSTIN L REID",
+      "scope": "Phase 124 adaad-core Extraction -- adaad_core/ package \u00b7 ADAAD_CORE_API.md \u00b7 CI stability workflow \u00b7 30/30 tests green \u00b7 3 CORE invariants \u00b7 165 cumulative Hard-class invariants \u00b7 v9.57.0 release",
+      "session_digest": "phase124-adaad-core-extraction-2026-04-05"
     }
   ],
   "innovations_shipped": {
@@ -412,8 +427,8 @@
     }
   },
   "last_agent_state_sync_digest": "gsync-3a88727d5a4020e4",
-  "last_completed_phase": "Phase 05 \u00b7 Phase 123 \u00b7 CLI Entry Point",
-  "last_completed_pr": "feature/phase116-ide-impl",
+  "last_completed_phase": "Phase 124 \u00b7 adaad-core Extraction",
+  "last_completed_pr": "feat/phase124-adaad-core-extract",
   "last_gate_results": {
     "tier_0": "pass",
     "tier_1": "pass",
@@ -423,10 +438,10 @@
   "last_innovation": "INNOV-36",
   "last_innovation_name": "Deterministic Audit Sandbox",
   "last_invocation": "2026-04-05",
-  "last_phase_completed": 116,
+  "last_phase_completed": 124,
   "last_sync_sha": "e0567ff",
-  "last_updated": "2026-04-04",
-  "next_phase": 118,
+  "last_updated": "2026-04-05",
+  "next_phase": 125,
   "next_pr": "feature/phase116-ide-impl",
   "open_findings": [
     {
@@ -602,17 +617,18 @@
     }
   ],
   "pending_evidence_rows": [],
-  "phase": 118,
-  "phase_label": "Phase 116 -- INNOV-31 Invariant Discovery Engine (IDE)",
+  "phase": 124,
+  "phase_label": "Phase 124 -- adaad-core Extraction",
   "phases_completed": [
     106,
     107,
     108,
     115,
-    116
+    116,
+    124
   ],
   "schema_version": "1.5.0",
-  "software_version": "9.56.0",
+  "software_version": "9.57.0",
   "tife_active": true,
   "value_checkpoints_reached": [
     "phase0-track-a-hardening",
@@ -898,9 +914,12 @@
     "phase116-ide-audit-0-enforced",
     "phase116-ide-gate-0-enforced",
     "phase116-world-first-constitutional-self-discovery",
-    "v9.49.0-released"
+    "v9.49.0-released",
+    "phase124-adaad-core-stable-api-surface",
+    "phase124-world-first-governed-kernel-extraction",
+    "v9.57.0-released"
   ],
-  "version": "9.56.0",
+  "version": "9.57.0",
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange"
   ]

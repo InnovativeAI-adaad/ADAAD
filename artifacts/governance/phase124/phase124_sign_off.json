@@ -1,0 +1,19 @@
+{
+  "phase": 124,
+  "version": "9.57.0",
+  "innovation": "adaad-core Extraction",
+  "module": "adaad_core/__init__.py",
+  "tests": "30/30",
+  "hard_invariants": 3,
+  "cumulative_hard_invariants": 165,
+  "invariants": [
+    "CORE-EXPORT-0",
+    "CORE-IMPORT-0",
+    "CORE-SEMVER-0"
+  ],
+  "governor": "DUSTIN L REID",
+  "attestation_ref": "ILA-124-2026-04-05-001",
+  "date": "2026-04-05",
+  "world_first": "First governed constitutional kernel extraction as independently semver-managed package",
+  "status": "ratified"
+}
