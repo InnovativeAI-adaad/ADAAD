@@ -84,8 +84,58 @@ def _die(msg: str) -> None:
 
 
 def _run_git(args: list[str]) -> str:
-    r = subprocess.run(["git"] + args, capture_output=True, text=True, cwd=ROOT)
-    return r.stdout
+    git_cmd = ["git"] + args
+    try:
+        result = subprocess.run(
+            git_cmd,
+            check=True,
+            capture_output=True,
+            text=True,
+            cwd=ROOT,
+            timeout=30,
+        )
+        return result.stdout
+    except subprocess.CalledProcessError as exc:
+        stderr_snippet = (exc.stderr or "").strip()[:400]
+        _die(
+            json.dumps(
+                {
+                    "kind": "git_command_failed",
+                    "error_type": "non_zero_exit",
+                    "args": args,
+                    "returncode": exc.returncode,
+                    "stderr_snippet": stderr_snippet,
+                },
+                sort_keys=True,
+            ),
+        )
+    except subprocess.TimeoutExpired as exc:
+        stderr_snippet = ((exc.stderr or "") if isinstance(exc.stderr, str) else "").strip()[:400]
+        _die(
+            json.dumps(
+                {
+                    "kind": "git_command_failed",
+                    "error_type": "timeout",
+                    "args": args,
+                    "timeout_seconds": exc.timeout,
+                    "stderr_snippet": stderr_snippet,
+                },
+                sort_keys=True,
+            ),
+        )
+    except OSError as exc:
+        _die(
+            json.dumps(
+                {
+                    "kind": "git_command_failed",
+                    "error_type": "os_error",
+                    "args": args,
+                    "os_error": str(exc),
+                    "stderr_snippet": "",
+                },
+                sort_keys=True,
+            ),
+        )
 
 
 def _load_state() -> CanonicalState:
@@ -99,6 +149,10 @@ def _load_state() -> CanonicalState:
     today = str(date.today())
     subjects = _run_git(["log", "--format=%s", "--max-count=80"]).splitlines()
     bodies = _run_git(["log", "--format=%B", "--max-count=30"])
+    if not subjects:
+        _die("git_log_subjects_empty: unable to derive canonical state from commit history")
+    if not bodies.strip():
+        _die("git_log_bodies_empty: unable to derive canonical state from commit history")
 
     # Phase: highest number from git log
     phase_nums = [int(m.group(1)) for s in subjects for m in [re.search(r"[Pp]hase\s+(\d+)", s)] if m]
