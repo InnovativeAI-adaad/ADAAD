@@ -484,32 +484,129 @@ class LineageLedgerV2:
     def append(self, event: LineageEvent) -> Dict[str, Any]:
         return self.append_event(event.event_type, event.payload)
 
-    def append_event(self, event_type: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+    @staticmethod
+    def _deterministic_retry_enabled() -> bool:
+        return os.getenv("ADAAD_FORCE_DETERMINISTIC_PROVIDER", "0") == "1"
+
+    @staticmethod
+    def _canonical_backoff_seconds(attempt_index: int) -> float:
+        # Canonical sequence (seconds) used for deterministic contention retries.
+        # attempt_index is zero-based for retry attempts, not initial write attempt.
+        sequence = (0.0, 0.001, 0.002, 0.005, 0.008)
+        if attempt_index < len(sequence):
+            return sequence[attempt_index]
+        return sequence[-1]
+
+    def _append_with_tail_precondition(
+        self,
+        event_type: str,
+        payload: Dict[str, Any],
+        *,
+        tail_hash_before: str,
+        attempt: int,
+        conflict_count: int,
+        retry_backoff_seconds: List[float],
+    ) -> Dict[str, Any]:
         key = str(self.ledger_path.resolve())
         # COORDINATION-01: use a lock to ensure atomic append and cache update.
         with _file_lock(self.ledger_path):
             with _TAIL_CACHE_LOCK:
-                # Re-read last hash to avoid stale appends from other components
-                # in the same process that don't share the same LineageLedgerV2 instance.
-                prev_hash = self._last_hash_internal()
+                current_tail = self._last_hash_internal()
+                if not hmac.compare_digest(str(tail_hash_before), str(current_tail)):
+                    return {
+                        "status": "conflict",
+                        "conflict": {
+                            "code": "lineage_tail_hash_mismatch",
+                            "tail_hash_before": tail_hash_before,
+                            "current_tail_hash": current_tail,
+                            "attempt": attempt,
+                        },
+                        "append_protocol": {
+                            "tail_hash_before": tail_hash_before,
+                            "tail_hash_after": current_tail,
+                            "retry_attempt": attempt - 1,
+                            "conflict_count": conflict_count + 1,
+                            "retry_backoff_seconds": list(retry_backoff_seconds),
+                            "retry_strategy": "canonical_deterministic",
+                        },
+                    }
+
                 entry: Dict[str, Any] = {
                     "type": event_type,
                     "payload": payload,
-                    "prev_hash": prev_hash,
+                    "prev_hash": current_tail,
+                    "append_protocol": {
+                        "tail_hash_before": tail_hash_before,
+                        "retry_attempt": attempt - 1,
+                        "conflict_count": conflict_count,
+                        "retry_backoff_seconds": list(retry_backoff_seconds),
+                        "retry_strategy": "canonical_deterministic",
+                    },
                 }
-                entry["hash"] = self._compute_hash(prev_hash, entry)
+                entry["hash"] = self._compute_hash(current_tail, entry)
                 with self.ledger_path.open("a", encoding="utf-8") as handle:
                     handle.write(json.dumps(entry, ensure_ascii=False) + "\n")
                 # Advance the warm cache to the newly written entry hash.
                 _TAIL_CACHE[key] = entry["hash"]
                 self._verified_tail_hash = entry["hash"]
+                entry["status"] = "committed"
+                entry["append_protocol"]["tail_hash_after"] = entry["hash"]
+                return entry
 
+    def append_event(
+        self,
+        event_type: str,
+        payload: Dict[str, Any],
+        *,
+        max_attempts: int = 4,
+        deterministic_retry: bool | None = None,
+    ) -> Dict[str, Any]:
+        deterministic = self._deterministic_retry_enabled() if deterministic_retry is None else deterministic_retry
+        if max_attempts < 1:
+            max_attempts = 1
+        retry_backoff_seconds: List[float] = []
+        conflict_count = 0
+        outcome: Dict[str, Any] | None = None
+        for attempt in range(1, max_attempts + 1):
+            tail_hash_before = self._scan_tail_unlocked()
+            outcome = self._append_with_tail_precondition(
+                event_type,
+                payload,
+                tail_hash_before=tail_hash_before,
+                attempt=attempt,
+                conflict_count=conflict_count,
+                retry_backoff_seconds=retry_backoff_seconds,
+            )
+            if outcome.get("status") != "conflict":
+                break
+            conflict_count += 1
+            if attempt >= max_attempts:
+                break
+            if deterministic:
+                delay = self._canonical_backoff_seconds(conflict_count - 1)
+            else:
+                delay = self._canonical_backoff_seconds(conflict_count - 1)
+            retry_backoff_seconds.append(delay)
+            if delay > 0.0:
+                time.sleep(delay)
+
+        if outcome is None:
+            outcome = {
+                "status": "conflict",
+                "conflict": {"code": "lineage_append_unknown_conflict"},
+                "append_protocol": {
+                    "retry_attempt": max_attempts - 1,
+                    "conflict_count": max_attempts,
+                    "retry_backoff_seconds": list(retry_backoff_seconds),
+                    "retry_strategy": "canonical_deterministic",
+                },
+            }
         if event_type == "MutationBundleEvent":
             epoch_id = str(payload.get("epoch_id") or "")
             digest = str(payload.get("epoch_digest") or "")
-            if epoch_id and digest:
+            if outcome.get("status") != "conflict" and epoch_id and digest:
                 self._update_epoch_digest(epoch_id, digest)
-        return entry
+        return outcome
 
     def _last_hash_internal(self) -> str:
         # Assumes caller holds _TAIL_CACHE_LOCK and optionally _file_lock.
@@ -571,31 +668,67 @@ class LineageLedgerV2:
                 # If record is > 16KB or start of file, fall back to slower scan.
                 handle.seek(0)
                 prev_hash = "0" * 64
-                for line in handle:
+                for line_no, line in enumerate(handle, start=1):
                     line = line.strip()
-                    if not line: continue
+                    if not line:
+                        continue
                     try:
                         entry = json.loads(line)
-                        prev_hash = str(entry.get("hash") or prev_hash)
-                    except Exception: continue
+                    except Exception as exc:
+                        raise LineageIntegrityError(f"lineage_invalid_json:line{line_no}") from exc
+                    if not isinstance(entry, dict):
+                        raise LineageIntegrityError(f"lineage_malformed_entry:line{line_no}")
+                    entry_prev_hash = str(entry.get("prev_hash") or "")
+                    if not hmac.compare_digest(entry_prev_hash, prev_hash):
+                        raise LineageIntegrityError(f"lineage_prev_hash_mismatch:line{line_no}")
+                    payload = {key: value for key, value in entry.items() if key != "hash"}
+                    computed = self._compute_hash(entry_prev_hash, payload)
+                    entry_hash = str(entry.get("hash") or "")
+                    if not hmac.compare_digest(entry_hash, computed):
+                        raise LineageIntegrityError(f"lineage_hash_mismatch:line{line_no}")
+                    prev_hash = entry_hash
                 return prev_hash
 
             handle.seek(start_of_line)
             line_data = handle.read(end_of_line - start_of_line).decode("utf-8", errors="ignore").strip()
             try:
                 entry = json.loads(line_data)
-                return str(entry.get("hash") or ("0" * 64))
+                if not isinstance(entry, dict):
+                    raise LineageIntegrityError("lineage_malformed_entry:tail")
+                entry_prev_hash = str(entry.get("prev_hash") or "")
+                payload = {key: value for key, value in entry.items() if key != "hash"}
+                computed = self._compute_hash(entry_prev_hash, payload)
+                entry_hash = str(entry.get("hash") or "")
+                if not hmac.compare_digest(entry_hash, computed):
+                    raise LineageIntegrityError("lineage_hash_mismatch:tail")
+                if start_of_line == 0 and not hmac.compare_digest(entry_prev_hash, "0" * 64):
+                    raise LineageIntegrityError("lineage_prev_hash_mismatch:tail")
+                return entry_hash or ("0" * 64)
+            except LineageIntegrityError:
+                raise
             except Exception:
                 # Corrupt line at tail — full scan to find last valid state
                 handle.seek(0)
                 prev_hash = "0" * 64
-                for line in handle:
+                for line_no, line in enumerate(handle, start=1):
                     line = line.strip()
-                    if not line: continue
+                    if not line:
+                        continue
                     try:
                         entry = json.loads(line)
-                        prev_hash = str(entry.get("hash") or prev_hash)
-                    except Exception: continue
+                    except Exception as exc:
+                        raise LineageIntegrityError(f"lineage_invalid_json:line{line_no}") from exc
+                    if not isinstance(entry, dict):
+                        raise LineageIntegrityError(f"lineage_malformed_entry:line{line_no}")
+                    entry_prev_hash = str(entry.get("prev_hash") or "")
+                    if not hmac.compare_digest(entry_prev_hash, prev_hash):
+                        raise LineageIntegrityError(f"lineage_prev_hash_mismatch:line{line_no}")
+                    payload = {key: value for key, value in entry.items() if key != "hash"}
+                    computed = self._compute_hash(entry_prev_hash, payload)
+                    entry_hash = str(entry.get("hash") or "")
+                    if not hmac.compare_digest(entry_hash, computed):
+                        raise LineageIntegrityError(f"lineage_hash_mismatch:line{line_no}")
+                    prev_hash = entry_hash
                 return prev_hash
 
     def append_typed_event(self, event) -> Dict[str, Any]:
