@@ -167,6 +167,11 @@ class ProposalAdapter:
         # ── end REPLAY-CAPTURE-0 ─────────────────────────────────────────
 
         payload = provider_result.payload if isinstance(provider_result.payload, dict) else {}
+        governance_decision = (
+            {"decision": "escalate/reject", "reason": provider_result.error_code}
+            if (not provider_result.ok and provider_result.error_code == "governance_reject_deterministic_unsupported")
+            else {}
+        )
 
         return self.proposal_module.build(
             cycle_id=context.cycle_id,
@@ -179,10 +184,12 @@ class ProposalAdapter:
                 "llm_provider_result": provider_result.to_dict(),
                 "llm_raw_payload": payload,
                 "strategy_prompt_version": "16.0",
+                **({"governance_decision": governance_decision} if governance_decision else {}),
             },
             metadata={
                 "cycle_id": context.cycle_id,
                 "strategy_id": strategy.strategy_id,
+                **governance_decision,
                 **self._read_mapping(payload, "metadata"),
             },
         )
@@ -215,7 +222,10 @@ class ProposalAdapter:
                 parsed.append(
                     ProposalTargetFile(
                         path=path,
-                        change_type=str(item.get("change_type", "modify")),
+                        language=str(item.get("language")) if isinstance(item.get("language"), str) else None,
+                        exists=bool(item.get("exists")) if "exists" in item else None,
+                        content=str(item.get("content")) if isinstance(item.get("content"), str) else None,
+                        metadata=dict(item.get("metadata")) if isinstance(item.get("metadata"), Mapping) else {},
                     )
                 )
         return tuple(parsed)
