@@ -388,6 +388,7 @@ Upon ceremony completion:
 - `docs/break_it_log/` directory + README
 - `break-it` GitHub Issue label
 - Challenge announcement draft (marketing artifact)
+- **Delivery metadata note (2026-04-06):** short SHA `9af28a1` is not resolvable in this repository state; do not publish it as a Phase 126 release/attestation reference until a reachable commit SHA is recorded.
 
 ---
 

@@ -33,6 +33,8 @@ jobs:
           python scripts/validate_docs_integrity.py
           --format json
           --roots docs/governance docs/comms docs/release docs/releases
+      - name: Validate release artifact Git SHA references
+        run: python scripts/validate_release_git_refs.py
       - name: Validate post-merge docs sync governance contract
         run: python scripts/validate_post_merge_doc_sync.py
       - name: Validate deterministic changelog generation
