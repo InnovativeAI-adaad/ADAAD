@@ -17,6 +17,7 @@ from runtime.api.runtime_services import governance_health_service, reviewer_cal
 from runtime.dork_event_stream import DorkEventStream
 from runtime.governance.human_approval_gate import HumanApprovalGate
 from runtime.oracle_ledger import OracleLedger
+from runtime.oracle_memory import summarize_oracle_memory
 from runtime.system_status import read_gate_state
 
 
@@ -152,10 +153,12 @@ class DorkIntentExecutor:
 
         if intent == "open_oracle_history":
             records = self._oracle_ledger.replay(limit=request.limit)
+            memory = summarize_oracle_memory(records, window=min(max(request.limit, 1), 10))
             response = {
                 "record_count": len(records),
                 "ledger_path": str(self._oracle_ledger.path),
                 "records": records,
+                "since_last_10_oracle_calls": memory,
             }
             return response, [
                 DorkEvidenceRef(source="runtime.oracle_ledger.OracleLedger.replay", endpoint="/innovations/oracle/history", panel="/ui/aponi/index.html"),
