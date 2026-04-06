@@ -54,8 +54,14 @@ class TestGovernanceHealthRoutingField:
         d = self._data(client)
         for key in ("epoch_id", "health_score", "status", "signal_breakdown",
                     "weight_snapshot_digest", "constitution_version",
-                    "scoring_algorithm_version", "degraded"):
+                    "scoring_algorithm_version", "degraded", "dependency_degraded", "degradation_reasons"):
             assert key in d, f"missing existing field: {key}"
+
+    def test_degradation_reasons_schema(self, client):
+        d = self._data(client)
+        assert isinstance(d["degradation_reasons"], list)
+        for item in d["degradation_reasons"]:
+            assert set(item.keys()) == {"component", "reason_code", "scope"}
 
     def test_routing_health_score_in_signal_breakdown(self, client):
         d = self._data(client)
