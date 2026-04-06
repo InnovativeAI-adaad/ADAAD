@@ -1,0 +1,22 @@
+{
+  "phase": 125,
+  "version": "9.58.0",
+  "innovation": "Community Governance Infrastructure",
+  "module": "CONSTITUTION_PROPOSALS.md + .github/ISSUE_TEMPLATE/constitution_amendment.md + .github/workflows/constitution_amendment_validation.yml + docs/GOVERNANCE_PARTICIPATION.md + scripts/validate_amendment_proposal.py",
+  "tests": "30/30",
+  "hard_invariants": 2,
+  "cumulative_hard_invariants": 167,
+  "invariants": [
+    "COMMUNITY-FGCON-0",
+    "COMMUNITY-HUMAN0-0"
+  ],
+  "invariant_definitions": {
+    "COMMUNITY-FGCON-0": "Community amendments are subject to FGCON-QUORUM-0 (Phase 119). A single contributor cannot propose and ratify the same amendment. Minimum two distinct governance principals required.",
+    "COMMUNITY-HUMAN0-0": "HUMAN-0 ratification cannot be delegated, automated, or bypassed via any community governance workflow. GPG signature from HUMAN-0's registered key is the only valid ratification signal."
+  },
+  "governor": "DUSTIN L REID",
+  "attestation_ref": "ILA-125-2026-04-05-001",
+  "date": "2026-04-05",
+  "world_first": "First constitutionally governed community amendment pipeline with cryptographic HUMAN-0 ratification enforcement and FGCON quorum gate — structurally incapable of autonomous constitutional change",
+  "status": "ratified"
+}

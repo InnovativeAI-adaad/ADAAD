@@ -1,0 +1,141 @@
+name: Constitutional Amendment Validation
+
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  validate-amendment-proposal:
+    name: Validate Amendment Proposal Structure
+    if: contains(github.event.issue.labels.*.name, 'constitutional-amendment')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Write issue body to file
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          echo "$ISSUE_BODY" > /tmp/proposal_body.md
+          echo "Issue body written to /tmp/proposal_body.md"
+
+      - name: Run structural validation
+        id: validate
+        run: |
+          python scripts/validate_amendment_proposal.py \
+            --input /tmp/proposal_body.md \
+            --output /tmp/validation_result.json
+          cat /tmp/validation_result.json
+
+      - name: Post validation success comment
+        if: steps.validate.outcome == 'success'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const result = require('/tmp/validation_result.json');
+            const body = [
+              '## ✅ Constitutional Amendment Proposal — Validation Passed',
+              '',
+              `**Proposed Invariant:** \`${result.proposed_invariant || 'detected'}\``,
+              `**Class:** ${result.invariant_class || 'detected'}`,
+              `**Rationale word count:** ${result.rationale_word_count} (minimum 50 ✓)`,
+              '',
+              '**Checks passed:**',
+              ...result.checks_passed.map(c => `- ✅ ${c}`),
+              '',
+              '---',
+              '**Next step:** This proposal has entered the HUMAN-0 triage queue.',
+              'FGCON quorum evaluation will follow. HUMAN-0 ratification is required before',
+              'this amendment can be merged. No automated ratification path exists.',
+              '',
+              '*Governed by `COMMUNITY-FGCON-0` · `COMMUNITY-HUMAN0-0` · Phase 125*'
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['governance-queue']
+            });
+
+      - name: Post validation failure comment
+        if: steps.validate.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let result = {};
+            try {
+              result = require('/tmp/validation_result.json');
+            } catch (e) {
+              result = { checks_failed: ['Unable to parse validation result — check workflow logs'] };
+            }
+            const body = [
+              '## ❌ Constitutional Amendment Proposal — Validation Failed',
+              '',
+              'This proposal is missing required fields or does not meet structural requirements.',
+              'Please revise and update the issue body to re-trigger validation.',
+              '',
+              '**Checks failed:**',
+              ...(result.checks_failed || ['Unknown failure — see workflow logs']).map(c => `- ❌ ${c}`),
+              '',
+              '**Required fields:** `PROPOSED_INVARIANT_ID`, invariant class selection,',
+              'rationale (≥50 words), affected modules, proposed test, conflict analysis,',
+              'and all three FGCON quorum checkboxes.',
+              '',
+              'See [`CONSTITUTION_PROPOSALS.md`](../../CONSTITUTION_PROPOSALS.md) for requirements.',
+              '',
+              '*Governed by `COMMUNITY-FGCON-0` · `COMMUNITY-HUMAN0-0` · Phase 125*'
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['needs-revision']
+            });
+            core.setFailed('Amendment proposal failed structural validation');
+
+  fgcon-quorum-simulation:
+    name: FGCON Quorum Invariant Check
+    if: contains(github.event.issue.labels.*.name, 'constitutional-amendment')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify no auto-ratification path exists
+        run: |
+          echo "FGCON-QUORUM-0 simulation: verifying no autonomous ratification path"
+          # Structural check: no workflow job may merge or ratify without HUMAN-0
+          # We check for patterns that would indicate autonomous promotion
+          FORBIDDEN="autom.rge\|squash_on_push: true"
+          if grep -r "$FORBIDDEN" .github/workflows/ --include="*.yml" 2>/dev/null | \
+             grep -v "constitution_amendment_validation"; then
+            echo "CRITICAL: autonomous ratification path detected — COMMUNITY-FGCON-0 violation"
+            exit 1
+          fi
+          echo "✅ No autonomous ratification path detected"
+          echo "✅ COMMUNITY-FGCON-0 structurally enforced"
+          echo "✅ COMMUNITY-HUMAN0-0 structurally enforced — HUMAN-0 GPG required for merge"

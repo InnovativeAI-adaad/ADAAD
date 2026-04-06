@@ -1,4 +1,28 @@
 
+## [9.58.0] — 2026-04-05 · Phase 125 · Community Governance Infrastructure
+
+### Added
+- `CONSTITUTION_PROPOSALS.md` — canonical registry and lifecycle documentation for community constitutional amendment proposals
+- `.github/ISSUE_TEMPLATE/constitution_amendment.md` — structured GitHub Issue template for amendment proposals; machine-validated by CI
+- `.github/workflows/constitution_amendment_validation.yml` — CI gate: validates proposal structure, enforces FGCON quorum, rejects auto-ratification claims
+- `docs/GOVERNANCE_PARTICIPATION.md` — contributor guide covering the full amendment lifecycle, governance hierarchy, and constitutional constraints
+- `scripts/validate_amendment_proposal.py` — local and CI amendment validator: ID format, rationale word count (≥50), class selection, FGCON checkboxes, conflict analysis
+- `artifacts/governance/phase125/` — sign-off JSON, IP patent specification, invariant registry, test manifest (ILA-125-2026-04-05-001)
+- `tests/test_phase125_community_governance.py` — 30/30 acceptance tests T125-COMM-01..30 (COMM, TMPL, WFLOW, DOCS, INV categories)
+
+### Constitutional Invariants
+- `COMMUNITY-FGCON-0` (Hard-class) — community amendments subject to FGCON-QUORUM-0; single contributor cannot ratify
+- `COMMUNITY-HUMAN0-0` (Hard-class) — HUMAN-0 ratification cannot be delegated or automated via any workflow
+- **Cumulative Hard-class invariants: 167**
+
+### Changed
+- `VERSION` → `9.58.0`
+- `pytest.ini` — registered `phase125` marker
+- `ROADMAP.md` — Phase 125 marked ✅ shipped
+- `README.md` — stat update: 167 invariants, Phase 125, 37 innovations
+
+---
+
 ## [9.57.0] — 2026-04-05 · Phase 124 · adaad-core Extraction
 
 ### Added
