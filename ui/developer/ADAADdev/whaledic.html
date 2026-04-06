@@ -470,6 +470,7 @@ const TOKEN_CAP=16000,TOKEN_WARN=12000,CONV_KEY='whaledic_v3_conv';
 let conv=[],totalTok=0,streaming=false,rs=null,missing=new Set(),reqTs=[],ledgerOff=0,whCount=0;
 let llmCfg={provider:'groq',groqKey:'',ollamaModel:'llama3.2'};
 let selProvider='groq';
+let dorkSeedAutoStarted=false;
 
 // ── ADAAD STATE BUS (Phase 101 L1) ───────────────────────────────
 window.ADAAD_STATE_BUS=null;
@@ -761,6 +762,30 @@ function ar(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,
 // ── PERSIST & RESTORE ────────────────────────────────────────────
 function restoreConv(){try{const s=localStorage.getItem(CONV_KEY);if(s){const p=JSON.parse(s);if(p.schema==='3.0')conv=p.turns||[];}}catch(_){}}
 function persistConv(){try{localStorage.setItem(CONV_KEY,JSON.stringify({schema:'3.0',turns:conv.slice(-40),ts:new Date().toISOString()}));}catch(_){}}
+function parseDorkSeedFromQuery(){
+  try{
+    const params=new URLSearchParams(window.location.search);
+    const raw=params.get('dork_seed');
+    if(!raw)return '';
+    const decoded=decodeURIComponent(raw.replace(/\+/g,' '));
+    const sanitized=decoded.replace(/[\u0000-\u001f\u007f]/g,'').trim();
+    return sanitized.slice(0,500);
+  }catch(_){
+    return '';
+  }
+}
+function autostartDorkSeed(){
+  if(dorkSeedAutoStarted)return;
+  const seeded=parseDorkSeedFromQuery();
+  if(!seeded)return;
+  const inp=document.getElementById('dinp');
+  if(!inp)return;
+  dorkSeedAutoStarted=true;
+  inp.value=seeded;
+  ar(inp);
+  bus('bridge','dork_seed autostart');
+  sendDork();
+}
 
 // ── CONFIG MODAL ─────────────────────────────────────────────────
 function loadCfg(){try{const s=localStorage.getItem('dork_llm_v3');if(s){const p=JSON.parse(s);llmCfg={...llmCfg,...p};}}catch(_){}}
@@ -859,6 +884,7 @@ document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLower
 loadCfg();
 (()=>{const lb={groq:'groq',ollama:'ollama',dorkengine:'engine'};document.getElementById('prov-btn').textContent='\u2699 '+(lb[llmCfg.provider]||'groq');document.getElementById('intro-badge').textContent=lb[llmCfg.provider]||'groq';if(!llmCfg.groqKey&&llmCfg.provider==='groq'){setTimeout(()=>{document.getElementById('w-llm').style.display='block';},1500);}})();
 restoreConv();renderDebt();refreshAll();startSSE();setInterval(refreshAll,30000);
+setTimeout(autostartDorkSeed,0);
 </script>
 </body>
 </html>
