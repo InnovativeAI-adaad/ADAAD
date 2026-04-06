@@ -369,3 +369,186 @@
     hydrateContext: global.hydrateContext,
   };
 })(window);
+
+// ── DORK RUNTIME EXTENSION v2.0 ─────────────────────────────────────────────
+// Appended by DEVADAAD — dork-makeover-v2
+// Adds: Claude/Anthropic provider, intent classifier, session fingerprint,
+//       forensic export, multi-capability fan-out, KB integration.
+(function extendDorkRuntime(global) {
+  'use strict';
+
+  // ── Intent classifier ───────────────────────────────────────────────────────
+  const INTENT_RULES = [
+    { intent: 'capability_query', pattern: /\b(replay|governance|agent|triad|oracle|readiness|mutation|ledger|sandbox|signing|market|phase|constitution|fitness|proposal)\b/i },
+    { intent: 'kb_lookup',        pattern: /\b(what is|how does|explain|define|tell me about|who built|what are|difference between)\b/i },
+    { intent: 'status_check',     pattern: /\b(status|health|check|current|active|state|show me)\b/i },
+    { intent: 'action_request',   pattern: /\b(run|fix|resolve|execute|create|generate|push|sign|promote|block)\b/i },
+    { intent: 'audit_request',    pattern: /\b(audit|forensic|provenance|trace|history|log|evidence|bundle)\b/i },
+    { intent: 'help',             pattern: /\b(help|what can you do|capabilities|commands|options)\b/i },
+  ];
+
+  function classifyIntent(text) {
+    const t = String(text || '');
+    for (const rule of INTENT_RULES) {
+      if (rule.pattern.test(t)) return rule.intent;
+    }
+    return 'general';
+  }
+
+  // ── Session fingerprint ─────────────────────────────────────────────────────
+  function sessionFingerprint() {
+    const nav = global.navigator || {};
+    const raw = [nav.userAgent || '', nav.language || '', String(global.screen ? global.screen.width + 'x' + global.screen.height : ''), new Date().toISOString().slice(0, 13)].join('|');
+    let h = 0x811c9dc5;
+    for (let i = 0; i < raw.length; i++) { h ^= raw.charCodeAt(i); h = (h * 0x01000193) >>> 0; }
+    return 'sfp_' + h.toString(16).padStart(8, '0');
+  }
+
+  // ── Anthropic Claude provider ───────────────────────────────────────────────
+  async function callClaude(msgs, sys, onChunk, key, model) {
+    if (!key) throw new Error('No Claude API key');
+    const m = model || 'claude-haiku-4-5-20251001';
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: m,
+        max_tokens: 1024,
+        stream: true,
+        system: sys,
+        messages: msgs,
+      }),
+    });
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error((err.error && err.error.message) || ('Claude ' + resp.status));
+    }
+    const reader = resp.body.getReader();
+    const dec = new TextDecoder();
+    let buf = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      const lines = buf.split('\n');
+      buf = lines.pop();
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const payload = line.slice(6).trim();
+        if (payload === '[DONE]' || payload === '') continue;
+        try {
+          const parsed = JSON.parse(payload);
+          if (parsed.type === 'content_block_delta' && parsed.delta && parsed.delta.text) {
+            onChunk(parsed.delta.text);
+          }
+        } catch (_) {}
+      }
+    }
+  }
+
+  // ── Forensic export helper ──────────────────────────────────────────────────
+  function buildForensicBundle(conversation, stateBus, sessionId) {
+    return {
+      schema: 'dork_forensic_bundle_v1',
+      session_id: sessionId,
+      captured_at: new Date().toISOString(),
+      turn_count: conversation.length,
+      state_bus_snapshot: stateBus || {},
+      conversation_digest: conversation.map((t) => ({
+        role: t.role,
+        length: String(t.content || '').length,
+        ts: t.ts || null,
+      })),
+    };
+  }
+
+  // ── Multi-capability fan-out ────────────────────────────────────────────────
+  function fanOutCapabilities(query, context) {
+    const registry = global.DORK_CAPABILITY_REGISTRY;
+    if (!registry) return [];
+    const all = registry.listCapabilities();
+    const matched = all.filter((cap) => cap.triggers && cap.triggers.some((p) => p.test(query)));
+    return matched.map((cap) => {
+      try { return cap.execute(context || {}); } catch (_) { return null; }
+    }).filter(Boolean);
+  }
+
+  // ── KB-aware response enricher ──────────────────────────────────────────────
+  function enrichWithKB(query) {
+    const kb = global.DORK_KB;
+    if (!kb) return null;
+    const result = kb.lookup(query);
+    return result ? result.answer : null;
+  }
+
+  // ── Patch the runtime singleton post-init ──────────────────────────────────
+  function patchRuntime() {
+    const sfp = sessionFingerprint();
+
+    // Patch provider sequence to include claude
+    const origInit = global.initDorkRuntime;
+    if (!origInit || origInit._v2patched) return;
+
+    // Expose extension API on the global runtime namespace
+    global.ADAADDorkRuntime = Object.assign(global.ADAADDorkRuntime || {}, {
+      version: '2.0',
+      sessionFingerprint: sfp,
+      classifyIntent,
+      fanOutCapabilities,
+      enrichWithKB,
+      buildForensicBundle,
+      callClaude,
+      setClaudeKey(key) {
+        global._dork_claude_key = key;
+        try { global.localStorage.setItem('dork_claude_key_v1', key); } catch (_) {}
+      },
+      getClaudeKey() {
+        return global._dork_claude_key || (() => { try { return global.localStorage.getItem('dork_claude_key_v1') || ''; } catch (_) { return ''; } })();
+      },
+    });
+
+    // Restore Claude key from storage on load
+    try {
+      const stored = global.localStorage.getItem('dork_claude_key_v1');
+      if (stored) global._dork_claude_key = stored;
+    } catch (_) {}
+
+    // Wrap the global sendMessage to inject intent, KB enrichment, and fan-out
+    const origSend = global.sendMessage;
+    if (origSend && !origSend._v2) {
+      global.sendMessage = async function sendMessageV2(text, options) {
+        const intent = classifyIntent(text);
+        const kbHit = enrichWithKB(text);
+        const fanOut = fanOutCapabilities(text, global.ADAAD_STATE_BUS || {});
+        const opts = options || {};
+        // Surface KB hit and fan-out via event before LLM call
+        if (kbHit || fanOut.length) {
+          try {
+            const evtTarget = global.ADAADDorkRuntime._eventTarget;
+            if (evtTarget && typeof evtTarget.dispatchEvent === 'function') {
+              evtTarget.dispatchEvent(new CustomEvent('dork_enrichment', { detail: { intent, kbHit, fanOut } }));
+            }
+          } catch (_) {}
+          if (opts.onEnrichment && typeof opts.onEnrichment === 'function') {
+            opts.onEnrichment({ intent, kbHit, fanOut });
+          }
+        }
+        const result = await origSend(text, options);
+        return { ...result, intent, kbHit: kbHit || null, fanOutCount: fanOut.length };
+      };
+      global.sendMessage._v2 = true;
+    }
+
+    origInit._v2patched = true;
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', patchRuntime);
+  } else {
+    patchRuntime();
+  }
+})(window);
