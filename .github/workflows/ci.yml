@@ -681,6 +681,8 @@ import sys"),
         run: python scripts/validate_phase_sequence_consistency.py
       - name: Validate claims evidence matrix links
         run: python scripts/validate_release_evidence.py
+      - name: Validate release artifact Git SHA references
+        run: python scripts/validate_release_git_refs.py
       - name: Validate release hardening claims against runtime capability checks
         run: python scripts/validate_release_hardening_claims.py
 
