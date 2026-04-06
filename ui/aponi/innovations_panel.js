@@ -957,6 +957,33 @@
   const ADAAD_STATE_BUS_SNAPSHOT_KEY = "adaad_state_bus_snapshot_v2";
   const ADAAD_STATE_BUS_SCHEMA_VERSION = "2.0.0";
   const ADAAD_STATE_SESSION_ENDPOINT = "/api/session/context";
+  const ADAAD_STATE_BUS_SNAPSHOT_KEY = "adaad_state_bus_snapshot";
+  const DORK_RUNTIME_SCRIPTS = [
+    "../developer/ADAADdev/dork_runtime.js",
+    "developer/ADAADdev/dork_runtime.js",
+    "/ui/developer/ADAADdev/dork_runtime.js",
+  ];
+  let dorkRuntimeLoadPromise = null;
+  async function ensureDorkRuntime() {
+    if (typeof window.initDorkRuntime === "function") return window.initDorkRuntime({});
+    if (dorkRuntimeLoadPromise) return dorkRuntimeLoadPromise;
+    dorkRuntimeLoadPromise = (async () => {
+      for (const src of DORK_RUNTIME_SCRIPTS) {
+        try {
+          await new Promise((resolve, reject) => {
+            const tag = document.createElement("script");
+            tag.src = src;
+            tag.onload = resolve;
+            tag.onerror = reject;
+            document.head.appendChild(tag);
+          });
+          if (typeof window.initDorkRuntime === "function") return window.initDorkRuntime({});
+        } catch (_) {}
+      }
+      return null;
+    })();
+    return dorkRuntimeLoadPromise;
+  }
   const adaadStateBridge = (() => {
     let channel = null;
     let backendWriteTimer = null;
@@ -1024,6 +1051,11 @@
         if (!patch || typeof patch !== "object") return;
         const merged = buildVersionedState(patch);
         if (!merged || !merged.schema_version) return;
+        if (typeof window.hydrateContext === "function") {
+          window.hydrateContext(patch, { source: "aponi_oracle" });
+          return;
+        }
+        const merged = Object.freeze({ ...(window.ADAAD_STATE_BUS || {}), ...patch });
         window.ADAAD_STATE_BUS = merged;
         try {
           window.localStorage?.setItem(ADAAD_STATE_BUS_SNAPSHOT_KEY, JSON.stringify(merged));
@@ -1105,7 +1137,7 @@
     dorkBtn.textContent = "🐳 Send to Dork";
     dorkBtn.onmouseover = () => { dorkBtn.style.background="rgba(0,217,255,0.12)";dorkBtn.style.color="#00d9ff"; };
     dorkBtn.onmouseout  = () => { dorkBtn.style.background="rgba(0,217,255,0.06)";dorkBtn.style.color="rgba(0,217,255,0.7)"; };
-    dorkBtn.onclick = () => {
+    dorkBtn.onclick = async () => {
       if (ans._isDemo) return;
       const summary = (ans.message || "").slice(0, 200);
       const currentBus = window.ADAAD_STATE_BUS || {};
@@ -1121,6 +1153,18 @@
         },
       });
       window.open(`../developer/ADAADdev/whaledic.html?dork_seed=${encodeURIComponent(summary)}`, "_blank");
+      const rt = await ensureDorkRuntime();
+      if (rt && typeof rt.hydrateContext === "function") {
+        rt.hydrateContext({
+          oracle_last_query: bus.oracle_last_query || "",
+          oracle_last_query_type: ans.query_type || bus.oracle_last_query_type || "generic",
+          oracle_last_answer_summary: summary,
+        });
+      }
+      const link = rt && typeof rt.buildDeepLink === "function"
+        ? rt.buildDeepLink(summary, "whaledic.html")
+        : `whaledic.html?dork_seed=${encodeURIComponent(summary)}`;
+      window.open(link, "_blank");
     };
     s5.appendChild(dorkBtn);
     if (bus.epoch && bus.epoch.id) {

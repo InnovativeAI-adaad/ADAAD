@@ -450,6 +450,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   </div>
 </div>
 
+<script src="developer/ADAADdev/dork_runtime.js"></script>
 <script>
 // ── CONSTANTS ─────────────────────────────────────────────────────
 const ROUTES={governance:'/api/governance/status',mutations:'/api/mutations/recent?limit=20',replay:'/api/replay/score',epoch:'/api/epoch/current',agents:'/api/agents/health',ledger:'/api/ledger/entries?limit=50',whRecent:'/api/webhooks/recent?limit=20',whStream:'/api/webhooks/stream',readiness:'/api/release/readiness',ledgerLog:'/api/ledger/log'};
@@ -467,14 +468,17 @@ const MOCK={
 const TOKEN_CAP=16000,TOKEN_WARN=12000,CONV_KEY='whaledic_v3_conv';
 
 // ── STATE ────────────────────────────────────────────────────────
-let conv=[],totalTok=0,streaming=false,rs=null,missing=new Set(),reqTs=[],ledgerOff=0,whCount=0;
+let totalTok=0,streaming=false,rs=null,missing=new Set(),reqTs=[],ledgerOff=0,whCount=0;
 let llmCfg={provider:'groq',groqKey:'',ollamaModel:'llama3.2'};
 let selProvider='groq';
+let dorkRuntime=null;
 
 // ── ADAAD STATE BUS (Phase 101 L1) ───────────────────────────────
 window.ADAAD_STATE_BUS=null;
 function updateBus(patch){
+  if(dorkRuntime&&typeof dorkRuntime.hydrateContext==='function') return dorkRuntime.hydrateContext(patch,{source:'whaledic'});
   window.ADAAD_STATE_BUS=Object.freeze({...(window.ADAAD_STATE_BUS||{}), ...patch, captured_at_iso:new Date().toISOString(), schema_version:'1.0.0'});
+  return window.ADAAD_STATE_BUS;
 }
 
 // ── COMMANDS ────────────────────────────────────────────────────
@@ -615,78 +619,25 @@ const DE={
   }
 };
 
-// ── LLM PROVIDERS ────────────────────────────────────────────────
-async function callGroq(msgs,sys,onChunk){
-  if(!llmCfg.groqKey)throw new Error('No Groq key');
-  const resp=await fetch('https://api.groq.com/openai/v1/chat/completions',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','Authorization':'Bearer '+llmCfg.groqKey},
-    body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:1024,stream:true,messages:[{role:'system',content:sys},...msgs]})
-  });
-  if(!resp.ok){const e=await resp.json().catch(()=>({}));throw new Error((e.error&&e.error.message)||'Groq '+resp.status);}
-  const reader=resp.body.getReader();const dec=new TextDecoder();let buf='';
-  while(true){
-    const {done,value}=await reader.read();if(done)break;
-    buf+=dec.decode(value,{stream:true});
-    const lines=buf.split('\n');buf=lines.pop();
-    for(const line of lines){
-      if(!line.startsWith('data: '))continue;
-      const d=line.slice(6).trim();if(d==='[DONE]')return;
-      try{const j=JSON.parse(d);const tok=j.choices&&j.choices[0]&&j.choices[0].delta&&j.choices[0].delta.content;if(tok)onChunk(tok);}catch(_){}
-    }
-  }
-}
-
-async function callOllama(msgs,sys,onChunk){
-  const model=llmCfg.ollamaModel||'llama3.2';
-  const resp=await fetch('http://localhost:11434/api/chat',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({model,stream:true,messages:[{role:'system',content:sys},...msgs]})
-  });
-  if(!resp.ok)throw new Error('Ollama '+resp.status);
-  const reader=resp.body.getReader();const dec=new TextDecoder();let buf='';
-  while(true){
-    const {done,value}=await reader.read();if(done)break;
-    buf+=dec.decode(value,{stream:true});
-    const lines=buf.split('\n');buf=lines.pop();
-    for(const line of lines){if(!line.trim())continue;try{const j=JSON.parse(line);if(j.message&&j.message.content)onChunk(j.message.content);if(j.done)return;}catch(_){}}
-  }
-}
-
-async function callDorkEngine(msgs,onChunk){
-  const lastUser=msgs.filter(m=>m.role==='user').pop();
-  const answer=DE.respond(lastUser?lastUser.content:'');
-  const words=answer.split(' ');
-  for(let i=0;i<words.length;i++){
-    onChunk(words[i]+(i<words.length-1?' ':''));
-    await new Promise(r=>setTimeout(r,16));
-  }
-}
-
-// ── SEND DORK (Phase 101 streaming) ───────────────────────────────
+// ── DORK RUNTIME MESSAGE PIPELINE (Phase 101 streaming) ─────────────
 async function sendDork(){
   const inp=document.getElementById('dinp');
   const msg=inp.value.trim();
   if(!msg||streaming)return;
   if(rateGated()){bus('rate_gate','25/min max');return;}
   inp.value='';inp.style.height='auto';
-  conv.push({role:'user',content:msg});
   addMsg('user',msg);
   const thinkId='dt'+Date.now();
   addThink(thinkId);
   streaming=true;reqTs.push(Date.now());
   document.getElementById('dsend').disabled=true;
-  const sys=buildSP();
-  const apiMsgs=conv.slice(-16).map(t=>({role:t.role,content:t.content}));
-  let full='';let msgEl=null;let cur=null;
-  const prov=llmCfg.provider;
+  let full='';let msgEl=null;let cur=null;let providerUsed=llmCfg.provider;
 
-  function onChunk(chunk){
-    full+=chunk;
+  function onChunk(chunk,aggregate,provider){
+    full=aggregate;providerUsed=provider||providerUsed;
     if(!msgEl){
       document.getElementById(thinkId)&&document.getElementById(thinkId).remove();
-      msgEl=addMsg('assistant','',false,prov);
+      msgEl=addMsg('assistant','',false,providerUsed);
     }
     const dt=msgEl.querySelector('.dtext');
     if(cur&&dt.contains(cur))dt.removeChild(cur);
@@ -696,13 +647,13 @@ async function sendDork(){
   }
 
   try{
-    if(prov==='groq'&&llmCfg.groqKey){await callGroq(apiMsgs,sys,onChunk);bus('dork','groq ok');}
-    else if(prov==='ollama'){await callOllama(apiMsgs,sys,onChunk);bus('dork','ollama ok');}
-    else{await callDorkEngine(apiMsgs,onChunk);bus('dork','engine deterministic');}
+    const out=await dorkRuntime.sendMessage(msg,{onChunk});
+    full=out.response||full;providerUsed=out.provider||providerUsed;
+    bus('dork',providerUsed+' ok');
   }catch(e){
     bus('dork_err',e.message);
     if(!msgEl){document.getElementById(thinkId)&&document.getElementById(thinkId).remove();}
-    const errTxt='**DorkEngine fallback** ('+e.message+')\n\n'+DE.respond(msg);
+    const errTxt='**Dork runtime fallback** ('+e.message+')\n\n'+DE.respond(msg);
     if(!msgEl)msgEl=addMsg('assistant','',false,'engine');
     const dt=msgEl.querySelector('.dtext');
     if(cur&&dt.contains(cur))dt.removeChild(cur);
@@ -712,11 +663,8 @@ async function sendDork(){
     if(cur&&msgEl){const dt=msgEl&&msgEl.querySelector('.dtext');if(dt&&dt.contains(cur))dt.removeChild(cur);}
     streaming=false;
     document.getElementById('dsend').disabled=false;
-    conv.push({role:'assistant',content:full});
     totalTok+=estTok(msg)+estTok(full);
     if(totalTok>TOKEN_WARN)document.getElementById('w-tok').style.display='block';
-    persistConv();
-    updateBus({dork_last:{q:msg.slice(0,120),a:full.slice(0,200),ts:new Date().toISOString()}});
   }
 }
 
@@ -759,12 +707,12 @@ function dorkKD(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendDork(
 function ar(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,72)+'px';}
 
 // ── PERSIST & RESTORE ────────────────────────────────────────────
-function restoreConv(){try{const s=localStorage.getItem(CONV_KEY);if(s){const p=JSON.parse(s);if(p.schema==='3.0')conv=p.turns||[];}}catch(_){}}
-function persistConv(){try{localStorage.setItem(CONV_KEY,JSON.stringify({schema:'3.0',turns:conv.slice(-40),ts:new Date().toISOString()}));}catch(_){}}
+function restoreConv(){}
+function persistConv(){}
 
 // ── CONFIG MODAL ─────────────────────────────────────────────────
-function loadCfg(){try{const s=localStorage.getItem('dork_llm_v3');if(s){const p=JSON.parse(s);llmCfg={...llmCfg,...p};}}catch(_){}}
-function saveCfgStore(){try{localStorage.setItem('dork_llm_v3',JSON.stringify(llmCfg));}catch(_){}}
+function loadCfg(){if(dorkRuntime)llmCfg={...llmCfg,...dorkRuntime.getConfig()};}
+function saveCfgStore(){if(dorkRuntime)dorkRuntime.setConfig(llmCfg);}
 function openCfg(){
   selProv(llmCfg.provider);
   document.getElementById('inp-groq').value=llmCfg.groqKey||'';
@@ -776,7 +724,7 @@ function cfgOutside(e){if(e.target.id==='cfg-wrap')closeCfg();}
 function selProv(p){
   selProvider=p;
   ['groq','ollama','engine'].forEach(id=>{
-    const el=document.getElementById('cp-'+id);if(el)el.classList.toggle('sel',id===p);
+    const el=document.getElementById('cp-'+id);if(el)el.classList.toggle('sel',id===p|| (id==='engine'&&p==='dorkengine'));
   });
   document.getElementById('row-groq').style.display=p==='groq'?'':'none';
   document.getElementById('row-ollama').style.display=p==='ollama'?'':'none';
@@ -856,8 +804,20 @@ function runCmd(i){const c=CMDS[i];if(c){c.fn();closePal({target:{id:'pal-wrap'}
 document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openPalette();}if(e.key==='Escape'){closePal({target:{id:'pal-wrap'}});closeCfg();}if(e.key==='f'&&e.target.tagName!=='TEXTAREA'&&e.target.tagName!=='INPUT')toggleFocus();});
 
 // ── INIT ─────────────────────────────────────────────────────────
+dorkRuntime=initDorkRuntime({
+  provider:llmCfg.provider,
+  groqKey:llmCfg.groqKey,
+  ollamaModel:llmCfg.ollamaModel,
+  buildSystemPrompt:buildSP,
+  engineResponder:(prompt)=>DE.respond(prompt),
+});
+dorkRuntime.subscribeEvents((evt)=>{
+  if(evt.type==='provider_fallback')bus('dork_fallback',evt.payload.from+' -> next');
+  if(evt.type==='provider_error')bus('dork_err',evt.payload.provider+'::'+evt.payload.error);
+  if(evt.type==='token_warn')document.getElementById('w-tok').style.display='block';
+});
 loadCfg();
-(()=>{const lb={groq:'groq',ollama:'ollama',dorkengine:'engine'};document.getElementById('prov-btn').textContent='\u2699 '+(lb[llmCfg.provider]||'groq');document.getElementById('intro-badge').textContent=lb[llmCfg.provider]||'groq';if(!llmCfg.groqKey&&llmCfg.provider==='groq'){setTimeout(()=>{document.getElementById('w-llm').style.display='block';},1500);}})();
+(()=>{const lb={groq:'groq',ollama:'ollama',dorkengine:'engine'};document.getElementById('prov-btn').textContent='\u2699 '+(lb[llmCfg.provider]||'groq');document.getElementById('intro-badge').textContent=lb[llmCfg.provider]||'groq';if(!llmCfg.groqKey&&llmCfg.provider==='groq'){setTimeout(()=>{document.getElementById('w-llm').style.display='block';},1500);}const seed=dorkRuntime.getDeepLinkSeed&&dorkRuntime.getDeepLinkSeed();if(seed){document.getElementById('dinp').value=seed;sendDork();}})();
 restoreConv();renderDebt();refreshAll();startSSE();setInterval(refreshAll,30000);
 </script>
 </body>
