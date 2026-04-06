@@ -765,6 +765,58 @@ function persistConv(){try{localStorage.setItem(CONV_KEY,JSON.stringify({schema:
 // ── CONFIG MODAL ─────────────────────────────────────────────────
 function loadCfg(){try{const s=localStorage.getItem('dork_llm_v3');if(s){const p=JSON.parse(s);llmCfg={...llmCfg,...p};}}catch(_){}}
 function saveCfgStore(){try{localStorage.setItem('dork_llm_v3',JSON.stringify(llmCfg));}catch(_){}}
+function providerLabel(p){const lb={groq:'groq',ollama:'ollama',engine:'engine'};return lb[p]||'engine';}
+function applyProviderBadges(p){
+  const label=providerLabel(p);
+  const provBtn=document.getElementById('prov-btn');
+  const introBadge=document.getElementById('intro-badge');
+  if(provBtn)provBtn.textContent='\u2699 '+label;
+  if(introBadge)introBadge.textContent=label;
+}
+async function probeOllama(){
+  const ctl=new AbortController();
+  const to=setTimeout(()=>ctl.abort(),1200);
+  try{
+    const resp=await fetch('http://localhost:11434/api/tags',{method:'GET',signal:ctl.signal});
+    return resp.ok;
+  }catch(_){
+    return false;
+  }finally{
+    clearTimeout(to);
+  }
+}
+async function bootstrapProvider(){
+  let selected=llmCfg.provider||'engine';
+  let reason='configured';
+  try{
+    if(selected==='groq'&&!llmCfg.groqKey){
+      const ollamaUp=await probeOllama();
+      if(ollamaUp){
+        selected='ollama';
+        reason='groq key missing; ollama probe ok';
+      }else{
+        selected='engine';
+        reason='groq key missing; ollama unavailable';
+      }
+    }else if(selected==='ollama'){
+      const ollamaUp=await probeOllama();
+      if(!ollamaUp){
+        selected='engine';
+        reason='ollama unavailable';
+      }
+    }else if(selected!=='engine'&&selected!=='groq'){
+      selected='engine';
+      reason='provider unsupported';
+    }
+  }catch(_){
+    selected='engine';
+    reason='bootstrap fallback';
+  }
+  llmCfg.provider=selected;
+  applyProviderBadges(selected);
+  bus('provider_bootstrap',selected+' :: '+reason);
+  saveCfgStore();
+}
 function openCfg(){
   selProv(llmCfg.provider);
   document.getElementById('inp-groq').value=llmCfg.groqKey||'';
@@ -786,8 +838,7 @@ function saveCfg(){
   llmCfg.groqKey=document.getElementById('inp-groq').value.trim();
   llmCfg.ollamaModel=document.getElementById('inp-model').value.trim()||'llama3.2';
   saveCfgStore();
-  const lb={groq:'groq',ollama:'ollama',dorkengine:'engine'};
-  document.getElementById('prov-btn').textContent='\u2699 '+(lb[llmCfg.provider]||llmCfg.provider);
+  applyProviderBadges(llmCfg.provider);
   bus('cfg',llmCfg.provider+' saved');closeCfg();
 }
 
@@ -857,7 +908,8 @@ document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLower
 
 // ── INIT ─────────────────────────────────────────────────────────
 loadCfg();
-(()=>{const lb={groq:'groq',ollama:'ollama',dorkengine:'engine'};document.getElementById('prov-btn').textContent='\u2699 '+(lb[llmCfg.provider]||'groq');document.getElementById('intro-badge').textContent=lb[llmCfg.provider]||'groq';if(!llmCfg.groqKey&&llmCfg.provider==='groq'){setTimeout(()=>{document.getElementById('w-llm').style.display='block';},1500);}})();
+applyProviderBadges(llmCfg.provider);
+bootstrapProvider();
 restoreConv();renderDebt();refreshAll();startSSE();setInterval(refreshAll,30000);
 </script>
 </body>
