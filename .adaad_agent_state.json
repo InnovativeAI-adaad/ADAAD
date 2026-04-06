@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.58.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": 126,
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -211,8 +211,8 @@
     "cumulative": 167,
     "hard_class_count": 167
   },
-  "current_phase": 125,
-  "current_version": "9.58.0",
+  "current_phase": 126,
+  "current_version": "9.59.0",
   "hard_class_count": 167,
   "hard_class_invariants_cumulative": 167,
   "human0_signoffs": [
@@ -449,7 +449,7 @@
     }
   },
   "last_agent_state_sync_digest": "gsync-f130c26f8327cdf9",
-  "last_completed_phase": "Phase 05 \u00b7 Phase 125 \u00b7 Community Governance Infrastructure",
+  "last_completed_phase": 125,
   "last_completed_pr": "feat/phase125-community-governance",
   "last_gate_results": {
     "tier_0": "pass",
@@ -651,7 +651,7 @@
     125
   ],
   "schema_version": "1.5.0",
-  "software_version": "9.58.0",
+  "software_version": "9.59.0",
   "tife_active": true,
   "value_checkpoints_reached": [
     "phase0-track-a-hardening",

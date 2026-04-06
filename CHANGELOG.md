@@ -1,3 +1,22 @@
+## [9.59.0] — 2026-04-06 · Phase 126 · Docs Market Positioning
+
+### Added
+- `docs/COMPETITIVE_ANALYSIS.md` — full competitive analysis: 16 verifiable property comparisons vs GitHub Copilot, Devin, CodeRabbit, SonarQube, and CI/CD; category map; 5 enterprise procurement questions; links to Trust Center and procurement fast-lane
+- `artifacts/governance/phase126/` — sign-off JSON, attestation ILA-126-2026-04-06-001
+
+### Changed
+- `README.md` — Phase 125 community governance added to timeline and Recent Phases table; 16-property competitor comparison table added; roadmap count 124→125 phases complete; version badge 9.58.0→9.59.0; links to new COMPETITIVE_ANALYSIS.md
+- `TRUST_CENTER.md` — version sync: v9.55.0→v9.58.0, 162→167 Hard-class invariants, Phase 122→125
+- `VERSION` → `9.59.0`
+- `.adaad_agent_state.json` — version `9.59.0`, current_phase `126`
+
+### Governance
+- Attestation: ILA-126-2026-04-06-001 · Governor: DUSTIN L REID
+- No new Hard-class invariants (docs-only phase)
+- Cumulative Hard-class invariants: **167**
+
+---
+
 
 ## [9.58.0] — 2026-04-05 · Phase 125 · Community Governance Infrastructure
 
