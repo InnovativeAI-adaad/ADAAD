@@ -1261,6 +1261,11 @@
 
     const histBody = h("div", {class: "inno-card-body"});
     const histList = h("div", {class: "oracle-history-list"});
+    const memorySummary = h("div", {
+      class: "oracle-hist-empty",
+      style: "margin-bottom:8px;border:1px solid rgba(0,217,255,0.15);padding:8px;border-radius:8px;color:rgba(0,217,255,0.8);"
+    }, "Since last 10 Oracle calls: loading…");
+    histBody.appendChild(memorySummary);
     histBody.appendChild(histList);
     histCard.appendChild(histBody);
     wrap.appendChild(histCard);
@@ -1270,6 +1275,17 @@
         const data = await apiFetch("/innovations/oracle/history?limit=20");
         const records = (data.records || []).slice().reverse();
         histStatus.textContent = `${records.length} records`;
+        try {
+          const mem = await apiFetch("/innovations/oracle/memory?limit=10");
+          const last10 = mem && mem.memory ? mem.memory : null;
+          if (last10) {
+            memorySummary.innerHTML =
+              `<strong>Since last 10 Oracle calls</strong><br>` +
+              `${escHtml(last10.since_last_10_summary || "No summary available.")}`;
+          }
+        } catch (_) {
+          memorySummary.textContent = "Since last 10 Oracle calls: unavailable.";
+        }
         histList.innerHTML = "";
         if (!records.length) {
           histList.innerHTML = `<div class="oracle-hist-empty">No history yet — run a query above.</div>`;
@@ -1303,6 +1319,7 @@
         });
       } catch (_) {
         histStatus.textContent = "unavailable";
+        memorySummary.textContent = "Since last 10 Oracle calls: unavailable.";
         histList.innerHTML = `<div class="oracle-hist-empty">History endpoint not reachable.</div>`;
       }
     })();
@@ -1427,6 +1444,12 @@
       const meta = h("div", {class: "story-arc-meta"});
       if (arc.agent) meta.appendChild(h("span", {class: "story-arc-badge agent"}, arc.agent));
       if (arc.result) meta.appendChild(h("span", {class: `story-arc-badge ${arc.result}`}, arc.result));
+      const deepLink = h("a", {
+        href: `../developer/ADAADdev/whaledic.html?dork_seed=${encodeURIComponent(`Follow up on ${arc.epoch || `epoch-${i}`}: ${(arc.title || arc.decision || "governance event").slice(0, 140)}`)}`,
+        target: "_blank",
+        style: "margin-left:8px;font-size:10px;color:rgba(0,217,255,0.8);text-decoration:none;",
+      }, "→ Dork follow-up");
+      meta.appendChild(deepLink);
       content.appendChild(meta);
 
       row.appendChild(line);
@@ -1463,6 +1486,12 @@
           const meta = h("div", {class: "story-arc-meta"});
           if (arc.agent) meta.appendChild(h("span", {class: "story-arc-badge agent"}, arc.agent));
           if (arc.result) meta.appendChild(h("span", {class: `story-arc-badge ${arc.result}`}, arc.result));
+          const deepLink = h("a", {
+            href: `../developer/ADAADdev/whaledic.html?dork_seed=${encodeURIComponent(`Follow up on ${arc.epoch || `epoch-${i}`}: ${(arc.title || arc.decision || "governance event").slice(0, 140)}`)}`,
+            target: "_blank",
+            style: "margin-left:8px;font-size:10px;color:rgba(0,217,255,0.8);text-decoration:none;",
+          }, "→ Dork follow-up");
+          meta.appendChild(deepLink);
           content.appendChild(meta);
           row.appendChild(line); row.appendChild(content);
           timeline.appendChild(row);

@@ -35,6 +35,7 @@ from runtime.capability.capability_registry import CapabilityRegistry
 from runtime.capability.seed_registry_adapter import register_seeds_bulk
 from runtime.innovations import ADAADInnovationEngine, CapabilitySeed
 from runtime.oracle_ledger import OracleLedger
+from runtime.oracle_memory import summarize_oracle_memory
 from runtime.seed_promotion import SeedPromotionQueue, get_promotion_queue
 from runtime.seed_review import ReviewAuthorityError, SeedNotFoundError, record_review
 from runtime.seed_proposal_bridge import SeedNotApprovedError, build_proposal_request
@@ -113,6 +114,10 @@ def oracle_query(
     limit: int = 100,
     horizon: int = 120,
     seed_input: str = "oracle-vision",
+    epoch_id: str = "",
+    gate_ok: Optional[bool] = None,
+    replay_score: Optional[float] = None,
+    active_phase: str = "",
     authorization: Optional[str] = Header(default=None),
 ) -> Dict[str, Any]:
     """ADAAD Oracle: deterministic Q&A over evolutionary history.
@@ -142,6 +147,14 @@ def oracle_query(
         answer=answer,
         events=events,
         vision_trajectory_score=trajectory_score,
+        query_type=str(answer.get("query_type", "generic")),
+        answer_summary=str(answer.get("message", ""))[:240],
+        epoch_context={
+            "epoch_id": epoch_id,
+            "active_phase": active_phase,
+            "gate_ok": gate_ok,
+            "replay_score": replay_score,
+        },
     )
 
     return {
@@ -171,6 +184,21 @@ def oracle_history(
         "record_count": len(records),
         "ledger_path": str(_oracle_ledger.path),
         "records": records,
+    }
+
+
+@router.get("/oracle/memory")
+def oracle_memory(
+    limit: int = 10,
+    authorization: Optional[str] = Header(default=None),
+) -> Dict[str, Any]:
+    """Summarize recurring oracle themes and trend indicators."""
+    _require_audit_read(authorization)
+    records = _oracle_ledger.replay(limit=max(limit, 10))
+    memory = summarize_oracle_memory(records, window=limit)
+    return {
+        "ledger_path": str(_oracle_ledger.path),
+        "memory": memory,
     }
 
 
