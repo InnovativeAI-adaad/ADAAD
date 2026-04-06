@@ -66,6 +66,7 @@ from runtime.governance.gate_decision_ledger import (
     GATE_DECISION_LEDGER_GENESIS_PREV_HASH,
     GateDecisionChainError,
     GateDecisionLedger,
+    GateDecisionLedgerWriteError,
     GateDecisionReader,
 )
 from runtime.governance.health_aggregator import (
@@ -132,7 +133,7 @@ def _make_reader_with_decisions(
     tmp_path: Path, payloads: list[dict]
 ) -> GateDecisionReader:
     path = tmp_path / "gate_decisions.jsonl"
-    ledger = GateDecisionLedger(path)
+    ledger = GateDecisionLedger(path, fail_closed=True)
     for p in payloads:
         ledger.emit(p)
     return GateDecisionReader(path)
@@ -155,36 +156,36 @@ class TestGateDecisionLedger:
 
     def test_t35_l_02_emit_creates_file(self, tmp_path):
         path = tmp_path / "gate.jsonl"
-        GateDecisionLedger(path).emit(_approved_payload())
+        GateDecisionLedger(path, fail_closed=True).emit(_approved_payload())
         assert path.exists()
         records = [json.loads(l) for l in path.read_text().splitlines() if l.strip()]
         assert len(records) == 1
 
     def test_t35_l_03_approved_persisted(self, tmp_path):
         path = tmp_path / "gate.jsonl"
-        GateDecisionLedger(path).emit(_approved_payload())
+        GateDecisionLedger(path, fail_closed=True).emit(_approved_payload())
         rec = json.loads(path.read_text().strip())
         assert rec["approved"] is True
         assert rec["decision"] == "pass"
 
     def test_t35_l_04_denied_persisted(self, tmp_path):
         path = tmp_path / "gate.jsonl"
-        GateDecisionLedger(path).emit(_denied_payload())
+        GateDecisionLedger(path, fail_closed=True).emit(_denied_payload())
         rec = json.loads(path.read_text().strip())
         assert rec["approved"] is False
         assert rec["decision"] == "deny"
 
     def test_t35_l_05_chain_verifies_after_multiple(self, tmp_path):
         path = tmp_path / "gate.jsonl"
-        ledger = GateDecisionLedger(path)
+        ledger = GateDecisionLedger(path, fail_closed=True)
         for p in [_approved_payload(), _denied_payload(), _approved_payload("mut-004")]:
             ledger.emit(p)
         assert ledger.verify_chain() is True
 
     def test_t35_l_06_chain_resumes_on_reopen(self, tmp_path):
         path = tmp_path / "gate.jsonl"
-        GateDecisionLedger(path).emit(_approved_payload())
-        ledger2 = GateDecisionLedger(path)
+        GateDecisionLedger(path, fail_closed=True).emit(_approved_payload())
+        ledger2 = GateDecisionLedger(path, fail_closed=True)
         ledger2.emit(_denied_payload())
         assert ledger2.verify_chain() is True
         records = [json.loads(l) for l in path.read_text().splitlines() if l.strip()]
@@ -193,7 +194,7 @@ class TestGateDecisionLedger:
 
     def test_t35_l_07_record_hash_differs_approved_vs_denied(self, tmp_path):
         path = tmp_path / "gate.jsonl"
-        ledger = GateDecisionLedger(path)
+        ledger = GateDecisionLedger(path, fail_closed=True)
         ledger.emit(_approved_payload("m1"))
         ledger.emit(_denied_payload("m2"))
         records = [json.loads(l) for l in path.read_text().splitlines() if l.strip()]
@@ -201,7 +202,7 @@ class TestGateDecisionLedger:
 
     def test_t35_l_08_tamper_raises_chain_error(self, tmp_path):
         path = tmp_path / "gate.jsonl"
-        ledger = GateDecisionLedger(path)
+        ledger = GateDecisionLedger(path, fail_closed=True)
         ledger.emit(_approved_payload())
         ledger.emit(_denied_payload())
         lines = path.read_text().splitlines()
@@ -212,15 +213,28 @@ class TestGateDecisionLedger:
         with pytest.raises(GateDecisionChainError):
             GateDecisionLedger(path, chain_verify_on_open=True)
 
-    def test_t35_l_09_emit_io_failure_swallowed(self, tmp_path):
+    def test_t35_l_09_emit_io_failure_raises_in_fail_closed_mode(self, tmp_path):
         path = tmp_path / "gate.jsonl"
-        ledger = GateDecisionLedger(path)
+        ledger = GateDecisionLedger(path, fail_closed=True)
         path.mkdir(exist_ok=True)
-        ledger.emit(_approved_payload())  # must not raise
+        with pytest.raises(GateDecisionLedgerWriteError) as exc_info:
+            ledger.emit(_approved_payload())
+        err = exc_info.value
+        assert err.path == str(path)
+        assert err.sequence == 0
+        assert err.original_exception_type == "IsADirectoryError"
+
+    def test_t35_l_09b_emit_io_failure_best_effort_logs(self, tmp_path, caplog):
+        path = tmp_path / "gate.jsonl"
+        ledger = GateDecisionLedger(path, fail_closed=False)
+        path.mkdir(exist_ok=True)
+        with caplog.at_level("WARNING"):
+            ledger.emit(_approved_payload())  # must not raise
+        assert "best-effort" in caplog.text
 
     def test_t35_l_10_sequence_increments(self, tmp_path):
         path = tmp_path / "gate.jsonl"
-        ledger = GateDecisionLedger(path)
+        ledger = GateDecisionLedger(path, fail_closed=True)
         for p in [_approved_payload("a"), _denied_payload("b"), _approved_payload("c")]:
             ledger.emit(p)
         records = [json.loads(l) for l in path.read_text().splitlines() if l.strip()]
@@ -230,20 +244,20 @@ class TestGateDecisionLedger:
         pa = tmp_path / "a.jsonl"
         pb = tmp_path / "b.jsonl"
         p = _approved_payload("x")
-        GateDecisionLedger(pa).emit(p)
-        GateDecisionLedger(pb).emit(p)
+        GateDecisionLedger(pa, fail_closed=True).emit(p)
+        GateDecisionLedger(pb, fail_closed=True).emit(p)
         rec_a = json.loads(pa.read_text().strip())
         rec_b = json.loads(pb.read_text().strip())
         assert rec_a["record_hash"] == rec_b["record_hash"]
 
     def test_t35_l_12_parent_dir_auto_created(self, tmp_path):
         path = tmp_path / "deep" / "nested" / "gate.jsonl"
-        GateDecisionLedger(path).emit(_approved_payload())
+        GateDecisionLedger(path, fail_closed=True).emit(_approved_payload())
         assert path.exists()
 
     def test_t35_l_13_human_override_persisted(self, tmp_path):
         path = tmp_path / "gate.jsonl"
-        GateDecisionLedger(path).emit(_override_payload())
+        GateDecisionLedger(path, fail_closed=True).emit(_override_payload())
         rec = json.loads(path.read_text().strip())
         assert rec["human_override"] is True
         assert rec["decision"] == "override_pass"
