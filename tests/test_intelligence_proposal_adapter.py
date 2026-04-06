@@ -43,7 +43,7 @@ def test_proposal_adapter_populates_extended_schema_and_evidence() -> None:
 
     proposal = adapter.build_from_strategy(
         context=StrategyInput(cycle_id="cycle-1", mutation_score=0.8, governance_debt_score=0.1, signals={"k": "v"}),
-        strategy=StrategyDecision(strategy_id="s1", rationale="fallback rationale", confidence=0.9),
+        strategy=StrategyDecision(strategy_id="adaptive_self_mutate", rationale="fallback rationale", confidence=0.9),
     )
 
     assert proposal.summary == "llm summary"
@@ -61,9 +61,9 @@ def test_proposal_adapter_uses_strategy_rationale_when_summary_missing() -> None
 
     proposal = adapter.build_from_strategy(
         context=StrategyInput(cycle_id="c1", mutation_score=0.2, governance_debt_score=0.1),
-        strategy=StrategyDecision(strategy_id="fixed", rationale="fallback rationale", confidence=0.9),
+        strategy=StrategyDecision(strategy_id="adaptive_self_mutate", rationale="fallback rationale", confidence=0.9),
     )
 
     assert proposal.summary == "fallback rationale"
     assert proposal.evidence["llm_provider_result"]["ok"] is True
-    assert proposal.metadata["strategy_id"] == "fixed"
+    assert proposal.metadata["strategy_id"] == "adaptive_self_mutate"
