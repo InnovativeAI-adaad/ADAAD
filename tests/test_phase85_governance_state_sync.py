@@ -35,11 +35,13 @@ def _import_sync(tmp_path):
     spec = importlib.util.spec_from_file_location(
         "sync_agent_state_on_merge", ROOT / "scripts" / "sync_agent_state_on_merge.py")
     mod = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = mod
+    spec.loader.exec_module(mod)
     mod.ROOT = tmp_path
     mod.STATE_PATH = tmp_path / ".adaad_agent_state.json"
     mod.VERSION_PATH = tmp_path / "VERSION"
     mod.CHANGELOG_PATH = tmp_path / "CHANGELOG.md"
-    spec.loader.exec_module(mod)
+    mod._git_sha = lambda: "deadbee"
     return mod
 
 
@@ -48,11 +50,12 @@ def _import_drift(tmp_path):
     spec = importlib.util.spec_from_file_location(
         "validate_governance_state_drift", ROOT / "scripts" / "validate_governance_state_drift.py")
     mod = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = mod
+    spec.loader.exec_module(mod)
     mod.ROOT = tmp_path
     mod.STATE_PATH = tmp_path / ".adaad_agent_state.json"
     mod.VERSION_PATH = tmp_path / "VERSION"
     mod.CHANGELOG_PATH = tmp_path / "CHANGELOG.md"
-    spec.loader.exec_module(mod)
     return mod
 
 
