@@ -1,3 +1,26 @@
+## [9.60.0] — 2026-04-06 · Phase 127 · Break-It Challenge Infrastructure
+
+### Added
+- `docs/BREAK_IT_CHALLENGE.md` — public constitutional stress test: 167 Hard-class invariants open to adversarial challenge; in/out-of-scope rules; submission format; BYPASS_CONFIRMED / GUARANTEE_HOLDS / PARTIAL_BYPASS classifications; recognition policy; verification environment
+- `docs/break_it_log/README.md` — public submission log initialized at 0 attempts; summary table; entry format; active invariants table; coordinated disclosure policy
+- `.github/ISSUE_TEMPLATE/break_it_submission.md` — structured submission template: YAML frontmatter, all mandatory fields, result classification checkboxes, clean-clone reproduction requirement
+- `CONTRIBUTORS.md` — permanent recognition registry: HUMAN-0, Constitutional Auditors (Break-It), Community Governance Participants, Code contributors; recognition is permanent and never removed
+- `tests/test_phase127_break_it_challenge.py` — 30/30 acceptance tests T127-BRK-01..30 (DOC, LOG, TMPL, CONT, INV, PROC categories)
+- `artifacts/governance/phase127/` — sign-off JSON, attestation ILA-127-2026-04-06-001
+
+### Changed
+- `pytest.ini` — registered `phase127` marker
+- `VERSION` → `9.60.0`
+- `.adaad_agent_state.json` — version `9.60.0`, current_phase `127`
+
+### Governance
+- Attestation: ILA-127-2026-04-06-001 · Governor: DUSTIN L REID
+- No new Hard-class invariants (infrastructure phase)
+- Cumulative Hard-class invariants: **167**
+- 30/30 acceptance tests PASS
+
+---
+
 ## [9.59.0] — 2026-04-06 · Phase 126 · Docs Market Positioning
 
 ### Added
