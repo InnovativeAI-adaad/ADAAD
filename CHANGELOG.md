@@ -1,4 +1,34 @@
 
+
+## [9.59.0] — 2026-04-06 · Phase 126 · Red-Team Challenge
+
+### Added
+- `runtime/red_team/constitutional_attacker.py` — adversarial invariant probe engine; probes all Hard-class gates with typed attack scenarios; fail-closed on every gate miss
+- `runtime/red_team/attack_manifest.json` — canonical 20-scenario attack registry; append-only; covers REDTEAM-* and all prior Hard-class invariant families
+- `tests/test_phase126_red_team.py` — 30/30 acceptance tests T126-RTEAM-01..30 (ATCK, DFNS, AUDIT, REPT categories)
+- `artifacts/governance/phase126/` — sign-off JSON, IP patent specification, invariant registry, test manifest (ILA-126-2026-04-06-001)
+- `pytest.ini` — registered `phase126` marker
+
+### Constitutional Invariants
+- `REDTEAM-IMMUT-0` (Hard-class) — attack ledger is append-only; post-write mutation raises `LedgerMutationError`; tamper detected via `hmac.compare_digest`
+- `REDTEAM-AUDIT-0` (Hard-class) — every attack attempt persisted with chain-linked `prev_digest` before next attempt begins; ledger write failure raises `ConstitutionalBreachError`
+- `REDTEAM-SCOPE-0` (Hard-class) — attacker may only target invariants in canonical manifest; unlisted targets raise `OutOfScopeAttackError`
+- `REDTEAM-HALT-0` (Hard-class) — any gate miss raises `ConstitutionalBreachError` immediately; silent pass-through is categorically prohibited
+- `REDTEAM-DETERM-0` (Hard-class) — `run_digest` is a pure function of (campaign_id, attack_ids, outcomes); no clock or random in digest computation
+- `REDTEAM-CHAIN-0` (Hard-class) — each `AttackRecord` carries `prev_digest` linking to prior record; first record carries `prev_digest="genesis"`
+- **Cumulative Hard-class invariants: 167 → 173**
+
+### Changed
+- `VERSION` → `9.59.0`
+- `pyproject.toml` → `9.59.0`
+- `pytest.ini` — registered `phase126` marker
+
+### Sync Remediation (committed to main at 99defff)
+- FINDING-SYNC-126-001 (P1): `pyproject.toml` frozen at 9.57.0 — resolved
+- FINDING-SYNC-126-002 (P1): `agent_state.json` phase/version fields stale — resolved
+- FINDING-SYNC-126-003 (P1): autosync false attestation of AUTOSYNC-0 — resolved
+- FINDING-SYNC-126-004 (P2): dual invariant count fields unified at 167 — resolved
+
 ## [9.58.0] — 2026-04-05 · Phase 125 · Community Governance Infrastructure
 
 ### Added
