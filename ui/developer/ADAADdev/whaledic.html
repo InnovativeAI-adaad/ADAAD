@@ -405,10 +405,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   <div class="dork-hdr">
     <div class="dork-hdr-top">
       <div>
-        <div class="dork-title">dork</div>
-        <div class="dork-sub">ADAADinside&#x2122; &middot; constitutional intelligence</div>
+        <div class="dork-title">dork <span style="font-size:9px;font-weight:400;color:var(--text3);font-family:var(--font-mono)">v2</span></div>
+        <div class="dork-sub">ADAADinside&#x2122; &middot; constitutional intelligence &middot; <span id="dork-intent-lbl" style="color:var(--purple);font-family:var(--font-mono);font-size:9px"></span></div>
       </div>
-      <button class="dork-prov-btn" id="prov-btn" onclick="openCfg()">&#9881; groq</button>
+      <div style="display:flex;gap:5px;align-items:center">
+        <button title="Export forensic bundle" style="font-size:9px;font-family:var(--font-mono);padding:3px 7px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg3);color:var(--text3);cursor:pointer" onclick="exportForensicBundle()">&#x1F4E6; export</button>
+        <button class="dork-prov-btn" id="prov-btn" onclick="openCfg()">&#9881; groq</button>
+      </div>
     </div>
   </div>
   <div class="dork-msgs" id="dork-msgs">
@@ -465,6 +468,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
             <span class="cfg-badge b-local">LOCAL</span>
             <span class="cfg-prov-hint">localhost:11434 &middot; no key needed</span>
           </div>
+          <div class="cfg-prov" id="cp-claude" onclick="selProv('claude')">
+            <div class="cfg-prov-name">Claude (Anthropic)</div>
+            <span class="cfg-badge b-free">CLOUD</span>
+            <span class="cfg-prov-hint">claude-haiku &middot; governance-aware &middot; fastest</span>
+          </div>
           <div class="cfg-prov" id="cp-engine" onclick="selProv('dorkengine')">
             <div class="cfg-prov-name">DorkEngine</div>
             <span class="cfg-badge b-det">DETERMINISTIC</span>
@@ -476,6 +484,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
         <div class="cfg-lbl">Groq API Key</div>
         <input class="cfg-inp" id="inp-groq" type="password" placeholder="gsk_&hellip;" autocomplete="off"/>
         <div class="cfg-note">Free at <a href="https://console.groq.com" target="_blank">console.groq.com</a> &mdash; no credit card required.</div>
+      </div>
+      <div id="row-claude" style="display:none">
+        <div class="cfg-lbl">Anthropic API Key</div>
+        <input class="cfg-inp" id="inp-claude" type="password" placeholder="sk-ant-&hellip;" autocomplete="off"/>
+        <div class="cfg-note">Get your key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>. Uses claude-haiku for speed and governance alignment.</div>
       </div>
       <div id="row-ollama" style="display:none">
         <div class="cfg-lbl">Ollama Model</div>
@@ -494,6 +507,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   </div>
 </div>
 
+<script src="./dork_knowledge_base.js"></script>
+<script src="./dork_runtime.js"></script>
 <script src="./dork_capability_registry.js"></script>
 <script>
 // ── CONSTANTS ─────────────────────────────────────────────────────
@@ -518,7 +533,7 @@ let conv=[],totalTok=0,streaming=false,rs=null,prevRs=null,missing=new Set(),req
 const capabilityCards=[];
 let capabilityOptimizer={schema:'1.0',updated_at_iso:'',totalInteractions:0,lastSummaryAt:0,latestSummary:null,byCapability:{}};
 let lastCapabilityTurn=null;
-let llmCfg={provider:'groq',groqKey:'',ollamaModel:'llama3.2'};
+let llmCfg={provider:'groq',groqKey:'',ollamaModel:'llama3.2',claudeKey:''};
 let selProvider='groq';
 let eventBus=[],eventBusFilter='all',eventBusExpanded=false,eventBusSeq=0;
 let dorkSeedAutoStarted=false;
@@ -937,7 +952,9 @@ function buildSP(){
   const mutsStr=(m&&m.mutations?m.mutations.slice(-3):[]).map(x=>'[epoch-'+(x.epoch||'?')+'] '+x.agent+': '+x.action+' '+x.sha).join('\n')||'none';
   const oracleCtx=sb.oracle_last_query?('\nORACLE LAST QUERY: "'+sb.oracle_last_query+'" (type: '+(sb.oracle_last_query_type||'generic')+')\nORACLE SUMMARY: '+(sb.oracle_last_answer_summary||'see Oracle panel')):'';
   const locked=g&&g.locked;
-  return 'You are dork, the ADAADinside\u2122 constitutional intelligence assistant for ADAAD v9.34.0 Phase 101.\nYou operate under ADAAD\u2019s V8 constitutional governance framework. You are read-only \u2014 observe and advise, never modify state.\nGround every answer in the live runtime state below. Be direct, precise, developer-oriented.\n\n## CONSTITUTIONAL GOVERNANCE CONTEXT\nGATE: '+(locked?'\ud83d\udd34 LOCKED':'\ud83d\udfe2 PASS')+' \u00b7 Tier: '+(g&&g.tier||'\u2014')+' \u00b7 Constitution: '+(g&&g.constitution_version||'\u2014')+'\nEPOCH: '+(ep&&ep.epoch||'\u2014')+' \u00b7 Phase: '+(ep&&ep.phase||'\u2014')+' \u00b7 Mutations: '+(g&&g.mutation_enabled?'enabled':'disabled')+'\nREPLAY: Score '+(r&&r.score!=null?Number(r.score).toFixed(3):'\u2014')+' \u00b7 Divergence '+(r&&r.divergence!=null?r.divergence:'\u2014')+' \u00b7 Mode '+(r&&r.mode||'\u2014')+'\nREADINESS: '+(rd&&rd.readiness_score!=null?Math.round(rd.readiness_score*100)+'%':'\u2014')+' \u00b7 Blockers: '+((rd&&rd.blockers&&rd.blockers.length)?rd.blockers.join(', '):'none')+'\n\n## AGENT TRIAD\n'+agStr+'\n\n## RECENT MUTATIONS (last 3)\n'+mutsStr+'\n\n## ORACLE BRIDGE'+(oracleCtx||'\nNo Oracle query in current session.')+'\n\n## CONSTRAINTS\n'+(locked?'\u26a0 GATE IS LOCKED \u2014 prepend this warning to every response.\n':'')+'Do not recommend bypassing constitutional gates or HUMAN-0 requirements.\nReference specific epoch IDs, SHA fragments, or phase numbers when citing state.';
+  const kbHit=(window.DORK_KB&&typeof lastQuery!=='undefined')?window.DORK_KB.lookup(String(lastQuery||'').slice(0,80)):null;
+  const kbCtx=kbHit?'\n\n## KB CONTEXT\n'+kbHit.answer:'';
+  return 'You are DORK v2 (Dynamic Operative Resource Knowledge), the ADAADinside\u2122 constitutional intelligence assistant for ADAAD v9.58.0 Phase 125.\nYou operate under ADAAD\u2019s constitutional governance framework. You are read-only \u2014 observe and advise, never modify state or authorise HUMAN-0 signing via chat.\nYou have access to 8+ capability cards and a 50+ entry knowledge base. Ground every answer in live runtime state. Be direct, precise, developer-oriented.\nFor governance questions, cite the relevant invariant class or gate status. Never suggest bypassing HUMAN-0 cryptographic authority.\n\n## CONSTITUTIONAL GOVERNANCE CONTEXT\nGATE: '+(locked?'\ud83d\udd34 LOCKED':'\ud83d\udfe2 PASS')+' \u00b7 Tier: '+(g&&g.tier||'\u2014')+' \u00b7 Constitution: '+(g&&g.constitution_version||'\u2014')+'\nEPOCH: '+(ep&&ep.epoch||'\u2014')+' \u00b7 Phase: '+(ep&&ep.phase||'\u2014')+' \u00b7 Mutations: '+(g&&g.mutation_enabled?'enabled':'disabled')+'\nREPLAY: Score '+(r&&r.score!=null?Number(r.score).toFixed(3):'\u2014')+' \u00b7 Divergence '+(r&&r.divergence!=null?r.divergence:'\u2014')+' \u00b7 Mode '+(r&&r.mode||'\u2014')+'\nREADINESS: '+(rd&&rd.readiness_score!=null?Math.round(rd.readiness_score*100)+'%':'\u2014')+' \u00b7 Blockers: '+((rd&&rd.blockers&&rd.blockers.length)?rd.blockers.join(', '):'none')+'\n\n## AGENT TRIAD\n'+agStr+'\n\n## RECENT MUTATIONS (last 3)\n'+mutsStr+'\n\n## ORACLE BRIDGE'+(oracleCtx||'\nNo Oracle query in current session.')+kbCtx+'\n\n## CONSTRAINTS\n'+(locked?'\u26a0 GATE IS LOCKED \u2014 prepend this warning to every response.\n':'')+'Do not recommend bypassing constitutional gates or HUMAN-0 cryptographic requirements.\nReference epoch IDs, SHA fragments, or phase numbers when citing state.\nAlways note when data is absent from the state bus snapshot and suggest the authoritative endpoint.';
 }
 
 // ── DORKENGINE: Deterministic Constitutional Intelligence ────────
@@ -1018,6 +1035,28 @@ const DE={
     }
   }
 };
+
+async function callClaude(msgs,sys,onChunk){
+  const key=llmCfg.claudeKey;
+  if(!key)throw new Error('No Claude key');
+  const resp=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
+    body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1024,stream:true,system:sys,messages:msgs})
+  });
+  if(!resp.ok){const e=await resp.json().catch(()=>({}));throw new Error((e.error&&e.error.message)||'Claude '+resp.status);}
+  const reader=resp.body.getReader();const dec=new TextDecoder();let buf='';
+  while(true){
+    const {done,value}=await reader.read();if(done)break;
+    buf+=dec.decode(value,{stream:true});
+    const lines=buf.split('\n');buf=lines.pop();
+    for(const line of lines){
+      if(!line.startsWith('data: '))continue;
+      const d=line.slice(6).trim();if(!d||d==='[DONE]')continue;
+      try{const j=JSON.parse(d);if(j.type==='content_block_delta'&&j.delta&&j.delta.text)onChunk(j.delta.text);}catch(_){}
+    }
+  }
+}
 
 // ── LLM PROVIDERS ────────────────────────────────────────────────
 async function callGroq(msgs,sys,onChunk){
@@ -1114,12 +1153,36 @@ function renderTrustBadge(metadata){
   return '<div class="trust-wrap"><details><summary class="trust-badge '+band+'">trust '+Math.round(score*100)+'%</summary><div class="trust-details">'+esc(details.join(' | '))+'</div></details></div>';
 }
 
-// ── SEND DORK (Phase 101 streaming) ───────────────────────────────
+// ── SEND DORK v2 ─────────────────────────────────────────────────
+let lastQuery='';
+function exportForensicBundle(){
+  try{
+    const bundle={schema:'dork_forensic_bundle_v1',captured_at:new Date().toISOString(),session_fingerprint:(window.ADAADDorkRuntime&&window.ADAADDorkRuntime.sessionFingerprint)||'unknown',turn_count:conv.length,state_bus_snapshot:window.ADAAD_STATE_BUS||{},conversation_digest:conv.map(t=>({role:t.role,length:String(t.content||'').length}))};
+    const blob=new Blob([JSON.stringify(bundle,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download='dork_forensic_'+Date.now()+'.json';a.click();
+    URL.revokeObjectURL(url);
+    bus('forensic','bundle exported',{turns:conv.length},'audit','success');
+  }catch(e){bus('forensic_err',e.message,{},'audit','error');}
+}
 async function sendDork(){
   const inp=document.getElementById('dinp');
   const msg=inp.value.trim();
   if(!msg||streaming)return;
   if(rateGated()){bus('rate_gate','25/min max',{},'provider','warn');return;}
+  lastQuery=msg;
+  // Intent classification
+  const intentLbl=document.getElementById('dork-intent-lbl');
+  if(intentLbl&&window.ADAADDorkRuntime&&window.ADAADDorkRuntime.classifyIntent){
+    intentLbl.textContent=window.ADAADDorkRuntime.classifyIntent(msg);
+  }
+  // KB enrichment inline hint
+  if(window.DORK_KB){
+    const kbHit=window.DORK_KB.lookup(msg);
+    if(kbHit&&kbHit.match!=='weak'){
+      bus('kb_hit',kbHit.key,{confidence:kbHit.confidence,match:kbHit.match},'kb','success');
+    }
+  }
   inp.value='';inp.style.height='auto';
   conv.push({role:'user',content:msg});
   addMsg('user',msg);
@@ -1168,7 +1231,8 @@ async function sendDork(){
   }
 
   try{
-    if(prov==='groq'&&llmCfg.groqKey){providerUsed='groq';await callGroq(apiMsgs,sys,onChunk);bus('dork','groq ok',{provider:'groq'},'provider','success');}
+    if(prov==='claude'&&llmCfg.claudeKey){providerUsed='claude';await callClaude(apiMsgs,sys,onChunk);bus('dork','claude ok',{provider:'claude'},'provider','success');}
+    else if(prov==='groq'&&llmCfg.groqKey){providerUsed='groq';await callGroq(apiMsgs,sys,onChunk);bus('dork','groq ok',{provider:'groq'},'provider','success');}
     else if(prov==='ollama'){providerUsed='ollama';await callOllama(apiMsgs,sys,onChunk);bus('dork','ollama ok',{provider:'ollama'},'provider','success');}
     else{providerUsed='engine';await callDorkEngine(apiMsgs,onChunk);bus('dork','engine deterministic',{provider:'dorkengine'},'provider','success');}
   }catch(e){
@@ -1288,9 +1352,15 @@ function autostartDorkSeed(){
 }
 
 // ── CONFIG MODAL ─────────────────────────────────────────────────
-function loadCfg(){try{const s=localStorage.getItem('dork_llm_v3');if(s){const p=JSON.parse(s);llmCfg={...llmCfg,...p};}}catch(_){}}
-function saveCfgStore(){try{localStorage.setItem('dork_llm_v3',JSON.stringify(llmCfg));}catch(_){}}
-function providerLabel(p){const lb={groq:'groq',ollama:'ollama',engine:'engine'};return lb[p]||'engine';}
+function loadCfg(){try{const s=localStorage.getItem('dork_llm_v3');if(s){const p=JSON.parse(s);llmCfg={...llmCfg,...p};}}catch(_){}
+  // Restore claude key from dedicated store (may differ from llmCfg bundle)
+  try{const ck=localStorage.getItem('dork_claude_key_v1');if(ck&&!llmCfg.claudeKey)llmCfg.claudeKey=ck;}catch(_){}
+}
+function saveCfgStore(){
+  try{localStorage.setItem('dork_llm_v3',JSON.stringify(llmCfg));}catch(_){}
+  try{if(llmCfg.claudeKey)localStorage.setItem('dork_claude_key_v1',llmCfg.claudeKey);}catch(_){}
+}
+function providerLabel(p){const lb={groq:'groq',ollama:'ollama',claude:'claude',engine:'engine'};return lb[p]||'engine';}
 function applyProviderBadges(p){
   const label=providerLabel(p);
   const provBtn=document.getElementById('prov-btn');
@@ -1345,6 +1415,7 @@ async function bootstrapProvider(){
 function openCfg(){
   selProv(llmCfg.provider);
   document.getElementById('inp-groq').value=llmCfg.groqKey||'';
+  document.getElementById('inp-claude').value=llmCfg.claudeKey||'';
   document.getElementById('inp-model').value=llmCfg.ollamaModel||'llama3.2';
   document.getElementById('cfg-wrap').style.display='flex';
 }
@@ -1352,18 +1423,20 @@ function closeCfg(){document.getElementById('cfg-wrap').style.display='none';}
 function cfgOutside(e){if(e.target.id==='cfg-wrap')closeCfg();}
 function selProv(p){
   selProvider=p;
-  ['groq','ollama','engine'].forEach(id=>{
+  ['groq','ollama','claude','engine'].forEach(id=>{
     const el=document.getElementById('cp-'+id);if(el)el.classList.toggle('sel',id===p);
   });
   document.getElementById('row-groq').style.display=p==='groq'?'':'none';
   document.getElementById('row-ollama').style.display=p==='ollama'?'':'none';
+  document.getElementById('row-claude').style.display=p==='claude'?'':'none';
 }
 function saveCfg(){
   llmCfg.provider=selProvider;
   llmCfg.groqKey=document.getElementById('inp-groq').value.trim();
+  llmCfg.claudeKey=document.getElementById('inp-claude').value.trim();
   llmCfg.ollamaModel=document.getElementById('inp-model').value.trim()||'llama3.2';
   saveCfgStore();
-  const lb={groq:'groq',ollama:'ollama',dorkengine:'engine'};
+  const lb={groq:'groq',ollama:'ollama',claude:'claude',dorkengine:'engine'};
   document.getElementById('prov-btn').textContent='\u2699 '+(lb[llmCfg.provider]||llmCfg.provider);
   bus('cfg',llmCfg.provider+' saved',{provider:llmCfg.provider},'provider','success');closeCfg();
   applyProviderBadges(llmCfg.provider);

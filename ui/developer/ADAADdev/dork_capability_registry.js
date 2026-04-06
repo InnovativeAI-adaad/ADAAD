@@ -427,3 +427,335 @@
     executeByQuery,
   };
 })(window);
+// ── CAPABILITY REGISTRY EXTENSION v2.0 ───────────────────────────────────────
+// Appended by DEVADAAD — dork-makeover-v2
+// Adds 8 new capabilities and re-exports an enriched registry via
+// DORK_CAPABILITY_REGISTRY_V2 (backward-compatible; merges with base registry).
+(function extendDorkCapabilityRegistry(global) {
+  'use strict';
+
+  function readPath(obj, path) {
+    if (!obj) return undefined;
+    const parts = String(path).split('.');
+    let cur = obj;
+    for (const part of parts) {
+      if (cur == null || typeof cur !== 'object' || !(part in cur)) return undefined;
+      cur = cur[part];
+    }
+    return cur;
+  }
+
+  function buildCard(id, summary, details, nextActions, confidence, dependencies, fallbackUsed) {
+    return { capability_id: id, summary, details, next_actions: nextActions, confidence, dependencies: dependencies || [], fallback_used: Boolean(fallbackUsed) };
+  }
+
+  function toFin(v, fb) { const n = Number(v); return Number.isFinite(n) ? n : fb; }
+
+  const EXTENDED_CAPABILITIES = [
+    // ── 1. Mutation Pipeline Inspector ──────────────────────────────────
+    {
+      id: 'mutation_pipeline_inspector',
+      label: 'mutation pipeline',
+      intents: ['mutation', 'pipeline', 'queue', 'promotion'],
+      triggers: [/\bmutation\b/i, /\bpipeline\b/i, /\bpromotion\b/i, /\bqueue\b/i, /\bpatch\b/i],
+      dependencies: [
+        { id: 'muts.total', path: 'muts.total', required: true, fallback: 'queue_unknown' },
+        { id: 'muts.pending', path: 'muts.pending', required: false, fallback: 'pending_unknown' },
+        { id: 'muts.rejected', path: 'muts.rejected', required: false, fallback: 'rejected_unknown' },
+      ],
+      execute(context) {
+        const total = toFin(readPath(context, 'muts.total'), null);
+        const pending = toFin(readPath(context, 'muts.pending'), 0);
+        const rejected = toFin(readPath(context, 'muts.rejected'), 0);
+        const recent = Array.isArray(readPath(context, 'muts.mutations')) ? readPath(context, 'muts.mutations').slice(-5) : [];
+        const fallbackUsed = total === null;
+        const confidence = fallbackUsed ? 0.45 : pending === 0 ? 0.91 : 0.78;
+        const summary = fallbackUsed
+          ? 'Mutation pipeline data unavailable from state bus snapshot.'
+          : `Pipeline: ${total} total · ${pending} pending · ${rejected} rejected.`;
+        const details = fallbackUsed
+          ? ['Connect state bus to ADAAD runtime for live mutation metrics.']
+          : [
+              `${pending} mutations awaiting GovernanceGate evaluation.`,
+              `${rejected} mutations rejected in current epoch.`,
+              recent.length ? `Latest: ${recent.map((m) => String(m.epoch_id || m.id || '?').slice(0, 8)).join(', ')}.` : 'No recent mutation IDs in snapshot.',
+            ];
+        const nextActions = pending > 5
+          ? ['Review mutation backlog — high pending count may indicate governance bottleneck.', 'Run governance gate status check.']
+          : pending > 0
+          ? ['Advance pending mutations through governance evaluation cycle.']
+          : ['Pipeline clear — continue normal evolution cadence.'];
+        return buildCard(this.id, summary, details, nextActions, confidence, [], fallbackUsed);
+      },
+    },
+
+    // ── 2. Ledger Forensics ──────────────────────────────────────────
+    {
+      id: 'ledger_forensics',
+      label: 'ledger forensics',
+      intents: ['ledger', 'forensics', 'audit', 'provenance', 'evidence'],
+      triggers: [/\bledger\b/i, /\bforensic\b/i, /\bprovenance\b/i, /\baudit trail\b/i, /\bevidence\b/i],
+      dependencies: [
+        { id: 'ledger.entries', path: 'ledger.entries', required: true, fallback: 'ledger_unavailable' },
+        { id: 'ledger.hash', path: 'ledger.hash', required: false, fallback: 'hash_unknown' },
+      ],
+      execute(context) {
+        const entries = Array.isArray(readPath(context, 'ledger.entries')) ? readPath(context, 'ledger.entries') : null;
+        const hash = readPath(context, 'ledger.hash') || 'unknown';
+        const fallbackUsed = entries === null;
+        const recent = fallbackUsed ? [] : entries.slice(-8);
+        const confidence = fallbackUsed ? 0.4 : 0.93;
+        const approvals = recent.filter((e) => e && String(e.type || e.event || '').toLowerCase().includes('approv')).length;
+        const rejections = recent.filter((e) => e && String(e.type || e.event || '').toLowerCase().includes('reject')).length;
+        const summary = fallbackUsed
+          ? 'Ledger data not present in current state bus snapshot — forensics unavailable.'
+          : `Ledger: ${entries.length} total entries · hash ${String(hash).slice(0, 12)} · last 8: ${approvals} approvals, ${rejections} rejections.`;
+        const details = fallbackUsed
+          ? ['Populate ledger.entries in state bus to enable forensics.']
+          : [
+              `Chain head hash: ${String(hash).slice(0, 16)}…`,
+              `Last 8 entries cover ${approvals} approvals and ${rejections} rejections.`,
+              recent.length ? `Most recent epoch IDs: ${recent.map((e) => String(e.epoch_id || e.id || '?').slice(0, 8)).join(' · ')}.` : 'No epoch IDs available.',
+            ];
+        const nextActions = fallbackUsed
+          ? ['Connect ledger endpoint to state bus or import a forensic bundle.']
+          : ['Export forensic bundle for external audit.', 'Cross-reference with replay digest to verify chain integrity.'];
+        return buildCard(this.id, summary, details, nextActions, confidence, [], fallbackUsed);
+      },
+    },
+
+    // ── 3. Constitution Diff ─────────────────────────────────────────
+    {
+      id: 'constitution_diff',
+      label: 'constitution diff',
+      intents: ['constitution', 'diff', 'amendment', 'invariant', 'rule change'],
+      triggers: [/\bconstitution\b/i, /\bamendment\b/i, /\binvariant\b/i, /\brule change\b/i, /\bconst(?:itution)? diff\b/i],
+      dependencies: [
+        { id: 'gov.constitution_version', path: 'gov.constitution_version', required: true, fallback: 'version_unknown' },
+        { id: 'gov.invariant_count', path: 'gov.invariant_count', required: false, fallback: 'count_unknown' },
+      ],
+      execute(context) {
+        const version = readPath(context, 'gov.constitution_version') || null;
+        const invariantCount = toFin(readPath(context, 'gov.invariant_count'), null);
+        const amendments = Array.isArray(readPath(context, 'gov.amendments')) ? readPath(context, 'gov.amendments') : [];
+        const fallbackUsed = version === null;
+        const confidence = fallbackUsed ? 0.43 : amendments.length === 0 ? 0.88 : 0.94;
+        const summary = fallbackUsed
+          ? 'Constitution version not available in state bus snapshot.'
+          : `Constitution v${version} · ${invariantCount !== null ? invariantCount : '?'} Hard invariants · ${amendments.length} recorded amendments.`;
+        const details = fallbackUsed
+          ? ['Hydrate gov.constitution_version from the governance endpoint.']
+          : [
+              `Current version: ${version}.`,
+              `Active Hard invariants: ${invariantCount !== null ? invariantCount : 'count unavailable'}.`,
+              amendments.length ? `Recent amendments: ${amendments.slice(-3).map((a) => a.id || a.label || '?').join(', ')}.` : 'No amendments recorded in snapshot.',
+            ];
+        const nextActions = fallbackUsed
+          ? ['Run GET /api/governance/constitution to hydrate version data.']
+          : amendments.length
+          ? ['Review amendment details for invariant surface area impact.', 'Ensure CHANGELOG reflects constitution version bump.']
+          : ['Constitution stable — continue normal governance cadence.'];
+        return buildCard(this.id, summary, details, nextActions, confidence, [], fallbackUsed);
+      },
+    },
+
+    // ── 4. Phase Progress Tracker ────────────────────────────────────
+    {
+      id: 'phase_progress_tracker',
+      label: 'phase progress',
+      intents: ['phase', 'progress', 'roadmap', 'milestone', 'current phase'],
+      triggers: [/\bphase\b/i, /\bprogress\b/i, /\broadmap\b/i, /\bmilestone\b/i, /\bcurrent phase\b/i],
+      dependencies: [
+        { id: 'state.phase', path: 'phase', required: true, fallback: 'phase_unknown' },
+        { id: 'state.version', path: 'version', required: false, fallback: 'version_unknown' },
+      ],
+      execute(context) {
+        const phase = toFin(readPath(context, 'phase') || readPath(context, 'stateBus.phase'), null);
+        const version = readPath(context, 'version') || readPath(context, 'stateBus.version') || null;
+        const nextPhase = readPath(context, 'next_phase') || readPath(context, 'stateBus.next_phase') || null;
+        const fallbackUsed = phase === null;
+        const confidence = fallbackUsed ? 0.42 : 0.92;
+        const summary = fallbackUsed
+          ? 'Phase data not available in current state bus snapshot. ADAAD is at Phase 125, v9.58.0 per last known state.'
+          : `Phase ${phase}${version ? ' · v' + version : ''}${nextPhase ? ' · next: Phase ' + nextPhase : ''}.`;
+        const details = fallbackUsed
+          ? ['Hydrate state bus with phase and version fields from .adaad_agent_state.json.', 'Last known state: Phase 125, v9.58.0.']
+          : [
+              `Active phase: ${phase}.`,
+              version ? `Aligned version: v${version}.` : 'Version not in snapshot.',
+              nextPhase ? `Next phase queued: ${nextPhase}.` : 'No next phase queued in snapshot.',
+            ];
+        const nextActions = fallbackUsed
+          ? ['Connect ADAAD state bus to Whale.Dic for live phase tracking.']
+          : ['Cross-reference ROADMAP.md for phase deliverable checklist.', 'Verify four-surface version alignment before next phase push.'];
+        return buildCard(this.id, summary, details, nextActions, confidence, [], fallbackUsed);
+      },
+    },
+
+    // ── 5. Sandbox Preflight Checker ─────────────────────────────────
+    {
+      id: 'sandbox_preflight_checker',
+      label: 'sandbox preflight',
+      intents: ['sandbox', 'preflight', 'isolation', 'test', 'dry-run'],
+      triggers: [/\bsandbox\b/i, /\bpreflight\b/i, /\bisolat\b/i, /\bdry.?run\b/i, /\btest env\b/i],
+      dependencies: [
+        { id: 'sandbox.last_result', path: 'sandbox.last_result', required: true, fallback: 'no_preflight_data' },
+        { id: 'sandbox.pass_rate', path: 'sandbox.pass_rate', required: false, fallback: 'pass_rate_unknown' },
+      ],
+      execute(context) {
+        const lastResult = readPath(context, 'sandbox.last_result');
+        const passRate = toFin(readPath(context, 'sandbox.pass_rate'), null);
+        const warnings = Array.isArray(readPath(context, 'sandbox.warnings')) ? readPath(context, 'sandbox.warnings') : [];
+        const fallbackUsed = !lastResult;
+        const passed = lastResult === 'pass' || lastResult === true || lastResult === 'passed';
+        const confidence = fallbackUsed ? 0.44 : passed && warnings.length === 0 ? 0.95 : 0.73;
+        const summary = fallbackUsed
+          ? 'No sandbox preflight result in state bus — cannot verify isolation status.'
+          : `Sandbox preflight: ${passed ? 'PASS' : 'FAIL'}${passRate !== null ? ' · pass rate ' + Math.round(passRate * 100) + '%' : ''}${warnings.length ? ' · ' + warnings.length + ' warning(s)' : ''}.`;
+        const details = fallbackUsed
+          ? ['Run a sandbox preflight before advancing any mutation to signing.']
+          : [
+              `Last preflight result: ${String(lastResult)}.`,
+              passRate !== null ? `Test pass rate: ${Math.round(passRate * 100)}%.` : 'Pass rate not in snapshot.',
+              warnings.length ? `Warnings: ${warnings.slice(0, 3).join('; ')}.` : 'No preflight warnings.',
+            ];
+        const nextActions = !passed && !fallbackUsed
+          ? ['Investigate failing preflight tests before advancing mutation.', 'Check resource bound violations in sandbox log.']
+          : warnings.length
+          ? ['Review preflight warnings — they do not block but may indicate governance surface area risks.']
+          : ['Preflight clear — proceed to GovernanceGate evaluation.'];
+        return buildCard(this.id, summary, details, nextActions, confidence, [], fallbackUsed);
+      },
+    },
+
+    // ── 6. Agent Proposal Ranker ─────────────────────────────────────
+    {
+      id: 'agent_proposal_ranker',
+      label: 'proposal ranker',
+      intents: ['proposal', 'rank', 'score', 'fitness', 'compare agents'],
+      triggers: [/\bproposal\b/i, /\brank(?:ing)?\b/i, /\bbest proposal\b/i, /\bcompare agent\b/i, /\bfitness rank\b/i],
+      dependencies: [
+        { id: 'proposals.list', path: 'proposals.list', required: true, fallback: 'proposals_unavailable' },
+        { id: 'oracle.scores', path: 'oracle.scores', required: false, fallback: 'scores_unavailable' },
+      ],
+      execute(context) {
+        const proposals = Array.isArray(readPath(context, 'proposals.list')) ? readPath(context, 'proposals.list') : null;
+        const fallbackUsed = proposals === null;
+        const ranked = fallbackUsed ? [] : proposals
+          .map((p) => ({ ...p, _score: toFin(p.fitness_score || p.score, 0) }))
+          .sort((a, b) => b._score - a._score)
+          .slice(0, 5);
+        const confidence = fallbackUsed ? 0.42 : ranked.length === 0 ? 0.55 : 0.89;
+        const summary = fallbackUsed
+          ? 'Proposal list not available in state bus — ranker cannot operate.'
+          : ranked.length === 0
+          ? 'No active proposals in current snapshot.'
+          : `Top proposal: ${ranked[0].id || ranked[0].epoch_id || '?'} (agent: ${ranked[0].agent || '?'}, fitness: ${ranked[0]._score.toFixed(3)}).`;
+        const details = fallbackUsed
+          ? ['Populate proposals.list in state bus to enable ranking.']
+          : ranked.map((p, i) => `#${i + 1} ${p.id || p.epoch_id || '?'} · agent: ${p.agent || '?'} · fitness: ${p._score.toFixed(3)}`);
+        const nextActions = fallbackUsed
+          ? ['Connect Oracle scoring endpoint to state bus.']
+          : ranked.length
+          ? ['Advance top-ranked proposal to GovernanceGate evaluation.', 'Review agent distribution — balanced triad proposals indicate healthy competition.']
+          : ['Trigger agent proposal cycle from the mutation orchestrator.'];
+        return buildCard(this.id, summary, details, nextActions, confidence, [], fallbackUsed);
+      },
+    },
+
+    // ── 7. Signing Ceremony Status ───────────────────────────────────
+    {
+      id: 'signing_ceremony_status',
+      label: 'signing ceremony',
+      intents: ['signing', 'gpg', 'ceremony', 'tag', 'human-0', 'attestation'],
+      triggers: [/\bsign(?:ing)?\b/i, /\bgpg\b/i, /\bceremony\b/i, /\btrack.?b\b/i, /\battesta(?:tion)?\b/i, /\bhuman.?0\b/i],
+      dependencies: [
+        { id: 'gov.last_signed_tag', path: 'gov.last_signed_tag', required: false, fallback: 'tag_unknown' },
+        { id: 'gov.signing_pending', path: 'gov.signing_pending', required: false, fallback: 'pending_unknown' },
+      ],
+      execute(context) {
+        const lastTag = readPath(context, 'gov.last_signed_tag') || null;
+        const pending = readPath(context, 'gov.signing_pending');
+        const pendingBool = pending === true || pending === 'true' || pending === 1;
+        const fallbackUsed = lastTag === null && pending === undefined;
+        const confidence = fallbackUsed ? 0.55 : pendingBool ? 0.88 : 0.91;
+        const summary = fallbackUsed
+          ? 'Signing ceremony data not in state bus. HUMAN-0 authority required for all GPG tag operations — this cannot be delegated via chat.'
+          : pendingBool
+          ? `Signing ceremony PENDING. Last signed tag: ${lastTag || 'none'}. HUMAN-0 action required on ADAADell.`
+          : `Signing ceremony status: no pending ceremony. Last signed tag: ${lastTag || 'none'}.`;
+        const details = [
+          'GPG signing is a Track B action — must be performed by HUMAN-0 on ADAADell.',
+          'Required steps: export GPG_TTY=$(tty) → git tag -s vX.Y.Z -m "message" → git push origin vX.Y.Z.',
+          'Fingerprint: 4C95E2F99A775335B1CF3DAF247B015A1CCD95F6. Chat-based authorization cannot substitute for the physical key.',
+        ];
+        const nextActions = pendingBool
+          ? ['HUMAN-0: perform GPG tag ceremony on ADAADell (Track B runbook).', 'After signing, verify tag appears on origin with git ls-remote --tags.']
+          : ['No action required for signing at this time.', 'Verify signed tag list with git tag -v <tag> from ADAADell.'];
+        return buildCard(this.id, summary, details, nextActions, confidence, [], fallbackUsed);
+      },
+    },
+
+    // ── 8. Market Fitness Readiness ──────────────────────────────────
+    {
+      id: 'market_fitness_readiness',
+      label: 'market fitness',
+      intents: ['market', 'fitness', 'demand', 'adoption', 'innov-22'],
+      triggers: [/\bmarket\b/i, /\bdemand\b/i, /\badoption\b/i, /\binnov.?22\b/i, /\bmarket fitness\b/i],
+      dependencies: [
+        { id: 'market.score', path: 'market.fitness_score', required: false, fallback: 'score_unavailable' },
+        { id: 'market.signals', path: 'market.demand_signals', required: false, fallback: 'signals_unavailable' },
+      ],
+      execute(context) {
+        const score = toFin(readPath(context, 'market.fitness_score'), null);
+        const signals = Array.isArray(readPath(context, 'market.demand_signals')) ? readPath(context, 'market.demand_signals') : [];
+        const phase107Ready = Boolean(readPath(context, 'market.phase107_active'));
+        const fallbackUsed = score === null && signals.length === 0;
+        const confidence = fallbackUsed ? 0.46 : phase107Ready ? 0.9 : 0.71;
+        const summary = fallbackUsed
+          ? 'Market fitness data unavailable. INNOV-22 (market_fitness.py) is the Phase 107 implementation. Check phase107 deployment status.'
+          : `Market fitness score: ${score !== null ? score.toFixed(3) : 'N/A'} · ${signals.length} demand signals active · Phase 107 module: ${phase107Ready ? 'ACTIVE' : 'PENDING'}.`;
+        const details = fallbackUsed
+          ? ['Market-Conditioned Fitness (INNOV-22) extends the Oracle scoring pipeline with external demand signals.', 'Scaffold exists in market_fitness.py — full implementation in Phase 107.', 'Demand signals: feature request rate, adoption curve delta, operator-weighted priority.']
+          : [
+              `Fitness score: ${score !== null ? score.toFixed(3) : 'not computed'}.`,
+              signals.length ? `Active signals: ${signals.slice(0, 4).map((s) => s.id || s.name || '?').join(', ')}.` : 'No demand signals in snapshot.',
+              `Phase 107 market_fitness module: ${phase107Ready ? 'active and scoring' : 'not yet active'}.`,
+            ];
+        const nextActions = !phase107Ready
+          ? ['Advance to Phase 107 to activate market_fitness.py full implementation.', 'Review INNOV-22 scaffold and constitutional requirements before promotion.']
+          : score !== null && score < 0.5
+          ? ['Low market fitness score — review demand signal weights with operator.', 'Consider proposal prioritisation adjustment.']
+          : ['Monitor market fitness signal health over next epoch.', 'Compare market fitness vs. standard fitness for promotion ranking delta.'];
+        return buildCard(this.id, summary, details, nextActions, confidence, [], fallbackUsed);
+      },
+    },
+  ];
+
+  // Merge into the base registry exposed by the first module
+  function mergeIntoRegistry() {
+    const base = (global.DORK_CAPABILITY_REGISTRY && global.DORK_CAPABILITY_REGISTRY.registry) ? global.DORK_CAPABILITY_REGISTRY.registry : {};
+    const merged = { ...base };
+    EXTENDED_CAPABILITIES.forEach((cap) => { merged[cap.id] = Object.freeze(cap); });
+    const frozenMerged = Object.freeze(merged);
+
+    function listAll() { return Object.values(frozenMerged); }
+    function match(query) {
+      const text = String(query || '');
+      return listAll().find((cap) => cap.triggers.some((p) => p.test(text))) || null;
+    }
+    function execute(id, ctx) { const c = frozenMerged[id]; return c ? c.execute(ctx || {}) : null; }
+    function executeByQuery(query, ctx) { const m = match(query); return m ? execute(m.id, ctx) : null; }
+
+    const api = { registry: frozenMerged, listCapabilities: listAll, matchCapability: match, executeCapability: execute, executeByQuery };
+    global.DORK_CAPABILITY_REGISTRY = api;
+    global.DORK_CAPABILITY_REGISTRY_V2 = api;
+  }
+
+  // Defer merge so base registry initialises first if both are in the same page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', mergeIntoRegistry);
+  } else {
+    mergeIntoRegistry();
+  }
+})(window);
