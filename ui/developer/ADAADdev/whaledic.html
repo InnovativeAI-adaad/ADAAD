@@ -232,6 +232,14 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .sev-warn .eb-msg{color:var(--amber)}
 .sev-error .eb-msg{color:var(--red)}
 .sev-success .eb-msg{color:var(--green)}
+
+.dcap-wrap{margin:0 0 6px;display:flex;flex-direction:column;gap:4px;max-height:180px;overflow-y:auto;padding-right:2px}
+.dcap-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:6px 7px}
+.dcap-head{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:2px}
+.dcap-title{font-family:var(--font-ui);font-size:9px;font-weight:700;color:var(--text)}
+.dcap-conf{font-family:var(--font-mono);font-size:8px;color:var(--whale)}
+.dcap-sum{font-size:10px;color:var(--text2);line-height:1.45}
+.dcap-meta{font-family:var(--font-mono);font-size:8px;color:var(--text3);margin-top:3px}
 /* ── CONFIG MODAL ───────────────────────────────────────────────── */
 .cfg-wrap{position:fixed;inset:0;background:rgba(4,6,13,0.82);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;z-index:50}
 .cfg-box{width:min(440px,92vw);background:var(--bg2);border:1px solid var(--border2);border-radius:14px;overflow:hidden;box-shadow:0 24px 72px rgba(0,0,0,0.55)}
@@ -397,14 +405,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     </div>
   </div>
   <div class="dork-inp-wrap">
-    <div class="dchips" id="dork-chips">
-      <span class="chip" onclick="dorkPrompt('Governance gate status and tier?')">gate status</span>
-      <span class="chip" onclick="dorkPrompt('Replay score and divergence \u2014 is the system healthy?')">replay health</span>
-      <span class="chip" onclick="dorkPrompt('Agent triad \u2014 architect, dream, beast status?')">agent triad</span>
-      <span class="chip" onclick="dorkPrompt('Any release blockers or open findings?')">blockers</span>
-      <span class="chip" onclick="dorkPrompt('Strategic priority \u2014 what should I focus on right now?')">strategy</span>
-      <span class="chip oracle-chip" onclick="dorkBridgeOracle()">&#128302; oracle bridge</span>
-    </div>
+    <div class="dchips" id="dork-chips"></div>
+    <div class="dcap-wrap" id="dork-capability-cards"></div>
     <div class="warn-strip warn-tok" id="w-tok">&#9888; Token budget near limit &#x2014; context will be trimmed.</div>
     <div class="warn-strip warn-llm" id="w-llm">&#9889; No LLM key &#x2014; DorkEngine deterministic mode active.</div>
     <div class="warn-strip warn-oracle" id="w-oracle">&#128302; Oracle context loaded from state bus.</div>
@@ -471,6 +473,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   </div>
 </div>
 
+<script src="./dork_capability_registry.js"></script>
 <script>
 // ── CONSTANTS ─────────────────────────────────────────────────────
 const ROUTES={governance:'/api/governance/status',mutations:'/api/mutations/recent?limit=20',replay:'/api/replay/score',epoch:'/api/epoch/current',agents:'/api/agents/health',ledger:'/api/ledger/entries?limit=50',whRecent:'/api/webhooks/recent?limit=20',whStream:'/api/webhooks/stream',readiness:'/api/release/readiness',ledgerLog:'/api/ledger/log',dorkEventAppend:'/api/ledger/log/events',dorkEventStream:'/api/ledger/log/stream'};
@@ -489,6 +492,7 @@ const TOKEN_CAP=16000,TOKEN_WARN=12000,CONV_KEY='whaledic_v3_conv',EVENT_BUS_KEY
 
 // ── STATE ────────────────────────────────────────────────────────
 let conv=[],totalTok=0,streaming=false,rs=null,missing=new Set(),reqTs=[],ledgerOff=0,whCount=0;
+const capabilityCards=[];
 let llmCfg={provider:'groq',groqKey:'',ollamaModel:'llama3.2'};
 let selProvider='groq';
 let eventBus=[],eventBusFilter='all',eventBusExpanded=false,eventBusSeq=0;
@@ -899,6 +903,7 @@ async function sendDork(){
   inp.value='';inp.style.height='auto';
   conv.push({role:'user',content:msg});
   addMsg('user',msg);
+  runCapabilityCard(msg);
   const thinkId='dt'+Date.now();
   addThink(thinkId);
   streaming=true;reqTs.push(Date.now());
@@ -1110,22 +1115,50 @@ function saveCfg(){
   bus('cfg',llmCfg.provider+' saved');closeCfg();
 }
 
+
+function renderCapabilityCards(cards){
+  const host=document.getElementById('dork-capability-cards');
+  if(!host)return;
+  const rows=(cards||[]).slice(-4).reverse();
+  host.innerHTML=rows.map(card=>{
+    const deps=(card.dependencies||[]);
+    const ok=deps.filter(d=>d.available).length;
+    const total=deps.length;
+    return '<div class="dcap-card">'
+      +'<div class="dcap-head"><span class="dcap-title">'+esc((card.capability_id||'capability').replaceAll('_',' '))+'</span><span class="dcap-conf">conf '+Math.round(Number(card.confidence||0)*100)+'%</span></div>'
+      +'<div class="dcap-sum">'+esc(card.summary||'')+'</div>'
+      +'<div class="dcap-meta">deps '+ok+'/'+total+' · fallback '+(card.fallback_used?'yes':'no')+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function runCapabilityCard(query){
+  const reg=window.DORK_CAPABILITY_REGISTRY;
+  if(!reg||!rs)return null;
+  const card=reg.executeByQuery(query,{...rs,stateBus:window.ADAAD_STATE_BUS||{}});
+  if(!card)return null;
+  capabilityCards.push(card);
+  renderCapabilityCards(capabilityCards);
+  return card;
+}
+
 // ── DYNAMIC CHIPS ────────────────────────────────────────────────
 function updateChips(){
-  const base=[
+  const reg=window.DORK_CAPABILITY_REGISTRY;
+  const base=reg?reg.listCapabilities().map(c=>({t:c.label,q:'Run capability '+c.id+' diagnostics.'})):[
     {t:'gate status',q:'Governance gate status and tier?'},
-    {t:'replay health',q:'Replay score and divergence \u2014 is the system healthy?'},
-    {t:'agent triad',q:'Agent triad \u2014 architect, dream, beast status?'},
+    {t:'replay health',q:'Replay score and divergence — is the system healthy?'},
+    {t:'agent triad',q:'Agent triad — architect, dream, beast status?'},
     {t:'blockers',q:'Any release blockers or open findings?'},
-    {t:'strategy',q:'Strategic priority \u2014 what should I focus on right now?'},
+    {t:'strategy',q:'Strategic priority — what should I focus on right now?'},
   ];
   const dyn=[];
-  if(rs&&rs.gov&&rs.gov.locked)dyn.push({t:'\ud83d\udd34 gate locked',q:'Gate is locked \u2014 what do I do first?'});
+  if(rs&&rs.gov&&rs.gov.locked)dyn.push({t:'🔴 gate locked',q:'Gate is locked — what do I do first?'});
   if(rs&&rs.ready&&rs.ready.blockers&&rs.ready.blockers.length)dyn.push({t:rs.ready.blockers.length+' blocker(s)',q:'List all release blockers and how to fix them.'});
-  const chips=[...base,...dyn].slice(0,6);
+  const chips=[...base,...dyn].slice(0,7);
   const w=document.getElementById('dork-chips');if(!w)return;
   w.innerHTML=chips.map(c=>'<span class="chip" onclick="dorkPrompt('+JSON.stringify(c.q)+')">'+esc(c.t)+'</span>').join('')
-    +'<span class="chip oracle-chip" onclick="dorkBridgeOracle()">\ud83d\udd2e oracle bridge</span>';
+    +'<span class="chip oracle-chip" onclick="dorkBridgeOracle()">🔮 oracle bridge</span>';
 }
 
 // ── RENDER FUNCTIONS ─────────────────────────────────────────────
