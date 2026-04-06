@@ -14,6 +14,7 @@ from runtime.governance.health_aggregator import (
     HEALTH_DEGRADED_THRESHOLD,
     GovernanceHealthAggregator,
 )
+from runtime.governance.strategy_capability import StrategyCapability
 
 
 def governance_health_service(*, epoch_id: str) -> Dict[str, Any]:
@@ -112,6 +113,12 @@ def governance_health_service(*, epoch_id: str) -> Dict[str, Any]:
         "adjustment_digest": pressure_adj.adjustment_digest,
     }
 
+    strategy_capability = StrategyCapability().build(
+        epoch_id=snapshot.epoch_id,
+        routing_health=routing_health_summary,
+        governance_health_score=snapshot.health_score,
+    )
+
     return {
         "epoch_id": snapshot.epoch_id,
         "health_score": snapshot.health_score,
@@ -123,4 +130,5 @@ def governance_health_service(*, epoch_id: str) -> Dict[str, Any]:
         "degraded": snapshot.degraded,
         "routing_health": routing_health_summary,
         "review_pressure": review_pressure_summary,
+        "strategy_capability": strategy_capability,
     }

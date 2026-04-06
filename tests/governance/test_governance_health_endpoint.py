@@ -147,6 +147,7 @@ class TestGovernanceHealthAggregatorAuthorityInvariants:
                 "constitution_version",
                 "routing_health",
                 "review_pressure",
+                "strategy_capability",
             ):
                 assert key in result, f"Missing required field: {key}"
 
@@ -170,4 +171,5 @@ class TestGovernanceHealthAggregatorAuthorityInvariants:
             "degraded",
             "routing_health",
             "review_pressure",
+            "strategy_capability",
         }
