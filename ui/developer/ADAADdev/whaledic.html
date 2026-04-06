@@ -185,6 +185,12 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .dtext ul,.dtext ol{margin:4px 0 4px 14px}
 .dtext li{margin:2px 0;color:var(--text2)}
 .dtext strong{color:var(--text);font-weight:600}
+.trust-wrap{margin-top:6px}
+.trust-badge{font-family:var(--font-mono);font-size:8px;padding:2px 7px;border-radius:999px;border:1px solid var(--border2);background:var(--bg4);color:var(--text2);display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.trust-badge.high{color:var(--green);border-color:rgba(45,235,168,0.25);background:rgba(45,235,168,0.08)}
+.trust-badge.medium{color:var(--amber);border-color:rgba(245,200,66,0.28);background:rgba(245,200,66,0.08)}
+.trust-badge.low{color:var(--red);border-color:rgba(255,74,110,0.3);background:rgba(255,74,110,0.08)}
+.trust-details{margin-top:4px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg3);font-family:var(--font-mono);font-size:8px;color:var(--text3);line-height:1.5}
 .sha-f{font-family:var(--font-mono);font-size:9px;color:var(--whale);background:var(--whale-dim);padding:1px 4px;border-radius:3px}
 .epoch-f{font-family:var(--font-mono);font-size:9px;color:var(--amber);background:var(--amber-dim);padding:1px 4px;border-radius:3px}
 .gate-pass{color:var(--green);font-weight:700}
@@ -721,6 +727,21 @@ function bus(type,message,meta={},source='ui',severity='info'){
 }
 function rateGated(){const n=Date.now();reqTs=reqTs.filter(t=>n-t<60000);return reqTs.length>=25}
 function estTok(s){return Math.ceil(String(s).length/4)}
+function ageMs(iso){const t=Date.parse(String(iso||''));if(!Number.isFinite(t))return null;return Date.now()-t;}
+function fmtAge(ms){if(ms==null||ms<0)return'unknown';if(ms<60000)return Math.round(ms/1000)+'s';if(ms<3600000)return Math.round(ms/60000)+'m';return Math.round(ms/3600000)+'h';}
+function scoreBand(v){if(v>=0.85)return'high';if(v>=0.6)return'medium';return'low';}
+async function emitStructuredDorkEvent(meta){
+  const payload={
+    source:'ui.whaledic',
+    event_type:'dork_answer_generated',
+    severity:(meta&&meta.trust_score||0)>=0.8?'success':'warn',
+    payload:{trust_metadata:meta||{}},
+    correlation_id:'dork-'+Date.now()+'-'+Math.floor(Math.random()*10000),
+    epoch_id:String((rs&&rs.epoch&&rs.epoch.epoch)||''),
+    ts:new Date().toISOString(),
+  };
+  try{await fetch(ROUTES.dorkEventAppend,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});}catch(_){}
+}
 function fingerprint(text){
   let h=2166136261;
   const s=String(text||'');
@@ -909,6 +930,52 @@ async function callDorkEngine(msgs,onChunk){
   }
 }
 
+function buildTrustMetadata({providerUsed,requestedProvider,fallbackUsed,errorMessage=''}) {
+  const capturedAt=(rs&&rs.captured_at_iso)||new Date().toISOString();
+  const snapshotAgeMs=ageMs(capturedAt);
+  const stale=snapshotAgeMs!=null&&snapshotAgeMs>5*60*1000;
+  const sources=[
+    '/api/governance/status',
+    '/api/replay/score',
+    '/api/epoch/current',
+    '/api/release/readiness'
+  ];
+  const uncertainty=[];
+  const downgradeReasons=[];
+  let confidence=0.86;
+  if(providerUsed==='engine'){confidence=Math.min(confidence,0.72);uncertainty.push('heuristic_generation');}
+  if(fallbackUsed){confidence=Math.min(confidence,0.67);downgradeReasons.push('provider_fallback_used');}
+  if(stale){confidence=Math.min(confidence,0.58);downgradeReasons.push('stale_runtime_snapshot');uncertainty.push('snapshot_age_'+fmtAge(snapshotAgeMs));}
+  if(errorMessage){confidence=Math.min(confidence,0.55);downgradeReasons.push('provider_error');uncertainty.push('provider_error_'+String(errorMessage).slice(0,48));}
+  const mode=providerUsed==='engine'?'heuristic':(providerUsed===requestedProvider?'retrieval':'heuristic');
+  const trustScore=Math.max(0,Math.min(1,confidence));
+  return {
+    data_sources_used:sources,
+    snapshot_timestamp:capturedAt,
+    snapshot_freshness:stale?'stale':'fresh',
+    mode,
+    confidence:trustScore,
+    uncertainty_reasons:uncertainty,
+    trust_score:trustScore,
+    downgrade_reasons:downgradeReasons
+  };
+}
+
+function renderTrustBadge(metadata){
+  if(!metadata||typeof metadata!=='object')return '';
+  const score=Math.max(0,Math.min(1,Number(metadata.trust_score||0)));
+  const band=scoreBand(score);
+  const details=[
+    'sources: '+((metadata.data_sources_used||[]).join(', ')||'none'),
+    'snapshot: '+(metadata.snapshot_timestamp||'unknown')+' ('+(metadata.snapshot_freshness||'unknown')+')',
+    'mode: '+(metadata.mode||'unknown'),
+    'confidence: '+Math.round(Number(metadata.confidence||0)*100)+'%',
+    'uncertainty: '+((metadata.uncertainty_reasons||[]).join(', ')||'none'),
+    'downgrades: '+((metadata.downgrade_reasons||[]).join(', ')||'none')
+  ];
+  return '<div class="trust-wrap"><details><summary class="trust-badge '+band+'">trust '+Math.round(score*100)+'%</summary><div class="trust-details">'+esc(details.join(' | '))+'</div></details></div>';
+}
+
 // ── SEND DORK (Phase 101 streaming) ───────────────────────────────
 async function sendDork(){
   const inp=document.getElementById('dinp');
@@ -927,6 +994,9 @@ async function sendDork(){
   const apiMsgs=conv.slice(-16).map(t=>({role:t.role,content:t.content}));
   let full='';let msgEl=null;let cur=null;
   const prov=llmCfg.provider;
+  let providerUsed='engine';
+  let fallbackUsed=false;
+  let providerErr='';
 
   function onChunk(chunk){
     full+=chunk;
@@ -942,10 +1012,13 @@ async function sendDork(){
   }
 
   try{
-    if(prov==='groq'&&llmCfg.groqKey){await callGroq(apiMsgs,sys,onChunk);bus('dork','groq ok',{provider:'groq'},'provider','success');}
-    else if(prov==='ollama'){await callOllama(apiMsgs,sys,onChunk);bus('dork','ollama ok',{provider:'ollama'},'provider','success');}
-    else{await callDorkEngine(apiMsgs,onChunk);bus('dork','engine deterministic',{provider:'dorkengine'},'provider','success');}
+    if(prov==='groq'&&llmCfg.groqKey){providerUsed='groq';await callGroq(apiMsgs,sys,onChunk);bus('dork','groq ok',{provider:'groq'},'provider','success');}
+    else if(prov==='ollama'){providerUsed='ollama';await callOllama(apiMsgs,sys,onChunk);bus('dork','ollama ok',{provider:'ollama'},'provider','success');}
+    else{providerUsed='engine';await callDorkEngine(apiMsgs,onChunk);bus('dork','engine deterministic',{provider:'dorkengine'},'provider','success');}
   }catch(e){
+    providerErr=e.message||'provider_error';
+    fallbackUsed=true;
+    providerUsed='engine';
     bus('dork_err',e.message,{provider:prov},'provider','error');
     if(!msgEl){document.getElementById(thinkId)&&document.getElementById(thinkId).remove();}
     const errTxt='**DorkEngine fallback** ('+e.message+')\n\n'+DE.respond(msg);
@@ -958,7 +1031,13 @@ async function sendDork(){
     if(cur&&msgEl){const dt=msgEl&&msgEl.querySelector('.dtext');if(dt&&dt.contains(cur))dt.removeChild(cur);}
     streaming=false;
     document.getElementById('dsend').disabled=false;
-    conv.push({role:'assistant',content:full});
+    const trustMetadata=buildTrustMetadata({providerUsed,requestedProvider:prov,fallbackUsed,errorMessage:providerErr});
+    if(msgEl){
+      const dt=msgEl.querySelector('.dtext');
+      if(dt)dt.insertAdjacentHTML('afterend',renderTrustBadge(trustMetadata));
+    }
+    conv.push({role:'assistant',content:full,trust_metadata:trustMetadata});
+    emitStructuredDorkEvent(trustMetadata);
     totalTok+=estTok(msg)+estTok(full);
     if(totalTok>TOKEN_WARN)document.getElementById('w-tok').style.display='block';
     persistConv();
@@ -970,6 +1049,7 @@ async function sendDork(){
     }
     updateBus({
       dork_last:{q:msg.slice(0,120),a:full.slice(0,200),ts:nowIso},
+      dork_last_trust:trustMetadata,
       dork_last_fingerprint:{prompt_sha1:fingerprint(msg),result_sha1:fingerprint(full),issued_at_iso:nowIso},
       epoch_replay:{epoch:(rs&&rs.epoch&&rs.epoch.epoch)||'',replay_score:(rs&&rs.rep&&rs.rep.score)??null},
       provider_status:{selected_provider:llmCfg.provider||'unknown',health:(llmCfg.provider==='groq'&&!llmCfg.groqKey)?'degraded':'ok'},
@@ -1224,6 +1304,7 @@ function renderInsights(g,m,r,rd,ag){const agents=(ag&&ag.agents)||{};const heal
 // ── REFRESH ALL ──────────────────────────────────────────────────
 async function refreshAll(){
   const [g,m,r,ep,ag,ld,wh,rd]=await Promise.all([safe('governance','governance'),safe('mutations','mutations'),safe('replay','replay'),safe('epoch','epoch'),safe('agents','agents'),safe('ledger','ledger'),safe('webhooks','whRecent'),safe('readiness','readiness')]);
+  rs={gov:g,muts:m,rep:r,epoch:ep,agents:ag,ledger:ld,wh:wh,ready:rd,captured_at_iso:new Date().toISOString()};
   prevRs=rs?JSON.parse(JSON.stringify(rs)):prevRs;
   rs={gov:g,muts:m,rep:r,epoch:ep,agents:ag,ledger:ld,wh:wh,ready:rd};
   renderPills(g,r,ep,rd);renderRuntime(g,ep);renderStats(r,rd,ep);renderGate(g);

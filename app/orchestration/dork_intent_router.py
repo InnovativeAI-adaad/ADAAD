@@ -11,6 +11,7 @@ from app.api.schemas.dork_intents import (
     DorkIntentBundle,
     DorkIntentDecision,
     DorkIntentRouteRequest,
+    DorkTrustMetadata,
 )
 from app.orchestration.mutation_orchestration_service import MutationOrchestrationService
 from runtime.api.runtime_services import governance_health_service, reviewer_calibration_service
@@ -20,6 +21,7 @@ from runtime.oracle_ledger import OracleLedger
 from runtime.oracle_memory import summarize_oracle_memory
 from runtime.snapshot_delta import SnapshotDeltaInterpreter
 from runtime.system_status import read_gate_state
+from runtime.timeutils import now_iso
 
 
 class DorkIntentRouter:
@@ -74,12 +76,14 @@ class DorkIntentExecutor:
 
     def execute(self, *, request: DorkIntentRouteRequest, decision: DorkIntentDecision) -> DorkIntentBundle:
         response, evidence_refs, summary, panels = self._dispatch(intent=decision.intent, request=request)
+        trust_metadata = self._build_trust_metadata(decision=decision, evidence_refs=evidence_refs)
         bundle_payload = {
             "intent": decision.intent,
             "marker": decision.marker.model_dump(),
             "response": response,
             "evidence_refs": [ref.model_dump() for ref in evidence_refs],
             "aponi_panels": panels,
+            "trust_metadata": trust_metadata.model_dump(mode="json"),
         }
         bundle_digest = self._digest_bundle(bundle_payload)
         self._event_stream.append(
@@ -88,6 +92,7 @@ class DorkIntentExecutor:
             bundle_digest=bundle_digest,
             marker=decision.marker.model_dump(),
             evidence_refs=[f"{ref.source}:{ref.endpoint}" for ref in evidence_refs],
+            trust_metadata=trust_metadata.model_dump(mode="json"),
         )
         if decision.intent == "interpret_epoch_delta":
             interpretation_payload = response.get("interpretation") if isinstance(response, dict) else None
@@ -107,6 +112,25 @@ class DorkIntentExecutor:
             evidence_refs=evidence_refs,
             aponi_panels=panels,
             bundle_digest=bundle_digest,
+            trust_metadata=trust_metadata,
+        )
+
+    def _build_trust_metadata(self, *, decision: DorkIntentDecision, evidence_refs: list[DorkEvidenceRef]) -> DorkTrustMetadata:
+        mode = "retrieval" if decision.intent in {"open_oracle_history", "show_gate_status", "explain_blockers"} else "heuristic"
+        confidence = 0.88 if mode == "retrieval" else 0.74
+        uncertainty_reasons: list[str] = []
+        if not evidence_refs:
+            uncertainty_reasons.append("no_evidence_references")
+            confidence = min(confidence, 0.60)
+        return DorkTrustMetadata(
+            data_sources_used=[f"{ref.source}:{ref.endpoint}" for ref in evidence_refs],
+            snapshot_timestamp=now_iso(),
+            snapshot_freshness="fresh",
+            mode=mode,
+            confidence=confidence,
+            uncertainty_reasons=uncertainty_reasons,
+            trust_score=confidence,
+            downgrade_reasons=list(uncertainty_reasons),
         )
 
     def _dispatch(self, *, intent: str, request: DorkIntentRouteRequest) -> tuple[dict[str, Any], list[DorkEvidenceRef], str, list[str]]:

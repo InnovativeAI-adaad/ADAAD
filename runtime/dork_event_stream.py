@@ -25,7 +25,16 @@ class DorkEventStream:
         canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"))
         return sha256(canonical.encode("utf-8")).hexdigest()
 
-    def append(self, *, intent: str, query: str, bundle_digest: str, marker: dict[str, bool], evidence_refs: list[str]) -> dict[str, Any]:
+    def append(
+        self,
+        *,
+        intent: str,
+        query: str,
+        bundle_digest: str,
+        marker: dict[str, bool],
+        evidence_refs: list[str],
+        trust_metadata: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         event = {
             "event_type": "dork_intent_executed.v1",
             "intent": intent,
@@ -33,6 +42,7 @@ class DorkEventStream:
             "bundle_digest": bundle_digest,
             "marker": marker,
             "evidence_refs": list(evidence_refs),
+            "trust_metadata": dict(trust_metadata or {}),
             "ts": now_iso(),
         }
         event["event_digest"] = self._digest(event)
