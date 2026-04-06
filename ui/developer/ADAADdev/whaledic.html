@@ -492,6 +492,7 @@ let conv=[],totalTok=0,streaming=false,rs=null,missing=new Set(),reqTs=[],ledger
 let llmCfg={provider:'groq',groqKey:'',ollamaModel:'llama3.2'};
 let selProvider='groq';
 let eventBus=[],eventBusFilter='all',eventBusExpanded=false;
+let dorkSeedAutoStarted=false;
 
 // ── ADAAD STATE BUS (Phase 101 L1) ───────────────────────────────
 window.ADAAD_STATE_BUS=null;
@@ -868,10 +869,86 @@ function ar(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,
 // ── PERSIST & RESTORE ────────────────────────────────────────────
 function restoreConv(){try{const s=localStorage.getItem(CONV_KEY);if(s){const p=JSON.parse(s);if(p.schema==='3.0')conv=p.turns||[];}}catch(_){}}
 function persistConv(){try{localStorage.setItem(CONV_KEY,JSON.stringify({schema:'3.0',turns:conv.slice(-40),ts:new Date().toISOString()}));}catch(_){}}
+function parseDorkSeedFromQuery(){
+  try{
+    const params=new URLSearchParams(window.location.search);
+    const raw=params.get('dork_seed');
+    if(!raw)return '';
+    const decoded=decodeURIComponent(raw.replace(/\+/g,' '));
+    const sanitized=decoded.replace(/[\u0000-\u001f\u007f]/g,'').trim();
+    return sanitized.slice(0,500);
+  }catch(_){
+    return '';
+  }
+}
+function autostartDorkSeed(){
+  if(dorkSeedAutoStarted)return;
+  const seeded=parseDorkSeedFromQuery();
+  if(!seeded)return;
+  const inp=document.getElementById('dinp');
+  if(!inp)return;
+  dorkSeedAutoStarted=true;
+  inp.value=seeded;
+  ar(inp);
+  bus('bridge','dork_seed autostart');
+  sendDork();
+}
 
 // ── CONFIG MODAL ─────────────────────────────────────────────────
 function loadCfg(){try{const s=localStorage.getItem('dork_llm_v3');if(s){const p=JSON.parse(s);llmCfg={...llmCfg,...p};}}catch(_){}}
 function saveCfgStore(){try{localStorage.setItem('dork_llm_v3',JSON.stringify(llmCfg));}catch(_){}}
+function providerLabel(p){const lb={groq:'groq',ollama:'ollama',engine:'engine'};return lb[p]||'engine';}
+function applyProviderBadges(p){
+  const label=providerLabel(p);
+  const provBtn=document.getElementById('prov-btn');
+  const introBadge=document.getElementById('intro-badge');
+  if(provBtn)provBtn.textContent='\u2699 '+label;
+  if(introBadge)introBadge.textContent=label;
+}
+async function probeOllama(){
+  const ctl=new AbortController();
+  const to=setTimeout(()=>ctl.abort(),1200);
+  try{
+    const resp=await fetch('http://localhost:11434/api/tags',{method:'GET',signal:ctl.signal});
+    return resp.ok;
+  }catch(_){
+    return false;
+  }finally{
+    clearTimeout(to);
+  }
+}
+async function bootstrapProvider(){
+  let selected=llmCfg.provider||'engine';
+  let reason='configured';
+  try{
+    if(selected==='groq'&&!llmCfg.groqKey){
+      const ollamaUp=await probeOllama();
+      if(ollamaUp){
+        selected='ollama';
+        reason='groq key missing; ollama probe ok';
+      }else{
+        selected='engine';
+        reason='groq key missing; ollama unavailable';
+      }
+    }else if(selected==='ollama'){
+      const ollamaUp=await probeOllama();
+      if(!ollamaUp){
+        selected='engine';
+        reason='ollama unavailable';
+      }
+    }else if(selected!=='engine'&&selected!=='groq'){
+      selected='engine';
+      reason='provider unsupported';
+    }
+  }catch(_){
+    selected='engine';
+    reason='bootstrap fallback';
+  }
+  llmCfg.provider=selected;
+  applyProviderBadges(selected);
+  bus('provider_bootstrap',selected+' :: '+reason);
+  saveCfgStore();
+}
 function openCfg(){
   selProv(llmCfg.provider);
   document.getElementById('inp-groq').value=llmCfg.groqKey||'';
@@ -896,6 +973,8 @@ function saveCfg(){
   const lb={groq:'groq',ollama:'ollama',dorkengine:'engine'};
   document.getElementById('prov-btn').textContent='\u2699 '+(lb[llmCfg.provider]||llmCfg.provider);
   bus('cfg',llmCfg.provider+' saved',{provider:llmCfg.provider},'provider','success');closeCfg();
+  applyProviderBadges(llmCfg.provider);
+  bus('cfg',llmCfg.provider+' saved');closeCfg();
 }
 
 // ── DYNAMIC CHIPS ────────────────────────────────────────────────
@@ -966,6 +1045,10 @@ document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLower
 loadCfg();
 (()=>{const lb={groq:'groq',ollama:'ollama',dorkengine:'engine'};document.getElementById('prov-btn').textContent='\u2699 '+(lb[llmCfg.provider]||'groq');document.getElementById('intro-badge').textContent=lb[llmCfg.provider]||'groq';if(!llmCfg.groqKey&&llmCfg.provider==='groq'){setTimeout(()=>{document.getElementById('w-llm').style.display='block';},1500);}})();
 restoreConv();restoreEventBus();renderEventBus();renderDebt();refreshAll();startSSE();setInterval(refreshAll,30000);
+applyProviderBadges(llmCfg.provider);
+bootstrapProvider();
+restoreConv();renderDebt();refreshAll();startSSE();setInterval(refreshAll,30000);
+setTimeout(autostartDorkSeed,0);
 </script>
 </body>
 </html>
