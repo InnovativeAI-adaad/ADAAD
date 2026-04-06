@@ -43,7 +43,13 @@ from app.orchestration.boot_config import (
     resolve_replay_mode,
     select_epoch,
 )
-from app.orchestration.cli_handlers import build_main_parser, handle_export_replay_proof, handle_replay_namespace, handle_status_report
+from app.orchestration.cli_handlers import (
+    build_main_parser,
+    handle_export_replay_proof,
+    handle_replay_namespace,
+    handle_runbook_composer,
+    handle_status_report,
+)
 from app.orchestration.runtime_factory import build_orchestrator
 from app.orchestration.replay_preflight import execute_replay_preflight
 from runtime.api import MutationEngine, MutationRequest, agent_path_from_id, iter_agent_dirs, resolve_agent_id
@@ -1009,6 +1015,13 @@ def main() -> None:
         adaad_status=args.adaad_status,
         trigger_mode=args.trigger_mode,
         status_format=args.status_format,
+    ):
+        return
+    if handle_runbook_composer(
+        adaad_runbook=args.adaad_runbook,
+        trigger_mode=args.trigger_mode,
+        runbook_verbosity=args.runbook_verbosity,
+        runbook_output_dir=args.runbook_output_dir,
     ):
         return
 
