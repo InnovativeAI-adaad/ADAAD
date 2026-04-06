@@ -233,6 +233,8 @@ jobs:
         run: python scripts/validate_governance_schemas.py
       - name: Validate context memory schema and references
         run: python scripts/validate_context_memory.py
+      - name: Validate Dork evidence schema contract
+        run: python scripts/validate_dork_evidence_schema.py
       - name: Block plaintext secrets in repository content
         run: python scripts/scan_secrets.py --path .
 
