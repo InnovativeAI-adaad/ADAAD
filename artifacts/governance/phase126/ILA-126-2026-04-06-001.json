@@ -1,0 +1,24 @@
+{
+  "attestation_ref": "ILA-126-2026-04-06-001",
+  "phase": 126,
+  "version": "9.59.0",
+  "innovation": "Red-Team Challenge",
+  "module": "runtime/red_team/constitutional_attacker.py",
+  "date": "2026-04-06",
+  "governor": "DUSTIN L REID",
+  "session_digest": "phase126-red-team-impl-2026-04-06",
+  "tests": "30/30",
+  "hard_invariants_added": 6,
+  "hard_invariants_cumulative": 173,
+  "invariants": [
+    "REDTEAM-IMMUT-0",
+    "REDTEAM-AUDIT-0",
+    "REDTEAM-SCOPE-0",
+    "REDTEAM-HALT-0",
+    "REDTEAM-DETERM-0",
+    "REDTEAM-CHAIN-0"
+  ],
+  "world_first": "First constitutionally governed autonomous attacker that halts on silent gate pass-through",
+  "status": "RATIFIED",
+  "ledger_seal": "sha256:24f11cbcfe2fdef3"
+}

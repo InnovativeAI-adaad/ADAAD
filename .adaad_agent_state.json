@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.58.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": "v9.60.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -205,16 +205,40 @@
     "phase125-community-human0-0-enforced",
     "phase125-world-first-community-amendment-governance",
     "v9.58.0-released",
-    "phase125-complete"
+    "phase125-complete",
+    "phase126-plan-authored",
+    "phase126-human0-ratified",
+    "phase126-red-team-implemented",
+    "phase126-redteam-immut-0-enforced",
+    "phase126-redteam-audit-0-enforced",
+    "phase126-redteam-scope-0-enforced",
+    "phase126-redteam-halt-0-enforced",
+    "phase126-redteam-determ-0-enforced",
+    "phase126-redteam-chain-0-enforced",
+    "phase126-world-first-constitutional-attacker",
+    "v9.59.0-released",
+    "phase126-complete",
+    "phase127-plan-authored",
+    "phase127-human0-ratified",
+    "phase127-innov37-grrp-implemented",
+    "phase127-grrp-0-enforced",
+    "phase127-grrp-route-0-enforced",
+    "phase127-grrp-sign-0-enforced",
+    "phase127-grrp-determ-0-enforced",
+    "phase127-grrp-chain-0-enforced",
+    "phase127-grrp-human0-0-enforced",
+    "phase127-world-first-governed-redteam-response",
+    "v9.60.0-released",
+    "phase127-complete"
   ],
   "constitutional_invariants": {
-    "cumulative": 167,
-    "hard_class_count": 167
+    "cumulative": 179,
+    "hard_class_count": 179
   },
-  "current_phase": 125,
-  "current_version": "9.58.0",
-  "hard_class_count": 167,
-  "hard_class_invariants_cumulative": 167,
+  "current_phase": 127,
+  "current_version": "9.60.0",
+  "hard_class_count": 179,
+  "hard_class_invariants_cumulative": 179,
   "human0_signoffs": [
     {
       "date": "2026-03-27",
@@ -395,6 +419,20 @@
       "governor": "DUSTIN L REID",
       "scope": "Phase 125 Community Governance Infrastructure -- CONSTITUTION_PROPOSALS.md \u00b7 amendment CI \u00b7 GOVERNANCE_PARTICIPATION.md \u00b7 validate_amendment_proposal.py \u00b7 30/30 tests green \u00b7 2 COMMUNITY invariants \u00b7 167 cumulative Hard-class invariants \u00b7 v9.58.0 release",
       "session_digest": "phase125-community-governance-impl-2026-04-05"
+    },
+    {
+      "attestation_ref": "ILA-126-2026-04-06-001",
+      "date": "2026-04-06",
+      "governor": "DUSTIN L REID",
+      "scope": "Phase 126 Red-Team Challenge \u2014 constitutional_attacker.py \u00b7 30/30 tests \u00b7 6 REDTEAM invariants \u00b7 173 cumulative Hard-class invariants \u00b7 v9.59.0 release",
+      "session_digest": "phase126-red-team-impl-2026-04-06"
+    },
+    {
+      "attestation_ref": "ILA-127-2026-04-06-001",
+      "date": "2026-04-06",
+      "governor": "DUSTIN L REID",
+      "scope": "Phase 127 INNOV-37 Governed Red-Team Response Protocol (GRRP) \u2014 30/30 tests green \u2014 6 GRRP invariants \u2014 179 cumulative Hard-class invariants \u2014 v9.60.0 release",
+      "session_digest": "phase127-grrp-impl-2026-04-06"
     }
   ],
   "innovations_shipped": {
@@ -446,25 +484,76 @@
       "tests": "30/30",
       "hard_invariants": 2,
       "version": "9.58.0"
+    },
+    "INNOV-34": {
+      "phase": 119,
+      "module": "federation_governance_consensus.py",
+      "version": "9.52.0",
+      "tests": "30/30",
+      "hard_invariants": 5
+    },
+    "INNOV-35": {
+      "phase": 120,
+      "module": "self_proposing_innovation_engine.py",
+      "version": "9.53.0",
+      "tests": "30/30",
+      "hard_invariants": 3
+    },
+    "INNOV-36": {
+      "phase": 121,
+      "module": "deterministic_audit_sandbox.py",
+      "version": "9.54.0",
+      "tests": "30/30",
+      "hard_invariants": 8
+    },
+    "PHASE-126": {
+      "phase": 126,
+      "module": "runtime/red_team/constitutional_attacker.py",
+      "version": "9.59.0",
+      "tests": "30/30",
+      "hard_invariants": 6,
+      "invariants": [
+        "REDTEAM-IMMUT-0",
+        "REDTEAM-AUDIT-0",
+        "REDTEAM-SCOPE-0",
+        "REDTEAM-HALT-0",
+        "REDTEAM-DETERM-0",
+        "REDTEAM-CHAIN-0"
+      ]
+    },
+    "INNOV-37": {
+      "phase": 127,
+      "module": "red_team_response_protocol.py",
+      "version": "9.60.0",
+      "tests": "30/30",
+      "hard_invariants": 6,
+      "invariants": [
+        "GRRP-0",
+        "GRRP-ROUTE-0",
+        "GRRP-SIGN-0",
+        "GRRP-DETERM-0",
+        "GRRP-CHAIN-0",
+        "GRRP-HUMAN0-0"
+      ]
     }
   },
-  "last_agent_state_sync_digest": "gsync-f130c26f8327cdf9",
-  "last_completed_phase": "Phase 05 \u00b7 Phase 125 \u00b7 Community Governance Infrastructure",
-  "last_completed_pr": "feat/phase125-community-governance",
+  "last_agent_state_sync_digest": "gsync-phase127-v9.60.0-2026-04-06",
+  "last_completed_phase": 127,
+  "last_completed_pr": "feat/phase127-innov37-grrp",
   "last_gate_results": {
     "tier_0": "pass",
     "tier_1": "pass",
     "tier_2": "pass",
     "tier_3": "pass"
   },
-  "last_innovation": "INNOV-36",
-  "last_innovation_name": "Deterministic Audit Sandbox",
+  "last_innovation": "INNOV-37",
+  "last_innovation_name": "Governed Red-Team Response Protocol",
   "last_invocation": "2026-04-06",
-  "last_phase_completed": 125,
-  "last_sync_sha": "a5a862b",
-  "last_updated": "2026-04-05",
-  "next_phase": 126,
-  "next_pr": "feat/phase126-red-team",
+  "last_phase_completed": 127,
+  "last_sync_sha": "phase127-impl",
+  "last_updated": "2026-04-06",
+  "next_phase": 128,
+  "next_pr": "feat/phase128-tbd",
   "open_findings": [
     {
       "id": "FINDING-66-001",
@@ -636,11 +725,31 @@
       "source": "ArchitectAgent session 2026-04-01",
       "status": "resolved",
       "title": "Ghost tag v9.34.0 pointed to Phase 97 commit \u2014 remediation required"
+    },
+    {
+      "id": "FINDING-126-NEW-001",
+      "severity": "P0",
+      "title": "Ghost tag v9.59.0 remediation \u2014 delete + re-sign required",
+      "status": "runbook_delivered",
+      "source": "ArchitectAgent 2026-04-06",
+      "phase_target": "126",
+      "note": "Runbook delivered. Ceremony execution deferred to HUMAN-0 Track B."
+    },
+    {
+      "id": "FINDING-126-NEW-002",
+      "severity": "P1",
+      "title": "33 DORK commits on main unphased \u2014 Option A selected by HUMAN-0",
+      "status": "resolved",
+      "resolved_date": "2026-04-06",
+      "resolved_phase": "127",
+      "source": "ArchitectAgent 2026-04-06",
+      "phase_target": "127",
+      "note": "HUMAN-0 ratified Option A: governed autonomous DORK evolution, no retroactive phase required."
     }
   ],
   "pending_evidence_rows": [],
-  "phase": 125,
-  "phase_label": "Phase 125 -- Community Governance Infrastructure",
+  "phase": 127,
+  "phase_label": "Phase 127 -- INNOV-37 Governed Red-Team Response Protocol (GRRP)",
   "phases_completed": [
     106,
     107,
@@ -648,10 +757,12 @@
     115,
     116,
     124,
-    125
+    125,
+    126,
+    127
   ],
   "schema_version": "1.5.0",
-  "software_version": "9.58.0",
+  "software_version": "9.60.0",
   "tife_active": true,
   "value_checkpoints_reached": [
     "phase0-track-a-hardening",
@@ -942,8 +1053,10 @@
     "phase124-world-first-governed-kernel-extraction",
     "v9.57.0-released"
   ],
-  "version": "9.58.0",
+  "version": "9.60.0",
   "world_firsts_claimed": [
-    "phase118-world-first-federation-bundle-exchange"
-  ]
+    "phase118-world-first-federation-bundle-exchange",
+    "phase127-world-first-governed-redteam-response"
+  ],
+  "last_phase_completed_label": "Phase 127 \u2014 INNOV-37 Governed Red-Team Response Protocol (GRRP)"
 }
