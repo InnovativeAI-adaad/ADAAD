@@ -18,3 +18,13 @@ def test_whaledic_wires_capability_registry_cards_and_chips() -> None:
     assert 'script src="./dork_capability_registry.js"' in html
     assert 'id="dork-capability-cards"' in html
     assert "window.DORK_CAPABILITY_REGISTRY" in html
+
+
+def test_whaledic_capability_optimizer_loop_signals_and_summary() -> None:
+    html = Path("ui/developer/ADAADdev/whaledic.html").read_text(encoding="utf-8")
+    assert "CAPABILITY_OPTIMIZER_KEY='whaledic_capability_optimizer_v1'" in html
+    assert "function computeCapabilityUtility(stat)" in html
+    assert "function updateCapabilitySignals(" in html
+    assert "function maybePublishCapabilitySummary()" in html
+    assert "capability_performance_summary" in html
+    assert "orderedCapabilitiesForContext" in html
