@@ -4,9 +4,12 @@ from __future__ import annotations
 import importlib.util
 import json
 import os
+import platform
+import shutil
 import time
 from dataclasses import dataclass
-from typing import Any, Callable, Mapping, Sequence
+from hashlib import sha256
+from typing import Any, Callable, Mapping, Protocol, Sequence
 
 if importlib.util.find_spec("anthropic") is not None:  # pragma: no cover - optional dependency
     import anthropic as _anthropic
@@ -21,6 +24,80 @@ SENSITIVE_CONTEXT_KEYS: tuple[str, ...] = (
     "secret",
     "token",
 )
+
+DETERMINISTIC_PROVIDER_SET: frozenset[str] = frozenset({"ollama", "llama_cpp", "quantized"})
+DEFAULT_DETERMINISTIC_OPTS: dict[str, Any] = {
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "repeat_penalty": 1.0,
+    "presence_penalty": 0.0,
+    "frequency_penalty": 0.0,
+    "seed": 0,
+}
+
+
+class Provider(Protocol):
+    """Provider adapter contract for deterministic profile enforcement."""
+
+    def supports_deterministic_mode(self) -> bool: ...
+
+    def normalize_deterministic_opts(self, opts: Mapping[str, Any] | None = None) -> dict[str, Any]: ...
+
+
+def _runtime_binary_version_digest() -> dict[str, str]:
+    python_bin = shutil.which("python3") or shutil.which("python") or ""
+    runtime_bits = {
+        "python_binary": python_bin,
+        "python_version": platform.python_version(),
+        "platform": platform.platform(),
+        "implementation": platform.python_implementation(),
+    }
+    canonical = json.dumps(runtime_bits, sort_keys=True, separators=(",", ":"))
+    return {
+        **runtime_bits,
+        "runtime_digest": f"sha256:{sha256(canonical.encode('utf-8')).hexdigest()}",
+    }
+
+
+class OpenAICompatibleProviderAdapter(Provider):
+    def __init__(self, provider_name: str) -> None:
+        self.provider_name = provider_name
+
+    def supports_deterministic_mode(self) -> bool:
+        return self.provider_name in DETERMINISTIC_PROVIDER_SET
+
+    def normalize_deterministic_opts(self, opts: Mapping[str, Any] | None = None) -> dict[str, Any]:
+        if not self.supports_deterministic_mode():
+            return {}
+        normalized = dict(DEFAULT_DETERMINISTIC_OPTS)
+        if opts:
+            normalized.update({k: v for k, v in opts.items() if v is not None})
+        return normalized
+
+
+class OllamaAdapter(OpenAICompatibleProviderAdapter):
+    def __init__(self) -> None:
+        super().__init__("ollama")
+
+
+class LlamaCppAdapter(OpenAICompatibleProviderAdapter):
+    def __init__(self) -> None:
+        super().__init__("llama_cpp")
+
+
+class QuantizedAdapter(OpenAICompatibleProviderAdapter):
+    def __init__(self) -> None:
+        super().__init__("quantized")
+
+
+def _provider_adapter_for(name: str) -> Provider:
+    if name == "ollama":
+        return OllamaAdapter()
+    if name == "llama_cpp":
+        return LlamaCppAdapter()
+    if name == "quantized":
+        return QuantizedAdapter()
+    return OpenAICompatibleProviderAdapter(name)
 
 
 def _noop_proposal(reason: str) -> dict[str, Any]:
@@ -55,6 +132,8 @@ class LLMProviderConfig:
     fallback_models: tuple[str, ...] = ()
     host_id: str = "default"
     host_capability_profiles: Mapping[str, Mapping[str, Any]] | None = None
+    deterministic_mode: bool = False
+    deterministic_opts: Mapping[str, Any] | None = None
 
 
 @dataclass(frozen=True)
@@ -65,6 +144,9 @@ class LLMProviderResult:
     error_message: str | None = None
     fallback_used: bool = False
     metadata: dict[str, Any] | None = None
+    response_sha256: str | None = None
+    evidence_digest: str | None = None
+    evidence_metadata: Mapping[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -108,6 +190,9 @@ class ModelSelectionDecision:
             "rejected_candidates": [dict(item) for item in self.rejected_candidates],
             "probe_metrics": self.probe_metrics.to_dict(),
             "decision_trace": list(self.decision_trace),
+            "response_sha256": self.response_sha256,
+            "evidence_digest": self.evidence_digest,
+            "evidence_metadata": dict(self.evidence_metadata or {}),
         }
 
 
@@ -353,6 +438,21 @@ class ModelAdapterManager:
         if probe.cpu_available_percent < min_cpu_available:
             return False, f"insufficient_cpu:{probe.cpu_available_percent:.1f}<{min_cpu_available:.1f}"
         return True, "ok"
+        deterministic_mode=(source.get("ADAAD_LLM_DETERMINISTIC_MODE") or "false").strip().lower() in {"1", "true", "yes", "on"},
+        deterministic_opts=_parse_deterministic_opts(source.get("ADAAD_LLM_DETERMINISTIC_OPTS")),
+    )
+
+
+def _parse_deterministic_opts(raw_opts: str | None) -> dict[str, Any] | None:
+    if not raw_opts:
+        return None
+    try:
+        parsed = json.loads(raw_opts)
+    except Exception:  # noqa: BLE001
+        return None
+    if isinstance(parsed, dict):
+        return parsed
+    return None
 
 
 class LLMProviderClient:
@@ -367,10 +467,21 @@ class LLMProviderClient:
         self.retry_policy = retry_policy or RetryPolicy()
         self.schema_validator = schema_validator or validate_adaptive_proposal_schema
         self._adapter_manager = ModelAdapterManager(config=config, probe_fn=probe_fn)
+        self.provider_adapter: Provider = _provider_adapter_for(config.provider)
 
     def request_json(self, *, system_prompt: str, user_prompt: str) -> LLMProviderResult:
         if not self.config.api_key and self.config.provider != "ollama":
             return self._safe_failure("missing_api_key", f"{self.config.provider} API key is not configured.")
+        if self.config.deterministic_mode and not self.provider_adapter.supports_deterministic_mode():
+            return self._safe_failure(
+                "governance_reject_deterministic_unsupported",
+                f"deterministic mode requested but unsupported by provider:{self.config.provider}",
+                payload={
+                    "proposal_type": "noop",
+                    "reason": "deterministic_mode_unsupported",
+                    "governance": {"action": "escalate/reject", "provider": self.config.provider},
+                },
+            )
 
         selection = self._adapter_manager.select_model()
         if not selection.selected_model:
@@ -388,6 +499,16 @@ class LLMProviderClient:
                 text = self._dispatch_request(system_prompt, user_prompt, model=selection.selected_model)
                 payload = self._parse_and_validate(text)
                 return LLMProviderResult(ok=True, payload=payload, metadata=selection.to_metadata())
+                response_sha = f"sha256:{sha256(text.encode('utf-8')).hexdigest()}"
+                evidence = self._build_evidence_metadata()
+                evidence_digest = f"sha256:{sha256(json.dumps(evidence, sort_keys=True, separators=(',', ':')).encode('utf-8')).hexdigest()}"
+                return LLMProviderResult(
+                    ok=True,
+                    payload=payload,
+                    response_sha256=response_sha,
+                    evidence_digest=evidence_digest,
+                    evidence_metadata=evidence,
+                )
             except Exception as exc:  # noqa: BLE001
                 if attempt == self.retry_policy.attempts - 1:
                     return self._safe_failure(
@@ -444,6 +565,8 @@ class LLMProviderClient:
         
         payload = {
             "model": model,
+        payload: dict[str, Any] = {
+            "model": self.config.model,
             "messages": [
                 {"role": "system", "content": system},
                 {"role": "user", "content": user}
@@ -451,6 +574,8 @@ class LLMProviderClient:
             "max_tokens": self.config.max_tokens,
             "temperature": 0.0
         }
+        if self.config.deterministic_mode and self.provider_adapter.supports_deterministic_mode():
+            payload.update(self.provider_adapter.normalize_deterministic_opts(self.config.deterministic_opts))
         resp = httpx.post(f"{base_url}/chat/completions", json=payload, headers=headers, timeout=self.config.timeout_seconds)
         resp.raise_for_status()
         return resp.json()["choices"][0]["message"]["content"]
@@ -479,22 +604,35 @@ class LLMProviderClient:
         return parsed
 
     def _safe_failure(self, code: str, message: str, *, metadata: dict[str, Any] | None = None) -> LLMProviderResult:
+    def _build_evidence_metadata(self) -> dict[str, Any]:
+        deterministic_profile = self.provider_adapter.normalize_deterministic_opts(self.config.deterministic_opts)
+        return {
+            "provider": self.config.provider,
+            "model": self.config.model,
+            "deterministic_mode": self.config.deterministic_mode,
+            "deterministic_profile": deterministic_profile,
+            "runtime": _runtime_binary_version_digest(),
+        }
+
+    def _safe_failure(self, code: str, message: str, *, payload: dict[str, Any] | None = None) -> LLMProviderResult:
         if self.config.fallback_to_noop:
             return LLMProviderResult(
                 ok=False,
-                payload=_noop_proposal(reason=code),
+                payload=payload or _noop_proposal(reason=code),
                 error_code=code,
                 error_message=message,
                 fallback_used=True,
                 metadata=metadata or {},
+                evidence_metadata=self._build_evidence_metadata(),
             )
         return LLMProviderResult(
             ok=False,
-            payload={},
+            payload=payload or {},
             error_code=code,
             error_message=message,
             fallback_used=False,
             metadata=metadata or {},
+            evidence_metadata=self._build_evidence_metadata(),
         )
 
     @staticmethod
@@ -503,6 +641,10 @@ class LLMProviderClient:
 
 
 __all__ = [
+    "Provider",
+    "OllamaAdapter",
+    "LlamaCppAdapter",
+    "QuantizedAdapter",
     "EvolutionContextContract",
     "LLMProviderClient",
     "LLMProviderConfig",

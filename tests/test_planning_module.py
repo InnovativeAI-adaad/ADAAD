@@ -63,6 +63,8 @@ def test_plan_step_verifier_blocks_steps_b_to_d_without_taxonomy_coverage_check(
             completion_signals={step.success_predicate: True},
             governance_checks={"policy_alignment": True, "taxonomy_coverage_complete": False},
             replay_checks={"replay_digest_match": True},
+            policy_approval=True,
+            human_signoff_token="token-1",
         )
         assert blocked.ok is False
         assert blocked.reason == "governance_check_failed:taxonomy_coverage_complete"
@@ -88,6 +90,8 @@ def test_plan_step_verifier_requires_autonomous_critical_and_full_suite_validati
         completion_signals={"validation.full_suite_passed": True},
         governance_checks={"policy_alignment": True, "validation_report_complete": True},
         replay_checks={"replay_digest_match": True},
+        policy_approval=True,
+        human_signoff_token="token-1",
     )
     assert blocked.ok is False
     assert blocked.reason == "criteria_not_satisfied:validation.autonomous_critical_lane_passed"
@@ -101,5 +105,7 @@ def test_plan_step_verifier_requires_autonomous_critical_and_full_suite_validati
         },
         governance_checks={"policy_alignment": True, "validation_report_complete": True},
         replay_checks={"replay_digest_match": True},
+        policy_approval=True,
+        human_signoff_token="token-1",
     )
     assert passed.ok is True

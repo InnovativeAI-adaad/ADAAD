@@ -64,6 +64,7 @@ def test_config_defaults_and_overrides() -> None:
 
 def test_missing_api_key_returns_safe_noop() -> None:
     client = LLMProviderClient(LLMProviderConfig(provider="openai", api_key="", model="m", timeout_seconds=2, max_tokens=200, fallback_to_noop=True))
+    client = LLMProviderClient(LLMProviderConfig(provider="anthropic", api_key="", model="m", timeout_seconds=2, max_tokens=200, fallback_to_noop=True))
 
     result = client.request_json(system_prompt="s", user_prompt="u")
 
@@ -76,6 +77,7 @@ def test_missing_api_key_returns_safe_noop() -> None:
 def test_invalid_json_returns_safe_error() -> None:
     client = _ClientWithStubBuild(
         LLMProviderConfig(provider="openai", api_key="k", model="m", timeout_seconds=2, max_tokens=200, fallback_to_noop=True),
+        LLMProviderConfig(provider="anthropic", api_key="k", model="m", timeout_seconds=2, max_tokens=200, fallback_to_noop=True),
         stub_client=_FakeClient(response_text="not-json"),
     )
 
@@ -90,12 +92,17 @@ def test_invalid_json_returns_safe_error() -> None:
 def test_valid_json_response_success() -> None:
     client = _ClientWithStubBuild(
         LLMProviderConfig(provider="openai", api_key="k", model="m", timeout_seconds=2, max_tokens=200, fallback_to_noop=True),
+        LLMProviderConfig(provider="anthropic", api_key="k", model="m", timeout_seconds=2, max_tokens=200, fallback_to_noop=True),
         stub_client=_FakeClient(
             response_text=(
                 '{"proposal_type":"patch","actions":[],"proposal_hypothesis":"Reduce latency",'
                 '"expected_roi":0.2,"risk_confidence":0.7,"fallback_plan":"Revert patch"}'
             )
         ),
+    )
+    client._dispatch_request = lambda system, user: (  # type: ignore[method-assign]
+        '{"proposal_type":"patch","actions":[],"proposal_hypothesis":"Reduce latency",'
+        '"expected_roi":0.2,"risk_confidence":0.7,"fallback_plan":"Revert patch"}'
     )
 
     result = client.request_json(system_prompt="s", user_prompt="u")
@@ -137,6 +144,7 @@ def test_build_evolution_user_prompt_uses_compact_window_and_redaction(evolution
 def test_malformed_adaptive_response_downgrades_to_noop() -> None:
     client = _ClientWithStubBuild(
         LLMProviderConfig(provider="openai", api_key="k", model="m", timeout_seconds=2, max_tokens=200, fallback_to_noop=True),
+        LLMProviderConfig(provider="anthropic", api_key="k", model="m", timeout_seconds=2, max_tokens=200, fallback_to_noop=True),
         stub_client=_FakeClient(response_text='{"proposal_type":"patch","actions":[]}'),
     )
 
@@ -151,6 +159,7 @@ def test_malformed_adaptive_response_downgrades_to_noop() -> None:
 def test_malformed_adaptive_response_without_fallback_returns_error_payload() -> None:
     client = _ClientWithStubBuild(
         LLMProviderConfig(provider="openai", api_key="k", model="m", timeout_seconds=2, max_tokens=200, fallback_to_noop=False),
+        LLMProviderConfig(provider="anthropic", api_key="k", model="m", timeout_seconds=2, max_tokens=200, fallback_to_noop=False),
         stub_client=_FakeClient(response_text='{"proposal_type":"patch","actions":[]}'),
     )
 
