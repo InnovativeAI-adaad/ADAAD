@@ -16,6 +16,7 @@ import hashlib
 import json
 import logging
 import threading
+import uuid
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -24,6 +25,7 @@ from typing import Any
 log = logging.getLogger(__name__)
 
 _SCHEMA_VERSION = "89.0"
+_DORK_EVIDENCE_SCHEMA_VERSION = "dork-evidence-v1"
 _DEFAULT_LEDGER_PATH = Path("data/proposal_capture.jsonl")
 
 
@@ -62,6 +64,11 @@ class ProposalCaptureEvent:
     provider_ok:    bool
     error_code:     str | None
     ts:             str
+    generated_at:   str
+    evidence_schema_version: str
+    artifact_id: str
+    source_path: str
+    provider: str
     schema_version: str = _SCHEMA_VERSION
 
     # ------------------------------------------------------------------
@@ -86,6 +93,7 @@ class ProposalCaptureEvent:
             (system_prompt + "\n" + user_prompt).encode()
         ).hexdigest()
         response_hash = hashlib.sha256(response_text.encode()).hexdigest()
+        generated_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         return cls(
             epoch_id=epoch_id,
             cycle_id=cycle_id,
@@ -96,7 +104,12 @@ class ProposalCaptureEvent:
             response_hash=response_hash,
             provider_ok=provider_ok,
             error_code=error_code,
-            ts=datetime.now(timezone.utc).isoformat(),
+            ts=generated_at,
+            generated_at=generated_at,
+            evidence_schema_version=_DORK_EVIDENCE_SCHEMA_VERSION,
+            artifact_id=str(uuid.uuid4()),
+            source_path="provider_adapter",
+            provider="llm_provider_client",
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -223,6 +236,11 @@ class ProposalCaptureLedger:
                                 provider_ok=bool(d.get("provider_ok", False)),
                                 error_code=d.get("error_code"),
                                 ts=d.get("ts", ""),
+                                generated_at=d.get("generated_at", d.get("ts", "")),
+                                evidence_schema_version=d.get("evidence_schema_version", ""),
+                                artifact_id=d.get("artifact_id", ""),
+                                source_path=d.get("source_path", "provider_adapter"),
+                                provider=d.get("provider", "llm_provider_client"),
                                 schema_version=d.get("schema_version", _SCHEMA_VERSION),
                             )
                         )

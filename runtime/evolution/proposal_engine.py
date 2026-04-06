@@ -45,6 +45,11 @@ def _noop_proposal(request: ProposalRequest, reason: str) -> Proposal:
             f"'{request.strategy_id}': {reason}"
         ),
         estimated_impact=0.0,
+        evidence={
+            "evidence_schema_version": "dork-evidence-v1",
+            "source_path": "proposal_orchestrator",
+            "provider": "noop",
+        },
         metadata={
             "cycle_id": request.cycle_id,
             "strategy_id": request.strategy_id,

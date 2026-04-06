@@ -179,6 +179,8 @@ class ProposalAdapter:
                 "llm_provider_result": provider_result.to_dict(),
                 "llm_raw_payload": payload,
                 "strategy_prompt_version": "16.0",
+                "evidence_schema_version": "dork-evidence-v1",
+                "source_path": "provider_adapter",
             },
             metadata={
                 "cycle_id": context.cycle_id,
