@@ -1624,6 +1624,7 @@ def governance_gate_decisions(
 
     reader = GateDecisionReader(DEFAULT_GATE_DECISION_LEDGER_PATH)
     records = reader.history(limit=limit, denied_only=denied_only)
+    aggregates = reader.common_aggregates()
 
     return {
         "schema_version": "1.0",
@@ -1631,12 +1632,12 @@ def governance_gate_decisions(
         "data": {
             "records":                records,
             "total_in_window":        len(records),
-            "approval_rate":          reader.approval_rate(),
-            "rejection_rate":         reader.rejection_rate(),
-            "human_override_count":   reader.human_override_count(),
-            "decision_breakdown":     reader.decision_breakdown(),
-            "failed_rules_frequency": reader.failed_rules_frequency(),
-            "trust_mode_breakdown":   reader.trust_mode_breakdown(),
+            "approval_rate":          aggregates["approval_rate"],
+            "rejection_rate":         aggregates["rejection_rate"],
+            "human_override_count":   aggregates["human_override_count"],
+            "decision_breakdown":     aggregates["decision_breakdown"],
+            "failed_rules_frequency": aggregates["failed_rules_frequency"],
+            "trust_mode_breakdown":   aggregates["trust_mode_breakdown"],
             "ledger_version":         GATE_DECISION_LEDGER_VERSION,
         },
     }

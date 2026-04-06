@@ -335,6 +335,39 @@ class TestGateDecisionReader:
         )
         assert reader.verify_chain() is True
 
+    def test_t35_r_12_cache_invalidates_on_file_update(self, tmp_path):
+        path = tmp_path / "gate_decisions.jsonl"
+        ledger = GateDecisionLedger(path)
+        ledger.emit(_approved_payload("a"))
+        reader = GateDecisionReader(path)
+        assert reader.approval_rate() == pytest.approx(1.0)
+        ledger.emit(_denied_payload("b"))
+        assert reader.approval_rate() == pytest.approx(0.5)
+        assert reader.rejection_rate() == pytest.approx(0.5)
+
+    def test_t35_r_13_cached_and_uncached_consistency(self, tmp_path):
+        reader = _make_reader_with_decisions(
+            tmp_path,
+            [
+                _approved_payload("a", trust_mode="standard"),
+                _denied_payload("b", failed_rules=["R1", "R2"], trust_mode="elevated"),
+                _override_payload("c"),
+            ],
+        )
+        cached = reader.common_aggregates()
+        reader._cache_key = None
+        reader._cached_records = None
+        reader._cached_aggregates = None
+        uncached = {
+            "approval_rate": reader.approval_rate(),
+            "rejection_rate": reader.rejection_rate(),
+            "human_override_count": reader.human_override_count(),
+            "decision_breakdown": reader.decision_breakdown(),
+            "failed_rules_frequency": reader.failed_rules_frequency(),
+            "trust_mode_breakdown": reader.trust_mode_breakdown(),
+        }
+        assert uncached == cached
+
 
 # ===========================================================================
 # SIGNAL INTEGRATION TESTS
