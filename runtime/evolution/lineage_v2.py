@@ -387,6 +387,7 @@ class LineageLedgerV2:
         self.ledger_path = tenant_partition_path(base_path, tenant_context)
         self.tenant_context = dict(tenant_context or {})
         self._epoch_digest_index: Dict[str, str] = {}
+        self._verified_tail_hash: str | None = None
 
     def _ensure(self) -> None:
         self.ledger_path.parent.mkdir(parents=True, exist_ok=True)
@@ -398,10 +399,13 @@ class LineageLedgerV2:
         with _TAIL_CACHE_LOCK:
             cached = _TAIL_CACHE.get(key)
         if cached is not None:
+            self._verified_tail_hash = cached
             return cached
         self.verify_integrity()
         with _TAIL_CACHE_LOCK:
-            return _TAIL_CACHE.get(key) or ("0" * 64)
+            cached = _TAIL_CACHE.get(key) or ("0" * 64)
+        self._verified_tail_hash = cached
+        return cached
 
     def verify_integrity(self, recovery_hook: LineageRecoveryHook | None = None, max_lines: int | None = None) -> None:
         """Recompute chain from genesis and verify each stored hash.
@@ -417,8 +421,10 @@ class LineageLedgerV2:
         with self.ledger_path.open("r", encoding="utf-8") as handle:
             for line_no, line in enumerate(handle, start=1):
                 if max_lines is not None and line_no > max_lines:
+                    partial_tail = prev_hash or ("0" * 64)
                     with _TAIL_CACHE_LOCK:
-                        _TAIL_CACHE[key] = prev_hash or ("0" * 64)
+                        _TAIL_CACHE[key] = partial_tail
+                    self._verified_tail_hash = partial_tail
                     LOG.warning(
                         "lineage_verify_integrity_truncated",
                         extra={
@@ -461,6 +467,7 @@ class LineageLedgerV2:
                 prev_hash = entry_hash
         with _TAIL_CACHE_LOCK:
             _TAIL_CACHE[key] = prev_hash
+        self._verified_tail_hash = prev_hash
 
     # Contracts:
     # POST: _TAIL_CACHE[key] is updated after any non-raising call.
@@ -495,6 +502,7 @@ class LineageLedgerV2:
                     handle.write(json.dumps(entry, ensure_ascii=False) + "\n")
                 # Advance the warm cache to the newly written entry hash.
                 _TAIL_CACHE[key] = entry["hash"]
+                self._verified_tail_hash = entry["hash"]
 
         if event_type == "MutationBundleEvent":
             epoch_id = str(payload.get("epoch_id") or "")
