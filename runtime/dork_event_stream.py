@@ -39,3 +39,26 @@ class DorkEventStream:
         with self.path.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(event, sort_keys=True, separators=(",", ":")) + "\n")
         return event
+
+    def append_snapshot_interpretation(
+        self,
+        *,
+        query: str,
+        before_snapshot: dict[str, Any],
+        after_snapshot: dict[str, Any],
+        interpretation: dict[str, Any],
+        bundle_digest: str,
+    ) -> dict[str, Any]:
+        event = {
+            "event_type": "dork_snapshot_interpreted.v1",
+            "query": query,
+            "bundle_digest": bundle_digest,
+            "before_snapshot": before_snapshot,
+            "after_snapshot": after_snapshot,
+            "interpretation": interpretation,
+            "ts": now_iso(),
+        }
+        event["event_digest"] = self._digest(event)
+        with self.path.open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps(event, sort_keys=True, separators=(",", ":")) + "\n")
+        return event

@@ -57,3 +57,40 @@ def test_executor_emits_dork_event_stream_for_oracle_history(tmp_path: Path) -> 
     assert event["event_type"] == "dork_intent_executed.v1"
     assert event["intent"] == "open_oracle_history"
     assert event["bundle_digest"] == bundle.bundle_digest
+
+
+def test_executor_interprets_epoch_delta_and_persists_structured_event(tmp_path: Path) -> None:
+    event_stream_path = tmp_path / "dork_stream.jsonl"
+    executor = DorkIntentExecutor(event_stream=DorkEventStream(path=event_stream_path))
+
+    before_snapshot = {
+        "governance": {"locked": False},
+        "replay": {"divergence": 0},
+        "readiness": {"readiness_score": 0.92, "blockers": []},
+        "mutation": {"total": 1},
+    }
+    after_snapshot = {
+        "governance": {"locked": True},
+        "replay": {"divergence": 2},
+        "readiness": {"readiness_score": 0.75, "blockers": ["docs_out_of_sync"]},
+        "mutation": {"total": 6},
+    }
+
+    request = DorkIntentRouteRequest(
+        query="What changed since last epoch?",
+        before_snapshot=before_snapshot,
+        after_snapshot=after_snapshot,
+    )
+    decision = DorkIntentRouter().route(request)
+
+    bundle = executor.execute(request=request, decision=decision)
+
+    assert bundle.intent == "interpret_epoch_delta"
+    assert bundle.response["card"]["title"] == "What changed since last epoch?"
+    assert bundle.response["interpretation"]["risk_level"] in {"high", "critical"}
+
+    events = [json.loads(line) for line in event_stream_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    assert len(events) == 2
+    assert events[0]["event_type"] == "dork_intent_executed.v1"
+    assert events[1]["event_type"] == "dork_snapshot_interpreted.v1"
+    assert events[1]["interpretation"]["risk_level"] in {"high", "critical"}

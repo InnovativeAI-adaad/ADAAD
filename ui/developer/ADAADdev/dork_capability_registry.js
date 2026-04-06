@@ -167,6 +167,89 @@
         return buildCard(this.id, summary, details, nextActions, confidence, deps, fallbackUsed);
       },
     },
+
+    {
+      id: 'epoch_delta_interpreter',
+      label: 'epoch delta',
+      intents: ['epoch', 'delta', 'changes', 'interpretation'],
+      triggers: [/\bwhat changed\b/i, /\bchanged since\b/i, /\blast epoch\b/i, /\bdelta\b/i],
+      dependencies: [
+        { id: 'before.governance', path: 'before.gov', required: true, fallback: 'before_snapshot_missing' },
+        { id: 'after.governance', path: 'after.gov', required: true, fallback: 'after_snapshot_missing' },
+        { id: 'after.replay', path: 'after.rep', required: false, fallback: 'replay_unavailable' },
+        { id: 'after.readiness', path: 'after.ready', required: false, fallback: 'readiness_unavailable' },
+      ],
+      execute(context) {
+        const before = context && context.before ? context.before : {};
+        const after = context && context.after ? context.after : context || {};
+        const deps = dependencySnapshot({ before, after }, this.dependencies);
+        const fallbackUsed = !before || !before.gov;
+        const semantic = [];
+        const impacted = new Set();
+        const actions = [];
+        let risk = 0;
+
+        const beforeLocked = Boolean(readPath(before, 'gov.locked'));
+        const afterLocked = Boolean(readPath(after, 'gov.locked'));
+        if (beforeLocked !== afterLocked) {
+          impacted.add('governance');
+          if (afterLocked) {
+            risk += 55;
+            semantic.push('Governance gate moved to LOCKED.');
+            actions.push('Resolve governance lock reason before mutations.');
+          } else {
+            risk += 10;
+            semantic.push('Governance gate reopened to PASS.');
+          }
+        }
+
+        const beforeDiv = Number(readPath(before, 'rep.divergence') || 0);
+        const afterDiv = Number(readPath(after, 'rep.divergence') || 0);
+        if (beforeDiv !== afterDiv) {
+          impacted.add('replay');
+          if (afterDiv > beforeDiv) {
+            risk += 30;
+            semantic.push('Replay divergence increased.');
+            actions.push('Run strict replay verification and inspect latest manifest diff.');
+          } else {
+            semantic.push('Replay divergence improved.');
+          }
+        }
+
+        const beforeReady = Number(readPath(before, 'ready.readiness_score') || 0);
+        const afterReady = Number(readPath(after, 'ready.readiness_score') || 0);
+        if (beforeReady !== afterReady) {
+          impacted.add('release_readiness');
+          if (afterReady < beforeReady) {
+            risk += 24;
+            semantic.push('Readiness score regressed.');
+            actions.push('Prioritize readiness blockers before release gate.');
+          } else {
+            semantic.push('Readiness score improved.');
+          }
+        }
+
+        const beforeMut = Number(readPath(before, 'muts.total') || 0);
+        const afterMut = Number(readPath(after, 'muts.total') || 0);
+        if (beforeMut !== afterMut) {
+          impacted.add('mutation_pipeline');
+          const delta = afterMut - beforeMut;
+          semantic.push('Mutation queue ' + (delta >= 0 ? 'grew' : 'shrunk') + ' by ' + Math.abs(delta) + '.');
+          if (delta > 0) {
+            risk += delta >= 5 ? 20 : 10;
+            actions.push('Review queued mutations for constitutional compliance.');
+          }
+        }
+
+        if (!semantic.length) {
+          semantic.push('No material semantic shifts detected across tracked feeds.');
+        }
+        const riskLevel = risk >= 80 ? 'critical' : risk >= 45 ? 'high' : risk >= 20 ? 'medium' : 'low';
+        const confidence = fallbackUsed ? 0.58 : Math.min(0.97, 0.72 + semantic.length * 0.05);
+        const summary = 'What changed since last epoch? risk=' + riskLevel + ' · impacted=' + (Array.from(impacted).join(', ') || 'none') + '.';
+        return buildCard(this.id, summary, semantic.slice(0, 3), Array.from(new Set(actions)).slice(0, 3), confidence, deps, fallbackUsed);
+      },
+    },
     {
       id: 'release_readiness_audit',
       label: 'release readiness audit',

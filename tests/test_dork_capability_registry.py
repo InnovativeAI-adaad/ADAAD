@@ -9,6 +9,7 @@ def test_dork_capability_registry_defines_required_plugins() -> None:
         "agent_triad_diagnostics",
         "oracle_projection_explainer",
         "release_readiness_audit",
+        "epoch_delta_interpreter",
     ):
         assert f"id: '{plugin}'" in js
 

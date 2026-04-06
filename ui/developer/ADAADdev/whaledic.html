@@ -491,7 +491,7 @@ const MOCK={
 const TOKEN_CAP=16000,TOKEN_WARN=12000,CONV_KEY='whaledic_v3_conv',EVENT_BUS_KEY='whaledic_event_bus_v1',EVENT_BUS_MAX=200,EVENT_BUS_COMPACT_N=6;
 
 // ── STATE ────────────────────────────────────────────────────────
-let conv=[],totalTok=0,streaming=false,rs=null,missing=new Set(),reqTs=[],ledgerOff=0,whCount=0;
+let conv=[],totalTok=0,streaming=false,rs=null,prevRs=null,missing=new Set(),reqTs=[],ledgerOff=0,whCount=0;
 const capabilityCards=[];
 let llmCfg={provider:'groq',groqKey:'',ollamaModel:'llama3.2'};
 let selProvider='groq';
@@ -1135,7 +1135,7 @@ function renderCapabilityCards(cards){
 function runCapabilityCard(query){
   const reg=window.DORK_CAPABILITY_REGISTRY;
   if(!reg||!rs)return null;
-  const card=reg.executeByQuery(query,{...rs,stateBus:window.ADAAD_STATE_BUS||{}});
+  const card=reg.executeByQuery(query,{...rs,before:prevRs||{},after:rs||{},stateBus:window.ADAAD_STATE_BUS||{}});
   if(!card)return null;
   capabilityCards.push(card);
   renderCapabilityCards(capabilityCards);
@@ -1178,6 +1178,7 @@ function renderInsights(g,m,r,rd,ag){const agents=(ag&&ag.agents)||{};const heal
 // ── REFRESH ALL ──────────────────────────────────────────────────
 async function refreshAll(){
   const [g,m,r,ep,ag,ld,wh,rd]=await Promise.all([safe('governance','governance'),safe('mutations','mutations'),safe('replay','replay'),safe('epoch','epoch'),safe('agents','agents'),safe('ledger','ledger'),safe('webhooks','whRecent'),safe('readiness','readiness')]);
+  prevRs=rs?JSON.parse(JSON.stringify(rs)):prevRs;
   rs={gov:g,muts:m,rep:r,epoch:ep,agents:ag,ledger:ld,wh:wh,ready:rd};
   renderPills(g,r,ep,rd);renderRuntime(g,ep);renderStats(r,rd,ep);renderGate(g);
   renderMuts(m,'ml-overview');renderMuts(m,'ml-full');renderAgents(ag);renderLedger(ld);
