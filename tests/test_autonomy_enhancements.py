@@ -434,6 +434,7 @@ class AutonomyEnhancementTest(unittest.TestCase):
                         "taxonomy_coverage_complete": True,
                     },
                     "plan_replay_checks": {"replay_preconditions_ok": True, "replay_digest_match": True},
+                    "plan_policy_approval": True,
                 },
             )
             self.assertEqual(first.plan_state.current_step_index, 1)
@@ -450,6 +451,8 @@ class AutonomyEnhancementTest(unittest.TestCase):
                             {
                                 "step_id": step.step_id,
                                 "goal_id": step.goal_id,
+                                "action_type": step.action_type,
+                                "resource_scope": step.resource_scope,
                                 "milestone": step.milestone,
                                 "success_predicate": step.success_predicate,
                                 "completion_criteria": list(step.completion_criteria),
@@ -474,6 +477,8 @@ class AutonomyEnhancementTest(unittest.TestCase):
                         "taxonomy_coverage_complete": True,
                     },
                     "plan_replay_checks": {"replay_preconditions_ok": True, "replay_digest_match": True},
+                    "plan_policy_approval": True,
+                    "human_signoff_token": "human-ok",
                 },
             )
 
