@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.58.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": "v9.58.0 RELEASED \u00b7 Phase 126 Red-Team prep",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -197,16 +197,24 @@
     "phase124-core-import-0-enforced",
     "phase124-core-semver-0-enforced",
     "v9.57.0-released",
-    "phase124-complete"
+    "phase124-complete",
+    "phase125-plan-authored",
+    "phase125-human0-ratified",
+    "phase125-community-governance-implemented",
+    "phase125-community-fgcon-0-enforced",
+    "phase125-community-human0-0-enforced",
+    "phase125-world-first-community-amendment-governance",
+    "v9.58.0-released",
+    "phase125-complete"
   ],
   "constitutional_invariants": {
-    "cumulative": 133,
-    "hard_class_count": 133
+    "cumulative": 167,
+    "hard_class_count": 167
   },
-  "current_phase": 124,
+  "current_phase": 125,
   "current_version": "9.58.0",
-  "hard_class_count": 138,
-  "hard_class_invariants_cumulative": 165,
+  "hard_class_count": 167,
+  "hard_class_invariants_cumulative": 167,
   "human0_signoffs": [
     {
       "date": "2026-03-27",
@@ -380,6 +388,13 @@
       "governor": "DUSTIN L REID",
       "scope": "Phase 124 adaad-core Extraction -- adaad_core/ package \u00b7 ADAAD_CORE_API.md \u00b7 CI stability workflow \u00b7 30/30 tests green \u00b7 3 CORE invariants \u00b7 165 cumulative Hard-class invariants \u00b7 v9.57.0 release",
       "session_digest": "phase124-adaad-core-extraction-2026-04-05"
+    },
+    {
+      "attestation_ref": "ILA-125-2026-04-05-001",
+      "date": "2026-04-05",
+      "governor": "DUSTIN L REID",
+      "scope": "Phase 125 Community Governance Infrastructure -- CONSTITUTION_PROPOSALS.md \u00b7 amendment CI \u00b7 GOVERNANCE_PARTICIPATION.md \u00b7 validate_amendment_proposal.py \u00b7 30/30 tests green \u00b7 2 COMMUNITY invariants \u00b7 167 cumulative Hard-class invariants \u00b7 v9.58.0 release",
+      "session_digest": "phase125-community-governance-impl-2026-04-05"
     }
   ],
   "innovations_shipped": {
@@ -424,11 +439,18 @@
       "phase": 117,
       "tests": "30/30",
       "version": "9.50.0"
+    },
+    "COMM-125": {
+      "module": "community_governance",
+      "phase": 125,
+      "tests": "30/30",
+      "hard_invariants": 2,
+      "version": "9.58.0"
     }
   },
-  "last_agent_state_sync_digest": "gsync-6e7367ac32431d1a",
-  "last_completed_phase": "Phase 05 \u00b7 Phase 125 \u00b7 Community Governance Infrastructure",
-  "last_completed_pr": "feat/phase124-adaad-core-extract",
+  "last_agent_state_sync_digest": "fix-sync-phase126-pre-2026-04-05",
+  "last_completed_phase": "Phase 125 \u00b7 Community Governance Infrastructure",
+  "last_completed_pr": "feat/phase125-community-governance",
   "last_gate_results": {
     "tier_0": "pass",
     "tier_1": "pass",
@@ -437,12 +459,12 @@
   },
   "last_innovation": "INNOV-36",
   "last_innovation_name": "Deterministic Audit Sandbox",
-  "last_invocation": "2026-04-06",
-  "last_phase_completed": 124,
+  "last_invocation": "2026-04-05",
+  "last_phase_completed": 125,
   "last_sync_sha": "518170f",
   "last_updated": "2026-04-05",
-  "next_phase": 125,
-  "next_pr": "feature/phase116-ide-impl",
+  "next_phase": 126,
+  "next_pr": "feat/phase126-red-team",
   "open_findings": [
     {
       "id": "FINDING-66-001",
@@ -617,15 +639,16 @@
     }
   ],
   "pending_evidence_rows": [],
-  "phase": 124,
-  "phase_label": "Phase 124 -- adaad-core Extraction",
+  "phase": 125,
+  "phase_label": "Phase 125 -- Community Governance Infrastructure",
   "phases_completed": [
     106,
     107,
     108,
     115,
     116,
-    124
+    124,
+    125
   ],
   "schema_version": "1.5.0",
   "software_version": "9.58.0",
@@ -919,7 +942,7 @@
     "phase124-world-first-governed-kernel-extraction",
     "v9.57.0-released"
   ],
-  "version": "9.57.0",
+  "version": "9.58.0",
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange"
   ]
