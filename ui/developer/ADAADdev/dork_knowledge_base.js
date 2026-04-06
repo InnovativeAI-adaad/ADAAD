@@ -43,7 +43,7 @@
     { key: 'market fitness', answer: 'Market-Conditioned Fitness (INNOV-22, Phase 107) extends the standard fitness signal with external-demand context: feature demand signals, comparative adoption curves, and operator-weighted priority adjustments. Implemented in market_fitness.py.', tags: ['market','fitness','innov-22','innovation'], confidence: 0.96 },
     // ── Versioning & Release ───────────────────────────────────────────
     { key: 'versioning', answer: 'Four-surface version alignment: VERSION file, pyproject.toml, .adaad_agent_state.json, and governance/report_version.json must all carry the same semver string after every phase promotion.', tags: ['versioning','semver','alignment','release'], confidence: 0.99 },
-    { key: 'current version', answer: 'ADAAD is currently at v9.58.0, Phase 125. Check .adaad_agent_state.json or the VERSION file for the authoritative current version at any time.', tags: ['version','current','phase'], confidence: 0.95 },
+    { key: 'current version', answer: 'ADAAD is currently at v9.60.0, Phase 127. Check .adaad_agent_state.json or the VERSION file for the authoritative current version at any time.', tags: ['version','current','phase'], confidence: 0.95 },
     { key: 'release readiness', answer: 'Release readiness is a 0–1 score derived from: active blockers, test pass rate, replay score, governance gate status, and documentation completeness. Score ≥0.9 with zero Hard blockers is the GA gate threshold.', tags: ['release','readiness','score','gate'], confidence: 0.98 },
     { key: 'ga release', answer: 'v1.1-GA is gated on FINDING-66-003 (patent filing). Patent counsel engagement is a pending HUMAN-0 action and a Hard gate block until resolved.', tags: ['ga','release','patent','finding-66-003','blocker'], confidence: 0.97 },
     // ── Phases & Roadmap ───────────────────────────────────────────────
@@ -71,6 +71,12 @@
     { key: 'providers', answer: 'DORK supports four LLM providers in priority sequence: (1) Claude/Anthropic (claude-haiku, via Anthropic Messages API). (2) Groq (cloud, llama-3.3-70b-versatile). (3) Ollama (local, llama3.2). (4) DorkEngine (built-in deterministic fallback).', tags: ['providers','groq','ollama','claude','anthropic','llm'], confidence: 0.99 },
     { key: 'testing patterns', answer: 'Key test fixes: (1) Patch pathlib.Path.open not builtins.open — container runs as root, chmod-based unwritability is unreliable. (2) Use epoch IDs with distinct first-8-character prefixes to avoid gap_id collision. (3) Always run with PYTHONPATH=/home/claude/adaad prefix from outside the repo.', tags: ['testing','pytest','patterns','fixes'], confidence: 0.98 },
     { key: 'innov-22', answer: 'INNOV-22 is Market-Conditioned Fitness (Phase 107). The market_fitness.py scaffold integrates external demand signals into mutation fitness scoring. Next phase after Phase 106 (v9.39.0).', tags: ['innov-22','market','fitness','phase-107'], confidence: 0.97 },
+    // ── Added Knowledge Bridge (DORK-MERGE v1.0) ───────────────────────
+    { key: '30 innovations', answer: 'ADAAD features 30+ key innovations across Constitutional Intelligence, Fitness Beyond Correctness, Memory and Identity, and Multi-Agent Architecture. See ADAAD_30_INNOVATIONS.md for the full index.', tags: ['innovations','roadmap','features'], confidence: 0.99 },
+    { key: 'merge gates', answer: 'DEVADAAD merges are protected by a 5-tier gate stack: Tier 0 (Baseline), Tier 1 (Full Test Suite), Tier 2 (Escalated Replay), Tier 3 (PR Completeness), and Tier M (Merge-specific Working Code Assertion).', tags: ['merge','gates','devadaad','security'], confidence: 0.99 },
+    { key: 'plans', answer: 'ADAAD offers three plan tiers: Free (limited seats/approvals), Pro (expanded limits, full mutation epochs), and Enterprise (unlimited scale/approvals).', tags: ['pricing','plans','enterprise'], confidence: 0.98 },
+    { key: 'current phase', answer: 'ADAAD is currently in Phase 127, executing Break-It Challenge Infrastructure (v9.60.0).', tags: ['phase','current','status'], confidence: 0.99 },
+    { key: 'next phase', answer: 'The next planned milestone is Phase 128, focusing on mobile runtime graduation.', tags: ['phase','roadmap','future'], confidence: 0.95 },
   ];
 
   function tokenise(text) {

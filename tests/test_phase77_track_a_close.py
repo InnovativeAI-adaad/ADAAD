@@ -207,7 +207,7 @@ class TestWebhookShimDelegation:
 
     def test_verify_webhook_signature_is_same_object_as_governed_app(self):
         """WEBHOOK-SHIM-DELEG-0: signature verification is the governed implementation."""
-        from app.github_app import verify_webhook_signature as authoritative
+        from runtime.integrations.github_app import verify_webhook_signature as authoritative
         from runtime.integrations.github_webhook_handler import verify_webhook_signature as shim_fn
         assert shim_fn is authoritative
 
@@ -250,7 +250,7 @@ class TestWebhookShimDelegation:
         GITHUB_WEBHOOK_SECRET is read at module import time in app.github_app,
         so we patch the module-level constant directly rather than the env var.
         """
-        import app.github_app as governed_app
+        import runtime.integrations.github_app as governed_app
         secret = "test-webhook-secret"
         monkeypatch.setattr(governed_app, "GITHUB_WEBHOOK_SECRET", secret)
         monkeypatch.setenv("ADAAD_ENV", "dev")  # dev: GovernanceGate advisory passthrough

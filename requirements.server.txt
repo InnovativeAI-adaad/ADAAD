@@ -5,3 +5,4 @@ anthropic==0.87.0
 libcst>=1.1.0,<2.0
 PyYAML==6.0.3
 PyNaCl==1.6.2
+sse_starlette>=0.10.3

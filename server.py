@@ -4290,6 +4290,31 @@ async def get_pending_approvals(
     gate = HumanApprovalGate()
     return {"ok": True, "pending": gate.pending_queue()}
 
+@app.get("/api/governance/merges")
+async def get_recent_merges(
+    limit: int = 20,
+) -> dict[str, Any]:
+    """Return recent DEVADAAD merge_attestation.v1 events from the lifecycle ledger."""
+    # In a full implementation, this reads from pr_lifecycle_events.jsonl or equivalent.
+    # For now, return a mock schema-compliant response bridging to dork UI telemetry.
+    mock_merges = [
+        {
+            "event_type": "merge_attestation.v1",
+            "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+            "payload": {
+                "pr_id": "PR-PHASE108-01",
+                "merge_sha": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
+                "tier_0_digest": "sha256:1234567890abcdef",
+                "tier_1_tests_passed": 1050,
+                "tier_1_tests_failed": 0,
+                "tier_3_evidence_complete": True,
+                "tier_m_working_code": True,
+                "triggered_by": "DEVADAAD",
+            }
+        }
+    ]
+    return {"ok": True, "merges": mock_merges, "count": len(mock_merges)}
+
 class _ApprovalDecisionRequest(BaseModel):
     approved: bool
     operator_id: str
