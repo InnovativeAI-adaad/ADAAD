@@ -473,8 +473,39 @@ let selProvider='groq';
 
 // ── ADAAD STATE BUS (Phase 101 L1) ───────────────────────────────
 window.ADAAD_STATE_BUS=null;
+const ADAAD_STATE_BUS_CHANNEL='adaad_state_bus';
+const ADAAD_STATE_BUS_SNAPSHOT_KEY='adaad_state_bus_snapshot';
+let stateBusChannel=null;
+try{if(typeof BroadcastChannel!=='undefined')stateBusChannel=new BroadcastChannel(ADAAD_STATE_BUS_CHANNEL);}catch(_){}
+function applyStateBusPatch(patch,meta={}){
+  if(!patch||typeof patch!=='object')return;
+  window.ADAAD_STATE_BUS=Object.freeze({...(window.ADAAD_STATE_BUS||{}), ...patch});
+  try{localStorage.setItem(ADAAD_STATE_BUS_SNAPSHOT_KEY,JSON.stringify(window.ADAAD_STATE_BUS));}catch(_){}
+  if(meta.emitBus!==false)bus('state_bus_apply',meta.source||'unknown');
+}
 function updateBus(patch){
-  window.ADAAD_STATE_BUS=Object.freeze({...(window.ADAAD_STATE_BUS||{}), ...patch, captured_at_iso:new Date().toISOString(), schema_version:'1.0.0'});
+  const fullPatch={...patch,captured_at_iso:new Date().toISOString(),schema_version:'1.0.0'};
+  applyStateBusPatch(fullPatch,{source:'local_update',emitBus:false});
+}
+function hydrateStateBusFromSnapshot(){
+  try{
+    const snap=localStorage.getItem(ADAAD_STATE_BUS_SNAPSHOT_KEY);
+    if(!snap)return;
+    const parsed=JSON.parse(snap);
+    if(parsed&&typeof parsed==='object'){
+      applyStateBusPatch(parsed,{source:'snapshot'});
+      bus('state_bus_recv','snapshot_hydrate');
+    }
+  }catch(_){}
+}
+function subscribeStateBusChannel(){
+  if(!stateBusChannel)return;
+  stateBusChannel.onmessage=(event)=>{
+    const payload=event&&event.data;
+    if(!payload||payload.type!=='state_bus_patch'||!payload.patch)return;
+    bus('state_bus_recv','broadcast_channel');
+    applyStateBusPatch(payload.patch,{source:(payload.source||'channel')});
+  };
 }
 
 // ── COMMANDS ────────────────────────────────────────────────────
@@ -858,6 +889,8 @@ document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLower
 // ── INIT ─────────────────────────────────────────────────────────
 loadCfg();
 (()=>{const lb={groq:'groq',ollama:'ollama',dorkengine:'engine'};document.getElementById('prov-btn').textContent='\u2699 '+(lb[llmCfg.provider]||'groq');document.getElementById('intro-badge').textContent=lb[llmCfg.provider]||'groq';if(!llmCfg.groqKey&&llmCfg.provider==='groq'){setTimeout(()=>{document.getElementById('w-llm').style.display='block';},1500);}})();
+hydrateStateBusFromSnapshot();
+subscribeStateBusChannel();
 restoreConv();renderDebt();refreshAll();startSSE();setInterval(refreshAll,30000);
 </script>
 </body>
