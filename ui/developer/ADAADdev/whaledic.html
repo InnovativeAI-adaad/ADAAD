@@ -473,7 +473,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 
 <script>
 // ── CONSTANTS ─────────────────────────────────────────────────────
-const ROUTES={governance:'/api/governance/status',mutations:'/api/mutations/recent?limit=20',replay:'/api/replay/score',epoch:'/api/epoch/current',agents:'/api/agents/health',ledger:'/api/ledger/entries?limit=50',whRecent:'/api/webhooks/recent?limit=20',whStream:'/api/webhooks/stream',readiness:'/api/release/readiness',ledgerLog:'/api/ledger/log'};
+const ROUTES={governance:'/api/governance/status',mutations:'/api/mutations/recent?limit=20',replay:'/api/replay/score',epoch:'/api/epoch/current',agents:'/api/agents/health',ledger:'/api/ledger/entries?limit=50',whRecent:'/api/webhooks/recent?limit=20',whStream:'/api/webhooks/stream',readiness:'/api/release/readiness',ledgerLog:'/api/ledger/log',dorkEventAppend:'/api/ledger/log/events',dorkEventStream:'/api/ledger/log/stream'};
 const DEBT=[{id:'DEBT-001',s:'CLOSED'},{id:'DEBT-002',s:'CLOSED'},{id:'DEBT-003',s:'CLOSED'},{id:'DEBT-004',s:'CLOSED'},{id:'DEBT-005',s:'CLOSED'},{id:'DEBT-006',s:'CLOSED'},{id:'DEBT-007',s:'CLOSED'},{id:'DEBT-008',s:'CLOSED'},{id:'DEBT-009',s:'CLOSED'},{id:'DEBT-010',s:'CLOSED'},{id:'DEBT-011',s:'CLOSED'}];
 const MOCK={
   governance:{ok:true,locked:false,constitution_version:'v0.9.0',mutation_enabled:true,replay_mode:'audit',tier:'NOMINAL',gate_checks:['constitution_version','key_rotation','ledger_integrity','mutation_engine','warm_pool','architect_invariants','platform_resources']},
@@ -491,7 +491,7 @@ const TOKEN_CAP=16000,TOKEN_WARN=12000,CONV_KEY='whaledic_v3_conv',EVENT_BUS_KEY
 let conv=[],totalTok=0,streaming=false,rs=null,missing=new Set(),reqTs=[],ledgerOff=0,whCount=0;
 let llmCfg={provider:'groq',groqKey:'',ollamaModel:'llama3.2'};
 let selProvider='groq';
-let eventBus=[],eventBusFilter='all',eventBusExpanded=false;
+let eventBus=[],eventBusFilter='all',eventBusExpanded=false,eventBusSeq=0;
 let dorkSeedAutoStarted=false;
 
 // ── ADAAD STATE BUS (Phase 101 L1) ───────────────────────────────
@@ -577,9 +577,35 @@ function restoreEventBus(){
       type:ev.type||'event',
       severity:normSev(ev.severity),
       message:String(ev.message||''),
-      meta:ev.meta&&typeof ev.meta==='object'?ev.meta:{}
+      meta:ev.meta&&typeof ev.meta==='object'?ev.meta:{},
+      local_seq:Number(ev.local_seq||0),
+      transient:!!ev.transient
     }));
+    eventBusSeq=eventBus.reduce((mx,ev)=>Math.max(mx,Number(ev.local_seq||0)),0);
   }catch(_){}
+}
+function dedupeKey(ev){
+  const meta=(ev&&ev.meta&&typeof ev.meta==='object')?ev.meta:{};
+  return [String(meta.correlation_id||''),String(ev.type||''),String(ev.source||'')].join('|');
+}
+function eventSortKey(ev){
+  const meta=(ev&&ev.meta&&typeof ev.meta==='object')?ev.meta:{};
+  const seq=Number(meta.seq||0);
+  if(Number.isFinite(seq)&&seq>0)return seq*1000000;
+  const t=Date.parse(String(ev.ts||''))||0;
+  return t*1000+Number(ev.local_seq||0);
+}
+function upsertBusEvent(ev){
+  const key=dedupeKey(ev);
+  if(key!=='||'){
+    const idx=eventBus.findIndex(x=>dedupeKey(x)===key);
+    if(idx>=0){eventBus[idx]={...eventBus[idx],...ev,transient:false};return;}
+  }
+  eventBus.push(ev);
+  if(eventBus.length>EVENT_BUS_MAX){
+    eventBus.sort((a,b)=>eventSortKey(b)-eventSortKey(a));
+    eventBus=eventBus.slice(0,EVENT_BUS_MAX);
+  }
 }
 function eventVisible(ev){
   if(eventBusFilter==='all')return true;
@@ -600,7 +626,7 @@ function renderEventBus(){
   ];
   chips.innerHTML=defs.map(f=>'<button class="ebus-chip '+(eventBusFilter===f.id?'act':'')+'" onclick="setBusFilter(\''+f.id+'\')">'+f.label+'</button>').join('');
   tog.textContent=eventBusExpanded?'collapse':'expand';
-  const visible=eventBus.filter(eventVisible);
+  const visible=eventBus.slice().sort((a,b)=>eventSortKey(b)-eventSortKey(a)).filter(eventVisible);
   const rows=(eventBusExpanded?visible:visible.slice(0,EVENT_BUS_COMPACT_N))
     .map(ev=>{
       const meta=(ev.meta&&Object.keys(ev.meta).length)?' · '+esc(JSON.stringify(ev.meta)):'';
@@ -611,9 +637,11 @@ function renderEventBus(){
 function setBusFilter(v){eventBusFilter=v;renderEventBus();}
 function toggleBusExpand(){eventBusExpanded=!eventBusExpanded;renderEventBus();}
 function bus(type,message,meta={},source='ui',severity='info'){
-  const ev={ts:new Date().toISOString(),source,type,severity:normSev(severity||type),message:String(message||''),meta:(meta&&typeof meta==='object')?meta:{}};
-  eventBus.unshift(ev);
-  if(eventBus.length>EVENT_BUS_MAX)eventBus.length=EVENT_BUS_MAX;
+  eventBusSeq+=1;
+  const m=(meta&&typeof meta==='object')?{...meta}:{};
+  if(!m.correlation_id)m.correlation_id='local-'+String(eventBusSeq);
+  const ev={ts:new Date().toISOString(),source,type,severity:normSev(severity||type),message:String(message||''),meta:m,local_seq:eventBusSeq,transient:true};
+  upsertBusEvent(ev);
   persistEventBus();
   renderEventBus();
 }
@@ -1063,7 +1091,35 @@ async function refreshAll(){
 
 async function loadMoreLedger(){ledgerOff+=50;const d=await apiFetch(ROUTES.ledger+'&offset='+ledgerOff,MOCK.ledger);renderLedger(d,true);}
 function simWH(){const t=['push','pull_request','check_run','issue_comment','pull_request_review'];const type=t[Math.floor(Math.random()*t.length)];const ts=new Date().toLocaleTimeString();['wh-overview','wh-full'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const row=document.createElement('div');row.className='wh-row';row.innerHTML='<span class="wh-type">'+type+'</span><span class="wh-desc">InnovativeAI-adaad/adaad</span><span class="wh-ts">'+ts+'</span><span class="tag tag-a">sim</span>';el.insertBefore(row,el.firstChild);});whCount++;document.getElementById('sb-wh').textContent=whCount;bus('wh_sim',type,{},'provider','info');}
-function startSSE(){try{const src=new EventSource(ROUTES.whStream);src.onmessage=e=>{try{const d=JSON.parse(e.data);if(d.type==='connected'){bus('sse','connected',{},'provider','success');return;}['wh-overview','wh-full'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const row=document.createElement('div');row.className='wh-row';const t=String(d.event||'\u2014').replace('github_webhook_','');row.innerHTML='<span class="wh-type">'+esc(t)+'</span><span class="wh-desc">'+esc(d.repo||'\u2014')+'</span><span class="wh-ts">live</span><span class="tag tag-w">sse</span>';el.insertBefore(row.cloneNode(true),el.firstChild);});whCount++;document.getElementById('sb-wh').textContent=whCount;}catch(_){}};src.onerror=()=>{bus('sse_err','closed',{},'provider','error');src.close();};}catch(e){bus('sse_unavail',e.message,{},'provider','error');}}
+function startSSE(){
+  try{
+    const whSrc=new EventSource(ROUTES.whStream);
+    whSrc.onmessage=e=>{try{const d=JSON.parse(e.data);if(d.type==='connected'){bus('sse','connected',{},'provider','success');return;}['wh-overview','wh-full'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const row=document.createElement('div');row.className='wh-row';const t=String(d.event||'\u2014').replace('github_webhook_','');row.innerHTML='<span class="wh-type">'+esc(t)+'</span><span class="wh-desc">'+esc(d.repo||'\u2014')+'</span><span class="wh-ts">live</span><span class="tag tag-w">sse</span>';el.insertBefore(row.cloneNode(true),el.firstChild);});whCount++;document.getElementById('sb-wh').textContent=whCount;}catch(_){}};whSrc.onerror=()=>{bus('sse_err','closed',{},'provider','error');whSrc.close();};
+  }catch(e){bus('sse_unavail',e.message,{},'provider','error');}
+  try{
+    const dorkSrc=new EventSource(ROUTES.dorkEventStream);
+    dorkSrc.addEventListener('dork_event',e=>{
+      try{
+        const frame=JSON.parse(e.data||'{}');
+        const item=frame&&frame.event?frame.event:null;
+        if(!item)return;
+        upsertBusEvent({
+          ts:item.ts||new Date().toISOString(),
+          source:item.source||'dork',
+          type:item.event_type||'event',
+          severity:normSev(item.severity),
+          message:'ledger_event',
+          meta:{...(item.payload&&typeof item.payload==='object'?item.payload:{}),correlation_id:item.correlation_id||'',seq:Number(item.seq||0),epoch_id:item.epoch_id||''},
+          local_seq:0,
+          transient:false
+        });
+        persistEventBus();
+        renderEventBus();
+      }catch(_){}
+    });
+    dorkSrc.onerror=()=>{bus('dork_sse_err','closed',{},'provider','warn');dorkSrc.close();};
+  }catch(e){bus('dork_sse_unavail',e.message,{},'provider','warn');}
+}
 function exportSnapshot(){if(!rs){bus('export','no state',{},'replay','warn');return;}const pl={ts:new Date().toISOString(),runtime:rs,state_bus:window.ADAAD_STATE_BUS};const bl=new Blob([JSON.stringify(pl,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='whaledic_snapshot_'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),200);bus('export','saved',{},'replay','success');}
 function toggleFocus(){document.querySelector('.shell').classList.toggle('focus');bus('mode',document.querySelector('.shell').classList.contains('focus')?'focus_on':'focus_off',{},'ui','info');}
 function openPalette(){document.getElementById('pal-wrap').style.display='flex';renderPal('');setTimeout(()=>document.getElementById('pal-inp').focus(),20);}
