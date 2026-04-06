@@ -952,6 +952,31 @@
     { label: "seed outcome",     query: "seed graduation outcome",       group: "strategy" },
   ];
 
+  // ── State Bus Bridge (cross-tab continuity) ─────────────────────────
+  const ADAAD_STATE_BUS_CHANNEL = "adaad_state_bus";
+  const ADAAD_STATE_BUS_SNAPSHOT_KEY = "adaad_state_bus_snapshot";
+  const adaadStateBridge = (() => {
+    let channel = null;
+    try {
+      if (typeof BroadcastChannel !== "undefined") {
+        channel = new BroadcastChannel(ADAAD_STATE_BUS_CHANNEL);
+      }
+    } catch (_) {}
+    return {
+      applyPatch(patch) {
+        if (!patch || typeof patch !== "object") return;
+        const merged = Object.freeze({ ...(window.ADAAD_STATE_BUS || {}), ...patch });
+        window.ADAAD_STATE_BUS = merged;
+        try {
+          window.localStorage?.setItem(ADAAD_STATE_BUS_SNAPSHOT_KEY, JSON.stringify(merged));
+        } catch (_) {}
+        try {
+          channel?.postMessage({ type: "state_bus_patch", patch, ts: new Date().toISOString(), source: "aponi_oracle" });
+        } catch (_) {}
+      },
+    };
+  })();
+
   function renderOracleAnswer(resultEl, data) {
     const ans = data.answer || {};
     const vp  = data.vision_projection || null;
@@ -1189,7 +1214,7 @@
         innState.oracleVision = data.vision_projection || null;
         renderOracleAnswer(resultEl, data);
 
-        // Phase 95 BRIDGE-STATE-0: write to ADAAD_STATE_BUS for Dork
+        // Phase 95 BRIDGE-STATE-0: write to ADAAD_STATE_BUS + cross-tab channel/snapshot for Dork
         if (typeof window.ADAAD_STATE_BUS !== "undefined") {
           const summary = data.answer && data.answer.message ? data.answer.message.slice(0, 200) : "";
           const patch = {
@@ -1198,11 +1223,7 @@
             oracle_last_answer_summary: summary,
             oracle_last_at_iso: new Date().toISOString(),
           };
-          if (window.ADAAD_STATE_BUS) {
-            window.ADAAD_STATE_BUS = Object.freeze({ ...window.ADAAD_STATE_BUS, ...patch });
-          } else {
-            window.ADAAD_STATE_BUS = Object.freeze(patch);
-          }
+          adaadStateBridge.applyPatch(patch);
         }
       } catch(e) {
         // Demo fallback — structured render
