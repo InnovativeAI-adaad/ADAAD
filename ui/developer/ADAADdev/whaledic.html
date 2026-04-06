@@ -497,17 +497,60 @@ let dorkSeedAutoStarted=false;
 // ── ADAAD STATE BUS (Phase 101 L1) ───────────────────────────────
 window.ADAAD_STATE_BUS=null;
 const ADAAD_STATE_BUS_CHANNEL='adaad_state_bus';
-const ADAAD_STATE_BUS_SNAPSHOT_KEY='adaad_state_bus_snapshot';
+const ADAAD_STATE_BUS_SNAPSHOT_KEY='adaad_state_bus_snapshot_v2';
+const ADAAD_STATE_BUS_SCHEMA_VERSION='2.0.0';
+const ADAAD_STATE_SESSION_ENDPOINT='/api/session/context';
 let stateBusChannel=null;
 try{if(typeof BroadcastChannel!=='undefined')stateBusChannel=new BroadcastChannel(ADAAD_STATE_BUS_CHANNEL);}catch(_){}
+function majorOf(ver){return String(ver||'0').split('.')[0];}
+function normalizeWarnings(raw){if(!Array.isArray(raw))return[];return raw.map(v=>v==null?'':String(v).trim()).filter(Boolean).slice(0,16);}
+function migrateStateBusSnapshot(raw){
+  if(!raw||typeof raw!=='object')return null;
+  const incomingSchema=String(raw.schema_version||'1.0.0');
+  if(majorOf(incomingSchema)!==majorOf(ADAAD_STATE_BUS_SCHEMA_VERSION))return null;
+  const src=raw.context&&typeof raw.context==='object'?raw.context:raw;
+  return {
+    schema_version:ADAAD_STATE_BUS_SCHEMA_VERSION,
+    captured_at_iso:src.captured_at_iso||new Date().toISOString(),
+    oracle_last_query:src.oracle_last_query||'',
+    oracle_last_query_type:src.oracle_last_query_type||'generic',
+    oracle_last_answer_summary:src.oracle_last_answer_summary||'',
+    oracle_last_at_iso:src.oracle_last_at_iso||'',
+    epoch_replay:{
+      epoch:(src.epoch_replay&&src.epoch_replay.epoch)||'',
+      replay_score:(src.epoch_replay&&src.epoch_replay.replay_score)??null,
+    },
+    provider_status:{
+      selected_provider:(src.provider_status&&src.provider_status.selected_provider)||'unknown',
+      health:(src.provider_status&&src.provider_status.health)||'unknown',
+    },
+    dork_last_fingerprint:{
+      prompt_sha1:(src.dork_last_fingerprint&&src.dork_last_fingerprint.prompt_sha1)||'',
+      result_sha1:(src.dork_last_fingerprint&&src.dork_last_fingerprint.result_sha1)||'',
+      issued_at_iso:(src.dork_last_fingerprint&&src.dork_last_fingerprint.issued_at_iso)||'',
+    },
+    governance_warnings:normalizeWarnings(src.governance_warnings),
+    dork_last:src.dork_last||null,
+  };
+}
 function applyStateBusPatch(patch,meta={}){
   if(!patch||typeof patch!=='object')return;
-  window.ADAAD_STATE_BUS=Object.freeze({...(window.ADAAD_STATE_BUS||{}), ...patch});
+  const merged={...(window.ADAAD_STATE_BUS||{}), ...patch};
+  const next=migrateStateBusSnapshot({context:merged});
+  if(!next)return;
+  window.ADAAD_STATE_BUS=Object.freeze(next);
   try{localStorage.setItem(ADAAD_STATE_BUS_SNAPSHOT_KEY,JSON.stringify(window.ADAAD_STATE_BUS));}catch(_){}
+  if(meta.persistRemote!==false){
+    fetch(ADAAD_STATE_SESSION_ENDPOINT,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({schema_version:ADAAD_STATE_BUS_SCHEMA_VERSION,context:window.ADAAD_STATE_BUS})
+    }).catch(()=>{});
+  }
   if(meta.emitBus!==false)bus('state_bus_apply',meta.source||'unknown');
 }
 function updateBus(patch){
-  const fullPatch={...patch,captured_at_iso:new Date().toISOString(),schema_version:'1.0.0'};
+  const fullPatch={...patch,captured_at_iso:new Date().toISOString(),schema_version:ADAAD_STATE_BUS_SCHEMA_VERSION};
   applyStateBusPatch(fullPatch,{source:'local_update',emitBus:false});
 }
 function hydrateStateBusFromSnapshot(){
@@ -515,10 +558,22 @@ function hydrateStateBusFromSnapshot(){
     const snap=localStorage.getItem(ADAAD_STATE_BUS_SNAPSHOT_KEY);
     if(!snap)return;
     const parsed=JSON.parse(snap);
-    if(parsed&&typeof parsed==='object'){
-      applyStateBusPatch(parsed,{source:'snapshot'});
+    const migrated=migrateStateBusSnapshot(parsed);
+    if(migrated){
+      applyStateBusPatch(migrated,{source:'snapshot',persistRemote:false});
       bus('state_bus_recv','snapshot_hydrate');
     }
+  }catch(_){}
+}
+async function hydrateStateBusFromBackendSession(){
+  try{
+    const resp=await fetch(ADAAD_STATE_SESSION_ENDPOINT,{headers:{'Accept':'application/json'}});
+    if(!resp.ok)return;
+    const payload=await resp.json();
+    const migrated=migrateStateBusSnapshot(payload);
+    if(!migrated)return;
+    applyStateBusPatch(migrated,{source:'backend_session',persistRemote:false});
+    bus('state_bus_recv','backend_session');
   }catch(_){}
 }
 function subscribeStateBusChannel(){
@@ -619,6 +674,12 @@ function bus(type,message,meta={},source='ui',severity='info'){
 }
 function rateGated(){const n=Date.now();reqTs=reqTs.filter(t=>n-t<60000);return reqTs.length>=25}
 function estTok(s){return Math.ceil(String(s).length/4)}
+function fingerprint(text){
+  let h=2166136261;
+  const s=String(text||'');
+  for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}
+  return 'fnv1a:'+((h>>>0).toString(16).padStart(8,'0'));
+}
 function showView(n){document.querySelectorAll('[id^="v-"]').forEach(v=>v.style.display='none');const e=document.getElementById('v-'+n);if(e)e.style.display='';document.querySelectorAll('.sb-item[data-v]').forEach(s=>s.classList.remove('act'));const s=document.querySelector('.sb-item[data-v="'+n+'"]');if(s)s.classList.add('act')}
 document.querySelectorAll('.sb-item[data-v]').forEach(el=>el.addEventListener('click',()=>showView(el.dataset.v)));
 async function apiFetch(url,fb=null){
@@ -853,7 +914,19 @@ async function sendDork(){
     totalTok+=estTok(msg)+estTok(full);
     if(totalTok>TOKEN_WARN)document.getElementById('w-tok').style.display='block';
     persistConv();
-    updateBus({dork_last:{q:msg.slice(0,120),a:full.slice(0,200),ts:new Date().toISOString()}});
+    const nowIso=new Date().toISOString();
+    const governanceWarnings=[];
+    if(rs&&rs.gov&&rs.gov.locked)governanceWarnings.push('Gate locked');
+    if(rs&&rs.ready&&Array.isArray(rs.ready.blockers)&&rs.ready.blockers.length){
+      governanceWarnings.push('Readiness blockers: '+rs.ready.blockers.join(', '));
+    }
+    updateBus({
+      dork_last:{q:msg.slice(0,120),a:full.slice(0,200),ts:nowIso},
+      dork_last_fingerprint:{prompt_sha1:fingerprint(msg),result_sha1:fingerprint(full),issued_at_iso:nowIso},
+      epoch_replay:{epoch:(rs&&rs.epoch&&rs.epoch.epoch)||'',replay_score:(rs&&rs.rep&&rs.rep.score)??null},
+      provider_status:{selected_provider:llmCfg.provider||'unknown',health:(llmCfg.provider==='groq'&&!llmCfg.groqKey)?'degraded':'ok'},
+      governance_warnings:governanceWarnings,
+    });
   }
 }
 
@@ -921,6 +994,7 @@ function autostartDorkSeed(){
   dorkSeedAutoStarted=true;
   inp.value=seeded;
   ar(inp);
+  updateBus({dork_last_fingerprint:{prompt_sha1:fingerprint(seeded),result_sha1:'',issued_at_iso:new Date().toISOString()}});
   bus('bridge','dork_seed autostart');
   sendDork();
 }
@@ -1053,6 +1127,9 @@ async function refreshAll(){
     governance:{gate_ok:!(g&&g.locked),tier:g&&g.tier,constitution_version:g&&g.constitution_version,mutation_enabled:g&&g.mutation_enabled},
     epoch:{id:'epoch-'+((ep&&ep.epoch)||0),phase:ep&&ep.phase},
     replay:{score:(r&&r.score)||1.0,divergence:(r&&r.divergence)||0,mode:r&&r.mode},
+    epoch_replay:{epoch:(ep&&ep.epoch)||'',replay_score:(r&&r.score)??null},
+    provider_status:{selected_provider:llmCfg.provider||'unknown',health:(llmCfg.provider==='groq'&&!llmCfg.groqKey)?'degraded':'ok'},
+    governance_warnings:[...(g&&g.locked?['Gate locked']:[]),...((rd&&rd.blockers&&rd.blockers.length)?['Readiness blockers: '+rd.blockers.join(', ')]:[])],
     agents:{architect_health:ag&&ag.agents&&ag.agents.architect&&ag.agents.architect.status,dream_health:ag&&ag.agents&&ag.agents.dream&&ag.agents.dream.status,beast_health:ag&&ag.agents&&ag.agents.beast&&ag.agents.beast.status},
     readiness:{score:(rd&&rd.readiness_score)||0,blockers:(rd&&rd.blockers)||[]},
     phase_context:{active_phase:'phase95_oracle_dork',next_pr:'PR-95-COMPLETE',open_findings:[]}
@@ -1076,6 +1153,7 @@ document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLower
 loadCfg();
 (()=>{const lb={groq:'groq',ollama:'ollama',dorkengine:'engine'};document.getElementById('prov-btn').textContent='\u2699 '+(lb[llmCfg.provider]||'groq');document.getElementById('intro-badge').textContent=lb[llmCfg.provider]||'groq';if(!llmCfg.groqKey&&llmCfg.provider==='groq'){setTimeout(()=>{document.getElementById('w-llm').style.display='block';},1500);}})();
 hydrateStateBusFromSnapshot();
+hydrateStateBusFromBackendSession();
 subscribeStateBusChannel();
 restoreConv();restoreEventBus();renderEventBus();renderDebt();refreshAll();startSSE();setInterval(refreshAll,30000);
 applyProviderBadges(llmCfg.provider);

@@ -954,22 +954,81 @@
 
   // ── State Bus Bridge (cross-tab continuity) ─────────────────────────
   const ADAAD_STATE_BUS_CHANNEL = "adaad_state_bus";
-  const ADAAD_STATE_BUS_SNAPSHOT_KEY = "adaad_state_bus_snapshot";
+  const ADAAD_STATE_BUS_SNAPSHOT_KEY = "adaad_state_bus_snapshot_v2";
+  const ADAAD_STATE_BUS_SCHEMA_VERSION = "2.0.0";
+  const ADAAD_STATE_SESSION_ENDPOINT = "/api/session/context";
   const adaadStateBridge = (() => {
     let channel = null;
+    let backendWriteTimer = null;
     try {
       if (typeof BroadcastChannel !== "undefined") {
         channel = new BroadcastChannel(ADAAD_STATE_BUS_CHANNEL);
       }
     } catch (_) {}
+    function majorOf(ver) {
+      return String(ver || "0").split(".")[0];
+    }
+    function normalizeWarnings(raw) {
+      if (!Array.isArray(raw)) return [];
+      return raw.map((entry) => (entry == null ? "" : String(entry).trim())).filter(Boolean).slice(0, 16);
+    }
+    function migrateSnapshot(rawSnapshot) {
+      if (!rawSnapshot || typeof rawSnapshot !== "object") return null;
+      const incomingSchema = String(rawSnapshot.schema_version || "1.0.0");
+      if (majorOf(incomingSchema) !== majorOf(ADAAD_STATE_BUS_SCHEMA_VERSION)) return null;
+      const source = rawSnapshot.context && typeof rawSnapshot.context === "object"
+        ? rawSnapshot.context
+        : rawSnapshot;
+      return {
+        schema_version: ADAAD_STATE_BUS_SCHEMA_VERSION,
+        captured_at_iso: source.captured_at_iso || new Date().toISOString(),
+        oracle_last_query: source.oracle_last_query || "",
+        oracle_last_query_type: source.oracle_last_query_type || "generic",
+        oracle_last_answer_summary: source.oracle_last_answer_summary || "",
+        oracle_last_at_iso: source.oracle_last_at_iso || "",
+        epoch_replay: {
+          epoch: (source.epoch_replay && source.epoch_replay.epoch) || "",
+          replay_score: (source.epoch_replay && source.epoch_replay.replay_score) ?? null,
+        },
+        provider_status: {
+          selected_provider: (source.provider_status && source.provider_status.selected_provider) || "unknown",
+          health: (source.provider_status && source.provider_status.health) || "unknown",
+        },
+        dork_last_fingerprint: {
+          prompt_sha1: (source.dork_last_fingerprint && source.dork_last_fingerprint.prompt_sha1) || "",
+          result_sha1: (source.dork_last_fingerprint && source.dork_last_fingerprint.result_sha1) || "",
+          issued_at_iso: (source.dork_last_fingerprint && source.dork_last_fingerprint.issued_at_iso) || "",
+        },
+        governance_warnings: normalizeWarnings(source.governance_warnings),
+      };
+    }
+    function buildVersionedState(patch) {
+      const merged = { ...(window.ADAAD_STATE_BUS || {}), ...(patch || {}) };
+      return Object.freeze(migrateSnapshot({ context: merged }) || {});
+    }
+    function queueBackendWrite(state) {
+      if (!state || !state.schema_version) return;
+      if (backendWriteTimer) clearTimeout(backendWriteTimer);
+      backendWriteTimer = setTimeout(async () => {
+        try {
+          await fetch(ADAAD_STATE_SESSION_ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ schema_version: ADAAD_STATE_BUS_SCHEMA_VERSION, context: state }),
+          });
+        } catch (_) {}
+      }, 200);
+    }
     return {
       applyPatch(patch) {
         if (!patch || typeof patch !== "object") return;
-        const merged = Object.freeze({ ...(window.ADAAD_STATE_BUS || {}), ...patch });
+        const merged = buildVersionedState(patch);
+        if (!merged || !merged.schema_version) return;
         window.ADAAD_STATE_BUS = merged;
         try {
           window.localStorage?.setItem(ADAAD_STATE_BUS_SNAPSHOT_KEY, JSON.stringify(merged));
         } catch (_) {}
+        queueBackendWrite(merged);
         try {
           channel?.postMessage({ type: "state_bus_patch", patch, ts: new Date().toISOString(), source: "aponi_oracle" });
         } catch (_) {}
@@ -1049,7 +1108,19 @@
     dorkBtn.onclick = () => {
       if (ans._isDemo) return;
       const summary = (ans.message || "").slice(0, 200);
-      window.open(`whaledic.html?dork_seed=${encodeURIComponent(summary)}`, "_blank");
+      const currentBus = window.ADAAD_STATE_BUS || {};
+      adaadStateBridge.applyPatch({
+        dork_last_fingerprint: {
+          prompt_sha1: `seed:${summary.slice(0, 96)}`,
+          result_sha1: "",
+          issued_at_iso: new Date().toISOString(),
+        },
+        epoch_replay: {
+          epoch: (currentBus.epoch_replay && currentBus.epoch_replay.epoch) || (currentBus.epoch && currentBus.epoch.epoch) || "",
+          replay_score: (currentBus.epoch_replay && currentBus.epoch_replay.replay_score) ?? (currentBus.replay && currentBus.replay.score) ?? null,
+        },
+      });
+      window.open(`../developer/ADAADdev/whaledic.html?dork_seed=${encodeURIComponent(summary)}`, "_blank");
     };
     s5.appendChild(dorkBtn);
     if (bus.epoch && bus.epoch.id) {
@@ -1217,11 +1288,25 @@
         // Phase 95 BRIDGE-STATE-0: write to ADAAD_STATE_BUS + cross-tab channel/snapshot for Dork
         if (typeof window.ADAAD_STATE_BUS !== "undefined") {
           const summary = data.answer && data.answer.message ? data.answer.message.slice(0, 200) : "";
+          const governanceWarnings = [];
+          if (bus.governance && bus.governance.gate_ok === false) governanceWarnings.push("Gate locked");
+          if (bus.readiness && Array.isArray(bus.readiness.blockers) && bus.readiness.blockers.length) {
+            governanceWarnings.push(`Readiness blockers: ${bus.readiness.blockers.join(", ")}`);
+          }
           const patch = {
             oracle_last_query: q.slice(0, 120),
             oracle_last_query_type: (data.answer && data.answer.query_type) || "generic",
             oracle_last_answer_summary: summary,
             oracle_last_at_iso: new Date().toISOString(),
+            epoch_replay: {
+              epoch: epochId || ((bus.epoch && bus.epoch.epoch) || ""),
+              replay_score: repScore === "" ? null : repScore,
+            },
+            provider_status: {
+              selected_provider: (bus.provider_status && bus.provider_status.selected_provider) || "unknown",
+              health: (bus.provider_status && bus.provider_status.health) || "unknown",
+            },
+            governance_warnings: governanceWarnings,
           };
           adaadStateBridge.applyPatch(patch);
         }
