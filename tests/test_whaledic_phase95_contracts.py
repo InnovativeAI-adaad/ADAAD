@@ -96,3 +96,24 @@ def test_intent_routing_and_deterministic_response_contract() -> None:
     assert "async function callDorkEngine(msgs,onChunk){" in html
     assert "const answer=DE.respond(lastUser?lastUser.content:'');" in html
     assert "const words=answer.split(' ');" in html
+
+
+def test_dork_trust_metadata_badge_and_event_envelope_contract() -> None:
+    """Each Dork answer includes trust metadata, a trust badge, and structured envelope persistence."""
+    html = _html()
+
+    assert "function buildTrustMetadata({providerUsed,requestedProvider,fallbackUsed,errorMessage=''}) {" in html
+    assert "data_sources_used:sources" in html
+    assert "snapshot_freshness:stale?'stale':'fresh'" in html
+    assert "mode," in html
+    assert "trust_score:trustScore" in html
+    assert "downgrade_reasons:downgradeReasons" in html
+
+    assert "function renderTrustBadge(metadata){" in html
+    assert "trust-badge" in html
+    assert "if(msgEl){" in html
+    assert "dt.insertAdjacentHTML('afterend',renderTrustBadge(trustMetadata));" in html
+
+    assert "emitStructuredDorkEvent(trustMetadata);" in html
+    assert "event_type:'dork_answer_generated'" in html
+    assert "payload:{trust_metadata:meta||{}}" in html

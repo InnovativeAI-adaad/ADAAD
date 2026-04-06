@@ -50,6 +50,9 @@ def test_executor_emits_dork_event_stream_for_oracle_history(tmp_path: Path) -> 
     assert bundle.intent == "open_oracle_history"
     assert bundle.response["record_count"] == 1
     assert bundle.marker.advisory_only is True
+    assert bundle.trust_metadata.mode == "retrieval"
+    assert bundle.trust_metadata.snapshot_freshness == "fresh"
+    assert bundle.trust_metadata.data_sources_used
 
     lines = event_stream_path.read_text(encoding="utf-8").splitlines()
     assert len(lines) == 1
@@ -57,3 +60,4 @@ def test_executor_emits_dork_event_stream_for_oracle_history(tmp_path: Path) -> 
     assert event["event_type"] == "dork_intent_executed.v1"
     assert event["intent"] == "open_oracle_history"
     assert event["bundle_digest"] == bundle.bundle_digest
+    assert event["trust_metadata"]["mode"] == "retrieval"

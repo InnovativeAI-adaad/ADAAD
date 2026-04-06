@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field, StrictBool, StrictStr
@@ -46,6 +47,19 @@ class DorkEvidenceRef(BaseModel):
     panel: StrictStr = Field(default="")
 
 
+class DorkTrustMetadata(BaseModel):
+    """Trust metadata attached to each Dork response bundle."""
+
+    data_sources_used: list[StrictStr] = Field(default_factory=list)
+    snapshot_timestamp: datetime
+    snapshot_freshness: Literal["fresh", "stale", "unknown"] = "unknown"
+    mode: Literal["deterministic", "retrieval", "heuristic"] = "deterministic"
+    confidence: float = Field(ge=0.0, le=1.0)
+    uncertainty_reasons: list[StrictStr] = Field(default_factory=list)
+    trust_score: float = Field(ge=0.0, le=1.0)
+    downgrade_reasons: list[StrictStr] = Field(default_factory=list)
+
+
 class DorkIntentBundle(BaseModel):
     """Deterministic response envelope returned to clients."""
 
@@ -56,3 +70,4 @@ class DorkIntentBundle(BaseModel):
     evidence_refs: list[DorkEvidenceRef]
     aponi_panels: list[StrictStr]
     bundle_digest: StrictStr
+    trust_metadata: DorkTrustMetadata

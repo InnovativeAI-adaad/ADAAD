@@ -21,8 +21,6 @@ def route_dork_intent(
     _ = auth_ctx
     decision = DorkIntentRouter().route(body)
     return DorkIntentExecutor().execute(request=body, decision=decision)
-from __future__ import annotations
-
 import asyncio
 import json
 from datetime import datetime, timezone
@@ -33,10 +31,8 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field
 
-from security.ledger.append import append_entry
 from security.ledger import journal
-
-router = APIRouter(tags=["ui"])
+from security.ledger.append import append_entry
 
 _DORK_EVENT_LEDGER_PATH = Path("security/ledger/dork_events.jsonl")
 _STREAM_SUBSCRIBERS: list[asyncio.Queue[dict[str, Any]]] = []
