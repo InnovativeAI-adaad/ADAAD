@@ -11,6 +11,7 @@ DorkIntentName = Literal[
     "prepare_mutation_review",
     "open_oracle_history",
     "generate_governance_brief",
+    "interpret_epoch_delta",
 ]
 
 
@@ -20,6 +21,8 @@ class DorkIntentRouteRequest(BaseModel):
     query: StrictStr = Field(min_length=1, max_length=512)
     limit: int = Field(default=25, ge=1, le=200)
     epoch_id: StrictStr = Field(default="")
+    before_snapshot: dict[str, Any] = Field(default_factory=dict)
+    after_snapshot: dict[str, Any] = Field(default_factory=dict)
 
 
 class DorkExecutionMarker(BaseModel):

@@ -18,6 +18,7 @@ from runtime.dork_event_stream import DorkEventStream
 from runtime.governance.human_approval_gate import HumanApprovalGate
 from runtime.oracle_ledger import OracleLedger
 from runtime.oracle_memory import summarize_oracle_memory
+from runtime.snapshot_delta import SnapshotDeltaInterpreter
 from runtime.system_status import read_gate_state
 
 
@@ -29,6 +30,7 @@ class DorkIntentRouter:
         ("prepare_mutation_review", ("mutation", "review", "approval", "trigger")),
         ("explain_blockers", ("blocker", "blocked", "why", "failing", "fail")),
         ("show_gate_status", ("gate", "status", "tier", "health", "replay")),
+        ("interpret_epoch_delta", ("what changed", "changed since", "last epoch", "delta", "difference")),
         ("generate_governance_brief", ("brief", "summary", "governance", "executive", "focus")),
     )
 
@@ -63,6 +65,7 @@ class DorkIntentExecutor:
         self._mutation_service = MutationOrchestrationService()
         self._approval_gate = HumanApprovalGate()
         self._oracle_ledger = OracleLedger()
+        self._delta_interpreter = SnapshotDeltaInterpreter()
 
     @staticmethod
     def _digest_bundle(payload: dict[str, Any]) -> str:
@@ -86,6 +89,16 @@ class DorkIntentExecutor:
             marker=decision.marker.model_dump(),
             evidence_refs=[f"{ref.source}:{ref.endpoint}" for ref in evidence_refs],
         )
+        if decision.intent == "interpret_epoch_delta":
+            interpretation_payload = response.get("interpretation") if isinstance(response, dict) else None
+            if isinstance(interpretation_payload, dict):
+                self._event_stream.append_snapshot_interpretation(
+                    query=decision.normalized_query,
+                    before_snapshot=request.before_snapshot or {},
+                    after_snapshot=request.after_snapshot or {},
+                    interpretation=interpretation_payload,
+                    bundle_digest=bundle_digest,
+                )
         return DorkIntentBundle(
             intent=decision.intent,
             marker=decision.marker,
@@ -150,6 +163,33 @@ class DorkIntentExecutor:
                 DorkEvidenceRef(source="app.orchestration.mutation_orchestration_service.MutationOrchestrationService.choose_transition", endpoint="/api/mutations/trigger-epoch", panel="/ui/aponi/index.html"),
                 DorkEvidenceRef(source="runtime.governance.human_approval_gate.HumanApprovalGate.pending_queue", endpoint="/api/governance/approvals/pending", panel="/ui/aponi/index.html"),
             ], "Mutation review packet prepared with actionable next step.", ["/ui/aponi/index.html"]
+
+
+        if intent == "interpret_epoch_delta":
+            before_snapshot = request.before_snapshot or {}
+            after_snapshot = request.after_snapshot or {}
+            if not after_snapshot:
+                after_snapshot = {
+                    "governance": read_gate_state(),
+                    "replay": {},
+                    "readiness": {},
+                    "mutation": {},
+                }
+            interpretation = self._delta_interpreter.interpret(before=before_snapshot, after=after_snapshot)
+            response = {
+                "interpretation": interpretation.to_dict(),
+                "card": {
+                    "title": "What changed since last epoch?",
+                    "risk_level": interpretation.risk_level,
+                    "impacted_subsystems": interpretation.impacted_subsystems,
+                    "likely_operator_actions": interpretation.likely_operator_actions[:3],
+                    "confidence_score": interpretation.confidence_score,
+                    "summary": interpretation.summary,
+                },
+            }
+            return response, [
+                DorkEvidenceRef(source="runtime.snapshot_delta.SnapshotDeltaInterpreter", endpoint="/api/dork/intents/route", panel="/ui/developer/ADAADdev/whaledic.html"),
+            ], "Semantic delta interpretation prepared for latest epoch transition.", ["/ui/developer/ADAADdev/whaledic.html"]
 
         if intent == "open_oracle_history":
             records = self._oracle_ledger.replay(limit=request.limit)

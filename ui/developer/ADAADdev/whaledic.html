@@ -240,6 +240,16 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .dcap-conf{font-family:var(--font-mono);font-size:8px;color:var(--whale)}
 .dcap-sum{font-size:10px;color:var(--text2);line-height:1.45}
 .dcap-meta{font-family:var(--font-mono);font-size:8px;color:var(--text3);margin-top:3px}
+.causal-panel{margin:0 0 6px;padding:7px;border:1px solid var(--border);border-radius:8px;background:var(--bg2);display:none}
+.causal-head{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:5px}
+.causal-title{font-family:var(--font-ui);font-size:10px;font-weight:700;color:var(--whale)}
+.causal-epoch{font-family:var(--font-mono);font-size:8px;color:var(--text3)}
+.causal-rows{display:flex;flex-direction:column;gap:4px}
+.causal-row{display:grid;grid-template-columns:1fr auto auto;gap:6px;align-items:center;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 6px}
+.causal-name{font-size:10px;color:var(--text2)}
+.causal-prob{font-family:var(--font-mono);font-size:8px;color:var(--amber)}
+.causal-score{font-family:var(--font-mono);font-size:8px;color:var(--whale)}
+.causal-link{margin-top:6px;font-family:var(--font-mono);font-size:8px;color:var(--text3)}
 /* ── CONFIG MODAL ───────────────────────────────────────────────── */
 .cfg-wrap{position:fixed;inset:0;background:rgba(4,6,13,0.82);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;z-index:50}
 .cfg-box{width:min(440px,92vw);background:var(--bg2);border:1px solid var(--border2);border-radius:14px;overflow:hidden;box-shadow:0 24px 72px rgba(0,0,0,0.55)}
@@ -407,6 +417,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   <div class="dork-inp-wrap">
     <div class="dchips" id="dork-chips"></div>
     <div class="dcap-wrap" id="dork-capability-cards"></div>
+    <div class="causal-panel" id="dork-causal-summary"></div>
+    <details class="causal-panel" id="dork-causal-detail">
+      <summary class="causal-title">causal graph details</summary>
+      <pre id="dork-causal-detail-body" style="margin-top:6px;white-space:pre-wrap;font-family:var(--font-mono);font-size:9px;color:var(--text2);line-height:1.55"></pre>
+    </details>
     <div class="warn-strip warn-tok" id="w-tok">&#9888; Token budget near limit &#x2014; context will be trimmed.</div>
     <div class="warn-strip warn-llm" id="w-llm">&#9889; No LLM key &#x2014; DorkEngine deterministic mode active.</div>
     <div class="warn-strip warn-oracle" id="w-oracle">&#128302; Oracle context loaded from state bus.</div>
@@ -491,7 +506,7 @@ const MOCK={
 const TOKEN_CAP=16000,TOKEN_WARN=12000,CONV_KEY='whaledic_v3_conv',EVENT_BUS_KEY='whaledic_event_bus_v1',EVENT_BUS_MAX=200,EVENT_BUS_COMPACT_N=6;
 
 // ── STATE ────────────────────────────────────────────────────────
-let conv=[],totalTok=0,streaming=false,rs=null,missing=new Set(),reqTs=[],ledgerOff=0,whCount=0;
+let conv=[],totalTok=0,streaming=false,rs=null,prevRs=null,missing=new Set(),reqTs=[],ledgerOff=0,whCount=0;
 const capabilityCards=[];
 let llmCfg={provider:'groq',groqKey:'',ollamaModel:'llama3.2'};
 let selProvider='groq';
@@ -1132,13 +1147,44 @@ function renderCapabilityCards(cards){
   }).join('');
 }
 
+function renderCausalGraphPanels(card){
+  const summary=document.getElementById('dork-causal-summary');
+  const detail=document.getElementById('dork-causal-detail');
+  const detailBody=document.getElementById('dork-causal-detail-body');
+  if(!summary||!detail||!detailBody)return;
+  const graph=card&&card.graph;
+  const top=(graph&&Array.isArray(graph.top_causes))?graph.top_causes:[];
+  if(!graph||!top.length){
+    summary.style.display='none';
+    detail.style.display='none';
+    detailBody.textContent='';
+    return;
+  }
+  const epochRefs=((graph.context&&graph.context.epoch_ids)||[]).slice(0,2).join(' · ')||'epoch:unavailable';
+  summary.style.display='block';
+  detail.style.display='block';
+  summary.innerHTML='<div class="causal-head"><span class="causal-title">causal graph summary (dork)</span><span class="causal-epoch">'+esc(epochRefs)+'</span></div>'
+    +'<div class="causal-rows">'
+    +top.map(item=>'<div class="causal-row"><span class="causal-name">#'+esc(String(item.rank))+' '+esc(item.cause||'cause')+'</span><span class="causal-prob">'+Math.round(Number(item.probability||0)*100)+'%</span><span class="causal-score">'+esc((item.evidence_links||[]).slice(0,1).join('')||'evidence: none')+'</span></div>').join('')
+    +'</div>'
+    +'<div class="causal-link">Mitigations available in dedicated panel below.</div>';
+  const full={
+    generated_at:new Date().toISOString(),
+    capability_id:card.capability_id,
+    summary:card.summary,
+    graph
+  };
+  detailBody.textContent=JSON.stringify(full,null,2);
+}
+
 function runCapabilityCard(query){
   const reg=window.DORK_CAPABILITY_REGISTRY;
   if(!reg||!rs)return null;
-  const card=reg.executeByQuery(query,{...rs,stateBus:window.ADAAD_STATE_BUS||{}});
+  const card=reg.executeByQuery(query,{...rs,before:prevRs||{},after:rs||{},stateBus:window.ADAAD_STATE_BUS||{}});
   if(!card)return null;
   capabilityCards.push(card);
   renderCapabilityCards(capabilityCards);
+  renderCausalGraphPanels(card);
   return card;
 }
 
@@ -1178,6 +1224,7 @@ function renderInsights(g,m,r,rd,ag){const agents=(ag&&ag.agents)||{};const heal
 // ── REFRESH ALL ──────────────────────────────────────────────────
 async function refreshAll(){
   const [g,m,r,ep,ag,ld,wh,rd]=await Promise.all([safe('governance','governance'),safe('mutations','mutations'),safe('replay','replay'),safe('epoch','epoch'),safe('agents','agents'),safe('ledger','ledger'),safe('webhooks','whRecent'),safe('readiness','readiness')]);
+  prevRs=rs?JSON.parse(JSON.stringify(rs)):prevRs;
   rs={gov:g,muts:m,rep:r,epoch:ep,agents:ag,ledger:ld,wh:wh,ready:rd};
   renderPills(g,r,ep,rd);renderRuntime(g,ep);renderStats(r,rd,ep);renderGate(g);
   renderMuts(m,'ml-overview');renderMuts(m,'ml-full');renderAgents(ag);renderLedger(ld);
