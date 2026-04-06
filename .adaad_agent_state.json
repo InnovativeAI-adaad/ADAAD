@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.58.0 RELEASED \u00b7 Phase 126 Red-Team prep",
+  "active_phase": "v9.58.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -448,8 +448,8 @@
       "version": "9.58.0"
     }
   },
-  "last_agent_state_sync_digest": "fix-sync-phase126-pre-2026-04-05",
-  "last_completed_phase": "Phase 125 \u00b7 Community Governance Infrastructure",
+  "last_agent_state_sync_digest": "gsync-905e24b359a13122",
+  "last_completed_phase": "Phase 05 \u00b7 Phase 125 \u00b7 Community Governance Infrastructure",
   "last_completed_pr": "feat/phase125-community-governance",
   "last_gate_results": {
     "tier_0": "pass",
@@ -459,9 +459,9 @@
   },
   "last_innovation": "INNOV-36",
   "last_innovation_name": "Deterministic Audit Sandbox",
-  "last_invocation": "2026-04-05",
+  "last_invocation": "2026-04-06",
   "last_phase_completed": 125,
-  "last_sync_sha": "518170f",
+  "last_sync_sha": "99defff",
   "last_updated": "2026-04-05",
   "next_phase": 126,
   "next_pr": "feat/phase126-red-team",
