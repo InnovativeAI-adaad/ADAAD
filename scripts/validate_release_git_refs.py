@@ -8,6 +8,7 @@ import json
 import re
 import subprocess
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -16,6 +17,20 @@ TEXT_SHA_RE = re.compile(
     r"(?i)(?:\b(?:commit|merge|release|head|base)[_ -]?sha\b|\bsha\b(?!256|512))"
     r"[^\n]{0,32}?\b([0-9a-f]{7,40})\b"
 )
+
+
+@dataclass(frozen=True)
+class GitDiffResult:
+    command: list[str]
+    paths: list[Path]
+
+
+@dataclass(frozen=True)
+class GitDiffError(Exception):
+    base_ref: str
+    command: list[str]
+    stderr: str
+    returncode: int
 
 
 def _git_ref_resolves(ref: str) -> bool:
@@ -91,19 +106,25 @@ def _iter_files(roots: Iterable[Path]) -> Iterable[Path]:
                 yield path
 
 
-def _git_diff_paths(base_ref: str | None, pathspecs: list[str]) -> list[Path]:
+def _git_diff_paths(base_ref: str | None, pathspecs: list[str]) -> GitDiffResult:
     diff_cmd = ["git", "diff", "--name-only", "--diff-filter=ACMRTUXB"]
-    diff_cmd.append(base_ref or "HEAD~1..HEAD")
+    resolved_base_ref = base_ref or "HEAD~1..HEAD"
+    diff_cmd.append(resolved_base_ref)
     diff_cmd.extend(["--", *pathspecs])
     result = subprocess.run(diff_cmd, capture_output=True, text=True, check=False)
     if result.returncode != 0:
-        return []
+        raise GitDiffError(
+            base_ref=resolved_base_ref,
+            command=diff_cmd,
+            stderr=result.stderr.strip(),
+            returncode=result.returncode,
+        )
     files: list[Path] = []
     for line in result.stdout.splitlines():
         path = Path(line.strip())
         if path.exists() and path.is_file():
             files.append(path)
-    return files
+    return GitDiffResult(command=diff_cmd, paths=files)
 
 
 def main() -> int:
@@ -132,14 +153,20 @@ def main() -> int:
     args = parser.parse_args()
 
     if args.mode == "changed":
-        files = sorted(
-            set(
-                _git_diff_paths(
-                    args.base_ref,
-                    ["docs/releases", "artifacts", "reports", "docs/governance/POST_PIPELINE_STRATEGIC_PLAN.md"],
-                )
+        try:
+            diff_result = _git_diff_paths(
+                args.base_ref,
+                ["docs/releases", "artifacts", "reports", "docs/governance/POST_PIPELINE_STRATEGIC_PLAN.md"],
             )
-        )
+        except GitDiffError as error:
+            command_text = " ".join(error.command)
+            stderr_text = error.stderr or "<empty>"
+            print("git diff failed while discovering changed release artifacts")
+            print(f" - base ref: {error.base_ref}")
+            print(f" - command: {command_text}")
+            print(f" - stderr: {stderr_text}")
+            return 1
+        files = sorted(set(diff_result.paths))
     else:
         files = sorted(set(_iter_files(Path(root) for root in args.roots)))
 
