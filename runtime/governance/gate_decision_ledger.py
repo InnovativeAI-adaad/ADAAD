@@ -291,16 +291,73 @@ class GateDecisionReader:
 
     def __init__(self, path: str | Path) -> None:
         self._path = Path(path)
+        self._cache_key: tuple[int, int, int] | None = None
+        self._cached_records: list[dict[str, Any]] | None = None
+        self._cached_aggregates: dict[str, Any] | None = None
+
+    def _file_cache_key(self) -> tuple[int, int, int] | None:
+        if not self._path.exists():
+            return None
+        stat = self._path.stat()
+        return (int(stat.st_ino), int(stat.st_mtime_ns), int(stat.st_size))
+
+    @staticmethod
+    def _compute_aggregates(records: list[dict[str, Any]]) -> dict[str, Any]:
+        approved_count = 0
+        decision_breakdown: dict[str, int] = {}
+        failed_rules_frequency: dict[str, int] = {}
+        trust_mode_breakdown: dict[str, int] = {}
+        human_override_count = 0
+        for rec in records:
+            if rec.get("approved", False):
+                approved_count += 1
+            decision_label = str(rec.get("decision") or "deny")
+            decision_breakdown[decision_label] = decision_breakdown.get(decision_label, 0) + 1
+            trust_mode_label = str(rec.get("trust_mode") or "standard")
+            trust_mode_breakdown[trust_mode_label] = trust_mode_breakdown.get(trust_mode_label, 0) + 1
+            if rec.get("human_override", False):
+                human_override_count += 1
+            for rule_id in rec.get("failed_rules") or []:
+                rule_id_s = str(rule_id)
+                failed_rules_frequency[rule_id_s] = failed_rules_frequency.get(rule_id_s, 0) + 1
+
+        total = len(records)
+        approval_rate = 1.0 if total == 0 else round(approved_count / total, 6)
+        return {
+            "approval_rate": approval_rate,
+            "rejection_rate": round(1.0 - approval_rate, 6),
+            "human_override_count": human_override_count,
+            "decision_breakdown": decision_breakdown,
+            "failed_rules_frequency": failed_rules_frequency,
+            "trust_mode_breakdown": trust_mode_breakdown,
+        }
+
+    def _records_and_aggregates(self) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+        cache_key = self._file_cache_key()
+        if (
+            self._cache_key == cache_key
+            and self._cached_records is not None
+            and self._cached_aggregates is not None
+        ):
+            return self._cached_records, self._cached_aggregates
+
+        if cache_key is None:
+            records: list[dict[str, Any]] = []
+        else:
+            records = []
+            with self._path.open("r", encoding="utf-8") as fh:
+                for line in fh:
+                    line = line.strip()
+                    if line:
+                        records.append(json.loads(line))
+        aggregates = self._compute_aggregates(records)
+        self._cache_key = cache_key
+        self._cached_records = records
+        self._cached_aggregates = aggregates
+        return records, aggregates
 
     def _records(self) -> list[dict[str, Any]]:
-        if not self._path.exists():
-            return []
-        records: list[dict[str, Any]] = []
-        with self._path.open("r", encoding="utf-8") as fh:
-            for line in fh:
-                line = line.strip()
-                if line:
-                    records.append(json.loads(line))
+        records, _ = self._records_and_aggregates()
         return records
 
     def history(
@@ -330,43 +387,45 @@ class GateDecisionReader:
 
         Returns ``1.0`` on empty history (no denials → healthy).
         """
-        recs = self._records()
-        if not recs:
-            return 1.0
-        approved = sum(1 for r in recs if r.get("approved", False))
-        return round(approved / len(recs), 6)
+        _, aggregates = self._records_and_aggregates()
+        return float(aggregates["approval_rate"])
 
     def rejection_rate(self) -> float:
         """Fraction of gate decisions that were denied (1.0 - approval_rate)."""
-        return round(1.0 - self.approval_rate(), 6)
+        _, aggregates = self._records_and_aggregates()
+        return float(aggregates["rejection_rate"])
 
     def decision_breakdown(self) -> dict[str, int]:
         """Count decisions by decision label (pass / deny / override_pass / …)."""
-        breakdown: dict[str, int] = {}
-        for rec in self._records():
-            label = str(rec.get("decision") or "deny")
-            breakdown[label] = breakdown.get(label, 0) + 1
-        return breakdown
+        _, aggregates = self._records_and_aggregates()
+        return dict(aggregates["decision_breakdown"])
 
     def failed_rules_frequency(self) -> dict[str, int]:
         """Count how many times each rule_id appears in failed_rules."""
-        freq: dict[str, int] = {}
-        for rec in self._records():
-            for rule_id in rec.get("failed_rules") or []:
-                freq[str(rule_id)] = freq.get(str(rule_id), 0) + 1
-        return freq
+        _, aggregates = self._records_and_aggregates()
+        return dict(aggregates["failed_rules_frequency"])
 
     def human_override_count(self) -> int:
         """Number of decisions where human_override=True."""
-        return sum(1 for r in self._records() if r.get("human_override", False))
+        _, aggregates = self._records_and_aggregates()
+        return int(aggregates["human_override_count"])
 
     def trust_mode_breakdown(self) -> dict[str, int]:
         """Count decisions by trust_mode label."""
-        breakdown: dict[str, int] = {}
-        for rec in self._records():
-            mode = str(rec.get("trust_mode") or "standard")
-            breakdown[mode] = breakdown.get(mode, 0) + 1
-        return breakdown
+        _, aggregates = self._records_and_aggregates()
+        return dict(aggregates["trust_mode_breakdown"])
+
+    def common_aggregates(self) -> dict[str, Any]:
+        """Return a snapshot of common aggregate metrics in one pass."""
+        _, aggregates = self._records_and_aggregates()
+        return {
+            "approval_rate": float(aggregates["approval_rate"]),
+            "rejection_rate": float(aggregates["rejection_rate"]),
+            "human_override_count": int(aggregates["human_override_count"]),
+            "decision_breakdown": dict(aggregates["decision_breakdown"]),
+            "failed_rules_frequency": dict(aggregates["failed_rules_frequency"]),
+            "trust_mode_breakdown": dict(aggregates["trust_mode_breakdown"]),
+        }
 
     def verify_chain(self) -> bool:
         """Verify the on-disk hash chain.  Returns True if intact."""
