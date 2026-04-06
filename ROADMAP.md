@@ -186,8 +186,8 @@ from adaad_core import verify_ledger
 
 ### Phase 125 — Community Governance Infrastructure
 
-**Target:** v9.58.0 · **Branch:** `feat/community-governance` · **Track:** A (infrastructure) + B (ratification process)  
-**Status:** 🔜 planned · **Dependency:** Phase 124 shipped
+**Target:** v9.58.0 · **Branch:** `feat/phase125-community-governance` · **Track:** A (infrastructure) + B (ratification process)  
+**Status:** ✅ shipped · v9.58.0 · 2026-04-05 · 30/30 tests · ILA-125-2026-04-05-001
 
 Opens the constitutional amendment process to community participation while preserving FGCON quorum and HUMAN-0 ratification invariants.
 

@@ -1,0 +1,29 @@
+{
+  "phase": 125,
+  "test_file": "tests/test_phase125_community_governance.py",
+  "test_count": 30,
+  "result": "30/30 PASS",
+  "date": "2026-04-05",
+  "categories": {
+    "COMM": {
+      "range": "T125-COMM-01..T125-COMM-12",
+      "description": "validate_amendment_proposal.py logic — ID extraction, rationale word count, class detection, FGCON checkbox enforcement, auto-ratification claim rejection, result schema"
+    },
+    "TMPL": {
+      "range": "T125-TMPL-13..T125-TMPL-17",
+      "description": "Issue template structure — existence, frontmatter, required sections, FGCON checkboxes, no forbidden phrases"
+    },
+    "WFLOW": {
+      "range": "T125-WFLOW-18..T125-WFLOW-22",
+      "description": "CI workflow structural integrity — existence, trigger events, validator invocation, failure labelling, FGCON quorum job"
+    },
+    "DOCS": {
+      "range": "T125-DOCS-23..T125-DOCS-27",
+      "description": "Documentation integrity — CONSTITUTION_PROPOSALS.md lifecycle, invariant definitions, GOVERNANCE_PARTICIPATION.md coverage"
+    },
+    "INV": {
+      "range": "T125-INV-28..T125-INV-30",
+      "description": "Constitutional invariant assertions — no self-ratification path, no autonomous merge, governance artifact integrity"
+    }
+  }
+}
