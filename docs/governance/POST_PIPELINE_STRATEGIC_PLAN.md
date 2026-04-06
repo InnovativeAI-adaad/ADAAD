@@ -389,6 +389,12 @@ Upon ceremony completion:
 - `break-it` GitHub Issue label
 - Challenge announcement draft (marketing artifact)
 
+**2026-04-06 audit note:** The reported branch/commit pair `feat/phase126-red-team` @ `9af28a1`
+was not found in this workspace. Current red-team implementation/test assets resolve at
+`runtime/analysis/redteam_harness.py`, `runtime/innovations30/red_team_agent.py`,
+`tests/security/test_redteam_harness.py`, and `experiments/redteam/scenarios.json`.
+See `docs/governance/PHASE126_RED_TEAM_AUDIT_2026-04-06.md`.
+
 ---
 
 ### v1.1-GA Gate (FINDING-66-004)
