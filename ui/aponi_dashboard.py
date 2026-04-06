@@ -45,6 +45,7 @@ from runtime.governance.event_taxonomy import (
 from runtime.governance.instability_calculator import load_instability_policy
 from runtime.governance.policy_artifact import GovernancePolicyError, load_governance_policy
 from runtime.governance.response_schema_validator import validate_response
+from runtime.governance.simulation.operator_forecast import run_operator_simulation
 from runtime.evolution.epoch import CURRENT_EPOCH_PATH
 from security.ledger import journal
 from runtime.system_status import (
@@ -159,6 +160,7 @@ HUMAN_DASHBOARD_TITLE = "Aponi Governance Nerve Center"
 # Version-resolution paths (used by /version endpoint and state injection)
 _ADAAD_VERSION_PATH: Path = DEFAULT_VERSION_PATH
 _REPORT_VERSION_PATH: Path = DEFAULT_REPORT_VERSION_PATH
+_AGENT_STATE_PATH: Path = APP_ROOT.parent / ".adaad_agent_state.json"
 
 
 def _load_live_version() -> Dict[str, Any]:
@@ -1662,9 +1664,41 @@ class AponiDashboard:
                     }
                     self._send_json(result_payload)
                     return
+                if parsed.path.startswith("/simulation/operator-forecast"):
+                    content_length = int(self.headers.get("Content-Length", "0") or "0")
+                    if content_length <= 0:
+                        self._send_json({"ok": False, "error": "empty_body"}, status_code=400)
+                        return
+                    try:
+                        payload = json.loads(self.rfile.read(content_length).decode("utf-8"))
+                    except json.JSONDecodeError:
+                        self._send_json({"ok": False, "error": "invalid_json"}, status_code=400)
+                        return
+                    if not isinstance(payload, dict):
+                        self._send_json({"ok": False, "error": "invalid_payload"}, status_code=400)
+                        return
+                    actions = payload.get("actions")
+                    if not isinstance(actions, list) or not actions:
+                        self._send_json({"ok": False, "error": "invalid_actions", "detail": "actions must be a non-empty list"}, status_code=400)
+                        return
+                    if not _AGENT_STATE_PATH.exists():
+                        self._send_json({"ok": False, "error": "state_unavailable", "detail": str(_AGENT_STATE_PATH)}, status_code=503)
+                        return
+                    try:
+                        state = json.loads(_AGENT_STATE_PATH.read_text(encoding="utf-8"))
+                    except json.JSONDecodeError:
+                        self._send_json({"ok": False, "error": "state_invalid_json", "detail": str(_AGENT_STATE_PATH)}, status_code=503)
+                        return
+                    if not isinstance(state, dict):
+                        self._send_json({"ok": False, "error": "state_invalid_shape"}, status_code=503)
+                        return
+                    scenario_name = str(payload.get("scenario_name") or "").strip()
+                    forecast = run_operator_simulation(state=state, actions=actions, scenario_name=scenario_name)
+                    self._send_json(forecast)
+                    return
                 # Route priority: /ux/events and /control/telemetry are handled before generic
                 # /control/queue validation so observability stays available even when command surface is off.
-                if not (parsed.path.startswith("/simulation/run") or parsed.path.startswith("/control/queue") or parsed.path.startswith("/control/telemetry") or parsed.path.startswith("/ux/events") or parsed.path.startswith("/control/cockpit/plan") or parsed.path.startswith("/control/execution")):
+                if not (parsed.path.startswith("/simulation/run") or parsed.path.startswith("/simulation/operator-forecast") or parsed.path.startswith("/control/queue") or parsed.path.startswith("/control/telemetry") or parsed.path.startswith("/ux/events") or parsed.path.startswith("/control/cockpit/plan") or parsed.path.startswith("/control/execution")):
                     self.send_response(404)
                     self.end_headers()
                     return
