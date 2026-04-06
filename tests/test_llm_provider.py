@@ -8,6 +8,7 @@ from runtime.intelligence.llm_provider import (
     EvolutionContextContract,
     LLMProviderClient,
     LLMProviderConfig,
+    ResourceProbeSnapshot,
     build_evolution_user_prompt,
     load_provider_config,
 )
@@ -39,8 +40,8 @@ class _ClientWithStubBuild(LLMProviderClient):
         super().__init__(*args, **kwargs)
         self._stub_client = stub_client
 
-    def _build_client(self):  # noqa: ANN001
-        return self._stub_client
+    def _dispatch_request(self, system: str, user: str, *, model: str) -> str:  # noqa: ARG002
+        return self._stub_client.create().content[0].text
 
 
 def test_config_defaults_and_overrides() -> None:
@@ -62,6 +63,7 @@ def test_config_defaults_and_overrides() -> None:
 
 
 def test_missing_api_key_returns_safe_noop() -> None:
+    client = LLMProviderClient(LLMProviderConfig(provider="openai", api_key="", model="m", timeout_seconds=2, max_tokens=200, fallback_to_noop=True))
     client = LLMProviderClient(LLMProviderConfig(provider="anthropic", api_key="", model="m", timeout_seconds=2, max_tokens=200, fallback_to_noop=True))
 
     result = client.request_json(system_prompt="s", user_prompt="u")
@@ -74,6 +76,7 @@ def test_missing_api_key_returns_safe_noop() -> None:
 
 def test_invalid_json_returns_safe_error() -> None:
     client = _ClientWithStubBuild(
+        LLMProviderConfig(provider="openai", api_key="k", model="m", timeout_seconds=2, max_tokens=200, fallback_to_noop=True),
         LLMProviderConfig(provider="anthropic", api_key="k", model="m", timeout_seconds=2, max_tokens=200, fallback_to_noop=True),
         stub_client=_FakeClient(response_text="not-json"),
     )
@@ -88,6 +91,7 @@ def test_invalid_json_returns_safe_error() -> None:
 
 def test_valid_json_response_success() -> None:
     client = _ClientWithStubBuild(
+        LLMProviderConfig(provider="openai", api_key="k", model="m", timeout_seconds=2, max_tokens=200, fallback_to_noop=True),
         LLMProviderConfig(provider="anthropic", api_key="k", model="m", timeout_seconds=2, max_tokens=200, fallback_to_noop=True),
         stub_client=_FakeClient(
             response_text=(
@@ -139,6 +143,7 @@ def test_build_evolution_user_prompt_uses_compact_window_and_redaction(evolution
 
 def test_malformed_adaptive_response_downgrades_to_noop() -> None:
     client = _ClientWithStubBuild(
+        LLMProviderConfig(provider="openai", api_key="k", model="m", timeout_seconds=2, max_tokens=200, fallback_to_noop=True),
         LLMProviderConfig(provider="anthropic", api_key="k", model="m", timeout_seconds=2, max_tokens=200, fallback_to_noop=True),
         stub_client=_FakeClient(response_text='{"proposal_type":"patch","actions":[]}'),
     )
@@ -153,6 +158,7 @@ def test_malformed_adaptive_response_downgrades_to_noop() -> None:
 
 def test_malformed_adaptive_response_without_fallback_returns_error_payload() -> None:
     client = _ClientWithStubBuild(
+        LLMProviderConfig(provider="openai", api_key="k", model="m", timeout_seconds=2, max_tokens=200, fallback_to_noop=False),
         LLMProviderConfig(provider="anthropic", api_key="k", model="m", timeout_seconds=2, max_tokens=200, fallback_to_noop=False),
         stub_client=_FakeClient(response_text='{"proposal_type":"patch","actions":[]}'),
     )
@@ -163,3 +169,58 @@ def test_malformed_adaptive_response_without_fallback_returns_error_payload() ->
     assert result.error_code == "provider_request_failed"
     assert result.fallback_used is False
     assert result.payload == {}
+
+
+def test_resource_constrained_chain_selects_lower_quantized_model() -> None:
+    class _StableModelClient(LLMProviderClient):
+        def _dispatch_request(self, system: str, user: str, *, model: str) -> str:  # noqa: ARG002
+            return '{"proposal_type":"noop","reason":"ok","actions":[]}'
+
+    cfg = LLMProviderConfig(
+        provider="openai",
+        api_key="k",
+        model="acme-model-q16",
+        fallback_models=("acme-model-q8", "acme-model-q4"),
+        timeout_seconds=2,
+        max_tokens=200,
+        fallback_to_noop=True,
+    )
+    client = _StableModelClient(
+        cfg,
+        probe_fn=lambda: ResourceProbeSnapshot(ram_available_mb=4000, vram_available_mb=3200, cpu_available_percent=65),
+    )
+
+    result = client.request_json(system_prompt="s", user_prompt="u")
+
+    assert result.ok is True
+    assert (result.metadata or {}).get("selected_model") == "acme-model-q8"
+    rejected = (result.metadata or {}).get("rejected_candidates") or []
+    assert rejected[0]["model"] == "acme-model-q16"
+
+
+def test_fallback_chain_failure_is_stable_and_trace_identical() -> None:
+    class _NeverCalledClient(LLMProviderClient):
+        def _dispatch_request(self, system: str, user: str, *, model: str) -> str:  # noqa: ARG002
+            raise AssertionError("dispatch should not be reached when selection fails")
+
+    cfg = LLMProviderConfig(
+        provider="openai",
+        api_key="k",
+        model="acme-model-q16",
+        fallback_models=("acme-model-q8", "acme-model-q4"),
+        timeout_seconds=2,
+        max_tokens=200,
+        fallback_to_noop=True,
+        host_id="edge-a",
+        host_capability_profiles={"edge-a": {"allowed_models": ["acme-model-q8", "acme-model-q4"]}},
+    )
+    probe = lambda: ResourceProbeSnapshot(ram_available_mb=300, vram_available_mb=0, cpu_available_percent=5)  # noqa: E731
+    client = _NeverCalledClient(cfg, probe_fn=probe)
+
+    first = client.request_json(system_prompt="s", user_prompt="u")
+    second = client.request_json(system_prompt="s", user_prompt="u")
+
+    assert first.ok is False
+    assert first.error_code == "model_selection_failed"
+    assert first.fallback_used is True
+    assert first.metadata == second.metadata
