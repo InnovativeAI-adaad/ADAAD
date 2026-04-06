@@ -20,6 +20,15 @@ Ledger record schema (v1)
   "schema_version": "71.1",
   "ts":             ISO-8601 UTC,
   "query":          str,
+  "normalized_query": str,
+  "answer_summary": str,
+  "query_type": str,
+  "epoch_context": {
+    "epoch_id": str,
+    "active_phase": str,
+    "gate_ok": bool | None,
+    "replay_score": float | None
+  },
   "event_window":   int,
   "event_window_hash": sha256 of sorted event ids (hex),
   "answer":         dict,
@@ -87,6 +96,9 @@ class OracleLedger:
         answer: Dict[str, Any],
         events: Sequence[Mapping[str, Any]],
         vision_trajectory_score: Optional[float] = None,
+        query_type: Optional[str] = None,
+        answer_summary: Optional[str] = None,
+        epoch_context: Optional[Mapping[str, Any]] = None,
     ) -> Optional[Dict[str, Any]]:
         """Write one oracle answer record to the ledger.
 
@@ -97,6 +109,15 @@ class OracleLedger:
             "schema_version": _SCHEMA_VERSION,
             "ts": _now_iso(),
             "query": query,
+            "normalized_query": " ".join(query.lower().split()),
+            "answer_summary": answer_summary or str(answer.get("message", ""))[:240],
+            "query_type": query_type or str(answer.get("query_type", "generic")),
+            "epoch_context": {
+                "epoch_id": str((epoch_context or {}).get("epoch_id", "")),
+                "active_phase": str((epoch_context or {}).get("active_phase", "")),
+                "gate_ok": (epoch_context or {}).get("gate_ok"),
+                "replay_score": (epoch_context or {}).get("replay_score"),
+            },
             "event_window": len(events),
             "event_window_hash": _event_window_hash(events),
             "answer": answer,

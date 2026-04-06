@@ -50,6 +50,8 @@ def test_executor_emits_dork_event_stream_for_oracle_history(tmp_path: Path) -> 
     assert bundle.intent == "open_oracle_history"
     assert bundle.response["record_count"] == 1
     assert bundle.marker.advisory_only is True
+    assert "since_last_10_oracle_calls" in bundle.response
+    assert "since_last_10_summary" in bundle.response["since_last_10_oracle_calls"]
 
     lines = event_stream_path.read_text(encoding="utf-8").splitlines()
     assert len(lines) == 1
