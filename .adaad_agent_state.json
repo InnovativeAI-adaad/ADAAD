@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.57.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": "v9.58.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -204,7 +204,7 @@
     "hard_class_count": 133
   },
   "current_phase": 124,
-  "current_version": "9.57.0",
+  "current_version": "9.58.0",
   "hard_class_count": 138,
   "hard_class_invariants_cumulative": 165,
   "human0_signoffs": [
@@ -426,8 +426,8 @@
       "version": "9.50.0"
     }
   },
-  "last_agent_state_sync_digest": "gsync-d95049b2087be26b",
-  "last_completed_phase": "Phase 05 \u00b7 Phase 124 \u00b7 adaad-core Extraction",
+  "last_agent_state_sync_digest": "gsync-6e7367ac32431d1a",
+  "last_completed_phase": "Phase 05 \u00b7 Phase 125 \u00b7 Community Governance Infrastructure",
   "last_completed_pr": "feat/phase124-adaad-core-extract",
   "last_gate_results": {
     "tier_0": "pass",
@@ -437,9 +437,9 @@
   },
   "last_innovation": "INNOV-36",
   "last_innovation_name": "Deterministic Audit Sandbox",
-  "last_invocation": "2026-04-05",
+  "last_invocation": "2026-04-06",
   "last_phase_completed": 124,
-  "last_sync_sha": "1de8809",
+  "last_sync_sha": "518170f",
   "last_updated": "2026-04-05",
   "next_phase": 125,
   "next_pr": "feature/phase116-ide-impl",
@@ -628,7 +628,7 @@
     124
   ],
   "schema_version": "1.5.0",
-  "software_version": "9.57.0",
+  "software_version": "9.58.0",
   "tife_active": true,
   "value_checkpoints_reached": [
     "phase0-track-a-hardening",
