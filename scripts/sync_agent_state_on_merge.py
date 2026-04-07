@@ -109,8 +109,21 @@ def _git_sha() -> str:
             ["git", "rev-parse", "--short", "HEAD"],
             cwd=ROOT, text=True, stderr=subprocess.DEVNULL,
         ).strip()
-    except Exception:
-        return "unknown"
+    except FileNotFoundError as exc:
+        _fatal(
+            "AGENT_STATE_SYNC_ERROR_GIT_SHA",
+            f"git executable not found: {exc}",
+        )
+    except subprocess.CalledProcessError as exc:
+        _fatal(
+            "AGENT_STATE_SYNC_ERROR_GIT_SHA",
+            f"git rev-parse failed (exit={exc.returncode})",
+        )
+    except OSError as exc:
+        _fatal(
+            "AGENT_STATE_SYNC_ERROR_GIT_SHA",
+            f"os error while resolving git sha: {exc}",
+        )
 
 
 def _compute_sync_digest(version: str, phase_title: str, git_sha: str) -> str:

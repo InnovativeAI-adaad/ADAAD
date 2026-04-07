@@ -6,7 +6,7 @@ from __future__ import annotations
 import inspect
 import pytest
 pytestmark = pytest.mark.governance_gate
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 
 def _make_snapshot(score: float):
@@ -102,6 +102,34 @@ class TestGovernanceHealthService:
             r2 = self._svc()(epoch_id="det-epoch")
             assert r1["health_score"] == r2["health_score"]
             assert r1["status"] == r2["status"]
+            assert r1["degradation_reasons"] == r2["degradation_reasons"]
+
+    def test_T8_02_10a_reports_component_failure_reason(self):
+        with (
+            patch("runtime.governance.health_aggregator.GovernanceHealthAggregator.compute",
+                  return_value=_make_snapshot(0.91)),
+            patch("runtime.governance.reviewer_reputation_ledger.ReviewerReputationLedger.load",
+                  side_effect=RuntimeError("forced-load-failure")),
+        ):
+            result = self._svc()(epoch_id="dep-failure")
+
+        assert result["status"] == "green"
+        assert result["dependency_degraded"] is True
+        assert any(
+            item["component"] == "reviewer_reputation_ledger"
+            and item["reason_code"] == "dependency_init_or_load_failed"
+            and item["scope"] == "critical"
+            for item in result["degradation_reasons"]
+        )
+
+    def test_T8_02_10b_degradation_schema_stable(self):
+        with patch("runtime.governance.health_aggregator.GovernanceHealthAggregator.compute",
+                   return_value=_make_snapshot(0.80)):
+            result = self._svc()(epoch_id="schema-stable")
+        assert "degradation_reasons" in result
+        assert isinstance(result["degradation_reasons"], list)
+        for item in result["degradation_reasons"]:
+            assert set(item.keys()) == {"component", "reason_code", "scope"}
 
 
 class TestGovernanceHealthAggregatorAuthorityInvariants:
@@ -143,10 +171,13 @@ class TestGovernanceHealthAggregatorAuthorityInvariants:
                 "status",
                 "signal_breakdown",
                 "degraded",
+                "dependency_degraded",
+                "degradation_reasons",
                 "weight_snapshot_digest",
                 "constitution_version",
                 "routing_health",
                 "review_pressure",
+                "strategy_capability",
             ):
                 assert key in result, f"Missing required field: {key}"
 
@@ -168,6 +199,9 @@ class TestGovernanceHealthAggregatorAuthorityInvariants:
             "constitution_version",
             "scoring_algorithm_version",
             "degraded",
+            "dependency_degraded",
+            "degradation_reasons",
             "routing_health",
             "review_pressure",
+            "strategy_capability",
         }

@@ -952,6 +952,122 @@
     { label: "seed outcome",     query: "seed graduation outcome",       group: "strategy" },
   ];
 
+  // ── State Bus Bridge (cross-tab continuity) ─────────────────────────
+  const ADAAD_STATE_BUS_CHANNEL = "adaad_state_bus";
+  const ADAAD_STATE_BUS_SNAPSHOT_KEY = "adaad_state_bus_snapshot_v2";
+  const ADAAD_STATE_BUS_SCHEMA_VERSION = "2.0.0";
+  const ADAAD_STATE_SESSION_ENDPOINT = "/api/session/context";
+  const ADAAD_STATE_BUS_SNAPSHOT_KEY = "adaad_state_bus_snapshot";
+  const DORK_RUNTIME_SCRIPTS = [
+    "../developer/ADAADdev/dork_runtime.js",
+    "developer/ADAADdev/dork_runtime.js",
+    "/ui/developer/ADAADdev/dork_runtime.js",
+  ];
+  let dorkRuntimeLoadPromise = null;
+  async function ensureDorkRuntime() {
+    if (typeof window.initDorkRuntime === "function") return window.initDorkRuntime({});
+    if (dorkRuntimeLoadPromise) return dorkRuntimeLoadPromise;
+    dorkRuntimeLoadPromise = (async () => {
+      for (const src of DORK_RUNTIME_SCRIPTS) {
+        try {
+          await new Promise((resolve, reject) => {
+            const tag = document.createElement("script");
+            tag.src = src;
+            tag.onload = resolve;
+            tag.onerror = reject;
+            document.head.appendChild(tag);
+          });
+          if (typeof window.initDorkRuntime === "function") return window.initDorkRuntime({});
+        } catch (_) {}
+      }
+      return null;
+    })();
+    return dorkRuntimeLoadPromise;
+  }
+  const adaadStateBridge = (() => {
+    let channel = null;
+    let backendWriteTimer = null;
+    try {
+      if (typeof BroadcastChannel !== "undefined") {
+        channel = new BroadcastChannel(ADAAD_STATE_BUS_CHANNEL);
+      }
+    } catch (_) {}
+    function majorOf(ver) {
+      return String(ver || "0").split(".")[0];
+    }
+    function normalizeWarnings(raw) {
+      if (!Array.isArray(raw)) return [];
+      return raw.map((entry) => (entry == null ? "" : String(entry).trim())).filter(Boolean).slice(0, 16);
+    }
+    function migrateSnapshot(rawSnapshot) {
+      if (!rawSnapshot || typeof rawSnapshot !== "object") return null;
+      const incomingSchema = String(rawSnapshot.schema_version || "1.0.0");
+      if (majorOf(incomingSchema) !== majorOf(ADAAD_STATE_BUS_SCHEMA_VERSION)) return null;
+      const source = rawSnapshot.context && typeof rawSnapshot.context === "object"
+        ? rawSnapshot.context
+        : rawSnapshot;
+      return {
+        schema_version: ADAAD_STATE_BUS_SCHEMA_VERSION,
+        captured_at_iso: source.captured_at_iso || new Date().toISOString(),
+        oracle_last_query: source.oracle_last_query || "",
+        oracle_last_query_type: source.oracle_last_query_type || "generic",
+        oracle_last_answer_summary: source.oracle_last_answer_summary || "",
+        oracle_last_at_iso: source.oracle_last_at_iso || "",
+        epoch_replay: {
+          epoch: (source.epoch_replay && source.epoch_replay.epoch) || "",
+          replay_score: (source.epoch_replay && source.epoch_replay.replay_score) ?? null,
+        },
+        provider_status: {
+          selected_provider: (source.provider_status && source.provider_status.selected_provider) || "unknown",
+          health: (source.provider_status && source.provider_status.health) || "unknown",
+        },
+        dork_last_fingerprint: {
+          prompt_sha1: (source.dork_last_fingerprint && source.dork_last_fingerprint.prompt_sha1) || "",
+          result_sha1: (source.dork_last_fingerprint && source.dork_last_fingerprint.result_sha1) || "",
+          issued_at_iso: (source.dork_last_fingerprint && source.dork_last_fingerprint.issued_at_iso) || "",
+        },
+        governance_warnings: normalizeWarnings(source.governance_warnings),
+      };
+    }
+    function buildVersionedState(patch) {
+      const merged = { ...(window.ADAAD_STATE_BUS || {}), ...(patch || {}) };
+      return Object.freeze(migrateSnapshot({ context: merged }) || {});
+    }
+    function queueBackendWrite(state) {
+      if (!state || !state.schema_version) return;
+      if (backendWriteTimer) clearTimeout(backendWriteTimer);
+      backendWriteTimer = setTimeout(async () => {
+        try {
+          await fetch(ADAAD_STATE_SESSION_ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ schema_version: ADAAD_STATE_BUS_SCHEMA_VERSION, context: state }),
+          });
+        } catch (_) {}
+      }, 200);
+    }
+    return {
+      applyPatch(patch) {
+        if (!patch || typeof patch !== "object") return;
+        const merged = buildVersionedState(patch);
+        if (!merged || !merged.schema_version) return;
+        if (typeof window.hydrateContext === "function") {
+          window.hydrateContext(patch, { source: "aponi_oracle" });
+          return;
+        }
+        const merged = Object.freeze({ ...(window.ADAAD_STATE_BUS || {}), ...patch });
+        window.ADAAD_STATE_BUS = merged;
+        try {
+          window.localStorage?.setItem(ADAAD_STATE_BUS_SNAPSHOT_KEY, JSON.stringify(merged));
+        } catch (_) {}
+        queueBackendWrite(merged);
+        try {
+          channel?.postMessage({ type: "state_bus_patch", patch, ts: new Date().toISOString(), source: "aponi_oracle" });
+        } catch (_) {}
+      },
+    };
+  })();
+
   function renderOracleAnswer(resultEl, data) {
     const ans = data.answer || {};
     const vp  = data.vision_projection || null;
@@ -1021,10 +1137,34 @@
     dorkBtn.textContent = "🐳 Send to Dork";
     dorkBtn.onmouseover = () => { dorkBtn.style.background="rgba(0,217,255,0.12)";dorkBtn.style.color="#00d9ff"; };
     dorkBtn.onmouseout  = () => { dorkBtn.style.background="rgba(0,217,255,0.06)";dorkBtn.style.color="rgba(0,217,255,0.7)"; };
-    dorkBtn.onclick = () => {
+    dorkBtn.onclick = async () => {
       if (ans._isDemo) return;
       const summary = (ans.message || "").slice(0, 200);
-      window.open(`whaledic.html?dork_seed=${encodeURIComponent(summary)}`, "_blank");
+      const currentBus = window.ADAAD_STATE_BUS || {};
+      adaadStateBridge.applyPatch({
+        dork_last_fingerprint: {
+          prompt_sha1: `seed:${summary.slice(0, 96)}`,
+          result_sha1: "",
+          issued_at_iso: new Date().toISOString(),
+        },
+        epoch_replay: {
+          epoch: (currentBus.epoch_replay && currentBus.epoch_replay.epoch) || (currentBus.epoch && currentBus.epoch.epoch) || "",
+          replay_score: (currentBus.epoch_replay && currentBus.epoch_replay.replay_score) ?? (currentBus.replay && currentBus.replay.score) ?? null,
+        },
+      });
+      window.open(`../developer/ADAADdev/whaledic.html?dork_seed=${encodeURIComponent(summary)}`, "_blank");
+      const rt = await ensureDorkRuntime();
+      if (rt && typeof rt.hydrateContext === "function") {
+        rt.hydrateContext({
+          oracle_last_query: bus.oracle_last_query || "",
+          oracle_last_query_type: ans.query_type || bus.oracle_last_query_type || "generic",
+          oracle_last_answer_summary: summary,
+        });
+      }
+      const link = rt && typeof rt.buildDeepLink === "function"
+        ? rt.buildDeepLink(summary, "whaledic.html")
+        : `whaledic.html?dork_seed=${encodeURIComponent(summary)}`;
+      window.open(link, "_blank");
     };
     s5.appendChild(dorkBtn);
     if (bus.epoch && bus.epoch.id) {
@@ -1121,6 +1261,11 @@
 
     const histBody = h("div", {class: "inno-card-body"});
     const histList = h("div", {class: "oracle-history-list"});
+    const memorySummary = h("div", {
+      class: "oracle-hist-empty",
+      style: "margin-bottom:8px;border:1px solid rgba(0,217,255,0.15);padding:8px;border-radius:8px;color:rgba(0,217,255,0.8);"
+    }, "Since last 10 Oracle calls: loading…");
+    histBody.appendChild(memorySummary);
     histBody.appendChild(histList);
     histCard.appendChild(histBody);
     wrap.appendChild(histCard);
@@ -1130,6 +1275,17 @@
         const data = await apiFetch("/innovations/oracle/history?limit=20");
         const records = (data.records || []).slice().reverse();
         histStatus.textContent = `${records.length} records`;
+        try {
+          const mem = await apiFetch("/innovations/oracle/memory?limit=10");
+          const last10 = mem && mem.memory ? mem.memory : null;
+          if (last10) {
+            memorySummary.innerHTML =
+              `<strong>Since last 10 Oracle calls</strong><br>` +
+              `${escHtml(last10.since_last_10_summary || "No summary available.")}`;
+          }
+        } catch (_) {
+          memorySummary.textContent = "Since last 10 Oracle calls: unavailable.";
+        }
         histList.innerHTML = "";
         if (!records.length) {
           histList.innerHTML = `<div class="oracle-hist-empty">No history yet — run a query above.</div>`;
@@ -1163,6 +1319,7 @@
         });
       } catch (_) {
         histStatus.textContent = "unavailable";
+        memorySummary.textContent = "Since last 10 Oracle calls: unavailable.";
         histList.innerHTML = `<div class="oracle-hist-empty">History endpoint not reachable.</div>`;
       }
     })();
@@ -1189,20 +1346,30 @@
         innState.oracleVision = data.vision_projection || null;
         renderOracleAnswer(resultEl, data);
 
-        // Phase 95 BRIDGE-STATE-0: write to ADAAD_STATE_BUS for Dork
+        // Phase 95 BRIDGE-STATE-0: write to ADAAD_STATE_BUS + cross-tab channel/snapshot for Dork
         if (typeof window.ADAAD_STATE_BUS !== "undefined") {
           const summary = data.answer && data.answer.message ? data.answer.message.slice(0, 200) : "";
+          const governanceWarnings = [];
+          if (bus.governance && bus.governance.gate_ok === false) governanceWarnings.push("Gate locked");
+          if (bus.readiness && Array.isArray(bus.readiness.blockers) && bus.readiness.blockers.length) {
+            governanceWarnings.push(`Readiness blockers: ${bus.readiness.blockers.join(", ")}`);
+          }
           const patch = {
             oracle_last_query: q.slice(0, 120),
             oracle_last_query_type: (data.answer && data.answer.query_type) || "generic",
             oracle_last_answer_summary: summary,
             oracle_last_at_iso: new Date().toISOString(),
+            epoch_replay: {
+              epoch: epochId || ((bus.epoch && bus.epoch.epoch) || ""),
+              replay_score: repScore === "" ? null : repScore,
+            },
+            provider_status: {
+              selected_provider: (bus.provider_status && bus.provider_status.selected_provider) || "unknown",
+              health: (bus.provider_status && bus.provider_status.health) || "unknown",
+            },
+            governance_warnings: governanceWarnings,
           };
-          if (window.ADAAD_STATE_BUS) {
-            window.ADAAD_STATE_BUS = Object.freeze({ ...window.ADAAD_STATE_BUS, ...patch });
-          } else {
-            window.ADAAD_STATE_BUS = Object.freeze(patch);
-          }
+          adaadStateBridge.applyPatch(patch);
         }
       } catch(e) {
         // Demo fallback — structured render
@@ -1277,6 +1444,12 @@
       const meta = h("div", {class: "story-arc-meta"});
       if (arc.agent) meta.appendChild(h("span", {class: "story-arc-badge agent"}, arc.agent));
       if (arc.result) meta.appendChild(h("span", {class: `story-arc-badge ${arc.result}`}, arc.result));
+      const deepLink = h("a", {
+        href: `../developer/ADAADdev/whaledic.html?dork_seed=${encodeURIComponent(`Follow up on ${arc.epoch || `epoch-${i}`}: ${(arc.title || arc.decision || "governance event").slice(0, 140)}`)}`,
+        target: "_blank",
+        style: "margin-left:8px;font-size:10px;color:rgba(0,217,255,0.8);text-decoration:none;",
+      }, "→ Dork follow-up");
+      meta.appendChild(deepLink);
       content.appendChild(meta);
 
       row.appendChild(line);
@@ -1313,6 +1486,12 @@
           const meta = h("div", {class: "story-arc-meta"});
           if (arc.agent) meta.appendChild(h("span", {class: "story-arc-badge agent"}, arc.agent));
           if (arc.result) meta.appendChild(h("span", {class: `story-arc-badge ${arc.result}`}, arc.result));
+          const deepLink = h("a", {
+            href: `../developer/ADAADdev/whaledic.html?dork_seed=${encodeURIComponent(`Follow up on ${arc.epoch || `epoch-${i}`}: ${(arc.title || arc.decision || "governance event").slice(0, 140)}`)}`,
+            target: "_blank",
+            style: "margin-left:8px;font-size:10px;color:rgba(0,217,255,0.8);text-decoration:none;",
+          }, "→ Dork follow-up");
+          meta.appendChild(deepLink);
           content.appendChild(meta);
           row.appendChild(line); row.appendChild(content);
           timeline.appendChild(row);

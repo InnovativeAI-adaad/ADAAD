@@ -23,8 +23,8 @@ from runtime.governance.foundation import RuntimeDeterminismProvider, require_re
 
 
 class EvolutionRuntime:
-    def __init__(self, *, provider: RuntimeDeterminismProvider | None = None) -> None:
-        self.ledger = LineageLedgerV2()
+    def __init__(self, *, provider: RuntimeDeterminismProvider | None = None, ledger_path: Path | None = None) -> None:
+        self.ledger = LineageLedgerV2(ledger_path=ledger_path) if ledger_path else LineageLedgerV2()
         self.governor = EvolutionGovernor(ledger=self.ledger, provider=provider)
         self.epoch_manager = EpochManager(self.governor, self.ledger, provider=self.governor.provider)
         self.replay_mode = ReplayMode.OFF
@@ -38,6 +38,7 @@ class EvolutionRuntime:
             recovery_tier=self.governor.recovery_tier.value,
         )
         self.metrics_emitter = EvolutionMetricsEmitter(self.ledger)
+        self.coherence_validator: Any | None = None
 
         self.current_epoch_id = ""
         self.epoch_metadata: Dict[str, Any] = {}

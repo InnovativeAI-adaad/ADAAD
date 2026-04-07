@@ -7,12 +7,15 @@ from dataclasses import dataclass
 from typing import Any, Mapping
 
 from runtime.intelligence.strategy import StrategyInput
+from runtime.policy.action_tier_classifier import ActionTierDecision, ApprovalBehavior, classify_action
 
 
 @dataclass(frozen=True)
 class PlanStep:
     step_id: str
     goal_id: str
+    action_type: str
+    resource_scope: str
     milestone: str
     success_predicate: str
     completion_criteria: tuple[str, ...]
@@ -45,6 +48,7 @@ class PlanVerificationResult:
     reason: str
     completed_step_id: str | None = None
     rollback_step_index: int | None = None
+    classifier_decision: ActionTierDecision | None = None
 
 
 class StrategyPlanner:
@@ -64,6 +68,8 @@ class StrategyPlanner:
             PlanStep(
                 step_id="step_00_taxonomy_annotation",
                 goal_id="taxonomy_annotation",
+                action_type="analysis",
+                resource_scope="docs",
                 milestone="Taxonomy mapping and annotations completed",
                 success_predicate="taxonomy.annotation_complete",
                 completion_criteria=("taxonomy.annotation_complete", "taxonomy.coverage_complete"),
@@ -74,6 +80,8 @@ class StrategyPlanner:
             PlanStep(
                 step_id="step_01_duplicate_assertion_audit_merge",
                 goal_id="duplicate_assertion_audit_merge",
+                action_type="code_change",
+                resource_scope="runtime",
                 milestone="Duplicate assertion audit and merge completed",
                 success_predicate="assertions.duplicate_audit_merge_complete",
                 completion_criteria=("assertions.duplicate_audit_merge_complete",),
@@ -84,6 +92,8 @@ class StrategyPlanner:
             PlanStep(
                 step_id="step_02_constitutional_domain_split",
                 goal_id="constitutional_domain_split",
+                action_type="governance_change",
+                resource_scope="governance",
                 milestone="Constitutional and domain assertions split completed",
                 success_predicate="assertions.constitutional_domain_split_complete",
                 completion_criteria=("assertions.constitutional_domain_split_complete",),
@@ -94,6 +104,8 @@ class StrategyPlanner:
             PlanStep(
                 step_id="step_03_endpoint_parametrization",
                 goal_id="endpoint_parametrization",
+                action_type="orchestrator_change",
+                resource_scope="app",
                 milestone="Endpoint parametrization completed",
                 success_predicate="endpoints.parametrization_complete",
                 completion_criteria=("endpoints.parametrization_complete",),
@@ -104,6 +116,8 @@ class StrategyPlanner:
             PlanStep(
                 step_id="step_04_full_verification",
                 goal_id="full_verification",
+                action_type="test_change",
+                resource_scope="tests",
                 milestone="Full verification summary recorded",
                 success_predicate="validation.full_suite_passed",
                 completion_criteria=("validation.full_suite_passed", "validation.autonomous_critical_lane_passed"),
@@ -120,6 +134,8 @@ class StrategyPlanner:
                 PlanStep(
                     step_id=f"step_{index:02d}_{normalized_goal_id}",
                     goal_id=normalized_goal_id,
+                    action_type="runtime_change" if weight >= 0.5 else "documentation",
+                    resource_scope="runtime" if weight >= 0.5 else "docs",
                     milestone=f"Milestone {index}: advance '{normalized_goal_id}'",
                     success_predicate=criteria[0],
                     completion_criteria=criteria,
@@ -148,20 +164,60 @@ class PlanStepVerifier:
         completion_signals: Mapping[str, bool],
         governance_checks: Mapping[str, bool],
         replay_checks: Mapping[str, bool],
+        policy_approval: bool = False,
+        human_signoff_token: str | None = None,
     ) -> PlanVerificationResult:
+        classifier_decision = classify_action(action_type=step.action_type, resource_scope=step.resource_scope)
         missing_dependency = next((dependency for dependency in step.dependency_step_ids if dependency not in completed_step_ids), None)
         if missing_dependency is not None:
-            return PlanVerificationResult(ok=False, reason=f"dependency_not_satisfied:{missing_dependency}")
+            return PlanVerificationResult(
+                ok=False,
+                reason=f"dependency_not_satisfied:{missing_dependency}",
+                classifier_decision=classifier_decision,
+            )
+        if classifier_decision.approval_behavior == ApprovalBehavior.POLICY_APPROVAL_REQUIRED and not policy_approval:
+            return PlanVerificationResult(
+                ok=False,
+                reason="approval_required:policy_approval_missing",
+                rollback_step_index=0,
+                classifier_decision=classifier_decision,
+            )
+        if classifier_decision.approval_behavior == ApprovalBehavior.HUMAN_SIGNOFF_REQUIRED and not str(human_signoff_token or "").strip():
+            return PlanVerificationResult(
+                ok=False,
+                reason="approval_required:human_signoff_missing",
+                rollback_step_index=0,
+                classifier_decision=classifier_decision,
+            )
         missing_check = next((check for check in step.required_governance_checks if not governance_checks.get(check, False)), None)
         if missing_check is not None:
-            return PlanVerificationResult(ok=False, reason=f"governance_check_failed:{missing_check}", rollback_step_index=0)
+            return PlanVerificationResult(
+                ok=False,
+                reason=f"governance_check_failed:{missing_check}",
+                rollback_step_index=0,
+                classifier_decision=classifier_decision,
+            )
         missing_replay = next((check for check in step.required_replay_checks if not replay_checks.get(check, False)), None)
         if missing_replay is not None:
-            return PlanVerificationResult(ok=False, reason=f"replay_check_failed:{missing_replay}", rollback_step_index=0)
+            return PlanVerificationResult(
+                ok=False,
+                reason=f"replay_check_failed:{missing_replay}",
+                rollback_step_index=0,
+                classifier_decision=classifier_decision,
+            )
         missing_criteria = next((criteria for criteria in step.completion_criteria if not completion_signals.get(criteria, False)), None)
         if missing_criteria is not None:
-            return PlanVerificationResult(ok=False, reason=f"criteria_not_satisfied:{missing_criteria}")
-        return PlanVerificationResult(ok=True, reason="step_completed", completed_step_id=step.step_id)
+            return PlanVerificationResult(
+                ok=False,
+                reason=f"criteria_not_satisfied:{missing_criteria}",
+                classifier_decision=classifier_decision,
+            )
+        return PlanVerificationResult(
+            ok=True,
+            reason="step_completed",
+            completed_step_id=step.step_id,
+            classifier_decision=classifier_decision,
+        )
 
 
 def initial_execution_state(plan: PlanArtifact) -> PlanExecutionState:
@@ -180,6 +236,17 @@ def as_ledger_metrics(*, plan: PlanArtifact, state: PlanExecutionState, decision
         "rollback_step_index": state.rollback_step_index,
         "decision": decision,
         "verification": verification.reason if verification is not None else "not_evaluated",
+        "classifier_decision": (
+            {
+                "tier": verification.classifier_decision.tier.value,
+                "approval_behavior": verification.classifier_decision.approval_behavior.value,
+                "rationale": verification.classifier_decision.rationale,
+                "rule_id": verification.classifier_decision.rule_id,
+                "fail_closed": verification.classifier_decision.fail_closed,
+            }
+            if verification is not None and verification.classifier_decision is not None
+            else None
+        ),
     }
 
 
@@ -200,5 +267,16 @@ def as_transition_metrics(
         "to_step_index": current_state.current_step_index,
         "completed_steps": list(current_state.completed_step_ids),
         "rationale": verification.reason if verification is not None else "not_evaluated",
+        "classifier_decision": (
+            {
+                "tier": verification.classifier_decision.tier.value,
+                "approval_behavior": verification.classifier_decision.approval_behavior.value,
+                "rationale": verification.classifier_decision.rationale,
+                "rule_id": verification.classifier_decision.rule_id,
+                "fail_closed": verification.classifier_decision.fail_closed,
+            }
+            if verification is not None and verification.classifier_decision is not None
+            else None
+        ),
         "rollback_step_index": current_state.rollback_step_index,
     }

@@ -1,0 +1,262 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0
+rootdir: /home/dustinreid82/adaad
+configfile: pytest.ini (WARNING: ignoring pytest config in pyproject.toml!)
+testpaths: tests
+plugins: anyio-4.12.1
+collected 6642 items
+
+tests/acceptance/pr3h/test_pr3h_acceptance.py ..                         [  0%]
+tests/api/test_extension_sdk_spec.py ..                                  [  0%]
+tests/api/test_route_registration.py .                                   [  0%]
+tests/api/test_v1_aliases.py ..                                          [  0%]
+tests/architect/test_architect_graph_v1.py .                             [  0%]
+tests/autonomy/test_agent_bandit_selector.py ......................      [  0%]
+tests/autonomy/test_evolution_loop_amendment.py .............            [  0%]
+tests/autonomy/test_phase103_tgov.py .....                               [  0%]
+tests/autonomy/test_pr11_a_02_wiring.py .......FF                        [  0%]
+tests/autonomy/test_reward_learning.py ....                              [  0%]
+tests/autonomy/test_roadmap_amendment_engine.py ........................ [  1%]
+......                                                                   [  1%]
+tests/determinism/test_aponi_governance_determinism.py .....             [  1%]
+tests/determinism/test_beast_mode_provider_determinism.py .............. [  1%]
+                                                                         [  1%]
+tests/determinism/test_boot_runtime_profile.py ...                       [  1%]
+tests/determinism/test_concurrent_replay.py ..                           [  1%]
+tests/determinism/test_constitution_policy_determinism.py .........      [  1%]
+tests/determinism/test_deterministic_envelope_costs.py ..                [  1%]
+tests/determinism/test_dream_mode_provider_determinism.py ........       [  2%]
+tests/determinism/test_entropy_anomaly_triage_replay.py ..               [  2%]
+tests/determinism/test_envelope_concurrency.py ...                       [  2%]
+tests/determinism/test_filesystem_wrapper_migration.py ...               [  2%]
+tests/determinism/test_lineage_v2_streaming.py FFF.F                     [  2%]
+tests/determinism/test_replay_attestation_determinism.py ............... [  2%]
+.......                                                                  [  2%]
+tests/determinism/test_replay_equivalence.py ......                      [  2%]
+tests/determinism/test_replay_runtime_harness.py ..                      [  2%]
+tests/determinism/test_runtime_provider_injection.py ................    [  2%]
+tests/determinism/test_scoring_algorithm_determinism.py .......          [  3%]
+tests/endpoints/test_aponi_endpoint_contracts.py FF........              [  3%]
+tests/evolution/test_aesthetic_fitness.py .............................. [  3%]
+...                                                                      [  3%]
+tests/evolution/test_cel_wiring.py F.......FF.F......FF.F..              [  4%]
+tests/evolution/test_checkpoint_integration.py .                         [  4%]
+tests/evolution/test_checkpoint_registry.py ..                           [  4%]
+tests/evolution/test_checkpoint_verifier.py ........                     [  4%]
+tests/evolution/test_constitutional_evolution_loop.py FFFF.F
+
+=================================== FAILURES ===================================
+________ test_t11_b_04_bandit_exception_in_recommend_does_not_propagate ________
+tests/autonomy/test_pr11_a_02_wiring.py:194: in test_t11_b_04_bandit_exception_in_recommend_does_not_propagate
+    bad_bandit.recommend.assert_called()
+/usr/lib/python3.12/unittest/mock.py:913: in assert_called
+    raise AssertionError(msg)
+E   AssertionError: Expected 'recommend' to have been called.
+------------------------------ Captured log call -------------------------------
+WARNING  runtime.seed_competition:seed_competition.py:140 COMP-GOV-0: no GovernanceGate injected; using permissive default. Inject a real gate before production use.
+WARNING  runtime.evolution.constitutional_evolution_loop:constitutional_evolution_loop.py:860 AFRT-GATE: afrt_agent unavailable — step bypassed (pre-Phase-92 mode). AFRT-GATE-0 not enforced in this run.
+__________________ test_t11_b_05_phase_5e_calls_bandit_update __________________
+tests/autonomy/test_pr11_a_02_wiring.py:227: in test_t11_b_05_phase_5e_calls_bandit_update
+    assert mock_bandit.update.called
+E   AssertionError: assert False
+E    +  where False = <MagicMock name='mock.update' id='137532192949504'>.called
+E    +    where <MagicMock name='mock.update' id='137532192949504'> = <MagicMock spec='AgentBanditSelector' id='137532214506032'>.update
+------------------------------ Captured log call -------------------------------
+WARNING  runtime.seed_competition:seed_competition.py:140 COMP-GOV-0: no GovernanceGate injected; using permissive default. Inject a real gate before production use.
+WARNING  runtime.evolution.constitutional_evolution_loop:constitutional_evolution_loop.py:860 AFRT-GATE: afrt_agent unavailable — step bypassed (pre-Phase-92 mode). AFRT-GATE-0 not enforced in this run.
+____________ test_verify_integrity_streams_without_full_memory_load ____________
+tests/determinism/test_lineage_v2_streaming.py:23: in test_verify_integrity_streams_without_full_memory_load
+    assert ledger.get_verified_tail_hash() is not None
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+runtime/evolution/lineage_v2.py:630: in get_verified_tail_hash
+    return self._verified_tail_hash
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'LineageLedgerV2' object has no attribute '_verified_tail_hash'. Did you mean: 'get_verified_tail_hash'?
+_________________ test_last_hash_uses_cache_after_verification _________________
+tests/determinism/test_lineage_v2_streaming.py:32: in test_last_hash_uses_cache_after_verification
+    assert ledger.get_verified_tail_hash() == first_tail
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+runtime/evolution/lineage_v2.py:630: in get_verified_tail_hash
+    return self._verified_tail_hash
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'LineageLedgerV2' object has no attribute '_verified_tail_hash'. Did you mean: 'get_verified_tail_hash'?
+_____________________ test_append_advances_tail_hash_cache _____________________
+tests/determinism/test_lineage_v2_streaming.py:46: in test_append_advances_tail_hash_cache
+    assert ledger.get_verified_tail_hash() is not None
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+runtime/evolution/lineage_v2.py:630: in get_verified_tail_hash
+    return self._verified_tail_hash
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'LineageLedgerV2' object has no attribute '_verified_tail_hash'. Did you mean: 'get_verified_tail_hash'?
+________________ test_max_lines_truncation_does_not_fail_close _________________
+tests/determinism/test_lineage_v2_streaming.py:73: in test_max_lines_truncation_does_not_fail_close
+    assert ledger.get_verified_tail_hash() is None
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+runtime/evolution/lineage_v2.py:630: in get_verified_tail_hash
+    return self._verified_tail_hash
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'LineageLedgerV2' object has no attribute '_verified_tail_hash'. Did you mean: 'get_verified_tail_hash'?
+------------------------------ Captured log call -------------------------------
+WARNING  runtime.evolution.lineage_v2:lineage_v2.py:422 lineage_verify_integrity_truncated
+_________ test_user_console_uses_external_script_for_csp_compatibility _________
+tests/endpoints/test_aponi_endpoint_contracts.py:38: in test_user_console_uses_external_script_for_csp_compatibility
+    html = handler._user_console()
+           ^^^^^^^^^^^^^^^^^^^^^^^
+ui/aponi_dashboard.py:2639: in _user_console
+    .github-feed-toolbar { display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem; }
+                           ^^^^^^^
+E   NameError: name 'display' is not defined
+___________ test_dashboard_script_uses_safe_dom_rendering_primitives ___________
+tests/endpoints/test_aponi_endpoint_contracts.py:125: in test_dashboard_script_uses_safe_dom_rendering_primitives
+    assert "innerHTML =" not in script
+E   assert 'innerHTML =' not in 'const STORA...Refresh();\n'
+E     
+E     'innerHTML =' is contained here:
+E            list.innerHTML = '<div class="feed-empty">No GitHub events recorded yet.</div>';
+E     ?           +++++++++++
+E             status && (status.textContent = 'No events');
+E             return;
+E           }...
+E     
+E     ...Full output truncated (53 lines hidden), use '-vv' to show
+________________ TestT65Wire01.test_wired_sandbox_run_completes ________________
+tests/evolution/test_cel_wiring.py:93: in test_wired_sandbox_run_completes
+    assert result.completed, f"blocked_at={result.blocked_at_step}"
+E   AssertionError: blocked_at=None
+E   assert False
+E    +  where False = EpochCELResult(epoch_id='ep-w01', run_mode=<RunMode.SANDBOX_ONLY: 'SANDBOX_ONLY'>, step_results=[CELStepResult(step_nu...ns_succeeded': 1, 'timestamp': '2026-03-13T00:00:00Z'})], blocked_at_step=None, epoch_evidence_hash=None, dry_run=True).completed
+------------------------------ Captured log call -------------------------------
+WARNING  runtime.seed_competition:seed_competition.py:140 COMP-GOV-0: no GovernanceGate injected; using permissive default. Inject a real gate before production use.
+WARNING  runtime.evolution.constitutional_evolution_loop:constitutional_evolution_loop.py:860 AFRT-GATE: afrt_agent unavailable — step bypassed (pre-Phase-92 mode). AFRT-GATE-0 not enforced in this run.
+____________________ TestT65Wire06.test_step10_gate_invoked ____________________
+tests/evolution/test_cel_wiring.py:184: in test_step10_gate_invoked
+    assert step10.detail["gate_v2_existing_0_compliant"] is True
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'gate_v2_existing_0_compliant'
+------------------------------ Captured log call -------------------------------
+WARNING  runtime.seed_competition:seed_competition.py:140 COMP-GOV-0: no GovernanceGate injected; using permissive default. Inject a real gate before production use.
+WARNING  runtime.evolution.constitutional_evolution_loop:constitutional_evolution_loop.py:860 AFRT-GATE: afrt_agent unavailable — step bypassed (pre-Phase-92 mode). AFRT-GATE-0 not enforced in this run.
+_______________ TestT65Wire06.test_step10_approved_count_present _______________
+tests/evolution/test_cel_wiring.py:190: in test_step10_approved_count_present
+    assert "approved_count" in step10.detail or "gate_outcomes" in step10.detail
+E   AssertionError: assert ('approved_count' in {'afrt_bypassed': True, 'reason': 'afrt_agent_unavailable'} or 'gate_outcomes' in {'afrt_bypassed': True, 'reason': 'afrt_agent_unavailable'})
+E    +  where {'afrt_bypassed': True, 'reason': 'afrt_agent_unavailable'} = CELStepResult(step_number=10, step_name='AFRT-GATE', outcome=<StepOutcome.PASS: 'PASS'>, reason=None, detail={'afrt_bypassed': True, 'reason': 'afrt_agent_unavailable'}).detail
+E    +  and   {'afrt_bypassed': True, 'reason': 'afrt_agent_unavailable'} = CELStepResult(step_number=10, step_name='AFRT-GATE', outcome=<StepOutcome.PASS: 'PASS'>, reason=None, detail={'afrt_bypassed': True, 'reason': 'afrt_agent_unavailable'}).detail
+------------------------------ Captured log call -------------------------------
+WARNING  runtime.seed_competition:seed_competition.py:140 COMP-GOV-0: no GovernanceGate injected; using permissive default. Inject a real gate before production use.
+WARNING  runtime.evolution.constitutional_evolution_loop:constitutional_evolution_loop.py:860 AFRT-GATE: afrt_agent unavailable — step bypassed (pre-Phase-92 mode). AFRT-GATE-0 not enforced in this run.
+______________ TestT65Wire08.test_step12_skipped_in_sandbox_mode _______________
+tests/evolution/test_cel_wiring.py:215: in test_step12_skipped_in_sandbox_mode
+    assert step12.outcome == StepOutcome.SKIPPED
+E   AssertionError: assert <StepOutcome.PASS: 'PASS'> == <StepOutcome....ED: 'SKIPPED'>
+E     
+E     - SKIPPED
+E     + PASS
+------------------------------ Captured log call -------------------------------
+WARNING  runtime.seed_competition:seed_competition.py:140 COMP-GOV-0: no GovernanceGate injected; using permissive default. Inject a real gate before production use.
+WARNING  runtime.evolution.constitutional_evolution_loop:constitutional_evolution_loop.py:860 AFRT-GATE: afrt_agent unavailable — step bypassed (pre-Phase-92 mode). AFRT-GATE-0 not enforced in this run.
+__________ TestT65Wire12.test_governance_gate_exception_blocks_step10 __________
+tests/evolution/test_cel_wiring.py:321: in test_governance_gate_exception_blocks_step10
+    assert result.blocked_at_step == 10
+E   AssertionError: assert 12 == 10
+E    +  where 12 = EpochCELResult(epoch_id='ep-w12', run_mode=<RunMode.SANDBOX_ONLY: 'SANDBOX_ONLY'>, step_results=[CELStepResult(step_nu...n': 'gate_broken', 'gate_v2_existing_0_compliant': True})], blocked_at_step=12, epoch_evidence_hash=None, dry_run=True).blocked_at_step
+------------------------------ Captured log call -------------------------------
+WARNING  runtime.seed_competition:seed_competition.py:140 COMP-GOV-0: no GovernanceGate injected; using permissive default. Inject a real gate before production use.
+WARNING  runtime.evolution.constitutional_evolution_loop:constitutional_evolution_loop.py:860 AFRT-GATE: afrt_agent unavailable — step bypassed (pre-Phase-92 mode). AFRT-GATE-0 not enforced in this run.
+WARNING  runtime.evolution.cel_wiring:cel_wiring.py:497 CEL Step 10 GovernanceGate failure: gate_broken
+_______________ TestT65Wire13.test_wired_step_numbers_sequential _______________
+tests/evolution/test_cel_wiring.py:336: in test_wired_step_numbers_sequential
+    assert nums == list(range(1, 15))
+E   assert [1, 2, 3, 4, 5, 6, ...] == [1, 2, 3, 4, 5, 6, ...]
+E     
+E     Left contains 2 more items, first extra item: 15
+E     Use -v to get more diff
+------------------------------ Captured log call -------------------------------
+WARNING  runtime.seed_competition:seed_competition.py:140 COMP-GOV-0: no GovernanceGate injected; using permissive default. Inject a real gate before production use.
+WARNING  runtime.evolution.constitutional_evolution_loop:constitutional_evolution_loop.py:860 AFRT-GATE: afrt_agent unavailable — step bypassed (pre-Phase-92 mode). AFRT-GATE-0 not enforced in this run.
+___________________ TestT65Wire14.test_factory_run_completes ___________________
+tests/evolution/test_cel_wiring.py:361: in test_factory_run_completes
+    assert result.completed
+E   AssertionError: assert False
+E    +  where False = EpochCELResult(epoch_id='ep-factory', run_mode=<RunMode.SANDBOX_ONLY: 'SANDBOX_ONLY'>, step_results=[CELStepResult(ste...ns_succeeded': 1, 'timestamp': '2026-03-13T00:00:00Z'})], blocked_at_step=None, epoch_evidence_hash=None, dry_run=True).completed
+------------------------------ Captured log call -------------------------------
+WARNING  runtime.seed_competition:seed_competition.py:140 COMP-GOV-0: no GovernanceGate injected; using permissive default. Inject a real gate before production use.
+WARNING  runtime.evolution.constitutional_evolution_loop:constitutional_evolution_loop.py:860 AFRT-GATE: afrt_agent unavailable — step bypassed (pre-Phase-92 mode). AFRT-GATE-0 not enforced in this run.
+_______________ TestT64Cel01.test_sandbox_run_completes_14_steps _______________
+tests/evolution/test_constitutional_evolution_loop.py:95: in test_sandbox_run_completes_14_steps
+    assert result.completed, f"Expected completed; blocked_at={result.blocked_at_step}"
+E   AssertionError: Expected completed; blocked_at=None
+E   assert False
+E    +  where False = EpochCELResult(epoch_id='epoch-001', run_mode=<RunMode.SANDBOX_ONLY: 'SANDBOX_ONLY'>, step_results=[CELStepResult(step...ns_succeeded': 1, 'timestamp': '2026-03-13T00:00:00Z'})], blocked_at_step=None, epoch_evidence_hash=None, dry_run=True).completed
+------------------------------ Captured log call -------------------------------
+WARNING  runtime.seed_competition:seed_competition.py:140 COMP-GOV-0: no GovernanceGate injected; using permissive default. Inject a real gate before production use.
+WARNING  runtime.evolution.constitutional_evolution_loop:constitutional_evolution_loop.py:860 AFRT-GATE: afrt_agent unavailable — step bypassed (pre-Phase-92 mode). AFRT-GATE-0 not enforced in this run.
+______________ TestT64Cel02.test_step_numbers_strictly_sequential ______________
+tests/evolution/test_constitutional_evolution_loop.py:110: in test_step_numbers_strictly_sequential
+    assert nums == list(range(1, 15))
+E   assert [1, 2, 3, 4, 5, 6, ...] == [1, 2, 3, 4, 5, 6, ...]
+E     
+E     Left contains 2 more items, first extra item: 15
+E     Use -v to get more diff
+------------------------------ Captured log call -------------------------------
+WARNING  runtime.seed_competition:seed_competition.py:140 COMP-GOV-0: no GovernanceGate injected; using permissive default. Inject a real gate before production use.
+WARNING  runtime.evolution.constitutional_evolution_loop:constitutional_evolution_loop.py:860 AFRT-GATE: afrt_agent unavailable — step bypassed (pre-Phase-92 mode). AFRT-GATE-0 not enforced in this run.
+_____________________ TestT64Cel02.test_step_names_present _____________________
+tests/evolution/test_constitutional_evolution_loop.py:123: in test_step_names_present
+    assert names == expected
+E   AssertionError: assert {'AFRT-GATE',...CE-GATE', ...} == {'AST-SCAN', ...GATE-V2', ...}
+E     
+E     Extra items in the left set:
+E     'PARETO-SELECT'
+E     'AFRT-GATE'
+E     Use -v to get more diff
+------------------------------ Captured log call -------------------------------
+WARNING  runtime.seed_competition:seed_competition.py:140 COMP-GOV-0: no GovernanceGate injected; using permissive default. Inject a real gate before production use.
+WARNING  runtime.evolution.constitutional_evolution_loop:constitutional_evolution_loop.py:860 AFRT-GATE: afrt_agent unavailable — step bypassed (pre-Phase-92 mode). AFRT-GATE-0 not enforced in this run.
+_____________ TestT64Cel03.test_promotion_skipped_in_sandbox_mode ______________
+tests/evolution/test_constitutional_evolution_loop.py:135: in test_promotion_skipped_in_sandbox_mode
+    assert step12.outcome == StepOutcome.SKIPPED
+E   AssertionError: assert <StepOutcome.PASS: 'PASS'> == <StepOutcome....ED: 'SKIPPED'>
+E     
+E     - SKIPPED
+E     + PASS
+------------------------------ Captured log call -------------------------------
+WARNING  runtime.seed_competition:seed_competition.py:140 COMP-GOV-0: no GovernanceGate injected; using permissive default. Inject a real gate before production use.
+WARNING  runtime.evolution.constitutional_evolution_loop:constitutional_evolution_loop.py:860 AFRT-GATE: afrt_agent unavailable — step bypassed (pre-Phase-92 mode). AFRT-GATE-0 not enforced in this run.
+_______________ TestT64Cel04.test_epoch_evidence_written_step_13 _______________
+tests/evolution/test_constitutional_evolution_loop.py:156: in test_epoch_evidence_written_step_13
+    assert "record_hash" in step13.detail
+E   AssertionError: assert 'record_hash' in {'registered_count': 1}
+E    +  where {'registered_count': 1} = CELStepResult(step_number=13, step_name='LINEAGE-REGISTER', outcome=<StepOutcome.PASS: 'PASS'>, reason=None, detail={'registered_count': 1}).detail
+------------------------------ Captured log call -------------------------------
+WARNING  runtime.seed_competition:seed_competition.py:140 COMP-GOV-0: no GovernanceGate injected; using permissive default. Inject a real gate before production use.
+WARNING  runtime.evolution.constitutional_evolution_loop:constitutional_evolution_loop.py:860 AFRT-GATE: afrt_agent unavailable — step bypassed (pre-Phase-92 mode). AFRT-GATE-0 not enforced in this run.
+=============================== warnings summary ===============================
+tests/autonomy/test_pr11_a_02_wiring.py::test_t11_b_04_bandit_exception_in_recommend_does_not_propagate
+  /home/dustinreid82/adaad/runtime/innovations_bus.py:99: DeprecationWarning: There is no current event loop
+    loop = asyncio.get_event_loop()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/autonomy/test_pr11_a_02_wiring.py::test_t11_b_04_bandit_exception_in_recommend_does_not_propagate
+FAILED tests/autonomy/test_pr11_a_02_wiring.py::test_t11_b_05_phase_5e_calls_bandit_update
+FAILED tests/determinism/test_lineage_v2_streaming.py::test_verify_integrity_streams_without_full_memory_load
+FAILED tests/determinism/test_lineage_v2_streaming.py::test_last_hash_uses_cache_after_verification
+FAILED tests/determinism/test_lineage_v2_streaming.py::test_append_advances_tail_hash_cache
+FAILED tests/determinism/test_lineage_v2_streaming.py::test_max_lines_truncation_does_not_fail_close
+FAILED tests/endpoints/test_aponi_endpoint_contracts.py::test_user_console_uses_external_script_for_csp_compatibility
+FAILED tests/endpoints/test_aponi_endpoint_contracts.py::test_dashboard_script_uses_safe_dom_rendering_primitives
+FAILED tests/evolution/test_cel_wiring.py::TestT65Wire01::test_wired_sandbox_run_completes
+FAILED tests/evolution/test_cel_wiring.py::TestT65Wire06::test_step10_gate_invoked
+FAILED tests/evolution/test_cel_wiring.py::TestT65Wire06::test_step10_approved_count_present
+FAILED tests/evolution/test_cel_wiring.py::TestT65Wire08::test_step12_skipped_in_sandbox_mode
+FAILED tests/evolution/test_cel_wiring.py::TestT65Wire12::test_governance_gate_exception_blocks_step10
+FAILED tests/evolution/test_cel_wiring.py::TestT65Wire13::test_wired_step_numbers_sequential
+FAILED tests/evolution/test_cel_wiring.py::TestT65Wire14::test_factory_run_completes
+FAILED tests/evolution/test_constitutional_evolution_loop.py::TestT64Cel01::test_sandbox_run_completes_14_steps
+FAILED tests/evolution/test_constitutional_evolution_loop.py::TestT64Cel02::test_step_numbers_strictly_sequential
+FAILED tests/evolution/test_constitutional_evolution_loop.py::TestT64Cel02::test_step_names_present
+FAILED tests/evolution/test_constitutional_evolution_loop.py::TestT64Cel03::test_promotion_skipped_in_sandbox_mode
+FAILED tests/evolution/test_constitutional_evolution_loop.py::TestT64Cel04::test_epoch_evidence_written_step_13
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 20 failures !!!!!!!!!!!!!!!!!!!!!!!!!!
+================== 20 failed, 264 passed, 1 warning in 26.41s ==================

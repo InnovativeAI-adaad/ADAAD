@@ -15,14 +15,15 @@ ThreatScanLedger (Phase 30):
 - Each record linked to predecessor via prev_hash → record_hash chain
 - ``chain_verify_on_open=True`` raises ``GateDecisionChainError`` on
   construction if chain integrity is violated
-- ``emit()`` catches ALL failures; logs WARNING; never propagates
+- ``emit()`` is fail-closed by default; raises typed write error on append failure
+- Optional best-effort mode logs WARNING and continues (analytics-only paths)
 - Reader is strictly read-only; no write path
 
 Design invariants
 ─────────────────
 - Append-only: no record is ever overwritten or deleted.
 - Fail-closed chain verification: any hash mismatch → ``GateDecisionChainError``.
-- Emit failure isolation: I/O errors in ``emit()`` never surface to callers.
+- Emit failure behavior is explicit: strict mode raises; best-effort mode logs.
 - Deterministic replay: same decision sequence → same chain hashes.
 - Timestamp excluded from ``record_hash`` — chain is wall-clock independent.
 - Ledger inactive by default: no ``path`` kwarg → no file written.
@@ -37,6 +38,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -63,6 +65,25 @@ class GateDecisionChainError(RuntimeError):
         super().__init__(message)
         self.sequence = sequence
         self.detail = detail
+
+
+class GateDecisionLedgerWriteError(RuntimeError):
+    """Raised when GateDecisionLedger cannot append in fail-closed mode."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        path: str,
+        sequence: int,
+        original_exception_type: str,
+        original_exception_message: str,
+    ) -> None:
+        super().__init__(message)
+        self.path = path
+        self.sequence = sequence
+        self.original_exception_type = original_exception_type
+        self.original_exception_message = original_exception_message
 
 
 # ---------------------------------------------------------------------------
@@ -170,10 +191,12 @@ class GateDecisionLedger:
         path: str | Path | None = None,
         *,
         chain_verify_on_open: bool = True,
+        fail_closed: bool = True,
     ) -> None:
         self._path: Path | None = Path(path) if path is not None else None
         self._sequence: int = 0
         self._prev_hash: str = GATE_DECISION_LEDGER_GENESIS_PREV_HASH
+        self._fail_closed = bool(fail_closed)
 
         if self._path is not None:
             self._path.parent.mkdir(parents=True, exist_ok=True)
@@ -195,8 +218,9 @@ class GateDecisionLedger:
     def emit(self, decision_payload: dict[str, Any]) -> None:
         """Append a GateDecision payload to the ledger.
 
-        Failure-isolated: any I/O or serialisation error is logged and
-        swallowed.  Callers are never interrupted.
+        Fail-closed by default: any I/O or serialisation error raises
+        ``GateDecisionLedgerWriteError``.  Set ``fail_closed=False`` for
+        best-effort analytics-only paths.
 
         Parameters
         ----------
@@ -216,10 +240,20 @@ class GateDecisionLedger:
             )
             with self._path.open("a", encoding="utf-8") as fh:
                 fh.write(json.dumps(record, separators=(",", ":")) + "\n")
+                fh.flush()
+                os.fsync(fh.fileno())
             self._prev_hash = record["record_hash"]
             self._sequence += 1
         except Exception as exc:
-            log.warning("GateDecisionLedger.emit() failed (swallowed): %s", exc)
+            if self._fail_closed:
+                raise GateDecisionLedgerWriteError(
+                    "GateDecisionLedger.emit() failed in fail-closed mode",
+                    path=str(self._path),
+                    sequence=self._sequence,
+                    original_exception_type=type(exc).__name__,
+                    original_exception_message=str(exc),
+                ) from exc
+            log.warning("GateDecisionLedger.emit() failed (best-effort): %s", exc)
 
     def verify_chain(self) -> bool:
         """Verify the current on-disk chain.  Returns ``True`` if intact."""
@@ -257,16 +291,73 @@ class GateDecisionReader:
 
     def __init__(self, path: str | Path) -> None:
         self._path = Path(path)
+        self._cache_key: tuple[int, int, int] | None = None
+        self._cached_records: list[dict[str, Any]] | None = None
+        self._cached_aggregates: dict[str, Any] | None = None
+
+    def _file_cache_key(self) -> tuple[int, int, int] | None:
+        if not self._path.exists():
+            return None
+        stat = self._path.stat()
+        return (int(stat.st_ino), int(stat.st_mtime_ns), int(stat.st_size))
+
+    @staticmethod
+    def _compute_aggregates(records: list[dict[str, Any]]) -> dict[str, Any]:
+        approved_count = 0
+        decision_breakdown: dict[str, int] = {}
+        failed_rules_frequency: dict[str, int] = {}
+        trust_mode_breakdown: dict[str, int] = {}
+        human_override_count = 0
+        for rec in records:
+            if rec.get("approved", False):
+                approved_count += 1
+            decision_label = str(rec.get("decision") or "deny")
+            decision_breakdown[decision_label] = decision_breakdown.get(decision_label, 0) + 1
+            trust_mode_label = str(rec.get("trust_mode") or "standard")
+            trust_mode_breakdown[trust_mode_label] = trust_mode_breakdown.get(trust_mode_label, 0) + 1
+            if rec.get("human_override", False):
+                human_override_count += 1
+            for rule_id in rec.get("failed_rules") or []:
+                rule_id_s = str(rule_id)
+                failed_rules_frequency[rule_id_s] = failed_rules_frequency.get(rule_id_s, 0) + 1
+
+        total = len(records)
+        approval_rate = 1.0 if total == 0 else round(approved_count / total, 6)
+        return {
+            "approval_rate": approval_rate,
+            "rejection_rate": round(1.0 - approval_rate, 6),
+            "human_override_count": human_override_count,
+            "decision_breakdown": decision_breakdown,
+            "failed_rules_frequency": failed_rules_frequency,
+            "trust_mode_breakdown": trust_mode_breakdown,
+        }
+
+    def _records_and_aggregates(self) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+        cache_key = self._file_cache_key()
+        if (
+            self._cache_key == cache_key
+            and self._cached_records is not None
+            and self._cached_aggregates is not None
+        ):
+            return self._cached_records, self._cached_aggregates
+
+        if cache_key is None:
+            records: list[dict[str, Any]] = []
+        else:
+            records = []
+            with self._path.open("r", encoding="utf-8") as fh:
+                for line in fh:
+                    line = line.strip()
+                    if line:
+                        records.append(json.loads(line))
+        aggregates = self._compute_aggregates(records)
+        self._cache_key = cache_key
+        self._cached_records = records
+        self._cached_aggregates = aggregates
+        return records, aggregates
 
     def _records(self) -> list[dict[str, Any]]:
-        if not self._path.exists():
-            return []
-        records: list[dict[str, Any]] = []
-        with self._path.open("r", encoding="utf-8") as fh:
-            for line in fh:
-                line = line.strip()
-                if line:
-                    records.append(json.loads(line))
+        records, _ = self._records_and_aggregates()
         return records
 
     def history(
@@ -296,43 +387,45 @@ class GateDecisionReader:
 
         Returns ``1.0`` on empty history (no denials → healthy).
         """
-        recs = self._records()
-        if not recs:
-            return 1.0
-        approved = sum(1 for r in recs if r.get("approved", False))
-        return round(approved / len(recs), 6)
+        _, aggregates = self._records_and_aggregates()
+        return float(aggregates["approval_rate"])
 
     def rejection_rate(self) -> float:
         """Fraction of gate decisions that were denied (1.0 - approval_rate)."""
-        return round(1.0 - self.approval_rate(), 6)
+        _, aggregates = self._records_and_aggregates()
+        return float(aggregates["rejection_rate"])
 
     def decision_breakdown(self) -> dict[str, int]:
         """Count decisions by decision label (pass / deny / override_pass / …)."""
-        breakdown: dict[str, int] = {}
-        for rec in self._records():
-            label = str(rec.get("decision") or "deny")
-            breakdown[label] = breakdown.get(label, 0) + 1
-        return breakdown
+        _, aggregates = self._records_and_aggregates()
+        return dict(aggregates["decision_breakdown"])
 
     def failed_rules_frequency(self) -> dict[str, int]:
         """Count how many times each rule_id appears in failed_rules."""
-        freq: dict[str, int] = {}
-        for rec in self._records():
-            for rule_id in rec.get("failed_rules") or []:
-                freq[str(rule_id)] = freq.get(str(rule_id), 0) + 1
-        return freq
+        _, aggregates = self._records_and_aggregates()
+        return dict(aggregates["failed_rules_frequency"])
 
     def human_override_count(self) -> int:
         """Number of decisions where human_override=True."""
-        return sum(1 for r in self._records() if r.get("human_override", False))
+        _, aggregates = self._records_and_aggregates()
+        return int(aggregates["human_override_count"])
 
     def trust_mode_breakdown(self) -> dict[str, int]:
         """Count decisions by trust_mode label."""
-        breakdown: dict[str, int] = {}
-        for rec in self._records():
-            mode = str(rec.get("trust_mode") or "standard")
-            breakdown[mode] = breakdown.get(mode, 0) + 1
-        return breakdown
+        _, aggregates = self._records_and_aggregates()
+        return dict(aggregates["trust_mode_breakdown"])
+
+    def common_aggregates(self) -> dict[str, Any]:
+        """Return a snapshot of common aggregate metrics in one pass."""
+        _, aggregates = self._records_and_aggregates()
+        return {
+            "approval_rate": float(aggregates["approval_rate"]),
+            "rejection_rate": float(aggregates["rejection_rate"]),
+            "human_override_count": int(aggregates["human_override_count"]),
+            "decision_breakdown": dict(aggregates["decision_breakdown"]),
+            "failed_rules_frequency": dict(aggregates["failed_rules_frequency"]),
+            "trust_mode_breakdown": dict(aggregates["trust_mode_breakdown"]),
+        }
 
     def verify_chain(self) -> bool:
         """Verify the on-disk hash chain.  Returns True if intact."""
@@ -345,6 +438,7 @@ class GateDecisionReader:
 
 __all__ = [
     "GateDecisionChainError",
+    "GateDecisionLedgerWriteError",
     "GateDecisionLedger",
     "GateDecisionReader",
     "GATE_DECISION_LEDGER_VERSION",

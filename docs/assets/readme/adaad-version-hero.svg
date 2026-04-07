@@ -1,17 +1,26 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="200" viewBox="0 0 800 200">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 72" width="100%" preserveAspectRatio="xMidYMid meet">
   <defs>
-    <linearGradient id="heroBg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#0d1117"/><stop offset="100%" style="stop-color:#1a2332"/></linearGradient>
-    <linearGradient id="vGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#00d4ff"/><stop offset="100%" style="stop-color:#0088ff"/></linearGradient>
+    <style>@keyframes tk{0%,100%{opacity:.5}50%{opacity:1}}.tk{animation:tk 1s ease-in-out infinite}</style>
+    <linearGradient id="topbar" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#00d4ff"/>
+      <stop offset="25%"  stop-color="#a855f7"/>
+      <stop offset="50%"  stop-color="#ff4466"/>
+      <stop offset="75%"  stop-color="#00ff88"/>
+      <stop offset="100%" stop-color="#f5c842"/>
+    </linearGradient>
+    <filter id="gv"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   </defs>
-  <rect width="800" height="200" rx="12" fill="url(#heroBg)" stroke="#21262d" stroke-width="1"/>
-  <text x="40" y="85" font-family="'SF Mono',monospace" font-size="52" font-weight="900" fill="url(#vGrad)">v9.48.0</text>
-  <rect x="40" y="100" width="220" height="32" rx="6" fill="#f5c84222"/>
-  <text x="52" y="121" font-family="'SF Mono',monospace" font-size="14" font-weight="700" fill="#f5c842">Phase 115 · 30 Innovations</text>
-  <rect x="274" y="100" width="215" height="32" rx="6" fill="#ff446622"/>
-  <text x="286" y="121" font-family="'SF Mono',monospace" font-size="14" font-weight="700" fill="#ff4466">125 Hard-class Invariants</text>
-  <rect x="503" y="100" width="90" height="32" rx="6" fill="#00ff8822"/>
-  <circle cx="521" cy="116" r="5" fill="#00ff88"><animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/></circle>
-  <text x="533" y="121" font-family="'SF Mono',monospace" font-size="14" font-weight="700" fill="#00ff88">LIVE</text>
-  <text x="40" y="170" font-family="'SF Mono',monospace" font-size="13" fill="#8b949e">Autonomous Development &amp; Adaptation Architecture · InnovativeAI LLC · PIPELINE COMPLETE 🏁</text>
-  <text x="40" y="192" font-family="'SF Mono',monospace" font-size="9" fill="#30363d">AUTO-SYNCED · 2026-04-04</text>
+  <rect width="1200" height="72" fill="#0d1117"/>
+  <rect y="0" width="1200" height="4" fill="url(#topbar)"/>
+  <circle cx="24" cy="38" r="7" fill="#00ff88" class="tk" filter="url(#gv)"/>
+  <text x="40" y="43" font-family="'JetBrains Mono','Courier New',monospace" font-size="18" fill="#00ff88">LIVE</text>
+  <rect x="80" y="18" width="1" height="24" fill="rgba(255,255,255,.1)"/>
+  <text x="94" y="43" font-family="'JetBrains Mono','Courier New',monospace" font-size="18" fill="rgba(255,255,255,.9)" filter="url(#gv)">v9.56.0</text>
+  <rect x="168" y="18" width="1" height="24" fill="rgba(255,255,255,.1)"/>
+  <text x="182" y="43" font-family="'JetBrains Mono','Courier New',monospace" font-size="18" fill="rgba(255,255,255,.4)">2026-04-06</text>
+  <rect x="316" y="18" width="1" height="24" fill="rgba(255,255,255,.1)"/>
+  <text x="330" y="43" font-family="'JetBrains Mono','Courier New',monospace" font-size="18" fill="#00d4ff">123 phases complete</text>
+  <rect x="560" y="18" width="1" height="24" fill="rgba(255,255,255,.1)"/>
+  <text x="574" y="43" font-family="'JetBrains Mono','Courier New',monospace" font-size="18" fill="#f5c842">next: Phase 85 — KMS/HSM</text>
+  <text x="1190" y="43" text-anchor="end" font-family="'JetBrains Mono','Courier New',monospace" font-size="14" fill="rgba(255,255,255,.18)">GOV-SOLE-0 · AUDIT-0 · REPLAY-0 · HUMAN-0</text>
 </svg>

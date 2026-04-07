@@ -23,6 +23,11 @@ def test_verify_integrity_streams_without_full_memory_load(tmp_path: pytest.Temp
     assert ledger.get_verified_tail_hash() is not None
 
 
+def test_get_verified_tail_hash_is_safe_before_verification(tmp_path: pytest.TempPathFactory) -> None:
+    ledger = LineageLedgerV2(tmp_path / "lineage.jsonl")
+    assert ledger.get_verified_tail_hash() is None
+
+
 def test_last_hash_uses_cache_after_verification(tmp_path: pytest.TempPathFactory) -> None:
     ledger_path = tmp_path / "lineage.jsonl"
     ledger = LineageLedgerV2(ledger_path)
@@ -66,8 +71,14 @@ def test_verify_integrity_detects_hash_tampering(tmp_path: pytest.TempPathFactor
 
 def test_max_lines_truncation_does_not_fail_close(tmp_path: pytest.TempPathFactory) -> None:
     ledger = LineageLedgerV2(tmp_path / "lineage.jsonl")
-    _append_events(ledger, 10)
+    entries = []
+    for idx in range(10):
+        entry = ledger.append_event(
+            "MutationBundleEvent",
+            {"epoch_id": "epoch-1", "bundle_id": f"bundle-{idx}", "impact": 0.1},
+        )
+        entries.append(entry)
 
     ledger.verify_integrity(max_lines=5)
 
-    assert ledger.get_verified_tail_hash() is None
+    assert ledger.get_verified_tail_hash() == entries[4]["hash"]

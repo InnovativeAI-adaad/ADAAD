@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.59.0 RELEASED \u00b7 Phase 126 Red-Team Challenge",
+  "active_phase": "v9.60.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -215,18 +215,30 @@
     "phase126-redteam-halt-0-enforced",
     "phase126-redteam-determ-0-enforced",
     "phase126-redteam-chain-0-enforced",
-    "phase126-world-first-constitutional-red-team-engine",
+    "phase126-world-first-constitutional-attacker",
     "v9.59.0-released",
-    "phase126-complete"
+    "phase126-complete",
+    "phase127-plan-authored",
+    "phase127-human0-ratified",
+    "phase127-innov37-grrp-implemented",
+    "phase127-grrp-0-enforced",
+    "phase127-grrp-route-0-enforced",
+    "phase127-grrp-sign-0-enforced",
+    "phase127-grrp-determ-0-enforced",
+    "phase127-grrp-chain-0-enforced",
+    "phase127-grrp-human0-0-enforced",
+    "phase127-world-first-governed-redteam-response",
+    "v9.60.0-released",
+    "phase127-complete"
   ],
   "constitutional_invariants": {
-    "cumulative": 173,
-    "hard_class_count": 173
+    "cumulative": 179,
+    "hard_class_count": 179
   },
-  "current_phase": 126,
-  "current_version": "9.59.0",
-  "hard_class_count": 173,
-  "hard_class_invariants_cumulative": 173,
+  "current_phase": 127,
+  "current_version": "9.60.0",
+  "hard_class_count": 179,
+  "hard_class_invariants_cumulative": 179,
   "human0_signoffs": [
     {
       "date": "2026-03-27",
@@ -412,8 +424,15 @@
       "attestation_ref": "ILA-126-2026-04-06-001",
       "date": "2026-04-06",
       "governor": "DUSTIN L REID",
-      "scope": "Phase 126 Red-Team Challenge -- ConstitutionalAttacker \u00b7 AttackManifest \u00b7 chain-linked ledger \u00b7 6 REDTEAM invariants \u00b7 30/30 tests green \u00b7 173 cumulative Hard-class invariants \u00b7 v9.59.0 release \u00b7 sync remediation FINDING-SYNC-126-001..004 resolved",
+      "scope": "Phase 126 Red-Team Challenge \u2014 constitutional_attacker.py \u00b7 30/30 tests \u00b7 6 REDTEAM invariants \u00b7 173 cumulative Hard-class invariants \u00b7 v9.59.0 release",
       "session_digest": "phase126-red-team-impl-2026-04-06"
+    },
+    {
+      "attestation_ref": "ILA-127-2026-04-06-001",
+      "date": "2026-04-06",
+      "governor": "DUSTIN L REID",
+      "scope": "Phase 127 INNOV-37 Governed Red-Team Response Protocol (GRRP) \u2014 30/30 tests green \u2014 6 GRRP invariants \u2014 179 cumulative Hard-class invariants \u2014 v9.60.0 release",
+      "session_digest": "phase127-grrp-impl-2026-04-06"
     }
   ],
   "innovations_shipped": {
@@ -466,31 +485,75 @@
       "hard_invariants": 2,
       "version": "9.58.0"
     },
-    "REDTEAM-126": {
-      "module": "runtime/red_team/constitutional_attacker.py",
+    "INNOV-34": {
+      "phase": 119,
+      "module": "federation_governance_consensus.py",
+      "version": "9.52.0",
+      "tests": "30/30",
+      "hard_invariants": 5
+    },
+    "INNOV-35": {
+      "phase": 120,
+      "module": "self_proposing_innovation_engine.py",
+      "version": "9.53.0",
+      "tests": "30/30",
+      "hard_invariants": 3
+    },
+    "INNOV-36": {
+      "phase": 121,
+      "module": "deterministic_audit_sandbox.py",
+      "version": "9.54.0",
+      "tests": "30/30",
+      "hard_invariants": 8
+    },
+    "PHASE-126": {
       "phase": 126,
+      "module": "runtime/red_team/constitutional_attacker.py",
+      "version": "9.59.0",
       "tests": "30/30",
       "hard_invariants": 6,
-      "version": "9.59.0"
+      "invariants": [
+        "REDTEAM-IMMUT-0",
+        "REDTEAM-AUDIT-0",
+        "REDTEAM-SCOPE-0",
+        "REDTEAM-HALT-0",
+        "REDTEAM-DETERM-0",
+        "REDTEAM-CHAIN-0"
+      ]
+    },
+    "INNOV-37": {
+      "phase": 127,
+      "module": "red_team_response_protocol.py",
+      "version": "9.60.0",
+      "tests": "30/30",
+      "hard_invariants": 6,
+      "invariants": [
+        "GRRP-0",
+        "GRRP-ROUTE-0",
+        "GRRP-SIGN-0",
+        "GRRP-DETERM-0",
+        "GRRP-CHAIN-0",
+        "GRRP-HUMAN0-0"
+      ]
     }
   },
-  "last_agent_state_sync_digest": "phase126-delivery-2026-04-06",
-  "last_completed_phase": "Phase 126 \u00b7 Red-Team Challenge",
-  "last_completed_pr": "feat/phase126-red-team",
+  "last_agent_state_sync_digest": "gsync-ae720f060c022c37",
+  "last_completed_phase": "Phase 06 \u00b7 Phase 127 \u00b7 INNOV-37 Governed Red-Team Response Protocol (GRRP)",
+  "last_completed_pr": "feat/phase127-innov37-grrp",
   "last_gate_results": {
     "tier_0": "pass",
     "tier_1": "pass",
     "tier_2": "pass",
     "tier_3": "pass"
   },
-  "last_innovation": "INNOV-36",
-  "last_innovation_name": "Deterministic Audit Sandbox",
-  "last_invocation": "2026-04-06",
-  "last_phase_completed": 126,
-  "last_sync_sha": "pending-merge",
+  "last_innovation": "INNOV-37",
+  "last_innovation_name": "Governed Red-Team Response Protocol",
+  "last_invocation": "2026-04-07",
+  "last_phase_completed": 127,
+  "last_sync_sha": "c22dd38c",
   "last_updated": "2026-04-06",
-  "next_phase": 127,
-  "next_pr": "feat/phase127-tbd",
+  "next_phase": 128,
+  "next_pr": "feat/phase128-tbd",
   "open_findings": [
     {
       "id": "FINDING-66-001",
@@ -662,11 +725,31 @@
       "source": "ArchitectAgent session 2026-04-01",
       "status": "resolved",
       "title": "Ghost tag v9.34.0 pointed to Phase 97 commit \u2014 remediation required"
+    },
+    {
+      "id": "FINDING-126-NEW-001",
+      "severity": "P0",
+      "title": "Ghost tag v9.59.0 remediation \u2014 delete + re-sign required",
+      "status": "runbook_delivered",
+      "source": "ArchitectAgent 2026-04-06",
+      "phase_target": "126",
+      "note": "Runbook delivered. Ceremony execution deferred to HUMAN-0 Track B."
+    },
+    {
+      "id": "FINDING-126-NEW-002",
+      "severity": "P1",
+      "title": "33 DORK commits on main unphased \u2014 Option A selected by HUMAN-0",
+      "status": "resolved",
+      "resolved_date": "2026-04-06",
+      "resolved_phase": "127",
+      "source": "ArchitectAgent 2026-04-06",
+      "phase_target": "127",
+      "note": "HUMAN-0 ratified Option A: governed autonomous DORK evolution, no retroactive phase required."
     }
   ],
   "pending_evidence_rows": [],
-  "phase": 126,
-  "phase_label": "Phase 126 -- Red-Team Challenge",
+  "phase": 127,
+  "phase_label": "Phase 127 -- INNOV-37 Governed Red-Team Response Protocol (GRRP)",
   "phases_completed": [
     106,
     107,
@@ -675,10 +758,11 @@
     116,
     124,
     125,
-    126
+    126,
+    127
   ],
   "schema_version": "1.5.0",
-  "software_version": "9.59.0",
+  "software_version": "9.60.0",
   "tife_active": true,
   "value_checkpoints_reached": [
     "phase0-track-a-hardening",
@@ -969,9 +1053,10 @@
     "phase124-world-first-governed-kernel-extraction",
     "v9.57.0-released"
   ],
-  "version": "9.59.0",
+  "version": "9.60.0",
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange",
-    "phase126-world-first-constitutional-red-team-engine"
-  ]
+    "phase127-world-first-governed-redteam-response"
+  ],
+  "last_phase_completed_label": "Phase 127 \u2014 INNOV-37 Governed Red-Team Response Protocol (GRRP)"
 }

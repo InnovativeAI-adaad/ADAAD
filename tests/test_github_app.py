@@ -9,7 +9,7 @@ import json
 import os
 import pytest
 
-from app.github_app import verify_webhook_signature, dispatch_event
+from runtime.integrations.github_app import verify_webhook_signature, dispatch_event
 
 SECRET = "test-webhook-secret-adaad"
 
@@ -20,20 +20,20 @@ def _sig(body: bytes, secret: str = SECRET) -> str:
 
 class TestSignatureVerification:
     def test_valid_signature(self, monkeypatch):
-        import app.github_app as gapp
+        import runtime.integrations.github_app as gapp
         monkeypatch.setattr(gapp, "GITHUB_WEBHOOK_SECRET", SECRET)
         body = b'{"action": "opened"}'
         assert verify_webhook_signature(body, _sig(body)) is True
 
     def test_invalid_signature(self, monkeypatch):
         monkeypatch.setenv("GITHUB_WEBHOOK_SECRET", SECRET)
-        import app.github_app as gapp
+        import runtime.integrations.github_app as gapp
         monkeypatch.setattr(gapp, "GITHUB_WEBHOOK_SECRET", SECRET)
         assert verify_webhook_signature(b"data", "sha256=badhash") is False
 
     def test_missing_header(self, monkeypatch):
         monkeypatch.setenv("GITHUB_WEBHOOK_SECRET", SECRET)
-        import app.github_app as gapp
+        import runtime.integrations.github_app as gapp
         monkeypatch.setattr(gapp, "GITHUB_WEBHOOK_SECRET", SECRET)
         assert verify_webhook_signature(b"data", "") is False
 
@@ -43,7 +43,7 @@ class TestSignatureVerification:
         assert verify_webhook_signature(b"data", "") is True
 
     def test_no_secret_non_dev_blocked(self, monkeypatch):
-        import app.github_app as gapp
+        import runtime.integrations.github_app as gapp
         monkeypatch.setattr(gapp, "GITHUB_WEBHOOK_SECRET", "")
         monkeypatch.setenv("ADAAD_ENV", "prod")
         assert verify_webhook_signature(b"data", "") is False

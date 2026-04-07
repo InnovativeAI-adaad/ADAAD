@@ -1,0 +1,19 @@
+{
+  "phase": 126,
+  "version": "9.59.0",
+  "innovation": null,
+  "title": "Docs Market Positioning \u2014 Competitive Analysis + Phase 125 Sync",
+  "governor": "DUSTIN L REID",
+  "attestation_id": "ILA-126-2026-04-06-001",
+  "date": "2026-04-06",
+  "changes": [
+    "README: Phase 125 community governance added to timeline and recent phases table",
+    "README: 16-property competitor comparison table vs Copilot/Devin/CodeRabbit/CI",
+    "README: roadmap count 124->125 phases complete, version badge 9.58.0->9.59.0",
+    "TRUST_CENTER: version sync v9.55.0->v9.58.0, 162->167 invariants, Phase 122->125",
+    "docs/COMPETITIVE_ANALYSIS.md: new file \u2014 full competitive analysis"
+  ],
+  "human0_signoff": "Approved. All signed: Dustin L. Reid",
+  "invariants_hard_class_cumulative": 167,
+  "sha256": "2a058b160b6935b936e4f309641a7f1bb351e1e9cce256131a2291f935a5f194"
+}
