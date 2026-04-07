@@ -1,0 +1,105 @@
+{
+  "schema_version": "1.5.0",
+  "phase": 126,
+  "phase_name": "Red-Team Challenge",
+  "attestation_ref": "ILA-126-2026-04-06-001",
+  "version": "9.59.0",
+  "date": "2026-04-06",
+  "governor": "DUSTIN L REID",
+  "human0_authority": "HUMAN-0",
+  "tests_passed": "30/30",
+  "test_ids": [
+    "T126-RTEAM-01",
+    "T126-RTEAM-02",
+    "T126-RTEAM-03",
+    "T126-RTEAM-04",
+    "T126-RTEAM-05",
+    "T126-RTEAM-06",
+    "T126-RTEAM-07",
+    "T126-RTEAM-08",
+    "T126-RTEAM-09",
+    "T126-RTEAM-10",
+    "T126-RTEAM-11",
+    "T126-RTEAM-12",
+    "T126-RTEAM-13",
+    "T126-RTEAM-14",
+    "T126-RTEAM-15",
+    "T126-RTEAM-16",
+    "T126-RTEAM-17",
+    "T126-RTEAM-18",
+    "T126-RTEAM-19",
+    "T126-RTEAM-20",
+    "T126-RTEAM-21",
+    "T126-RTEAM-22",
+    "T126-RTEAM-23",
+    "T126-RTEAM-24",
+    "T126-RTEAM-25",
+    "T126-RTEAM-26",
+    "T126-RTEAM-27",
+    "T126-RTEAM-28",
+    "T126-RTEAM-29",
+    "T126-RTEAM-30"
+  ],
+  "test_categories": [
+    "ATCK",
+    "DFNS",
+    "AUDIT",
+    "REPT"
+  ],
+  "constitutional_invariants": [
+    {
+      "id": "REDTEAM-IMMUT-0",
+      "class": "Hard",
+      "gate_exception": "LedgerMutationError"
+    },
+    {
+      "id": "REDTEAM-AUDIT-0",
+      "class": "Hard",
+      "gate_exception": "ConstitutionalBreachError"
+    },
+    {
+      "id": "REDTEAM-SCOPE-0",
+      "class": "Hard",
+      "gate_exception": "OutOfScopeAttackError"
+    },
+    {
+      "id": "REDTEAM-HALT-0",
+      "class": "Hard",
+      "gate_exception": "ConstitutionalBreachError"
+    },
+    {
+      "id": "REDTEAM-DETERM-0",
+      "class": "Hard",
+      "gate_exception": "ConstitutionalBreachError"
+    },
+    {
+      "id": "REDTEAM-CHAIN-0",
+      "class": "Hard",
+      "gate_exception": "ConstitutionalBreachError"
+    }
+  ],
+  "new_hard_invariants": 6,
+  "cumulative_hard_invariants_prior": 167,
+  "cumulative_hard_invariants_post": 173,
+  "deliverables": [
+    "runtime/red_team/constitutional_attacker.py",
+    "runtime/red_team/attack_manifest.json",
+    "tests/test_phase126_red_team.py",
+    "artifacts/governance/phase126/phase126_sign_off.json",
+    "artifacts/governance/phase126/phase126_ip_specification.md",
+    "artifacts/governance/phase126/phase126_invariant_registry.md",
+    "artifacts/governance/phase126/phase126_test_manifest.json"
+  ],
+  "sync_remediation": {
+    "commit": "99defff",
+    "findings_resolved": [
+      "FINDING-SYNC-126-001",
+      "FINDING-SYNC-126-002",
+      "FINDING-SYNC-126-003",
+      "FINDING-SYNC-126-004"
+    ]
+  },
+  "world_first": "First constitutional red-team engine with append-only chain-linked attack ledger, typed breach exceptions, and canonical manifest scope enforcement",
+  "gpg_ratification": "PENDING \u2014 HUMAN-0 Track B action required",
+  "attest_digest": "sha256:49888e32c6e70c6d5b8f6777fa793593"
+}
