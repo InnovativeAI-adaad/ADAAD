@@ -306,22 +306,25 @@ class TestDreamStateEngine:
     def test_generates_candidates(self, tmp_path):
         from runtime.innovations30.dream_state import DreamStateEngine
         engine = DreamStateEngine(tmp_path/"dreams.jsonl", seed=42)
-        candidates = engine.dream(self._make_memory(20), "ep-dream")
+        report = engine.dream(self._make_memory(20), "ep-dream")
+        candidates = report.candidates
         # Should generate candidates from healthy memory pool
-        assert isinstance(candidates, list)
+        assert isinstance(report.candidates, list)
         if len(candidates) == 0:
             pytest.skip("Dream state may not generate candidates with this seed/threshold")
 
     def test_too_little_history_no_candidates(self, tmp_path):
         from runtime.innovations30.dream_state import DreamStateEngine
-        engine = DreamStateEngine(tmp_path/"dreams.jsonl")
-        candidates = engine.dream(self._make_memory(2), "ep-dream")
+        engine = DreamStateEngine(tmp_path/"dreams.jsonl", seed=42)
+        report = engine.dream(self._make_memory(2), "ep-dream")
+        candidates = report.candidates
         assert candidates == []
 
     def test_candidate_has_source_epochs(self, tmp_path):
         from runtime.innovations30.dream_state import DreamStateEngine
         engine = DreamStateEngine(tmp_path/"dreams.jsonl", seed=42)
-        candidates = engine.dream(self._make_memory(15), "ep-dream")
+        report = engine.dream(self._make_memory(15), "ep-dream")
+        candidates = report.candidates
         if candidates:
             assert len(candidates[0].source_epochs) == 2
             assert candidates[0].genesis_digest.startswith("sha256:")
@@ -365,7 +368,7 @@ class TestInstitutionalMemoryTransfer:
         bundle = transfer.export_bundle("instance-a",
             {"fitness": src / "fitness.json"}, epoch_count=50)
         assert bundle.verify_integrity() is True
-        result = transfer.import_bundle(bundle, {"fitness": dst / "fitness.json"})
+        result = transfer.import_bundle(bundle, {"fitness": dst / "fitness.json"}, signing_key="mock-key")
         assert result.success is True
         assert result.integrity_verified is True
         assert (dst / "fitness.json").exists()
@@ -699,6 +702,7 @@ class TestHardwareAdaptiveFitness:
                    "policy_compliance_score": 0.7,
                    "goal_alignment_score": 0.6, "simulated_market_score": 0.5}
         result = haf.score_with_profile(scores)
+        if isinstance(result, tuple): result = result[0]
         assert 0.0 <= result <= 1.0
 
 

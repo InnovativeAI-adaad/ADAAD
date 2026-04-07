@@ -122,11 +122,11 @@ class RetryPolicy:
 
 @dataclass(frozen=True)
 class LLMProviderConfig:
-    provider: str  # "anthropic", "gemini", "openai", "ollama"
-    api_key: str
-    model: str
-    timeout_seconds: float
-    max_tokens: int
+    provider: str = "anthropic"  # "anthropic", "gemini", "openai", "ollama"
+    api_key: str = ""
+    model: str = ""
+    timeout_seconds: float = 15.0
+    max_tokens: int = 800
     base_url: str | None = None
     fallback_to_noop: bool = False
     fallback_models: tuple[str, ...] = ()

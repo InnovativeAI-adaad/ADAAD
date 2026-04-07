@@ -74,3 +74,37 @@ def test_validator_ignores_sha256_digests(tmp_path: Path) -> None:
     result = _run(repo, "--mode", "roots", "--roots", "artifacts/governance")
 
     assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_changed_mode_hard_fails_when_git_diff_fails(tmp_path: Path) -> None:
+    repo, _sha = _init_repo(tmp_path)
+
+    result = _run(repo, "--mode", "changed", "--base-ref", "totally-invalid-ref...HEAD")
+
+    assert result.returncode == 1
+    assert "git diff failed while discovering changed release artifacts" in result.stdout
+    assert "totally-invalid-ref...HEAD" in result.stdout
+    assert "fatal:" in result.stdout
+
+
+def test_changed_mode_empty_diff_is_valid_noop(tmp_path: Path) -> None:
+    repo, _sha = _init_repo(tmp_path)
+
+    result = _run(repo, "--mode", "changed", "--base-ref", "HEAD..HEAD")
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "no changed release artifact files detected; skipping Git SHA resolution check" in result.stdout
+
+
+def test_changed_mode_validates_refs_for_changed_files(tmp_path: Path) -> None:
+    repo, sha = _init_repo(tmp_path)
+    rel = repo / "docs" / "releases"
+    rel.mkdir(parents=True)
+    (rel / "2.0.0.md").write_text(f"Release SHA: `{sha}`\n", encoding="utf-8")
+    subprocess.run(["git", "add", "docs/releases/2.0.0.md"], cwd=repo, check=True)
+    subprocess.run(["git", "commit", "-m", "add release note"], cwd=repo, check=True, capture_output=True, text=True)
+
+    result = _run(repo, "--mode", "changed", "--base-ref", "HEAD~1..HEAD")
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "all referenced Git SHAs are resolvable" in result.stdout

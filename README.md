@@ -317,6 +317,22 @@ The constitutional governance kernel extracted as `adaad_core` — a standalone,
 Breaking changes require `CORE-SEMVER-0` ratification and HUMAN-0 approval. The governance kernel is now a first-class public API. 179 Hard-class invariants. See [ADAAD_CORE_API.md](docs/ADAAD_CORE_API.md).
 </details>
 
+<details>
+<summary><b>🏛 April 5, 2026 — Community Governance Infrastructure (Phase 125)</b></summary>
+<br/>
+
+**First constitutionally governed community amendment pipeline — structurally incapable of autonomous constitutional change (`COMMUNITY-HUMAN0-0`).**
+
+Community members can now propose constitutional amendments through a governed pipeline: GitHub Issue template → CI validator (quorum check, rationale length ≥50 words, conflict analysis) → FGCON review → HUMAN-0 ratification. Two new Hard-class invariants enforce what no AI agent may override:
+
+- `COMMUNITY-FGCON-0` — a single contributor cannot ratify. Community amendments require FGCON quorum.
+- `COMMUNITY-HUMAN0-0` — HUMAN-0 ratification cannot be delegated or automated via any workflow.
+
+The CI gate (`constitution_amendment_validation.yml`) structurally rejects any PR that claims autonomous ratification. See [GOVERNANCE_PARTICIPATION.md](docs/GOVERNANCE_PARTICIPATION.md) for the full amendment lifecycle.
+</details>
+
+<a name="community-governance"></a>
+
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 
 ## Why you can trust the claims
@@ -509,7 +525,8 @@ ADAAD evolves through numbered phases. Each phase ships a specific capability, r
 | 121 | Deterministic Audit Sandbox (INNOV-36) | `DAS-EPOCH-0` · `DAS-DETERM-0` | ✅ |
 | 122 | README Credibility + ROADMAP Sync | — | ✅ |
 | 123 | CLI Entry Point (`adaad` binary) | `CLI-SANDBOX-0` · `CLI-GATE-0` | ✅ |
-| **124** | **adaad-core Package Extraction** | `CORE-EXPORT-0` · `CORE-IMPORT-0` · `CORE-SEMVER-0` | ✅ |
+| 124 | adaad-core Package Extraction | `CORE-EXPORT-0` · `CORE-IMPORT-0` · `CORE-SEMVER-0` | ✅ |
+| **125** | **Community Governance Infrastructure** | `COMMUNITY-FGCON-0` · `COMMUNITY-HUMAN0-0` | ✅ |
 
 <details>
 <summary><b>How a phase ships (contributor reference)</b></summary>
@@ -645,6 +662,35 @@ ADAAD uses a **phase-correlated version scheme** by design. Each minor increment
 | [ROI Model](docs/commercial/ROI_MODEL.md) | Value quantification framework for governance automation |
 
 </details>
+
+![Section Divider](docs/assets/readme/inline-divider.svg)
+
+## How ADAAD compares
+
+ADAAD is in a category of one. The table below is structured around verifiable, runtime-enforced properties — not feature checkboxes.
+
+| Capability | ADAAD | GitHub Copilot / Devin | CodeRabbit / Qodo | Traditional CI/CD |
+|:---|:---:|:---:|:---:|:---:|
+| Autonomous code mutation with governance gate | ✅ | ❌ | ❌ | ❌ |
+| Adversarial red-team challenge before scoring | ✅ | ❌ | ❌ | ❌ |
+| Zero-write shadow execution against live traffic | ✅ | ❌ | ❌ | ❌ |
+| SHA-256 hash-chained tamper-evident ledger | ✅ | ❌ | ❌ | ❌ |
+| Byte-identical deterministic epoch replay | ✅ | ❌ | ❌ | ⚠️ partial |
+| Constitutional self-model (Morphogenetic Memory) | ✅ | ❌ | ❌ | ❌ |
+| 2-of-3 multi-agent jury for high-stakes mutations | ✅ | ❌ | ❌ | ❌ |
+| Runtime-enforced Hard-class invariants (167) | ✅ | ❌ | ❌ | ❌ |
+| HUMAN-0 GPG key required for critical changes | ✅ | ❌ | ❌ | ⚠️ policy only |
+| Governance drift rate capped (30% entropy budget) | ✅ | ❌ | ❌ | ❌ |
+| Cryptographic evolution proof DAG (Merkle-rooted) | ✅ | ❌ | ❌ | ❌ |
+| Independently installable governance kernel () | ✅ | ❌ | ❌ | ❌ |
+| One-command third-party audit sandbox | ✅ | ❌ | ❌ | ⚠️ partial |
+| Runs on a 00 Android phone (no cloud dependency) | ✅ | ❌ | ❌ | ❌ |
+| Open source, Apache 2.0 | ✅ | ❌ | ⚠️ partial | ✅ |
+| Constitutional self-evolution in production (Phase 65) | ✅ | ❌ | ❌ | ❌ |
+
+**Key distinction:** Tools like Copilot and Devin generate or suggest code. CodeRabbit reviews it. CI/CD tests it. ADAAD governs whether mutations to its own codebase are constitutionally valid — and produces cryptographic proof of every decision. These are not competing categories. They are adjacent layers. ADAAD occupies the layer none of them reach.
+
+→ [Full competitive analysis](docs/COMPETITIVE_ANALYSIS.md) · [Verifiable claims](docs/VERIFIABLE_CLAIMS.md)
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 

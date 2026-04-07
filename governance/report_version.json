@@ -1,10 +1,10 @@
 {
-  "last_sync_date": "2026-04-06",
-  "last_sync_sha": "a5a862b",
-  "report_version": "9.58.0",
+  "last_sync_date": "2026-04-07",
+  "last_sync_sha": "88d63c43",
+  "report_version": "9.60.0",
   "version_source": "governance/report_version.json",
-  "version": "9.57.0",
-  "phase": 124,
+  "version": "9.60.0",
+  "phase": 127,
   "date": "2026-04-05",
   "innovation": "Phase-124-adaad-core-Extraction",
   "updated": "2026-04-05"

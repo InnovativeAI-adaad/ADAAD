@@ -260,28 +260,28 @@
 
 <!-- Version pill -->
 <rect x="210" y="190" width="130" height="26" rx="13" fill="#0d1117" stroke="#00d4ff" stroke-width="1.2"/>
-<text x="275" y="207" text-anchor="middle" font-family="'Courier New',monospace" font-size="12" fill="#00d4ff" font-weight="700">v9.48.0  LIVE</text>
+<text x="275" y="207" text-anchor="middle" font-family="'Courier New',monospace" font-size="12" fill="#00d4ff" font-weight="700">v9.56.0  LIVE</text>
 <circle cx="223" cy="203" r="4" fill="#00ff88"><animate attributeName="opacity" values="1;0.2;1" dur="1.2s" repeatCount="indefinite"/></circle>
 
 <!-- Stat cards row -->
 <g transform="translate(210, 240)">
   <!-- PHASES -->
   <rect width="140" height="68" rx="8" fill="#0d1a2a" stroke="#00d4ff" stroke-width="1"/>
-  <text x="70" y="28" text-anchor="middle" class="stat-val" fill="url(#cyan-g)" filter="url(#soft-glow)">115</text>
+  <text x="70" y="28" text-anchor="middle" class="stat-val" fill="url(#cyan-g)" filter="url(#soft-glow)">123</text>
   <text x="70" y="42" text-anchor="middle" class="stat-lbl">Phases</text>
   <rect x="10" y="50" width="120" height="3" rx="1.5" fill="#1a2a3a"/>
   <rect x="10" y="50" width="112" height="3" rx="1.5" fill="url(#cyan-g)" class="bar-fill" style="animation-delay:.2s"><animate attributeName="width" from="0" to="112" dur="1.5s" begin=".2s" fill="freeze"/></rect>
 
   <!-- INNOVATIONS -->
   <rect x="150" width="140" height="68" rx="8" fill="#0d1a2a" stroke="#00ff88" stroke-width="1"/>
-  <text x="220" y="28" text-anchor="middle" class="stat-val" fill="url(#green-g)" filter="url(#soft-glow)">30</text>
+  <text x="220" y="28" text-anchor="middle" class="stat-val" fill="url(#green-g)" filter="url(#soft-glow)">36</text>
   <text x="220" y="42" text-anchor="middle" class="stat-lbl">Innovations</text>
   <rect x="160" y="50" width="120" height="3" rx="1.5" fill="#1a2a1a"/>
   <rect x="160" y="50" width="120" height="3" rx="1.5" fill="url(#green-g)"><animate attributeName="width" from="0" to="120" dur="1.5s" begin=".4s" fill="freeze"/></rect>
 
   <!-- INVARIANTS -->
   <rect x="300" width="140" height="68" rx="8" fill="#1a0d1a" stroke="#ff4466" stroke-width="1"/>
-  <text x="370" y="28" text-anchor="middle" class="stat-val" fill="url(#red-g)" filter="url(#soft-glow)">125</text>
+  <text x="370" y="28" text-anchor="middle" class="stat-val" fill="url(#red-g)" filter="url(#soft-glow)">141</text>
   <text x="370" y="42" text-anchor="middle" class="stat-lbl">Invariants</text>
   <rect x="310" y="50" width="120" height="3" rx="1.5" fill="#2a0d1a"/>
   <rect x="310" y="50" width="120" height="3" rx="1.5" fill="url(#red-g)"><animate attributeName="width" from="0" to="120" dur="1.5s" begin=".6s" fill="freeze"/></rect>
@@ -301,44 +301,44 @@
   <g transform="translate(0,28)">
     <rect width="360" height="22" rx="4" fill="#0d1a2a" stroke="#1a2a3a"/>
     <circle cx="12" cy="11" r="5" fill="#00ff88" opacity="0.9"/>
-    <text x="24" y="15" font-family="'Courier New',monospace" font-size="11" fill="#00ff88">Ph.115</text>
-    <text x="74" y="15" font-family="'Segoe UI',Arial,sans-serif" font-size="11" fill="#e0e6f0">The Mirror Test (MIRROR) 🏁</text>
-    <text x="300" y="15" font-family="'Segoe UI',Arial,sans-serif" font-size="10" fill="#00d4ff">INNOV-30</text>
+    <text x="24" y="15" font-family="'Courier New',monospace" font-size="11" fill="#00ff88">Ph.121</text>
+    <text x="74" y="15" font-family="'Segoe UI',Arial,sans-serif" font-size="11" fill="#e0e6f0">Deterministic Audit Sandbox (DAS) () 🏁</text>
+    <text x="300" y="15" font-family="'Segoe UI',Arial,sans-serif" font-size="10" fill="#00d4ff">INNOV-36</text>
   </g>
   <g transform="translate(0,55)">
     <rect width="360" height="22" rx="4" fill="#0d1a2a" stroke="#1a2a3a"/>
     <circle cx="12" cy="11" r="5" fill="#00d4ff" opacity="0.8"/>
-    <text x="24" y="15" font-family="'Courier New',monospace" font-size="11" fill="#00d4ff">Ph.114</text>
-    <text x="74" y="15" font-family="'Segoe UI',Arial,sans-serif" font-size="11" fill="#8b9ab0">Curiosity-Driven Exploration (CURIOSITY)</text>
-    <text x="300" y="15" font-family="'Segoe UI',Arial,sans-serif" font-size="10" fill="#8b9ab0">INNOV-29</text>
+    <text x="24" y="15" font-family="'Courier New',monospace" font-size="11" fill="#00d4ff">Ph.120</text>
+    <text x="74" y="15" font-family="'Segoe UI',Arial,sans-serif" font-size="11" fill="#8b9ab0">Self-Proposing Innovation Engine (SPIE) ()</text>
+    <text x="300" y="15" font-family="'Segoe UI',Arial,sans-serif" font-size="10" fill="#8b9ab0">INNOV-35</text>
   </g>
   <g transform="translate(0,82)">
     <rect width="360" height="22" rx="4" fill="#0d1a2a" stroke="#1a2a3a"/>
     <circle cx="12" cy="11" r="5" fill="#a855f7" opacity="0.7"/>
-    <text x="24" y="15" font-family="'Courier New',monospace" font-size="11" fill="#a855f7">Ph.113</text>
-    <text x="74" y="15" font-family="'Segoe UI',Arial,sans-serif" font-size="11" fill="#8b9ab0">Self-Awareness Invariant (SELF-AWARE)</text>
-    <text x="300" y="15" font-family="'Segoe UI',Arial,sans-serif" font-size="10" fill="#8b9ab0">INNOV-28</text>
+    <text x="24" y="15" font-family="'Courier New',monospace" font-size="11" fill="#a855f7">Ph.119</text>
+    <text x="74" y="15" font-family="'Segoe UI',Arial,sans-serif" font-size="11" fill="#8b9ab0">Federation Governance Consensus (FGCON) ()</text>
+    <text x="300" y="15" font-family="'Segoe UI',Arial,sans-serif" font-size="10" fill="#8b9ab0">INNOV-34</text>
   </g>
   <g transform="translate(0,109)">
     <rect width="360" height="22" rx="4" fill="#0d1a2a" stroke="#1a2a3a"/>
     <circle cx="12" cy="11" r="5" fill="#ff8800" opacity="0.7"/>
-    <text x="24" y="15" font-family="'Courier New',monospace" font-size="11" fill="#ff8800">Ph.112</text>
-    <text x="74" y="15" font-family="'Segoe UI',Arial,sans-serif" font-size="11" fill="#8b9ab0">Mutation Blast Radius Modeling (BLAST)</text>
-    <text x="300" y="15" font-family="'Segoe UI',Arial,sans-serif" font-size="10" fill="#8b9ab0">INNOV-27</text>
+    <text x="24" y="15" font-family="'Courier New',monospace" font-size="11" fill="#ff8800">Ph.118</text>
+    <text x="74" y="15" font-family="'Segoe UI',Arial,sans-serif" font-size="11" fill="#8b9ab0">Knowledge Bundle Exchange Protocol (KBEP) ()</text>
+    <text x="300" y="15" font-family="'Segoe UI',Arial,sans-serif" font-size="10" fill="#8b9ab0">INNOV-33</text>
   </g>
   <g transform="translate(0,136)">
     <rect width="360" height="22" rx="4" fill="#0d1a2a" stroke="#1a2a3a"/>
     <circle cx="12" cy="11" r="5" fill="#ffcc00" opacity="0.6"/>
-    <text x="24" y="15" font-family="'Courier New',monospace" font-size="11" fill="#ffcc00">Ph.111</text>
-    <text x="74" y="15" font-family="'Segoe UI',Arial,sans-serif" font-size="11" fill="#8b9ab0">Constitutional Entropy Budget (CEB)</text>
-    <text x="300" y="15" font-family="'Segoe UI',Arial,sans-serif" font-size="10" fill="#8b9ab0">INNOV-26</text>
+    <text x="24" y="15" font-family="'Courier New',monospace" font-size="11" fill="#ffcc00">Ph.117</text>
+    <text x="74" y="15" font-family="'Segoe UI',Arial,sans-serif" font-size="11" fill="#8b9ab0">Constitutional Rollback & Temporal Versioning ()</text>
+    <text x="300" y="15" font-family="'Segoe UI',Arial,sans-serif" font-size="10" fill="#8b9ab0">INNOV-32</text>
   </g>
 <!-- Live indicator -->
   <g transform="translate(0,175)">
     <rect width="360" height="28" rx="5" fill="#001a00" stroke="#00ff88" stroke-width="1"/>
     <circle cx="14" cy="14" r="5" fill="#00ff88"><animate attributeName="r" values="4;6;4" dur="1s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;.4;1" dur="1s" repeatCount="indefinite"/></circle>
     <text x="26" y="19" font-family="'Segoe UI',Arial,sans-serif" font-size="11" fill="#00ff88" font-weight="600">Constitutional Evolution Loop LIVE</text>
-    <text x="280" y="19" font-family="'Courier New',monospace" font-size="10" fill="#00ff88">v9.48.0</text>
+    <text x="280" y="19" font-family="'Courier New',monospace" font-size="10" fill="#00ff88">v9.56.0</text>
   </g>
 
   <!-- Governance badge -->
