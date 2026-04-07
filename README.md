@@ -10,7 +10,7 @@
 
 <br/>
 
-[![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-00d4ff?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v9.58.0](https://img.shields.io/badge/version-v9.59.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![167 Invariants](https://img.shields.io/badge/invariants-167%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
+[![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-00d4ff?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v9.60.0](https://img.shields.io/badge/version-v9.60.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![179 Invariants](https://img.shields.io/badge/invariants-179%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
 
 </div>
 
@@ -22,7 +22,7 @@
 
 **ADAAD is not a tool you run. It is a system that runs itself — within constitutional boundaries you set, sign, and own.**
 
-Every mutation is proposed by AI agents, challenged by an adversarial red team, shadow-executed against live traffic, scored across 167 constitutional invariants, and sealed with a cryptographic proof chain before it can touch production. Your GPG key is the only key that unlocks critical changes. That is not configurable.
+Every mutation is proposed by AI agents, challenged by an adversarial red team, shadow-executed against live traffic, scored across 179 constitutional invariants, and sealed with a cryptographic proof chain before it can touch production. Your GPG key is the only key that unlocks critical changes. That is not configurable.
 
 </div>
 
@@ -86,7 +86,7 @@ These are runtime-enforced invariants. Violating any one **aborts the epoch imme
 | Governance drift rate capped at 30% before double sign-off | Meta-governance limits constitutional change velocity | `CEB-0` |
 | No mutation may reduce self-monitoring observability | Transparency is structural and non-negotiable | `SELF-AWARE-0` |
 | adaad-core exports are semver-governed and HUMAN-0 gated | Breaking changes require major version bump + ratification | `CORE-SEMVER-0` |
-| **167 Hard-class invariants enforced at runtime** | Epoch aborts on any violation — no silent failures | 167 total |
+| **179 Hard-class invariants enforced at runtime** | Epoch aborts on any violation — no silent failures | 179 total |
 
 → [Full invariants matrix](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md) · [Constitution](docs/CONSTITUTION.md) · [Verifiable claims](docs/VERIFIABLE_CLAIMS.md)
 
@@ -314,7 +314,7 @@ All 36 constitutional innovations shipped. `boot_completeness_check()` confirms 
 
 The constitutional governance kernel extracted as `adaad_core` — a standalone, semver-governed, independently installable package. Six stable exports: `GovernanceGate`, `ConstitutionalRollbackEngine`, `InvariantDiscoveryEngine`, `MirrorTestEngine`, `EpochMemoryStore`, `verify_ledger`. 
 
-Breaking changes require `CORE-SEMVER-0` ratification and HUMAN-0 approval. The governance kernel is now a first-class public API. 167 Hard-class invariants. See [ADAAD_CORE_API.md](docs/ADAAD_CORE_API.md).
+Breaking changes require `CORE-SEMVER-0` ratification and HUMAN-0 approval. The governance kernel is now a first-class public API. 179 Hard-class invariants. See [ADAAD_CORE_API.md](docs/ADAAD_CORE_API.md).
 </details>
 
 <details>
@@ -365,7 +365,7 @@ Every guarantee below is runtime-enforced. Not a policy. Not a pledge. Violation
 | 🔑 GPG-sign Tier 0 changes | Generate mutation proposals via Claude agents |
 | 🌱 Approve seed promotions | Red-team challenge every proposal before scoring |
 | 📜 Set constitutional rules | Shadow-execute mutations in zero-write harness |
-| 🏷 Tag version ceremonies | Score against 167 constitutional invariants |
+| 🏷 Tag version ceremonies | Score against 179 constitutional invariants |
 | ⚙️ Ratify new Hard-class invariants | Hash-chain every decision into the ledger |
 | 🧬 Amend `IdentityLedger` statements | Consult self-model before every proposal |
 | 📋 Patent and IP decisions | Build cryptographic evolution proof DAGs |
@@ -773,7 +773,7 @@ Start with the [Trust Center](TRUST_CENTER.md). The [Procurement Fast-Lane packa
 
 ## Roadmap
 
-**125 phases complete. 167 Hard-class invariants. 36 innovations shipped. adaad-core extracted. Community governance live.**
+**124 phases complete. 179 Hard-class invariants. 36 innovations shipped. adaad-core extracted.**
 
 **Short term** — adaad-core PyPI publication, community governance infrastructure, formal GA release hardening.
 

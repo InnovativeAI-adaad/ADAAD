@@ -1,44 +1,56 @@
-## [9.60.0] — 2026-04-06 · Phase 127 · Break-It Challenge Infrastructure
+## [9.60.0] — 2026-04-06 · Phase 127 · INNOV-37 Governed Red-Team Response Protocol (GRRP)
 
-### Added
-- `docs/BREAK_IT_CHALLENGE.md` — public constitutional stress test: 167 Hard-class invariants open to adversarial challenge; in/out-of-scope rules; submission format; BYPASS_CONFIRMED / GUARANTEE_HOLDS / PARTIAL_BYPASS classifications; recognition policy; verification environment
-- `docs/break_it_log/README.md` — public submission log initialized at 0 attempts; summary table; entry format; active invariants table; coordinated disclosure policy
-- `.github/ISSUE_TEMPLATE/break_it_submission.md` — structured submission template: YAML frontmatter, all mandatory fields, result classification checkboxes, clean-clone reproduction requirement
-- `CONTRIBUTORS.md` — permanent recognition registry: HUMAN-0, Constitutional Auditors (Break-It), Community Governance Participants, Code contributors; recognition is permanent and never removed
-- `tests/test_phase127_break_it_challenge.py` — 30/30 acceptance tests T127-BRK-01..30 (DOC, LOG, TMPL, CONT, INV, PROC categories)
-- `artifacts/governance/phase127/` — sign-off JSON, attestation ILA-127-2026-04-06-001
+### World-First: Constitutionally Governed Red-Team Response Engine with HUMAN-0-Gated Amendment Routing
 
-### Changed
-- `pytest.ini` — registered `phase127` marker
-- `VERSION` → `9.60.0`
-- `.adaad_agent_state.json` — version `9.60.0`, current_phase `127`
+GRRP closes the adversarial feedback loop opened by Phase 126. When the constitutional
+attacker surfaces a gate miss or scope violation, GRRP ingests the signed CampaignReport,
+classifies every finding, and routes it deterministically: CRITICAL/BREACH findings are
+escalated to HUMAN-0 and block epoch advancement; ADVISORY/WARNING findings are auto-patched
+into signed AmendmentProposals. No finding is silently discarded. No epoch advances while
+unprocessed reports remain pending.
 
-### Governance
-- Attestation: ILA-127-2026-04-06-001 · Governor: DUSTIN L REID
-- No new Hard-class invariants (infrastructure phase)
-- Cumulative Hard-class invariants: **167**
-- 30/30 acceptance tests PASS
+**New module:** `runtime/innovations30/red_team_response_protocol.py`
 
----
+- `Finding` — classified finding from a CampaignReport (ADVISORY / WARNING / CRITICAL / BREACH)
+- `AmendmentProposal` — HMAC-signed auto-patch for non-critical findings
+- `HumanEscalation` — HMAC-signed escalation record; sets `epoch_blocked=True`
+- `ResponseRecord` — HMAC-chained ledger record (GRRP-CHAIN-0)
+- `GRRPEngine.grrp_ingest()` — main pipeline: classify → route → sign → chain → persist
+- `GRRPEngine.assert_no_pending()` — epoch-advance gate (GRRP-0)
+- `GRRPEngine.assert_human0_ack()` — CRITICAL/BREACH amendment gate (GRRP-HUMAN0-0)
+- `GRRPEngine.classify()` — deterministic pure function; no clock reads (GRRP-DETERM-0)
 
-## [9.59.0] — 2026-04-06 · Phase 126 · Docs Market Positioning
+**Invariants introduced:**
+- `GRRP-0`: Every CampaignReport MUST be processed through grrp_ingest() before epoch advances
+- `GRRP-ROUTE-0`: CRITICAL/BREACH findings MUST route to HUMAN-0 escalation; auto-patch prohibited
+- `GRRP-SIGN-0`: Every AmendmentProposal and HumanEscalation MUST carry HMAC digest
+- `GRRP-DETERM-0`: response_digest MUST be pure function of (report_id, finding_ids, routing_decisions)
+- `GRRP-CHAIN-0`: Each ResponseRecord carries prev_digest chain link; genesis for first record
+- `GRRP-HUMAN0-0`: CRITICAL/BREACH amendments require human0_ack token before CEL advancement
 
-### Added
-- `docs/COMPETITIVE_ANALYSIS.md` — full competitive analysis: 16 verifiable property comparisons vs GitHub Copilot, Devin, CodeRabbit, SonarQube, and CI/CD; category map; 5 enterprise procurement questions; links to Trust Center and procurement fast-lane
-- `artifacts/governance/phase126/` — sign-off JSON, attestation ILA-126-2026-04-06-001
+**Tests:** 30/30 (T127-GRRP-01..30 · BASIC · ROUTE · SIGN · DETERM · CHAIN · GATE · HUMAN0)
+**Failure modes covered:** `UnprocessedReportError`, `RoutingViolationError`, `IntegrityError`, `HumanGateBlockError`
 
-### Changed
-- `README.md` — Phase 125 community governance added to timeline and Recent Phases table; 16-property competitor comparison table added; roadmap count 124→125 phases complete; version badge 9.58.0→9.59.0; links to new COMPETITIVE_ANALYSIS.md
-- `TRUST_CENTER.md` — version sync: v9.55.0→v9.58.0, 162→167 Hard-class invariants, Phase 122→125
-- `VERSION` → `9.59.0`
-- `.adaad_agent_state.json` — version `9.59.0`, current_phase `126`
+## [9.59.0] — 2026-04-06 · Phase 126 · Red-Team Challenge
 
-### Governance
-- Attestation: ILA-126-2026-04-06-001 · Governor: DUSTIN L REID
-- No new Hard-class invariants (docs-only phase)
-- Cumulative Hard-class invariants: **167**
+### World-First: Constitutional Invariant Attacker with Halt-on-Silent-Pass Enforcement
 
----
+ADAAD's constitutional attacker systematically probes every Hard-class invariant with
+adversarial mutations designed to bypass gate enforcement. If any gate fails to fire against
+a payload specifically crafted to trigger it, REDTEAM-HALT-0 raises ConstitutionalBreachError
+and halts — silent pass-through is categorically prohibited.
+
+**New module:** `runtime/red_team/constitutional_attacker.py`
+
+**Invariants introduced:**
+- `REDTEAM-IMMUT-0`: Attack ledger is append-only; tamper attempt raises ConstitutionalBreachError
+- `REDTEAM-AUDIT-0`: Every attempt chain-persisted with prev_digest before next begins
+- `REDTEAM-SCOPE-0`: Attacker may only target invariants in canonical AttackManifest
+- `REDTEAM-HALT-0`: Gate miss on targeted invariant raises ConstitutionalBreachError; no silent pass
+- `REDTEAM-DETERM-0`: run_digest is pure function of (campaign_id, attack_ids, outcomes)
+- `REDTEAM-CHAIN-0`: Each AttackRecord carries prev_digest chain link; genesis for first record
+
+**Tests:** 30/30 · **Cumulative Hard-class invariants:** 167 → 173
 
 
 ## [9.58.0] — 2026-04-05 · Phase 125 · Community Governance Infrastructure
