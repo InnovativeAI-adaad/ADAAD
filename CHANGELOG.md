@@ -1,3 +1,39 @@
+## [9.61.0] — 2026-04-08 · Phase 128 · INNOV-38 Autonomous Constitutional Self-Amendment Engine (ACSA)
+
+### World-First: Adversarially-Driven Constitutional Self-Amendment with Cryptographic Provenance
+
+ACSA closes the full adversarial evolution loop opened by Phase 126 (Red-Team) and Phase 127 (GRRP).
+AmendmentProposals produced by GRRPEngine are ingested, gate-checked, and — if approved — applied
+autonomously to the live constitution with a deterministic patch_digest and appended to a hash-chained
+amendment ledger.  CRITICAL and BREACH class proposals are hard-blocked without a HUMAN-0 acknowledgement
+token (ACSA-HUMAN0-0).  Duplicate replay is constitutionally prohibited (ACSA-REPLAY-0).  Silent discard
+is impossible: every proposal produces either a ConstitutionalPatch record or a BlockedAmendment record
+(ACSA-0).  The amendment ledger reloads on engine restart, preserving applied-ID state across sessions.
+
+**New module:** `runtime/innovations30/constitutional_self_amendment.py`
+
+- `ConstitutionalPatch` — signed, deterministic patch record with HMAC digest seal
+- `BlockedAmendment` — signed audit record for every gate-rejected proposal (ACSA-0)
+- `ACSARecord` — append-only hash-chained ledger entry (ACSA-CHAIN-0)
+- `ACSAEngine.apply_proposal()` — primary pipeline: gate-check → build-patch → apply → chain → persist
+- `ACSAEngine.verify_chain()` — independent ledger chain verifier; raises ChainIntegrityError on break
+- `ACSAEngine._load_ledger()` — startup replay; restores applied_ids and prev_digest from disk
+- `acsa_gate_check()` — stateless gate function; injectable for unit tests (ACSA-GATE-0)
+
+**Invariants introduced:**
+- `ACSA-0`: Every AmendmentProposal MUST produce a ConstitutionalPatch or BlockedAmendment — no silent discard
+- `ACSA-GATE-0`: acsa_gate_check() MUST return PASS before any patch is applied
+- `ACSA-CHAIN-0`: Every ACSARecord carries prev_digest; first record carries "genesis"
+- `ACSA-HUMAN0-0`: CRITICAL/BREACH proposals blocked without human0_ack token
+- `ACSA-DETERM-0`: patch_digest MUST be pure function of (proposal_id, invariant_target, patch_text)
+- `ACSA-REPLAY-0`: Replaying an already-applied proposal_id raises DuplicatePatchError
+
+**Tests:** 25/25 (T128-ACSA-01..25)
+**Failure modes covered:** `DiscardError`, `ACSAGateError`, `ChainIntegrityError`, `HumanGateBlockError`, `DeterminismError`, `DuplicatePatchError`
+**Cumulative Hard-class invariants:** 179 → 185
+
+---
+
 ## [9.60.0] — 2026-04-06 · Phase 127 · INNOV-37 Governed Red-Team Response Protocol (GRRP)
 
 ### World-First: Constitutionally Governed Red-Team Response Engine with HUMAN-0-Gated Amendment Routing
