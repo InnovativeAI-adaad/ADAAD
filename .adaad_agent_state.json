@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.60.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": "v9.61.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -229,15 +229,27 @@
     "phase127-grrp-human0-0-enforced",
     "phase127-world-first-governed-redteam-response",
     "v9.60.0-released",
-    "phase127-complete"
+    "phase127-complete",
+    "phase128-plan-authored",
+    "phase128-human0-ratified",
+    "phase128-innov38-acsa-implemented",
+    "phase128-acsa-0-enforced",
+    "phase128-acsa-gate-0-enforced",
+    "phase128-acsa-chain-0-enforced",
+    "phase128-acsa-human0-0-enforced",
+    "phase128-acsa-determ-0-enforced",
+    "phase128-acsa-replay-0-enforced",
+    "phase128-world-first-constitutional-self-amendment",
+    "v9.61.0-released",
+    "phase128-complete"
   ],
   "constitutional_invariants": {
-    "cumulative": 179,
-    "hard_class_count": 179
+    "cumulative": 185,
+    "hard_class_count": 185
   },
-  "current_phase": 127,
-  "current_version": "9.60.0",
-  "hard_class_count": 179,
+  "current_phase": 128,
+  "current_version": "9.61.0",
+  "hard_class_count": 185,
   "hard_class_invariants_cumulative": 179,
   "human0_signoffs": [
     {
@@ -436,6 +448,13 @@
     }
   ],
   "innovations_shipped": {
+    "COMM-125": {
+      "hard_invariants": 2,
+      "module": "community_governance",
+      "phase": 125,
+      "tests": "30/30",
+      "version": "9.58.0"
+    },
     "INNOV-21": {
       "hard_invariants": 8,
       "module": "governance_bankruptcy.py",
@@ -478,54 +497,28 @@
       "tests": "30/30",
       "version": "9.50.0"
     },
-    "COMM-125": {
-      "module": "community_governance",
-      "phase": 125,
-      "tests": "30/30",
-      "hard_invariants": 2,
-      "version": "9.58.0"
-    },
     "INNOV-34": {
-      "phase": 119,
+      "hard_invariants": 5,
       "module": "federation_governance_consensus.py",
-      "version": "9.52.0",
+      "phase": 119,
       "tests": "30/30",
-      "hard_invariants": 5
+      "version": "9.52.0"
     },
     "INNOV-35": {
-      "phase": 120,
+      "hard_invariants": 3,
       "module": "self_proposing_innovation_engine.py",
-      "version": "9.53.0",
+      "phase": 120,
       "tests": "30/30",
-      "hard_invariants": 3
+      "version": "9.53.0"
     },
     "INNOV-36": {
-      "phase": 121,
+      "hard_invariants": 8,
       "module": "deterministic_audit_sandbox.py",
-      "version": "9.54.0",
+      "phase": 121,
       "tests": "30/30",
-      "hard_invariants": 8
-    },
-    "PHASE-126": {
-      "phase": 126,
-      "module": "runtime/red_team/constitutional_attacker.py",
-      "version": "9.59.0",
-      "tests": "30/30",
-      "hard_invariants": 6,
-      "invariants": [
-        "REDTEAM-IMMUT-0",
-        "REDTEAM-AUDIT-0",
-        "REDTEAM-SCOPE-0",
-        "REDTEAM-HALT-0",
-        "REDTEAM-DETERM-0",
-        "REDTEAM-CHAIN-0"
-      ]
+      "version": "9.54.0"
     },
     "INNOV-37": {
-      "phase": 127,
-      "module": "red_team_response_protocol.py",
-      "version": "9.60.0",
-      "tests": "30/30",
       "hard_invariants": 6,
       "invariants": [
         "GRRP-0",
@@ -534,7 +527,26 @@
         "GRRP-DETERM-0",
         "GRRP-CHAIN-0",
         "GRRP-HUMAN0-0"
-      ]
+      ],
+      "module": "red_team_response_protocol.py",
+      "phase": 127,
+      "tests": "30/30",
+      "version": "9.60.0"
+    },
+    "PHASE-126": {
+      "hard_invariants": 6,
+      "invariants": [
+        "REDTEAM-IMMUT-0",
+        "REDTEAM-AUDIT-0",
+        "REDTEAM-SCOPE-0",
+        "REDTEAM-HALT-0",
+        "REDTEAM-DETERM-0",
+        "REDTEAM-CHAIN-0"
+      ],
+      "module": "runtime/red_team/constitutional_attacker.py",
+      "phase": 126,
+      "tests": "30/30",
+      "version": "9.59.0"
     }
   },
   "last_agent_state_sync_digest": "gsync-e023eff9af647664",
@@ -550,6 +562,7 @@
   "last_innovation_name": "Governed Red-Team Response Protocol",
   "last_invocation": "2026-04-08",
   "last_phase_completed": 127,
+  "last_phase_completed_label": "Phase 127 \u2014 INNOV-37 Governed Red-Team Response Protocol (GRRP)",
   "last_sync_sha": "ade684cd",
   "last_updated": "2026-04-06",
   "next_phase": 128,
@@ -728,23 +741,23 @@
     },
     {
       "id": "FINDING-126-NEW-001",
-      "severity": "P0",
-      "title": "Ghost tag v9.59.0 remediation \u2014 delete + re-sign required",
-      "status": "runbook_delivered",
-      "source": "ArchitectAgent 2026-04-06",
+      "note": "Runbook delivered. Ceremony execution deferred to HUMAN-0 Track B.",
       "phase_target": "126",
-      "note": "Runbook delivered. Ceremony execution deferred to HUMAN-0 Track B."
+      "severity": "P0",
+      "source": "ArchitectAgent 2026-04-06",
+      "status": "runbook_delivered",
+      "title": "Ghost tag v9.59.0 remediation \u2014 delete + re-sign required"
     },
     {
       "id": "FINDING-126-NEW-002",
-      "severity": "P1",
-      "title": "33 DORK commits on main unphased \u2014 Option A selected by HUMAN-0",
-      "status": "resolved",
+      "note": "HUMAN-0 ratified Option A: governed autonomous DORK evolution, no retroactive phase required.",
+      "phase_target": "127",
       "resolved_date": "2026-04-06",
       "resolved_phase": "127",
+      "severity": "P1",
       "source": "ArchitectAgent 2026-04-06",
-      "phase_target": "127",
-      "note": "HUMAN-0 ratified Option A: governed autonomous DORK evolution, no retroactive phase required."
+      "status": "resolved",
+      "title": "33 DORK commits on main unphased \u2014 Option A selected by HUMAN-0"
     }
   ],
   "pending_evidence_rows": [],
@@ -1057,6 +1070,5 @@
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
-  ],
-  "last_phase_completed_label": "Phase 127 \u2014 INNOV-37 Governed Red-Team Response Protocol (GRRP)"
+  ]
 }
