@@ -832,163 +832,182 @@ body {
 
 <script>
 /* ═══════════════════════════════════════════════════════════════
-   DORK v2.0 — ADAAD Advisory Intelligence
-   Integrated build · Phase 130 · v9.63.0
+   DORK v2.1 — ADAAD Advisory Intelligence  (optimized build)
    ═══════════════════════════════════════════════════════════════ */
 
-/* ── Server-injected availability flags (set by serve_dork_asset) ── */
-const SERVER_KEY_AVAILABLE  = window.__anthropic_key_available  ?? false;
-const SERVER_PROXY_ENDPOINT = '/api/dork/stream';   /* proxied SSE when server key active */
+/* ── Server-injected availability flags ── */
+const SERVER_KEY_AVAILABLE  = window.__anthropic_key_available ?? false;
+const SERVER_PROXY_ENDPOINT = '/api/dork/stream';
 const DIRECT_API_URL        = 'https://api.anthropic.com/v1/messages';
 
-/* ── Config (persisted to localStorage) ── */
+/* ── Persisted config ── */
 const CFG = {
-  get key()   { return localStorage.getItem('dork_api_key')   || ''; },
-  set key(v)  { localStorage.setItem('dork_api_key', v); },
-  get model() { return localStorage.getItem('dork_model')     || 'claude-sonnet-4-6'; },
-  set model(v){ localStorage.setItem('dork_model', v); },
-  get gov()   { return localStorage.getItem('dork_gov_url')   || '/api/whale/snapshot'; },
-  set gov(v)  { localStorage.setItem('dork_gov_url', v); },
+  get key()    { return localStorage.getItem('dork_api_key')  || ''; },
+  set key(v)   { localStorage.setItem('dork_api_key', v); },
+  get model()  { return localStorage.getItem('dork_model')    || 'claude-sonnet-4-6'; },
+  set model(v) { localStorage.setItem('dork_model', v); },
+  get gov()    { return localStorage.getItem('dork_gov_url')  || '/api/whale/snapshot'; },
+  set gov(v)   { localStorage.setItem('dork_gov_url', v); },
   maxTokens: 4096,
   pollMs:    30_000,
 };
 
-/* ── Mutable runtime state ── */
+/* ── Runtime state ── */
 const S = {
-  msgs:       [],          /* {role, content}[] */
-  gov:        null,
-  streaming:  false,
-  govTimer:   null,
-  govOpen:    false,
+  msgs:      [],      /* { role, content }[] — source of truth */
+  gov:       null,
+  streaming: false,
+  govTimer:  null,
+  govOpen:   false,
+  rafPending: false,  /* rAF coalescing flag for streaming renders */
 };
 
-/* ── DOM shortcuts ── */
+/* ── DOM refs (resolved once at boot) ── */
 const q = (s) => document.querySelector(s);
 const D = {
-  msgs:       q('#messages'),
-  input:      q('#user-input'),
-  send:       q('#send-btn'),
-  chat:       q('#chat-area'),
-  typing:     q('#typing-indicator'),
-  scrollBtn:  q('#scroll-btn'),
-  govToggle:  q('#gov-toggle'),
-  govDetail:  q('#gov-detail'),
-  cfgToggle:  q('#cfg-toggle'),
-  cfgOverlay: q('#cfg-overlay'),
-  epoch:      q('#g-epoch'),
-  gateDot:    q('#g-gate-dot'),
-  gateText:   q('#g-gate-text'),
-  version:    q('#g-version'),
-  inv:        q('#g-inv'),
-  replayBadge:q('#g-replay'),
-  replayVal:  q('#g-replay-val'),
-  agentGrid:  q('#agent-grid'),
-  govMeta:    q('#gov-meta'),
+  msgs:        q('#messages'),
+  input:       q('#user-input'),
+  send:        q('#send-btn'),
+  chat:        q('#chat-area'),
+  typing:      q('#typing-indicator'),
+  scrollBtn:   q('#scroll-btn'),
+  govToggle:   q('#gov-toggle'),
+  govDetail:   q('#gov-detail'),
+  cfgToggle:   q('#cfg-toggle'),
+  cfgOverlay:  q('#cfg-overlay'),
+  epoch:       q('#g-epoch'),
+  gateDot:     q('#g-gate-dot'),
+  gateText:    q('#g-gate-text'),
+  version:     q('#g-version'),
+  inv:         q('#g-inv'),
+  replayBadge: q('#g-replay'),
+  replayVal:   q('#g-replay-val'),
+  agentGrid:   q('#agent-grid'),
+  govMeta:     q('#gov-meta'),
   sessionLabel:q('#session-label'),
   quickPrompts:q('#quick-prompts'),
   serverBanner:q('#server-key-banner'),
 };
 
 /* ═══════════════════════════════════════════
-   MARKDOWN RENDERER — zero deps, ADAAD-aware
+   MARKDOWN RENDERER
+   Two-pass: extract code first, escape prose,
+   apply inline transforms, restore code.
+   Handles: fenced code, headers, hr, tables,
+   blockquotes, ul/ol, bold, italic, inline code.
    ═══════════════════════════════════════════ */
+function esc(s) {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 function renderMd(raw) {
-  // Step 1: protect code blocks from further processing
-  const blocks = [];
+  /* ── Pass 1: extract fenced code blocks into a stash ── */
+  const stash = [];
   let s = raw.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
-    const idx = blocks.length;
-    blocks.push(`<pre><code class="lang-${lang || 'text'}">${esc(code.trim())}</code></pre>`);
-    return `\x00BLOCK${idx}\x00`;
+    const i = stash.length;
+    stash.push(
+      `<pre><code class="lang-${lang || 'text'}">${esc(code.trim())}</code></pre>`
+    );
+    return `\x00CODE${i}\x00`;
   });
 
-  // Step 2: escape HTML outside code blocks
-  s = s.split('\x00BLOCK').map((part, i) => {
-    if (i === 0) return esc(part);
-    const rest = part.replace(/^(\d+)\x00/, (_, idx) => {
-      return `BLOCK_PLACEHOLDER_${idx}_`;
-    });
-    // crude: just handle the block idx
-    return part;
-  }).join('');
+  /* ── Pass 2: HTML-escape everything outside the stash ── */
+  s = s.replace(/[&<>]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;' }[c]));
 
-  // Re-approach: simpler two-pass
-  const escaped = esc(raw);
-
-  // Code blocks (on escaped content — just replace ``` sections)
-  let out = escaped.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) =>
-    `<pre><code class="lang-${lang || 'text'}">${code.trim()}</code></pre>`
-  );
+  /* ── Block transforms (order matters) ── */
 
   // Headers
-  out = out.replace(/^### (.+)$/gm, '<h3>$1</h3>');
-  out = out.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  s = s.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  s = s.replace(/^## (.+)$/gm,  '<h2>$1</h2>');
 
-  // Horizontal rules
-  out = out.replace(/^---+$/gm, '<hr>');
+  // Horizontal rule (--- not inside tables)
+  s = s.replace(/^---+$/gm, '<hr>');
 
-  // Blockquote
-  out = out.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
+  // Blockquote (> already escaped to &gt;)
+  s = s.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
 
-  // Tables (| header | header |)
-  out = out.replace(/((?:\|.+\|\n?)+)/g, (block) => {
+  // Tables  |col|col|  with a |---|---| separator row
+  s = s.replace(/((?:\|.+\|\n?)+)/g, (block) => {
     const rows = block.trim().split('\n');
     if (rows.length < 2) return block;
-    const sep = rows[1];
-    if (!sep.match(/^\|[\s\-|]+\|$/)) return block;
-    const headers = rows[0].split('|').filter(Boolean).map(h =>
-      `<th>${h.trim()}</th>`).join('');
-    const body = rows.slice(2).map(r => {
-      const cells = r.split('|').filter(Boolean).map(c =>
-        `<td>${c.trim()}</td>`).join('');
+    if (!/^\|[\s\-|:]+\|$/.test(rows[1])) return block;
+    const th = rows[0].split('|').filter(Boolean)
+      .map(h => `<th>${h.trim()}</th>`).join('');
+    const tb = rows.slice(2).map(r => {
+      const cells = r.split('|').filter(Boolean)
+        .map(c => `<td>${c.trim()}</td>`).join('');
       return `<tr>${cells}</tr>`;
     }).join('');
-    return `<table><thead><tr>${headers}</tr></thead><tbody>${body}</tbody></table>`;
+    return `<table><thead><tr>${th}</tr></thead><tbody>${tb}</tbody></table>`;
   });
 
-  // Unordered lists
-  out = out.replace(/((?:^[-*] .+\n?)+)/gm, (block) => {
-    const items = block.trim().split('\n').map(l =>
-      `<li>${l.replace(/^[-*] /, '').trim()}</li>`).join('');
+  // Unordered lists (contiguous lines starting with - or *)
+  s = s.replace(/((?:^[-*] .+\n?)+)/gm, (block) => {
+    const items = block.trim().split('\n')
+      .map(l => `<li>${l.replace(/^[-*] /, '').trim()}</li>`).join('');
     return `<ul>${items}</ul>`;
   });
 
   // Ordered lists
-  out = out.replace(/((?:^\d+\. .+\n?)+)/gm, (block) => {
-    const items = block.trim().split('\n').map(l =>
-      `<li>${l.replace(/^\d+\. /, '').trim()}</li>`).join('');
+  s = s.replace(/((?:^\d+\. .+\n?)+)/gm, (block) => {
+    const items = block.trim().split('\n')
+      .map(l => `<li>${l.replace(/^\d+\. /, '').trim()}</li>`).join('');
     return `<ol>${items}</ol>`;
   });
 
-  // Inline: code (not inside pre)
-  out = out.replace(/(?<!pre>)`([^`\n]+)`/g, '<code>$1</code>');
+  /* ── Inline transforms ── */
 
-  // Bold & italic
-  out = out.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
-  out = out.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  out = out.replace(/(?<![*])\*([^*\n]+)\*(?![*])/g, '<em>$1</em>');
+  // Inline code first — stash into the same array so bold/italic
+  // transforms can't touch content inside backticks.
+  s = s.replace(/`([^`\n]+)`/g, (_, inner) => {
+    const i = stash.length;
+    stash.push(`<code>${inner}</code>`);
+    return `\x00CODE${i}\x00`;
+  });
 
-  // Line breaks (double newline = paragraph break)
-  out = out.replace(/\n\n/g, '</p><p>');
-  out = out.replace(/\n/g, '<br>');
-  out = `<p>${out}</p>`;
+  // Bold + italic combo
+  s = s.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+  // Bold
+  s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  // Italic (single *, not adjacent to another *)
+  s = s.replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g, '<em>$1</em>');
 
-  // Clean up wrapping around block elements
-  out = out.replace(/<p>(<(?:h[23]|hr|pre|ul|ol|table|blockquote)[^>]*>)/g, '$1');
-  out = out.replace(/(<\/(?:h[23]|pre|ul|ol|table|blockquote)>)<\/p>/g, '$1');
-  out = out.replace(/<p><\/p>/g, '');
+  /* ── Paragraph / line-break pass ── */
+  s = s.replace(/\n\n+/g, '</p><p>');
+  s = s.replace(/\n/g, '<br>');
+  s = `<p>${s}</p>`;
 
-  return out;
-}
+  // Strip <p> wrappers around block elements
+  s = s.replace(/<p>(<(?:h[23]|hr|pre|ul|ol|table|blockquote)[^>]*>)/g, '$1');
+  s = s.replace(/(<\/(?:h[23]|pre|ul|ol|table|blockquote)>)<\/p>/g, '$1');
+  s = s.replace(/<p><\/p>/g, '');
 
-function esc(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  /* ── Pass 3: restore stashed code blocks ── */
+  s = s.replace(/\x00CODE(\d+)\x00/g, (_, i) => stash[+i]);
+
+  return s;
 }
 
 /* ═══════════════════════════════════════════
-   SYSTEM PROMPT — Full ADAAD corpus context
+   SYSTEM PROMPT
+   Built once per request (memoized per-session
+   until governance data changes).
    ═══════════════════════════════════════════ */
+let _cachedPrompt = null;
+let _cachedGovHash = null;
+
 function buildSystemPrompt() {
   const g = S.gov?.runtime;
+  const govHash = g ? JSON.stringify({
+    epoch: g.epoch?.epoch, gate: g.gov?.ok, tier: g.gov?.tier,
+    score: g.rep?.score, readiness: g.ready?.readiness_score,
+  }) : 'null';
+
+  if (_cachedPrompt && govHash === _cachedGovHash) return _cachedPrompt;
+  _cachedGovHash = govHash;
 
   const liveCtx = g ? `
 
@@ -1003,56 +1022,58 @@ function buildSystemPrompt() {
 - **Webhooks:** ${g.wh?.total || 0} events` : `
 
 ## Live Governance Snapshot
-No live governance data available. Governance endpoint not responding or not yet polled.`;
+Governance endpoint offline or not yet polled. Responding from static corpus.`;
 
-  return `You are **dork** — ADAAD's advisory intelligence interface, built by Dustin L. Reid (Innovative AI LLC, Governor HUMAN-0).
+  _cachedPrompt = `You are **dork** — ADAAD's advisory intelligence interface, built by Dustin L. Reid (Innovative AI LLC, Governor HUMAN-0).
 
-You live inside the ADAAD governance substrate. You are **read-only and advisory only**. You observe, explain, and advise. You cannot modify the system, sign anything, merge code, or take autonomous action.
+You live inside the ADAAD governance substrate. You are **read-only and advisory only**. You observe, explain, advise. You cannot modify the system, sign anything, merge code, or act autonomously.
 
 ## ADAAD System Identity
 ADAAD (Autonomous Development & Adaptive Architecture Daemon) is a constitutionally governed code evolution engine. AI agents propose mutations; an invariant enforcement layer gates them; HUMAN-0 GPG-signs promotions. Every event is hash-chained in the Lineage Ledger.
 
-**Current state (as of last sync):**
-- Version: v9.63.0 | Phase: 130 | Hard-class invariants: 201
-- Innovations shipped: INNOV-01 through INNOV-40 (40 total)
+**Current state:** v9.63.0 · Phase 130 · 201 Hard-class invariants · 40 innovations shipped
 
 ## The Three Agents
-- **Architect** (blue #3b82f6): methodical, structure-first, most conservative. Flags invariant violations early.
-- **Dream** (violet #8b5cf6): creative, hypothesis-heavy, high-variance. Explores novel mutations.
-- **Beast** (orange #f97316): aggressive throughput, stress-tests governance gates. Frequently triggers sandbox preflight warnings.
+- **Architect** (blue): methodical, structure-first, most conservative. Flags violations early.
+- **Dream** (violet): creative, hypothesis-heavy, high-variance. Explores novel mutations.
+- **Beast** (orange): aggressive throughput, stress-tests governance gates.
 
 ## Constitutional Evolution Loop (CEL) — 16 steps
-Propose → ACSE adversarial stress → GovernanceGate → LSME shadow execution → Fitness score → DAS audit sandbox → GRRP response → ACSA self-amendment → ACF coalition (if HIGH complexity) → Jury deliberation → Reputation staking → HUMAN-0 gate (Tier 0) → GPG signing → Ledger append → CELT learning transfer → Epoch advance.
+Propose → ACSE adversarial stress → GovernanceGate → LSME shadow execution → Fitness score → DAS audit sandbox → GRRP response → ACSA self-amendment → ACF coalition (HIGH complexity only) → CJS jury → ARS reputation staking → HUMAN-0 gate (Tier 0) → GPG signing → Ledger append → CELT learning transfer → Epoch advance.
 
-## Key Innovations (INNOV-01..40)
-CSAP(01), TIFE(02), ACSE(03), SCDD(04), AOEP(05), CEPD(06), LSME(07), AFRT(08), AFIT(09), MMEM(10), DSTE(11—dream state), MGV(12—genealogy), IMT(13—knowledge transfer), CJS(14—jury), ARS(15—reputation staking), ERS(16—emergent roles), GBP(17), MCF(18—mutation conflict), CES(19), SVP(20), HAF(21—hardware adaptive), MCF(22), CES(23), SVP(24—semantic version), HAF(25), Mirror(30), IDE(31), KBEP(33—federation bundle), DAS(36—audit sandbox), SPIE(35—self-proposing engine), GRRP(37—red-team response), ACSA(38—constitutional self-amendment), ACF(39—agent coalition), CELT(40—cross-epoch learning transfer).
+## Innovations INNOV-01 through INNOV-40
+CSAP · TIFE · ACSE · SCDD · AOEP · CEPD · LSME · AFRT · AFIT · MMEM(10) · DSTE · MGV · IMT · CJS · ARS · ERS(16) · GBP · MCF · CES · SVP · HAF · MCF · CES · SVP · HAF · (21–30) · Mirror · IDE · KBEP · DAS · SPIE(35) · GRRP(37) · ACSA(38) · ACF(39) · CELT(40)
 
-## Core Governance Concepts
-- **Hard-class invariants**: blocking rules. Any violation rejects the mutation entirely. 201 active.
-- **HUMAN-0**: Dustin L. Reid. Sole authority for GPG signing, GA versioning, patent counsel. Cannot be delegated via chat.
-- **Track A vs Track B**: Track A = DEVADAAD autonomous (code, docs, tests, pushes). Track B = HUMAN-0 on ADAADell (GPG signing, branch protection).
+## Governance Concepts
+- **Hard-class invariants**: blocking rules. Any violation rejects the mutation. 201 active.
+- **HUMAN-0**: Dustin L. Reid. Sole GPG signing authority. Cannot be delegated via chat.
+- **Track A/B**: A = DEVADAAD autonomous (code, docs, pushes). B = HUMAN-0 (GPG, branch protection).
 - **Lineage Ledger**: append-only HMAC-SHA256 hash-chained JSONL. Tamper-evident.
-- **DAS**: Deterministic Audit Sandbox — isolated Python subprocess for invariant verification with pinned Docker digest.
-- **CELT**: Cross-epoch agent learning transfer — signed behavioral profiles migrate across instance/epoch boundaries.
+- **DAS**: Deterministic Audit Sandbox — isolated subprocess, pinned Docker digest.
+- **CELT**: Cross-epoch agent learning transfer — signed behavioral profiles migrate across boundaries.
 
-## How to answer
-Be conversational, warm, precise. Short paragraphs. Reference live data when available. If someone asks you to modify the system, remind them you are read-only advisory.
+Style: conversational, warm, precise. Short paragraphs. Reference live data when available. If asked to modify the system, remind user you are read-only advisory.
 ${liveCtx}`;
+
+  return _cachedPrompt;
 }
 
 /* ═══════════════════════════════════════════
    MESSAGE MANAGEMENT
+   addMsg only saves to session on demand;
+   never saves during active streaming.
    ═══════════════════════════════════════════ */
-function addMsg(role, content, skipPush) {
-  if (!skipPush) S.msgs.push({ role, content });
+function addMsg(role, content, skipHistory) {
+  if (!skipHistory) S.msgs.push({ role, content });
 
-  const el = document.createElement('div');
-  el.className = `msg ${role === 'user' ? 'user' : 'dork'}`;
-
-  const avatar   = role === 'user' ? 'Y' : 'd';
-  const sender   = role === 'user' ? 'You' : 'dork';
-  const ts       = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
-  const rendered = role === 'user' ? `<p>${esc(content).replace(/\n/g,'<br>')}</p>` : renderMd(content);
+  const el        = document.createElement('div');
+  el.className    = `msg ${role === 'user' ? 'user' : 'dork'}`;
+  const avatar    = role === 'user' ? 'Y' : 'd';
+  const sender    = role === 'user' ? 'You' : 'dork';
+  const ts        = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const rendered  = role === 'user'
+    ? `<p>${esc(content).replace(/\n/g, '<br>')}</p>`
+    : renderMd(content);
 
   el.innerHTML = `
     <div class="msg-avatar">${avatar}</div>
@@ -1064,22 +1085,21 @@ function addMsg(role, content, skipPush) {
 
   D.msgs.appendChild(el);
   scrollBottom();
-  saveSession();
   return el;
 }
 
 /* ═══════════════════════════════════════════
-   STREAMING — Direct Anthropic or server proxy
+   STREAMING — SSE with coalesced rAF renders
    ═══════════════════════════════════════════ */
 async function stream() {
   if (S.streaming) return;
-  const useProxy  = SERVER_KEY_AVAILABLE && !CFG.key;
-  const hasKey    = !!CFG.key;
-  if (!useProxy && !hasKey) {
+
+  const useProxy = SERVER_KEY_AVAILABLE && !CFG.key;
+  if (!useProxy && !CFG.key) {
     addMsg('assistant',
-      '**No API key configured.** Open settings (⚙ or Ctrl+K) and add your Anthropic API key.\n\nIf the server has a key configured, it will appear as a green banner at the top.',
-      true
-    );
+      '**No API key configured.** Open settings (⚙ or Ctrl+K) and add your Anthropic API key.\n\n' +
+      'If the server has a key configured it will appear as a green banner at the top.',
+      true);
     return;
   }
 
@@ -1088,54 +1108,64 @@ async function stream() {
   D.quickPrompts.classList.add('hidden');
   setTyping(true);
 
-  const apiMsgs = S.msgs.map(m => ({
-    role: m.role === 'user' ? 'user' : 'assistant',
+  const sysPrompt = buildSystemPrompt(); /* build once */
+  const apiMsgs   = S.msgs.map(m => ({
+    role:    m.role === 'user' ? 'user' : 'assistant',
     content: m.content,
   }));
 
+  const reqBody = {
+    model:      CFG.model,
+    max_tokens: CFG.maxTokens,
+    stream:     true,
+    system:     sysPrompt,
+    messages:   apiMsgs,
+  };
+
   try {
-    let res;
-    if (useProxy) {
-      // Server proxy — key never touches the browser
-      res = await fetch(SERVER_PROXY_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system:     buildSystemPrompt(),
-          messages:   apiMsgs,
-          model:      CFG.model,
-          max_tokens: CFG.maxTokens,
-        }),
-      });
-    } else {
-      // Direct Anthropic
-      res = await fetch(DIRECT_API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type':  'application/json',
-          'x-api-key':     CFG.key,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true',
-        },
-        body: JSON.stringify({
-          model:      CFG.model,
-          max_tokens: CFG.maxTokens,
-          stream:     true,
-          system:     buildSystemPrompt(),
-          messages:   apiMsgs,
-        }),
-      });
-    }
+    const res = await fetch(
+      useProxy ? SERVER_PROXY_ENDPOINT : DIRECT_API_URL,
+      {
+        method:  'POST',
+        headers: useProxy
+          ? { 'Content-Type': 'application/json' }
+          : {
+              'Content-Type':  'application/json',
+              'x-api-key':     CFG.key,
+              'anthropic-version': '2023-06-01',
+              'anthropic-dangerous-direct-browser-access': 'true',
+            },
+        body: JSON.stringify(reqBody),
+      }
+    );
 
     if (!res.ok) {
-      const err = await res.text();
-      throw new Error(`API ${res.status}: ${err.slice(0, 240)}`);
+      const errText = await res.text();
+      throw new Error(`API ${res.status}: ${errText.slice(0, 240)}`);
     }
 
     setTyping(false);
-    const msgEl    = addMsg('assistant', '', true);
+    const msgEl     = addMsg('assistant', '', true);
     const contentEl = msgEl.querySelector('.msg-content');
-    let fullText = '';
+    let   fullText  = '';
+    let   pendingRender = false;
+
+    /* Coalesced render: only schedule one rAF at a time.
+       The rAF callback updates innerHTML and sets the flag
+       off so the next incoming token can schedule again. */
+    function scheduleRender() {
+      if (pendingRender) return;
+      pendingRender = true;
+      requestAnimationFrame(() => {
+        contentEl.innerHTML = renderMd(fullText);
+        pendingRender = false;
+        /* Only auto-scroll when the user is already near the bottom */
+        const { scrollTop, scrollHeight, clientHeight } = D.chat;
+        if (scrollHeight - scrollTop - clientHeight < 200) {
+          D.chat.scrollTop = scrollHeight;
+        }
+      });
+    }
 
     const reader  = res.body.getReader();
     const decoder = new TextDecoder();
@@ -1144,6 +1174,7 @@ async function stream() {
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
+
       buf += decoder.decode(value, { stream: true });
       const lines = buf.split('\n');
       buf = lines.pop() || '';
@@ -1156,22 +1187,25 @@ async function stream() {
           const evt = JSON.parse(data);
           if (evt.type === 'content_block_delta' && evt.delta?.text) {
             fullText += evt.delta.text;
-            contentEl.innerHTML = renderMd(fullText);
-            requestAnimationFrame(scrollBottom);
+            scheduleRender();
           }
-        } catch (_) { /* ignore SSE parse errors */ }
+        } catch (_) { /* skip malformed SSE lines */ }
       }
     }
 
+    /* Final render to make sure last chunk lands */
+    contentEl.innerHTML = renderMd(fullText);
+
+    /* Persist completed message to history and session */
     S.msgs.push({ role: 'assistant', content: fullText });
     saveSession();
 
   } catch (err) {
     setTyping(false);
-    let hint = '';
-    if (err.message.includes('401')) hint = '\n\n*Check your API key in settings.*';
-    else if (err.message.includes('429')) hint = '\n\n*Rate limited — wait a moment.*';
-    else if (err.message.includes('Failed to fetch')) hint = '\n\n*Network error — is the server running?*';
+    const hint =
+      err.message.includes('401')          ? '\n\n*Check your API key in settings.*'    :
+      err.message.includes('429')          ? '\n\n*Rate limited — wait a moment.*'       :
+      err.message.includes('Failed to fetch') ? '\n\n*Network error — is the server running?*' : '';
     addMsg('assistant', `**Error:** \`${err.message}\`${hint}`, true);
   } finally {
     S.streaming = false;
@@ -1187,6 +1221,7 @@ function handleSend() {
   const text = D.input.value.trim();
   if (!text || S.streaming) return;
   addMsg('user', text);
+  saveSession();          /* persist user turn immediately */
   D.input.value = '';
   resize();
   stream();
@@ -1204,72 +1239,65 @@ async function pollGov() {
   try {
     const r = await fetch(CFG.gov);
     if (!r.ok) return;
-    const data = await r.json();
-    S.gov = data;
-    renderGov(data);
-  } catch (_) { /* governance is supplementary */ }
+    S.gov = await r.json();
+    _cachedPrompt = null; /* invalidate prompt cache on new gov data */
+    renderGov(S.gov);
+  } catch (_) { /* governance is supplementary — fail silently */ }
 }
 
 function renderGov(data) {
   const r = data?.runtime;
   if (!r) return;
 
-  // Epoch badge
   D.epoch.innerHTML = `<span class="dot whale"></span> EPOCH ${r.epoch?.epoch || '?'} · Phase ${r.epoch?.phase || '?'}`;
 
-  // Gate
   const ok = r.gov?.ok;
-  D.gateDot.className = `dot ${ok ? 'green' : 'red'}`;
+  D.gateDot.className  = `dot ${ok ? 'green' : 'red'}`;
   D.gateText.textContent = ok ? 'GATE PASS' : 'GATE FAIL';
 
-  // Version / invariants from live data if available
-  if (r.epoch?.version) D.version.textContent = r.epoch.version;
-  if (r.gov?.invariant_count) D.inv.textContent = `${r.gov.invariant_count} invariants`;
+  if (r.epoch?.version)       D.version.textContent = r.epoch.version;
+  if (r.gov?.invariant_count) D.inv.textContent     = `${r.gov.invariant_count} invariants`;
 
-  // Replay
   if (r.rep?.score != null) {
     D.replayBadge.style.display = 'inline-flex';
-    D.replayVal.textContent = r.rep.score.toFixed(3);
+    D.replayVal.textContent     = r.rep.score.toFixed(3);
   }
 
-  // Agent cards
-  const agents = r.agents?.agents || {};
   const agentMeta = {
     architect: { cls: 'architect', label: 'Architect', keys: ['proposals','approved','rejected'] },
     dream:     { cls: 'dream',     label: 'Dream',     keys: ['tasks','safe_boots'] },
     beast:     { cls: 'beast',     label: 'Beast',     keys: ['validated','blocked'] },
   };
 
-  D.agentGrid.innerHTML = Object.entries(agents).map(([name, a]) => {
-    const meta  = agentMeta[name] || { cls: name, label: name, keys: [] };
+  D.agentGrid.innerHTML = Object.entries(r.agents?.agents || {}).map(([name, a]) => {
+    const meta   = agentMeta[name] || { cls: name, label: name, keys: [] };
     const sColor = a.status === 'healthy' ? 'green' : a.status === 'degraded' ? 'amber' : 'red';
-    const stats = meta.keys.map(k =>
-      `<div class="agent-stat"><span>${k}</span><span class="val">${a[k] ?? '—'}</span></div>`
-    ).join('');
+    const stats  = meta.keys
+      .map(k => `<div class="agent-stat"><span>${k}</span><span class="val">${a[k] ?? '—'}</span></div>`)
+      .join('');
     return `<div class="agent-card ${meta.cls}">
       <div class="agent-name ${meta.cls}">
         <span class="dot ${sColor}"></span>${meta.label}
         <span style="margin-left:auto;font-size:10px;font-family:var(--font-mono);color:var(--text-muted)">${a.status || '—'}</span>
-      </div>
-      ${stats}
+      </div>${stats}
     </div>`;
   }).join('');
 
-  // Meta row
   D.govMeta.innerHTML = [
     ['Constitution', r.gov?.constitution_version],
     ['Mutations',    r.muts?.total],
     ['Webhooks',     r.wh?.total],
-    ['Readiness',    r.ready?.readiness_score != null ? ((r.ready.readiness_score*100).toFixed(0)+'%') : null],
+    ['Readiness',    r.ready?.readiness_score != null ? ((r.ready.readiness_score * 100).toFixed(0) + '%') : null],
     ['Divergence',   r.rep?.divergence],
     ['Tier',         r.gov?.tier],
-  ].filter(([,v]) => v != null)
-   .map(([k,v]) => `<span>${k} <span class="val">${v}</span></span>`)
+  ].filter(([, v]) => v != null)
+   .map(([k, v]) => `<span>${k} <span class="val">${v}</span></span>`)
    .join('');
 }
 
 /* ═══════════════════════════════════════════
-   SESSION STORAGE PERSISTENCE
+   SESSION PERSISTENCE
+   Explicit calls only — never mid-stream.
    ═══════════════════════════════════════════ */
 function saveSession() {
   try { sessionStorage.setItem('dork_msgs', JSON.stringify(S.msgs)); } catch (_) {}
@@ -1277,20 +1305,35 @@ function saveSession() {
 
 function loadSession() {
   try {
-    const saved = sessionStorage.getItem('dork_msgs');
-    if (!saved) return false;
-    const msgs = JSON.parse(saved);
+    const raw = sessionStorage.getItem('dork_msgs');
+    if (!raw) return false;
+    const msgs = JSON.parse(raw);
     if (!msgs.length) return false;
     S.msgs = msgs;
+    /* Render without triggering saveSession or scrollBottom until done */
     msgs.forEach(m => {
-      const el = addMsg(m.role, m.content, true);
+      const el       = document.createElement('div');
+      el.className   = `msg ${m.role === 'user' ? 'user' : 'dork'}`;
+      const avatar   = m.role === 'user' ? 'Y' : 'd';
+      const sender   = m.role === 'user' ? 'You' : 'dork';
+      const rendered = m.role === 'user'
+        ? `<p>${esc(m.content).replace(/\n/g,'<br>')}</p>`
+        : renderMd(m.content);
+      el.innerHTML = `
+        <div class="msg-avatar">${avatar}</div>
+        <div class="msg-body">
+          <div class="msg-sender">${sender}</div>
+          <div class="msg-content">${rendered}</div>
+        </div>`;
+      D.msgs.appendChild(el);
     });
+    D.chat.scrollTop = D.chat.scrollHeight;
     return true;
   } catch (_) { return false; }
 }
 
 /* ═══════════════════════════════════════════
-   UI UTILS
+   UI UTILITIES
    ═══════════════════════════════════════════ */
 function scrollBottom() {
   D.chat.scrollTop = D.chat.scrollHeight;
@@ -1314,19 +1357,23 @@ function openCfg() {
   q('#cfg-model').value = CFG.model;
   q('#cfg-gov').value   = CFG.gov;
   const hint = q('#key-hint');
-  hint.textContent = SERVER_KEY_AVAILABLE
-    ? '✅ Server API key is active — you can leave this blank.'
-    : 'No server key detected. Enter your Anthropic API key here.';
-  hint.style.color = SERVER_KEY_AVAILABLE ? 'var(--state-success)' : 'var(--text-muted)';
+  if (SERVER_KEY_AVAILABLE) {
+    hint.textContent = '✅ Server API key active — you can leave this blank.';
+    hint.style.color = 'var(--state-success)';
+  } else {
+    hint.textContent = 'No server key detected. Enter your Anthropic API key.';
+    hint.style.color = 'var(--text-muted)';
+  }
   D.cfgOverlay.classList.add('open');
 }
 function closeCfg() { D.cfgOverlay.classList.remove('open'); }
 function saveCfg() {
   CFG.key   = q('#cfg-key').value.trim();
-  CFG.model = q('#cfg-model').value.trim() || 'claude-sonnet-4-6';
-  CFG.gov   = q('#cfg-gov').value.trim()   || '/api/whale/snapshot';
+  CFG.model = q('#cfg-model').value.trim()  || 'claude-sonnet-4-6';
+  CFG.gov   = q('#cfg-gov').value.trim()    || '/api/whale/snapshot';
+  _cachedPrompt = null;
   closeCfg();
-  if (S.govTimer) clearInterval(S.govTimer);
+  clearInterval(S.govTimer);
   pollGov();
   S.govTimer = setInterval(pollGov, CFG.pollMs);
 }
@@ -1343,40 +1390,30 @@ function clearChat() {
    WELCOME
    ═══════════════════════════════════════════ */
 function welcome() {
-  addMsg('assistant', `Hey. I'm **dork** — ADAAD's advisory intelligence.
-
-I have eyes on the governance substrate, the Constitutional Evolution Loop, the mutation pipeline, the agent triad, the Lineage Ledger, and the replay engine.
-
-Right now ADAAD is at **v9.63.0**, Phase 130, with **201 Hard-class constitutional invariants** enforced. We just shipped INNOV-40 (Cross-Epoch Agent Learning Transfer), closing the collective intelligence track.
-
-I'm read-only. Advisory only. Ask me what's happening — I'll tell you exactly what I see.
-
-*Hit ▾ above to expand the live governance panel.*`, true);
+  addMsg('assistant',
+    `Hey. I'm **dork** — ADAAD's advisory intelligence.\n\n` +
+    `I have eyes on the governance substrate, the Constitutional Evolution Loop, the mutation pipeline, the agent triad, the Lineage Ledger, and the replay engine.\n\n` +
+    `Right now ADAAD is at **v9.63.0**, Phase 130, with **201 Hard-class constitutional invariants** enforced. We just shipped INNOV-40 (Cross-Epoch Agent Learning Transfer), closing the collective intelligence track.\n\n` +
+    `I'm read-only. Advisory only. Ask me what's happening.\n\n` +
+    `*Hit ▾ to expand the live governance panel, or press **G**.*`,
+    true);
 }
 
 /* ═══════════════════════════════════════════
    INIT
    ═══════════════════════════════════════════ */
 function init() {
-  /* Session ID */
-  D.sessionLabel.textContent = `dork_sfp_${Math.random().toString(36).slice(2,10)}`;
+  D.sessionLabel.textContent = `dork_${Math.random().toString(36).slice(2, 10)}`;
+  D.version.textContent      = 'v9.63.0';
+  D.inv.textContent          = '201 invariants';
 
-  /* Static ribbon defaults (overwritten by live data) */
-  D.version.textContent = 'v9.63.0';
-  D.inv.textContent = '201 invariants';
+  if (SERVER_KEY_AVAILABLE) D.serverBanner.classList.add('visible');
 
-  /* Server key banner */
-  if (SERVER_KEY_AVAILABLE) {
-    D.serverBanner.classList.add('visible');
-  }
+  /* Restore previous session or greet fresh */
+  if (!loadSession()) welcome();
 
-  /* Load session or show welcome */
-  if (!loadSession()) {
-    welcome();
-  }
-
-  /* Quick prompt chips */
-  document.querySelectorAll('.qp').forEach(btn => {
+  /* Quick-prompt chips */
+  D.quickPrompts.querySelectorAll('.qp').forEach(btn => {
     btn.addEventListener('click', () => {
       D.input.value = btn.dataset.q;
       resize();
@@ -1384,14 +1421,14 @@ function init() {
     });
   });
 
-  /* Input */
+  /* Input events */
   D.input.addEventListener('input', resize);
   D.input.addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
   });
   D.send.addEventListener('click', handleSend);
 
-  /* Governance panel toggle */
+  /* Governance panel */
   D.govToggle.addEventListener('click', () => {
     S.govOpen = !S.govOpen;
     D.govDetail.classList.toggle('open', S.govOpen);
@@ -1399,12 +1436,12 @@ function init() {
   });
 
   /* Scroll button */
-  D.chat.addEventListener('scroll', checkScrollBtn);
-  D.scrollBtn.addEventListener('click', () => {
-    D.chat.scrollTo({ top: D.chat.scrollHeight, behavior: 'smooth' });
-  });
+  D.chat.addEventListener('scroll', checkScrollBtn, { passive: true });
+  D.scrollBtn.addEventListener('click', () =>
+    D.chat.scrollTo({ top: D.chat.scrollHeight, behavior: 'smooth' })
+  );
 
-  /* Config */
+  /* Config modal */
   D.cfgToggle.addEventListener('click', openCfg);
   q('#cfg-cancel').addEventListener('click', closeCfg);
   q('#cfg-save').addEventListener('click', saveCfg);
@@ -1413,19 +1450,19 @@ function init() {
 
   /* Keyboard shortcuts */
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape')                           { closeCfg(); return; }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'k')   { e.preventDefault(); openCfg(); return; }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'l')   { e.preventDefault(); clearChat(); return; }
-    if (e.key === 'g' && !e.ctrlKey && !e.metaKey && document.activeElement !== D.input) {
-      D.govToggle.click();
-    }
+    if (e.key === 'Escape')                              { closeCfg(); return; }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k')      { e.preventDefault(); openCfg(); return; }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'l')      { e.preventDefault(); clearChat(); return; }
+    if (e.key === 'g' && !e.ctrlKey && !e.metaKey
+        && document.activeElement !== D.input)           { D.govToggle.click(); }
   });
 
-  /* No-key nudge (if neither server nor local key) */
+  /* No-key nudge */
   if (!SERVER_KEY_AVAILABLE && !CFG.key) {
-    setTimeout(() => addMsg('assistant',
-      '*Tip: Press **Ctrl+K** to open settings and add your Anthropic API key.*', true
-    ), 1600);
+    setTimeout(() =>
+      addMsg('assistant', '*Press **Ctrl+K** to open settings and add your Anthropic API key.*', true),
+      1400
+    );
   }
 
   /* Governance polling */
