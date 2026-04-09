@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.62.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": "v9.63.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -255,15 +255,29 @@
     "phase129-acf-share-0-enforced",
     "phase129-world-first-agent-coalition-formation",
     "v9.62.0-released",
-    "phase129-complete"
+    "phase129-complete",
+    "phase130-plan-authored",
+    "phase130-human0-ratified",
+    "phase130-innov40-celt-implemented",
+    "phase130-celt-0-enforced",
+    "phase130-celt-verify-0-enforced",
+    "phase130-celt-chain-0-enforced",
+    "phase130-celt-determ-0-enforced",
+    "phase130-celt-merge-0-enforced",
+    "phase130-celt-quarantine-0-enforced",
+    "phase130-celt-sanitize-0-enforced",
+    "phase130-celt-epoch-0-enforced",
+    "phase130-world-first-cross-epoch-learning-transfer",
+    "v9.63.0-released",
+    "phase130-complete"
   ],
   "constitutional_invariants": {
-    "cumulative": 193,
-    "hard_class_count": 193
+    "cumulative": 201,
+    "hard_class_count": 201
   },
-  "current_phase": 129,
-  "current_version": "9.62.0",
-  "hard_class_count": 193,
+  "current_phase": 130,
+  "current_version": "9.63.0",
+  "hard_class_count": 201,
   "hard_class_invariants_cumulative": 179,
   "human0_signoffs": [
     {
