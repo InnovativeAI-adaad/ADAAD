@@ -1,0 +1,22 @@
+{
+  "artifact_type": "InnovationLineageArtifact",
+  "artifact_id": "ILA-129-2026-04-08-001",
+  "phase": 129,
+  "innovation_id": "INNOV-39",
+  "innovation_name": "Agent Coalition Formation (ACF)",
+  "version": "9.62.0",
+  "date": "2026-04-08",
+  "governor": "DUSTIN L REID",
+  "status": "HUMAN-0-RATIFIED",
+  "world_first_claim": "Governed agent coalition formation with proportional integer stake redistribution and epoch-boundary dissolution enforcement for high-complexity AI mutations",
+  "invariants_introduced": ["ACF-0","ACF-FORM-0","ACF-STAKE-0","ACF-RESOLVE-0","ACF-DISSOLVE-0","ACF-DETERM-0","ACF-CHAIN-0","ACF-SHARE-0"],
+  "invariant_count_delta": 8,
+  "cumulative_invariants_before": 185,
+  "cumulative_invariants_after": 193,
+  "test_suite": "tests/innovations/test_phase129_acf.py",
+  "test_count": 30,
+  "test_result": "30/30 PASS",
+  "new_module": "runtime/innovations30/agent_coalition.py",
+  "builds_on": ["INNOV-14 CJS","INNOV-15 ARS","INNOV-16 ERS"],
+  "governance_chain_link": "ILA-128-2026-04-08-001"
+}

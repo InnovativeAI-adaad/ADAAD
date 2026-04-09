@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.61.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": "v9.62.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -241,15 +241,29 @@
     "phase128-acsa-replay-0-enforced",
     "phase128-world-first-constitutional-self-amendment",
     "v9.61.0-released",
-    "phase128-complete"
+    "phase128-complete",
+    "phase129-plan-authored",
+    "phase129-human0-ratified",
+    "phase129-innov39-acf-implemented",
+    "phase129-acf-0-enforced",
+    "phase129-acf-form-0-enforced",
+    "phase129-acf-stake-0-enforced",
+    "phase129-acf-resolve-0-enforced",
+    "phase129-acf-dissolve-0-enforced",
+    "phase129-acf-determ-0-enforced",
+    "phase129-acf-chain-0-enforced",
+    "phase129-acf-share-0-enforced",
+    "phase129-world-first-agent-coalition-formation",
+    "v9.62.0-released",
+    "phase129-complete"
   ],
   "constitutional_invariants": {
-    "cumulative": 185,
-    "hard_class_count": 185
+    "cumulative": 193,
+    "hard_class_count": 193
   },
-  "current_phase": 128,
-  "current_version": "9.61.0",
-  "hard_class_count": 185,
+  "current_phase": 129,
+  "current_version": "9.62.0",
+  "hard_class_count": 193,
   "hard_class_invariants_cumulative": 179,
   "human0_signoffs": [
     {
