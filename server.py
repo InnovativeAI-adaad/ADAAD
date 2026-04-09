@@ -4382,10 +4382,77 @@ async def webhooks_stream(request: Request):
     return EventSourceResponse(event_generator())
 
 @app.get("/dork")
+def dork_v2() -> Response:
+    """Serve dork v2.0 — standalone advisory chat interface (drop-in replacement).
+
+    Injects server-side key availability flags so the browser UI can decide
+    whether to call the Anthropic API directly or use the /api/dork/stream proxy.
+    """
+    dork_path = UI_DIR / "dork.html"
+    if not dork_path.exists():
+        # Graceful fallback to legacy whaledic if dork.html not present
+        return serve_whaledic_asset("whaledic.html")
+    html = dork_path.read_text(encoding="utf-8")
+    policy = getattr(app.state, "whaledic_secret_policy", enforce_whaledic_secret_policy())
+    bootstrap = (
+        "<script>window.__anthropic_key_available = "
+        + ("true" if policy.anthropic_key_available else "false")
+        + ";window.__ledger_api_token_available = "
+        + ("true" if policy.ledger_token_available else "false")
+        + ";window.__grok_bridge_active = "
+        + ("false" if policy.anthropic_key_available else "true")
+        + ";</script>"
+    )
+    return HTMLResponse(bootstrap + html)
+
+
 @app.get("/whaledic")
-def dork_alias() -> Response:
-    """Redirect to the primary Whale.Dic entrypoint (Phase 107 shortcut)."""
+def whaledic_legacy() -> Response:
+    """Legacy Whale.Dic developer dashboard (Phase 107 shortcut, preserved for compat)."""
     return serve_whaledic_asset("whaledic.html")
+
+
+@app.post("/api/dork/stream")
+async def dork_stream_proxy(request: Request):
+    """Server-side Anthropic proxy for dork v2.0.
+
+    Accepts {system, messages, model, max_tokens} and streams the Anthropic
+    SSE response back to the client.  Uses the server's ANTHROPIC_API_KEY so
+    the key never reaches the browser.  Only available when the server key
+    is configured.
+    """
+    import httpx
+    import os as _os
+
+    api_key = _os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        raise HTTPException(status_code=503, detail="server_api_key_not_configured")
+
+    body = await request.json()
+
+    async def _gen():
+        async with httpx.AsyncClient(timeout=120) as client:
+            async with client.stream(
+                "POST",
+                "https://api.anthropic.com/v1/messages",
+                headers={
+                    "x-api-key": api_key,
+                    "anthropic-version": "2023-06-01",
+                    "content-type": "application/json",
+                },
+                json={
+                    "model":      body.get("model", "claude-sonnet-4-6"),
+                    "max_tokens": body.get("max_tokens", 4096),
+                    "stream":     True,
+                    "system":     body.get("system", ""),
+                    "messages":   body.get("messages", []),
+                },
+            ) as resp:
+                async for chunk in resp.aiter_bytes():
+                    yield chunk
+
+    from starlette.responses import StreamingResponse as _SR
+    return _SR(_gen(), media_type="text/event-stream")
 
 
 # ── Phase 124 — adaad-core package info endpoint ──────────────────────────
