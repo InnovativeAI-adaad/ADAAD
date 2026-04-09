@@ -1,3 +1,44 @@
+## [9.63.0] — 2026-04-08 · Phase 130 · INNOV-40 Cross-Epoch Agent Learning Transfer (CELT)
+
+### World-First: Governed Cross-Epoch Agent Behavioral Profile Transfer with Cryptographic Provenance
+
+An agent that has learned safe structural refactoring patterns across epochs can now package
+that knowledge into a signed LearningBundle and transfer it across instance boundaries.  The
+receiving instance enforces a strict pipeline: quarantine check (CELT-QUARANTINE-0), epoch
+boundary check (CELT-EPOCH-0), HMAC verification (CELT-VERIFY-0), schema sanitisation
+(CELT-SANITIZE-0), and additive deterministic merge (CELT-MERGE-0).  Every event — successful
+or rejected — is appended to the hash-chained transfer ledger before the call returns
+(CELT-CHAIN-0).  HUMAN-0 may permanently quarantine any bundle_id at any time.
+
+Extends INNOV-13 (IMT) and INNOV-16 (ERS).
+
+**New module:** `runtime/innovations30/cross_epoch_transfer.py`
+
+- `CELTEngine` — orchestrator: export / gate / quarantine / ledger
+- `LearningBundle` — signed, versioned cross-epoch transfer package (CELT-VERIFY-0, CELT-DETERM-0)
+- `ProfileSnapshot` — serialisable point-in-time agent behavioral profile
+- `TransferRecord` — append-only hash-chained ledger entry (CELT-CHAIN-0)
+- `MergeResult` — additive merge outcome with deterministic merge_digest
+- `sanitise_profile()` — schema validator; raises SanitizationError on malformed input (CELT-SANITIZE-0)
+- `merge_profile()` — additive deterministic merge; sums counts, sorts lists (CELT-MERGE-0)
+- `snapshot_from_profile()` — ERS AgentBehaviorProfile → CELT ProfileSnapshot converter
+
+**Invariants introduced:**
+- `CELT-0`: Profile MUST NOT be applied cross-epoch without passing celt_import_gate()
+- `CELT-VERIFY-0`: HMAC verified before any profile write
+- `CELT-CHAIN-0`: Every event appended to ledger before return
+- `CELT-DETERM-0`: bundle_digest pure function of identity + profile
+- `CELT-MERGE-0`: Additive, deterministic — no data silently discarded
+- `CELT-QUARANTINE-0`: HUMAN-0 quarantined bundles permanently blocked
+- `CELT-SANITIZE-0`: Profile schema validated before merge
+- `CELT-EPOCH-0`: Same-epoch transfer prohibited
+
+**Tests:** 30/30 (T130-CELT-01..30)
+**Failure modes covered:** `GateBypassError`, `VerificationError`, `ChainError`, `DeterminismError`, `MergeError`, `QuarantineError`, `SanitizationError`, `EpochBoundaryError`
+**Cumulative Hard-class invariants:** 193 → 201
+
+---
+
 ## [9.62.0] — 2026-04-08 · Phase 129 · INNOV-39 Agent Coalition Formation (ACF)
 
 ### World-First: Governed Agent Coalition Formation with Proportional Stake Redistribution
