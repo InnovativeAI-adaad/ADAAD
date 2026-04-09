@@ -294,6 +294,7 @@ git push origin v1.1.0-GA
 | 126 | Break It Challenge — INNOV-36 Red-Team | v9.59.0 | P2 | ✅ shipped |
 | 127 | INNOV-37 GRRP — Governed Red-Team Response Protocol | v9.60.0 | P1 | ✅ shipped |
 | 128 | INNOV-38 ACSA — Autonomous Constitutional Self-Amendment Engine | v9.61.0 | P1 | ✅ shipped |
+| 129 | INNOV-39 ACF — Agent Coalition Formation | v9.62.0 | P1 | ✅ shipped |
 | GA | v1.1-GA Release | v1.1.0-GA | P0 (Track B) | 🔒 blocked on FINDING-66-004 |
 
 ---
@@ -302,7 +303,7 @@ git push origin v1.1.0-GA
 
 Phase 107 (INNOV-22 MCF) shipped v9.40.0. Phase 108 (INNOV-23 CES) shipped v9.41.0. Phase 109 (INNOV-24 SVP) shipped v9.42.0. Phase 110 (INNOV-25 HAF) shipped v9.43.0. ADAAD now extends constitutional governance with hardware-adaptive fitness weights enabling governed evolution across heterogeneous deployment targets. 113 Hard-class invariants enforced. Innovations INNOV-01 through INNOV-25 are shipped across v9.18.0–v9.43.0 (Phases 87–110), with deterministic evidence artifacts recorded per phase closure.
 
-**Current/Next:** Current = **Phase 128** (`v9.61.0`, INNOV-38 ACSA shipped). Cumulative Hard-class invariants: 185. Next = **Phase 129 — to be planned**.
+**Current/Next:** Current = **Phase 129** (`v9.62.0`, INNOV-39 ACF shipped). Cumulative Hard-class invariants: 193. Next = **Phase 130 — INNOV-40 Cross-Epoch Agent Learning Transfer**.
 
 **GA blockers (canonical): 1 open** — FINDING-66-004 (Governance Key Ceremony: 2-of-3 Ed25519 threshold not yet executed — runbook delivered, ceremony deferred).
 

@@ -1,3 +1,43 @@
+## [9.62.0] — 2026-04-08 · Phase 129 · INNOV-39 Agent Coalition Formation (ACF)
+
+### World-First: Governed Agent Coalition Formation with Proportional Stake Redistribution
+
+When a mutation is classified HIGH-COMPLEXITY, agents automatically assemble into a temporary
+coalition before it can advance to GovernanceGate.  Each coalition member commits a positive
+stake (ACF-STAKE-0).  The coalition is sealed with a validated member count (ACF-FORM-0), then
+each member casts a verdict.  Majority outcome drives APPROVED / REJECTED; a tie routes to
+ESCALATED (HUMAN-0).  Stake is redistributed with exact integer arithmetic: winners recover their
+own stake plus a proportional share of loser forfeits; ties return all stakes in full
+(ACF-SHARE-0).  The coalition dissolves deterministically after resolution — no coalition
+survives an epoch boundary (ACF-DISSOLVE-0).  Every lifecycle event is appended to a
+hash-chained ledger (ACF-CHAIN-0).  Epoch advance is blocked by any unresolved or undissolved
+coalition (ACF-0).
+
+**New module:** `runtime/innovations30/agent_coalition.py`
+
+- `Coalition` — single-mutation coalition lifecycle: FORMING → SEALED → RESOLVED → DISSOLVED
+- `CoalitionEngine` — orchestrator: form / resolve / dissolve + ledger + epoch gate
+- `CoalitionRecord` — append-only hash-chained ledger entry (ACF-CHAIN-0)
+- `CoalitionMember` — agent identity, role, stake, verdict, share_returned
+- `StakeDistribution` — exact integer redistribution result with self-validating total (ACF-SHARE-0)
+- `requires_coalition()` — stateless complexity-class gate (ACF-0)
+
+**Invariants introduced:**
+- `ACF-0`: HIGH-COMPLEXITY mutations MUST NOT advance without a resolved CoalitionRecord
+- `ACF-FORM-0`: Coalition MUST have 2–7 members at formation time
+- `ACF-STAKE-0`: Every member MUST commit a positive stake
+- `ACF-RESOLVE-0`: Coalition resolution MUST be triggered exactly once
+- `ACF-DISSOLVE-0`: Resolved coalition MUST be dissolved before next epoch
+- `ACF-DETERM-0`: coalition_digest MUST be pure function of (coalition_id, member_ids, stakes, outcome)
+- `ACF-CHAIN-0`: Append-only hash-chained CoalitionRecord ledger
+- `ACF-SHARE-0`: Stake redistribution MUST use exact integer arithmetic; total MUST balance
+
+**Tests:** 30/30 (T129-ACF-01..30)
+**Failure modes covered:** `UnresolvedCoalitionError`, `CoalitionSizeError`, `StakeError`, `AlreadyResolvedError`, `EpochBoundaryError`, `DeterminismError`, `ChainError`, `ShareArithmeticError`
+**Cumulative Hard-class invariants:** 185 → 193
+
+---
+
 ## [9.61.0] — 2026-04-08 · Phase 128 · INNOV-38 Autonomous Constitutional Self-Amendment Engine (ACSA)
 
 ### World-First: Adversarially-Driven Constitutional Self-Amendment with Cryptographic Provenance
