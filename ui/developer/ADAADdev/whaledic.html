@@ -537,6 +537,7 @@ let llmCfg={provider:'groq',groqKey:'',ollamaModel:'llama3.2',claudeKey:''};
 let selProvider='groq';
 let eventBus=[],eventBusFilter='all',eventBusExpanded=false,eventBusSeq=0;
 let dorkSeedAutoStarted=false;
+let dorkAutoLoaded=false;
 
 // ── ADAAD STATE BUS (Phase 101 L1) ───────────────────────────────
 window.ADAAD_STATE_BUS=null;
@@ -1351,6 +1352,22 @@ function autostartDorkSeed(){
   sendDork();
 }
 
+// ── DORK AUTO-LOAD (unconditional fresh-session boot) ─────────────
+function autostartDorkLoad(){
+  if(dorkAutoLoaded)return;
+  if(dorkSeedAutoStarted)return;          // URL seed takes priority
+  if(conv&&conv.length>0)return;          // existing session — don't clobber
+  const inp=document.getElementById('dinp');
+  if(!inp)return;
+  dorkAutoLoaded=true;
+  const defaultQuery='Show current governance gate status, epoch, agent triad health, and replay score.';
+  inp.value=defaultQuery;
+  ar(inp);
+  updateBus({dork_last_fingerprint:{prompt_sha1:fingerprint(defaultQuery),result_sha1:'',issued_at_iso:new Date().toISOString()}});
+  bus('bridge','dork_autoload boot');
+  sendDork();
+}
+
 // ── CONFIG MODAL ─────────────────────────────────────────────────
 function loadCfg(){try{const s=localStorage.getItem('dork_llm_v3');if(s){const p=JSON.parse(s);llmCfg={...llmCfg,...p};}}catch(_){}
   // Restore claude key from dedicated store (may differ from llmCfg bundle)
@@ -1626,6 +1643,7 @@ restoreConv();restoreEventBus();renderEventBus();renderDebt();refreshAll();start
 applyProviderBadges(llmCfg.provider);
 bootstrapProvider();
 setTimeout(autostartDorkSeed,0);
+setTimeout(autostartDorkLoad,2000);
 </script>
 </body>
 </html>
