@@ -103,7 +103,7 @@ Phase 47 ──► Phase 48 ──► Phase 49 ──► Phase 50 ──► Phas
 
 ### 1A.3 Dependency pointer
 
-> **v8/v9 sequencing source of truth:** This document controls active constitutional PR sequencing and status across the v8.x and v9.x release lines. `ROADMAP.md` mirrors this state for human-facing roadmap context and must remain aligned.
+> **v8/v9 sequencing source of truth:** `docs/governance/PHASE_INNOVATION_MAPPING_CANONICAL.md` is the canonical Phase↔Innovation mapping for phases 94–114. This document and `ROADMAP.md` must remain aligned to that canonical table.
 
 - **Current:** Phase 93 complete (v9.26.0 — INNOV-09 AFIT). Next: **Phase 94 — INNOV-10 roadmap execution**.
 
@@ -112,30 +112,32 @@ Phase 47 ──► Phase 48 ──► Phase 49 ──► Phase 50 ──► Phas
 | Phase | Innovation ID | Target version | Dependency (explicit predecessor) | Status |
 |---|---|---|---|---|
 | 94 | INNOV-10 — Morphogenetic Memory | v9.27.0 | Phase 93 | planned |
-| 95 | INNOV-11 — Cross-Epoch Dream State | v9.28.0 | Phase 94 | planned |
-| 96 | INNOV-12 — Mutation Genealogy Visualization | v9.29.0 | Phase 95 | planned |
-| 97 | INNOV-13 — Institutional Memory Transfer | v9.30.0 | Phase 96 | planned |
-| 98 | INNOV-14 — Constitutional Jury System | v9.31.0 | Phase 97 | planned |
-| 99 | INNOV-15 — Agent Reputation Staking | v9.32.0 | Phase 98 | planned |
-| 100 | INNOV-16 — Emergent Role Specialization | v9.33.0 | Phase 99 | planned |
-| 101 | INNOV-17 — Agent Post-Mortem Interviews | v9.34.0 | Phase 100 | planned |
-| 102 | INNOV-18 — Temporal Governance Windows | v9.35.0 | Phase 101 | planned |
-| 103 | INNOV-19 — Governance Archaeology Mode | v9.36.0 | Phase 102 | planned |
-| 104 | INNOV-20 — Constitutional Stress Testing | v9.37.0 | Phase 103 | planned |
-| 105 | INNOV-21 — Governance Debt Bankruptcy Protocol | v9.38.0 | Phase 104 | planned |
-| 106 | INNOV-22 — Market-Conditioned Fitness | v9.39.0 | Phase 105 | planned |
-| 107 | INNOV-23 — Regulatory Compliance Layer | v9.40.0 | Phase 106 | planned |
+| 95 | _(none)_ — Oracle × Dork Alignment (integration phase) | v9.28.0 | Phase 94 | planned |
+| 96 | INNOV-11 — Cross-Epoch Dream State | v9.29.0 | Phase 95 | planned |
+| 97 | INNOV-12 — Mutation Genealogy Visualization | v9.30.0 | Phase 96 | planned |
+| 98 | INNOV-13 — Institutional Memory Transfer | v9.31.0 | Phase 97 | planned |
+| 99 | INNOV-14 — Constitutional Jury System | v9.32.0 | Phase 98 | planned |
+| 100 | INNOV-15 — Agent Reputation Staking | v9.33.0 | Phase 99 | planned |
+| 101 | INNOV-16 — Emergent Role Specialization | v9.34.0 | Phase 100 | planned |
+| 102 | INNOV-17 — Agent Post-Mortem Interviews | v9.35.0 | Phase 101 | planned |
+| 103 | INNOV-18 — Temporal Governance Windows | v9.36.0 | Phase 102 | planned |
+| 104 | INNOV-19 — Governance Archaeology Mode | v9.37.0 | Phase 103 | planned |
+| 105 | INNOV-20 — Constitutional Stress Testing | v9.38.0 | Phase 104 | planned |
+| 106 | INNOV-21 — Governance Debt Bankruptcy Protocol | v9.39.0 | Phase 105 | planned |
+| 107 | INNOV-22 — Market-Conditioned Fitness | v9.40.0 | Phase 106 | planned |
 | 108 | INNOV-23 — Constitutional Epoch Sentinel | v9.41.0 | Phase 107 | planned |
 | 109 | INNOV-24 — Semantic Version Promises | v9.42.0 | Phase 108 | planned |
 | 110 | INNOV-25 — Hardware-Adaptive Fitness | v9.43.0 | Phase 109 | planned |
-| 111 | INNOV-26 — Constitutional Entropy Budget | v9.44.0 | Phase 110 | planned |
-| 112 | INNOV-27 — Mutation Blast Radius Modeling | v9.45.0 | Phase 111 | planned |
-| 113 | INNOV-28 — Self-Awareness Invariant | v9.46.0 | Phase 112 | planned |
-| 114 | INNOV-29 — Curiosity-Driven Exploration with Hard Stops | v9.47.0 | Phase 113 | planned |
+| 111 | INNOV-26 — Graduated Invariants | v9.44.0 | Phase 110 | planned |
+| 112 | INNOV-27 — Regulatory Compliance Intelligence | v9.45.0 | Phase 111 | planned |
+| 113 | INNOV-28 — Intent Preservation Verifier | v9.46.0 | Phase 112 | planned |
+| 114 | INNOV-29 — Curiosity Engine with Deterministic Hard Stops | v9.47.0 | Phase 113 | planned |
 
 Deterministic next-PR resolution rule for this roadmap slice: **the only valid next phase is the first row whose predecessor phase is `shipped` and whose own status is not `shipped`.**
 
 Execution manifest for this roadmap slice: `docs/plans/PHASE_94_114_EXECUTION_MANIFEST.md` (branch map, gate checklist, evidence/closure checklist, and per-phase tracker).
+
+Mapping drift guard: `python scripts/validate_phase_innovation_mapping.py` (fails if one Innovation ID is assigned to multiple phases).
 
 ## 2) Active Planning — v1.0.0-GA Gate
 
