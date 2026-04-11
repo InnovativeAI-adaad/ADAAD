@@ -533,6 +533,65 @@
       if (!runtime || typeof runtime.sendMessage !== "function" || runtime.sendMessage._v2runtime) return runtime;
       const origRuntimeSend = runtime.sendMessage.bind(runtime);
       runtime.sendMessage = async function sendMessageV2(text, options) {
+        const skillStart = Date.now();
+        const skillApi = global.DORK_SKILLS;
+        if (skillApi && typeof skillApi.routeSkill === "function") {
+          let skillResult = null;
+          try {
+            skillResult = skillApi.routeSkill(text, global.ADAAD_STATE_BUS || {});
+            const skillLatencyMs = Date.now() - skillStart;
+            if (typeof runtime.emitEvent === "function") {
+              runtime.emitEvent("dork_skill_usage", {
+                intent: skillResult.intent,
+                command: skillResult.command,
+                confidence: skillResult.confidence,
+                needs_clarification: Boolean(skillResult.needs_clarification),
+                latency_ms: skillLatencyMs,
+              });
+            }
+            if (typeof runtime.hydrateContext === "function") {
+              runtime.hydrateContext(
+                {
+                  dork_skill_last: {
+                    command: skillResult.command,
+                    intent: skillResult.intent,
+                    confidence: skillResult.confidence,
+                    failure_reason: skillResult.failure_reason || "",
+                    latency_ms: skillLatencyMs,
+                    ts: new Date().toISOString(),
+                  },
+                },
+                { source: "dork_skill_router", broadcast: true, persist: true },
+              );
+            }
+            if (skillResult.needs_clarification) {
+              return {
+                response: skillResult.clarifying_question,
+                provider: "dorkskill",
+                intent: skillResult.intent,
+                skill: skillResult,
+              };
+            }
+            if (skillResult.markdown) {
+              return {
+                response: skillResult.markdown,
+                provider: "dorkskill",
+                intent: skillResult.intent,
+                skill: skillResult,
+              };
+            }
+          } catch (err) {
+            const skillLatencyMs = Date.now() - skillStart;
+            if (typeof runtime.emitEvent === "function") {
+              runtime.emitEvent("dork_skill_failure", {
+                reason: err && err.message ? err.message : String(err),
+                latency_ms: skillLatencyMs,
+                text: String(text || "").slice(0, 120),
+              });
+            }
+          }
+        }
+
         const intent = classifyIntent(text);
         const kbHit = enrichWithKB(text);
         const fanOut = fanOutCapabilities(text, global.ADAAD_STATE_BUS || {});
