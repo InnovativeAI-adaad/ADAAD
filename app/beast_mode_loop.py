@@ -37,7 +37,12 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 from adaad.agents.base_agent import promote_offspring
-from adaad.agents.discovery import agent_path_from_id, iter_agent_dirs, resolve_agent_id
+from adaad.agents.discovery import (
+    agent_path_from_id,
+    iter_agent_dirs,
+    resolve_agent_id,
+    resolve_agent_module_entrypoint,
+)
 from runtime.api.app_layer import (
     MutationCandidate,
     RuntimeDeterminismProvider,
@@ -54,6 +59,11 @@ from runtime.api.app_layer import (
     require_replay_safe_provider,
 )
 from runtime.api.runtime_services import validate_agent_contract_preflight
+from runtime.mutation.ast_substrate.ast_snapshot import (
+    compute_snapshot,
+    read_previous_digest,
+    write_snapshot_state,
+)
 from security import cryovant
 from security.ledger import journal
 
@@ -190,7 +200,7 @@ class BeastModeLoop:
     # State persistence helpers (unchanged logic, clock via _now())
     # ------------------------------------------------------------------
 
-    def _load_state(self) -> Dict[str, float]:
+    def _load_state(self) -> Dict[str, object]:
         if not self.state_path.exists():
             return {
                 "cycle_window_start": 0.0,
@@ -210,9 +220,37 @@ class BeastModeLoop:
                 "cooldown_until": 0.0,
             }
 
-    def _save_state(self, state: Dict[str, float]) -> None:
+    def _save_state(self, state: Dict[str, object]) -> None:
         self.state_path.parent.mkdir(parents=True, exist_ok=True)
         self.state_path.write_text(json.dumps(state, indent=2, sort_keys=True), encoding="utf-8")
+
+    def _resolve_ast_snapshot(
+        self, selected: str, payload: Dict[str, object]
+    ) -> Optional[tuple[str, str]]:
+        source = payload.get("content")
+        if not isinstance(source, str) or not source.strip():
+            agent_dir = agent_path_from_id(selected, self.agents_root)
+            entrypoint = resolve_agent_module_entrypoint(agent_dir)
+            if entrypoint is None:
+                return None
+            try:
+                source = entrypoint.read_text(encoding="utf-8")
+            except OSError:
+                return None
+            module_path = entrypoint
+        else:
+            module_path = None
+
+        try:
+            snapshot = compute_snapshot(
+                agent_id=selected,
+                module_path=module_path,
+                agents_root=self.agents_root,
+                source=source,
+            )
+        except SyntaxError:
+            return None
+        return snapshot.target, snapshot.digest
 
     def _refresh_window(
         self,
@@ -220,7 +258,7 @@ class BeastModeLoop:
         count_key: str,
         window_sec: int,
         now: float,
-        state: Dict[str, float],
+        state: Dict[str, object],
     ) -> None:
         window_start = float(state.get(start_key, 0.0))
         if window_start <= 0.0 or now - window_start >= window_sec:
@@ -228,7 +266,7 @@ class BeastModeLoop:
             state[count_key] = 0.0
 
     def _throttle(
-        self, reason: str, payload: Dict[str, float], state: Dict[str, float]
+        self, reason: str, payload: Dict[str, float], state: Dict[str, object]
     ) -> Dict[str, str]:
         state["cooldown_until"] = payload["cooldown_until"]
         self._save_state(state)
@@ -513,6 +551,44 @@ class BeastModeLoop:
             )
             return {"status": "no_staged", "agent": selected}
 
+        snapshot = self._resolve_ast_snapshot(selected, payload)
+        if snapshot is not None:
+            snapshot_target, current_digest = snapshot
+            state = self._load_state()
+            previous_digest = read_previous_digest(state, snapshot_target)
+            if previous_digest == current_digest:
+                now = self._now()
+                write_snapshot_state(
+                    state,
+                    snapshot_target=snapshot_target,
+                    digest=current_digest,
+                    now=now,
+                    accepted_change=False,
+                )
+                self._save_state(state)
+                metrics.log(
+                    event_type="cosmetic_update_only",
+                    payload={
+                        "agent": selected,
+                        "staged": str(staged_dir),
+                        "outcome": "ast_unchanged",
+                        "snapshot_target": snapshot_target,
+                    },
+                    level="INFO",
+                    element_id=ELEMENT_ID,
+                )
+                metrics.log(
+                    event_type="beast_cycle_end",
+                    payload={"status": "ast_unchanged", "agent": selected},
+                    level="INFO",
+                    element_id=ELEMENT_ID,
+                )
+                return {
+                    "status": "ast_unchanged",
+                    "agent": selected,
+                    "reason": "cosmetic_update_only",
+                }
+
         throttled = self._check_mutation_quota()
         if throttled:
             metrics.log(
@@ -653,12 +729,17 @@ class BeastModeLoop:
             evaluation_result="allow",
             decision_id=_promotion_decision_id,
         )
-        self.ast_snapshot_store.record_accepted_ast_change(
-            agent_id=selected,
-            module_id=module_id,
-            digest=current_digest,
-            accepted_at=self._now(),
-        )
+        if snapshot is not None:
+            snapshot_target, current_digest = snapshot
+            state = self._load_state()
+            write_snapshot_state(
+                state,
+                snapshot_target=snapshot_target,
+                digest=current_digest,
+                now=self._now(),
+                accepted_change=True,
+            )
+            self._save_state(state)
         return {"status": "promoted", "agent": selected, "score": score, "promoted_path": str(promoted)}
 
 

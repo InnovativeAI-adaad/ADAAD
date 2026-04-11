@@ -46,6 +46,14 @@ from runtime.mutation.ast_substrate.sandbox_tournament import (  # noqa: F401
     TournamentResult,
     CandidateScore,
 )
+from runtime.mutation.ast_substrate.ast_snapshot import (  # noqa: F401
+    SnapshotResult,
+    compute_snapshot,
+    compute_digest,
+    read_previous_digest,
+    write_snapshot_state,
+    target_key,
+)
 
 __all__ = [
     "ASTDiffPatch", "MutationKind", "RiskClass",
@@ -55,4 +63,6 @@ __all__ = [
     "ComplexityCeilingRule", "PatchSizeRule", "COMPLEXITY_DELTA_MAX",
     "PatchApplicator", "ApplyResult",
     "SandboxTournament", "TournamentResult", "CandidateScore",
+    "SnapshotResult", "compute_snapshot", "compute_digest",
+    "read_previous_digest", "write_snapshot_state", "target_key",
 ]
