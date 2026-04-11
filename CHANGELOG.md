@@ -1,3 +1,37 @@
+## [9.70.0] — 2026-04-11 · Phase 137 · DORK Intelligence Hardening & Capability Expansion
+
+### INNOV-44: Multi-surface hardening, 3 new Hard-class invariants, 5 bug fixes, 2 new OPT passes
+
+**Bug fixes**
+- `dorkllm/state.py` — DORK-LEDGER-HASH-0: `ConversationLedger._hash_entry()` now
+  includes `seq` in canonical hash payload, achieving schema parity with
+  `DorkLedgerPersistence`; fixes latent hash mismatch that broke restart hydration
+- `app/orchestration/dork_intent_router.py` — All 11 INNOV-41/42 fleet `_dispatch()`
+  handlers were unreachable dead code (placed after fallback return); moved before fallback
+- `app/api/schemas/dork_intents.py` — `DorkIntentName` Literal was missing 11 fleet
+  intents; Pydantic validation rejected any fleet intent bundle
+- `app/orchestration/dork_intent_router.py` — `DORKLivingFleet()` instantiated per-call,
+  defeating fleet lifecycle and watchdog continuity; replaced with module singleton
+- `dorkllm/context.py` — `get_relevant_context()` never invoked the KB retriever;
+  KB was completely siloed from the LLM context pipeline
+
+**New Hard-class invariants**
+- `DORK-LEDGER-HASH-0` (`state.py`): seq-inclusive hash schema mandatory
+- `DORK-KB-0` (`context.py`): KB lookup mandatory on every context build
+- `DORK-FLEET-0` (`dork_intent_router.py`): fleet singleton per-process
+
+**New capabilities**
+- OPT-007: KB-grounded context enrichment — authoritative KB block prepended to
+  system prompt on score >= 0.35 hit
+- OPT-008: TTL query cache (60s default, 128-entry LRU) — short-circuits repeated queries
+- DORK-PROVIDER-0: multi-provider fallback chain with circuit breaker
+- Bigram tokenization in `context.py` for improved short-query classification
+- `persist` taxonomy category covering Phase 133+ dfsb/restore/hydrate vocabulary
+- Per-intent calibrated confidence table (17 entries) in `dork_intent_router.py`
+- `consensus` trust mode in `DorkTrustMetadata` for future multi-provider merging
+- `ProviderHealthRegistry.circuit_open()` — trips at < 34% availability over >= 3 probes
+- JSON-first KB parse strategy with LRU cache; `get_kb_top_n()` for multi-result enrichment
+
 ## [9.69.0] — 2026-04-11 · Phase 136 · Dork Runtime Enrichment Bridge Hardening
 
 ### Fix: enrich `runtime.sendMessage` directly and standardize enrichment event surfacing
