@@ -99,6 +99,7 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 129 | INNOV-39 ACF — Agent Coalition Formation | v9.62.0 | P1 | ✅ shipped |
 | 130 | INNOV-40 CELT — Cross-Epoch Agent Learning Transfer | v9.63.0 | P1 | ✅ shipped |
 | 131 | DORK Genesis & Data Integrity | v9.64.0 | P0 | ✅ shipped |
+| 137 | INNOV-44 DORK Intelligence Hardening & Capability Expansion | v9.70.0 | P0 | ✅ shipped |
 | GA | v1.1-GA Release | v1.1.0-GA | P0 (Track B) | 🔒 blocked on FINDING-66-004 |
 
 ---

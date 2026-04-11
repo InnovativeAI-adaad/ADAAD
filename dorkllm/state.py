@@ -1,6 +1,7 @@
+# SPDX-License-Identifier: Apache-2.0
 # DORK State Bus Interface Module
-# Phase 132 Enhancement: ConversationLedger + ProviderHealthRegistry
-# Constitutional invariants: DORK-STATE-0, DORK-PROV-0
+# Phase 137 · INNOV-44 · DORK Intelligence Hardening & Capability Expansion
+# Constitutional invariants: DORK-STATE-0, DORK-PROV-0, DORK-LEDGER-HASH-0
 
 import http.client
 import json
@@ -15,6 +16,21 @@ PORT = int(os.getenv("ADAAD_PORT", "8000"))
 # Any attempt to mutate a prior entry raises ConversationLedgerViolation.
 # ─────────────────────────────────────────────────────────────────────────────
 
+# ── DORK-PROV-0 ───────────────────────────────────────────────────────────────
+# Hard invariant: ProviderHealthRegistry must record all provider probe outcomes.
+# Unhealthy providers must not be silently skipped — callers must receive
+# a structured ProviderStatus with healthy=False before fallback is used.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── DORK-LEDGER-HASH-0 ────────────────────────────────────────────────────────
+# Hard invariant: ConversationLedger._hash_entry() MUST include the `seq` field
+# in its canonical hash payload, producing schema parity with
+# DorkLedgerPersistence. Cross-layer hydration (persist→memory) requires
+# identical hash schemas — any divergence is a constitutionally prohibited
+# chain integrity violation.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
 class ConversationLedgerViolation(RuntimeError):
     """Raised when ConversationLedger append-only invariant is violated."""
 
@@ -23,8 +39,10 @@ class ConversationLedger:
     """
     Append-only, hash-chained record of all DORK conversation turns.
 
-    Each entry stores: role, content digest, timestamp, prev_hash, entry_hash.
+    Each entry stores: seq, role, content digest, timestamp, prev_hash, entry_hash.
     The chain is verifiable end-to-end — no silent mutation is possible.
+
+    DORK-LEDGER-HASH-0: hash payload includes seq for DorkLedgerPersistence parity.
     """
 
     GENESIS_HASH = "0" * 64
@@ -33,10 +51,16 @@ class ConversationLedger:
         self._entries: list[dict] = []
         self._prev_hash: str = self.GENESIS_HASH
 
-    def _hash_entry(self, role: str, content_digest: str, timestamp: str, prev_hash: str) -> str:
-        # Invariant: append() and verify() must hash the exact same canonical schema.
+    def _hash_entry(
+        self, seq: int, role: str, content_digest: str, timestamp: str, prev_hash: str
+    ) -> str:
+        """
+        DORK-LEDGER-HASH-0: canonical hash payload includes seq, role,
+        content_digest, timestamp, prev_hash — matching DorkLedgerPersistence.
+        """
         payload = json.dumps(
             {
+                "seq": seq,
                 "role": role,
                 "content_digest": content_digest,
                 "timestamp": timestamp,
@@ -49,11 +73,12 @@ class ConversationLedger:
     def append(self, role: str, content: str) -> dict:
         """Append a new turn to the ledger. Returns the sealed entry."""
         self._validate_role(role)
+        seq = len(self._entries)
         timestamp = datetime.now(timezone.utc).isoformat()
         content_digest = hashlib.sha256(content.encode()).hexdigest()[:24]
-        entry_hash = self._hash_entry(role, content_digest, timestamp, self._prev_hash)
+        entry_hash = self._hash_entry(seq, role, content_digest, timestamp, self._prev_hash)
         entry = {
-            "seq": len(self._entries),
+            "seq": seq,
             "role": role,
             "content_digest": content_digest,
             "timestamp": timestamp,
@@ -77,11 +102,14 @@ class ConversationLedger:
         """
         Restore a precomputed ledger entry from an authoritative chain source.
 
+        DORK-LEDGER-HASH-0: recomputes hash using seq-inclusive canonical schema
+        to ensure cross-layer chain continuity with DorkLedgerPersistence.
+
         Invariants enforced:
         - role must be canonical
         - seq must be contiguous append index
         - prev_hash must equal current chain tail hash
-        - entry_hash must match canonical recomputation
+        - entry_hash must match canonical recomputation (seq-inclusive)
         """
         self._validate_role(role)
         expected_seq = len(self._entries)
@@ -93,10 +121,11 @@ class ConversationLedger:
             raise ConversationLedgerViolation(
                 "Invalid prev_hash continuity: restore entry does not chain from ledger tail"
             )
-        expected_hash = self._hash_entry(role, content_digest, timestamp, prev_hash)
+        expected_hash = self._hash_entry(seq, role, content_digest, timestamp, prev_hash)
         if entry_hash != expected_hash:
             raise ConversationLedgerViolation(
-                "Invalid entry_hash: canonical recomputation mismatch during restore"
+                "Invalid entry_hash: canonical recomputation mismatch during restore "
+                f"(expected={expected_hash[:12]}…, got={entry_hash[:12]}…)"
             )
         entry = {
             "seq": seq,
@@ -116,13 +145,13 @@ class ConversationLedger:
             raise ConversationLedgerViolation(f"Invalid role: {role!r}")
 
     def verify(self) -> tuple[bool, str]:
-        """Re-derive chain from genesis. Returns (valid, reason)."""
+        """Re-derive chain from genesis using seq-inclusive hash schema. Returns (valid, reason)."""
         prev = self.GENESIS_HASH
         for i, e in enumerate(self._entries):
             if e["prev_hash"] != prev:
                 return False, f"Chain break at seq={i}: prev_hash mismatch"
             expected = self._hash_entry(
-                e["role"], e["content_digest"], e["timestamp"], prev
+                e["seq"], e["role"], e["content_digest"], e["timestamp"], prev
             )
             if e["entry_hash"] != expected:
                 return False, f"Chain break at seq={i}: entry_hash mismatch"
@@ -136,11 +165,7 @@ class ConversationLedger:
         return len(self._entries)
 
 
-# ── DORK-PROV-0 ───────────────────────────────────────────────────────────────
-# Hard invariant: ProviderHealthRegistry must record all provider probe outcomes.
-# Unhealthy providers must not be silently skipped — callers must receive
-# a structured ProviderStatus with healthy=False before fallback is used.
-# ─────────────────────────────────────────────────────────────────────────────
+# ── Provider Health ────────────────────────────────────────────────────────────
 
 class ProviderStatus:
     def __init__(self, name: str, healthy: bool, latency_ms: float, error: str | None = None):
@@ -162,20 +187,21 @@ class ProviderStatus:
 
 class ProviderHealthRegistry:
     """
-    Tracks health probes for all LLM provider backends (Ollama, remote APIs, etc.).
-    Maintains a rolling window of the last N probe results per provider.
+    Tracks health probes for all LLM provider backends.
+    Maintains a configurable rolling window of probe results per provider.
     """
 
-    WINDOW_SIZE = 20
+    DEFAULT_WINDOW_SIZE = int(os.getenv("DORK_PROVIDER_WINDOW_SIZE", "20"))
 
-    def __init__(self):
+    def __init__(self, window_size: int | None = None):
+        self._window_size = window_size if window_size is not None else self.DEFAULT_WINDOW_SIZE
         self._registry: dict[str, list[ProviderStatus]] = {}
 
     def record(self, status: ProviderStatus) -> None:
-        """Record a probe result for a provider."""
+        """Record a probe result for a provider. DORK-PROV-0: never silently skips."""
         bucket = self._registry.setdefault(status.name, [])
         bucket.append(status)
-        if len(bucket) > self.WINDOW_SIZE:
+        if len(bucket) > self._window_size:
             bucket.pop(0)
 
     def is_healthy(self, name: str) -> bool:
@@ -192,11 +218,23 @@ class ProviderHealthRegistry:
             return 0.0
         return sum(1 for s in bucket if s.healthy) / len(bucket)
 
+    def circuit_open(self, name: str, min_probes: int = 3, threshold: float = 0.34) -> bool:
+        """
+        Return True if the circuit breaker should trip for this provider.
+        Circuit opens when availability < threshold over at least min_probes.
+        Prevents repeated calls to a failing backend.
+        """
+        bucket = self._registry.get(name)
+        if not bucket or len(bucket) < min_probes:
+            return False
+        return self.availability(name) < threshold
+
     def summary(self) -> dict:
         return {
             name: {
                 "healthy": self.is_healthy(name),
                 "availability": round(self.availability(name), 3),
+                "circuit_open": self.circuit_open(name),
                 "probe_count": len(bucket),
                 "last_error": next(
                     (s.error for s in reversed(bucket) if s.error), None
