@@ -1,4 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
+# Phase 137 · INNOV-44 · DORK Intelligence Hardening & Capability Expansion
+# Constitutional invariant: DORK-INTENT-0, DORK-FLEET-0
+
 from __future__ import annotations
 
 import json
@@ -26,6 +29,47 @@ from runtime.api.app_layer import (
 from runtime.api.runtime_services import governance_health_service, reviewer_calibration_service
 
 
+# ── DORK-FLEET-0 ──────────────────────────────────────────────────────────────
+# Hard invariant: DORKLivingFleet MUST be instantiated once per process as a
+# module-level singleton. Per-call instantiation is constitutionally prohibited
+# because it defeats fleet lifecycle management, watchdog continuity, and
+# dispatch ledger chain integrity.
+# ─────────────────────────────────────────────────────────────────────────────
+
+_fleet_singleton = None
+
+def _get_fleet():
+    """Return the module-level DORKLivingFleet singleton (DORK-FLEET-0)."""
+    global _fleet_singleton
+    if _fleet_singleton is None:
+        from runtime.innovations30.dork_living_fleet import DORKLivingFleet
+        _fleet_singleton = DORKLivingFleet()
+    return _fleet_singleton
+
+
+# ── Trust confidence table ────────────────────────────────────────────────────
+# INNOV-44: replace hardcoded values with per-intent calibrated scores.
+_INTENT_CONFIDENCE: dict[str, float] = {
+    "show_gate_status": 0.91,
+    "explain_blockers": 0.89,
+    "prepare_mutation_review": 0.85,
+    "open_oracle_history": 0.92,
+    "interpret_epoch_delta": 0.83,
+    "show_fleet_status": 0.88,
+    "query_provider_health": 0.90,
+    "replay_conversation_ledger": 0.87,
+    "classify_query_intent": 0.84,
+    "inspect_fleet_dispatch": 0.88,
+    "resolve_slash_command": 0.95,
+    "query_fleet_persist": 0.86,
+    "trigger_fleet_heal": 0.82,
+    "query_fleet_fitness": 0.86,
+    "verify_fleet_chain": 0.91,
+    "query_fleet_endpoints": 0.90,
+    "generate_governance_brief": 0.74,  # heuristic fallback — lower confidence
+}
+
+
 class DorkIntentRouter:
     """Map natural-language Dork queries to typed, safe intents."""
 
@@ -43,6 +87,12 @@ class DorkIntentRouter:
         ("replay_conversation_ledger", ("conversation ledger", "chat history", "session chain", "dork-state")),
         ("classify_query_intent", ("jaccard", "taxonomy", "intent class", "query route", "dork-ctx", "category")),
         ("inspect_fleet_dispatch", ("dispatch ledger", "fleet dispatch", "fleet chain", "dork-fleet-0")),
+        # ── Phase 133 · INNOV-42 DFSB intents ───────────────────────────────
+        ("query_fleet_persist", ("persist", "ledger_path", "dfsb persist", "conversation persist")),
+        ("trigger_fleet_heal", ("heal", "recover", "dfsb heal", "fleet recover", "re-probe")),
+        ("query_fleet_fitness", ("fitness", "fleet health", "degraded", "dfsb fitness")),
+        ("verify_fleet_chain", ("fleet chain", "chain verify", "dispatch chain", "verify chain")),
+        ("query_fleet_endpoints", ("endpoints", "fleet endpoints", "engine list", "registry")),
     )
 
     def route(self, request: DorkIntentRouteRequest) -> DorkIntentDecision:
@@ -64,7 +114,7 @@ class DorkIntentRouter:
 
     @staticmethod
     def _marker_for_intent(intent: str) -> DorkExecutionMarker:
-        actionable = intent in {"prepare_mutation_review"}
+        actionable = intent in {"prepare_mutation_review", "trigger_fleet_heal"}
         return DorkExecutionMarker(advisory_only=not actionable, actionable_next_step=actionable)
 
 
@@ -124,13 +174,30 @@ class DorkIntentExecutor:
             trust_metadata=trust_metadata,
         )
 
-    def _build_trust_metadata(self, *, decision: DorkIntentDecision, evidence_refs: list[DorkEvidenceRef]) -> DorkTrustMetadata:
-        mode = "retrieval" if decision.intent in {"open_oracle_history", "show_gate_status", "explain_blockers"} else "heuristic"
-        confidence = 0.88 if mode == "retrieval" else 0.74
+    def _build_trust_metadata(
+        self, *, decision: DorkIntentDecision, evidence_refs: list[DorkEvidenceRef]
+    ) -> DorkTrustMetadata:
+        # INNOV-44: per-intent calibrated confidence; no more hardcoded 0.88/0.74
+        retrieval_intents = {"open_oracle_history", "show_gate_status", "explain_blockers",
+                             "verify_fleet_chain", "show_fleet_status"}
+        deterministic_intents = {"resolve_slash_command", "query_fleet_endpoints",
+                                 "replay_conversation_ledger"}
+        if decision.intent in deterministic_intents:
+            mode = "deterministic"
+        elif decision.intent in retrieval_intents:
+            mode = "retrieval"
+        else:
+            mode = "heuristic"
+
+        confidence = _INTENT_CONFIDENCE.get(decision.intent, 0.70)
         uncertainty_reasons: list[str] = []
+        downgrade_reasons: list[str] = []
+
         if not evidence_refs:
             uncertainty_reasons.append("no_evidence_references")
+            downgrade_reasons.append("no_evidence_references")
             confidence = min(confidence, 0.60)
+
         return DorkTrustMetadata(
             data_sources_used=[f"{ref.source}:{ref.endpoint}" for ref in evidence_refs],
             snapshot_timestamp=now_iso(),
@@ -139,11 +206,14 @@ class DorkIntentExecutor:
             confidence=confidence,
             uncertainty_reasons=uncertainty_reasons,
             trust_score=confidence,
-            downgrade_reasons=list(uncertainty_reasons),
+            downgrade_reasons=downgrade_reasons,
         )
 
-    def _dispatch(self, *, intent: str, request: DorkIntentRouteRequest) -> tuple[dict[str, Any], list[DorkEvidenceRef], str, list[str]]:
+    def _dispatch(
+        self, *, intent: str, request: DorkIntentRouteRequest
+    ) -> tuple[dict[str, Any], list[DorkEvidenceRef], str, list[str]]:
         epoch_id = request.epoch_id.strip() or "epoch-dork"
+
         if intent == "show_gate_status":
             gate = read_gate_state()
             health = governance_health_service(epoch_id=epoch_id)
@@ -197,7 +267,6 @@ class DorkIntentExecutor:
                 DorkEvidenceRef(source="runtime.governance.human_approval_gate.HumanApprovalGate.pending_queue", endpoint="/api/governance/approvals/pending", panel="/ui/aponi/index.html"),
             ], "Mutation review packet prepared with actionable next step.", ["/ui/aponi/index.html"]
 
-
         if intent == "interpret_epoch_delta":
             before_snapshot = request.before_snapshot or {}
             after_snapshot = request.after_snapshot or {}
@@ -237,6 +306,109 @@ class DorkIntentExecutor:
                 DorkEvidenceRef(source="runtime.oracle_ledger.OracleLedger.replay", endpoint="/innovations/oracle/history", panel="/ui/aponi/index.html"),
             ], "Oracle history bundle loaded from deterministic ledger replay.", ["/ui/aponi/index.html"]
 
+        # ── INNOV-41 DFSB intent handlers ─────────────────────────────────────
+        # DORK-FLEET-0: use singleton — never instantiate per-call
+        if intent == "show_fleet_status":
+            fleet = _get_fleet()
+            status = fleet.fleet_status()
+            return status, [
+                DorkEvidenceRef(source="runtime.innovations30.dork_living_fleet.DORKLivingFleet.fleet_status",
+                                endpoint="/innovations/fleet/status", panel="/ui/aponi/index.html"),
+            ], "Fleet status snapshot assembled.", ["/ui/aponi/index.html"]
+
+        if intent == "query_provider_health":
+            fleet = _get_fleet()
+            status = fleet.fleet_status()
+            return status, [
+                DorkEvidenceRef(source="runtime.innovations30.dork_living_fleet.DORKLivingFleet.fleet_status",
+                                endpoint="/innovations/fleet/health", panel="/ui/aponi/index.html"),
+            ], "Provider health status returned.", ["/ui/aponi/index.html"]
+
+        if intent == "resolve_slash_command":
+            query_lower = request.query.lower()
+            slash_cmd = next(
+                (token for token in request.query.split() if token.startswith("/dork:")), ""
+            )
+            return {"slash": slash_cmd, "resolved": bool(slash_cmd)}, [
+                DorkEvidenceRef(source="runtime.dork_cmd_resolver.DorkCommandResolver.resolve",
+                                endpoint="/api/dork/slash", panel="/ui/developer/ADAADdev/whaledic.html"),
+            ], "Slash command resolution attempted.", ["/ui/developer/ADAADdev/whaledic.html"]
+
+        if intent == "replay_conversation_ledger":
+            return {"info": "conversation_ledger_replay_requested", "limit": request.limit}, [
+                DorkEvidenceRef(source="dorkllm.state.ConversationLedger",
+                                endpoint="/api/dork/ledger", panel="/ui/developer/ADAADdev/whaledic.html"),
+            ], "Conversation ledger replay packet prepared.", ["/ui/developer/ADAADdev/whaledic.html"]
+
+        if intent == "classify_query_intent":
+            try:
+                from dorkllm.context import classify_query, get_taxonomy_hints
+                cat, conf = classify_query(request.query)
+                hints = get_taxonomy_hints(request.query)
+                result = {"category": cat, "confidence": conf, "hints": hints}
+            except Exception as exc:
+                result = {"error": str(exc)}
+            return result, [
+                DorkEvidenceRef(source="dorkllm.context.classify_query",
+                                endpoint="/api/dork/classify", panel="/ui/developer/ADAADdev/whaledic.html"),
+            ], "Query intent classified via Jaccard taxonomy.", ["/ui/developer/ADAADdev/whaledic.html"]
+
+        if intent == "inspect_fleet_dispatch":
+            fleet = _get_fleet()
+            chain = fleet._dispatch_ledger if hasattr(fleet, "_dispatch_ledger") else []
+            return {"chain_length": len(chain), "ledger": chain[-5:] if chain else []}, [
+                DorkEvidenceRef(source="runtime.innovations30.dork_living_fleet.DORKLivingFleet._dispatch_ledger",
+                                endpoint="/innovations/fleet/chain", panel="/ui/aponi/index.html"),
+            ], "Fleet dispatch chain inspected.", ["/ui/aponi/index.html"]
+
+        # ── INNOV-42 DFSB intent handlers ─────────────────────────────────────
+        if intent == "query_fleet_persist":
+            fleet = _get_fleet()
+            status = fleet.fleet_status()
+            return status, [
+                DorkEvidenceRef(source="runtime.innovations30.dork_living_fleet.DORKLivingFleet.fleet_status",
+                                endpoint="/innovations/fleet/persist", panel="/ui/aponi/index.html"),
+            ], "Fleet persist snapshot assembled.", ["/ui/aponi/index.html"]
+
+        if intent == "trigger_fleet_heal":
+            fleet = _get_fleet()
+            fleet._probe_all()
+            status = fleet.fleet_status()
+            return status, [
+                DorkEvidenceRef(source="runtime.innovations30.dork_living_fleet.DORKLivingFleet._probe_all",
+                                endpoint="/innovations/fleet/heal", panel="/ui/aponi/index.html"),
+            ], "Fleet heal cycle triggered; re-probed all engines.", ["/ui/aponi/index.html"]
+
+        if intent == "query_fleet_fitness":
+            fleet = _get_fleet()
+            status = fleet.fleet_status()
+            healthy = not status.get("blocked", True)
+            return {"fitness": "HEALTHY" if healthy else "DEGRADED", "detail": status}, [
+                DorkEvidenceRef(source="runtime.innovations30.dork_living_fleet.DORKLivingFleet.fleet_status",
+                                endpoint="/innovations/fleet/fitness", panel="/ui/aponi/index.html"),
+            ], f"Fleet fitness: {'HEALTHY' if healthy else 'DEGRADED'}.", ["/ui/aponi/index.html"]
+
+        if intent == "verify_fleet_chain":
+            fleet = _get_fleet()
+            chain = fleet._dispatch_ledger if hasattr(fleet, "_dispatch_ledger") else []
+            return {"chain_length": len(chain), "ledger": chain[-5:] if chain else []}, [
+                DorkEvidenceRef(source="runtime.innovations30.dork_living_fleet.DORKLivingFleet._dispatch_ledger",
+                                endpoint="/innovations/fleet/chain", panel="/ui/aponi/index.html"),
+            ], "Fleet dispatch chain verified.", ["/ui/aponi/index.html"]
+
+        if intent == "query_fleet_endpoints":
+            fleet = _get_fleet()
+            engines = getattr(fleet, "_engines", [])
+            endpoints = [
+                {"name": e.name, "type": e.provider_type, "url": e.url, "priority": e.priority}
+                for e in engines
+            ]
+            return {"endpoints": endpoints}, [
+                DorkEvidenceRef(source="runtime.innovations30.dork_living_fleet.DORKLivingFleet._engines",
+                                endpoint="/innovations/fleet/endpoints", panel="/ui/aponi/index.html"),
+            ], "Fleet endpoint registry returned.", ["/ui/aponi/index.html"]
+
+        # ── Default: governance brief ──────────────────────────────────────────
         health = governance_health_service(epoch_id=epoch_id)
         calibration = reviewer_calibration_service(epoch_id=epoch_id)
         response = {
@@ -251,56 +423,6 @@ class DorkIntentExecutor:
             DorkEvidenceRef(source="runtime.api.runtime_services.governance_health_service", endpoint="/api/governance/health", panel="/ui/developer/ADAADdev/whaledic.html"),
             DorkEvidenceRef(source="runtime.api.runtime_services.reviewer_calibration_service", endpoint="/api/governance/reviewer-calibration", panel="/ui/aponi/index.html"),
         ], "Governance brief assembled from runtime health and reviewer calibration.", ["/ui/developer/ADAADdev/whaledic.html", "/ui/aponi/index.html"]
-
-
-        # ── INNOV-42 DFSB intent rules (Phase 133) ────────────────────────────
-        if intent == "query_fleet_persist":
-            from runtime.innovations30.dork_living_fleet import DORKLivingFleet
-            fleet = DORKLivingFleet()
-            status = fleet.fleet_status()
-            return status, [
-                DorkEvidenceRef(source="runtime.innovations30.dork_living_fleet.DORKLivingFleet.fleet_status",
-                                endpoint="/innovations/fleet/persist", panel="/ui/aponi/index.html"),
-            ], "Fleet persist snapshot assembled.", ["/ui/aponi/index.html"]
-
-        if intent == "trigger_fleet_heal":
-            from runtime.innovations30.dork_living_fleet import DORKLivingFleet
-            fleet = DORKLivingFleet()
-            fleet._probe_all()
-            status = fleet.fleet_status()
-            return status, [
-                DorkEvidenceRef(source="runtime.innovations30.dork_living_fleet.DORKLivingFleet._probe_all",
-                                endpoint="/innovations/fleet/heal", panel="/ui/aponi/index.html"),
-            ], "Fleet heal cycle triggered; re-probed all engines.", ["/ui/aponi/index.html"]
-
-        if intent == "query_fleet_fitness":
-            from runtime.innovations30.dork_living_fleet import DORKLivingFleet
-            fleet = DORKLivingFleet()
-            status = fleet.fleet_status()
-            healthy = not status.get("blocked", True)
-            return {"fitness": "HEALTHY" if healthy else "DEGRADED", "detail": status}, [
-                DorkEvidenceRef(source="runtime.innovations30.dork_living_fleet.DORKLivingFleet.fleet_status",
-                                endpoint="/innovations/fleet/fitness", panel="/ui/aponi/index.html"),
-            ], f"Fleet fitness: {'HEALTHY' if healthy else 'DEGRADED'}.", ["/ui/aponi/index.html"]
-
-        if intent == "verify_fleet_chain":
-            from runtime.innovations30.dork_living_fleet import DORKLivingFleet
-            fleet = DORKLivingFleet()
-            chain = fleet._dispatch_ledger
-            return {"chain_length": len(chain), "ledger": chain[-5:] if chain else []}, [
-                DorkEvidenceRef(source="runtime.innovations30.dork_living_fleet.DORKLivingFleet._dispatch_ledger",
-                                endpoint="/innovations/fleet/chain", panel="/ui/aponi/index.html"),
-            ], "Fleet dispatch chain verified.", ["/ui/aponi/index.html"]
-
-        if intent == "query_fleet_endpoints":
-            from runtime.innovations30.dork_living_fleet import DORKLivingFleet
-            fleet = DORKLivingFleet()
-            endpoints = [{"name": e.name, "type": e.provider_type, "url": e.url, "priority": e.priority}
-                         for e in fleet._engines]
-            return {"endpoints": endpoints}, [
-                DorkEvidenceRef(source="runtime.innovations30.dork_living_fleet.DORKLivingFleet._engines",
-                                endpoint="/innovations/fleet/endpoints", panel="/ui/aponi/index.html"),
-            ], "Fleet endpoint registry returned.", ["/ui/aponi/index.html"]
 
 
 __all__ = ["DorkIntentExecutor", "DorkIntentRouter"]

@@ -1,9 +1,12 @@
-# DORK Intelligence Module — Phase 132 Enhancement
-# OPT-001 → OPT-006 optimization passes + DORK-OUTPUT-0 invariant
-# Constitutional invariants: DORK-OUTPUT-0, DORK-TRACE-0
+# SPDX-License-Identifier: Apache-2.0
+# DORK Intelligence Module
+# Phase 137 · INNOV-44 · DORK Intelligence Hardening & Capability Expansion
+# OPT-001→OPT-008 optimization pipeline + multi-provider fallback
+# Constitutional invariants: DORK-OUTPUT-0, DORK-TRACE-0, DORK-PROVIDER-0
 
 import os
 import json
+import time
 import urllib.request
 import subprocess
 import re
@@ -46,6 +49,112 @@ POLICY_BLOCKED_RUN_RESPONSE = (
 # prohibited — errors must be logged, not swallowed.
 # ─────────────────────────────────────────────────────────────────────────────
 
+# ── DORK-PROVIDER-0 ──────────────────────────────────────────────────────────
+# Hard invariant: When the primary LLM provider (Ollama) is unreachable or
+# has a tripped circuit breaker, the ask() function MUST attempt each
+# configured fallback provider in priority order before returning an error.
+# Silent provider failures that produce no response are prohibited — the
+# caller must receive either a valid response or a structured error with
+# the provider chain exhaustion reason.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Provider registry (module-level singleton for circuit breaker state) ──────
+_provider_registry = state_mod.ProviderHealthRegistry() if state_mod else None
+
+
+# ── Provider config ───────────────────────────────────────────────────────────
+def _get_provider_chain() -> list[dict]:
+    """
+    Return the ordered list of LLM provider configs.
+    Primary: Ollama (local). Fallback providers read from env if configured.
+    """
+    providers = [
+        {
+            "name": "ollama",
+            "url": OLLAMA_URL,
+            "model": OLLAMA_MODEL,
+            "type": "ollama",
+        }
+    ]
+    # Optional remote fallback: DORK_FALLBACK_URL / DORK_FALLBACK_MODEL
+    fallback_url = os.getenv("DORK_FALLBACK_URL", "").strip()
+    fallback_model = os.getenv("DORK_FALLBACK_MODEL", "").strip()
+    if fallback_url and fallback_model:
+        providers.append({
+            "name": "fallback",
+            "url": fallback_url,
+            "model": fallback_model,
+            "type": "ollama",
+        })
+    return providers
+
+
+def _call_provider(provider: dict, system_prompt: str, messages: list[dict], timeout: int = 30) -> str:
+    """
+    Make a single LLM call to a provider. Returns raw response text.
+    Raises on any network or parse error.
+    """
+    payload = json.dumps({
+        "model": provider["model"],
+        "messages": [{"role": "system", "content": system_prompt}] + messages,
+        "stream": False,
+    }).encode()
+
+    req = urllib.request.Request(
+        f"{provider['url']}/api/chat",
+        data=payload,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+
+    start = time.monotonic()
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        data = json.loads(resp.read().decode())
+    latency_ms = (time.monotonic() - start) * 1000
+
+    # Record health probe
+    if _provider_registry and state_mod:
+        _provider_registry.record(state_mod.ProviderStatus(
+            name=provider["name"], healthy=True, latency_ms=latency_ms
+        ))
+
+    return data.get("message", {}).get("content", "")
+
+
+def _call_provider_with_fallback(
+    system_prompt: str, messages: list[dict]
+) -> tuple[str, str]:
+    """
+    DORK-PROVIDER-0: attempt each provider in chain order.
+    Returns (raw_text, provider_name_used).
+    Raises RuntimeError if all providers are exhausted.
+    """
+    providers = _get_provider_chain()
+    last_error: str = "no providers configured"
+
+    for provider in providers:
+        # Circuit breaker check
+        if _provider_registry and _provider_registry.circuit_open(provider["name"]):
+            log_trace("provider_circuit_open", {
+                "provider": provider["name"],
+                "availability": _provider_registry.availability(provider["name"]),
+            })
+            last_error = f"circuit_open:{provider['name']}"
+            continue
+
+        try:
+            text = _call_provider(provider, system_prompt, messages)
+            return text, provider["name"]
+        except Exception as exc:
+            last_error = str(exc)
+            if _provider_registry and state_mod:
+                _provider_registry.record(state_mod.ProviderStatus(
+                    name=provider["name"], healthy=False, latency_ms=0.0, error=last_error
+                ))
+            log_trace("provider_error", {"provider": provider["name"], "error": last_error})
+
+    raise RuntimeError(f"DORK-PROVIDER-0: all providers exhausted. Last error: {last_error}")
+
 
 # ── OPT-001: Context Deduplication ───────────────────────────────────────────
 def opt_001_dedup_context(messages: list[dict]) -> list[dict]:
@@ -84,12 +193,13 @@ def opt_003_enforce_turn_budget(turn: int) -> bool:
 def opt_004_intent_preflight(query: str) -> dict:
     """
     Classify the query before LLM invocation to select the right system prompt.
-    Returns {'category': str, 'confidence': float}.
+    Returns {'category': str, 'confidence': float, 'hints': list}.
     """
     if context_mod and hasattr(context_mod, "classify_query"):
         cat, conf = context_mod.classify_query(query)
-        return {"category": cat, "confidence": conf}
-    return {"category": "governance", "confidence": 0.0}
+        hints = context_mod.get_taxonomy_hints(query) if hasattr(context_mod, "get_taxonomy_hints") else []
+        return {"category": cat, "confidence": conf, "hints": hints}
+    return {"category": "governance", "confidence": 0.0, "hints": []}
 
 
 # ── OPT-005: Output Sanitizer ────────────────────────────────────────────────
@@ -121,6 +231,68 @@ def opt_006_length_guard(text: str) -> str:
     return text[:MAX_RESPONSE_CHARS] + "\n\n[OPT-006: Response truncated at governance limit]"
 
 
+# ── OPT-007: KB-Grounded Context Enrichment ──────────────────────────────────
+def opt_007_kb_enrich(query: str, system_prompt: str) -> tuple[str, dict]:
+    """
+    Prepend KB retrieval result to system prompt when a high-confidence match
+    exists, grounding the LLM response in deterministic KB content.
+
+    Returns (enriched_prompt, enrichment_metadata).
+    DORK-KB-0: KB outcome logged in metadata — never silently bypassed.
+    """
+    if retriever is None:
+        return system_prompt, {"kb_hit": False, "reason": "retriever_unavailable"}
+
+    try:
+        result = retriever.get_kb_matches(query)
+    except Exception as exc:
+        return system_prompt, {"kb_hit": False, "reason": f"retriever_error:{exc}"}
+
+    if result is None or result.get("score", 0) < 0.35:
+        return system_prompt, {"kb_hit": False, "reason": "below_threshold"}
+
+    kb_block = (
+        f"\n\n### AUTHORITATIVE KB MATCH (score={result['score']:.4f})\n"
+        f"Key: {result['key']}\n"
+        f"Answer: {result['answer'][:800]}\n"
+        f"[Ground your response in the above KB entry when relevant.]\n"
+    )
+    return system_prompt + kb_block, {
+        "kb_hit": True,
+        "key": result["key"],
+        "score": result["score"],
+    }
+
+
+# ── OPT-008: Query Deduplication Cache ───────────────────────────────────────
+_QUERY_CACHE: dict[str, tuple[str, float]] = {}
+_CACHE_TTL_SEC = float(os.getenv("DORK_CACHE_TTL_SEC", "60"))
+_CACHE_ENABLED = os.getenv("DORK_CACHE_ENABLED", "1").strip().lower() in {"1", "true", "yes"}
+
+def opt_008_query_cache_get(query: str) -> str | None:
+    """Return cached response for an identical query within TTL, or None."""
+    if not _CACHE_ENABLED:
+        return None
+    entry = _QUERY_CACHE.get(query)
+    if entry is None:
+        return None
+    cached_text, cached_at = entry
+    if (time.monotonic() - cached_at) > _CACHE_TTL_SEC:
+        del _QUERY_CACHE[query]
+        return None
+    return cached_text
+
+
+def opt_008_query_cache_set(query: str, response: str) -> None:
+    """Cache a query response. Evicts oldest entry when cache exceeds 128 entries."""
+    if not _CACHE_ENABLED:
+        return
+    if len(_QUERY_CACHE) >= 128:
+        oldest = min(_QUERY_CACHE, key=lambda k: _QUERY_CACHE[k][1])
+        del _QUERY_CACHE[oldest]
+    _QUERY_CACHE[query] = (response, time.monotonic())
+
+
 # ── Trace Logger ─────────────────────────────────────────────────────────────
 def log_trace(event_type: str, payload: dict) -> None:
     """DORK-TRACE-0: emit structured trace entry before returning."""
@@ -134,7 +306,6 @@ def log_trace(event_type: str, payload: dict) -> None:
         with open(TRACE_LOG_PATH, "a") as f:
             f.write(json.dumps(entry) + "\n")
     except Exception as exc:
-        # Last-resort: stderr — never swallow silently
         import sys
         print(f"[DORK-TRACE-0 VIOLATION] log_trace failed: {exc}", file=sys.stderr)
 
@@ -152,11 +323,15 @@ def build_system_prompt(query: str = "") -> str:
         if state_mod and hasattr(state_mod, "get_state_summary")
         else "STATE BUS: UNAVAILABLE"
     )
+    hints_str = ", ".join(
+        f"{h['category']}({h['score']:.3f})" for h in preflight.get("hints", [])
+    ) or "—"
     base = f"""You are DORK, the AI assistant for the ADAAD autonomous governance engine.
 You are embedded in the Whale.Dic developer console of Innovative AI LLC.
 Governor: HUMAN-0 (Dustin L. Reid). You speak with precision, dry wit, and zero tolerance for hallucination.
 
 Query intent: {preflight['category']} (confidence={preflight['confidence']:.3f})
+Top taxonomy hints: {hints_str}
 
 {opt_002_compress_prompt(context_block)}
 
@@ -194,14 +369,30 @@ def _is_run_command_allowed(argv: list[str]) -> tuple[bool, str]:
 # ── Core Ask Function ─────────────────────────────────────────────────────────
 def ask(query: str, messages: list[dict] | None = None) -> tuple[str, list[dict]]:
     """
-    Submit a query to the DORK LLM with the full OPT-001→006 pipeline applied.
+    Submit a query to the DORK LLM with the full OPT-001→008 pipeline applied.
     Returns (response_text, updated_messages).
+
+    Pipeline:
+      OPT-001 dedup → OPT-008 cache check → OPT-004 preflight →
+      OPT-007 KB enrich → OPT-002 compress → provider chain (DORK-PROVIDER-0) →
+      OPT-005 sanitize → OPT-006 length guard → OPT-008 cache set
     """
-    system_prompt = build_system_prompt(query)
     messages = messages or []
     messages = opt_001_dedup_context(messages)
 
+    # OPT-008: cache hit → short-circuit
+    cached = opt_008_query_cache_get(query)
+    if cached is not None:
+        log_trace("cache_hit", {"query": query[:200], "response_len": len(cached)})
+        messages.append({"role": "assistant", "content": cached})
+        return cached, messages
+
+    system_prompt = build_system_prompt(query)
     source_context = system_prompt  # used by OPT-005
+
+    # OPT-007: KB enrichment
+    system_prompt, kb_meta = opt_007_kb_enrich(query, system_prompt)
+    log_trace("kb_enrichment", {"query": query[:200], **kb_meta})
 
     for turn in range(MAX_TURNS):
         if not opt_003_enforce_turn_budget(turn):
@@ -211,23 +402,9 @@ def ask(query: str, messages: list[dict] | None = None) -> tuple[str, list[dict]
         current_messages = messages + [{"role": "user", "content": query}]
 
         try:
-            payload = json.dumps({
-                "model": OLLAMA_MODEL,
-                "messages": [{"role": "system", "content": system_prompt}] + current_messages,
-                "stream": False,
-            }).encode()
-
-            req = urllib.request.Request(
-                f"{OLLAMA_URL}/api/chat",
-                data=payload,
-                headers={"Content-Type": "application/json"},
-                method="POST",
-            )
-
-            with urllib.request.urlopen(req, timeout=30) as resp:
-                data = json.loads(resp.read().decode())
-
-            raw_text = data.get("message", {}).get("content", "")
+            # DORK-PROVIDER-0: multi-provider call with fallback
+            raw_text, provider_used = _call_provider_with_fallback(system_prompt, current_messages)
+            log_trace("provider_used", {"provider": provider_used, "turn": turn})
 
             # OPT-005: sanitize
             text, stripped = opt_005_sanitize_output(raw_text, source_context)
@@ -322,6 +499,8 @@ def ask(query: str, messages: list[dict] | None = None) -> tuple[str, list[dict]
                     messages.append({"role": "user", "content": "Command timed out."})
                     continue
             else:
+                # OPT-008: cache successful response
+                opt_008_query_cache_set(query, text)
                 log_trace("interaction_complete", {"turn": turn, "response_len": len(text)})
                 messages.append({"role": "assistant", "content": text})
                 return text, messages

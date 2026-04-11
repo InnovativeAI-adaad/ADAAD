@@ -1,4 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
+# Phase 137 · INNOV-44 · DORK Intelligence Hardening & Capability Expansion
+
 from __future__ import annotations
 
 from datetime import datetime
@@ -6,13 +8,35 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field, StrictBool, StrictStr
 
+# ── DORK-INTENT-0 ─────────────────────────────────────────────────────────────
+# Hard invariant: DorkIntentName MUST enumerate every intent registered in
+# DorkIntentRouter._ORDERED_RULES. Any intent reachable by the router that is
+# absent from this Literal type will cause Pydantic validation to reject the
+# DorkIntentBundle, making the intent effectively dead code at the schema layer.
+# New intents MUST be added here before being added to _ORDERED_RULES.
+# ─────────────────────────────────────────────────────────────────────────────
+
 DorkIntentName = Literal[
+    # Core governance intents
     "show_gate_status",
     "explain_blockers",
     "prepare_mutation_review",
     "open_oracle_history",
     "generate_governance_brief",
     "interpret_epoch_delta",
+    # INNOV-41 · Phase 132 — Living Fleet intents
+    "show_fleet_status",
+    "resolve_slash_command",
+    "query_provider_health",
+    "replay_conversation_ledger",
+    "classify_query_intent",
+    "inspect_fleet_dispatch",
+    # INNOV-42 · Phase 133 — DFSB intents
+    "query_fleet_persist",
+    "trigger_fleet_heal",
+    "query_fleet_fitness",
+    "verify_fleet_chain",
+    "query_fleet_endpoints",
 ]
 
 
@@ -56,7 +80,7 @@ class DorkTrustMetadata(BaseModel):
     data_sources_used: list[StrictStr] = Field(default_factory=list)
     snapshot_timestamp: datetime
     snapshot_freshness: Literal["fresh", "stale", "unknown"] = "unknown"
-    mode: Literal["deterministic", "retrieval", "heuristic"] = "deterministic"
+    mode: Literal["deterministic", "retrieval", "heuristic", "consensus"] = "deterministic"
     confidence: float = Field(ge=0.0, le=1.0)
     uncertainty_reasons: list[StrictStr] = Field(default_factory=list)
     trust_score: float = Field(ge=0.0, le=1.0)
