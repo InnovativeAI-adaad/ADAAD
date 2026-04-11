@@ -5,9 +5,8 @@
 
 **Authority chain:** `docs/CONSTITUTION.md` > `docs/ARCHITECTURE_CONTRACT.md` > `docs/governance/ARCHITECT_SPEC_v3.1.0.md` > this document
 **Last reviewed:** 2026-04-11
-**Milestone:** `v9.26.0` (Phase 93 complete — INNOV-09 Adaptive Fitness Introspection Tuner (AFIT))
-**Canonical evidence anchor:** `artifacts/governance/phase93/phase93_sign_off.json` (SHA-256 `62b8f7b329202785fcb4a09e1e70f53778fff7565a07c7e0d6172d8225af68f3`) + merge SHA `ca3cc42`
-**Active-phase checkpoint:** `Phase 93 complete` → **Next:** `PR-PHASE94-01 (Phase 94 — INNOV-10 Morphogenetic Memory)`
+**Milestone:** `v9.69.0` (Phase 136 complete — DORK ConversationLedger + Enrichment Bridge Hardening)
+**Canonical evidence anchor:** `ROADMAP.md` current-state checkpoint (Phase 136 / v9.69.0) + this document’s machine contract in §3
 
 ---
 
@@ -51,7 +50,7 @@ Phase 47 ──► Phase 48 ──► Phase 49 ──► Phase 50 ──► Phas
 ---
 
 
-## 1A) v8–v9 Constitutional Sequence (Active)
+## 1A) v8–v9 Constitutional Sequence (Historical Checkpoints)
 
 ### 1A.1 Sequence order (authoritative)
 
@@ -101,39 +100,38 @@ Phase 47 ──► Phase 48 ──► Phase 49 ──► Phase 50 ──► Phas
 | 92 | v9.25.0 | Phase 92 INNOV-08 AFRT | shipped |
 | 93 | v9.26.0 | Phase 93 INNOV-09 AFIT | shipped |
 
-### 1A.3 Dependency pointer
+### 1A.3 Dependency pointer (archival context)
 
-> **v8/v9 sequencing source of truth:** `docs/governance/PHASE_INNOVATION_MAPPING_CANONICAL.md` is the canonical Phase↔Innovation mapping for phases 94–114. This document and `ROADMAP.md` must remain aligned to that canonical table.
+> This section is intentionally retained as **historical context** for the Phase 57–114 era.
+> Active automation state is defined in **§3.0 Active Era Contract (Phases 131–136+)**.
 
-- **Current:** Phase 93 complete (v9.26.0 — INNOV-09 AFIT). Next: **Phase 94 — INNOV-10 roadmap execution**.
-
-### 1A.4 Innovation→Phase index (remaining roadmap; deterministic predecessor linkage)
+### 1A.4 Innovation→Phase index (historical planning snapshot)
 
 | Phase | Innovation ID | Target version | Dependency (explicit predecessor) | Status |
 |---|---|---|---|---|
-| 94 | INNOV-10 — Morphogenetic Memory | v9.27.0 | Phase 93 | planned |
-| 95 | _(none)_ — Oracle × Dork Alignment (integration phase) | v9.28.0 | Phase 94 | planned |
-| 96 | INNOV-11 — Cross-Epoch Dream State | v9.29.0 | Phase 95 | planned |
-| 97 | INNOV-12 — Mutation Genealogy Visualization | v9.30.0 | Phase 96 | planned |
-| 98 | INNOV-13 — Institutional Memory Transfer | v9.31.0 | Phase 97 | planned |
-| 99 | INNOV-14 — Constitutional Jury System | v9.32.0 | Phase 98 | planned |
-| 100 | INNOV-15 — Agent Reputation Staking | v9.33.0 | Phase 99 | planned |
-| 101 | INNOV-16 — Emergent Role Specialization | v9.34.0 | Phase 100 | planned |
-| 102 | INNOV-17 — Agent Post-Mortem Interviews | v9.35.0 | Phase 101 | planned |
-| 103 | INNOV-18 — Temporal Governance Windows | v9.36.0 | Phase 102 | planned |
-| 104 | INNOV-19 — Governance Archaeology Mode | v9.37.0 | Phase 103 | planned |
-| 105 | INNOV-20 — Constitutional Stress Testing | v9.38.0 | Phase 104 | planned |
-| 106 | INNOV-21 — Governance Debt Bankruptcy Protocol | v9.39.0 | Phase 105 | planned |
-| 107 | INNOV-22 — Market-Conditioned Fitness | v9.40.0 | Phase 106 | planned |
-| 108 | INNOV-23 — Constitutional Epoch Sentinel | v9.41.0 | Phase 107 | planned |
-| 109 | INNOV-24 — Semantic Version Promises | v9.42.0 | Phase 108 | planned |
-| 110 | INNOV-25 — Hardware-Adaptive Fitness | v9.43.0 | Phase 109 | planned |
-| 111 | INNOV-26 — Graduated Invariants | v9.44.0 | Phase 110 | planned |
-| 112 | INNOV-27 — Regulatory Compliance Intelligence | v9.45.0 | Phase 111 | planned |
-| 113 | INNOV-28 — Intent Preservation Verifier | v9.46.0 | Phase 112 | planned |
-| 114 | INNOV-29 — Curiosity Engine with Deterministic Hard Stops | v9.47.0 | Phase 113 | planned |
+| 94 | INNOV-10 — Morphogenetic Memory | v9.27.0 | Phase 93 | shipped |
+| 95 | INNOV-11 — Cross-Epoch Dream State | v9.28.0 | Phase 94 | historical |
+| 96 | INNOV-12 — Mutation Genealogy Visualization | v9.29.0 | Phase 95 | shipped |
+| 97 | INNOV-13 — Institutional Memory Transfer | v9.30.0 | Phase 96 | shipped |
+| 98 | INNOV-14 — Constitutional Jury System | v9.31.0 | Phase 97 | shipped |
+| 99 | INNOV-15 — Agent Reputation Staking | v9.32.0 | Phase 98 | shipped |
+| 100 | INNOV-16 — Emergent Role Specialization | v9.33.0 | Phase 99 | shipped |
+| 101 | INNOV-17 — Agent Post-Mortem Interviews | v9.34.0 | Phase 100 | shipped |
+| 102 | INNOV-18 — Temporal Governance Windows | v9.35.0 | Phase 101 | shipped |
+| 103 | INNOV-19 — Governance Archaeology Mode | v9.36.0 | Phase 102 | shipped |
+| 104 | INNOV-20 — Constitutional Stress Testing | v9.37.0 | Phase 103 | shipped |
+| 105 | INNOV-21 — Governance Debt Bankruptcy Protocol | v9.38.0 | Phase 104 | shipped |
+| 106 | INNOV-22 — Market-Conditioned Fitness | v9.39.0 | Phase 105 | shipped |
+| 107 | INNOV-23 — Regulatory Compliance Layer | v9.40.0 | Phase 106 | shipped |
+| 108 | INNOV-23 — Constitutional Epoch Sentinel | v9.41.0 | Phase 107 | shipped |
+| 109 | INNOV-24 — Semantic Version Promises | v9.42.0 | Phase 108 | shipped |
+| 110 | INNOV-25 — Hardware-Adaptive Fitness | v9.43.0 | Phase 109 | shipped |
+| 111 | INNOV-26 — Constitutional Entropy Budget | v9.44.0 | Phase 110 | shipped |
+| 112 | INNOV-27 — Mutation Blast Radius Modeling | v9.45.0 | Phase 111 | shipped |
+| 113 | INNOV-28 — Self-Awareness Invariant | v9.46.0 | Phase 112 | shipped |
+| 114 | INNOV-29 — Curiosity-Driven Exploration with Hard Stops | v9.47.0 | Phase 113 | shipped |
 
-Deterministic next-PR resolution rule for this roadmap slice: **the only valid next phase is the first row whose predecessor phase is `shipped` and whose own status is not `shipped`.**
+Deterministic next-PR resolution rule for this historical slice was: **the only valid next phase was the first row whose predecessor phase was `shipped` and whose own status was not `shipped`.**
 
 Execution manifest for this roadmap slice: `docs/plans/PHASE_94_114_EXECUTION_MANIFEST.md` (branch map, gate checklist, evidence/closure checklist, and per-phase tracker).
 
@@ -180,15 +178,19 @@ See `docs/governance/V1_GA_READINESS_CHECKLIST.md` for the machine-checkable art
 
 ## 3) Automation Contract Block (Machine-checkable)
 
+### 3.0 Active Era Contract (Phases 131–136+)
+
+This subsection is the canonical machine-consumed checkpoint for phase progression. Historical tables above and below are informative only.
+
 ```yaml
 adaad_pr_procession_contract:
   schema_version: "2.1"
   source_of_truth: "docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md"
   supersedes: "docs/governance/ADAAD_PR_PROCESSION_2026-03.md"
-  active_phase: "phase93_complete"
-  milestone: "v9.26.0"
+  active_phase: "phase136_complete"
+  milestone: "v9.69.0"
   last_state_align: "2026-04-11"
-  state_align_authority: "Dustin L. Reid — HUMAN-0 ratification artifacts phase92/phase93 + merge SHA ca3cc42"
+  state_align_authority: "ROADMAP current-state checkpoint reconciliation (Phase 136 / v9.69.0)"
   ordered_phase_ids:
     - phase47
     - phase48
@@ -229,6 +231,12 @@ adaad_pr_procession_contract:
     - phase88
     - phase89
     - phase90
+    - phase131
+    - phase132
+    - phase133
+    - phase134
+    - phase135
+    - phase136
   phase_nodes:
     phase47:
       ci_tier: standard
@@ -540,10 +548,46 @@ adaad_pr_procession_contract:
       status: merged
       version: "v9.24.0"
       title: "INNOV-06 Cryptographic Evolution Proof DAG"
+    phase131:
+      ci_tier: constitutional
+      depends_on: ["phase130"]
+      status: merged
+      version: "v9.64.0"
+      title: "DORK Genesis & Data Integrity"
+    phase132:
+      ci_tier: constitutional
+      depends_on: ["phase131"]
+      status: merged
+      version: "v9.64.0"
+      title: "INNOV-41 DORK Living Fleet"
+    phase133:
+      ci_tier: constitutional
+      depends_on: ["phase132"]
+      status: merged
+      version: "v9.65.0"
+      title: "INNOV-42 DORK Fleet Server Bridge"
+    phase134:
+      ci_tier: constitutional
+      depends_on: ["phase133"]
+      status: merged
+      version: "v9.66.0"
+      title: "REF-001–004 DFSB Post-Ship Remediation"
+    phase135:
+      ci_tier: constitutional
+      depends_on: ["phase134"]
+      status: merged
+      version: "v9.67.0"
+      title: "INNOV-43 Constitution Versioning and Rollback"
+    phase136:
+      ci_tier: constitutional
+      depends_on: ["phase135"]
+      status: merged
+      version: "v9.69.0"
+      title: "DORK ConversationLedger + Enrichment Bridge Hardening"
   state_alignment:
-    expected_active_phase: "Phase 93 COMPLETE · v9.26.0"
-    expected_last_completed_pr: "feature/phase93-afit-engine"
-    expected_next_pr: "PR-PHASE94-01 (Phase 94 — INNOV-10 Morphogenetic Memory)"
+    expected_active_phase: "Phase 136 COMPLETE · v9.69.0"
+    expected_last_completed_pr: "phase136-dork-ledger-enrichment-bridge-hardening"
+    expected_next_pr: "PR-PHASE137-01 (deterministic: first non-shipped phase whose predecessor is shipped)"
     blocked_reason_must_be_null: true
   open_findings:
     - id: FINDING-C03-GITHUB-APP
@@ -593,18 +637,26 @@ adaad_pr_procession_contract:
 A validator comparing this document to `.adaad_agent_state.json` should fail if:
 
 1. `active_phase` does not match `expected_active_phase`
-2. `last_completed_pr` is not `feature/phase93-afit-engine`
+2. `last_completed_pr` is not `phase136-dork-ledger-enrichment-bridge-hardening`
 3. Any `phase_nodes.*.status` diverges from this contract
 4. `blocked_reason` is non-null
-5. `expected_next_pr` is not `PR-PHASE94-01 (Phase 94 — INNOV-10 Morphogenetic Memory)`
+5. `expected_next_pr` is not `PR-PHASE137-01 (deterministic: first non-shipped phase whose predecessor is shipped)`
 
 ---
 
 
 ## 3.2 Changelog
 
-- **2026-04-11:** State alignment updated on 2026-04-11 to reaffirm a single canonical checkpoint at **Phase 93 complete / v9.26.0** across metadata, Current/Next pointers, and machine-readable contract fields.
+- **2026-04-11:** Reconciled automation checkpoint to **Phase 136 complete / v9.69.0**, added active-era deterministic next-phase rule (`PR-PHASE137-01` placeholder pattern), and moved older sequence windows into explicit historical-checkpoint framing.
 - **2026-03-28:** Corrected procession contract state alignment to a single canonical checkpoint at **Phase 93 complete / v9.26.0**. This update removes duplicated preflight predicates and keeps `state_alignment` expectations aligned to **PR-PHASE94-01 (Phase 94 — INNOV-10 Morphogenetic Memory)**.
+
+## 3.3 Historical checkpoints (explicit archival windows)
+
+The following windows are retained for audit traceability and historical reasoning. They are not interpreted as the active automation checkpoint:
+
+- **Phase 47–51:** Gap-closure and alignment arc (`v7.1.0`–`v7.5.0`).
+- **Phase 57–93:** v8/v9 constitutional expansion to AFIT checkpoint (`v8.0.0`–`v9.26.0`).
+- **Phase 94–130:** Innovation pipeline/post-pipeline expansion era (shipped; see `ROADMAP.md` table for detailed checkpoints).
 
 
 ## 4) Phase 52+ Planning Guidance

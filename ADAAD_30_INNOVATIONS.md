@@ -1,5 +1,7 @@
 # ADAAD — 36 Innovations: Constitutional Evolution Pipeline Complete
 
+> **Document role note (2026-04-11):** This file is an evidence-facing and narrative summary artifact; it is **not** the automation-driving source for phase progression. Automation consumes `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` (§3.0 Active Era Contract) for active checkpoint and next-phase resolution.
+
 **Author:** Claude (ArchitectAgent)  
 **Date:** March 22, 2026 · **Status updated:** April 05, 2026  
 **Last reviewed:** 2026-04-05  
