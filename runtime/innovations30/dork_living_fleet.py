@@ -68,22 +68,50 @@ class FleetMutationBlockedError(RuntimeError):
 class FleetEngine:
     """A single provider engine in the DORK Living Fleet."""
     name: str
-    provider_type: str          # "ollama" | "remote" | "stub"
+    provider_type: str          # "dork_engine" | "anthropic" | "groq" | "ollama" | "remote" | "stub"
     url: str
     model: str
     priority: int
     timeout_seconds: float = 30.0
+    api_key_env: str | None = None          # INNOV-42: env-var name for API key
+    probe_cfg: dict | None = None           # INNOV-42: probe config dict from provider_config.json
     _healthy: bool = field(default=True, repr=False)
 
+    @property
+    def api_key(self) -> str | None:
+        """Resolve API key from environment."""
+        if self.api_key_env:
+            return os.getenv(self.api_key_env)
+        return None
+
     def probe(self) -> ProviderStatus:
-        """Probe this engine's health. Returns a ProviderStatus."""
+        """
+        INNOV-42 (DFSB): Type-dispatched health probe.
+        - dork_engine: always healthy (native runtime)
+        - anthropic/groq: HTTP probe; MISCONFIGURED if api_key missing
+        - ollama: HTTP GET /api/tags
+        """
         import urllib.request
         t0 = time.monotonic()
+
+        # dork_engine is always available — no network probe needed
+        if self.provider_type == "dork_engine":
+            self._healthy = True
+            return ProviderStatus(self.name, healthy=True, latency_ms=0.0)
+
+        # anthropic / groq: require api_key_env to be set and populated
+        if self.provider_type in ("anthropic", "groq"):
+            if not self.api_key:
+                self._healthy = False
+                return ProviderStatus(
+                    self.name, healthy=False, latency_ms=0.0,
+                    error=f"MISCONFIGURED: {self.api_key_env} not set"
+                )
+
+        probe = self.probe_cfg or {}
+        endpoint = probe.get("endpoint") or f"{self.url}/api/tags"
         try:
-            req = urllib.request.Request(
-                f"{self.url}/api/tags",
-                method="GET",
-            )
+            req = urllib.request.Request(endpoint, method="GET")
             with urllib.request.urlopen(req, timeout=3) as resp:
                 resp.read()
             latency = (time.monotonic() - t0) * 1000
@@ -210,20 +238,22 @@ class DORKLivingFleet:
                 url = p.get("url") or os.getenv(p.get("url_env", ""), "http://localhost:11434")
                 model = p.get("model") or os.getenv(p.get("model_env", ""), "dork")
                 engines.append(FleetEngine(
-                    name=p["name"],
+                    name=p["id"],                               # INNOV-42: use "id" field
                     provider_type=p.get("type", "ollama"),
                     url=url,
                     model=model,
                     priority=p.get("priority", 99),
                     timeout_seconds=p.get("timeout_seconds", 30),
+                    api_key_env=p.get("api_key_env"),           # INNOV-42
+                    probe_cfg=p.get("probe"),                   # INNOV-42
                 ))
             return engines
         except Exception:
             return [FleetEngine(
-                name="ollama_local",
-                provider_type="ollama",
-                url=os.getenv("OLLAMA_URL", "http://localhost:11434"),
-                model=os.getenv("OLLAMA_MODEL", "dork"),
+                name="dork_engine",
+                provider_type="dork_engine",
+                url="",
+                model="",
                 priority=1,
             )]
 
