@@ -1,3 +1,20 @@
+## [9.69.0] — 2026-04-11 · Phase 136 · Dork Runtime Enrichment Bridge Hardening
+
+### Fix: enrich `runtime.sendMessage` directly and standardize enrichment event surfacing
+
+- `ui/developer/ADAADdev/dork_runtime.js`
+  - Patched runtime-instance `sendMessage` via `initDorkRuntime` so enrichment metadata
+    (`intent`, `kbHit`, `fanOutCount`) is returned for both direct runtime usage and the
+    global `sendMessage` proxy path.
+  - Added an internal runtime event bridge (`EventTarget`) and `emitEvent` exposure so
+    enrichment events are emitted without relying on an undefined `_eventTarget`.
+- `ui/developer/ADAADdev/whaledic.html`
+  - Added `sendThroughDorkRuntime(msg, options)` integration bridge to route calls through
+    `dorkRuntime.sendMessage` when needed by UI contract checks.
+- `tests/test_dork_v2_makeover.py`
+  - Added static contract checks asserting runtime-instance patching, metadata return shape,
+    and whaledic runtime bridge wiring.
+
 ## [9.68.0] — 2026-04-11 · Phase 136 · DORK ConversationLedger Verify Hardening
 
 ### Fix: Canonical hash payload parity between append() and verify()
