@@ -13,7 +13,7 @@ import webbrowser
 import json
 import argparse
 import http.client
-import re
+import importlib
 from pathlib import Path
 
 PORT = int(os.getenv("ADAAD_PORT", "8000"))
@@ -27,13 +27,33 @@ HTTP_ERROR_TYPES = (
     OSError,
 )
 
+
+def _print_section(title: str) -> None:
+    print(f"--- {title} ---")
+
+
+def _print_info(message: str) -> None:
+    print(f"[*] {message}")
+
+
+def _print_ok(message: str) -> None:
+    print(f"[+] {message}")
+
+
+def _print_warn(message: str) -> None:
+    print(f"[-] WARN: {message}")
+
+
+def _print_error(message: str) -> None:
+    print(f"[-] {message}")
+
 def is_server_running():
     import socket
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         return s.connect_ex(('127.0.0.1', PORT)) == 0
 
 def start_server():
-    print(f"[*] Starting ADAAD unified server on port {PORT}...")
+    _print_info(f"Starting ADAAD unified server on port {PORT}...")
     env = os.environ.copy()
     env["ADAAD_ENV"] = "dev"
     env["ADAAD_PORT"] = str(PORT)
@@ -133,7 +153,7 @@ def fetch_adaad_state():
     return state
 
 def show_status():
-    print(f"--- dork status ---")
+    _print_section("dork status")
     running = is_server_running()
     print(f"Server: {'RUNNING' if running else 'STOPPED'}")
     if running:
@@ -144,82 +164,109 @@ def show_status():
             print(f"UI: {'PRESENT' if health.get('ui_present') else 'MISSING'}")
         print(f"URL: {URL}")
     else:
-        print(f"Run 'dork' without arguments to start the server.")
+        print("Run 'dork' without arguments to start the server.")
 
 def list_knowledge():
     kb_path = Path("ui/developer/ADAADdev/dork_knowledge_base.js")
     if not kb_path.exists():
-        print("[-] Knowledge base not found.")
+        _print_error("Knowledge base not found.")
         return
 
     content = kb_path.read_text()
     import re
     keys = re.findall(r'"([^"]+)":', content)
-    print("--- dork knowledge keys ---")
+    _print_section("dork knowledge keys")
     for k in sorted(keys):
         print(f" - {k}")
 
 
 def gpg_ceremony():
-    print("[*] Initiating Dork GPG Ceremony Priest...")
-    print("--- ADAAD Track B Release Ritual ---")
+    _print_info("Initiating Dork GPG Ceremony Priest...")
+    _print_section("ADAAD Track B Release Ritual")
     print("1. Verifying environment...")
-    import os
     if not os.getenv("GPG_TTY"):
-        print("[-] WARN: GPG_TTY not set. Run: export GPG_TTY=$(tty)")
+        _print_warn("GPG_TTY not set. Run: export GPG_TTY=$(tty)")
     else:
-        print("[+] GPG_TTY verified.")
+        _print_ok("GPG_TTY verified.")
     print("2. Checking Readiness Score...")
     state = fetch_adaad_state()
     readiness = state.get("readiness", {}).get("readiness_score", 0)
     if readiness >= 0.90:
-        print(f"[+] Readiness {readiness:.2f} is PASS.")
+        _print_ok(f"Readiness {readiness:.2f} is PASS.")
     else:
-        print(f"[-] WARN: Readiness {readiness:.2f} is below 0.90 GA threshold.")
+        _print_warn(f"Readiness {readiness:.2f} is below 0.90 GA threshold.")
     print("\n[ACTION REQUIRED] Run the following to cryptographically sign the epoch:")
     print("git tag -s v9.99.0 -m \"Phase Promotion\"")
     print("git push origin v9.99.0")
     print("\nMay the ledger remain immutable.")
 
 def sync_gemini():
-    print("[*] Initiating Auto-GEMINI Documentation Sync...")
+    _print_info("Initiating Auto-GEMINI Documentation Sync...")
     print("Scanning architecture changes against GEMINI.md...")
-    import time
     time.sleep(1)
-    print("[+] Found 2 drift anomalies.")
+    _print_ok("Found 2 drift anomalies.")
     print("-> Rule 4 missing specific 'dork' exception.")
     print("-> Feature 8 (Intelligence Cards) undocumented.")
-    print("[*] Writing autonomous patch to GEMINI.md...")
+    _print_info("Writing autonomous patch to GEMINI.md...")
     with open("GEMINI.md", "a") as f:
         f.write("\n\n### Dork Intelligence Engine\n- Dork now operates with full 10-feature semantic enhancement.\n")
-    print("[+] Sync complete. GEMINI.md is aligned with binary truth.")
+    _print_ok("Sync complete. GEMINI.md is aligned with binary truth.")
 
 def ask_dork(query):
     # Enhance: Autonomous LLM Intelligence Fallback (Optimized via dorkllm)
+    if os.getcwd() not in sys.path:
+        sys.path.append(os.getcwd())
+    if importlib.util.find_spec("dorkllm.intelligence") is None:
+        _print_warn("dorkllm module not found. Using basic fallback.")
+        print(f"dork: I don't have specific knowledge about '{query}' yet.")
+        _print_info("Opening browser for full intelligence interface...")
+        webbrowser.open(URL)
+        return
+
+    intelligence = importlib.import_module("dorkllm.intelligence")
+    _print_info("Consulting Dork Autonomous Intelligence (Strategic Mode)...")
     try:
-        if os.getcwd() not in sys.path:
-            sys.path.append(os.getcwd())
-        import dorkllm.intelligence as intelligence
-        print("[*] Consulting Dork Autonomous Intelligence (Strategic Mode)...")
         # intelligence.ask() handles both Knowledge Base (KB) and LLM
         response, _ = intelligence.ask(query)
         print(f"\ndork:\n{response}\n")
         return
-    except ImportError:
-        print("[-] Warning: dorkllm module not found. Using basic fallback.")
     except Exception as e:
-        print(f"[-] Dork Intelligence Error: {e}")
+        _print_warn(f"Dork Intelligence Error: {e}")
 
     print(f"dork: I don't have specific knowledge about '{query}' yet.")
-    print(f"[*] Opening browser for full intelligence interface...")
+    _print_info("Opening browser for full intelligence interface...")
     webbrowser.open(URL)
 
 def list_merges(limit: int):
     if not is_server_running():
         if not start_server():
-            print("[-] Failed to start server. Check server.log")
-            return
+            _print_error("Failed to start server. Check server.log")
+            return 1
 
+    try:
+        conn = http.client.HTTPConnection("localhost", PORT)
+        conn.request("GET", f"/api/governance/merges?limit={limit}")
+        resp = conn.getresponse()
+        if resp.status == 200:
+            data = json.loads(resp.read().decode())
+            merges = data.get("merges", [])
+            _print_section(f"recent DEVADAAD merges ({len(merges)})")
+            for merge in merges:
+                payload = merge.get("payload", {})
+                pr_id = payload.get("pr_id", "Unknown PR")
+                sha = payload.get("merge_sha", "")[:8]
+                ts = merge.get("timestamp_utc", "")[:19].replace("T", " ")
+                tier_m = "PASS" if payload.get("tier_m_working_code") else "FAIL"
+                color = "\033[92m" if tier_m == "PASS" else "\033[91m"
+                reset = "\033[0m"
+                print(f"[{ts}] {pr_id} | SHA: {sha} | Tier M: {color}{tier_m}{reset}")
+        else:
+            _print_error(f"Failed to fetch merges. HTTP {resp.status}")
+            return 1
+    except Exception as e:
+        _print_error(f"Error fetching merges: {e}")
+        return 1
+    return 0
     data = _request_json(f"/api/governance/merges?limit={limit}")
     if data is None:
         return []
@@ -248,7 +295,33 @@ def load_env():
                 key, value = line.split("=", 1)
                 os.environ.setdefault(key.strip(), value.strip())
 
-def main():
+def _handle_status(_args: argparse.Namespace) -> int:
+    show_status()
+    return 0
+
+
+def _handle_knowledge(_args: argparse.Namespace) -> int:
+    list_knowledge()
+    return 0
+
+
+def _handle_merges(args: argparse.Namespace) -> int:
+    code = list_merges(args.merges)
+    if args.browser:
+        webbrowser.open(URL)
+    return code
+
+
+def _handle_default_launch(_args: argparse.Namespace) -> int:
+    if not is_server_running() and not start_server():
+        _print_error("Failed to start server. Check server.log")
+        return 1
+    _print_info(f"Opening dork: {URL}")
+    webbrowser.open(URL)
+    return 0
+
+
+def main(argv: list[str] | None = None) -> int:
     load_env()
     parser = argparse.ArgumentParser(description="dork — ADAADinside™ Developer Intelligence")
     parser.add_argument("--status", action="store_true", help="Show server and gate status")
@@ -260,58 +333,45 @@ def main():
     parser.add_argument("--ceremony", action="store_true", help="Initiate GPG Ceremony Priest")
     parser.add_argument("--sync-gemini", action="store_true", help="Auto-sync GEMINI.md with codebase")
 
-    
-    args, unknown = parser.parse_known_args()
+    args = parser.parse_args(argv)
 
-    
     if args.ceremony:
         gpg_ceremony()
-        return
+        return 0
 
     if args.sync_gemini:
         sync_gemini()
-        return
+        return 0
 
     if args.status:
-        show_status()
-        return
+        return _handle_status(args)
 
     if args.knowledge:
-        list_knowledge()
-        return
+        return _handle_knowledge(args)
 
     if args.tunnel:
         if not is_server_running():
             if not start_server():
-                print("[-] Failed to start server.")
-                sys.exit(1)
-        print(f"[*] Starting ngrok tunnel for port {PORT}...")
+                _print_error("Failed to start server.")
+                return 1
+        _print_info(f"Starting ngrok tunnel for port {PORT}...")
         try:
             subprocess.run(["ngrok", "http", str(PORT)])
         except FileNotFoundError:
-            print("[-] ngrok not found in PATH. Please install it: https://ngrok.com/download")
-        return
+            _print_error("ngrok not found in PATH. Please install it: https://ngrok.com/download")
+            return 1
+        return 0
 
     if args.merges is not None:
-        list_merges(args.merges)
-        if args.browser:
-            webbrowser.open(URL)
-        return
+        return _handle_merges(args)
 
     if args.ask:
         ask_dork(args.ask)
         if args.browser:
             webbrowser.open(URL)
-        return
+        return 0
 
-    # Default behavior: ensure server is running and open browser
-    if not is_server_running():
-        if not start_server():
-            print("[-] Failed to start server. Check server.log")
-            sys.exit(1)
-    
-    print(f"[*] Opening dork: {URL}")
-    webbrowser.open(URL)
+    return _handle_default_launch(args)
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
