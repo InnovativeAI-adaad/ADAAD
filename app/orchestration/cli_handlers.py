@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from app import APP_ROOT
+from adaad.orchestrator.runbook_composer import export_runbook_artifacts, render_runbook_summary
 from adaad.orchestrator.status import build_status_report, render_human_table, report_as_json
 from runtime.api.runtime_services import (
     EvolutionRuntime,
@@ -84,16 +85,32 @@ def build_main_parser() -> argparse.ArgumentParser:
         help="Print detailed rationale for gate triggering/skipping and exit.",
     )
     parser.add_argument(
+        "--adaad-runbook",
+        action="store_true",
+        help="Compose a scenario-aware operator runbook and export markdown/json artifacts.",
+    )
+    parser.add_argument(
         "--trigger-mode",
         choices=("ADAAD", "DEVADAAD"),
         default="ADAAD",
-        help="Trigger mode context for --adaad-status output.",
+        help="Trigger mode context for --adaad-status and --adaad-runbook output.",
     )
     parser.add_argument(
         "--status-format",
         choices=("table", "json", "both"),
         default="both",
         help="Output format for --adaad-status.",
+    )
+    parser.add_argument(
+        "--runbook-verbosity",
+        choices=("compact", "full_governance"),
+        default="compact",
+        help="Verbosity mode for --adaad-runbook outputs.",
+    )
+    parser.add_argument(
+        "--runbook-output-dir",
+        default="security/adaad_runbooks",
+        help="Directory for --adaad-runbook markdown/json artifacts.",
     )
     return parser
 
@@ -258,15 +275,29 @@ def handle_status_report(*, adaad_status: bool, trigger_mode: str, status_format
     return True
 
 
+def handle_runbook_composer(*, adaad_runbook: bool, trigger_mode: str, runbook_verbosity: str, runbook_output_dir: str) -> bool:
+    if not adaad_runbook:
+        return False
+    artifacts = export_runbook_artifacts(
+        repo_root=APP_ROOT.parent,
+        trigger_mode=trigger_mode,
+        verbosity_mode=runbook_verbosity,
+        output_dir=APP_ROOT.parent / str(runbook_output_dir),
+    )
+    print(render_runbook_summary(artifacts))
+    return True
+
+
 def handle_explain_gates(*, explain_gates: bool) -> bool:
     if not explain_gates:
         return False
     
     from runtime.governance.fast_path_policy import get_operating_mode, get_required_gate_tiers
-    from runtime.governance.change_classifier import classify_current_changes
+    from runtime.governance.change_classifier import classify_current_changes_decision
     
     mode = get_operating_mode()
-    change_type = classify_current_changes()
+    change_decision = classify_current_changes_decision()
+    change_type = change_decision.change_type
     required_tiers = get_required_gate_tiers(mode, change_type)
     
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
@@ -274,6 +305,7 @@ def handle_explain_gates(*, explain_gates: bool) -> bool:
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     print(f"Operating Mode: {mode.value}")
     print(f"Change Type:    {change_type.value}")
+    print(f"Classifier:     {change_decision.reason}")
     print(f"Required Tiers: {sorted(required_tiers)}")
     print("------------------------------------------------------------")
     

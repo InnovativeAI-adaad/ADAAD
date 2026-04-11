@@ -1,0 +1,38 @@
+{
+  "artifact_type": "InnovationLineageArtifact",
+  "artifact_id": "ILA-128-2026-04-08-001",
+  "phase": 128,
+  "innovation_id": "INNOV-38",
+  "innovation_name": "Autonomous Constitutional Self-Amendment Engine (ACSA)",
+  "version": "9.61.0",
+  "date": "2026-04-08",
+  "governor": "DUSTIN L REID",
+  "status": "HUMAN-0-RATIFIED",
+  "world_first_claim": "Adversarially-driven constitutional self-amendment with cryptographic provenance — AI system that amends its own constitution via governed adversarial feedback loop",
+  "invariants_introduced": [
+    "ACSA-0",
+    "ACSA-GATE-0",
+    "ACSA-CHAIN-0",
+    "ACSA-HUMAN0-0",
+    "ACSA-DETERM-0",
+    "ACSA-REPLAY-0"
+  ],
+  "invariant_count_delta": 6,
+  "cumulative_invariants_before": 179,
+  "cumulative_invariants_after": 185,
+  "test_suite": "tests/innovations/test_phase128_acsa.py",
+  "test_count": 25,
+  "test_result": "25/25 PASS",
+  "new_module": "runtime/innovations30/constitutional_self_amendment.py",
+  "key_classes": [
+    "ACSAEngine",
+    "ConstitutionalPatch",
+    "BlockedAmendment",
+    "ACSARecord",
+    "ACSAGateVerdict",
+    "PatchStatus"
+  ],
+  "adversarial_loop_completion": "Red-Team (INNOV-36) → GRRP (INNOV-37) → ACSA (INNOV-38) — full loop closed",
+  "ip_note": "ACSA mechanism — adversarially-provoked amendments + classification-based HUMAN-0 gating + deterministic patch digests + hash-chained amendment ledger — constitutes novel claim territory for patent portfolio",
+  "governance_chain_link": "ILA-127-2026-04-06-001"
+}

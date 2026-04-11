@@ -1,0 +1,9 @@
+{
+  "agent-x": {
+    "lineage_hash": "lineage-1",
+    "metadata_mutation_count": 8,
+    "metadata_touched_at": "2025-01-02T00:00:00Z",
+    "metadata_version": 4,
+    "signature": "cryovant-dev-seed"
+  }
+}

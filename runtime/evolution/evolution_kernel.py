@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import json
-import hashlib
 from pathlib import Path
 from typing import Any, Dict, Mapping, Optional
 
@@ -206,73 +205,68 @@ class EvolutionKernel:
             return payload
         return None
 
+    @staticmethod
+    def _trigger_reason(signal: Mapping[str, Any], *, manual_trigger: bool) -> str:
+        if manual_trigger:
+            return "manual_trigger"
+        if bool(signal.get("previous_failed")):
+            return "previous_failed"
+        if bool(signal.get("previous_quarantined")):
+            return "previous_quarantined"
+        score = signal.get("latest_fitness_score")
+        threshold = signal.get("latest_fitness_threshold")
+        if score is None:
+            return "no_prior_signal"
+        if isinstance(score, (int, float)) and isinstance(threshold, (int, float)) and score < threshold:
+            return "below_fitness_threshold"
+        return "healthy_no_trigger"
+
     def _load_previous_cycle_signal(self, agent_id: str) -> Dict[str, Any]:
-        """Load deterministic previous-cycle trigger signal values."""
-        signal_path = ROOT_DIR / "data" / "evolution_trigger_signal.json"
         default_signal = {
             "previous_failed": False,
             "previous_quarantined": False,
             "latest_fitness_score": None,
-            "latest_fitness_threshold": None,
+            "latest_fitness_threshold": 0.7,
         }
-        if not signal_path.exists():
+        metrics_path = ROOT_DIR / "reports" / "metrics.jsonl"
+        if not metrics_path.exists():
             return default_signal
-
         try:
-            payload = self._read_json(signal_path)
-        except (json.JSONDecodeError, OSError):
+            lines = metrics_path.read_text(encoding="utf-8").splitlines()
+        except OSError:
             return default_signal
 
-        raw = payload.get(agent_id, payload) if isinstance(payload, Mapping) else {}
-        if not isinstance(raw, Mapping):
-            return default_signal
-        return {
-            "previous_failed": bool(raw.get("previous_failed")),
-            "previous_quarantined": bool(raw.get("previous_quarantined")),
-            "latest_fitness_score": raw.get("latest_fitness_score"),
-            "latest_fitness_threshold": raw.get("latest_fitness_threshold"),
-        }
+        for line in reversed(lines):
+            if not line.strip():
+                continue
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if record.get("event") != "evolution_cycle_outcome":
+                continue
+            payload = record.get("payload")
+            if not isinstance(payload, Mapping):
+                continue
+            if str(payload.get("agent_id") or "") != agent_id:
+                continue
+            disposition = str(payload.get("disposition") or "")
+            execution_status = str(payload.get("execution_status") or "")
+            latest_score = payload.get("fitness_score")
+            return {
+                "previous_failed": disposition == "rejected" or execution_status in {"rejected", "failed", "error"},
+                "previous_quarantined": disposition == "quarantined",
+                "latest_fitness_score": latest_score if isinstance(latest_score, (int, float)) else None,
+                "latest_fitness_threshold": 0.7,
+            }
+        return default_signal
 
     @staticmethod
-    def _evaluate_mutation_trigger(signal: Mapping[str, Any], *, manual_trigger: bool) -> Dict[str, Any]:
-        previous_failed = bool(signal.get("previous_failed"))
-        previous_quarantined = bool(signal.get("previous_quarantined"))
-        latest_fitness_score = signal.get("latest_fitness_score")
-        latest_fitness_threshold = signal.get("latest_fitness_threshold")
-        under_threshold = False
-        if isinstance(latest_fitness_score, (int, float)) and isinstance(latest_fitness_threshold, (int, float)):
-            under_threshold = latest_fitness_score < latest_fitness_threshold
-
-        if manual_trigger:
-            trigger_reason = "manual_trigger"
-        elif previous_failed:
-            trigger_reason = "previous_failed"
-        elif previous_quarantined:
-            trigger_reason = "previous_quarantined"
-        elif under_threshold:
-            trigger_reason = "below_fitness_threshold"
-        else:
-            trigger_reason = "healthy_no_trigger"
-
-        should_trigger = manual_trigger or previous_failed or previous_quarantined or under_threshold
-        return {
-            "triggered": should_trigger,
-            "trigger_reason": trigger_reason,
-            "manual_trigger": manual_trigger,
-            "previous_failed": previous_failed,
-            "previous_quarantined": previous_quarantined,
-            "latest_fitness_score": latest_fitness_score,
-            "latest_fitness_threshold": latest_fitness_threshold,
-            "under_threshold": under_threshold,
-        }
-
-    @staticmethod
-    def _lineage_linkage(mutation_payload: Mapping[str, Any]) -> tuple[str, str]:
-        mutation_id = mutation_payload.get("mutation_id")
-        if isinstance(mutation_id, str) and mutation_id.strip():
-            return mutation_id, "mutation_id"
-        payload_hash = hashlib.sha256(json.dumps(dict(mutation_payload), sort_keys=True).encode("utf-8")).hexdigest()
-        return f"sha256:{payload_hash}", "mutation_payload_sha256"
+    def _publish_cycle_outcome(payload: Mapping[str, Any]) -> bool:
+        try:
+            return push_to_dashboard("evolution_cycle_outcome", dict(payload))
+        except Exception:  # noqa: BLE001
+            return False
 
     def _emit_cycle_outcome(
         self,
@@ -284,40 +278,53 @@ class EvolutionKernel:
         fitness_result: Mapping[str, Any],
         certificate_result: Mapping[str, Any],
         mutation_payload: Mapping[str, Any],
-        rejected: bool = False,
         cosmetic_only: bool = False,
+        rejected: bool = False,
     ) -> Dict[str, Any]:
         execution_status = str(execution_result.get("status") or "unknown")
+        signing_status = str(certificate_result.get("status") or "unknown")
+        fitness_score = fitness_result.get("score")
         fitness_accepted = self._fitness_accepted(fitness_result)
-        if rejected:
-            disposition = "rejected"
-        elif cosmetic_only:
+
+        mutation_id = mutation_payload.get("mutation_id") or execution_result.get("mutation_id")
+        lineage_linkage = str(mutation_id or agent_id)
+        lineage_linkage_type = "mutation_id" if mutation_id else "agent_id"
+
+        if cosmetic_only:
             disposition = "cosmetic_only"
-        elif fitness_accepted:
+        elif rejected or execution_status in {"rejected", "failed", "error"}:
+            disposition = "rejected"
+        elif self._execution_succeeded(execution_result) and fitness_accepted:
             disposition = "promoted"
         else:
             disposition = "quarantined"
-        lineage_linkage, lineage_linkage_type = self._lineage_linkage(mutation_payload)
-        event = {
+
+        payload = {
+            "schema_version": "evolution_cycle_outcome.v1",
             "agent_id": agent_id,
             "change_classification": change_classification,
             "change_reason": change_reason,
             "execution_status": execution_status,
-            "fitness_score": fitness_result.get("score"),
+            "fitness_score": fitness_score,
             "fitness_accepted": fitness_accepted,
-            "signing_status": str(certificate_result.get("status") or "unknown"),
+            "signing_status": signing_status,
             "disposition": disposition,
             "lineage_linkage": lineage_linkage,
             "lineage_linkage_type": lineage_linkage_type,
-            "schema_version": "evolution_cycle_outcome.v1",
+            "dashboard_published": False,
         }
-        metrics.log(event_type="evolution_cycle_outcome", payload=event)
-        push_to_dashboard("evolution_cycle_outcome", event)
-        return event
+        metrics.log(event_type="evolution_cycle_outcome", payload=payload)
+        payload["dashboard_published"] = self._publish_cycle_outcome(payload)
+        return payload
 
-    def run_cycle(self, agent_id: Optional[str] = None, *, manual_trigger: bool = False) -> Dict[str, Any]:
+    def run_cycle(self, agent_id: Optional[str] = None, manual_trigger: bool = False) -> Dict[str, Any]:
         """Run one mutation cycle, preferring compatibility adapter when explicitly selected."""
         if self.compatibility_adapter is not None and agent_id is None:
+            if manual_trigger:
+                try:
+                    return self.compatibility_adapter.run_cycle(agent_id, manual_trigger=manual_trigger)
+                except TypeError:
+                    return self.compatibility_adapter.run_cycle(agent_id)
             return self.compatibility_adapter.run_cycle(agent_id)
 
         available_agents = list(iter_agent_dirs(self.agents_root))
@@ -335,31 +342,34 @@ class EvolutionKernel:
                 raise RuntimeError(f"agent_not_found:{agent_id}")
 
         agent = self.load_agent(target_agent_path)
-        contract_violation = self._validate_agent_cycle_contract(target_agent_path, str(agent.get("agent_id") or ""))
+        resolved_agent_id = str(agent.get("agent_id") or "")
+        contract_violation = self._validate_agent_cycle_contract(target_agent_path, resolved_agent_id)
         if contract_violation is not None:
             return contract_violation
 
-        previous_signal = self._load_previous_cycle_signal(str(agent.get("agent_id") or ""))
-        trigger_evidence = self._evaluate_mutation_trigger(previous_signal, manual_trigger=manual_trigger)
-        trigger_event = {
-            "agent_id": agent.get("agent_id"),
-            "triggered": trigger_evidence["triggered"],
-            "trigger_reason": trigger_evidence["trigger_reason"],
-            "manual_trigger": trigger_evidence["manual_trigger"],
-            "previous_failed": trigger_evidence["previous_failed"],
-            "previous_quarantined": trigger_evidence["previous_quarantined"],
-            "latest_fitness_score": trigger_evidence["latest_fitness_score"],
-            "latest_fitness_threshold": trigger_evidence["latest_fitness_threshold"],
-            "under_threshold": trigger_evidence["under_threshold"],
-        }
-        metrics.log(event_type="mutation_trigger_policy_decision", payload=trigger_event)
-        push_to_dashboard("mutation_trigger_policy_decision", trigger_event)
-        if not trigger_evidence["triggered"]:
+        trigger_signal = self._load_previous_cycle_signal(resolved_agent_id)
+        trigger_reason = self._trigger_reason(trigger_signal, manual_trigger=manual_trigger)
+        if trigger_reason == "healthy_no_trigger":
+            cycle_event = self._emit_cycle_outcome(
+                agent_id=resolved_agent_id,
+                change_classification="FUNCTIONAL_CHANGE",
+                change_reason="mutation_not_triggered_policy",
+                execution_result={"status": "skipped"},
+                fitness_result={"accepted": False, "score": trigger_signal.get("latest_fitness_score")},
+                certificate_result={"status": "skipped", "reason": "mutation_not_triggered_policy"},
+                mutation_payload={"agent_id": resolved_agent_id},
+            )
             return {
                 "status": "skipped",
                 "reason": "mutation_not_triggered_policy",
                 "agent_id": agent.get("agent_id"),
-                "trigger_evidence": trigger_evidence,
+                "trigger_evidence": {
+                    "trigger_reason": trigger_reason,
+                    "previous_signal": trigger_signal,
+                },
+                "change_classification": "FUNCTIONAL_CHANGE",
+                "change_reason": "mutation_not_triggered_policy",
+                "cycle_outcome_event": cycle_event,
                 "kernel_path": True,
             }
 
@@ -396,6 +406,7 @@ class EvolutionKernel:
             )
             return {
                 "status": "metadata_only",
+                "reason": "non_functional_change",
                 "agent_id": agent.get("agent_id"),
                 "change_classification": change_decision.classification,
                 "change_reason": change_decision.reason,
@@ -429,6 +440,7 @@ class EvolutionKernel:
                 "change_classification": change_decision.classification,
                 "change_reason": change_decision.reason,
                 "cycle_outcome_event": cycle_event,
+                "kernel_path": True,
             }
 
         forecast = self.fitness_evaluator.forecast(
@@ -482,6 +494,7 @@ class EvolutionKernel:
             "agent_id": agent.get("agent_id"),
             "fitness": fitness_result,
             "certificate": certificate_result,
+            "reason": execution_result.get("reason"),
             "change_classification": change_decision.classification,
             "change_reason": change_decision.reason,
             "cycle_outcome_event": cycle_event,

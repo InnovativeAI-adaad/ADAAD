@@ -82,6 +82,11 @@ class LineageLedgerV2:
     def __init__(self, ledger_path: Path = DEFAULT_LEDGER_PATH) -> None:
         self._path = Path(ledger_path)
         self._events: List[LineageEvent] = []
+        self._verified_tail_hash: Optional[str] = None
+
+    def get_verified_tail_hash(self) -> Optional[str]:
+        """Return the hash of the last successfully verified event."""
+        return self._verified_tail_hash
 
     # ------------------------------------------------------------------
     # Core record surfaces
@@ -187,6 +192,7 @@ class LineageLedgerV2:
         from runtime.memory.identity_ledger import ChainIntegrityError  # local import
 
         if not self._events:
+            self._verified_tail_hash = ZERO_HASH
             return True
         for i, evt in enumerate(self._events):
             expected = _compute_event_hash(
@@ -202,6 +208,8 @@ class LineageLedgerV2:
                     raise ChainIntegrityError(
                         f"Predecessor mismatch at {evt.event_id}"
                     )
+        
+        self._verified_tail_hash = self._events[-1].event_hash
         return True
 
     def events(self) -> List[LineageEvent]:

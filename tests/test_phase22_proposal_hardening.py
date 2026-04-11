@@ -56,7 +56,7 @@ def _make_loop(**kwargs) -> EvolutionLoop:
 # ---------------------------------------------------------------------------
 
 def test_pr22_01_a_config_default_fallback_is_false():
-    cfg = LLMProviderConfig(api_key="k", model="m", timeout_seconds=5, max_tokens=100)
+    cfg = LLMProviderConfig(provider="anthropic", api_key="k", model="m", timeout_seconds=5, max_tokens=100)
     assert cfg.fallback_to_noop is False
 
 
@@ -86,7 +86,7 @@ def test_pr22_01_c_env_var_opts_back_in(val):
 
 def test_pr22_01_d_safe_failure_no_fallback_returns_empty():
     cfg = LLMProviderConfig(
-        api_key="k", model="m", timeout_seconds=5, max_tokens=100,
+        provider="anthropic", api_key="k", model="m", timeout_seconds=5, max_tokens=100,
         fallback_to_noop=False,
     )
     client = LLMProviderClient(cfg)
@@ -102,7 +102,7 @@ def test_pr22_01_d_safe_failure_no_fallback_returns_empty():
 
 def test_pr22_01_e_safe_failure_with_fallback_returns_noop():
     cfg = LLMProviderConfig(
-        api_key="k", model="m", timeout_seconds=5, max_tokens=100,
+        provider="anthropic", api_key="k", model="m", timeout_seconds=5, max_tokens=100,
         fallback_to_noop=True,
     )
     client = LLMProviderClient(cfg)

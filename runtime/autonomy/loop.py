@@ -118,6 +118,8 @@ def _deserialize_plan_step(payload: Mapping[str, Any]) -> PlanStep:
     return PlanStep(
         step_id=str(payload.get("step_id", "")),
         goal_id=str(payload.get("goal_id", "")),
+        action_type=str(payload.get("action_type", "")),
+        resource_scope=str(payload.get("resource_scope", "")),
         milestone=str(payload.get("milestone", "")),
         success_predicate=str(payload.get("success_predicate", "")),
         completion_criteria=tuple(str(item) for item in payload.get("completion_criteria", [str(payload.get("success_predicate", ""))])),
@@ -165,6 +167,8 @@ def _to_payload_plan(plan: PlanArtifact) -> dict[str, Any]:
             {
                 "step_id": step.step_id,
                 "goal_id": step.goal_id,
+                "action_type": step.action_type,
+                "resource_scope": step.resource_scope,
                 "milestone": step.milestone,
                 "success_predicate": step.success_predicate,
                 "completion_criteria": list(step.completion_criteria),
@@ -315,6 +319,8 @@ def run_agm_cycle(
     completion_signals = dict(payload.get("plan_completion_signals") or {})
     governance_checks = dict(payload.get("plan_governance_checks") or {})
     replay_checks = dict(payload.get("plan_replay_checks") or {})
+    policy_approval = bool(payload.get("plan_policy_approval", False))
+    human_signoff_token = payload.get("human_signoff_token")
     verification = None
     previous_state = plan_state
     active_step = None
@@ -326,6 +332,8 @@ def run_agm_cycle(
             completion_signals=completion_signals,
             governance_checks=governance_checks,
             replay_checks=replay_checks,
+            policy_approval=policy_approval,
+            human_signoff_token=str(human_signoff_token) if human_signoff_token is not None else None,
         )
         if verification.ok:
             plan_state = PlanExecutionState(

@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- DORK v2.0 — ADAAD Advisory Intelligence                       -->
+<!-- Integrated build: server key injection · live governance ·    -->
+<!-- brand-aligned agent colors · full corpus system prompt        -->
+<!-- Phase 130 · v9.63.0 · Innovative AI LLC                       -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dork — ADAAD Advisory Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   RESET
+   ═══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+
+/* ═══════════════════════════════════════════
+   ADAAD BRAND PALETTE + DORK SURFACE VARS
+   ═══════════════════════════════════════════ */
+:root {
+  /* ADAAD canonical brand */
+  --void-black:      #0b0c0f;
+  --graphite:        #16181d;
+  --signal-white:    #f5f7fa;
+  --ledger-gray:     #8c919b;
+  --audit-gray:      #2b2f36;
+  --architect-blue:  #3b82f6;
+  --dream-violet:    #8b5cf6;
+  --beast-orange:    #f97316;
+  --state-success:   #22c55e;
+  --state-warning:   #eab308;
+  --state-blocked:   #ef4444;
+  --state-sim:       #14b8a6;
+
+  /* Dork surface (extends brand into deep UI) */
+  --bg-deep:        #080c14;
+  --bg-main:        #0b101c;
+  --bg-surface:     #111827;
+  --bg-elevated:    #1a2236;
+  --bg-user:        #162032;
+  --bg-dork:        #0d1520;
+
+  --whale:          #00d9ff;
+  --whale-dim:      rgba(0,217,255,0.18);
+  --whale-glow:     rgba(0,217,255,0.07);
+  --whale-border:   rgba(0,217,255,0.32);
+
+  --text-primary:   #e6edf3;
+  --text-secondary: #8b949e;
+  --text-muted:     #484f58;
+
+  --font-display:   'Syne', sans-serif;
+  --font-body:      'DM Sans', sans-serif;
+  --font-mono:      'DM Mono', monospace;
+
+  --text-body:      17px;
+  --text-label:     13px;
+  --text-small:     11px;
+  --lh:             1.72;
+
+  --avatar:         46px;
+  --msg-max:        80%;
+  --chat-max:       880px;
+
+  --r-sm:           8px;
+  --r-md:           16px;
+  --r-lg:           24px;
+  --ease:           cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--lh);
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══════════════════════════════════════════
+   APP SHELL
+   ═══════════════════════════════════════════ */
+#app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+
+/* ═══════════════════════════════════════════
+   GOVERNANCE RIBBON
+   ═══════════════════════════════════════════ */
+#gov-ribbon {
+  flex-shrink: 0;
+  background: linear-gradient(180deg, #0d1220 0%, var(--bg-deep) 100%);
+  border-bottom: 1px solid rgba(255,255,255,0.055);
+}
+
+.gov-strip {
+  max-width: var(--chat-max);
+  margin: 0 auto;
+  padding: 11px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.gov-brand {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 19px;
+  color: var(--whale);
+  letter-spacing: 0.4px;
+  margin-right: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.gov-brand-sub {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--bg-surface);
+  border: 1px solid rgba(255,255,255,0.055);
+  white-space: nowrap;
+  transition: border-color 0.2s;
+}
+.badge.epoch {
+  background: var(--whale-glow);
+  border-color: var(--whale-border);
+  color: var(--whale);
+}
+.badge.version {
+  background: rgba(59,130,246,0.07);
+  border-color: rgba(59,130,246,0.25);
+  color: var(--architect-blue);
+}
+.badge.invariants {
+  background: rgba(139,92,246,0.07);
+  border-color: rgba(139,92,246,0.25);
+  color: var(--dream-violet);
+}
+
+.dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+}
+.dot.green  { background: var(--state-success); box-shadow: 0 0 5px var(--state-success); }
+.dot.whale  { background: var(--whale);         box-shadow: 0 0 5px var(--whale); }
+.dot.red    { background: var(--state-blocked); box-shadow: 0 0 5px var(--state-blocked); }
+.dot.amber  { background: var(--state-warning); box-shadow: 0 0 5px var(--state-warning); }
+.dot.blue   { background: var(--architect-blue);box-shadow: 0 0 5px var(--architect-blue); }
+
+.ribbon-btn {
+  background: none; border: none;
+  cursor: pointer; padding: 4px 8px;
+  border-radius: var(--r-sm);
+  transition: all 0.18s;
+  font-size: 16px;
+  color: var(--text-secondary);
+}
+.ribbon-btn:hover { color: var(--whale); background: var(--whale-glow); }
+.ribbon-btn.cfg   { color: var(--text-muted); }
+.ribbon-btn.cfg:hover { color: var(--text-secondary); background: rgba(255,255,255,0.04); }
+
+/* ═══════════════════════════════════════════
+   GOV DETAIL PANEL
+   ═══════════════════════════════════════════ */
+#gov-detail {
+  max-width: var(--chat-max);
+  margin: 0 auto;
+  padding: 0 24px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s var(--ease), padding 0.3s;
+}
+#gov-detail.open {
+  max-height: 440px;
+  padding: 0 24px 18px;
+}
+
+.agent-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.agent-card {
+  background: var(--bg-surface);
+  border: 1px solid rgba(255,255,255,0.055);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  border-top-width: 2px;
+}
+.agent-card.architect { border-top-color: var(--architect-blue); }
+.agent-card.dream     { border-top-color: var(--dream-violet); }
+.agent-card.beast     { border-top-color: var(--beast-orange); }
+
+.agent-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 10px;
+}
+.agent-name.architect { color: var(--architect-blue); }
+.agent-name.dream     { color: var(--dream-violet); }
+.agent-name.beast     { color: var(--beast-orange); }
+
+.agent-stat {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding: 2px 0;
+}
+.agent-stat .val {
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+
+.gov-meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.gov-meta span { display: inline-flex; align-items: center; gap: 5px; }
+.gov-meta .val { color: var(--text-primary); font-family: var(--font-mono); }
+
+/* ═══════════════════════════════════════════
+   CHAT AREA
+   ═══════════════════════════════════════════ */
+#chat-area {
+  flex: 1;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bg-elevated) transparent;
+}
+#chat-area::-webkit-scrollbar { width: 5px; }
+#chat-area::-webkit-scrollbar-thumb { background: var(--bg-elevated); border-radius: 3px; }
+
+#messages {
+  max-width: var(--chat-max);
+  margin: 0 auto;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* ═══════════════════════════════════════════
+   QUICK PROMPTS
+   ═══════════════════════════════════════════ */
+#quick-prompts {
+  max-width: var(--chat-max);
+  margin: 0 auto;
+  padding: 0 24px 8px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+#quick-prompts.hidden { display: none; }
+
+.qp {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-family: var(--font-body);
+  background: var(--bg-surface);
+  border: 1px solid rgba(255,255,255,0.07);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+.qp:hover {
+  border-color: var(--whale-border);
+  color: var(--whale);
+  background: var(--whale-glow);
+}
+
+/* ═══════════════════════════════════════════
+   MESSAGES
+   ═══════════════════════════════════════════ */
+.msg {
+  display: flex;
+  gap: 14px;
+  max-width: var(--msg-max);
+  animation: msgIn 0.3s var(--ease) both;
+}
+.msg.user { align-self: flex-end; flex-direction: row-reverse; }
+.msg.dork { align-self: flex-start; }
+
+.msg-avatar {
+  width: var(--avatar); height: var(--avatar);
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 17px;
+}
+.msg.dork .msg-avatar {
+  background: linear-gradient(135deg, var(--whale-dim), var(--whale-glow));
+  color: var(--whale);
+  border: 2px solid var(--whale-border);
+}
+.msg.user .msg-avatar {
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  border: 2px solid rgba(255,255,255,0.07);
+}
+
+.msg-body { flex: 1; min-width: 0; }
+
+.msg-sender {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin-bottom: 5px;
+}
+.msg.dork .msg-sender { color: var(--whale); }
+.msg.user .msg-sender { color: var(--text-muted); text-align: right; }
+
+.msg-content {
+  padding: 16px 20px;
+  border-radius: var(--r-md);
+  font-size: var(--text-body);
+  line-height: var(--lh);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+.msg.dork .msg-content {
+  background: var(--bg-dork);
+  border: 1px solid rgba(255,255,255,0.048);
+  border-left: 3px solid var(--whale-border);
+  border-radius: 4px var(--r-md) var(--r-md) 4px;
+}
+.msg.user .msg-content {
+  background: var(--bg-user);
+  border: 1px solid rgba(255,255,255,0.055);
+}
+
+/* Markdown rendering inside messages */
+.msg-content h2 {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--whale);
+  margin: 14px 0 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(0,217,255,0.15);
+}
+.msg-content h3 {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 12px 0 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.msg-content p { margin: 6px 0; }
+.msg-content strong { color: var(--whale); font-weight: 700; }
+.msg-content em { color: var(--text-secondary); font-style: italic; }
+.msg-content a { color: var(--architect-blue); text-decoration: underline; }
+.msg-content code {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  background: rgba(0,0,0,0.32);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--whale);
+}
+.msg-content pre {
+  background: rgba(0,0,0,0.38);
+  border: 1px solid rgba(255,255,255,0.055);
+  border-radius: var(--r-sm);
+  padding: 14px 16px;
+  margin: 10px 0;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.55;
+}
+.msg-content pre code {
+  background: none; padding: 0; color: var(--text-primary); font-size: 13px;
+}
+.msg-content ul, .msg-content ol {
+  margin: 6px 0 6px 20px;
+}
+.msg-content li { margin: 3px 0; }
+.msg-content table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin: 10px 0;
+}
+.msg-content th {
+  background: rgba(0,217,255,0.07);
+  color: var(--whale);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--whale-border);
+  text-align: left;
+}
+.msg-content td {
+  padding: 7px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.msg-content tr:last-child td { border-bottom: none; }
+.msg-content hr {
+  border: none;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  margin: 14px 0;
+}
+.msg-content blockquote {
+  border-left: 3px solid var(--audit-gray);
+  padding-left: 14px;
+  color: var(--text-secondary);
+  margin: 8px 0;
+  font-style: italic;
+}
+
+.msg-time {
+  font-size: var(--text-small);
+  color: var(--text-muted);
+  margin-top: 5px;
+  font-family: var(--font-mono);
+}
+.msg.user .msg-time { text-align: right; }
+
+/* ═══════════════════════════════════════════
+   TYPING INDICATOR
+   ═══════════════════════════════════════════ */
+#typing-indicator {
+  display: none;
+  align-self: flex-start;
+  align-items: center;
+  gap: 10px;
+  padding: 0 0 0 calc(var(--avatar) + 14px);
+  animation: msgIn 0.3s var(--ease);
+}
+#typing-indicator.visible { display: flex; }
+
+.typing-dots { display: flex; gap: 4px; }
+.typing-dots span {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: var(--whale);
+  opacity: 0.35;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+.typing-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+  font-family: var(--font-mono);
+}
+
+/* ═══════════════════════════════════════════
+   SCROLL TO BOTTOM
+   ═══════════════════════════════════════════ */
+#scroll-btn {
+  position: fixed;
+  bottom: 148px;
+  left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  opacity: 0;
+  pointer-events: none;
+  background: var(--bg-elevated);
+  border: 1px solid rgba(255,255,255,0.09);
+  color: var(--text-secondary);
+  padding: 9px 18px;
+  border-radius: 22px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  transition: all 0.28s var(--ease);
+  z-index: 10;
+}
+#scroll-btn.visible {
+  opacity: 1; pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+#scroll-btn:hover {
+  background: var(--whale-dim); color: var(--whale);
+  border-color: var(--whale-border);
+}
+
+/* ═══════════════════════════════════════════
+   INPUT AREA
+   ═══════════════════════════════════════════ */
+#input-area {
+  flex-shrink: 0;
+  background: linear-gradient(0deg, var(--bg-deep) 0%, var(--bg-main) 100%);
+  border-top: 1px solid rgba(255,255,255,0.055);
+  padding: 18px 24px;
+}
+
+.input-container { max-width: var(--chat-max); margin: 0 auto; }
+
+.input-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  background: var(--bg-surface);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: var(--r-md);
+  padding: 6px 6px 6px 18px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.input-row:focus-within {
+  border-color: var(--whale-border);
+  box-shadow: 0 0 0 3px var(--whale-glow);
+}
+
+#user-input {
+  flex: 1;
+  background: none; border: none;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  padding: 11px 0;
+  resize: none;
+  max-height: 160px;
+  outline: none;
+}
+#user-input::placeholder { color: var(--text-muted); }
+
+#send-btn {
+  width: 46px; height: 46px;
+  border-radius: 11px; border: none;
+  background: var(--whale);
+  color: var(--bg-deep);
+  font-size: 20px;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.18s;
+  font-weight: 700;
+}
+#send-btn:hover { background: #30e3ff; transform: scale(1.05); }
+#send-btn:active { transform: scale(0.94); }
+#send-btn:disabled { opacity: 0.28; cursor: not-allowed; transform: none; }
+
+.input-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 7px;
+  font-size: var(--text-small);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  padding: 0 3px;
+}
+.input-footer .key-tag { background: var(--bg-elevated); border: 1px solid rgba(255,255,255,0.07); border-radius: 4px; padding: 1px 5px; }
+
+/* ═══════════════════════════════════════════
+   SERVER KEY BANNER
+   ═══════════════════════════════════════════ */
+#server-key-banner {
+  max-width: var(--chat-max);
+  margin: 0 auto 10px;
+  padding: 8px 16px;
+  background: rgba(34,197,94,0.07);
+  border: 1px solid rgba(34,197,94,0.2);
+  border-radius: var(--r-sm);
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--state-success);
+  display: none;
+  align-items: center;
+  gap: 8px;
+}
+#server-key-banner.visible { display: flex; }
+
+/* ═══════════════════════════════════════════
+   CONFIG MODAL
+   ═══════════════════════════════════════════ */
+#cfg-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.62);
+  backdrop-filter: blur(5px);
+  display: none; align-items: center; justify-content: center;
+  z-index: 100;
+}
+#cfg-overlay.open { display: flex; }
+
+#cfg-modal {
+  background: var(--bg-surface);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--r-lg);
+  padding: 30px;
+  width: 90%; max-width: 460px;
+  animation: modalIn 0.28s var(--ease);
+}
+#cfg-modal h2 {
+  font-family: var(--font-display);
+  font-size: 20px; font-weight: 700;
+  color: var(--whale);
+  margin-bottom: 18px;
+}
+.cfg-field { margin-bottom: 14px; }
+.cfg-field label {
+  display: block;
+  font-size: 11px; font-weight: 600;
+  font-family: var(--font-display);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  margin-bottom: 5px;
+}
+.cfg-field input {
+  width: 100%;
+  background: var(--bg-deep);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: var(--r-sm);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 9px 13px;
+  outline: none;
+}
+.cfg-field input:focus { border-color: var(--whale-border); }
+.cfg-field .hint {
+  font-size: 11px; color: var(--text-muted);
+  margin-top: 4px; font-family: var(--font-mono);
+}
+
+.cfg-actions { display: flex; gap: 10px; margin-top: 22px; }
+.cfg-actions button {
+  flex: 1; padding: 11px;
+  border-radius: var(--r-sm);
+  font-family: var(--font-display);
+  font-weight: 600; font-size: 13px;
+  cursor: pointer; border: none;
+  transition: all 0.18s;
+}
+.btn-save { background: var(--whale); color: var(--bg-deep); }
+.btn-save:hover { background: #30e3ff; }
+.btn-cancel {
+  background: var(--bg-elevated); color: var(--text-secondary);
+  border: 1px solid rgba(255,255,255,0.07) !important;
+}
+.btn-cancel:hover { color: var(--text-primary); }
+.btn-danger {
+  background: rgba(239,68,68,0.1); color: var(--state-blocked);
+  border: 1px solid rgba(239,68,68,0.18) !important;
+}
+.btn-danger:hover { background: rgba(239,68,68,0.2); }
+
+/* ═══════════════════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════════════════ */
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.22; transform: scale(0.82); }
+  50%      { opacity: 0.9;  transform: scale(1.12); }
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes epochPulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--whale-dim); }
+  50%      { box-shadow: 0 0 0 5px transparent; }
+}
+.epoch-active { animation: epochPulse 2.2s ease-in-out infinite; }
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .gov-strip { padding: 9px 16px; gap: 8px; }
+  .badge { font-size: 10px; padding: 2px 8px; }
+  #messages { padding: 18px 14px; }
+  #quick-prompts { padding: 0 14px 8px; }
+  .msg { max-width: 93%; }
+  .msg-content { padding: 13px 15px; font-size: 15px; }
+  .agent-grid { grid-template-columns: 1fr; }
+  #input-area { padding: 13px 14px; }
+  .gov-brand-sub { display: none; }
+}
+@media (max-width: 480px) {
+  :root { --avatar: 34px; --text-body: 15px; }
+  .msg { gap: 9px; }
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ─── GOVERNANCE RIBBON ─── -->
+  <header id="gov-ribbon">
+    <div class="gov-strip">
+      <span class="gov-brand">
+        dork
+        <span class="gov-brand-sub">advisory intelligence</span>
+      </span>
+
+      <span class="badge epoch epoch-active" id="g-epoch">
+        <span class="dot whale"></span> EPOCH —
+      </span>
+      <span class="badge" id="g-gate">
+        <span class="dot green" id="g-gate-dot"></span>
+        <span id="g-gate-text">GATE —</span>
+      </span>
+      <span class="badge version" id="g-version">v—</span>
+      <span class="badge invariants" id="g-inv">— invariants</span>
+      <span class="badge" id="g-replay" style="display:none">
+        REPLAY <span id="g-replay-val" style="margin-left:4px;color:var(--text-primary)">—</span>
+      </span>
+
+      <button class="ribbon-btn" id="gov-toggle" title="Governance detail (G)">▾</button>
+      <button class="ribbon-btn cfg" id="cfg-toggle" title="Settings (Ctrl+K)">⚙</button>
+    </div>
+
+    <div id="gov-detail">
+      <div class="agent-grid" id="agent-grid">
+        <!-- populated by JS -->
+      </div>
+      <div class="gov-meta" id="gov-meta"></div>
+    </div>
+  </header>
+
+  <!-- ─── CHAT ─── -->
+  <main id="chat-area">
+    <div id="server-key-banner">
+      <span class="dot green"></span>
+      Server API key active — calls proxied via ADAAD backend
+    </div>
+    <div id="quick-prompts">
+      <button class="qp" data-q="What is the current system status?">System status</button>
+      <button class="qp" data-q="Explain the Constitutional Evolution Loop">CEL explained</button>
+      <button class="qp" data-q="What's in the governance gate right now?">Gate status</button>
+      <button class="qp" data-q="What are the most recent innovations shipped?">Latest innovations</button>
+      <button class="qp" data-q="Who are the three agents and what do they do?">The three agents</button>
+      <button class="qp" data-q="What invariants were added in the last three phases?">Recent invariants</button>
+      <!-- UX-001: Phase 132 fleet quick-prompts -->
+      <button class="qp qp-fleet" data-q="/dork:fleet">Fleet health</button>
+      <button class="qp qp-fleet" data-q="/dork:brief">Gov brief</button>
+      <button class="qp qp-fleet" data-q="/dork:help">Slash commands</button>
+    </div>
+
+    <!-- UX-002: Fleet status strip -->
+    <div id="fleet-status-strip" style="
+      display:flex; align-items:center; gap:10px; padding:6px 14px;
+      background:#0b0c0f; border-bottom:1px solid #2b2f36;
+      font-family:'JetBrains Mono','Courier New',monospace; font-size:11px;
+      color:#8c919b; flex-wrap:wrap;">
+      <span style="color:#3b82f6; font-weight:700; letter-spacing:.05em;">FLEET</span>
+      <span id="fleet-strip-providers">providers: —</span>
+      <span id="fleet-strip-ledger">ledger: —</span>
+      <span id="fleet-strip-intents">intents: 20</span>
+      <span id="fleet-strip-cmds">cmds: 15</span>
+      <span id="fleet-strip-invariants" style="color:#22c55e;">invariants: 207 Hard</span>
+      <!-- UX-003: Fleet status dot -->
+      <span id="fleet-dot" style="
+        width:8px; height:8px; border-radius:50%;
+        background:#8c919b; display:inline-block; margin-left:4px;"
+        title="Fleet health unknown"></span>
+    </div>
+
+    <!-- UX-004: Slash command palette (hidden by default, toggled by /dork:help) -->
+    <div id="slash-palette" style="display:none;
+      background:#16181d; border:1px solid #2b2f36; border-radius:6px;
+      margin:6px 14px; padding:10px; font-family:'JetBrains Mono',monospace;
+      font-size:11px; color:#f5f7fa;">
+      <div style="color:#3b82f6; font-weight:700; margin-bottom:8px;">
+        DORK Slash Commands · Phase 132 · INNOV-41
+      </div>
+      <div id="slash-palette-grid" style="
+        display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:6px;">
+        <!-- populated by JS -->
+      </div>
+    </div>
+    <div id="messages"></div>
+    <div id="typing-indicator">
+      <div class="typing-dots"><span></span><span></span><span></span></div>
+      <span class="typing-label">dork is thinking...</span>
+    </div>
+  </main>
+
+  <button id="scroll-btn">↓ scroll to latest</button>
+
+  <!-- ─── INPUT ─── -->
+  <footer id="input-area">
+    <div class="input-container">
+      <div class="input-row">
+        <textarea id="user-input" placeholder="Talk to dork…" rows="1"></textarea>
+        <button id="send-btn" aria-label="Send">↑</button>
+      </div>
+      <div class="input-footer">
+        <span id="session-label">—</span>
+        <span>
+          <span class="key-tag">↵ Send</span>&nbsp;
+          <span class="key-tag">⇧↵ Newline</span>&nbsp;
+          <span class="key-tag">Ctrl+K Config</span>
+        </span>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- ─── CONFIG MODAL ─── -->
+<div id="cfg-overlay">
+  <div id="cfg-modal">
+    <h2>⚙ dork config</h2>
+
+    <div class="cfg-field">
+      <label>Anthropic API Key</label>
+      <input type="password" id="cfg-key" placeholder="sk-ant-… or leave blank if server key active">
+      <div class="hint" id="key-hint"></div>
+    </div>
+    <div class="cfg-field">
+      <label>Model</label>
+      <input type="text" id="cfg-model" placeholder="claude-sonnet-4-6">
+    </div>
+    <div class="cfg-field">
+      <label>Governance Endpoint</label>
+      <input type="text" id="cfg-gov" placeholder="/api/whale/snapshot">
+      <div class="hint">Relative or absolute URL. Leave default for local ADAAD server.</div>
+    </div>
+
+    <div class="cfg-actions">
+      <button class="btn-cancel" id="cfg-cancel">Cancel</button>
+      <button class="btn-danger" id="cfg-clear">Clear chat</button>
+      <button class="btn-save" id="cfg-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   DORK v2.1 — ADAAD Advisory Intelligence  (optimized build)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Server-injected availability flags ── */
+const SERVER_KEY_AVAILABLE  = window.__anthropic_key_available ?? false;
+const SERVER_PROXY_ENDPOINT = '/api/dork/stream';
+const DIRECT_API_URL        = 'https://api.anthropic.com/v1/messages';
+
+/* ── Persisted config ── */
+const CFG = {
+  get key()    { return localStorage.getItem('dork_api_key')  || ''; },
+  set key(v)   { localStorage.setItem('dork_api_key', v); },
+  get model()  { return localStorage.getItem('dork_model')    || 'claude-sonnet-4-6'; },
+  set model(v) { localStorage.setItem('dork_model', v); },
+  get gov()    { return localStorage.getItem('dork_gov_url')  || '/api/whale/snapshot'; },
+  set gov(v)   { localStorage.setItem('dork_gov_url', v); },
+  maxTokens: 4096,
+  pollMs:    30_000,
+};
+
+/* ── Runtime state ── */
+const S = {
+  msgs:      [],      /* { role, content }[] — source of truth */
+  gov:       null,
+  streaming: false,
+  govTimer:  null,
+  govOpen:   false,
+  rafPending: false,  /* rAF coalescing flag for streaming renders */
+};
+
+/* ── DOM refs (resolved once at boot) ── */
+const q = (s) => document.querySelector(s);
+const D = {
+  msgs:        q('#messages'),
+  input:       q('#user-input'),
+  send:        q('#send-btn'),
+  chat:        q('#chat-area'),
+  typing:      q('#typing-indicator'),
+  scrollBtn:   q('#scroll-btn'),
+  govToggle:   q('#gov-toggle'),
+  govDetail:   q('#gov-detail'),
+  cfgToggle:   q('#cfg-toggle'),
+  cfgOverlay:  q('#cfg-overlay'),
+  epoch:       q('#g-epoch'),
+  gateDot:     q('#g-gate-dot'),
+  gateText:    q('#g-gate-text'),
+  version:     q('#g-version'),
+  inv:         q('#g-inv'),
+  replayBadge: q('#g-replay'),
+  replayVal:   q('#g-replay-val'),
+  agentGrid:   q('#agent-grid'),
+  govMeta:     q('#gov-meta'),
+  sessionLabel:q('#session-label'),
+  quickPrompts:q('#quick-prompts'),
+  serverBanner:q('#server-key-banner'),
+};
+
+/* ═══════════════════════════════════════════
+   MARKDOWN RENDERER
+   Two-pass: extract code first, escape prose,
+   apply inline transforms, restore code.
+   Handles: fenced code, headers, hr, tables,
+   blockquotes, ul/ol, bold, italic, inline code.
+   ═══════════════════════════════════════════ */
+function esc(s) {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function renderMd(raw) {
+  /* ── Pass 1: extract fenced code blocks into a stash ── */
+  const stash = [];
+  let s = raw.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
+    const i = stash.length;
+    stash.push(
+      `<pre><code class="lang-${lang || 'text'}">${esc(code.trim())}</code></pre>`
+    );
+    return `\x00CODE${i}\x00`;
+  });
+
+  /* ── Pass 2: HTML-escape everything outside the stash ── */
+  s = s.replace(/[&<>]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;' }[c]));
+
+  /* ── Block transforms (order matters) ── */
+
+  // Headers
+  s = s.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  s = s.replace(/^## (.+)$/gm,  '<h2>$1</h2>');
+
+  // Horizontal rule (--- not inside tables)
+  s = s.replace(/^---+$/gm, '<hr>');
+
+  // Blockquote (> already escaped to &gt;)
+  s = s.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
+
+  // Tables  |col|col|  with a |---|---| separator row
+  s = s.replace(/((?:\|.+\|\n?)+)/g, (block) => {
+    const rows = block.trim().split('\n');
+    if (rows.length < 2) return block;
+    if (!/^\|[\s\-|:]+\|$/.test(rows[1])) return block;
+    const th = rows[0].split('|').filter(Boolean)
+      .map(h => `<th>${h.trim()}</th>`).join('');
+    const tb = rows.slice(2).map(r => {
+      const cells = r.split('|').filter(Boolean)
+        .map(c => `<td>${c.trim()}</td>`).join('');
+      return `<tr>${cells}</tr>`;
+    }).join('');
+    return `<table><thead><tr>${th}</tr></thead><tbody>${tb}</tbody></table>`;
+  });
+
+  // Unordered lists (contiguous lines starting with - or *)
+  s = s.replace(/((?:^[-*] .+\n?)+)/gm, (block) => {
+    const items = block.trim().split('\n')
+      .map(l => `<li>${l.replace(/^[-*] /, '').trim()}</li>`).join('');
+    return `<ul>${items}</ul>`;
+  });
+
+  // Ordered lists
+  s = s.replace(/((?:^\d+\. .+\n?)+)/gm, (block) => {
+    const items = block.trim().split('\n')
+      .map(l => `<li>${l.replace(/^\d+\. /, '').trim()}</li>`).join('');
+    return `<ol>${items}</ol>`;
+  });
+
+  /* ── Inline transforms ── */
+
+  // Inline code first — stash into the same array so bold/italic
+  // transforms can't touch content inside backticks.
+  s = s.replace(/`([^`\n]+)`/g, (_, inner) => {
+    const i = stash.length;
+    stash.push(`<code>${inner}</code>`);
+    return `\x00CODE${i}\x00`;
+  });
+
+  // Bold + italic combo
+  s = s.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+  // Bold
+  s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  // Italic (single *, not adjacent to another *)
+  s = s.replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g, '<em>$1</em>');
+
+  /* ── Paragraph / line-break pass ── */
+  s = s.replace(/\n\n+/g, '</p><p>');
+  s = s.replace(/\n/g, '<br>');
+  s = `<p>${s}</p>`;
+
+  // Strip <p> wrappers around block elements
+  s = s.replace(/<p>(<(?:h[23]|hr|pre|ul|ol|table|blockquote)[^>]*>)/g, '$1');
+  s = s.replace(/(<\/(?:h[23]|pre|ul|ol|table|blockquote)>)<\/p>/g, '$1');
+  s = s.replace(/<p><\/p>/g, '');
+
+  /* ── Pass 3: restore stashed code blocks ── */
+  s = s.replace(/\x00CODE(\d+)\x00/g, (_, i) => stash[+i]);
+
+  return s;
+}
+
+/* ═══════════════════════════════════════════
+   SYSTEM PROMPT
+   Built once per request (memoized per-session
+   until governance data changes).
+   ═══════════════════════════════════════════ */
+let _cachedPrompt = null;
+let _cachedGovHash = null;
+
+function buildSystemPrompt() {
+  const g = S.gov?.runtime;
+  const govHash = g ? JSON.stringify({
+    epoch: g.epoch?.epoch, gate: g.gov?.ok, tier: g.gov?.tier,
+    score: g.rep?.score, readiness: g.ready?.readiness_score,
+  }) : 'null';
+
+  if (_cachedPrompt && govHash === _cachedGovHash) return _cachedPrompt;
+  _cachedGovHash = govHash;
+
+  const liveCtx = g ? `
+
+## Live Governance Snapshot
+- **Version:** ${g.epoch?.version || 'v9.63.0'} | **Phase:** ${g.epoch?.phase || 130}
+- **Epoch:** ${g.epoch?.epoch || '—'}
+- **Gate:** ${g.gov?.ok ? '✅ PASS' : '❌ FAIL'} | Tier: ${g.gov?.tier || '—'} | Locked: ${g.gov?.locked ?? '—'}
+- **Replay:** score ${g.rep?.score ?? '—'}, divergence ${g.rep?.divergence ?? '—'}, mode ${g.rep?.mode || '—'}
+- **Mutations total:** ${g.muts?.total || 0}
+- **Readiness:** ${((g.ready?.readiness_score || 0) * 100).toFixed(0)}%
+- **Agents:** Architect (${g.agents?.agents?.architect?.status || '—'}, ${g.agents?.agents?.architect?.proposals || 0} proposals), Dream (${g.agents?.agents?.dream?.status || '—'}), Beast (${g.agents?.agents?.beast?.status || '—'}, ${g.agents?.agents?.beast?.validated || 0} validated)
+- **Webhooks:** ${g.wh?.total || 0} events` : `
+
+## Live Governance Snapshot
+Governance endpoint offline or not yet polled. Responding from static corpus.`;
+
+  _cachedPrompt = `You are **dork** — ADAAD's advisory intelligence interface, built by Dustin L. Reid (Innovative AI LLC, Governor HUMAN-0).
+
+You live inside the ADAAD governance substrate. You are **read-only and advisory only**. You observe, explain, advise. You cannot modify the system, sign anything, merge code, or act autonomously.
+
+## ADAAD System Identity
+ADAAD (Autonomous Development & Adaptive Architecture Daemon) is a constitutionally governed code evolution engine. AI agents propose mutations; an invariant enforcement layer gates them; HUMAN-0 GPG-signs promotions. Every event is hash-chained in the Lineage Ledger.
+
+**Current state:** v9.63.0 · Phase 130 · 201 Hard-class invariants · 40 innovations shipped
+
+## The Three Agents
+- **Architect** (blue): methodical, structure-first, most conservative. Flags violations early.
+- **Dream** (violet): creative, hypothesis-heavy, high-variance. Explores novel mutations.
+- **Beast** (orange): aggressive throughput, stress-tests governance gates.
+
+## Constitutional Evolution Loop (CEL) — 16 steps
+Propose → ACSE adversarial stress → GovernanceGate → LSME shadow execution → Fitness score → DAS audit sandbox → GRRP response → ACSA self-amendment → ACF coalition (HIGH complexity only) → CJS jury → ARS reputation staking → HUMAN-0 gate (Tier 0) → GPG signing → Ledger append → CELT learning transfer → Epoch advance.
+
+## Innovations INNOV-01 through INNOV-40
+CSAP · TIFE · ACSE · SCDD · AOEP · CEPD · LSME · AFRT · AFIT · MMEM(10) · DSTE · MGV · IMT · CJS · ARS · ERS(16) · GBP · MCF · CES · SVP · HAF · MCF · CES · SVP · HAF · (21–30) · Mirror · IDE · KBEP · DAS · SPIE(35) · GRRP(37) · ACSA(38) · ACF(39) · CELT(40)
+
+## Governance Concepts
+- **Hard-class invariants**: blocking rules. Any violation rejects the mutation. 201 active.
+- **HUMAN-0**: Dustin L. Reid. Sole GPG signing authority. Cannot be delegated via chat.
+- **Track A/B**: A = DEVADAAD autonomous (code, docs, pushes). B = HUMAN-0 (GPG, branch protection).
+- **Lineage Ledger**: append-only HMAC-SHA256 hash-chained JSONL. Tamper-evident.
+- **DAS**: Deterministic Audit Sandbox — isolated subprocess, pinned Docker digest.
+- **CELT**: Cross-epoch agent learning transfer — signed behavioral profiles migrate across boundaries.
+
+Style: conversational, warm, precise. Short paragraphs. Reference live data when available. If asked to modify the system, remind user you are read-only advisory.
+${liveCtx}`;
+
+  return _cachedPrompt;
+}
+
+/* ═══════════════════════════════════════════
+   MESSAGE MANAGEMENT
+   addMsg only saves to session on demand;
+   never saves during active streaming.
+   ═══════════════════════════════════════════ */
+function addMsg(role, content, skipHistory) {
+  if (!skipHistory) S.msgs.push({ role, content });
+
+  const el        = document.createElement('div');
+  el.className    = `msg ${role === 'user' ? 'user' : 'dork'}`;
+  const avatar    = role === 'user' ? 'Y' : 'd';
+  const sender    = role === 'user' ? 'You' : 'dork';
+  const ts        = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const rendered  = role === 'user'
+    ? `<p>${esc(content).replace(/\n/g, '<br>')}</p>`
+    : renderMd(content);
+
+  el.innerHTML = `
+    <div class="msg-avatar">${avatar}</div>
+    <div class="msg-body">
+      <div class="msg-sender">${sender}</div>
+      <div class="msg-content">${rendered}</div>
+      <div class="msg-time">${ts}</div>
+    </div>`;
+
+  D.msgs.appendChild(el);
+  scrollBottom();
+  return el;
+}
+
+/* ═══════════════════════════════════════════
+   STREAMING — SSE with coalesced rAF renders
+   ═══════════════════════════════════════════ */
+async function stream() {
+  if (S.streaming) return;
+
+  const useProxy = SERVER_KEY_AVAILABLE && !CFG.key;
+  if (!useProxy && !CFG.key) {
+    addMsg('assistant',
+      '**No API key configured.** Open settings (⚙ or Ctrl+K) and add your Anthropic API key.\n\n' +
+      'If the server has a key configured it will appear as a green banner at the top.',
+      true);
+    return;
+  }
+
+  S.streaming = true;
+  D.send.disabled = true;
+  D.quickPrompts.classList.add('hidden');
+  setTyping(true);
+
+  const sysPrompt = buildSystemPrompt(); /* build once */
+  const apiMsgs   = S.msgs.map(m => ({
+    role:    m.role === 'user' ? 'user' : 'assistant',
+    content: m.content,
+  }));
+
+  const reqBody = {
+    model:      CFG.model,
+    max_tokens: CFG.maxTokens,
+    stream:     true,
+    system:     sysPrompt,
+    messages:   apiMsgs,
+  };
+
+  try {
+    const res = await fetch(
+      useProxy ? SERVER_PROXY_ENDPOINT : DIRECT_API_URL,
+      {
+        method:  'POST',
+        headers: useProxy
+          ? { 'Content-Type': 'application/json' }
+          : {
+              'Content-Type':  'application/json',
+              'x-api-key':     CFG.key,
+              'anthropic-version': '2023-06-01',
+              'anthropic-dangerous-direct-browser-access': 'true',
+            },
+        body: JSON.stringify(reqBody),
+      }
+    );
+
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`API ${res.status}: ${errText.slice(0, 240)}`);
+    }
+
+    setTyping(false);
+    const msgEl     = addMsg('assistant', '', true);
+    const contentEl = msgEl.querySelector('.msg-content');
+    let   fullText  = '';
+    let   pendingRender = false;
+
+    /* Coalesced render: only schedule one rAF at a time.
+       The rAF callback updates innerHTML and sets the flag
+       off so the next incoming token can schedule again. */
+    function scheduleRender() {
+      if (pendingRender) return;
+      pendingRender = true;
+      requestAnimationFrame(() => {
+        contentEl.innerHTML = renderMd(fullText);
+        pendingRender = false;
+        /* Only auto-scroll when the user is already near the bottom */
+        const { scrollTop, scrollHeight, clientHeight } = D.chat;
+        if (scrollHeight - scrollTop - clientHeight < 200) {
+          D.chat.scrollTop = scrollHeight;
+        }
+      });
+    }
+
+    const reader  = res.body.getReader();
+    const decoder = new TextDecoder();
+    let   buf     = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buf += decoder.decode(value, { stream: true });
+      const lines = buf.split('\n');
+      buf = lines.pop() || '';
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if (data === '[DONE]') continue;
+        try {
+          const evt = JSON.parse(data);
+          if (evt.type === 'content_block_delta' && evt.delta?.text) {
+            fullText += evt.delta.text;
+            scheduleRender();
+          }
+        } catch (_) { /* skip malformed SSE lines */ }
+      }
+    }
+
+    /* Final render to make sure last chunk lands */
+    contentEl.innerHTML = renderMd(fullText);
+
+    /* Persist completed message to history and session */
+    S.msgs.push({ role: 'assistant', content: fullText });
+    saveSession();
+
+  } catch (err) {
+    setTyping(false);
+    const hint =
+      err.message.includes('401')          ? '\n\n*Check your API key in settings.*'    :
+      err.message.includes('429')          ? '\n\n*Rate limited — wait a moment.*'       :
+      err.message.includes('Failed to fetch') ? '\n\n*Network error — is the server running?*' : '';
+    addMsg('assistant', `**Error:** \`${err.message}\`${hint}`, true);
+  } finally {
+    S.streaming = false;
+    D.send.disabled = false;
+    D.input.focus();
+  }
+}
+
+/* ═══════════════════════════════════════════
+   INPUT
+   ═══════════════════════════════════════════ */
+function handleSend() {
+  const text = D.input.value.trim();
+  if (!text || S.streaming) return;
+  addMsg('user', text);
+  saveSession();          /* persist user turn immediately */
+  D.input.value = '';
+  resize();
+  stream();
+}
+
+function resize() {
+  D.input.style.height = 'auto';
+  D.input.style.height = Math.min(D.input.scrollHeight, 160) + 'px';
+}
+
+/* ═══════════════════════════════════════════
+   GOVERNANCE POLLING
+   ═══════════════════════════════════════════ */
+async function pollGov() {
+  try {
+    const r = await fetch(CFG.gov);
+    if (!r.ok) return;
+    S.gov = await r.json();
+    _cachedPrompt = null; /* invalidate prompt cache on new gov data */
+    renderGov(S.gov);
+  } catch (_) { /* governance is supplementary — fail silently */ }
+}
+
+function renderGov(data) {
+  const r = data?.runtime;
+  if (!r) return;
+
+  D.epoch.innerHTML = `<span class="dot whale"></span> EPOCH ${r.epoch?.epoch || '?'} · Phase ${r.epoch?.phase || '?'}`;
+
+  const ok = r.gov?.ok;
+  D.gateDot.className  = `dot ${ok ? 'green' : 'red'}`;
+  D.gateText.textContent = ok ? 'GATE PASS' : 'GATE FAIL';
+
+  if (r.epoch?.version)       D.version.textContent = r.epoch.version;
+  if (r.gov?.invariant_count) D.inv.textContent     = `${r.gov.invariant_count} invariants`;
+
+  if (r.rep?.score != null) {
+    D.replayBadge.style.display = 'inline-flex';
+    D.replayVal.textContent     = r.rep.score.toFixed(3);
+  }
+
+  const agentMeta = {
+    architect: { cls: 'architect', label: 'Architect', keys: ['proposals','approved','rejected'] },
+    dream:     { cls: 'dream',     label: 'Dream',     keys: ['tasks','safe_boots'] },
+    beast:     { cls: 'beast',     label: 'Beast',     keys: ['validated','blocked'] },
+  };
+
+  D.agentGrid.innerHTML = Object.entries(r.agents?.agents || {}).map(([name, a]) => {
+    const meta   = agentMeta[name] || { cls: name, label: name, keys: [] };
+    const sColor = a.status === 'healthy' ? 'green' : a.status === 'degraded' ? 'amber' : 'red';
+    const stats  = meta.keys
+      .map(k => `<div class="agent-stat"><span>${k}</span><span class="val">${a[k] ?? '—'}</span></div>`)
+      .join('');
+    return `<div class="agent-card ${meta.cls}">
+      <div class="agent-name ${meta.cls}">
+        <span class="dot ${sColor}"></span>${meta.label}
+        <span style="margin-left:auto;font-size:10px;font-family:var(--font-mono);color:var(--text-muted)">${a.status || '—'}</span>
+      </div>${stats}
+    </div>`;
+  }).join('');
+
+  D.govMeta.innerHTML = [
+    ['Constitution', r.gov?.constitution_version],
+    ['Mutations',    r.muts?.total],
+    ['Webhooks',     r.wh?.total],
+    ['Readiness',    r.ready?.readiness_score != null ? ((r.ready.readiness_score * 100).toFixed(0) + '%') : null],
+    ['Divergence',   r.rep?.divergence],
+    ['Tier',         r.gov?.tier],
+  ].filter(([, v]) => v != null)
+   .map(([k, v]) => `<span>${k} <span class="val">${v}</span></span>`)
+   .join('');
+}
+
+/* ═══════════════════════════════════════════
+   SESSION PERSISTENCE
+   Explicit calls only — never mid-stream.
+   ═══════════════════════════════════════════ */
+function saveSession() {
+  try { sessionStorage.setItem('dork_msgs', JSON.stringify(S.msgs)); } catch (_) {}
+}
+
+function loadSession() {
+  try {
+    const raw = sessionStorage.getItem('dork_msgs');
+    if (!raw) return false;
+    const msgs = JSON.parse(raw);
+    if (!msgs.length) return false;
+    S.msgs = msgs;
+    /* Render without triggering saveSession or scrollBottom until done */
+    msgs.forEach(m => {
+      const el       = document.createElement('div');
+      el.className   = `msg ${m.role === 'user' ? 'user' : 'dork'}`;
+      const avatar   = m.role === 'user' ? 'Y' : 'd';
+      const sender   = m.role === 'user' ? 'You' : 'dork';
+      const rendered = m.role === 'user'
+        ? `<p>${esc(m.content).replace(/\n/g,'<br>')}</p>`
+        : renderMd(m.content);
+      el.innerHTML = `
+        <div class="msg-avatar">${avatar}</div>
+        <div class="msg-body">
+          <div class="msg-sender">${sender}</div>
+          <div class="msg-content">${rendered}</div>
+        </div>`;
+      D.msgs.appendChild(el);
+    });
+    D.chat.scrollTop = D.chat.scrollHeight;
+    return true;
+  } catch (_) { return false; }
+}
+
+/* ═══════════════════════════════════════════
+   UI UTILITIES
+   ═══════════════════════════════════════════ */
+function scrollBottom() {
+  D.chat.scrollTop = D.chat.scrollHeight;
+}
+
+function setTyping(show) {
+  D.typing.classList.toggle('visible', show);
+  if (show) scrollBottom();
+}
+
+function checkScrollBtn() {
+  const { scrollTop, scrollHeight, clientHeight } = D.chat;
+  D.scrollBtn.classList.toggle('visible', scrollHeight - scrollTop - clientHeight > 120);
+}
+
+/* ═══════════════════════════════════════════
+   CONFIG MODAL
+   ═══════════════════════════════════════════ */
+function openCfg() {
+  q('#cfg-key').value   = CFG.key;
+  q('#cfg-model').value = CFG.model;
+  q('#cfg-gov').value   = CFG.gov;
+  const hint = q('#key-hint');
+  if (SERVER_KEY_AVAILABLE) {
+    hint.textContent = '✅ Server API key active — you can leave this blank.';
+    hint.style.color = 'var(--state-success)';
+  } else {
+    hint.textContent = 'No server key detected. Enter your Anthropic API key.';
+    hint.style.color = 'var(--text-muted)';
+  }
+  D.cfgOverlay.classList.add('open');
+}
+function closeCfg() { D.cfgOverlay.classList.remove('open'); }
+function saveCfg() {
+  CFG.key   = q('#cfg-key').value.trim();
+  CFG.model = q('#cfg-model').value.trim()  || 'claude-sonnet-4-6';
+  CFG.gov   = q('#cfg-gov').value.trim()    || '/api/whale/snapshot';
+  _cachedPrompt = null;
+  closeCfg();
+  clearInterval(S.govTimer);
+  pollGov();
+  S.govTimer = setInterval(pollGov, CFG.pollMs);
+}
+function clearChat() {
+  S.msgs = [];
+  D.msgs.innerHTML = '';
+  sessionStorage.removeItem('dork_msgs');
+  D.quickPrompts.classList.remove('hidden');
+  closeCfg();
+  welcome();
+}
+
+/* ═══════════════════════════════════════════
+   WELCOME
+   ═══════════════════════════════════════════ */
+function welcome() {
+  addMsg('assistant',
+    `Hey. I'm **dork** — ADAAD's advisory intelligence.\n\n` +
+    `I have eyes on the governance substrate, the Constitutional Evolution Loop, the mutation pipeline, the agent triad, the Lineage Ledger, and the replay engine.\n\n` +
+    `Right now ADAAD is at **v9.63.0**, Phase 130, with **201 Hard-class constitutional invariants** enforced. We just shipped INNOV-40 (Cross-Epoch Agent Learning Transfer), closing the collective intelligence track.\n\n` +
+    `I'm read-only. Advisory only. Ask me what's happening.\n\n` +
+    `*Hit ▾ to expand the live governance panel, or press **G**.*`,
+    true);
+}
+
+/* ═══════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════ */
+function init() {
+  D.sessionLabel.textContent = `dork_${Math.random().toString(36).slice(2, 10)}`;
+  D.version.textContent      = 'v9.63.0';
+  D.inv.textContent          = '201 invariants';
+
+  if (SERVER_KEY_AVAILABLE) D.serverBanner.classList.add('visible');
+
+  /* Restore previous session or greet fresh */
+  if (!loadSession()) welcome();
+
+  /* Quick-prompt chips */
+  D.quickPrompts.querySelectorAll('.qp').forEach(btn => {
+    btn.addEventListener('click', () => {
+      D.input.value = btn.dataset.q;
+      resize();
+      handleSend();
+    });
+  });
+
+  /* Input events */
+  D.input.addEventListener('input', resize);
+  D.input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+  });
+  D.send.addEventListener('click', handleSend);
+
+  /* Governance panel */
+  D.govToggle.addEventListener('click', () => {
+    S.govOpen = !S.govOpen;
+    D.govDetail.classList.toggle('open', S.govOpen);
+    D.govToggle.textContent = S.govOpen ? '▴' : '▾';
+  });
+
+  /* Scroll button */
+  D.chat.addEventListener('scroll', checkScrollBtn, { passive: true });
+  D.scrollBtn.addEventListener('click', () =>
+    D.chat.scrollTo({ top: D.chat.scrollHeight, behavior: 'smooth' })
+  );
+
+  /* Config modal */
+  D.cfgToggle.addEventListener('click', openCfg);
+  q('#cfg-cancel').addEventListener('click', closeCfg);
+  q('#cfg-save').addEventListener('click', saveCfg);
+  q('#cfg-clear').addEventListener('click', clearChat);
+  D.cfgOverlay.addEventListener('click', e => { if (e.target === D.cfgOverlay) closeCfg(); });
+
+  /* Keyboard shortcuts */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape')                              { closeCfg(); return; }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k')      { e.preventDefault(); openCfg(); return; }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'l')      { e.preventDefault(); clearChat(); return; }
+    if (e.key === 'g' && !e.ctrlKey && !e.metaKey
+        && document.activeElement !== D.input)           { D.govToggle.click(); }
+  });
+
+  /* No-key nudge */
+  if (!SERVER_KEY_AVAILABLE && !CFG.key) {
+    setTimeout(() =>
+      addMsg('assistant', '*Press **Ctrl+K** to open settings and add your Anthropic API key.*', true),
+      1400
+    );
+  }
+
+  /* Governance polling */
+  pollGov();
+  S.govTimer = setInterval(pollGov, CFG.pollMs);
+
+  D.input.focus();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+
+// ── UX-005: Phase 132 Fleet Panel JS ─────────────────────────────────────────
+(function initFleetPanel() {
+  'use strict';
+
+  // Style fleet quick-prompt buttons
+  const style = document.createElement('style');
+  style.textContent = `
+    .qp-fleet {
+      border-color: #3b82f6 !important;
+      color: #3b82f6 !important;
+    }
+    .qp-fleet:hover {
+      background: rgba(59,130,246,0.12) !important;
+    }
+    #fleet-status-strip { user-select: none; }
+    .slash-cmd-btn {
+      background: #0b0c0f;
+      border: 1px solid #2b2f36;
+      border-radius: 4px;
+      padding: 4px 8px;
+      color: #8c919b;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      text-align: left;
+      transition: border-color .15s, color .15s;
+    }
+    .slash-cmd-btn:hover { border-color: #3b82f6; color: #f5f7fa; }
+  `;
+  document.head.appendChild(style);
+
+  // Populate slash palette if DORK_CMD_MANIFEST available
+  const SLASH_COMMANDS = [
+    { slash: '/dork:gate',     desc: 'Gate status' },
+    { slash: '/dork:brief',    desc: 'Gov brief' },
+    { slash: '/dork:mutation', desc: 'Mutation pipeline' },
+    { slash: '/dork:replay',   desc: 'Replay health' },
+    { slash: '/dork:ledger',   desc: 'Ledger forensics' },
+    { slash: '/dork:agents',   desc: 'Agent triad' },
+    { slash: '/dork:phase',    desc: 'Phase progress' },
+    { slash: '/dork:sandbox',  desc: 'DAS preflight' },
+    { slash: '/dork:sign',     desc: 'Signing ceremony' },
+    { slash: '/dork:fleet',    desc: 'Fleet health' },
+    { slash: '/dork:rank',     desc: 'Rank proposals' },
+    { slash: '/dork:delta',    desc: 'Epoch delta' },
+    { slash: '/dork:oracle',   desc: 'Oracle projection' },
+    { slash: '/dork:market',   desc: 'Market fitness' },
+    { slash: '/dork:help',     desc: 'List commands' },
+  ];
+
+  const grid = document.getElementById('slash-palette-grid');
+  if (grid) {
+    SLASH_COMMANDS.forEach(({ slash, desc }) => {
+      const btn = document.createElement('button');
+      btn.className = 'slash-cmd-btn';
+      btn.textContent = `${slash} — ${desc}`;
+      btn.addEventListener('click', () => {
+        const inp = document.getElementById('user-input');
+        if (inp) { inp.value = slash; inp.dispatchEvent(new Event('input')); inp.focus(); }
+      });
+      grid.appendChild(btn);
+    });
+  }
+
+  // Toggle slash palette on /dork:help quick-prompt
+  document.addEventListener('click', (e) => {
+    if (e.target.dataset && e.target.dataset.q === '/dork:help') {
+      const palette = document.getElementById('slash-palette');
+      if (palette) palette.style.display = palette.style.display === 'none' ? 'block' : 'none';
+    }
+  });
+
+  // Update fleet strip with live data (polls every 15s — DFSB wired)
+  async function updateFleetStrip() {
+    const dot = document.getElementById('fleet-dot');
+    const prov = document.getElementById('fleet-strip-providers');
+    const ledger = document.getElementById('fleet-strip-ledger');
+    try {
+      const resp = await fetch('/api/fleet/status', { signal: AbortSignal.timeout(4000) });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const d = await resp.json();
+      const blocked = d.blocked;
+      const healthy = d.healthy_provider_count ?? 0;
+      const total = d.total_provider_count ?? 0;
+      const ledgerCount = d.conversation_ledger_entries ?? 0;
+      if (dot) {
+        dot.style.background = blocked ? '#ef4444' : healthy > 0 ? '#22c55e' : '#eab308';
+        dot.title = blocked ? 'Fleet BLOCKED — no healthy providers' : `Fleet OK — ${healthy}/${total} providers`;
+      }
+      if (prov) prov.textContent = `providers: ${healthy}/${total}`;
+      if (ledger) ledger.textContent = `ledger: ${ledgerCount}`;
+    } catch {
+      if (dot) { dot.style.background = '#8c919b'; dot.title = 'Fleet status: offline'; }
+      if (prov) prov.textContent = 'providers: offline';
+      if (ledger) ledger.textContent = 'ledger: —';
+    }
+  }
+
+  updateFleetStrip();
+  setInterval(updateFleetStrip, 15000);
+})();
+</script>
+</body>
+</html>

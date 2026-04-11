@@ -12,8 +12,8 @@ Three invariants verified:
     same path; each instance starts cold.
 
   INV-LINEAGE-STREAM-2:
-    verify_integrity(max_lines=k) for k < total entries MUST NOT set
-    _verified_tail_hash. Partial verification is not a complete integrity proof.
+    verify_integrity(max_lines=k) for k < total entries MUST set
+    _verified_tail_hash to the last verified prefix hash (not full-chain tip).
 
   INV-LINEAGE-STREAM-3:
     append_event() on a warm cache (non-None _verified_tail_hash) MUST NOT
@@ -30,7 +30,7 @@ import pytest
 
 pytestmark = pytest.mark.regression_standard
 
-from runtime.evolution.lineage_v2 import LineageLedgerV2
+from runtime.evolution.lineage_v2 import LineageLedgerV2, _TAIL_CACHE, _TAIL_CACHE_LOCK
 
 
 # ---------------------------------------------------------------------------
@@ -109,18 +109,19 @@ class TestInvLineageStream1ReloadClearsCache:
 # ---------------------------------------------------------------------------
 
 class TestInvLineageStream2PartialScanNoCachePoison:
-    """verify_integrity(max_lines=k) for k < total MUST NOT set _verified_tail_hash."""
+    """verify_integrity(max_lines=k) for k < total sets verified prefix tail hash."""
 
-    def test_partial_verify_does_not_set_tail_hash(self, tmp_path):
-        """Truncated verification leaves _verified_tail_hash = None."""
+    def test_partial_verify_sets_verified_prefix_tail_hash(self, tmp_path):
+        """Truncated verification sets _verified_tail_hash to verified prefix tail."""
         ledger_path = tmp_path / "ledger.jsonl"
         ledger = _ledger_with_entries(ledger_path, 6)
-        # Force cold cache
+        expected_prefix_tail = ledger.read_all()[2]["hash"]
+        # Force cold cache so verify_integrity owns the update.
         ledger._verified_tail_hash = None
         # Verify only first 3 of 6 entries
         ledger.verify_integrity(max_lines=3)
-        assert ledger._verified_tail_hash is None, (
-            "Partial verify must not cache a partial tail as a complete proof. "
+        assert ledger._verified_tail_hash == expected_prefix_tail, (
+            "Partial verify must cache the last verified prefix tail hash. "
             "INV-LINEAGE-STREAM-2 violated."
         )
 
@@ -154,9 +155,10 @@ class TestInvLineageStream2PartialScanNoCachePoison:
         """Partial verify followed by full verify correctly sets _verified_tail_hash."""
         ledger_path = tmp_path / "ledger.jsonl"
         ledger = _ledger_with_entries(ledger_path, 5)
+        expected_prefix_tail = ledger.read_all()[1]["hash"]
         ledger._verified_tail_hash = None
-        ledger.verify_integrity(max_lines=2)   # partial — cache stays None
-        assert ledger._verified_tail_hash is None
+        ledger.verify_integrity(max_lines=2)   # partial — cache set to prefix tail
+        assert ledger._verified_tail_hash == expected_prefix_tail
         ledger.verify_integrity()              # full — cache set
         assert ledger._verified_tail_hash is not None
 
@@ -190,12 +192,14 @@ class TestInvLineageStream3WarmCacheNoRescan:
             "INV-LINEAGE-STREAM-3 violated: O(n) re-scan must not occur on warm path."
         )
 
-    def test_cold_cache_append_triggers_exactly_one_verify(self, tmp_path):
-        """With _verified_tail_hash=None, first append triggers exactly one full verify."""
+    def test_cold_cache_append_uses_tail_scan_without_verify(self, tmp_path):
+        """Cold append uses tail scan path and does not call verify_integrity()."""
         ledger_path = tmp_path / "ledger.jsonl"
         ledger = _ledger_with_entries(ledger_path, 3)
         # Force cold cache
         ledger._verified_tail_hash = None
+        with _TAIL_CACHE_LOCK:
+            _TAIL_CACHE.pop(str(ledger_path.resolve()), None)
 
         call_count = {"n": 0}
         original_verify = ledger.verify_integrity
@@ -207,8 +211,8 @@ class TestInvLineageStream3WarmCacheNoRescan:
         with patch.object(ledger, "verify_integrity", side_effect=counting_verify):
             ledger.append_event("test_event", {"seq": 100})
 
-        assert call_count["n"] == 1, (
-            f"Expected exactly 1 verify on cold-path append, got {call_count['n']}."
+        assert call_count["n"] == 0, (
+            f"Expected 0 verify calls on cold-path append, got {call_count['n']}."
         )
 
     def test_successive_warm_appends_do_not_rescan(self, tmp_path):

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import threading
 from pathlib import Path
 
 import pytest
@@ -151,3 +152,57 @@ def test_lineage_append_blocked_after_corruption(tmp_path: Path) -> None:
 
     with pytest.raises(LineageIntegrityError, match="lineage_prev_hash_mismatch"):
         ledger.append_event("EpochEndEvent", {"epoch_id": "ep-1"})
+
+
+def test_concurrent_appenders_preserve_single_canonical_tail(tmp_path: Path) -> None:
+    path = tmp_path / "lineage_v2.jsonl"
+    ledger = LineageLedgerV2(path)
+    ledger.append_event("EpochStartEvent", {"epoch_id": "ep-concurrent"})
+
+    barrier = threading.Barrier(2)
+    outcomes: list[dict] = []
+    original_last_hash = ledger._last_hash
+
+    def synchronized_last_hash() -> str:
+        tail = original_last_hash()
+        # Synchronize only the first racing observation so both appenders
+        # compete on the same tail_hash_before value.
+        if not hasattr(synchronized_last_hash, "_done"):
+            try:
+                barrier.wait(timeout=2.0)
+            except threading.BrokenBarrierError:
+                pass
+            setattr(synchronized_last_hash, "_done", True)
+        return tail
+
+    ledger._last_hash = synchronized_last_hash  # type: ignore[method-assign]
+
+    def _append(writer_id: str) -> None:
+        result = ledger.append_event(
+            "MutationBundleEvent",
+            {"epoch_id": "ep-concurrent", "bundle_id": writer_id, "writer": writer_id},
+            max_attempts=4,
+            deterministic_retry=True,
+        )
+        outcomes.append(result)
+
+    t1 = threading.Thread(target=_append, args=("writer-A",))
+    t2 = threading.Thread(target=_append, args=("writer-B",))
+    t1.start()
+    t2.start()
+    t1.join()
+    t2.join()
+
+    assert all(outcome.get("status") == "committed" for outcome in outcomes)
+    assert any(int(outcome.get("append_protocol", {}).get("conflict_count", 0)) >= 1 for outcome in outcomes)
+
+    entries = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    assert len(entries) == 3
+    assert entries[-1]["prev_hash"] == entries[-2]["hash"]
+    assert entries[-2]["prev_hash"] == entries[0]["hash"]
+    assert entries[-1]["hash"] != entries[-2]["hash"]
+
+    writers_in_chain = [entry.get("payload", {}).get("writer") for entry in entries if entry.get("type") == "MutationBundleEvent"]
+    assert set(writers_in_chain) == {"writer-A", "writer-B"}
+
+    ledger.verify_integrity()

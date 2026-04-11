@@ -43,7 +43,13 @@ from app.orchestration.boot_config import (
     resolve_replay_mode,
     select_epoch,
 )
-from app.orchestration.cli_handlers import build_main_parser, handle_export_replay_proof, handle_replay_namespace, handle_status_report
+from app.orchestration.cli_handlers import (
+    build_main_parser,
+    handle_export_replay_proof,
+    handle_replay_namespace,
+    handle_runbook_composer,
+    handle_status_report,
+)
 from app.orchestration.runtime_factory import build_orchestrator
 from app.orchestration.replay_preflight import execute_replay_preflight
 from runtime.api import MutationEngine, MutationRequest, agent_path_from_id, iter_agent_dirs, resolve_agent_id
@@ -184,11 +190,12 @@ class Orchestrator:
 
         # Phase 107 Streamlining
         from runtime.governance.fast_path_policy import OperatingMode, get_operating_mode
-        from runtime.governance.change_classifier import classify_current_changes
+        from runtime.governance.change_classifier import classify_current_changes_decision
         self.operating_mode = get_operating_mode()
         if self.fast_mode:
             self.operating_mode = OperatingMode.DEV_FAST
-        self.change_type = classify_current_changes()
+        self.change_decision = classify_current_changes_decision()
+        self.change_type = self.change_decision.change_type
 
     def _v(self, message: str) -> None:
         if not self.verbose:
@@ -1009,6 +1016,13 @@ def main() -> None:
         adaad_status=args.adaad_status,
         trigger_mode=args.trigger_mode,
         status_format=args.status_format,
+    ):
+        return
+    if handle_runbook_composer(
+        adaad_runbook=args.adaad_runbook,
+        trigger_mode=args.trigger_mode,
+        runbook_verbosity=args.runbook_verbosity,
+        runbook_output_dir=args.runbook_output_dir,
     ):
         return
 

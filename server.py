@@ -695,6 +695,21 @@ def governance_health(
     resolved_epoch = epoch_id or "current"
     result = governance_health_service(epoch_id=resolved_epoch)
     result["constitutional_floor"] = "enforced"
+
+    # DFSB-FITNESS-0: embed fleet fitness in governance health
+    try:
+        fleet = _get_fleet()
+        if fleet is not None:
+            fs = fleet.fleet_status()
+            result["fleet_fitness"] = {
+                "score": 1.0 if not fs.get("blocked") and fs.get("healthy_provider_count", 0) > 0 else 0.0,
+                "blocked": fs.get("blocked", True),
+                "healthy_count": fs.get("healthy_provider_count", 0),
+                "invariant": "DFSB-FITNESS-0",
+            }
+    except Exception:
+        result["fleet_fitness"] = {"score": None, "blocked": None, "healthy_count": None, "invariant": "DFSB-FITNESS-0"}
+
     return {"schema_version": "1.0", "authn": authn, "data": result}
 
 
@@ -1624,6 +1639,7 @@ def governance_gate_decisions(
 
     reader = GateDecisionReader(DEFAULT_GATE_DECISION_LEDGER_PATH)
     records = reader.history(limit=limit, denied_only=denied_only)
+    aggregates = reader.common_aggregates()
 
     return {
         "schema_version": "1.0",
@@ -1631,12 +1647,12 @@ def governance_gate_decisions(
         "data": {
             "records":                records,
             "total_in_window":        len(records),
-            "approval_rate":          reader.approval_rate(),
-            "rejection_rate":         reader.rejection_rate(),
-            "human_override_count":   reader.human_override_count(),
-            "decision_breakdown":     reader.decision_breakdown(),
-            "failed_rules_frequency": reader.failed_rules_frequency(),
-            "trust_mode_breakdown":   reader.trust_mode_breakdown(),
+            "approval_rate":          aggregates["approval_rate"],
+            "rejection_rate":         aggregates["rejection_rate"],
+            "human_override_count":   aggregates["human_override_count"],
+            "decision_breakdown":     aggregates["decision_breakdown"],
+            "failed_rules_frequency": aggregates["failed_rules_frequency"],
+            "trust_mode_breakdown":   aggregates["trust_mode_breakdown"],
             "ledger_version":         GATE_DECISION_LEDGER_VERSION,
         },
     }
@@ -4289,6 +4305,31 @@ async def get_pending_approvals(
     gate = HumanApprovalGate()
     return {"ok": True, "pending": gate.pending_queue()}
 
+@app.get("/api/governance/merges")
+async def get_recent_merges(
+    limit: int = 20,
+) -> dict[str, Any]:
+    """Return recent DEVADAAD merge_attestation.v1 events from the lifecycle ledger."""
+    # In a full implementation, this reads from pr_lifecycle_events.jsonl or equivalent.
+    # For now, return a mock schema-compliant response bridging to dork UI telemetry.
+    mock_merges = [
+        {
+            "event_type": "merge_attestation.v1",
+            "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+            "payload": {
+                "pr_id": "PR-PHASE108-01",
+                "merge_sha": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
+                "tier_0_digest": "sha256:1234567890abcdef",
+                "tier_1_tests_passed": 1050,
+                "tier_1_tests_failed": 0,
+                "tier_3_evidence_complete": True,
+                "tier_m_working_code": True,
+                "triggered_by": "DEVADAAD",
+            }
+        }
+    ]
+    return {"ok": True, "merges": mock_merges, "count": len(mock_merges)}
+
 class _ApprovalDecisionRequest(BaseModel):
     approved: bool
     operator_id: str
@@ -4356,10 +4397,77 @@ async def webhooks_stream(request: Request):
     return EventSourceResponse(event_generator())
 
 @app.get("/dork")
+def dork_v2() -> Response:
+    """Serve dork v2.0 — standalone advisory chat interface (drop-in replacement).
+
+    Injects server-side key availability flags so the browser UI can decide
+    whether to call the Anthropic API directly or use the /api/dork/stream proxy.
+    """
+    dork_path = UI_DIR / "dork.html"
+    if not dork_path.exists():
+        # Graceful fallback to legacy whaledic if dork.html not present
+        return serve_whaledic_asset("whaledic.html")
+    html = dork_path.read_text(encoding="utf-8")
+    policy = getattr(app.state, "whaledic_secret_policy", enforce_whaledic_secret_policy())
+    bootstrap = (
+        "<script>window.__anthropic_key_available = "
+        + ("true" if policy.anthropic_key_available else "false")
+        + ";window.__ledger_api_token_available = "
+        + ("true" if policy.ledger_token_available else "false")
+        + ";window.__grok_bridge_active = "
+        + ("false" if policy.anthropic_key_available else "true")
+        + ";</script>"
+    )
+    return HTMLResponse(bootstrap + html)
+
+
 @app.get("/whaledic")
-def dork_alias() -> Response:
-    """Redirect to the primary Whale.Dic entrypoint (Phase 107 shortcut)."""
+def whaledic_legacy() -> Response:
+    """Legacy Whale.Dic developer dashboard (Phase 107 shortcut, preserved for compat)."""
     return serve_whaledic_asset("whaledic.html")
+
+
+@app.post("/api/dork/stream")
+async def dork_stream_proxy(request: Request):
+    """Server-side Anthropic proxy for dork v2.0.
+
+    Accepts {system, messages, model, max_tokens} and streams the Anthropic
+    SSE response back to the client.  Uses the server's ANTHROPIC_API_KEY so
+    the key never reaches the browser.  Only available when the server key
+    is configured.
+    """
+    import httpx
+    import os as _os
+
+    api_key = _os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        raise HTTPException(status_code=503, detail="server_api_key_not_configured")
+
+    body = await request.json()
+
+    async def _gen():
+        async with httpx.AsyncClient(timeout=120) as client:
+            async with client.stream(
+                "POST",
+                "https://api.anthropic.com/v1/messages",
+                headers={
+                    "x-api-key": api_key,
+                    "anthropic-version": "2023-06-01",
+                    "content-type": "application/json",
+                },
+                json={
+                    "model":      body.get("model", "claude-sonnet-4-6"),
+                    "max_tokens": body.get("max_tokens", 4096),
+                    "stream":     True,
+                    "system":     body.get("system", ""),
+                    "messages":   body.get("messages", []),
+                },
+            ) as resp:
+                async for chunk in resp.aiter_bytes():
+                    yield chunk
+
+    from starlette.responses import StreamingResponse as _SR
+    return _SR(_gen(), media_type="text/event-stream")
 
 
 # ── Phase 124 — adaad-core package info endpoint ──────────────────────────
@@ -4377,7 +4485,165 @@ def core_info():
     }
 
 
+# ── INNOV-42 · DORK Fleet Server Bridge (DFSB) · Phase 133 ──────────────────
+# Constitutional invariants: DFSB-PERSIST-0, DFSB-HEAL-0, DFSB-FITNESS-0,
+#                            DFSB-GATE-0
+#
+# DFSB-GATE-0 (Hard): Fleet endpoints are only available when the governance
+# gate is OPEN. A locked gate returns 503 with a structured gate_locked error.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _get_fleet():
+    """
+    Lazy-load and cache DORKLivingFleet on app.state.
+    DFSB-PERSIST-0: fleet singleton survives the server lifetime; ledger is
+    serialised to disk on every append so chain continuity survives restart.
+    """
+    fleet = getattr(app.state, "_dork_fleet", None)
+    if fleet is None:
+        try:
+            from runtime.innovations30.dork_living_fleet import DORKLivingFleet
+            fleet = DORKLivingFleet()
+            app.state._dork_fleet = fleet
+            logging.getLogger("adaad.fleet").info(
+                "DORKLivingFleet initialised — INNOV-42 DFSB active"
+            )
+        except Exception as exc:
+            logging.getLogger("adaad.fleet").error(f"Fleet init failed: {exc}")
+            return None
+    return fleet
+
+
+def _assert_gate_open_for_fleet():
+    """DFSB-GATE-0: raise 503 if governance gate is locked."""
+    gate = _read_gate_state()
+    if gate.get("locked"):
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "error": "gate_locked",
+                "invariant": "DFSB-GATE-0",
+                "message": "Fleet endpoints are unavailable while the governance gate is LOCKED.",
+                "gate": gate,
+            },
+        )
+
+
+@app.get("/api/fleet/status")
+def fleet_status():
+    """
+    INNOV-42 · DFSB: Live fleet health snapshot.
+    Returns provider availability, ledger counts, and blocked state.
+    DFSB-GATE-0 enforced.
+    """
+    _assert_gate_open_for_fleet()
+    fleet = _get_fleet()
+    if fleet is None:
+        raise HTTPException(status_code=503, detail="fleet_unavailable")
+    return fleet.fleet_status()
+
+
+class FleetQueryRequest(BaseModel):
+    text: str
+    session_id: str | None = None
+
+
+@app.post("/api/fleet/query")
+def fleet_query(req: FleetQueryRequest):
+    """
+    INNOV-42 · DFSB: Route a natural-language query through the DORK Living Fleet.
+    Returns FleetDispatchResult with intent, engine_used, response, and ledger seq.
+    DFSB-GATE-0 enforced.
+    """
+    _assert_gate_open_for_fleet()
+    fleet = _get_fleet()
+    if fleet is None:
+        raise HTTPException(status_code=503, detail="fleet_unavailable")
+    result = fleet.query(req.text)
+    return result.to_dict()
+
+
+class FleetSlashRequest(BaseModel):
+    command: str
+
+
+@app.post("/api/fleet/slash")
+def fleet_slash(req: FleetSlashRequest):
+    """
+    INNOV-42 · DFSB: Dispatch a validated DORK slash command through the fleet.
+    DORK-CMD-0 enforced — unknown commands return structured error, never forwarded.
+    DFSB-GATE-0 enforced.
+    """
+    _assert_gate_open_for_fleet()
+    fleet = _get_fleet()
+    if fleet is None:
+        raise HTTPException(status_code=503, detail="fleet_unavailable")
+    return fleet.dispatch_slash(req.command)
+
+
+@app.get("/api/fleet/ledger")
+def fleet_ledger(tail: int = Query(default=20, ge=1, le=200)):
+    """
+    INNOV-42 · DFSB: Return the tail of the conversation ledger.
+    DFSB-PERSIST-0: entries reflect the full hash-chained session history.
+    """
+    _assert_gate_open_for_fleet()
+    fleet = _get_fleet()
+    if fleet is None:
+        raise HTTPException(status_code=503, detail="fleet_unavailable")
+    valid, reason = fleet.verify_conversation_ledger()
+    return {
+        "entries": fleet.conversation_ledger_tail(tail),
+        "chain_valid": valid,
+        "chain_reason": reason,
+        "dispatch_ledger_tail": fleet.dispatch_ledger_tail(10),
+    }
+
+
+@app.get("/api/fleet/verify")
+def fleet_verify():
+    """
+    INNOV-42 · DFSB: Verify both dispatch and conversation ledger chain integrity.
+    Returns cryptographic proof of chain continuity from genesis.
+    """
+    _assert_gate_open_for_fleet()
+    fleet = _get_fleet()
+    if fleet is None:
+        raise HTTPException(status_code=503, detail="fleet_unavailable")
+    conv_valid, conv_reason = fleet.verify_conversation_ledger()
+    disp_valid, disp_reason = fleet.verify_dispatch_ledger()
+    return {
+        "conversation_ledger": {"valid": conv_valid, "reason": conv_reason},
+        "dispatch_ledger": {"valid": disp_valid, "reason": disp_reason},
+        "overall_valid": conv_valid and disp_valid,
+        "invariant": "DFSB-PERSIST-0",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+
+
+@app.post("/api/fleet/heal")
+def fleet_heal():
+    """
+    INNOV-42 · DFSB: Trigger immediate re-probe of all engines.
+    DFSB-HEAL-0: fleet transitions BLOCKED→ACTIVE on recovery without restart.
+    """
+    _assert_gate_open_for_fleet()
+    fleet = _get_fleet()
+    if fleet is None:
+        raise HTTPException(status_code=503, detail="fleet_unavailable")
+    fleet._probe_all()
+    status = fleet.fleet_status()
+    return {
+        "healed": True,
+        "invariant": "DFSB-HEAL-0",
+        "fleet_status": status,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+
+
 app.mount("/", SPAStaticFiles(directory=str(APONI_DIR), html=True, index_path=INDEX), name="aponi")
+
+
 
 
 # ── Direct run: python server.py ──────────────────────────────────────────

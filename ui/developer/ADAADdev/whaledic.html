@@ -185,6 +185,12 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .dtext ul,.dtext ol{margin:4px 0 4px 14px}
 .dtext li{margin:2px 0;color:var(--text2)}
 .dtext strong{color:var(--text);font-weight:600}
+.trust-wrap{margin-top:6px}
+.trust-badge{font-family:var(--font-mono);font-size:8px;padding:2px 7px;border-radius:999px;border:1px solid var(--border2);background:var(--bg4);color:var(--text2);display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.trust-badge.high{color:var(--green);border-color:rgba(45,235,168,0.25);background:rgba(45,235,168,0.08)}
+.trust-badge.medium{color:var(--amber);border-color:rgba(245,200,66,0.28);background:rgba(245,200,66,0.08)}
+.trust-badge.low{color:var(--red);border-color:rgba(255,74,110,0.3);background:rgba(255,74,110,0.08)}
+.trust-details{margin-top:4px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg3);font-family:var(--font-mono);font-size:8px;color:var(--text3);line-height:1.5}
 .sha-f{font-family:var(--font-mono);font-size:9px;color:var(--whale);background:var(--whale-dim);padding:1px 4px;border-radius:3px}
 .epoch-f{font-family:var(--font-mono);font-size:9px;color:var(--amber);background:var(--amber-dim);padding:1px 4px;border-radius:3px}
 .gate-pass{color:var(--green);font-weight:700}
@@ -216,8 +222,40 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .warn-llm{color:var(--amber);background:var(--amber-dim);border:1px solid rgba(245,200,66,0.2)}
 .warn-oracle{color:rgba(255,229,127,0.85);background:rgba(255,229,127,0.06);border:1px solid rgba(255,229,127,0.25)}
 .ebus-wrap{padding:6px 12px;border-top:1px solid var(--border);flex-shrink:0}
-.ebus-lbl{font-family:var(--font-mono);font-size:8px;color:var(--text3);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:3px}
+.ebus-head{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:4px}
+.ebus-lbl{font-family:var(--font-mono);font-size:8px;color:var(--text3);letter-spacing:0.8px;text-transform:uppercase}
+.ebus-tog{font-family:var(--font-mono);font-size:8px;padding:1px 6px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);cursor:pointer}
+.ebus-chips{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:3px}
+.ebus-chip{font-family:var(--font-mono);font-size:8px;padding:1px 5px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);cursor:pointer}
+.ebus-chip.act{border-color:rgba(0,217,255,0.35);background:var(--whale-dim);color:var(--whale)}
 .ebus{font-family:var(--font-mono);font-size:9px;color:var(--text3);height:40px;overflow-y:auto;line-height:1.6}
+.ebus-row{display:flex;gap:6px;align-items:flex-start;padding:1px 0}
+.eb-ts{color:var(--text3);flex-shrink:0}
+.eb-src{color:var(--purple);flex-shrink:0}
+.eb-type{color:var(--whale);flex-shrink:0}
+.eb-msg{flex:1;min-width:0;word-break:break-word}
+.sev-info .eb-msg{color:var(--text2)}
+.sev-warn .eb-msg{color:var(--amber)}
+.sev-error .eb-msg{color:var(--red)}
+.sev-success .eb-msg{color:var(--green)}
+
+.dcap-wrap{margin:0 0 6px;display:flex;flex-direction:column;gap:4px;max-height:180px;overflow-y:auto;padding-right:2px}
+.dcap-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:6px 7px}
+.dcap-head{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:2px}
+.dcap-title{font-family:var(--font-ui);font-size:9px;font-weight:700;color:var(--text)}
+.dcap-conf{font-family:var(--font-mono);font-size:8px;color:var(--whale)}
+.dcap-sum{font-size:10px;color:var(--text2);line-height:1.45}
+.dcap-meta{font-family:var(--font-mono);font-size:8px;color:var(--text3);margin-top:3px}
+.causal-panel{margin:0 0 6px;padding:7px;border:1px solid var(--border);border-radius:8px;background:var(--bg2);display:none}
+.causal-head{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:5px}
+.causal-title{font-family:var(--font-ui);font-size:10px;font-weight:700;color:var(--whale)}
+.causal-epoch{font-family:var(--font-mono);font-size:8px;color:var(--text3)}
+.causal-rows{display:flex;flex-direction:column;gap:4px}
+.causal-row{display:grid;grid-template-columns:1fr auto auto;gap:6px;align-items:center;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 6px}
+.causal-name{font-size:10px;color:var(--text2)}
+.causal-prob{font-family:var(--font-mono);font-size:8px;color:var(--amber)}
+.causal-score{font-family:var(--font-mono);font-size:8px;color:var(--whale)}
+.causal-link{margin-top:6px;font-family:var(--font-mono);font-size:8px;color:var(--text3)}
 /* ── CONFIG MODAL ───────────────────────────────────────────────── */
 .cfg-wrap{position:fixed;inset:0;background:rgba(4,6,13,0.82);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;z-index:50}
 .cfg-box{width:min(440px,92vw);background:var(--bg2);border:1px solid var(--border2);border-radius:14px;overflow:hidden;box-shadow:0 24px 72px rgba(0,0,0,0.55)}
@@ -367,10 +405,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   <div class="dork-hdr">
     <div class="dork-hdr-top">
       <div>
-        <div class="dork-title">dork</div>
-        <div class="dork-sub">ADAADinside&#x2122; &middot; constitutional intelligence</div>
+        <div class="dork-title">dork <span style="font-size:9px;font-weight:400;color:var(--text3);font-family:var(--font-mono)">v2</span></div>
+        <div class="dork-sub">ADAADinside&#x2122; &middot; constitutional intelligence &middot; <span id="dork-intent-lbl" style="color:var(--purple);font-family:var(--font-mono);font-size:9px"></span></div>
       </div>
-      <button class="dork-prov-btn" id="prov-btn" onclick="openCfg()">&#9881; groq</button>
+      <div style="display:flex;gap:5px;align-items:center">
+        <button title="Export forensic bundle" style="font-size:9px;font-family:var(--font-mono);padding:3px 7px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg3);color:var(--text3);cursor:pointer" onclick="exportForensicBundle()">&#x1F4E6; export</button>
+        <button class="dork-prov-btn" id="prov-btn" onclick="openCfg()">&#9881; groq</button>
+      </div>
     </div>
   </div>
   <div class="dork-msgs" id="dork-msgs">
@@ -383,14 +424,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     </div>
   </div>
   <div class="dork-inp-wrap">
-    <div class="dchips" id="dork-chips">
-      <span class="chip" onclick="dorkPrompt('Governance gate status and tier?')">gate status</span>
-      <span class="chip" onclick="dorkPrompt('Replay score and divergence \u2014 is the system healthy?')">replay health</span>
-      <span class="chip" onclick="dorkPrompt('Agent triad \u2014 architect, dream, beast status?')">agent triad</span>
-      <span class="chip" onclick="dorkPrompt('Any release blockers or open findings?')">blockers</span>
-      <span class="chip" onclick="dorkPrompt('Strategic priority \u2014 what should I focus on right now?')">strategy</span>
-      <span class="chip oracle-chip" onclick="dorkBridgeOracle()">&#128302; oracle bridge</span>
-    </div>
+    <div class="dchips" id="dork-chips"></div>
+    <div class="dcap-wrap" id="dork-capability-cards"></div>
+    <div class="causal-panel" id="dork-causal-summary"></div>
+    <details class="causal-panel" id="dork-causal-detail">
+      <summary class="causal-title">causal graph details</summary>
+      <pre id="dork-causal-detail-body" style="margin-top:6px;white-space:pre-wrap;font-family:var(--font-mono);font-size:9px;color:var(--text2);line-height:1.55"></pre>
+    </details>
     <div class="warn-strip warn-tok" id="w-tok">&#9888; Token budget near limit &#x2014; context will be trimmed.</div>
     <div class="warn-strip warn-llm" id="w-llm">&#9889; No LLM key &#x2014; DorkEngine deterministic mode active.</div>
     <div class="warn-strip warn-oracle" id="w-oracle">&#128302; Oracle context loaded from state bus.</div>
@@ -399,7 +439,14 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       <button class="dsend" id="dsend" onclick="sendDork()"><svg viewBox="0 0 10 10" fill="none" stroke="black" stroke-width="2"><path d="M1 9L9 5 1 1v2.5L6 5l-5 1.5z"/></svg></button>
     </div>
   </div>
-  <div class="ebus-wrap"><div class="ebus-lbl">Event Bus</div><div class="ebus" id="ebus"></div></div>
+  <div class="ebus-wrap">
+    <div class="ebus-head">
+      <div class="ebus-lbl">Event Bus</div>
+      <button class="ebus-tog" id="ebus-expand" onclick="toggleBusExpand()">expand</button>
+    </div>
+    <div class="ebus-chips" id="ebus-chips"></div>
+    <div class="ebus" id="ebus"></div>
+  </div>
 </aside>
 </div>
 
@@ -421,6 +468,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
             <span class="cfg-badge b-local">LOCAL</span>
             <span class="cfg-prov-hint">localhost:11434 &middot; no key needed</span>
           </div>
+          <div class="cfg-prov" id="cp-claude" onclick="selProv('claude')">
+            <div class="cfg-prov-name">Claude (Anthropic)</div>
+            <span class="cfg-badge b-free">CLOUD</span>
+            <span class="cfg-prov-hint">claude-haiku &middot; governance-aware &middot; fastest</span>
+          </div>
           <div class="cfg-prov" id="cp-engine" onclick="selProv('dorkengine')">
             <div class="cfg-prov-name">DorkEngine</div>
             <span class="cfg-badge b-det">DETERMINISTIC</span>
@@ -432,6 +484,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
         <div class="cfg-lbl">Groq API Key</div>
         <input class="cfg-inp" id="inp-groq" type="password" placeholder="gsk_&hellip;" autocomplete="off"/>
         <div class="cfg-note">Free at <a href="https://console.groq.com" target="_blank">console.groq.com</a> &mdash; no credit card required.</div>
+      </div>
+      <div id="row-claude" style="display:none">
+        <div class="cfg-lbl">Anthropic API Key</div>
+        <input class="cfg-inp" id="inp-claude" type="password" placeholder="sk-ant-&hellip;" autocomplete="off"/>
+        <div class="cfg-note">Get your key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>. Uses claude-haiku for speed and governance alignment.</div>
       </div>
       <div id="row-ollama" style="display:none">
         <div class="cfg-lbl">Ollama Model</div>
@@ -450,9 +507,12 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   </div>
 </div>
 
+<script src="./dork_knowledge_base.js"></script>
+<script src="./dork_runtime.js"></script>
+<script src="./dork_capability_registry.js"></script>
 <script>
 // ── CONSTANTS ─────────────────────────────────────────────────────
-const ROUTES={governance:'/api/governance/status',mutations:'/api/mutations/recent?limit=20',replay:'/api/replay/score',epoch:'/api/epoch/current',agents:'/api/agents/health',ledger:'/api/ledger/entries?limit=50',whRecent:'/api/webhooks/recent?limit=20',whStream:'/api/webhooks/stream',readiness:'/api/release/readiness',ledgerLog:'/api/ledger/log'};
+const ROUTES={governance:'/api/governance/status',mutations:'/api/mutations/recent?limit=20',replay:'/api/replay/score',epoch:'/api/epoch/current',agents:'/api/agents/health',ledger:'/api/ledger/entries?limit=50',whRecent:'/api/webhooks/recent?limit=20',whStream:'/api/webhooks/stream',readiness:'/api/release/readiness',ledgerLog:'/api/ledger/log',dorkEventAppend:'/api/ledger/log/events',dorkEventStream:'/api/ledger/log/stream'};
 const DEBT=[{id:'DEBT-001',s:'CLOSED'},{id:'DEBT-002',s:'CLOSED'},{id:'DEBT-003',s:'CLOSED'},{id:'DEBT-004',s:'CLOSED'},{id:'DEBT-005',s:'CLOSED'},{id:'DEBT-006',s:'CLOSED'},{id:'DEBT-007',s:'CLOSED'},{id:'DEBT-008',s:'CLOSED'},{id:'DEBT-009',s:'CLOSED'},{id:'DEBT-010',s:'CLOSED'},{id:'DEBT-011',s:'CLOSED'}];
 const MOCK={
   governance:{ok:true,locked:false,constitution_version:'v0.9.0',mutation_enabled:true,replay_mode:'audit',tier:'NOMINAL',gate_checks:['constitution_version','key_rotation','ledger_integrity','mutation_engine','warm_pool','architect_invariants','platform_resources']},
@@ -464,17 +524,111 @@ const MOCK={
   webhooks:{ok:true,events:[{event:'github_webhook_push',repo:'InnovativeAI-adaad/adaad',ts:'22:48:01'},{event:'github_webhook_pull_request',repo:'InnovativeAI-adaad/adaad',ts:'22:44:17'},{event:'github_webhook_check_run',repo:'InnovativeAI-adaad/adaad',ts:'22:41:55'}],total:11},
   readiness:{ok:true,readiness_score:0.98,gate_ok:true,replay_score:1.0,blockers:[]}
 };
-const TOKEN_CAP=16000,TOKEN_WARN=12000,CONV_KEY='whaledic_v3_conv';
+const TOKEN_CAP=16000,TOKEN_WARN=12000,CONV_KEY='whaledic_v3_conv',EVENT_BUS_KEY='whaledic_event_bus_v1',EVENT_BUS_MAX=200,EVENT_BUS_COMPACT_N=6;
+const CAPABILITY_OPTIMIZER_KEY='whaledic_capability_optimizer_v1';
+const CAPABILITY_SUMMARY_INTERVAL=5;
 
 // ── STATE ────────────────────────────────────────────────────────
-let conv=[],totalTok=0,streaming=false,rs=null,missing=new Set(),reqTs=[],ledgerOff=0,whCount=0;
-let llmCfg={provider:'groq',groqKey:'',ollamaModel:'llama3.2'};
+let conv=[],totalTok=0,streaming=false,rs=null,prevRs=null,missing=new Set(),reqTs=[],ledgerOff=0,whCount=0;
+const capabilityCards=[];
+let capabilityOptimizer={schema:'1.0',updated_at_iso:'',totalInteractions:0,lastSummaryAt:0,latestSummary:null,byCapability:{}};
+let lastCapabilityTurn=null;
+let llmCfg={provider:'groq',groqKey:'',ollamaModel:'llama3.2',claudeKey:''};
 let selProvider='groq';
+let eventBus=[],eventBusFilter='all',eventBusExpanded=false,eventBusSeq=0;
+let dorkSeedAutoStarted=false;
+let dorkAutoLoaded=false;
 
 // ── ADAAD STATE BUS (Phase 101 L1) ───────────────────────────────
 window.ADAAD_STATE_BUS=null;
+const ADAAD_STATE_BUS_CHANNEL='adaad_state_bus';
+const ADAAD_STATE_BUS_SNAPSHOT_KEY='adaad_state_bus_snapshot_v2';
+const ADAAD_STATE_BUS_SCHEMA_VERSION='2.0.0';
+const ADAAD_STATE_SESSION_ENDPOINT='/api/session/context';
+let stateBusChannel=null;
+try{if(typeof BroadcastChannel!=='undefined')stateBusChannel=new BroadcastChannel(ADAAD_STATE_BUS_CHANNEL);}catch(_){}
+function majorOf(ver){return String(ver||'0').split('.')[0];}
+function normalizeWarnings(raw){if(!Array.isArray(raw))return[];return raw.map(v=>v==null?'':String(v).trim()).filter(Boolean).slice(0,16);}
+function migrateStateBusSnapshot(raw){
+  if(!raw||typeof raw!=='object')return null;
+  const incomingSchema=String(raw.schema_version||'1.0.0');
+  if(majorOf(incomingSchema)!==majorOf(ADAAD_STATE_BUS_SCHEMA_VERSION))return null;
+  const src=raw.context&&typeof raw.context==='object'?raw.context:raw;
+  return {
+    schema_version:ADAAD_STATE_BUS_SCHEMA_VERSION,
+    captured_at_iso:src.captured_at_iso||new Date().toISOString(),
+    oracle_last_query:src.oracle_last_query||'',
+    oracle_last_query_type:src.oracle_last_query_type||'generic',
+    oracle_last_answer_summary:src.oracle_last_answer_summary||'',
+    oracle_last_at_iso:src.oracle_last_at_iso||'',
+    epoch_replay:{
+      epoch:(src.epoch_replay&&src.epoch_replay.epoch)||'',
+      replay_score:(src.epoch_replay&&src.epoch_replay.replay_score)??null,
+    },
+    provider_status:{
+      selected_provider:(src.provider_status&&src.provider_status.selected_provider)||'unknown',
+      health:(src.provider_status&&src.provider_status.health)||'unknown',
+    },
+    dork_last_fingerprint:{
+      prompt_sha1:(src.dork_last_fingerprint&&src.dork_last_fingerprint.prompt_sha1)||'',
+      result_sha1:(src.dork_last_fingerprint&&src.dork_last_fingerprint.result_sha1)||'',
+      issued_at_iso:(src.dork_last_fingerprint&&src.dork_last_fingerprint.issued_at_iso)||'',
+    },
+    governance_warnings:normalizeWarnings(src.governance_warnings),
+    dork_last:src.dork_last||null,
+  };
+}
+function applyStateBusPatch(patch,meta={}){
+  if(!patch||typeof patch!=='object')return;
+  const merged={...(window.ADAAD_STATE_BUS||{}), ...patch};
+  const next=migrateStateBusSnapshot({context:merged});
+  if(!next)return;
+  window.ADAAD_STATE_BUS=Object.freeze(next);
+  try{localStorage.setItem(ADAAD_STATE_BUS_SNAPSHOT_KEY,JSON.stringify(window.ADAAD_STATE_BUS));}catch(_){}
+  if(meta.persistRemote!==false){
+    fetch(ADAAD_STATE_SESSION_ENDPOINT,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({schema_version:ADAAD_STATE_BUS_SCHEMA_VERSION,context:window.ADAAD_STATE_BUS})
+    }).catch(()=>{});
+  }
+  if(meta.emitBus!==false)bus('state_bus_apply',meta.source||'unknown');
+}
 function updateBus(patch){
-  window.ADAAD_STATE_BUS=Object.freeze({...(window.ADAAD_STATE_BUS||{}), ...patch, captured_at_iso:new Date().toISOString(), schema_version:'1.0.0'});
+  const fullPatch={...patch,captured_at_iso:new Date().toISOString(),schema_version:ADAAD_STATE_BUS_SCHEMA_VERSION};
+  applyStateBusPatch(fullPatch,{source:'local_update',emitBus:false});
+}
+function hydrateStateBusFromSnapshot(){
+  try{
+    const snap=localStorage.getItem(ADAAD_STATE_BUS_SNAPSHOT_KEY);
+    if(!snap)return;
+    const parsed=JSON.parse(snap);
+    const migrated=migrateStateBusSnapshot(parsed);
+    if(migrated){
+      applyStateBusPatch(migrated,{source:'snapshot',persistRemote:false});
+      bus('state_bus_recv','snapshot_hydrate');
+    }
+  }catch(_){}
+}
+async function hydrateStateBusFromBackendSession(){
+  try{
+    const resp=await fetch(ADAAD_STATE_SESSION_ENDPOINT,{headers:{'Accept':'application/json'}});
+    if(!resp.ok)return;
+    const payload=await resp.json();
+    const migrated=migrateStateBusSnapshot(payload);
+    if(!migrated)return;
+    applyStateBusPatch(migrated,{source:'backend_session',persistRemote:false});
+    bus('state_bus_recv','backend_session');
+  }catch(_){}
+}
+function subscribeStateBusChannel(){
+  if(!stateBusChannel)return;
+  stateBusChannel.onmessage=(event)=>{
+    const payload=event&&event.data;
+    if(!payload||payload.type!=='state_bus_patch'||!payload.patch)return;
+    bus('state_bus_recv','broadcast_channel');
+    applyStateBusPatch(payload.patch,{source:(payload.source||'channel')});
+  };
 }
 
 // ── COMMANDS ────────────────────────────────────────────────────
@@ -492,13 +646,279 @@ const CMDS=[
 
 // ── UTILS ────────────────────────────────────────────────────────
 function esc(v){return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
-function bus(t,d){const e=document.getElementById('ebus');e.textContent=('['+new Date().toISOString().slice(11,19)+'] '+t+'::'+d+'\n'+e.textContent).slice(0,2000)}
+function normSev(s){
+  if(['info','warn','error','success'].includes(s))return s;
+  if(/err|fail|miss|closed|unavail/i.test(String(s||'')))return'error';
+  if(/warn|rate|mock/i.test(String(s||'')))return'warn';
+  if(/ok|saved|connected|refresh|export/i.test(String(s||'')))return'success';
+  return'info';
+}
+function detectFilterTag(ev){
+  const src=(ev.source||'').toLowerCase();
+  const typ=(ev.type||'').toLowerCase();
+  const msg=(ev.message||'').toLowerCase();
+  if(src.includes('provider')||typ.includes('dork')||typ.includes('cfg')||msg.includes('groq')||msg.includes('ollama')||msg.includes('engine'))return'provider';
+  if(src.includes('oracle')||typ.includes('oracle')||msg.includes('oracle'))return'oracle';
+  if(src.includes('replay')||typ.includes('replay')||msg.includes('replay')||msg.includes('diverg'))return'replay';
+  return null;
+}
+function persistEventBus(){
+  try{localStorage.setItem(EVENT_BUS_KEY,JSON.stringify({schema:'1.0',events:eventBus.slice(-EVENT_BUS_MAX)}));}catch(_){}
+}
+function restoreEventBus(){
+  try{
+    const raw=localStorage.getItem(EVENT_BUS_KEY);
+    if(!raw)return;
+    const parsed=JSON.parse(raw);
+    const evs=Array.isArray(parsed&&parsed.events)?parsed.events:[];
+    eventBus=evs.slice(-EVENT_BUS_MAX).map(ev=>({
+      ts:ev.ts||new Date().toISOString(),
+      source:ev.source||'system',
+      type:ev.type||'event',
+      severity:normSev(ev.severity),
+      message:String(ev.message||''),
+      meta:ev.meta&&typeof ev.meta==='object'?ev.meta:{},
+      local_seq:Number(ev.local_seq||0),
+      transient:!!ev.transient
+    }));
+    eventBusSeq=eventBus.reduce((mx,ev)=>Math.max(mx,Number(ev.local_seq||0)),0);
+  }catch(_){}
+}
+function dedupeKey(ev){
+  const meta=(ev&&ev.meta&&typeof ev.meta==='object')?ev.meta:{};
+  return [String(meta.correlation_id||''),String(ev.type||''),String(ev.source||'')].join('|');
+}
+function eventSortKey(ev){
+  const meta=(ev&&ev.meta&&typeof ev.meta==='object')?ev.meta:{};
+  const seq=Number(meta.seq||0);
+  if(Number.isFinite(seq)&&seq>0)return seq*1000000;
+  const t=Date.parse(String(ev.ts||''))||0;
+  return t*1000+Number(ev.local_seq||0);
+}
+function upsertBusEvent(ev){
+  const key=dedupeKey(ev);
+  if(key!=='||'){
+    const idx=eventBus.findIndex(x=>dedupeKey(x)===key);
+    if(idx>=0){eventBus[idx]={...eventBus[idx],...ev,transient:false};return;}
+  }
+  eventBus.push(ev);
+  if(eventBus.length>EVENT_BUS_MAX){
+    eventBus.sort((a,b)=>eventSortKey(b)-eventSortKey(a));
+    eventBus=eventBus.slice(0,EVENT_BUS_MAX);
+  }
+}
+function eventVisible(ev){
+  if(eventBusFilter==='all')return true;
+  if(eventBusFilter==='errors')return ev.severity==='error';
+  return detectFilterTag(ev)===eventBusFilter;
+}
+function renderEventBus(){
+  const host=document.getElementById('ebus');
+  const chips=document.getElementById('ebus-chips');
+  const tog=document.getElementById('ebus-expand');
+  if(!host||!chips||!tog)return;
+  const defs=[
+    {id:'all',label:'all'},
+    {id:'errors',label:'errors'},
+    {id:'provider',label:'provider'},
+    {id:'oracle',label:'oracle'},
+    {id:'replay',label:'replay'}
+  ];
+  chips.innerHTML=defs.map(f=>'<button class="ebus-chip '+(eventBusFilter===f.id?'act':'')+'" onclick="setBusFilter(\''+f.id+'\')">'+f.label+'</button>').join('');
+  tog.textContent=eventBusExpanded?'collapse':'expand';
+  const visible=eventBus.slice().sort((a,b)=>eventSortKey(b)-eventSortKey(a)).filter(eventVisible);
+  const rows=(eventBusExpanded?visible:visible.slice(0,EVENT_BUS_COMPACT_N))
+    .map(ev=>{
+      const meta=(ev.meta&&Object.keys(ev.meta).length)?' · '+esc(JSON.stringify(ev.meta)):'';
+      return'<div class="ebus-row sev-'+esc(ev.severity)+'"><span class="eb-ts">['+esc(String(ev.ts).slice(11,19))+']</span><span class="eb-src">'+esc(ev.source)+'</span><span class="eb-type">'+esc(ev.type)+'</span><span class="eb-msg">'+esc(ev.message)+meta+'</span></div>';
+    }).join('');
+  host.innerHTML=rows||'<div class="ebus-row"><span class="eb-msg">No events yet.</span></div>';
+}
+function setBusFilter(v){eventBusFilter=v;renderEventBus();}
+function toggleBusExpand(){eventBusExpanded=!eventBusExpanded;renderEventBus();}
+function bus(type,message,meta={},source='ui',severity='info'){
+  eventBusSeq+=1;
+  const m=(meta&&typeof meta==='object')?{...meta}:{};
+  if(!m.correlation_id)m.correlation_id='local-'+String(eventBusSeq);
+  const ev={ts:new Date().toISOString(),source,type,severity:normSev(severity||type),message:String(message||''),meta:m,local_seq:eventBusSeq,transient:true};
+  upsertBusEvent(ev);
+  persistEventBus();
+  renderEventBus();
+}
 function rateGated(){const n=Date.now();reqTs=reqTs.filter(t=>n-t<60000);return reqTs.length>=25}
 function estTok(s){return Math.ceil(String(s).length/4)}
+function ageMs(iso){const t=Date.parse(String(iso||''));if(!Number.isFinite(t))return null;return Date.now()-t;}
+function fmtAge(ms){if(ms==null||ms<0)return'unknown';if(ms<60000)return Math.round(ms/1000)+'s';if(ms<3600000)return Math.round(ms/60000)+'m';return Math.round(ms/3600000)+'h';}
+function scoreBand(v){if(v>=0.85)return'high';if(v>=0.6)return'medium';return'low';}
+async function emitStructuredDorkEvent(meta){
+  const payload={
+    source:'ui.whaledic',
+    event_type:'dork_answer_generated',
+    severity:(meta&&meta.trust_score||0)>=0.8?'success':'warn',
+    payload:{trust_metadata:meta||{}},
+    correlation_id:'dork-'+Date.now()+'-'+Math.floor(Math.random()*10000),
+    epoch_id:String((rs&&rs.epoch&&rs.epoch.epoch)||''),
+    ts:new Date().toISOString(),
+  };
+  try{await fetch(ROUTES.dorkEventAppend,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});}catch(_){}
+}
+function fingerprint(text){
+  let h=2166136261;
+  const s=String(text||'');
+  for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}
+  return 'fnv1a:'+((h>>>0).toString(16).padStart(8,'0'));
+}
+function sanitizeCapabilityOptimizer(raw){
+  const base={schema:'1.0',updated_at_iso:'',totalInteractions:0,lastSummaryAt:0,latestSummary:null,byCapability:{}};
+  if(!raw||typeof raw!=='object')return base;
+  if(String(raw.schema||'1.0')!=='1.0')return base;
+  const byCapability={};
+  const src=(raw.byCapability&&typeof raw.byCapability==='object')?raw.byCapability:{};
+  Object.keys(src).sort().forEach((capId)=>{
+    const item=src[capId];
+    if(!item||typeof item!=='object')return;
+    const interactions=Math.max(0,Number(item.interactions)||0);
+    const followThrough=Math.max(0,Number(item.followThrough)||0);
+    const reQuery=Math.max(0,Number(item.reQuery)||0);
+    const correction=Math.max(0,Number(item.correction)||0);
+    byCapability[capId]={
+      interactions,
+      followThrough:Math.min(followThrough,interactions),
+      reQuery:Math.min(reQuery,interactions),
+      correction:Math.min(correction,interactions),
+      utility:Number(item.utility)||0.5,
+      last_seen_iso:String(item.last_seen_iso||''),
+      last_query:String(item.last_query||''),
+    };
+  });
+  return {
+    schema:'1.0',
+    updated_at_iso:String(raw.updated_at_iso||''),
+    totalInteractions:Math.max(0,Number(raw.totalInteractions)||0),
+    lastSummaryAt:Math.max(0,Number(raw.lastSummaryAt)||0),
+    latestSummary:(raw.latestSummary&&typeof raw.latestSummary==='object')?raw.latestSummary:null,
+    byCapability,
+  };
+}
+function restoreCapabilityOptimizer(){
+  try{
+    const raw=localStorage.getItem(CAPABILITY_OPTIMIZER_KEY);
+    if(!raw)return;
+    capabilityOptimizer=sanitizeCapabilityOptimizer(JSON.parse(raw));
+  }catch(_){}
+}
+function persistCapabilityOptimizer(){
+  capabilityOptimizer.updated_at_iso=new Date().toISOString();
+  try{localStorage.setItem(CAPABILITY_OPTIMIZER_KEY,JSON.stringify(capabilityOptimizer));}catch(_){}
+}
+function correctionSignalFromQuery(query){
+  return /\b(incorrect|wrong|actually|correction|fix|not what i asked|not right)\b/i.test(String(query||''));
+}
+function followThroughSignalFromQuery(query,card){
+  if(!card||!Array.isArray(card.next_actions))return false;
+  const q=String(query||'').toLowerCase();
+  const tokens=card.next_actions.join(' ').toLowerCase().split(/[^a-z0-9]+/).filter((t)=>t.length>=5).slice(0,12);
+  return tokens.some((token)=>q.includes(token));
+}
+function computeCapabilityUtility(stat){
+  const n=Math.max(1,Number(stat.interactions)||1);
+  const followRate=(Number(stat.followThrough)||0)/n;
+  const reQueryRate=(Number(stat.reQuery)||0)/n;
+  const correctionRate=(Number(stat.correction)||0)/n;
+  const raw=(0.55*followRate)+(0.30*(1-reQueryRate))+(0.15*(1-correctionRate));
+  const confidence=Math.min(1,n/8);
+  return Number(((raw*confidence)+(0.5*(1-confidence))).toFixed(4));
+}
+function updateCapabilitySignals({capabilityId,query,isReQuery,isCorrection,isFollowThrough,card}){
+  if(!capabilityId)return;
+  const nowIso=new Date().toISOString();
+  const prev=capabilityOptimizer.byCapability[capabilityId]||{
+    interactions:0,followThrough:0,reQuery:0,correction:0,utility:0.5,last_seen_iso:'',last_query:''
+  };
+  const next={
+    interactions:prev.interactions+1,
+    followThrough:prev.followThrough+(isFollowThrough?1:0),
+    reQuery:prev.reQuery+(isReQuery?1:0),
+    correction:prev.correction+(isCorrection?1:0),
+    utility:0.5,
+    last_seen_iso:nowIso,
+    last_query:String(query||'').slice(0,160),
+  };
+  next.utility=computeCapabilityUtility(next);
+  capabilityOptimizer.byCapability[capabilityId]=next;
+  capabilityOptimizer.totalInteractions=Math.max(
+    capabilityOptimizer.totalInteractions+1,
+    Object.values(capabilityOptimizer.byCapability).reduce((acc,item)=>acc+Math.max(0,Number(item.interactions)||0),0)
+  );
+  lastCapabilityTurn={capability_id:capabilityId,ts_iso:nowIso,query:String(query||''),card:card||null};
+  persistCapabilityOptimizer();
+}
+function buildCapabilitySummary(){
+  const rows=Object.entries(capabilityOptimizer.byCapability).map(([capability_id,item])=>({
+    capability_id,
+    interactions:Number(item.interactions)||0,
+    follow_through_rate:Number(item.interactions)?Number((item.followThrough/item.interactions).toFixed(3)):0,
+    re_query_rate:Number(item.interactions)?Number((item.reQuery/item.interactions).toFixed(3)):0,
+    correction_rate:Number(item.interactions)?Number((item.correction/item.interactions).toFixed(3)):0,
+    utility:Number(item.utility)||0.5,
+    last_seen_iso:item.last_seen_iso||'',
+  })).sort((a,b)=>((b.utility-a.utility)||a.capability_id.localeCompare(b.capability_id)));
+  return {
+    generated_at_iso:new Date().toISOString(),
+    total_interactions:capabilityOptimizer.totalInteractions,
+    rows,
+  };
+}
+function publishCapabilitySummary(summary){
+  capabilityOptimizer.latestSummary=summary;
+  capabilityOptimizer.lastSummaryAt=capabilityOptimizer.totalInteractions;
+  persistCapabilityOptimizer();
+  updateBus({capability_performance_summary:summary});
+  bus('capability_summary','periodic capability summary ready',{rows:summary.rows.length,total_interactions:summary.total_interactions},'governance','info');
+}
+function maybePublishCapabilitySummary(){
+  if(capabilityOptimizer.totalInteractions<=0)return;
+  const due=(capabilityOptimizer.totalInteractions-capabilityOptimizer.lastSummaryAt)>=CAPABILITY_SUMMARY_INTERVAL;
+  if(!due)return;
+  publishCapabilitySummary(buildCapabilitySummary());
+}
+function capabilityPriorityContext(capabilityId){
+  if(capabilityId==='governance_summary'&&rs&&rs.gov&&rs.gov.locked)return 3;
+  if(capabilityId==='replay_health'&&rs&&rs.rep&&Number(rs.rep.divergence||0)>0)return 2;
+  if(capabilityId==='release_readiness_audit'&&rs&&rs.ready&&Array.isArray(rs.ready.blockers)&&rs.ready.blockers.length)return 1;
+  return 0;
+}
+function capabilityUtilityOf(capabilityId){
+  const stat=capabilityOptimizer.byCapability[capabilityId];
+  return stat?Number(stat.utility||0.5):0.5;
+}
+function orderedCapabilitiesForContext(registryList){
+  const src=Array.isArray(registryList)?registryList:[];
+  return src.slice().sort((a,b)=>{
+    const pDiff=capabilityPriorityContext(b.id)-capabilityPriorityContext(a.id);
+    if(pDiff!==0)return pDiff;
+    const uDiff=capabilityUtilityOf(b.id)-capabilityUtilityOf(a.id);
+    if(Math.abs(uDiff)>1e-9)return uDiff;
+    return String(a.id).localeCompare(String(b.id));
+  });
+}
 function showView(n){document.querySelectorAll('[id^="v-"]').forEach(v=>v.style.display='none');const e=document.getElementById('v-'+n);if(e)e.style.display='';document.querySelectorAll('.sb-item[data-v]').forEach(s=>s.classList.remove('act'));const s=document.querySelector('.sb-item[data-v="'+n+'"]');if(s)s.classList.add('act')}
 document.querySelectorAll('.sb-item[data-v]').forEach(el=>el.addEventListener('click',()=>showView(el.dataset.v)));
-async function apiFetch(url,fb=null){if(missing.has(url))return fb;try{const r=await fetch(url,{headers:{'Accept':'application/json'}});if(!r.ok){missing.add(url);bus('miss',url);return fb;}return r.json();}catch(e){missing.add(url);bus('err',url+'::'+e.message);return fb;}}
-async function safe(mk,rk){const u=ROUTES[rk];const d=await apiFetch(u,null);if(!d){bus('mock',u);return MOCK[mk];}return d;}
+async function apiFetch(url,fb=null){
+  if(missing.has(url))return fb;
+  try{
+    const r=await fetch(url,{headers:{'Accept':'application/json'}});
+    if(!r.ok){missing.add(url);bus('miss',url,{status:r.status},'provider','warn');return fb;}
+    return r.json();
+  }catch(e){
+    missing.add(url);bus('err',url+'::'+e.message,{},'provider','error');return fb;
+  }
+}
+async function safe(mk,rk){
+  const u=ROUTES[rk];const d=await apiFetch(u,null);
+  if(!d){bus('mock',u,{route:rk},rk==='replay'?'replay':'provider','warn');return MOCK[mk];}
+  return d;
+}
 
 // ── MARKDOWN RENDERER (Phase 101 fmtMd) ──────────────────────────
 function fmtMd(m){
@@ -533,7 +953,9 @@ function buildSP(){
   const mutsStr=(m&&m.mutations?m.mutations.slice(-3):[]).map(x=>'[epoch-'+(x.epoch||'?')+'] '+x.agent+': '+x.action+' '+x.sha).join('\n')||'none';
   const oracleCtx=sb.oracle_last_query?('\nORACLE LAST QUERY: "'+sb.oracle_last_query+'" (type: '+(sb.oracle_last_query_type||'generic')+')\nORACLE SUMMARY: '+(sb.oracle_last_answer_summary||'see Oracle panel')):'';
   const locked=g&&g.locked;
-  return 'You are dork, the ADAADinside\u2122 constitutional intelligence assistant for ADAAD v9.34.0 Phase 101.\nYou operate under ADAAD\u2019s V8 constitutional governance framework. You are read-only \u2014 observe and advise, never modify state.\nGround every answer in the live runtime state below. Be direct, precise, developer-oriented.\n\n## CONSTITUTIONAL GOVERNANCE CONTEXT\nGATE: '+(locked?'\ud83d\udd34 LOCKED':'\ud83d\udfe2 PASS')+' \u00b7 Tier: '+(g&&g.tier||'\u2014')+' \u00b7 Constitution: '+(g&&g.constitution_version||'\u2014')+'\nEPOCH: '+(ep&&ep.epoch||'\u2014')+' \u00b7 Phase: '+(ep&&ep.phase||'\u2014')+' \u00b7 Mutations: '+(g&&g.mutation_enabled?'enabled':'disabled')+'\nREPLAY: Score '+(r&&r.score!=null?Number(r.score).toFixed(3):'\u2014')+' \u00b7 Divergence '+(r&&r.divergence!=null?r.divergence:'\u2014')+' \u00b7 Mode '+(r&&r.mode||'\u2014')+'\nREADINESS: '+(rd&&rd.readiness_score!=null?Math.round(rd.readiness_score*100)+'%':'\u2014')+' \u00b7 Blockers: '+((rd&&rd.blockers&&rd.blockers.length)?rd.blockers.join(', '):'none')+'\n\n## AGENT TRIAD\n'+agStr+'\n\n## RECENT MUTATIONS (last 3)\n'+mutsStr+'\n\n## ORACLE BRIDGE'+(oracleCtx||'\nNo Oracle query in current session.')+'\n\n## CONSTRAINTS\n'+(locked?'\u26a0 GATE IS LOCKED \u2014 prepend this warning to every response.\n':'')+'Do not recommend bypassing constitutional gates or HUMAN-0 requirements.\nReference specific epoch IDs, SHA fragments, or phase numbers when citing state.';
+  const kbHit=(window.DORK_KB&&typeof lastQuery!=='undefined')?window.DORK_KB.lookup(String(lastQuery||'').slice(0,80)):null;
+  const kbCtx=kbHit?'\n\n## KB CONTEXT\n'+kbHit.answer:'';
+  return 'You are DORK v2 (Dynamic Operative Resource Knowledge), the ADAADinside\u2122 constitutional intelligence assistant for ADAAD v9.58.0 Phase 125.\nYou operate under ADAAD\u2019s constitutional governance framework. You are read-only \u2014 observe and advise, never modify state or authorise HUMAN-0 signing via chat.\nYou have access to 8+ capability cards and a 50+ entry knowledge base. Ground every answer in live runtime state. Be direct, precise, developer-oriented.\nFor governance questions, cite the relevant invariant class or gate status. Never suggest bypassing HUMAN-0 cryptographic authority.\n\n## CONSTITUTIONAL GOVERNANCE CONTEXT\nGATE: '+(locked?'\ud83d\udd34 LOCKED':'\ud83d\udfe2 PASS')+' \u00b7 Tier: '+(g&&g.tier||'\u2014')+' \u00b7 Constitution: '+(g&&g.constitution_version||'\u2014')+'\nEPOCH: '+(ep&&ep.epoch||'\u2014')+' \u00b7 Phase: '+(ep&&ep.phase||'\u2014')+' \u00b7 Mutations: '+(g&&g.mutation_enabled?'enabled':'disabled')+'\nREPLAY: Score '+(r&&r.score!=null?Number(r.score).toFixed(3):'\u2014')+' \u00b7 Divergence '+(r&&r.divergence!=null?r.divergence:'\u2014')+' \u00b7 Mode '+(r&&r.mode||'\u2014')+'\nREADINESS: '+(rd&&rd.readiness_score!=null?Math.round(rd.readiness_score*100)+'%':'\u2014')+' \u00b7 Blockers: '+((rd&&rd.blockers&&rd.blockers.length)?rd.blockers.join(', '):'none')+'\n\n## AGENT TRIAD\n'+agStr+'\n\n## RECENT MUTATIONS (last 3)\n'+mutsStr+'\n\n## ORACLE BRIDGE'+(oracleCtx||'\nNo Oracle query in current session.')+kbCtx+'\n\n## CONSTRAINTS\n'+(locked?'\u26a0 GATE IS LOCKED \u2014 prepend this warning to every response.\n':'')+'Do not recommend bypassing constitutional gates or HUMAN-0 cryptographic requirements.\nReference epoch IDs, SHA fragments, or phase numbers when citing state.\nAlways note when data is absent from the state bus snapshot and suggest the authoritative endpoint.';
 }
 
 // ── DORKENGINE: Deterministic Constitutional Intelligence ────────
@@ -615,6 +1037,28 @@ const DE={
   }
 };
 
+async function callClaude(msgs,sys,onChunk){
+  const key=llmCfg.claudeKey;
+  if(!key)throw new Error('No Claude key');
+  const resp=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
+    body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1024,stream:true,system:sys,messages:msgs})
+  });
+  if(!resp.ok){const e=await resp.json().catch(()=>({}));throw new Error((e.error&&e.error.message)||'Claude '+resp.status);}
+  const reader=resp.body.getReader();const dec=new TextDecoder();let buf='';
+  while(true){
+    const {done,value}=await reader.read();if(done)break;
+    buf+=dec.decode(value,{stream:true});
+    const lines=buf.split('\n');buf=lines.pop();
+    for(const line of lines){
+      if(!line.startsWith('data: '))continue;
+      const d=line.slice(6).trim();if(!d||d==='[DONE]')continue;
+      try{const j=JSON.parse(d);if(j.type==='content_block_delta'&&j.delta&&j.delta.text)onChunk(j.delta.text);}catch(_){}
+    }
+  }
+}
+
 // ── LLM PROVIDERS ────────────────────────────────────────────────
 async function callGroq(msgs,sys,onChunk){
   if(!llmCfg.groqKey)throw new Error('No Groq key');
@@ -664,15 +1108,104 @@ async function callDorkEngine(msgs,onChunk){
   }
 }
 
-// ── SEND DORK (Phase 101 streaming) ───────────────────────────────
+function buildTrustMetadata({providerUsed,requestedProvider,fallbackUsed,errorMessage=''}) {
+  const capturedAt=(rs&&rs.captured_at_iso)||new Date().toISOString();
+  const snapshotAgeMs=ageMs(capturedAt);
+  const stale=snapshotAgeMs!=null&&snapshotAgeMs>5*60*1000;
+  const sources=[
+    '/api/governance/status',
+    '/api/replay/score',
+    '/api/epoch/current',
+    '/api/release/readiness'
+  ];
+  const uncertainty=[];
+  const downgradeReasons=[];
+  let confidence=0.86;
+  if(providerUsed==='engine'){confidence=Math.min(confidence,0.72);uncertainty.push('heuristic_generation');}
+  if(fallbackUsed){confidence=Math.min(confidence,0.67);downgradeReasons.push('provider_fallback_used');}
+  if(stale){confidence=Math.min(confidence,0.58);downgradeReasons.push('stale_runtime_snapshot');uncertainty.push('snapshot_age_'+fmtAge(snapshotAgeMs));}
+  if(errorMessage){confidence=Math.min(confidence,0.55);downgradeReasons.push('provider_error');uncertainty.push('provider_error_'+String(errorMessage).slice(0,48));}
+  const mode=providerUsed==='engine'?'heuristic':(providerUsed===requestedProvider?'retrieval':'heuristic');
+  const trustScore=Math.max(0,Math.min(1,confidence));
+  return {
+    data_sources_used:sources,
+    snapshot_timestamp:capturedAt,
+    snapshot_freshness:stale?'stale':'fresh',
+    mode,
+    confidence:trustScore,
+    uncertainty_reasons:uncertainty,
+    trust_score:trustScore,
+    downgrade_reasons:downgradeReasons
+  };
+}
+
+function renderTrustBadge(metadata){
+  if(!metadata||typeof metadata!=='object')return '';
+  const score=Math.max(0,Math.min(1,Number(metadata.trust_score||0)));
+  const band=scoreBand(score);
+  const details=[
+    'sources: '+((metadata.data_sources_used||[]).join(', ')||'none'),
+    'snapshot: '+(metadata.snapshot_timestamp||'unknown')+' ('+(metadata.snapshot_freshness||'unknown')+')',
+    'mode: '+(metadata.mode||'unknown'),
+    'confidence: '+Math.round(Number(metadata.confidence||0)*100)+'%',
+    'uncertainty: '+((metadata.uncertainty_reasons||[]).join(', ')||'none'),
+    'downgrades: '+((metadata.downgrade_reasons||[]).join(', ')||'none')
+  ];
+  return '<div class="trust-wrap"><details><summary class="trust-badge '+band+'">trust '+Math.round(score*100)+'%</summary><div class="trust-details">'+esc(details.join(' | '))+'</div></details></div>';
+}
+
+// ── SEND DORK v2 ─────────────────────────────────────────────────
+let lastQuery='';
+function exportForensicBundle(){
+  try{
+    const bundle={schema:'dork_forensic_bundle_v1',captured_at:new Date().toISOString(),session_fingerprint:(window.ADAADDorkRuntime&&window.ADAADDorkRuntime.sessionFingerprint)||'unknown',turn_count:conv.length,state_bus_snapshot:window.ADAAD_STATE_BUS||{},conversation_digest:conv.map(t=>({role:t.role,length:String(t.content||'').length}))};
+    const blob=new Blob([JSON.stringify(bundle,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download='dork_forensic_'+Date.now()+'.json';a.click();
+    URL.revokeObjectURL(url);
+    bus('forensic','bundle exported',{turns:conv.length},'audit','success');
+  }catch(e){bus('forensic_err',e.message,{},'audit','error');}
+}
 async function sendDork(){
   const inp=document.getElementById('dinp');
   const msg=inp.value.trim();
   if(!msg||streaming)return;
-  if(rateGated()){bus('rate_gate','25/min max');return;}
+  if(rateGated()){bus('rate_gate','25/min max',{},'provider','warn');return;}
+  lastQuery=msg;
+  // Intent classification
+  const intentLbl=document.getElementById('dork-intent-lbl');
+  if(intentLbl&&window.ADAADDorkRuntime&&window.ADAADDorkRuntime.classifyIntent){
+    intentLbl.textContent=window.ADAADDorkRuntime.classifyIntent(msg);
+  }
+  // KB enrichment inline hint
+  if(window.DORK_KB){
+    const kbHit=window.DORK_KB.lookup(msg);
+    if(kbHit&&kbHit.match!=='weak'){
+      bus('kb_hit',kbHit.key,{confidence:kbHit.confidence,match:kbHit.match},'kb','success');
+    }
+  }
   inp.value='';inp.style.height='auto';
   conv.push({role:'user',content:msg});
   addMsg('user',msg);
+  const reg=window.DORK_CAPABILITY_REGISTRY;
+  const matched=reg?reg.matchCapability(msg):null;
+  const card=runCapabilityCard(msg);
+  const capabilityId=(card&&card.capability_id)||(matched&&matched.id)||'';
+  const isCorrection=correctionSignalFromQuery(msg);
+  const isReQuery=!!(lastCapabilityTurn&&lastCapabilityTurn.capability_id&&lastCapabilityTurn.capability_id===capabilityId);
+  const isFollowThrough=!!(lastCapabilityTurn&&followThroughSignalFromQuery(msg,lastCapabilityTurn.card));
+  if(capabilityId){
+    updateCapabilitySignals({
+      capabilityId,
+      query:msg,
+      isReQuery,
+      isCorrection,
+      isFollowThrough,
+      card,
+    });
+  }
+  maybePublishCapabilitySummary();
+  updateChips();
   const thinkId='dt'+Date.now();
   addThink(thinkId);
   streaming=true;reqTs.push(Date.now());
@@ -681,6 +1214,9 @@ async function sendDork(){
   const apiMsgs=conv.slice(-16).map(t=>({role:t.role,content:t.content}));
   let full='';let msgEl=null;let cur=null;
   const prov=llmCfg.provider;
+  let providerUsed='engine';
+  let fallbackUsed=false;
+  let providerErr='';
 
   function onChunk(chunk){
     full+=chunk;
@@ -696,11 +1232,15 @@ async function sendDork(){
   }
 
   try{
-    if(prov==='groq'&&llmCfg.groqKey){await callGroq(apiMsgs,sys,onChunk);bus('dork','groq ok');}
-    else if(prov==='ollama'){await callOllama(apiMsgs,sys,onChunk);bus('dork','ollama ok');}
-    else{await callDorkEngine(apiMsgs,onChunk);bus('dork','engine deterministic');}
+    if(prov==='claude'&&llmCfg.claudeKey){providerUsed='claude';await callClaude(apiMsgs,sys,onChunk);bus('dork','claude ok',{provider:'claude'},'provider','success');}
+    else if(prov==='groq'&&llmCfg.groqKey){providerUsed='groq';await callGroq(apiMsgs,sys,onChunk);bus('dork','groq ok',{provider:'groq'},'provider','success');}
+    else if(prov==='ollama'){providerUsed='ollama';await callOllama(apiMsgs,sys,onChunk);bus('dork','ollama ok',{provider:'ollama'},'provider','success');}
+    else{providerUsed='engine';await callDorkEngine(apiMsgs,onChunk);bus('dork','engine deterministic',{provider:'dorkengine'},'provider','success');}
   }catch(e){
-    bus('dork_err',e.message);
+    providerErr=e.message||'provider_error';
+    fallbackUsed=true;
+    providerUsed='engine';
+    bus('dork_err',e.message,{provider:prov},'provider','error');
     if(!msgEl){document.getElementById(thinkId)&&document.getElementById(thinkId).remove();}
     const errTxt='**DorkEngine fallback** ('+e.message+')\n\n'+DE.respond(msg);
     if(!msgEl)msgEl=addMsg('assistant','',false,'engine');
@@ -712,11 +1252,34 @@ async function sendDork(){
     if(cur&&msgEl){const dt=msgEl&&msgEl.querySelector('.dtext');if(dt&&dt.contains(cur))dt.removeChild(cur);}
     streaming=false;
     document.getElementById('dsend').disabled=false;
-    conv.push({role:'assistant',content:full});
+    const trustMetadata=buildTrustMetadata({providerUsed,requestedProvider:prov,fallbackUsed,errorMessage:providerErr});
+    if(msgEl){
+      const dt=msgEl.querySelector('.dtext');
+      if(dt)dt.insertAdjacentHTML('afterend',renderTrustBadge(trustMetadata));
+    }
+    conv.push({role:'assistant',content:full,trust_metadata:trustMetadata});
+    emitStructuredDorkEvent(trustMetadata);
     totalTok+=estTok(msg)+estTok(full);
     if(totalTok>TOKEN_WARN)document.getElementById('w-tok').style.display='block';
     persistConv();
-    updateBus({dork_last:{q:msg.slice(0,120),a:full.slice(0,200),ts:new Date().toISOString()}});
+    const nowIso=new Date().toISOString();
+    const governanceWarnings=[];
+    if(rs&&rs.gov&&rs.gov.locked)governanceWarnings.push('Gate locked');
+    if(rs&&rs.ready&&Array.isArray(rs.ready.blockers)&&rs.ready.blockers.length){
+      governanceWarnings.push('Readiness blockers: '+rs.ready.blockers.join(', '));
+    }
+    updateBus({
+      dork_last:{q:msg.slice(0,120),a:full.slice(0,200),ts:nowIso},
+      dork_last_trust:trustMetadata,
+      dork_last_fingerprint:{prompt_sha1:fingerprint(msg),result_sha1:fingerprint(full),issued_at_iso:nowIso},
+      epoch_replay:{epoch:(rs&&rs.epoch&&rs.epoch.epoch)||'',replay_score:(rs&&rs.rep&&rs.rep.score)??null},
+      provider_status:{selected_provider:llmCfg.provider||'unknown',health:(llmCfg.provider==='groq'&&!llmCfg.groqKey)?'degraded':'ok'},
+      governance_warnings:governanceWarnings,
+      capability_optimizer_snapshot:{
+        total_interactions:capabilityOptimizer.totalInteractions,
+        last_summary_at:capabilityOptimizer.lastSummaryAt,
+      },
+    });
   }
 }
 
@@ -746,11 +1309,13 @@ function dorkBridgeOracle(){
     const wo=document.getElementById('w-oracle');
     wo.textContent='🔮 No Oracle query found. Run a query in Aponi \u2192 Oracle first.';
     wo.style.display='block';setTimeout(()=>wo.style.display='none',3000);
+    bus('oracle_missing','No Oracle query in ADAAD_STATE_BUS',{},'oracle','warn');
     dorkPrompt('What can the Oracle tell me about ADAAD\u2019s evolutionary history and divergence patterns?');
     return;
   }
   document.getElementById('w-oracle').style.display='block';
   setTimeout(()=>document.getElementById('w-oracle').style.display='none',2000);
+  bus('oracle_bridge','Oracle context bridged',{type:sb.oracle_last_query_type||'generic'},'oracle','info');
   dorkPrompt('Interpret this Oracle result: query="'+sb.oracle_last_query+'" type='+sb.oracle_last_query_type+' summary: '+sb.oracle_last_answer_summary);
 }
 
@@ -761,13 +1326,113 @@ function ar(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,
 // ── PERSIST & RESTORE ────────────────────────────────────────────
 function restoreConv(){try{const s=localStorage.getItem(CONV_KEY);if(s){const p=JSON.parse(s);if(p.schema==='3.0')conv=p.turns||[];}}catch(_){}}
 function persistConv(){try{localStorage.setItem(CONV_KEY,JSON.stringify({schema:'3.0',turns:conv.slice(-40),ts:new Date().toISOString()}));}catch(_){}}
+function parseDorkSeedFromQuery(){
+  try{
+    const params=new URLSearchParams(window.location.search);
+    const raw=params.get('dork_seed');
+    if(!raw)return '';
+    const decoded=decodeURIComponent(raw.replace(/\+/g,' '));
+    const sanitized=decoded.replace(/[\u0000-\u001f\u007f]/g,'').trim();
+    return sanitized.slice(0,500);
+  }catch(_){
+    return '';
+  }
+}
+function autostartDorkSeed(){
+  if(dorkSeedAutoStarted)return;
+  const seeded=parseDorkSeedFromQuery();
+  if(!seeded)return;
+  const inp=document.getElementById('dinp');
+  if(!inp)return;
+  dorkSeedAutoStarted=true;
+  inp.value=seeded;
+  ar(inp);
+  updateBus({dork_last_fingerprint:{prompt_sha1:fingerprint(seeded),result_sha1:'',issued_at_iso:new Date().toISOString()}});
+  bus('bridge','dork_seed autostart');
+  sendDork();
+}
+
+// ── DORK AUTO-LOAD (unconditional fresh-session boot) ─────────────
+function autostartDorkLoad(){
+  if(dorkAutoLoaded)return;
+  if(dorkSeedAutoStarted)return;          // URL seed takes priority
+  if(conv&&conv.length>0)return;          // existing session — don't clobber
+  const inp=document.getElementById('dinp');
+  if(!inp)return;
+  dorkAutoLoaded=true;
+  const defaultQuery='Show current governance gate status, epoch, agent triad health, and replay score.';
+  inp.value=defaultQuery;
+  ar(inp);
+  updateBus({dork_last_fingerprint:{prompt_sha1:fingerprint(defaultQuery),result_sha1:'',issued_at_iso:new Date().toISOString()}});
+  bus('bridge','dork_autoload boot');
+  sendDork();
+}
 
 // ── CONFIG MODAL ─────────────────────────────────────────────────
-function loadCfg(){try{const s=localStorage.getItem('dork_llm_v3');if(s){const p=JSON.parse(s);llmCfg={...llmCfg,...p};}}catch(_){}}
-function saveCfgStore(){try{localStorage.setItem('dork_llm_v3',JSON.stringify(llmCfg));}catch(_){}}
+function loadCfg(){try{const s=localStorage.getItem('dork_llm_v3');if(s){const p=JSON.parse(s);llmCfg={...llmCfg,...p};}}catch(_){}
+  // Restore claude key from dedicated store (may differ from llmCfg bundle)
+  try{const ck=localStorage.getItem('dork_claude_key_v1');if(ck&&!llmCfg.claudeKey)llmCfg.claudeKey=ck;}catch(_){}
+}
+function saveCfgStore(){
+  try{localStorage.setItem('dork_llm_v3',JSON.stringify(llmCfg));}catch(_){}
+  try{if(llmCfg.claudeKey)localStorage.setItem('dork_claude_key_v1',llmCfg.claudeKey);}catch(_){}
+}
+function providerLabel(p){const lb={groq:'groq',ollama:'ollama',claude:'claude',engine:'engine'};return lb[p]||'engine';}
+function applyProviderBadges(p){
+  const label=providerLabel(p);
+  const provBtn=document.getElementById('prov-btn');
+  const introBadge=document.getElementById('intro-badge');
+  if(provBtn)provBtn.textContent='\u2699 '+label;
+  if(introBadge)introBadge.textContent=label;
+}
+async function probeOllama(){
+  const ctl=new AbortController();
+  const to=setTimeout(()=>ctl.abort(),1200);
+  try{
+    const resp=await fetch('http://localhost:11434/api/tags',{method:'GET',signal:ctl.signal});
+    return resp.ok;
+  }catch(_){
+    return false;
+  }finally{
+    clearTimeout(to);
+  }
+}
+async function bootstrapProvider(){
+  let selected=llmCfg.provider||'engine';
+  let reason='configured';
+  try{
+    if(selected==='groq'&&!llmCfg.groqKey){
+      const ollamaUp=await probeOllama();
+      if(ollamaUp){
+        selected='ollama';
+        reason='groq key missing; ollama probe ok';
+      }else{
+        selected='engine';
+        reason='groq key missing; ollama unavailable';
+      }
+    }else if(selected==='ollama'){
+      const ollamaUp=await probeOllama();
+      if(!ollamaUp){
+        selected='engine';
+        reason='ollama unavailable';
+      }
+    }else if(selected!=='engine'&&selected!=='groq'){
+      selected='engine';
+      reason='provider unsupported';
+    }
+  }catch(_){
+    selected='engine';
+    reason='bootstrap fallback';
+  }
+  llmCfg.provider=selected;
+  applyProviderBadges(selected);
+  bus('provider_bootstrap',selected+' :: '+reason);
+  saveCfgStore();
+}
 function openCfg(){
   selProv(llmCfg.provider);
   document.getElementById('inp-groq').value=llmCfg.groqKey||'';
+  document.getElementById('inp-claude').value=llmCfg.claudeKey||'';
   document.getElementById('inp-model').value=llmCfg.ollamaModel||'llama3.2';
   document.getElementById('cfg-wrap').style.display='flex';
 }
@@ -775,38 +1440,117 @@ function closeCfg(){document.getElementById('cfg-wrap').style.display='none';}
 function cfgOutside(e){if(e.target.id==='cfg-wrap')closeCfg();}
 function selProv(p){
   selProvider=p;
-  ['groq','ollama','engine'].forEach(id=>{
+  ['groq','ollama','claude','engine'].forEach(id=>{
     const el=document.getElementById('cp-'+id);if(el)el.classList.toggle('sel',id===p);
   });
   document.getElementById('row-groq').style.display=p==='groq'?'':'none';
   document.getElementById('row-ollama').style.display=p==='ollama'?'':'none';
+  document.getElementById('row-claude').style.display=p==='claude'?'':'none';
 }
 function saveCfg(){
   llmCfg.provider=selProvider;
   llmCfg.groqKey=document.getElementById('inp-groq').value.trim();
+  llmCfg.claudeKey=document.getElementById('inp-claude').value.trim();
   llmCfg.ollamaModel=document.getElementById('inp-model').value.trim()||'llama3.2';
   saveCfgStore();
-  const lb={groq:'groq',ollama:'ollama',dorkengine:'engine'};
+  const lb={groq:'groq',ollama:'ollama',claude:'claude',dorkengine:'engine'};
   document.getElementById('prov-btn').textContent='\u2699 '+(lb[llmCfg.provider]||llmCfg.provider);
+  bus('cfg',llmCfg.provider+' saved',{provider:llmCfg.provider},'provider','success');closeCfg();
+  applyProviderBadges(llmCfg.provider);
   bus('cfg',llmCfg.provider+' saved');closeCfg();
+}
+
+
+function renderCapabilityCards(cards){
+  const host=document.getElementById('dork-capability-cards');
+  if(!host)return;
+  const latestById={};
+  (cards||[]).forEach((card)=>{if(card&&card.capability_id)latestById[card.capability_id]=card;});
+  const rows=Object.values(latestById).sort((a,b)=>{
+    const pDiff=capabilityPriorityContext(b.capability_id)-capabilityPriorityContext(a.capability_id);
+    if(pDiff!==0)return pDiff;
+    const uDiff=capabilityUtilityOf(b.capability_id)-capabilityUtilityOf(a.capability_id);
+    if(Math.abs(uDiff)>1e-9)return uDiff;
+    return String(a.capability_id||'').localeCompare(String(b.capability_id||''));
+  }).slice(0,4);
+  host.innerHTML=rows.map(card=>{
+    const deps=(card.dependencies||[]);
+    const ok=deps.filter(d=>d.available).length;
+    const total=deps.length;
+    return '<div class="dcap-card">'
+      +'<div class="dcap-head"><span class="dcap-title">'+esc((card.capability_id||'capability').replaceAll('_',' '))+'</span><span class="dcap-conf">conf '+Math.round(Number(card.confidence||0)*100)+'%</span></div>'
+      +'<div class="dcap-sum">'+esc(card.summary||'')+'</div>'
+      +'<div class="dcap-meta">deps '+ok+'/'+total+' · fallback '+(card.fallback_used?'yes':'no')+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function renderCausalGraphPanels(card){
+  const summary=document.getElementById('dork-causal-summary');
+  const detail=document.getElementById('dork-causal-detail');
+  const detailBody=document.getElementById('dork-causal-detail-body');
+  if(!summary||!detail||!detailBody)return;
+  const graph=card&&card.graph;
+  const top=(graph&&Array.isArray(graph.top_causes))?graph.top_causes:[];
+  if(!graph||!top.length){
+    summary.style.display='none';
+    detail.style.display='none';
+    detailBody.textContent='';
+    return;
+  }
+  const epochRefs=((graph.context&&graph.context.epoch_ids)||[]).slice(0,2).join(' · ')||'epoch:unavailable';
+  summary.style.display='block';
+  detail.style.display='block';
+  summary.innerHTML='<div class="causal-head"><span class="causal-title">causal graph summary (dork)</span><span class="causal-epoch">'+esc(epochRefs)+'</span></div>'
+    +'<div class="causal-rows">'
+    +top.map(item=>'<div class="causal-row"><span class="causal-name">#'+esc(String(item.rank))+' '+esc(item.cause||'cause')+'</span><span class="causal-prob">'+Math.round(Number(item.probability||0)*100)+'%</span><span class="causal-score">'+esc((item.evidence_links||[]).slice(0,1).join('')||'evidence: none')+'</span></div>').join('')
+    +'</div>'
+    +'<div class="causal-link">Mitigations available in dedicated panel below.</div>';
+  const full={
+    generated_at:new Date().toISOString(),
+    capability_id:card.capability_id,
+    summary:card.summary,
+    graph
+  };
+  detailBody.textContent=JSON.stringify(full,null,2);
+}
+
+function runCapabilityCard(query){
+  const reg=window.DORK_CAPABILITY_REGISTRY;
+  if(!reg||!rs)return null;
+  const card=reg.executeByQuery(query,{...rs,before:prevRs||{},after:rs||{},stateBus:window.ADAAD_STATE_BUS||{}});
+  if(!card)return null;
+  const idx=capabilityCards.findIndex((existing)=>existing&&existing.capability_id===card.capability_id);
+  if(idx>=0)capabilityCards.splice(idx,1);
+  capabilityCards.push(card);
+  renderCapabilityCards(capabilityCards);
+  renderCausalGraphPanels(card);
+  return card;
 }
 
 // ── DYNAMIC CHIPS ────────────────────────────────────────────────
 function updateChips(){
-  const base=[
+  const reg=window.DORK_CAPABILITY_REGISTRY;
+  const ordered=reg?orderedCapabilitiesForContext(reg.listCapabilities()):[];
+  const base=ordered.length?ordered.map(c=>({t:c.label,q:'Run capability '+c.id+' diagnostics.',id:c.id})):[
     {t:'gate status',q:'Governance gate status and tier?'},
-    {t:'replay health',q:'Replay score and divergence \u2014 is the system healthy?'},
-    {t:'agent triad',q:'Agent triad \u2014 architect, dream, beast status?'},
+    {t:'replay health',q:'Replay score and divergence — is the system healthy?'},
+    {t:'agent triad',q:'Agent triad — architect, dream, beast status?'},
     {t:'blockers',q:'Any release blockers or open findings?'},
-    {t:'strategy',q:'Strategic priority \u2014 what should I focus on right now?'},
+    {t:'strategy',q:'Strategic priority — what should I focus on right now?'},
   ];
   const dyn=[];
-  if(rs&&rs.gov&&rs.gov.locked)dyn.push({t:'\ud83d\udd34 gate locked',q:'Gate is locked \u2014 what do I do first?'});
+  if(rs&&rs.gov&&rs.gov.locked)dyn.push({t:'🔴 gate locked',q:'Gate is locked — what do I do first?'});
   if(rs&&rs.ready&&rs.ready.blockers&&rs.ready.blockers.length)dyn.push({t:rs.ready.blockers.length+' blocker(s)',q:'List all release blockers and how to fix them.'});
-  const chips=[...base,...dyn].slice(0,6);
+  const chips=[...dyn,...base].slice(0,7);
   const w=document.getElementById('dork-chips');if(!w)return;
-  w.innerHTML=chips.map(c=>'<span class="chip" onclick="dorkPrompt('+JSON.stringify(c.q)+')">'+esc(c.t)+'</span>').join('')
-    +'<span class="chip oracle-chip" onclick="dorkBridgeOracle()">\ud83d\udd2e oracle bridge</span>';
+  w.innerHTML=chips.map(c=>{
+    const capId=c.id||'';
+    const score=Math.round(capabilityUtilityOf(capId)*100);
+    const label=capId?`${c.t} · U${score}`:c.t;
+    return '<span class="chip" onclick="dorkPrompt('+JSON.stringify(c.q)+')">'+esc(label)+'</span>';
+  }).join('')
+    +'<span class="chip oracle-chip" onclick="dorkBridgeOracle()">🔮 oracle bridge</span>';
 }
 
 // ── RENDER FUNCTIONS ─────────────────────────────────────────────
@@ -826,6 +1570,8 @@ function renderInsights(g,m,r,rd,ag){const agents=(ag&&ag.agents)||{};const heal
 // ── REFRESH ALL ──────────────────────────────────────────────────
 async function refreshAll(){
   const [g,m,r,ep,ag,ld,wh,rd]=await Promise.all([safe('governance','governance'),safe('mutations','mutations'),safe('replay','replay'),safe('epoch','epoch'),safe('agents','agents'),safe('ledger','ledger'),safe('webhooks','whRecent'),safe('readiness','readiness')]);
+  rs={gov:g,muts:m,rep:r,epoch:ep,agents:ag,ledger:ld,wh:wh,ready:rd,captured_at_iso:new Date().toISOString()};
+  prevRs=rs?JSON.parse(JSON.stringify(rs)):prevRs;
   rs={gov:g,muts:m,rep:r,epoch:ep,agents:ag,ledger:ld,wh:wh,ready:rd};
   renderPills(g,r,ep,rd);renderRuntime(g,ep);renderStats(r,rd,ep);renderGate(g);
   renderMuts(m,'ml-overview');renderMuts(m,'ml-full');renderAgents(ag);renderLedger(ld);
@@ -836,19 +1582,50 @@ async function refreshAll(){
     governance:{gate_ok:!(g&&g.locked),tier:g&&g.tier,constitution_version:g&&g.constitution_version,mutation_enabled:g&&g.mutation_enabled},
     epoch:{id:'epoch-'+((ep&&ep.epoch)||0),phase:ep&&ep.phase},
     replay:{score:(r&&r.score)||1.0,divergence:(r&&r.divergence)||0,mode:r&&r.mode},
+    epoch_replay:{epoch:(ep&&ep.epoch)||'',replay_score:(r&&r.score)??null},
+    provider_status:{selected_provider:llmCfg.provider||'unknown',health:(llmCfg.provider==='groq'&&!llmCfg.groqKey)?'degraded':'ok'},
+    governance_warnings:[...(g&&g.locked?['Gate locked']:[]),...((rd&&rd.blockers&&rd.blockers.length)?['Readiness blockers: '+rd.blockers.join(', ')]:[])],
     agents:{architect_health:ag&&ag.agents&&ag.agents.architect&&ag.agents.architect.status,dream_health:ag&&ag.agents&&ag.agents.dream&&ag.agents.dream.status,beast_health:ag&&ag.agents&&ag.agents.beast&&ag.agents.beast.status},
     readiness:{score:(rd&&rd.readiness_score)||0,blockers:(rd&&rd.blockers)||[]},
     phase_context:{active_phase:'phase95_oracle_dork',next_pr:'PR-95-COMPLETE',open_findings:[]}
   });
   updateChips();
-  bus('refresh','all panels ok \u00b7 bus updated');
+  bus('refresh','all panels ok \u00b7 bus updated',{phase:'phase95_oracle_dork'},'replay','success');
 }
 
 async function loadMoreLedger(){ledgerOff+=50;const d=await apiFetch(ROUTES.ledger+'&offset='+ledgerOff,MOCK.ledger);renderLedger(d,true);}
-function simWH(){const t=['push','pull_request','check_run','issue_comment','pull_request_review'];const type=t[Math.floor(Math.random()*t.length)];const ts=new Date().toLocaleTimeString();['wh-overview','wh-full'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const row=document.createElement('div');row.className='wh-row';row.innerHTML='<span class="wh-type">'+type+'</span><span class="wh-desc">InnovativeAI-adaad/adaad</span><span class="wh-ts">'+ts+'</span><span class="tag tag-a">sim</span>';el.insertBefore(row,el.firstChild);});whCount++;document.getElementById('sb-wh').textContent=whCount;bus('wh_sim',type);}
-function startSSE(){try{const src=new EventSource(ROUTES.whStream);src.onmessage=e=>{try{const d=JSON.parse(e.data);if(d.type==='connected'){bus('sse','connected');return;}['wh-overview','wh-full'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const row=document.createElement('div');row.className='wh-row';const t=String(d.event||'\u2014').replace('github_webhook_','');row.innerHTML='<span class="wh-type">'+esc(t)+'</span><span class="wh-desc">'+esc(d.repo||'\u2014')+'</span><span class="wh-ts">live</span><span class="tag tag-w">sse</span>';el.insertBefore(row.cloneNode(true),el.firstChild);});whCount++;document.getElementById('sb-wh').textContent=whCount;}catch(_){}};src.onerror=()=>{bus('sse_err','closed');src.close();};}catch(e){bus('sse_unavail',e.message);}}
-function exportSnapshot(){if(!rs){bus('export','no state');return;}const pl={ts:new Date().toISOString(),runtime:rs,state_bus:window.ADAAD_STATE_BUS};const bl=new Blob([JSON.stringify(pl,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='whaledic_snapshot_'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),200);bus('export','saved');}
-function toggleFocus(){document.querySelector('.shell').classList.toggle('focus');bus('mode',document.querySelector('.shell').classList.contains('focus')?'focus_on':'focus_off');}
+function simWH(){const t=['push','pull_request','check_run','issue_comment','pull_request_review'];const type=t[Math.floor(Math.random()*t.length)];const ts=new Date().toLocaleTimeString();['wh-overview','wh-full'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const row=document.createElement('div');row.className='wh-row';row.innerHTML='<span class="wh-type">'+type+'</span><span class="wh-desc">InnovativeAI-adaad/adaad</span><span class="wh-ts">'+ts+'</span><span class="tag tag-a">sim</span>';el.insertBefore(row,el.firstChild);});whCount++;document.getElementById('sb-wh').textContent=whCount;bus('wh_sim',type,{},'provider','info');}
+function startSSE(){
+  try{
+    const whSrc=new EventSource(ROUTES.whStream);
+    whSrc.onmessage=e=>{try{const d=JSON.parse(e.data);if(d.type==='connected'){bus('sse','connected',{},'provider','success');return;}['wh-overview','wh-full'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const row=document.createElement('div');row.className='wh-row';const t=String(d.event||'\u2014').replace('github_webhook_','');row.innerHTML='<span class="wh-type">'+esc(t)+'</span><span class="wh-desc">'+esc(d.repo||'\u2014')+'</span><span class="wh-ts">live</span><span class="tag tag-w">sse</span>';el.insertBefore(row.cloneNode(true),el.firstChild);});whCount++;document.getElementById('sb-wh').textContent=whCount;}catch(_){}};whSrc.onerror=()=>{bus('sse_err','closed',{},'provider','error');whSrc.close();};
+  }catch(e){bus('sse_unavail',e.message,{},'provider','error');}
+  try{
+    const dorkSrc=new EventSource(ROUTES.dorkEventStream);
+    dorkSrc.addEventListener('dork_event',e=>{
+      try{
+        const frame=JSON.parse(e.data||'{}');
+        const item=frame&&frame.event?frame.event:null;
+        if(!item)return;
+        upsertBusEvent({
+          ts:item.ts||new Date().toISOString(),
+          source:item.source||'dork',
+          type:item.event_type||'event',
+          severity:normSev(item.severity),
+          message:'ledger_event',
+          meta:{...(item.payload&&typeof item.payload==='object'?item.payload:{}),correlation_id:item.correlation_id||'',seq:Number(item.seq||0),epoch_id:item.epoch_id||''},
+          local_seq:0,
+          transient:false
+        });
+        persistEventBus();
+        renderEventBus();
+      }catch(_){}
+    });
+    dorkSrc.onerror=()=>{bus('dork_sse_err','closed',{},'provider','warn');dorkSrc.close();};
+  }catch(e){bus('dork_sse_unavail',e.message,{},'provider','warn');}
+}
+function exportSnapshot(){if(!rs){bus('export','no state',{},'replay','warn');return;}const pl={ts:new Date().toISOString(),runtime:rs,state_bus:window.ADAAD_STATE_BUS,capability_optimizer:capabilityOptimizer};const bl=new Blob([JSON.stringify(pl,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='whaledic_snapshot_'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),200);bus('export','saved',{},'replay','success');}
+function toggleFocus(){document.querySelector('.shell').classList.toggle('focus');bus('mode',document.querySelector('.shell').classList.contains('focus')?'focus_on':'focus_off',{},'ui','info');}
 function openPalette(){document.getElementById('pal-wrap').style.display='flex';renderPal('');setTimeout(()=>document.getElementById('pal-inp').focus(),20);}
 function closePal(e){if(e&&e.target&&e.target.id!=='pal-wrap')return;document.getElementById('pal-wrap').style.display='none';}
 function renderPal(q){const query=(q||'').toLowerCase();const list=document.getElementById('pal-list');list.innerHTML=CMDS.filter(c=>!query||c.name.toLowerCase().includes(query)).map((c,i)=>'<div class="pal-item" onclick="runCmd('+i+')"><span class="pal-name">'+esc(c.name)+'</span><span class="pal-key">'+esc(c.key)+'</span></div>').join('')||'<div class="pal-item"><span class="pal-name">No match</span></div>';}
@@ -858,7 +1635,15 @@ document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLower
 // ── INIT ─────────────────────────────────────────────────────────
 loadCfg();
 (()=>{const lb={groq:'groq',ollama:'ollama',dorkengine:'engine'};document.getElementById('prov-btn').textContent='\u2699 '+(lb[llmCfg.provider]||'groq');document.getElementById('intro-badge').textContent=lb[llmCfg.provider]||'groq';if(!llmCfg.groqKey&&llmCfg.provider==='groq'){setTimeout(()=>{document.getElementById('w-llm').style.display='block';},1500);}})();
-restoreConv();renderDebt();refreshAll();startSSE();setInterval(refreshAll,30000);
+hydrateStateBusFromSnapshot();
+hydrateStateBusFromBackendSession();
+subscribeStateBusChannel();
+restoreCapabilityOptimizer();
+restoreConv();restoreEventBus();renderEventBus();renderDebt();refreshAll();startSSE();setInterval(refreshAll,30000);
+applyProviderBadges(llmCfg.provider);
+bootstrapProvider();
+setTimeout(autostartDorkSeed,0);
+setTimeout(autostartDorkLoad,2000);
 </script>
 </body>
 </html>

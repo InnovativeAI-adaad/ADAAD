@@ -481,6 +481,33 @@ class AdaadStatusCliTest(unittest.TestCase):
         printer.assert_has_calls([mock.call("TABLE"), mock.call(), mock.call('{"status":"ok"}')])
 
 
+class AdaadRunbookCliTest(unittest.TestCase):
+    def test_adaad_runbook_exports_and_skips_boot(self) -> None:
+        fake_artifacts = mock.Mock()
+        with mock.patch("app.orchestration.cli_handlers.export_runbook_artifacts", return_value=fake_artifacts) as export_runbook:
+            with mock.patch("app.orchestration.cli_handlers.render_runbook_summary", return_value="RUNBOOK-SUMMARY") as render_summary:
+                with mock.patch("app.main.Orchestrator") as orchestrator_cls:
+                    with mock.patch(
+                        "sys.argv",
+                        [
+                            "app.main",
+                            "--adaad-runbook",
+                            "--runbook-verbosity",
+                            "full_governance",
+                            "--runbook-output-dir",
+                            "security/custom",
+                            "--trigger-mode",
+                            "DEVADAAD",
+                        ],
+                    ):
+                        with mock.patch("builtins.print") as printer:
+                            main()
+        export_runbook.assert_called_once()
+        render_summary.assert_called_once_with(fake_artifacts)
+        orchestrator_cls.assert_not_called()
+        printer.assert_called_once_with("RUNBOOK-SUMMARY")
+
+
 class ReplayNamespaceCliTest(unittest.TestCase):
     def test_replay_verify_emits_deterministic_json(self) -> None:
         fake_runtime = mock.Mock()
