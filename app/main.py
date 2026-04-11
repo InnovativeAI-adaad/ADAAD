@@ -53,6 +53,7 @@ from app.orchestration.cli_handlers import (
 from app.orchestration.runtime_factory import build_orchestrator
 from app.orchestration.replay_preflight import execute_replay_preflight
 from runtime.api import MutationEngine, MutationRequest, agent_path_from_id, iter_agent_dirs, resolve_agent_id
+from runtime.api.app_layer import OperatingMode, classify_current_changes, get_operating_mode, get_required_gate_tiers
 from runtime.api.mutation_runtime import verify_all
 from runtime.api.runtime_services import (
     AutoRecoveryHook,
@@ -188,9 +189,6 @@ class Orchestrator:
         self.exit_after_boot = exit_after_boot
         self.evolution_runtime.set_replay_mode(self.replay_mode)
 
-        # Phase 107 Streamlining
-        from runtime.governance.fast_path_policy import OperatingMode, get_operating_mode
-        from runtime.governance.change_classifier import classify_current_changes
         self.operating_mode = get_operating_mode()
         if self.fast_mode:
             self.operating_mode = OperatingMode.DEV_FAST
@@ -327,7 +325,6 @@ class Orchestrator:
             self._v("Warning: dry-run + strict replay may not reflect production execution semantics.")
         
         # Phase 107: Fast Path Orientation
-        from runtime.governance.fast_path_policy import get_required_gate_tiers, OperatingMode
         required_tiers = get_required_gate_tiers(self.operating_mode, self.change_type)
         self._v(f"Operating mode: {self.operating_mode.value} | Change type: {self.change_type.value}")
         self._v(f"Required gate tiers: {sorted(required_tiers)}")

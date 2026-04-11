@@ -14,6 +14,14 @@
 
 </div>
 
+<!-- ADAAD_VERSION_INFOBOX:START -->
+### Governance & Determinism Guarantees (Current State)
+
+- `ADAAD_DETERMINISTIC_LOCK`: enabled
+- `ADAAD_DISPATCH_LATENCY_BUDGET_MS`: 250
+- Release evidence and gate status are validated via repository governance scripts before promotion.
+<!-- ADAAD_VERSION_INFOBOX:END -->
+
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 
 <div align="center">

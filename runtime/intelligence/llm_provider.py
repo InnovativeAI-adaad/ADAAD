@@ -190,9 +190,6 @@ class ModelSelectionDecision:
             "rejected_candidates": [dict(item) for item in self.rejected_candidates],
             "probe_metrics": self.probe_metrics.to_dict(),
             "decision_trace": list(self.decision_trace),
-            "response_sha256": self.response_sha256,
-            "evidence_digest": self.evidence_digest,
-            "evidence_metadata": dict(self.evidence_metadata or {}),
         }
 
 
@@ -266,35 +263,41 @@ def validate_adaptive_proposal_schema(payload: dict[str, Any]) -> bool:
 
 def load_provider_config(env: Mapping[str, str] | None = None) -> LLMProviderConfig:
     source = env or os.environ
-    
+
     # Provider resolution priority
     provider = source.get("ADAAD_LLM_PROVIDER", "").strip().lower()
     if not provider:
-        if source.get("ADAAD_ANTHROPIC_API_KEY"): provider = "anthropic"
-        elif source.get("GOOGLE_API_KEY"): provider = "gemini"
-        elif source.get("OPENAI_API_KEY"): provider = "openai"
-        else: provider = "anthropic" # Default fallback
+        if source.get("ADAAD_ANTHROPIC_API_KEY"):
+            provider = "anthropic"
+        elif source.get("GOOGLE_API_KEY"):
+            provider = "gemini"
+        elif source.get("OPENAI_API_KEY"):
+            provider = "openai"
+        else:
+            provider = "anthropic"  # Default fallback
 
     return LLMProviderConfig(
         provider=provider,
         api_key=(
-            source.get("ADAAD_ANTHROPIC_API_KEY") or 
-            source.get("GOOGLE_API_KEY") or 
-            source.get("OPENAI_API_KEY") or ""
+            source.get("ADAAD_ANTHROPIC_API_KEY")
+            or source.get("GOOGLE_API_KEY")
+            or source.get("OPENAI_API_KEY")
+            or ""
         ).strip(),
         model=(
-            source.get("ADAAD_LLM_MODEL") or 
-            {
+            source.get("ADAAD_LLM_MODEL")
+            or {
                 "anthropic": "claude-3-5-sonnet-20241022",
                 "gemini": "gemini-1.5-pro",
                 "openai": "gpt-4-turbo",
-                "ollama": "llama3"
+                "ollama": "llama3",
             }.get(provider, "claude-3-5-sonnet-20241022")
         ).strip(),
         timeout_seconds=float(source.get("ADAAD_LLM_TIMEOUT_SECONDS") or "15"),
         max_tokens=int(source.get("ADAAD_LLM_MAX_TOKENS") or "800"),
         base_url=source.get("ADAAD_LLM_BASE_URL"),
-        fallback_to_noop=(source.get("ADAAD_LLM_FALLBACK_TO_NOOP") or "false").strip().lower() in {"1", "true", "yes", "on"},
+        fallback_to_noop=(source.get("ADAAD_LLM_FALLBACK_TO_NOOP") or "false").strip().lower()
+        in {"1", "true", "yes", "on"},
         fallback_models=tuple(
             item.strip()
             for item in (source.get("ADAAD_LLM_MODEL_FALLBACK_CHAIN") or "").split(",")
@@ -302,7 +305,22 @@ def load_provider_config(env: Mapping[str, str] | None = None) -> LLMProviderCon
         ),
         host_id=(source.get("ADAAD_HOST_ID") or "default").strip() or "default",
         host_capability_profiles=_load_host_capability_profiles(source),
+        deterministic_mode=(source.get("ADAAD_LLM_DETERMINISTIC_MODE") or "false").strip().lower()
+        in {"1", "true", "yes", "on"},
+        deterministic_opts=_parse_deterministic_opts(source.get("ADAAD_LLM_DETERMINISTIC_OPTS")),
     )
+
+
+def _parse_deterministic_opts(raw_opts: str | None) -> dict[str, Any] | None:
+    if not raw_opts:
+        return None
+    try:
+        parsed = json.loads(raw_opts)
+    except Exception:  # noqa: BLE001
+        return None
+    if isinstance(parsed, dict):
+        return parsed
+    return None
 
 
 def _load_host_capability_profiles(source: Mapping[str, str]) -> Mapping[str, Mapping[str, Any]]:
@@ -438,21 +456,6 @@ class ModelAdapterManager:
         if probe.cpu_available_percent < min_cpu_available:
             return False, f"insufficient_cpu:{probe.cpu_available_percent:.1f}<{min_cpu_available:.1f}"
         return True, "ok"
-        deterministic_mode=(source.get("ADAAD_LLM_DETERMINISTIC_MODE") or "false").strip().lower() in {"1", "true", "yes", "on"},
-        deterministic_opts=_parse_deterministic_opts(source.get("ADAAD_LLM_DETERMINISTIC_OPTS")),
-    )
-
-
-def _parse_deterministic_opts(raw_opts: str | None) -> dict[str, Any] | None:
-    if not raw_opts:
-        return None
-    try:
-        parsed = json.loads(raw_opts)
-    except Exception:  # noqa: BLE001
-        return None
-    if isinstance(parsed, dict):
-        return parsed
-    return None
 
 
 class LLMProviderClient:
@@ -558,21 +561,20 @@ class LLMProviderClient:
 
     def _request_openai_compatible(self, system: str, user: str, *, model: str) -> str:
         import httpx
+
         base_url = self.config.base_url or ("http://localhost:11434/v1" if self.config.provider == "ollama" else "https://api.openai.com/v1")
         headers = {"Content-Type": "application/json"}
         if self.config.api_key:
             headers["Authorization"] = f"Bearer {self.config.api_key}"
-        
-        payload = {
-            "model": model,
+
         payload: dict[str, Any] = {
-            "model": self.config.model,
+            "model": model,
             "messages": [
                 {"role": "system", "content": system},
-                {"role": "user", "content": user}
+                {"role": "user", "content": user},
             ],
             "max_tokens": self.config.max_tokens,
-            "temperature": 0.0
+            "temperature": 0.0,
         }
         if self.config.deterministic_mode and self.provider_adapter.supports_deterministic_mode():
             payload.update(self.provider_adapter.normalize_deterministic_opts(self.config.deterministic_opts))
@@ -603,7 +605,6 @@ class LLMProviderClient:
             raise ValueError("json_response_failed_schema_validation")
         return parsed
 
-    def _safe_failure(self, code: str, message: str, *, metadata: dict[str, Any] | None = None) -> LLMProviderResult:
     def _build_evidence_metadata(self) -> dict[str, Any]:
         deterministic_profile = self.provider_adapter.normalize_deterministic_opts(self.config.deterministic_opts)
         return {
@@ -622,7 +623,7 @@ class LLMProviderClient:
                 error_code=code,
                 error_message=message,
                 fallback_used=True,
-                metadata=metadata or {},
+                metadata={},
                 evidence_metadata=self._build_evidence_metadata(),
             )
         return LLMProviderResult(
@@ -631,7 +632,7 @@ class LLMProviderClient:
             error_code=code,
             error_message=message,
             fallback_used=False,
-            metadata=metadata or {},
+            metadata={},
             evidence_metadata=self._build_evidence_metadata(),
         )
 

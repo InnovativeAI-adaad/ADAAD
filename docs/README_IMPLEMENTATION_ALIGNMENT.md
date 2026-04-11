@@ -9,10 +9,10 @@ This document cross-references `README.md` operational claims with concrete impl
 
 | Metric | Value |
 | --- | --- |
-| Report version | `9.26.0` |
-| Branch | `feature/phase107-mcf-market-fitness` |
+| Report version | `9.60.0` |
+| Branch | `work` |
 | Tag | `(none)` |
-| Short SHA | `738f1ed` |
+| Short SHA | `a19587f` |
 
 All future architecture snapshots MUST include branch, tag (if any), and short SHA.
 <!-- ARCH_SNAPSHOT_METADATA:END -->
