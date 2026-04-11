@@ -1583,22 +1583,34 @@ document.addEventListener('DOMContentLoaded', init);
     }
   });
 
-  // Update fleet strip with live data (polls every 30s)
-  function updateFleetStrip() {
+  // Update fleet strip with live data (polls every 15s — DFSB wired)
+  async function updateFleetStrip() {
     const dot = document.getElementById('fleet-dot');
     const prov = document.getElementById('fleet-strip-providers');
     const ledger = document.getElementById('fleet-strip-ledger');
-    const healthy = 0; // real data comes from DORKLivingFleet.fleet_status() via API
-    if (dot) {
-      dot.style.background = '#8c919b';
-      dot.title = 'Fleet status: connect Ollama to activate';
+    try {
+      const resp = await fetch('/api/fleet/status', { signal: AbortSignal.timeout(4000) });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const d = await resp.json();
+      const blocked = d.blocked;
+      const healthy = d.healthy_provider_count ?? 0;
+      const total = d.total_provider_count ?? 0;
+      const ledgerCount = d.conversation_ledger_entries ?? 0;
+      if (dot) {
+        dot.style.background = blocked ? '#ef4444' : healthy > 0 ? '#22c55e' : '#eab308';
+        dot.title = blocked ? 'Fleet BLOCKED — no healthy providers' : `Fleet OK — ${healthy}/${total} providers`;
+      }
+      if (prov) prov.textContent = `providers: ${healthy}/${total}`;
+      if (ledger) ledger.textContent = `ledger: ${ledgerCount}`;
+    } catch {
+      if (dot) { dot.style.background = '#8c919b'; dot.title = 'Fleet status: offline'; }
+      if (prov) prov.textContent = 'providers: offline';
+      if (ledger) ledger.textContent = 'ledger: —';
     }
-    if (prov) prov.textContent = 'providers: offline';
-    if (ledger) ledger.textContent = 'ledger: —';
   }
 
   updateFleetStrip();
-  setInterval(updateFleetStrip, 30000);
+  setInterval(updateFleetStrip, 15000);
 })();
 </script>
 </body>

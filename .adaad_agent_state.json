@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.64.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": 133,
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -275,10 +275,10 @@
     "cumulative": 201,
     "hard_class_count": 201
   },
-  "current_phase": 132,
-  "current_version": "9.64.0",
-  "hard_class_count": 207,
-  "hard_class_invariants_cumulative": 207,
+  "current_phase": 133,
+  "current_version": "9.65.0",
+  "hard_class_count": 211,
+  "hard_class_invariants_cumulative": 211,
   "human0_signoffs": [
     {
       "date": "2026-03-27",
@@ -582,10 +582,11 @@
       "tests": "30/30",
       "version": "9.59.0"
     },
-    "INNOV-41": "DORK Living Fleet"
+    "INNOV-41": "DORK Living Fleet",
+    "INNOV-42": "DORK Fleet Server Bridge"
   },
   "last_agent_state_sync_digest": "gsync-a3db906b46c7cce1",
-  "last_completed_phase": "Phase 10 \u00b7 Phase 132 \u00b7 INNOV-41 DORK Living Fleet",
+  "last_completed_phase": 133,
   "last_completed_pr": "feat/phase127-innov37-grrp",
   "last_gate_results": {
     "tier_0": "pass",
@@ -593,14 +594,14 @@
     "tier_2": "pass",
     "tier_3": "pass"
   },
-  "last_innovation": "INNOV-41",
-  "last_innovation_name": "DORK Living Fleet",
+  "last_innovation": "INNOV-42",
+  "last_innovation_name": "DORK Fleet Server Bridge (DFSB)",
   "last_invocation": "2026-04-11",
-  "last_phase_completed": 132,
-  "last_phase_completed_label": "INNOV-41: DORK Living Fleet",
+  "last_phase_completed": 133,
+  "last_phase_completed_label": "INNOV-42: DORK Fleet Server Bridge",
   "last_sync_sha": "b0f184a6",
-  "last_updated": "2026-04-11T11:02:25.774214+00:00",
-  "next_phase": 133,
+  "last_updated": "2026-04-11T11:11:56.574514+00:00",
+  "next_phase": 134,
   "next_pr": "feat/phase128-tbd",
   "open_findings": [
     {
@@ -796,7 +797,7 @@
     }
   ],
   "pending_evidence_rows": [],
-  "phase": 132,
+  "phase": 133,
   "phase_label": "Phase 127 -- INNOV-37 Governed Red-Team Response Protocol (GRRP)",
   "phases_completed": [
     106,
@@ -810,7 +811,7 @@
     127
   ],
   "schema_version": "1.5.0",
-  "software_version": "9.64.0",
+  "software_version": "9.65.0",
   "tife_active": true,
   "value_checkpoints_reached": [
     "phase0-track-a-hardening",
@@ -1101,7 +1102,7 @@
     "phase124-world-first-governed-kernel-extraction",
     "v9.57.0-released"
   ],
-  "version": "9.64.0",
+  "version": "9.65.0",
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"

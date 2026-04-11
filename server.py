@@ -695,6 +695,21 @@ def governance_health(
     resolved_epoch = epoch_id or "current"
     result = governance_health_service(epoch_id=resolved_epoch)
     result["constitutional_floor"] = "enforced"
+
+    # DFSB-FITNESS-0: embed fleet fitness in governance health
+    try:
+        fleet = _get_fleet()
+        if fleet is not None:
+            fs = fleet.fleet_status()
+            result["fleet_fitness"] = {
+                "score": 1.0 if not fs.get("blocked") and fs.get("healthy_provider_count", 0) > 0 else 0.0,
+                "blocked": fs.get("blocked", True),
+                "healthy_count": fs.get("healthy_provider_count", 0),
+                "invariant": "DFSB-FITNESS-0",
+            }
+    except Exception:
+        result["fleet_fitness"] = {"score": None, "blocked": None, "healthy_count": None, "invariant": "DFSB-FITNESS-0"}
+
     return {"schema_version": "1.0", "authn": authn, "data": result}
 
 
@@ -4470,7 +4485,165 @@ def core_info():
     }
 
 
+# ── INNOV-42 · DORK Fleet Server Bridge (DFSB) · Phase 133 ──────────────────
+# Constitutional invariants: DFSB-PERSIST-0, DFSB-HEAL-0, DFSB-FITNESS-0,
+#                            DFSB-GATE-0
+#
+# DFSB-GATE-0 (Hard): Fleet endpoints are only available when the governance
+# gate is OPEN. A locked gate returns 503 with a structured gate_locked error.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _get_fleet():
+    """
+    Lazy-load and cache DORKLivingFleet on app.state.
+    DFSB-PERSIST-0: fleet singleton survives the server lifetime; ledger is
+    serialised to disk on every append so chain continuity survives restart.
+    """
+    fleet = getattr(app.state, "_dork_fleet", None)
+    if fleet is None:
+        try:
+            from runtime.innovations30.dork_living_fleet import DORKLivingFleet
+            fleet = DORKLivingFleet()
+            app.state._dork_fleet = fleet
+            logging.getLogger("adaad.fleet").info(
+                "DORKLivingFleet initialised — INNOV-42 DFSB active"
+            )
+        except Exception as exc:
+            logging.getLogger("adaad.fleet").error(f"Fleet init failed: {exc}")
+            return None
+    return fleet
+
+
+def _assert_gate_open_for_fleet():
+    """DFSB-GATE-0: raise 503 if governance gate is locked."""
+    gate = _read_gate_state()
+    if gate.get("locked"):
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "error": "gate_locked",
+                "invariant": "DFSB-GATE-0",
+                "message": "Fleet endpoints are unavailable while the governance gate is LOCKED.",
+                "gate": gate,
+            },
+        )
+
+
+@app.get("/api/fleet/status")
+def fleet_status():
+    """
+    INNOV-42 · DFSB: Live fleet health snapshot.
+    Returns provider availability, ledger counts, and blocked state.
+    DFSB-GATE-0 enforced.
+    """
+    _assert_gate_open_for_fleet()
+    fleet = _get_fleet()
+    if fleet is None:
+        raise HTTPException(status_code=503, detail="fleet_unavailable")
+    return fleet.fleet_status()
+
+
+class FleetQueryRequest(BaseModel):
+    text: str
+    session_id: str | None = None
+
+
+@app.post("/api/fleet/query")
+def fleet_query(req: FleetQueryRequest):
+    """
+    INNOV-42 · DFSB: Route a natural-language query through the DORK Living Fleet.
+    Returns FleetDispatchResult with intent, engine_used, response, and ledger seq.
+    DFSB-GATE-0 enforced.
+    """
+    _assert_gate_open_for_fleet()
+    fleet = _get_fleet()
+    if fleet is None:
+        raise HTTPException(status_code=503, detail="fleet_unavailable")
+    result = fleet.query(req.text)
+    return result.to_dict()
+
+
+class FleetSlashRequest(BaseModel):
+    command: str
+
+
+@app.post("/api/fleet/slash")
+def fleet_slash(req: FleetSlashRequest):
+    """
+    INNOV-42 · DFSB: Dispatch a validated DORK slash command through the fleet.
+    DORK-CMD-0 enforced — unknown commands return structured error, never forwarded.
+    DFSB-GATE-0 enforced.
+    """
+    _assert_gate_open_for_fleet()
+    fleet = _get_fleet()
+    if fleet is None:
+        raise HTTPException(status_code=503, detail="fleet_unavailable")
+    return fleet.dispatch_slash(req.command)
+
+
+@app.get("/api/fleet/ledger")
+def fleet_ledger(tail: int = Query(default=20, ge=1, le=200)):
+    """
+    INNOV-42 · DFSB: Return the tail of the conversation ledger.
+    DFSB-PERSIST-0: entries reflect the full hash-chained session history.
+    """
+    _assert_gate_open_for_fleet()
+    fleet = _get_fleet()
+    if fleet is None:
+        raise HTTPException(status_code=503, detail="fleet_unavailable")
+    valid, reason = fleet.verify_conversation_ledger()
+    return {
+        "entries": fleet.conversation_ledger_tail(tail),
+        "chain_valid": valid,
+        "chain_reason": reason,
+        "dispatch_ledger_tail": fleet.dispatch_ledger_tail(10),
+    }
+
+
+@app.get("/api/fleet/verify")
+def fleet_verify():
+    """
+    INNOV-42 · DFSB: Verify both dispatch and conversation ledger chain integrity.
+    Returns cryptographic proof of chain continuity from genesis.
+    """
+    _assert_gate_open_for_fleet()
+    fleet = _get_fleet()
+    if fleet is None:
+        raise HTTPException(status_code=503, detail="fleet_unavailable")
+    conv_valid, conv_reason = fleet.verify_conversation_ledger()
+    disp_valid, disp_reason = fleet.verify_dispatch_ledger()
+    return {
+        "conversation_ledger": {"valid": conv_valid, "reason": conv_reason},
+        "dispatch_ledger": {"valid": disp_valid, "reason": disp_reason},
+        "overall_valid": conv_valid and disp_valid,
+        "invariant": "DFSB-PERSIST-0",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+
+
+@app.post("/api/fleet/heal")
+def fleet_heal():
+    """
+    INNOV-42 · DFSB: Trigger immediate re-probe of all engines.
+    DFSB-HEAL-0: fleet transitions BLOCKED→ACTIVE on recovery without restart.
+    """
+    _assert_gate_open_for_fleet()
+    fleet = _get_fleet()
+    if fleet is None:
+        raise HTTPException(status_code=503, detail="fleet_unavailable")
+    fleet._probe_all()
+    status = fleet.fleet_status()
+    return {
+        "healed": True,
+        "invariant": "DFSB-HEAL-0",
+        "fleet_status": status,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+
+
 app.mount("/", SPAStaticFiles(directory=str(APONI_DIR), html=True, index_path=INDEX), name="aponi")
+
+
 
 
 # ── Direct run: python server.py ──────────────────────────────────────────

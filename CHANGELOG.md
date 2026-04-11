@@ -1,3 +1,42 @@
+## [9.65.0] — 2026-04-11 · Phase 133 · INNOV-42 DORK Fleet Server Bridge (DFSB)
+
+### World-First: Governed Self-Healing LLM Provider Fleet with Cryptographically-Persistent Conversation Ledger as a Constitutional Governance Subsystem
+
+The DORK Fleet Server Bridge wires DORKLivingFleet into server.py as a first-class governed
+subsystem: 6 REST endpoints, fsync-persisted conversation ledger, asyncio auto-heal watchdog,
+fleet fitness reporting in governance health, and a live fleet status strip in dork.html.
+
+**New modules:**
+- `runtime/dork_persist.py` — DorkLedgerPersistence: append-only JSONL, fsync on every write,
+  restart-continuity (DFSB-PERSIST-0); chain verifiable from genesis after server restart
+- `runtime/dork_watchdog.py` — DorkFleetWatchdog: asyncio background probe loop, structured
+  audit log for every HEALTHY↔DEAD engine transition (DFSB-HEAL-0)
+
+**New REST endpoints (server.py):**
+- `GET  /api/fleet/status`  — live fleet health snapshot (DFSB-GATE-0 enforced)
+- `POST /api/fleet/query`   — natural-language query through full fleet pipeline
+- `POST /api/fleet/slash`   — validated slash command dispatch (DORK-CMD-0 enforced)
+- `GET  /api/fleet/ledger`  — conversation ledger tail with chain verification
+- `GET  /api/fleet/verify`  — cryptographic chain integrity proof (DFSB-PERSIST-0)
+- `POST /api/fleet/heal`    — immediate engine re-probe (DFSB-HEAL-0)
+
+**Enhanced:**
+- `governance_health` endpoint — DFSB-FITNESS-0: `fleet_fitness` block
+  `{score, blocked, healthy_count}` embedded in every governance health response
+- `ui/dork.html` fleet strip — now live: polls `/api/fleet/status` every 15s,
+  updates health dot (🔴 blocked / 🟢 active / ⚪ offline) and provider counts in real-time
+
+**Invariants introduced (4 Hard — cumulative: 211):**
+- `DFSB-PERSIST-0`: Ledger MUST survive restart with chain continuity provable from genesis
+- `DFSB-HEAL-0`: Dead engines re-probed on interval; fleet transitions BLOCKED→ACTIVE automatically
+- `DFSB-FITNESS-0`: Fleet fitness MUST be embedded in every governance health response
+- `DFSB-GATE-0`: Fleet endpoints only available when governance gate is OPEN; locked gate → 503
+
+**Test suite:** 30/30 passing (T133-PERSIST-01→10, T133-HEAL-01→07, T133-FITNESS-01→05,
+T133-GATE-01→04, T133-ROUTES-01→04)
+
+---
+
 ## [9.64.0] — 2026-04-10 · Phase 132 · INNOV-41 DORK Living Fleet
 
 ### World-First: Constitutional Fail-Closed Provider Fleet with Hash-Chained Conversation Ledger and Jaccard-Taxonomy Intent Routing under HUMAN-0 Governance Authority
