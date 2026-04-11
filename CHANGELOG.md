@@ -1,3 +1,15 @@
+## [Unreleased]
+
+### DFSB persistence integration hardening (Phase 133 follow-up)
+
+- Integrated `runtime/dork_persist.py::DorkLedgerPersistence` into
+  `DORKLivingFleet` startup and query append flow so server fleet endpoints
+  read restart-stable chain continuity, not process-lifetime-only state.
+- Added fail-closed invariant propagation for persistence write failures in
+  `/api/fleet/query` responses.
+- Added integration tests that exercise `/api/fleet/query`, `/api/fleet/ledger`,
+  and `/api/fleet/verify` across simulated restart boundaries.
+
 ## [9.67.0] — 2026-04-11 · Phase 135 · INNOV-43 Constitution Versioning and Rollback (CVR)
 
 ### World-First: Constitutional Git-Blame-Equivalent with Cryptographic Chain Integrity and HUMAN-0-Gated Rollback
