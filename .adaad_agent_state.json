@@ -272,11 +272,11 @@
     "phase130-complete"
   ],
   "constitutional_invariants": {
-    "cumulative": 211,
+    "cumulative": 216,
     "hard_class_count": 201
   },
   "current_phase": 133,
-  "current_version": "9.66.0",
+  "current_version": "9.67.0",
   "hard_class_count": 211,
   "hard_class_invariants_cumulative": 211,
   "human0_signoffs": [
@@ -617,10 +617,25 @@
         "DFSB-CHAIN-0"
       ],
       "description": "DORK Fleet Server Bridge"
+    },
+    "INNOV-43": {
+      "module": "constitution_version_ledger.py",
+      "phase": 135,
+      "tests": "30/30",
+      "version": "9.67.0",
+      "hard_invariants": 5,
+      "invariants": [
+        "CVR-IMMUT-0",
+        "CVR-DIGEST-0",
+        "CVR-ROLLBACK-0",
+        "CVR-HUMAN0-0",
+        "CVR-CHAIN-0"
+      ],
+      "description": "Constitution Versioning and Rollback"
     }
   },
   "last_agent_state_sync_digest": "gsync-8fd171feec98ed0a",
-  "last_completed_phase": "Phase 11 \u00b7 Phase 134 \u00b7 REF-001\u2013004 DFSB Post-Ship Remediation",
+  "last_completed_phase": "Phase 135 \u00b7 INNOV-43 Constitution Versioning and Rollback (CVR)",
   "last_completed_pr": "feat/phase127-innov37-grrp",
   "last_gate_results": {
     "tier_0": "pass",
@@ -831,7 +846,7 @@
     }
   ],
   "pending_evidence_rows": [],
-  "phase": 134,
+  "phase": 135,
   "phase_label": "Phase 127 -- INNOV-37 Governed Red-Team Response Protocol (GRRP)",
   "phases_completed": [
     106,
@@ -1141,6 +1156,6 @@
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
   ],
-  "hard_class_invariant_count": 211,
+  "hard_class_invariant_count": 216,
   "innovations_count": 42
 }
