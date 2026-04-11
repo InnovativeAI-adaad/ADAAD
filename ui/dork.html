@@ -850,6 +850,13 @@ body {
       <div class="hint" id="key-hint"></div>
     </div>
     <div class="cfg-field">
+      <label style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="cfg-remember-key">
+        Remember key for this session
+      </label>
+      <div class="hint">Off by default. When enabled, key is kept only in session storage with a short TTL.</div>
+    </div>
+    <div class="cfg-field">
       <label>Model</label>
       <input type="text" id="cfg-model" placeholder="claude-sonnet-4-6">
     </div>
@@ -862,6 +869,7 @@ body {
     <div class="cfg-actions">
       <button class="btn-cancel" id="cfg-cancel">Cancel</button>
       <button class="btn-danger" id="cfg-clear">Clear chat</button>
+      <button class="btn-danger" id="cfg-clear-secrets">Clear secrets</button>
       <button class="btn-save" id="cfg-save">Save</button>
     </div>
   </div>
@@ -876,11 +884,75 @@ body {
 const SERVER_KEY_AVAILABLE  = window.__anthropic_key_available ?? false;
 const SERVER_PROXY_ENDPOINT = '/api/dork/stream';
 const DIRECT_API_URL        = 'https://api.anthropic.com/v1/messages';
+const SESSION_KEY_STORAGE_KEY = 'dork_api_key_session_v1';
+const SESSION_KEY_TTL_MS      = 4 * 60 * 60 * 1000;
+
+const MEM = {
+  dorkApiKey: '',
+  rememberKeyForSession: false,
+};
+
+function readSessionKey() {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY_STORAGE_KEY);
+    if (!raw) return '';
+    const parsed = JSON.parse(raw);
+    const key = typeof parsed?.key === 'string' ? parsed.key.trim() : '';
+    const exp = Number(parsed?.expiresAt || 0);
+    if (!key || !exp || Date.now() > exp) {
+      sessionStorage.removeItem(SESSION_KEY_STORAGE_KEY);
+      return '';
+    }
+    MEM.rememberKeyForSession = true;
+    return key;
+  } catch (_) {
+    return '';
+  }
+}
+
+function writeSessionKey(key) {
+  try {
+    if (!key) {
+      sessionStorage.removeItem(SESSION_KEY_STORAGE_KEY);
+      return;
+    }
+    sessionStorage.setItem(SESSION_KEY_STORAGE_KEY, JSON.stringify({
+      key,
+      expiresAt: Date.now() + SESSION_KEY_TTL_MS,
+    }));
+  } catch (_) {}
+}
+
+function clearSecrets() {
+  MEM.dorkApiKey = '';
+  MEM.rememberKeyForSession = false;
+  writeSessionKey('');
+  const keyInput = q('#cfg-key');
+  const remember = q('#cfg-remember-key');
+  if (keyInput) keyInput.value = '';
+  if (remember) remember.checked = false;
+}
 
 /* ── Persisted config ── */
 const CFG = {
-  get key()    { return localStorage.getItem('dork_api_key')  || ''; },
-  set key(v)   { localStorage.setItem('dork_api_key', v); },
+  get key()    {
+    if (MEM.dorkApiKey) return MEM.dorkApiKey;
+    MEM.dorkApiKey = readSessionKey();
+    return MEM.dorkApiKey || '';
+  },
+  set key(v)   {
+    MEM.dorkApiKey = (v || '').trim();
+    if (MEM.rememberKeyForSession) writeSessionKey(MEM.dorkApiKey);
+    else writeSessionKey('');
+  },
+  get rememberKeyForSession() {
+    return MEM.rememberKeyForSession;
+  },
+  set rememberKeyForSession(v) {
+    MEM.rememberKeyForSession = !!v;
+    if (!MEM.rememberKeyForSession) writeSessionKey('');
+    else if (MEM.dorkApiKey) writeSessionKey(MEM.dorkApiKey);
+  },
   get model()  { return localStorage.getItem('dork_model')    || 'claude-sonnet-4-6'; },
   set model(v) { localStorage.setItem('dork_model', v); },
   get gov()    { return localStorage.getItem('dork_gov_url')  || '/api/whale/snapshot'; },
@@ -1391,6 +1463,7 @@ function checkScrollBtn() {
    ═══════════════════════════════════════════ */
 function openCfg() {
   q('#cfg-key').value   = CFG.key;
+  q('#cfg-remember-key').checked = CFG.rememberKeyForSession;
   q('#cfg-model').value = CFG.model;
   q('#cfg-gov').value   = CFG.gov;
   const hint = q('#key-hint');
@@ -1405,6 +1478,7 @@ function openCfg() {
 }
 function closeCfg() { D.cfgOverlay.classList.remove('open'); }
 function saveCfg() {
+  CFG.rememberKeyForSession = q('#cfg-remember-key').checked;
   CFG.key   = q('#cfg-key').value.trim();
   CFG.model = q('#cfg-model').value.trim()  || 'claude-sonnet-4-6';
   CFG.gov   = q('#cfg-gov').value.trim()    || '/api/whale/snapshot';
@@ -1418,6 +1492,7 @@ function clearChat() {
   S.msgs = [];
   D.msgs.innerHTML = '';
   sessionStorage.removeItem('dork_msgs');
+  clearSecrets();
   D.quickPrompts.classList.remove('hidden');
   closeCfg();
   welcome();
@@ -1483,6 +1558,7 @@ function init() {
   q('#cfg-cancel').addEventListener('click', closeCfg);
   q('#cfg-save').addEventListener('click', saveCfg);
   q('#cfg-clear').addEventListener('click', clearChat);
+  q('#cfg-clear-secrets').addEventListener('click', clearSecrets);
   D.cfgOverlay.addEventListener('click', e => { if (e.target === D.cfgOverlay) closeCfg(); });
 
   /* Keyboard shortcuts */
