@@ -137,10 +137,41 @@ class DorkLedgerPersistence:
     def verify(self) -> tuple[bool, str]:
         """Re-derive full chain from genesis. Returns (valid, reason)."""
         prev = "0" * 64
+        required_fields = ("seq", "role", "content_digest", "timestamp", "prev_hash", "entry_hash")
         for i, entry in enumerate(self):
+            for field in required_fields:
+                if field not in entry:
+                    return False, f"verify_failed:index={i}:missing_field:{field}"
+
+            actual_seq = entry.get("seq")
+            if actual_seq != i:
+                return (
+                    False,
+                    f"verify_failed:index={i}:seq_mismatch:expected={i}:actual={actual_seq}",
+                )
+
             if entry.get("prev_hash") != prev:
-                return False, f"Chain break at seq={i}"
-            prev = entry.get("entry_hash", "")
+                return (
+                    False,
+                    f"verify_failed:index={i}:prev_hash_mismatch:expected={prev}:actual={entry.get('prev_hash')}",
+                )
+
+            payload = json.dumps({
+                "seq": entry["seq"],
+                "role": entry["role"],
+                "content_digest": entry["content_digest"],
+                "timestamp": entry["timestamp"],
+                "prev_hash": entry["prev_hash"],
+            }, sort_keys=True)
+            expected_entry_hash = hashlib.sha256(payload.encode()).hexdigest()
+            actual_entry_hash = entry.get("entry_hash")
+            if actual_entry_hash != expected_entry_hash:
+                return (
+                    False,
+                    f"verify_failed:index={i}:entry_hash_mismatch:expected={expected_entry_hash}:actual={actual_entry_hash}",
+                )
+
+            prev = actual_entry_hash
         return True, "chain_valid"
 
     @property

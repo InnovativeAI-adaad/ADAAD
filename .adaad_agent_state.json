@@ -634,7 +634,7 @@
       "description": "Constitution Versioning and Rollback"
     }
   },
-  "last_agent_state_sync_digest": "gsync-ace7e1f03ee3dd56",
+  "last_agent_state_sync_digest": "gsync-266c7309e0dbf893",
   "last_completed_phase": "Phase 11 \u00b7 Phase 136 \u00b7 DORK ConversationLedger Verify Hardening",
   "last_completed_pr": "feat/phase127-innov37-grrp",
   "last_gate_results": {
@@ -648,7 +648,7 @@
   "last_invocation": "2026-04-11",
   "last_phase_completed": 133,
   "last_phase_completed_label": "INNOV-42: DORK Fleet Server Bridge",
-  "last_sync_sha": "ef179591",
+  "last_sync_sha": "80d71302",
   "last_updated": "2026-04-11T12:38:12.268044+00:00",
   "next_phase": 134,
   "next_pr": "feat/phase128-tbd",
