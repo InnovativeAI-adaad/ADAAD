@@ -149,7 +149,17 @@ async def _lifespan(application: FastAPI):  # noqa: ARG001
             "<p>Place the full Aponi build in <code>ui/aponi/</code>.</p></body></html>",
             encoding="utf-8",
         )
-    yield
+
+    fleet = _get_fleet()
+    if fleet is not None:
+        _start_fleet_watchdog_once()
+
+    try:
+        yield
+    finally:
+        watchdog = getattr(application.state, "_dork_fleet_watchdog", None)
+        if watchdog is not None:
+            await watchdog.stop()
 
 
 app = FastAPI(title="InnovativeAI-adaad Unified Server", lifespan=_lifespan)
@@ -4493,6 +4503,33 @@ def core_info():
 # gate is OPEN. A locked gate returns 503 with a structured gate_locked error.
 # ─────────────────────────────────────────────────────────────────────────────
 
+def _get_or_create_fleet_watchdog(fleet):
+    watchdog = getattr(app.state, "_dork_fleet_watchdog", None)
+    if watchdog is None:
+        from runtime.dork_watchdog import DorkFleetWatchdog
+
+        watchdog = DorkFleetWatchdog(fleet)
+        app.state._dork_fleet_watchdog = watchdog
+    return watchdog
+
+
+def _start_fleet_watchdog_once() -> bool:
+    watchdog_started = getattr(app.state, "_dork_fleet_watchdog_started", False)
+    if watchdog_started:
+        return False
+
+    watchdog = getattr(app.state, "_dork_fleet_watchdog", None)
+    if watchdog is None:
+        fleet = getattr(app.state, "_dork_fleet", None)
+        if fleet is None:
+            return False
+        watchdog = _get_or_create_fleet_watchdog(fleet)
+
+    watchdog.start()
+    app.state._dork_fleet_watchdog_started = True
+    return True
+
+
 def _get_fleet():
     """
     Lazy-load and cache DORKLivingFleet on app.state.
@@ -4503,6 +4540,7 @@ def _get_fleet():
     if fleet is None:
         try:
             from runtime.innovations30.dork_living_fleet import DORKLivingFleet
+
             fleet = DORKLivingFleet()
             app.state._dork_fleet = fleet
             logging.getLogger("adaad.fleet").info(
@@ -4511,6 +4549,8 @@ def _get_fleet():
         except Exception as exc:
             logging.getLogger("adaad.fleet").error(f"Fleet init failed: {exc}")
             return None
+
+    _get_or_create_fleet_watchdog(fleet)
     return fleet
 
 
@@ -4559,7 +4599,17 @@ def fleet_query(req: FleetQueryRequest):
     fleet = _get_fleet()
     if fleet is None:
         raise HTTPException(status_code=503, detail="fleet_unavailable")
-    result = fleet.query(req.text)
+    try:
+        result = fleet.query(req.text)
+    except RuntimeError as exc:
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "error": "fleet_invariant_violation",
+                "invariant": "DFSB-PERSIST-0",
+                "message": str(exc),
+            },
+        ) from exc
     return result.to_dict()
 
 

@@ -33,6 +33,16 @@ auditable version history of its own governing constitution with full replay det
 #### Module: `runtime/innovations30/constitution_version_ledger.py`
 #### Data: `data/constitution/version_ledger.jsonl`
 
+### Maintenance update — DFSB watchdog runtime lifecycle hardening
+
+- `server.py` now creates exactly one `DorkFleetWatchdog` instance per FastAPI app runtime
+  and stores it on `app.state` alongside the fleet singleton.
+- Watchdog startup is scheduled idempotently after fleet creation, preventing duplicate
+  background probe tasks across repeated initialization paths.
+- FastAPI lifespan shutdown now awaits `watchdog.stop()` to avoid orphaned asyncio tasks.
+- Phase 133 DFSB tests extended to verify single-start lifecycle behavior and transition
+  audit emission during watchdog-driven health changes.
+
 ## [9.66.0] — 2026-04-11 · Phase 134 · REF-001–004 DFSB Post-Ship Remediation
 
 ### Remediation: DORK Fleet Server Bridge Configuration Hardening

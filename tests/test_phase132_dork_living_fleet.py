@@ -327,3 +327,72 @@ class TestDORKLivingFleet:
         fleet.query("what is gate status?")
         valid, reason = fleet.verify_dispatch_ledger()
         assert valid is True
+
+    def test_T132_FLEET_09_non_slash_dispatch_uses_provider_adapter(self, monkeypatch):
+        """T132-FLEET-09: non-slash query dispatches through selected provider adapter."""
+        engine = FleetEngine("engine", "dork_engine", "", "dork-model", 1)
+        engine._healthy = True
+        fleet = DORKLivingFleet(engines=[engine], manifest_path=MANIFEST_PATH)
+
+        monkeypatch.setattr(
+            fleet,
+            "_dispatch_via_dork_engine",
+            lambda text, eng: "adapter-response-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        )
+        fleet._provider_dispatchers["dork_engine"] = fleet._dispatch_via_dork_engine
+
+        result = fleet.query("tell me something")
+        assert result.status == "ok"
+        assert "[hash-redacted]" in result.response
+        tail = fleet.conversation_ledger_tail(2)
+        assert [e["role"] for e in tail] == ["user", "assistant"]
+
+    def test_T132_FLEET_10_provider_failure_respects_fallback_policy(self, monkeypatch):
+        """T132-FLEET-10: provider error returns structured payload unless fallback explicitly enabled."""
+        engine = FleetEngine("engine", "dork_engine", "", "dork-model", 1)
+        engine._healthy = True
+        fleet = DORKLivingFleet(engines=[engine], manifest_path=MANIFEST_PATH)
+
+        def boom(_text, _eng):
+            raise RuntimeError("provider down")
+
+        monkeypatch.setattr(fleet, "_dispatch_via_dork_engine", boom)
+        fleet._provider_dispatchers["dork_engine"] = fleet._dispatch_via_dork_engine
+
+        monkeypatch.delenv("ADAAD_DORK_FLEET_ALLOW_DETERMINISTIC_FALLBACK", raising=False)
+        result_error = fleet.query("status please")
+        assert result_error.status == "error"
+        assert result_error.error is not None
+        assert '"provider_name": "engine"' in result_error.error
+        assert '"fallback_applied": false' in result_error.error
+
+        monkeypatch.setenv("ADAAD_DORK_FLEET_ALLOW_DETERMINISTIC_FALLBACK", "true")
+        result_fallback = fleet.query("status please")
+        assert result_fallback.status == "ok"
+        assert "[DORK-FLEET deterministic fallback]" in result_fallback.response
+        assert result_fallback.error is not None
+        assert '"fallback_applied": true' in result_fallback.error
+
+    def test_T132_FLEET_11_output_sanitization_applied_on_success_and_failure(self, monkeypatch):
+        """T132-FLEET-11: OPT-005 sanitizer is always applied for provider output and error payloads."""
+        engine = FleetEngine("engine", "dork_engine", "", "dork-model", 1)
+        engine._healthy = True
+        fleet = DORKLivingFleet(engines=[engine], manifest_path=MANIFEST_PATH)
+
+        monkeypatch.setattr(
+            fleet,
+            "_dispatch_via_dork_engine",
+            lambda _text, _eng: "ok cccccccccccccccccccccccccccccccc",
+        )
+        fleet._provider_dispatchers["dork_engine"] = fleet._dispatch_via_dork_engine
+        ok_result = fleet.query("normal")
+        assert "[hash-redacted]" in ok_result.response
+
+        def boom(_text, _eng):
+            raise RuntimeError("bad dddddddddddddddddddddddddddddddd")
+
+        monkeypatch.setattr(fleet, "_dispatch_via_dork_engine", boom)
+        fleet._provider_dispatchers["dork_engine"] = fleet._dispatch_via_dork_engine
+        monkeypatch.delenv("ADAAD_DORK_FLEET_ALLOW_DETERMINISTIC_FALLBACK", raising=False)
+        err_result = fleet.query("normal")
+        assert "[hash-redacted]" in err_result.response

@@ -42,6 +42,7 @@ from dorkllm.state import (
 )
 from dorkllm.context import classify_query, get_taxonomy_hints
 from runtime.dork_cmd_resolver import DorkCommandResolver, CommandError, ManifestLoadError
+from runtime.dork_persist import DorkLedgerPersistence, PersistenceWriteError
 
 
 # ── INNOV-41 Metadata ─────────────────────────────────────────────────────────
@@ -61,6 +62,10 @@ class FleetBlockedError(RuntimeError):
 
 class FleetMutationBlockedError(RuntimeError):
     """DORK-FLEET-0: raised when mutation promotion attempted without cmd resolver pass."""
+
+
+class FleetInvariantError(RuntimeError):
+    """Raised when a hard fleet invariant is violated and execution must fail-closed."""
 
 
 # ── Engine Types ──────────────────────────────────────────────────────────────
@@ -219,6 +224,11 @@ class DORKLivingFleet:
 
         # Engine 3: Conversation ledger
         self._conversation_ledger = ConversationLedger()
+        persistence_path = os.getenv("DORK_FLEET_LEDGER_PATH")
+        self._persistence = DorkLedgerPersistence(
+            Path(persistence_path) if persistence_path else None
+        )
+        self._hydrate_conversation_ledger_from_persistence()
 
         # Fleet-level chain ledger for dispatch events
         self._dispatch_ledger: list[dict] = []
@@ -226,6 +236,22 @@ class DORKLivingFleet:
 
         # Initial health probe
         self._probe_all()
+
+    def _hydrate_conversation_ledger_from_persistence(self) -> None:
+        """
+        Align process-local ledger with persisted chain tail.
+
+        Rationale:
+          - ConversationLedger is process-lifetime only.
+          - DorkLedgerPersistence is restart-stable and defines canonical continuity.
+        Invariant:
+          - startup alignment must preserve seq continuity for live telemetry/state.
+        """
+        for entry in self._persistence:
+            self._conversation_ledger.append(
+                entry.get("role", "system"),
+                entry.get("content_digest", ""),
+            )
 
     # ── Default engines from provider_config.json ─────────────────────────────
     @staticmethod
@@ -291,7 +317,7 @@ class DORKLivingFleet:
             "healthy_provider_count": healthy_count,
             "total_provider_count": len(self._engines),
             "providers": provider_summary,
-            "conversation_ledger_entries": len(self._conversation_ledger),
+            "conversation_ledger_entries": self._persistence.entry_count,
             "dispatch_ledger_entries": len(self._dispatch_ledger),
             "cmd_resolver_loaded": self._cmd_resolver is not None,
             "cmd_resolver_commands": (
@@ -317,6 +343,57 @@ class DORKLivingFleet:
         return result
 
     # ── Natural language query dispatch ───────────────────────────────────────
+    def _deterministic_fallback_allowed(self) -> bool:
+        """
+        Deterministic fallback is explicitly opt-in.
+        Defaults fail-closed to preserve governance behavior.
+        """
+        raw = os.getenv("ADAAD_DORK_FLEET_ALLOW_DETERMINISTIC_FALLBACK", "")
+        return raw.strip().lower() in {"1", "true", "yes", "on"}
+
+    def _deterministic_fallback_response(self, text: str, engine: FleetEngine, reason: str) -> str:
+        return (
+            f"[DORK-FLEET deterministic fallback] provider={engine.name} "
+            f"model={engine.model} reason={reason} query_sha={hashlib.sha256(text.encode()).hexdigest()[:16]}"
+        )
+
+    def _dispatch_via_dork_engine(self, text: str, engine: FleetEngine) -> str:
+        from dorkllm.intelligence import ask
+
+        answer, _ = ask(text, messages=[])
+        return answer
+
+    def _dispatch_via_ollama(self, text: str, engine: FleetEngine) -> str:
+        # Ollama is routed through the existing dorkllm intelligence adapter.
+        return self._dispatch_via_dork_engine(text, engine)
+
+    def _dispatch_via_remote_api(self, text: str, engine: FleetEngine) -> str:
+        import urllib.request
+
+        payload = json.dumps({
+            "model": engine.model,
+            "messages": [{"role": "user", "content": text}],
+            "stream": False,
+        }).encode("utf-8")
+        req = urllib.request.Request(
+            f"{engine.url.rstrip('/')}/v1/chat/completions",
+            data=payload,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        if engine.api_key:
+            req.add_header("Authorization", f"Bearer {engine.api_key}")
+
+        with urllib.request.urlopen(req, timeout=engine.timeout_seconds) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+        return str(data.get("choices", [{}])[0].get("message", {}).get("content", ""))
+
+    def _dispatch_provider(self, text: str, engine: FleetEngine) -> str:
+        dispatcher = self._provider_dispatchers.get(engine.provider_type)
+        if dispatcher is None:
+            raise ValueError(f"unsupported_provider_type:{engine.provider_type}")
+        return dispatcher(text, engine)
+
     def query(self, text: str) -> FleetDispatchResult:
         """
         Route a natural-language DORK query through the full pipeline:
@@ -354,21 +431,42 @@ class DORKLivingFleet:
                 if slash_result["status"] == "ok"
                 else f"[DORK-CMD-0 VIOLATION] {slash_result['error']}"
             )
+            status = "ok"
+            error_payload = None
         else:
-            # Standard LLM dispatch (stub — actual Ollama call in intelligence.py)
-            response = (
-                f"[DORK·{engine.name}] Query routed to {engine.model} "
-                f"via {engine.url} (intent={intent_cat}, conf={intent_conf:.3f}). "
-                f"Connect Ollama to receive full response."
-            )
+            # Standard LLM dispatch through concrete provider adapters.
+            try:
+                response = self._dispatch_provider(text, engine)
+                status = "ok"
+                error_payload = None
+            except Exception as exc:  # noqa: BLE001
+                fallback_allowed = self._deterministic_fallback_allowed()
+                error_payload = {
+                    "type": "provider_dispatch_error",
+                    "provider_name": engine.name,
+                    "provider_type": engine.provider_type,
+                    "model": engine.model,
+                    "reason": str(exc),
+                    "fallback_applied": fallback_allowed,
+                }
+                if fallback_allowed:
+                    response = self._deterministic_fallback_response(text, engine, str(exc))
+                    status = "ok"
+                else:
+                    response = json.dumps(error_payload, sort_keys=True)
+                    status = "error"
 
         # Engine 3: Conversation ledger (DORK-STATE-0)
         try:
-            user_entry = self._conversation_ledger.append("user", text)
+            self._conversation_ledger.append("user", text)
+            self._persistence.append("user", text)
             asst_entry = self._conversation_ledger.append("assistant", response)
+            self._persistence.append("assistant", response)
             ledger_seq = asst_entry["seq"]
-        except ConversationLedgerViolation as exc:
-            ledger_seq = -1
+        except (ConversationLedgerViolation, PersistenceWriteError) as exc:
+            raise FleetInvariantError(
+                f"DFSB-PERSIST-0 VIOLATION: append failed and query cannot continue: {exc}"
+            ) from exc
 
         # OPT-005 sanitize (DORK-OUTPUT-0)
         from dorkllm.intelligence import opt_005_sanitize_output
@@ -386,7 +484,8 @@ class DORKLivingFleet:
             conversation_ledger_seq=ledger_seq,
             fleet_health_snapshot=self.fleet_status(),
             duration_ms=duration,
-            status="ok",
+            status=status,
+            error=(json.dumps(error_payload, sort_keys=True) if error_payload else None),
         )
 
     # ── Mutation promotion guard (DORK-FLEET-0) ───────────────────────────────
@@ -431,7 +530,7 @@ class DORKLivingFleet:
 
     # ── Conversation ledger accessor ──────────────────────────────────────────
     def conversation_ledger_tail(self, n: int = 5) -> list[dict]:
-        return self._conversation_ledger.tail(n)
+        return self._persistence.tail(n)
 
     def verify_conversation_ledger(self) -> tuple[bool, str]:
-        return self._conversation_ledger.verify()
+        return self._persistence.verify()
