@@ -1,15 +1,18 @@
 """
 Phase 133 · INNOV-42 · DORK Fleet Server Bridge — Test Suite
-30/30 tests covering DFSB-PERSIST-0, DFSB-HEAL-0, DFSB-FITNESS-0, DFSB-GATE-0.
+32 tests covering DFSB-PERSIST-0, DFSB-HEAL-0, DFSB-FITNESS-0, DFSB-GATE-0.
 Naming convention: T133-{CATEGORY}-{SEQ}
 """
 
 import asyncio
 import json
 import os
+import types
 import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock, patch
+
+from fastapi.testclient import TestClient
 
 import pytest
 
@@ -190,6 +193,23 @@ class TestDorkFleetWatchdog:
         wd = DorkFleetWatchdog(fleet, interval=42.5)
         assert wd._interval == 42.5
 
+    def test_T133_HEAL_08_probe_cycle_emits_transition_audit(self, fleet, tmp_path):
+        """T133-HEAL-08: probe cycle writes transition audit when health changes."""
+        from dorkllm.state import ProviderStatus
+
+        log_path = tmp_path / "watchdog.jsonl"
+        stub = fleet._engines[0]
+        stub._healthy = True
+        with patch.object(stub, "probe", return_value=ProviderStatus("stub", False, 0.1, "down")), \
+             patch("runtime.dork_watchdog.HEAL_LOG_PATH", str(log_path)):
+            wd = DorkFleetWatchdog(fleet, interval=999)
+            wd._run_probe_cycle()
+
+        entries = [json.loads(line) for line in log_path.read_text().splitlines() if line.strip()]
+        assert len(entries) == 1
+        assert entries[0]["event"] == "engine_failed"
+        assert entries[0]["transition"] == "HEALTHY→DEAD"
+
 
 # ── DFSB-FITNESS-0: Fleet fitness in governance response — 5 tests ────────────
 
@@ -279,6 +299,62 @@ class TestDfsbGate:
         with patch.object(fleet._engines[0], 'probe', return_value=ProviderStatus("stub", True, 1.0)):
             fleet._probe_all()
         assert fleet.fleet_status()["healthy_provider_count"] >= 0
+
+
+
+
+class _WatchdogProbeStub:
+    def __init__(self):
+        self.start_calls = 0
+        self.stop_calls = 0
+
+    def start(self, loop=None):
+        self.start_calls += 1
+
+    async def stop(self):
+        self.stop_calls += 1
+
+
+class TestDfsbServerWatchdogLifecycle:
+    """T133-LIFE-*: watchdog lifecycle wiring in server runtime."""
+
+    def test_T133_LIFE_01_watchdog_started_once(self):
+        llm_provider_stub = types.ModuleType("runtime.intelligence.llm_provider")
+        llm_provider_stub.LLMProviderClient = object
+        llm_provider_stub.LLMProviderConfig = object
+        llm_provider_stub.LLMProviderResult = object
+        llm_provider_stub.RetryPolicy = object
+        llm_provider_stub.load_provider_config = lambda: None
+
+        with patch.dict(sys.modules, {"runtime.intelligence.llm_provider": llm_provider_stub}):
+            try:
+                import server
+            except (ImportError, SyntaxError) as exc:
+                pytest.skip(f"server import unavailable in test environment: {exc}")
+
+            fleet_obj = object()
+            watchdog_stub = _WatchdogProbeStub()
+            for name in (
+                "_dork_fleet",
+                "_dork_fleet_watchdog",
+                "_dork_fleet_watchdog_started",
+                "whaledic_secret_policy",
+            ):
+                if hasattr(server.app.state, name):
+                    delattr(server.app.state, name)
+
+            with patch("server.enforce_whaledic_secret_policy", return_value={"status": "ok"}), \
+                 patch("server._get_fleet", return_value=fleet_obj), \
+                 patch("server._get_or_create_fleet_watchdog", return_value=watchdog_stub), \
+                 patch("server._read_gate_state", return_value={"locked": False}), \
+                 patch.object(server.app.state, "_dork_fleet", fleet_obj, create=True), \
+                 patch.object(server.app.state, "_dork_fleet_watchdog", watchdog_stub, create=True), \
+                 patch.object(server.app.state, "_dork_fleet_watchdog_started", False, create=True):
+                with TestClient(server.app):
+                    pass
+
+            assert watchdog_stub.start_calls == 1
+            assert watchdog_stub.stop_calls == 1
 
 
 # ── Server endpoints registered — 4 tests ────────────────────────────────────
