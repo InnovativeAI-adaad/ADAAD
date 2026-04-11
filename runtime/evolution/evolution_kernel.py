@@ -24,6 +24,7 @@ from runtime import metrics
 from runtime.evolution.change_classifier import apply_metadata_updates, classify_mutation_change
 from runtime.evolution.mutation_fitness_evaluator import MutationFitnessEvaluator
 from runtime.governance.policy_validator import PolicyValidator
+from runtime.integrations.aponi_sync import push_to_dashboard
 from runtime.preflight import validate_mutation_proposal_schema
 from security import cryovant
 
@@ -205,7 +206,116 @@ class EvolutionKernel:
             return payload
         return None
 
-    def run_cycle(self, agent_id: Optional[str] = None) -> Dict[str, Any]:
+    def _load_previous_cycle_signal(self, agent_id: str) -> Dict[str, Any]:
+        """Load deterministic previous-cycle trigger signal values."""
+        signal_path = ROOT_DIR / "data" / "evolution_trigger_signal.json"
+        default_signal = {
+            "previous_failed": False,
+            "previous_quarantined": False,
+            "latest_fitness_score": None,
+            "latest_fitness_threshold": None,
+        }
+        if not signal_path.exists():
+            return default_signal
+
+        try:
+            payload = self._read_json(signal_path)
+        except (json.JSONDecodeError, OSError):
+            return default_signal
+
+        raw = payload.get(agent_id, payload) if isinstance(payload, Mapping) else {}
+        if not isinstance(raw, Mapping):
+            return default_signal
+        return {
+            "previous_failed": bool(raw.get("previous_failed")),
+            "previous_quarantined": bool(raw.get("previous_quarantined")),
+            "latest_fitness_score": raw.get("latest_fitness_score"),
+            "latest_fitness_threshold": raw.get("latest_fitness_threshold"),
+        }
+
+    @staticmethod
+    def _evaluate_mutation_trigger(signal: Mapping[str, Any], *, manual_trigger: bool) -> Dict[str, Any]:
+        previous_failed = bool(signal.get("previous_failed"))
+        previous_quarantined = bool(signal.get("previous_quarantined"))
+        latest_fitness_score = signal.get("latest_fitness_score")
+        latest_fitness_threshold = signal.get("latest_fitness_threshold")
+        under_threshold = False
+        if isinstance(latest_fitness_score, (int, float)) and isinstance(latest_fitness_threshold, (int, float)):
+            under_threshold = latest_fitness_score < latest_fitness_threshold
+
+        if manual_trigger:
+            trigger_reason = "manual_trigger"
+        elif previous_failed:
+            trigger_reason = "previous_failed"
+        elif previous_quarantined:
+            trigger_reason = "previous_quarantined"
+        elif under_threshold:
+            trigger_reason = "below_fitness_threshold"
+        else:
+            trigger_reason = "healthy_no_trigger"
+
+        should_trigger = manual_trigger or previous_failed or previous_quarantined or under_threshold
+        return {
+            "triggered": should_trigger,
+            "trigger_reason": trigger_reason,
+            "manual_trigger": manual_trigger,
+            "previous_failed": previous_failed,
+            "previous_quarantined": previous_quarantined,
+            "latest_fitness_score": latest_fitness_score,
+            "latest_fitness_threshold": latest_fitness_threshold,
+            "under_threshold": under_threshold,
+        }
+
+    @staticmethod
+    def _lineage_linkage(mutation_payload: Mapping[str, Any]) -> tuple[str, str]:
+        mutation_id = mutation_payload.get("mutation_id")
+        if isinstance(mutation_id, str) and mutation_id.strip():
+            return mutation_id, "mutation_id"
+        payload_hash = hashlib.sha256(json.dumps(dict(mutation_payload), sort_keys=True).encode("utf-8")).hexdigest()
+        return f"sha256:{payload_hash}", "mutation_payload_sha256"
+
+    def _emit_cycle_outcome(
+        self,
+        *,
+        agent_id: str,
+        change_classification: str,
+        change_reason: str,
+        execution_result: Mapping[str, Any],
+        fitness_result: Mapping[str, Any],
+        certificate_result: Mapping[str, Any],
+        mutation_payload: Mapping[str, Any],
+        rejected: bool = False,
+        cosmetic_only: bool = False,
+    ) -> Dict[str, Any]:
+        execution_status = str(execution_result.get("status") or "unknown")
+        fitness_accepted = self._fitness_accepted(fitness_result)
+        if rejected:
+            disposition = "rejected"
+        elif cosmetic_only:
+            disposition = "cosmetic_only"
+        elif fitness_accepted:
+            disposition = "promoted"
+        else:
+            disposition = "quarantined"
+        lineage_linkage, lineage_linkage_type = self._lineage_linkage(mutation_payload)
+        event = {
+            "agent_id": agent_id,
+            "change_classification": change_classification,
+            "change_reason": change_reason,
+            "execution_status": execution_status,
+            "fitness_score": fitness_result.get("score"),
+            "fitness_accepted": fitness_accepted,
+            "signing_status": str(certificate_result.get("status") or "unknown"),
+            "disposition": disposition,
+            "lineage_linkage": lineage_linkage,
+            "lineage_linkage_type": lineage_linkage_type,
+            "schema_version": "evolution_cycle_outcome.v1",
+        }
+        metrics.log(event_type="evolution_cycle_outcome", payload=event)
+        push_to_dashboard("evolution_cycle_outcome", event)
+        return event
+
+    def run_cycle(self, agent_id: Optional[str] = None, *, manual_trigger: bool = False) -> Dict[str, Any]:
         """Run one mutation cycle, preferring compatibility adapter when explicitly selected."""
         if self.compatibility_adapter is not None and agent_id is None:
             return self.compatibility_adapter.run_cycle(agent_id)
@@ -228,6 +338,30 @@ class EvolutionKernel:
         contract_violation = self._validate_agent_cycle_contract(target_agent_path, str(agent.get("agent_id") or ""))
         if contract_violation is not None:
             return contract_violation
+
+        previous_signal = self._load_previous_cycle_signal(str(agent.get("agent_id") or ""))
+        trigger_evidence = self._evaluate_mutation_trigger(previous_signal, manual_trigger=manual_trigger)
+        trigger_event = {
+            "agent_id": agent.get("agent_id"),
+            "triggered": trigger_evidence["triggered"],
+            "trigger_reason": trigger_evidence["trigger_reason"],
+            "manual_trigger": trigger_evidence["manual_trigger"],
+            "previous_failed": trigger_evidence["previous_failed"],
+            "previous_quarantined": trigger_evidence["previous_quarantined"],
+            "latest_fitness_score": trigger_evidence["latest_fitness_score"],
+            "latest_fitness_threshold": trigger_evidence["latest_fitness_threshold"],
+            "under_threshold": trigger_evidence["under_threshold"],
+        }
+        metrics.log(event_type="mutation_trigger_policy_decision", payload=trigger_event)
+        push_to_dashboard("mutation_trigger_policy_decision", trigger_event)
+        if not trigger_evidence["triggered"]:
+            return {
+                "status": "skipped",
+                "reason": "mutation_not_triggered_policy",
+                "agent_id": agent.get("agent_id"),
+                "trigger_evidence": trigger_evidence,
+                "kernel_path": True,
+            }
 
         mutation = self.propose_mutation(agent)
         change_decision = classify_mutation_change(target_agent_path, mutation.get("request") or mutation)
