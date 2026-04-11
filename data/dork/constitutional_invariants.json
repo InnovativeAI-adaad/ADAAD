@@ -1,0 +1,35 @@
+{
+  "phase": 132,
+  "invariants": [
+    {
+      "id": "DORK-CMD-0",
+      "class": "Hard",
+      "description": "DorkCommandResolver MUST validate all slash-command signatures against the canonical slash_commands.json manifest before dispatch. Unknown commands MUST be rejected with a structured error — never silently forwarded."
+    },
+    {
+      "id": "DORK-STATE-0",
+      "class": "Hard",
+      "description": "ConversationLedger entries are append-only and hash-chained. Any attempt to mutate a prior entry raises ConversationLedgerViolation."
+    },
+    {
+      "id": "DORK-PROV-0",
+      "class": "Hard",
+      "description": "ProviderHealthRegistry must record all provider probe outcomes. Unhealthy providers must not be silently skipped — callers must receive a structured ProviderStatus with healthy=False before fallback is used."
+    },
+    {
+      "id": "DORK-CTX-0",
+      "class": "Hard",
+      "description": "Context synthesis MUST use the canonical CONTEXT_KEYWORD_TAXONOMY for intent classification. Ad-hoc keyword lists outside this taxonomy are constitutionally prohibited for any routing decision."
+    },
+    {
+      "id": "DORK-OUTPUT-0",
+      "class": "Hard",
+      "description": "All LLM responses MUST be post-processed through the output_sanitizer pipeline (OPT-005) before delivery to the caller. Responses containing hallucinated hash references not present in source context MUST be flagged and stripped."
+    },
+    {
+      "id": "DORK-FLEET-0",
+      "class": "Hard",
+      "description": "DORKLivingFleet MUST NOT promote any mutation without a successful DorkCommandResolver pre-validation pass. Fleet health status MUST be queryable at all times via the fleet_status endpoint — a fleet with no healthy providers is constitutionally BLOCKED."
+    }
+  ]
+}

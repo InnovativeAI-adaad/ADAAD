@@ -1,112 +1,136 @@
 # DORK Context Synthesis Module
-# Builds deep codebase and structural context for the LLM
+# Phase 132 Enhancement: CONTEXT_KEYWORD_TAXONOMY + Jaccard relevance scoring
+# Constitutional invariants: DORK-CTX-0
 
 import os
 from pathlib import Path
 
-def get_codebase_summary(limit_files=20):
+# ── DORK-CTX-0 ────────────────────────────────────────────────────────────────
+# Hard invariant: Context synthesis MUST use the canonical CONTEXT_KEYWORD_TAXONOMY
+# for intent classification. Ad-hoc keyword lists outside this taxonomy are
+# constitutionally prohibited for any routing decision.
+# ─────────────────────────────────────────────────────────────────────────────
+
+CONTEXT_KEYWORD_TAXONOMY: dict[str, list[str]] = {
+    "governance": [
+        "gate", "tier", "policy", "constitution", "invariant", "signoff",
+        "gpg", "human0", "approval", "ratification", "compliance", "blocked",
+    ],
+    "mutation": [
+        "mutation", "propose", "promote", "shadow", "lsme", "diff",
+        "delta", "patch", "rollback", "revert", "changeset",
+    ],
+    "replay": [
+        "replay", "determinism", "divergence", "causal", "hydration",
+        "manifest", "snapshot", "convergence", "score",
+    ],
+    "ledger": [
+        "ledger", "hash", "chain", "audit", "lineage", "digest",
+        "hmac", "tamper", "cryptographic", "forensics",
+    ],
+    "agent": [
+        "architect", "dream", "beast", "agent", "triad", "proposal",
+        "innovation", "innov", "phase",
+    ],
+    "fleet": [
+        "fleet", "living", "dork", "slash", "command", "resolver",
+        "provider", "ollama", "model", "capability",
+    ],
+    "release": [
+        "release", "version", "changelog", "roadmap", "tag", "pypi",
+        "publish", "deploy", "readiness",
+    ],
+    "sandbox": [
+        "sandbox", "das", "docker", "isolation", "test", "preflight",
+        "harness", "fixture",
+    ],
+}
+
+
+def jaccard_score(query_tokens: set[str], category_tokens: set[str]) -> float:
     """
-    Returns a strategic summary of the project structure and key files.
+    Compute Jaccard similarity: |intersection| / |union|.
+    Returns 0.0 if union is empty.
     """
+    if not query_tokens and not category_tokens:
+        return 0.0
+    intersection = len(query_tokens & category_tokens)
+    union = len(query_tokens | category_tokens)
+    return intersection / union if union else 0.0
+
+
+def classify_query(query: str) -> tuple[str, float]:
+    """
+    Classify a natural-language DORK query against the CONTEXT_KEYWORD_TAXONOMY.
+    Returns (best_category, confidence_score).
+    """
+    tokens = set(query.lower().split())
+    best_cat = "governance"
+    best_score = 0.0
+    for cat, keywords in CONTEXT_KEYWORD_TAXONOMY.items():
+        score = jaccard_score(tokens, set(keywords))
+        if score > best_score:
+            best_score = score
+            best_cat = cat
+    return best_cat, round(best_score, 4)
+
+
+def get_taxonomy_hints(query: str, top_n: int = 3) -> list[dict]:
+    """
+    Return the top_n ranked categories for a query with Jaccard scores.
+    """
+    tokens = set(query.lower().split())
+    scored = [
+        {"category": cat, "score": jaccard_score(tokens, set(kws))}
+        for cat, kws in CONTEXT_KEYWORD_TAXONOMY.items()
+    ]
+    return sorted(scored, key=lambda x: x["score"], reverse=True)[:top_n]
+
+
+def get_codebase_summary(limit_files: int = 20) -> str:
+    """Returns a strategic summary of the project structure and key files."""
     summary = []
     summary.append("### PROJECT STRUCTURE SUMMARY")
-    
-    # List top level directories
+
     try:
         root_items = os.listdir(".")
         dirs = [d for d in root_items if os.path.isdir(d) and not d.startswith(".")]
         summary.append(f"Directories: {', '.join(dirs)}")
-    except:
+    except Exception:
         pass
 
-    # Find key configuration and documentation files
     key_files = [
-        "GEMINI.md", "ADAAD_30_INNOVATIONS.md", "ARCHITECTURE.md", 
-        "DORK.md", "pyproject.toml", "requirements.txt"
+        "GEMINI.md", "ADAAD_30_INNOVATIONS.md", "ARCHITECTURE.md",
+        "DORK.md", "pyproject.toml", "requirements.txt",
     ]
-    
+
     summary.append("\n### KEY ARCHITECTURAL DOCUMENTS")
     for kf in key_files:
         if os.path.exists(kf):
             try:
-                # Read just the first few lines or headers
-                with open(kf, "r") as f:
+                with open(kf) as f:
                     content = f.read(500)
                     summary.append(f"- {kf}: {content[:200]}...")
-            except:
+            except Exception:
                 summary.append(f"- {kf}: (Found but unreadable)")
 
     return "\n".join(summary)
 
-def get_git_context():
-    """
-    Returns recent git activity to orient the LLM.
-    """
-    import subprocess
-    try:
-        log = subprocess.check_output(
-            ["git", "log", "-n", "5", "--oneline"], 
-            stderr=subprocess.STDOUT, text=True
-        )
-        return f"\n### RECENT GIT ACTIVITY\n{log}"
-    except:
-        return ""
 
-def get_innovations_context():
+def get_relevant_context(query: str) -> str:
     """
-    Retrieves the 30 innovations that define ADAAD.
+    Return a structured context block enriched with taxonomy classification.
+    Used by the DORK intelligence layer to ground LLM responses.
     """
-    innovations_path = Path("ADAAD_30_INNOVATIONS.md")
-    if innovations_path.exists():
-        try:
-            content = innovations_path.read_text()
-            # Extract innovation titles
-            titles = re.findall(r"### \d+\. (.*?)\n", content)
-            return f"\n### ADAAD 30 INNOVATIONS\n- " + "\n- ".join(titles[:15]) + "\n... (truncated)"
-        except:
-            pass
-    return ""
+    category, confidence = classify_query(query)
+    hints = get_taxonomy_hints(query)
+    codebase = get_codebase_summary()
 
-def get_constitution_context():
-    """
-    Retrieves the constitutional proposals and core mandates.
-    """
-    const_path = Path("CONSTITUTION_PROPOSALS.md")
-    if const_path.exists():
-        try:
-            content = const_path.read_text()
-            return f"\n### CONSTITUTIONAL CONTEXT\n{content[:500]}..."
-        except:
-            pass
-    return ""
-
-def get_app_structure():
-    """
-    Provides a high-level recursive look at the core logic.
-    """
-    import subprocess
-    try:
-        # Use find to list python files in core directories
-        find_cmd = "find app/ core/ adaad/ -maxdepth 2 -name '*.py' | head -n 15"
-        structure = subprocess.check_output(find_cmd, shell=True, text=True)
-        return f"\n### CORE APPLICATION STRUCTURE\n{structure}"
-    except:
-        return ""
-
-def get_extensive_context():
-    """
-    Synthesizes a full context block for the Dork strategic engine.
-    """
-    parts = []
-    parts.append(get_codebase_summary())
-    parts.append(get_innovations_context())
-    parts.append(get_constitution_context())
-    parts.append(get_app_structure())
-    parts.append(get_git_context())
-    
-    # Check for Dork Knowledge Base
-    kb_path = Path("ui/developer/ADAADdev/dork_knowledge_base.js")
-    if kb_path.exists():
-        parts.append(f"\n### DORK KNOWLEDGE BASE\nLocated at {kb_path}. Use 'grep' if specific knowledge retrieval is needed.")
-
-    return "\n".join(parts)
+    lines = [
+        "### DORK CONTEXT BLOCK",
+        f"- Query category: {category} (Jaccard={confidence:.4f})",
+        f"- Top categories: {', '.join(h['category'] for h in hints)}",
+        "",
+        codebase,
+    ]
+    return "\n".join(lines)

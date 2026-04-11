@@ -1,0 +1,26 @@
+{
+  "version": "1.0.0",
+  "phase": 132,
+  "providers": [
+    {
+      "name": "ollama_local",
+      "type": "ollama",
+      "url": "http://localhost:11434",
+      "model": "dork",
+      "priority": 1,
+      "timeout_seconds": 30,
+      "health_probe_interval_seconds": 60
+    },
+    {
+      "name": "ollama_remote",
+      "type": "ollama",
+      "url_env": "OLLAMA_REMOTE_URL",
+      "model_env": "OLLAMA_REMOTE_MODEL",
+      "priority": 2,
+      "timeout_seconds": 45,
+      "health_probe_interval_seconds": 120
+    }
+  ],
+  "fallback_strategy": "next_healthy",
+  "max_retries": 2
+}

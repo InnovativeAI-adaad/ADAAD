@@ -4,11 +4,11 @@
 
 ---
 
-## Current State — v9.63.0 · Phase 130 · INNOV-40 CELT
+## Current State — v9.64.0 · Phase 132 · INNOV-41 DORK Living Fleet
 
-**Date:** 2026-04-11
-**Status:** 40 innovations shipped (INNOV-01 through INNOV-40). Phase 130 complete. v9.63.0 released.
-**Hard-class invariants:** 201 (cumulative, enforced)
+**Date:** 2026-04-10
+**Status:** 41 innovations shipped (INNOV-01 through INNOV-41). Phase 132 complete. v9.64.0 released.
+**Hard-class invariants:** 207 (cumulative, enforced)
 **Constitutional Evolution Loop:** 16-step CEL, deterministic replay, wired
 **Self-Proposing Innovation Engine (SPIE):** active — system proposes its own next innovations; HUMAN-0 ratifies
 **Deterministic Audit Sandbox (DAS):** active — one-command external verification; `docker compose up das-demo`
