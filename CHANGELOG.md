@@ -1,4 +1,4 @@
-## [9.68.0] — 2026-04-11 · Phase 132 · DORK ConversationLedger Verify Hardening
+## [9.68.0] — 2026-04-11 · Phase 136 · DORK ConversationLedger Verify Hardening
 
 ### Fix: Canonical hash payload parity between append() and verify()
 
