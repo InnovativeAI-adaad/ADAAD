@@ -1,0 +1,26 @@
+{
+  "version": "1.0.0",
+  "phase": 132,
+  "intents": [
+    "open_oracle_history",
+    "prepare_mutation_review",
+    "explain_blockers",
+    "show_gate_status",
+    "interpret_epoch_delta",
+    "generate_governance_brief",
+    "inspect_mutation_pipeline",
+    "show_replay_health",
+    "run_ledger_forensics",
+    "diagnose_agent_triad",
+    "track_phase_progress",
+    "run_sandbox_preflight",
+    "query_signing_ceremony",
+    "show_fleet_status",
+    "rank_agent_proposals",
+    "evaluate_market_fitness",
+    "list_commands",
+    "resolve_slash_command",
+    "query_provider_health",
+    "replay_conversation_ledger"
+  ]
+}

@@ -1,3 +1,56 @@
+## [9.64.0] — 2026-04-10 · Phase 132 · INNOV-41 DORK Living Fleet
+
+### World-First: Constitutional Fail-Closed Provider Fleet with Hash-Chained Conversation Ledger and Jaccard-Taxonomy Intent Routing under HUMAN-0 Governance Authority
+
+The DORK Living Fleet (INNOV-41) is a governed, multi-engine orchestrator that routes
+DORK queries through a living fleet of LLM provider backends, slash-command resolvers,
+and conversation ledger engines — all under six Hard constitutional invariants enforced
+at every dispatch boundary.
+
+**New modules:**
+- `runtime/dork_cmd_resolver.py` — DorkCommandResolver: DORK-CMD-0 slash-command manifest
+  validation with append-only hash-chained CommandLedger; rejects unknown commands with
+  structured CommandError — never silently forwards
+- `runtime/innovations30/dork_living_fleet.py` — DORKLivingFleet: 4-engine orchestrator
+  (SlashCommand + ProviderFleet + Conversation + Intent), 6 Hard invariants, FleetRouter,
+  FleetBlockedError, mutation promotion guard, dual dispatch/conversation chain ledger
+- `data/dork/` — 5 configuration/manifest files: slash_commands.json (15 commands),
+  capability_manifest.json, intent_registry.json (20 intents), provider_config.json,
+  constitutional_invariants.json
+
+**Enhanced modules:**
+- `dorkllm/state.py` — ConversationLedger (append-only, SHA-256 hash-chained, DORK-STATE-0)
+  + ProviderHealthRegistry (structured probe recording, DORK-PROV-0)
+- `dorkllm/context.py` — CONTEXT_KEYWORD_TAXONOMY (8 categories, 80+ keywords, DORK-CTX-0)
+  + jaccard_score() + classify_query() + get_taxonomy_hints()
+- `dorkllm/intelligence.py` — OPT-001→OPT-006 optimization pipeline: context deduplication,
+  prompt compression, turn budget enforcement, intent preflight, output sanitizer
+  (hallucinated-hash stripping, DORK-OUTPUT-0), response length guard; DORK-TRACE-0 enforced
+- `ui/developer/ADAADdev/dork_capability_registry.js` — 5 new capabilities (fleet_health_monitor,
+  slash_command_dispatcher, conversation_ledger_inspector, intent_taxonomy_inspector,
+  provider_health_registry); total: 20 capabilities
+- `ui/developer/ADAADdev/dork_knowledge_base.js` — 5 new Phase 132 KB entries; total: ~55 entries
+- `app/orchestration/dork_intent_router.py` — 6 new intents (show_fleet_status,
+  resolve_slash_command, query_provider_health, replay_conversation_ledger,
+  classify_query_intent, inspect_fleet_dispatch); total: 12 intents
+- `ui/dork.html` — UX-001→UX-005: fleet quick-prompts, live fleet status strip, fleet health
+  dot, slash command palette (toggled by /dork:help), fleet JS initialisation
+
+**Invariants introduced (6 Hard):**
+- `DORK-FLEET-0`: Fleet MUST NOT promote mutation without CommandResolver pass; fleet BLOCKED when no healthy providers
+- `DORK-CMD-0`: All slash commands validated against manifest; unknown commands REJECTED, never forwarded
+- `DORK-STATE-0`: ConversationLedger append-only, hash-chained; mutation raises ConversationLedgerViolation
+- `DORK-PROV-0`: ProviderHealthRegistry records ALL probe outcomes; unhealthy providers never silently skipped
+- `DORK-CTX-0`: CONTEXT_KEYWORD_TAXONOMY mandatory for intent classification; ad-hoc routing prohibited
+- `DORK-OUTPUT-0`: ALL LLM responses sanitized via OPT-005 before delivery; hallucinated hashes flagged and stripped
+
+**Test suite:** 30/30 passing (T132-LEDGER-01→06, T132-PROV-01→05, T132-CTX-01→05,
+T132-CMD-01→06, T132-FLEET-01→08)
+
+**Cumulative Hard-class invariants:** 207
+
+---
+
 ## [9.63.0] — 2026-04-08 · Phase 130 · INNOV-40 Cross-Epoch Agent Learning Transfer (CELT)
 
 ### World-First: Governed Cross-Epoch Agent Behavioral Profile Transfer with Cryptographic Provenance

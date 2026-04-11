@@ -34,6 +34,13 @@ class DorkIntentRouter:
         ("show_gate_status", ("gate", "status", "tier", "health", "replay")),
         ("interpret_epoch_delta", ("what changed", "changed since", "last epoch", "delta", "difference")),
         ("generate_governance_brief", ("brief", "summary", "governance", "executive", "focus")),
+        # ── Phase 132 · INNOV-41 intents ────────────────────────────────────
+        ("show_fleet_status", ("fleet", "provider", "ollama", "engine", "dork-fleet")),
+        ("resolve_slash_command", ("slash", "/dork:", "dork:help", "dork:gate", "dork:fleet", "cmd resolver")),
+        ("query_provider_health", ("provider health", "probe", "availability", "dork-prov", "backend")),
+        ("replay_conversation_ledger", ("conversation ledger", "chat history", "session chain", "dork-state")),
+        ("classify_query_intent", ("jaccard", "taxonomy", "intent class", "query route", "dork-ctx", "category")),
+        ("inspect_fleet_dispatch", ("dispatch ledger", "fleet dispatch", "fleet chain", "dork-fleet-0")),
     )
 
     def route(self, request: DorkIntentRouteRequest) -> DorkIntentDecision:

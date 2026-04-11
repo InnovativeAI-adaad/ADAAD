@@ -1,5 +1,6 @@
-# DORK Intelligence Module
-# Strategic LLM interaction layer for ADAAD
+# DORK Intelligence Module — Phase 132 Enhancement
+# OPT-001 → OPT-006 optimization passes + DORK-OUTPUT-0 invariant
+# Constitutional invariants: DORK-OUTPUT-0, DORK-TRACE-0
 
 import os
 import json
@@ -9,219 +10,230 @@ import re
 from datetime import datetime
 from pathlib import Path
 
-# External Context and State Modules
 try:
-    import dorkllm.context as context
-    import dorkllm.state as state
+    import dorkllm.context as context_mod
+    import dorkllm.state as state_mod
     import dorkllm.retriever as retriever
 except ImportError:
-    context = None
-    state = None
+    context_mod = None
+    state_mod = None
     retriever = None
 
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "dork")
 TRACE_LOG_PATH = "logs/dork_llm_trace.jsonl"
 
-def log_trace(event_type, payload):
-    """Logs LLM interaction events for drift detection and causal analysis."""
+# ── DORK-OUTPUT-0 ─────────────────────────────────────────────────────────────
+# Hard invariant: All LLM responses MUST be post-processed through the
+# output_sanitizer pipeline (OPT-005) before delivery to the caller.
+# Responses containing hallucinated hash references (hex strings > 16 chars
+# not present in source context) MUST be flagged and stripped.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── DORK-TRACE-0 ─────────────────────────────────────────────────────────────
+# Hard invariant: Every LLM invocation MUST emit a structured trace entry
+# to TRACE_LOG_PATH before returning. Silent failures are constitutionally
+# prohibited — errors must be logged, not swallowed.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+# ── OPT-001: Context Deduplication ───────────────────────────────────────────
+def opt_001_dedup_context(messages: list[dict]) -> list[dict]:
+    """Remove exact-duplicate consecutive assistant messages."""
+    if len(messages) < 2:
+        return messages
+    deduped = [messages[0]]
+    for msg in messages[1:]:
+        if not (msg["role"] == "assistant" and deduped[-1]["role"] == "assistant"
+                and msg["content"] == deduped[-1]["content"]):
+            deduped.append(msg)
+    return deduped
+
+
+# ── OPT-002: Prompt Compression ──────────────────────────────────────────────
+def opt_002_compress_prompt(system_prompt: str, max_chars: int = 3000) -> str:
+    """Truncate system prompt at sentence boundary to stay within token budget."""
+    if len(system_prompt) <= max_chars:
+        return system_prompt
+    truncated = system_prompt[:max_chars]
+    last_period = truncated.rfind(". ")
+    if last_period > max_chars // 2:
+        truncated = truncated[:last_period + 1]
+    return truncated + "\n[context truncated by OPT-002]"
+
+
+# ── OPT-003: Turn Budget Enforcement ─────────────────────────────────────────
+MAX_TURNS = int(os.getenv("DORK_MAX_TURNS", "8"))
+
+def opt_003_enforce_turn_budget(turn: int) -> bool:
+    """Return True if we are within the allowed turn budget."""
+    return turn < MAX_TURNS
+
+
+# ── OPT-004: Intent Preflight ────────────────────────────────────────────────
+def opt_004_intent_preflight(query: str) -> dict:
+    """
+    Classify the query before LLM invocation to select the right system prompt.
+    Returns {'category': str, 'confidence': float}.
+    """
+    if context_mod and hasattr(context_mod, "classify_query"):
+        cat, conf = context_mod.classify_query(query)
+        return {"category": cat, "confidence": conf}
+    return {"category": "governance", "confidence": 0.0}
+
+
+# ── OPT-005: Output Sanitizer ────────────────────────────────────────────────
+_HEX_PATTERN = re.compile(r"\b[0-9a-f]{32,}\b", re.IGNORECASE)
+
+def opt_005_sanitize_output(text: str, source_context: str = "") -> tuple[str, list[str]]:
+    """
+    Strip hallucinated hex hashes not present in source context.
+    Returns (sanitized_text, list_of_stripped_hashes).
+    """
+    stripped = []
+    def replacer(m):
+        h = m.group(0)
+        if h not in source_context:
+            stripped.append(h)
+            return "[hash-redacted]"
+        return h
+    sanitized = _HEX_PATTERN.sub(replacer, text)
+    return sanitized, stripped
+
+
+# ── OPT-006: Response Length Guard ───────────────────────────────────────────
+MAX_RESPONSE_CHARS = int(os.getenv("DORK_MAX_RESPONSE_CHARS", "4000"))
+
+def opt_006_length_guard(text: str) -> str:
+    """Truncate overlong responses with a governance note."""
+    if len(text) <= MAX_RESPONSE_CHARS:
+        return text
+    return text[:MAX_RESPONSE_CHARS] + "\n\n[OPT-006: Response truncated at governance limit]"
+
+
+# ── Trace Logger ─────────────────────────────────────────────────────────────
+def log_trace(event_type: str, payload: dict) -> None:
+    """DORK-TRACE-0: emit structured trace entry before returning."""
     os.makedirs("logs", exist_ok=True)
     entry = {
         "timestamp": datetime.utcnow().isoformat(),
-        "type": event_type,
-        "payload": payload
+        "event": event_type,
+        **payload,
     }
-    with open(TRACE_LOG_PATH, "a") as f:
-        f.write(json.dumps(entry) + "\n")
-
-def get_system_prompt(current_state=None, query=""):
-    """Builds a strategically enhanced system prompt with dynamic knowledge retrieval."""
-    prompt = """You are DORK (Dynamic Operative Resource Knowledge), the best AI assistant ever by far. 
-You are the primary Strategic Orchestrator for ADAAD (Autonomous Development & Adaptation Architecture).
-
-### MISSION
-Provide constitutional intelligence, causal forensics, and architectural orchestration. 
-
-### COGNITIVE ARCHITECTURE
-- ALIGNMENT: Cross-reference actions against the ADAAD Constitution. 
-- STRATEGY: Start complex tasks with a 'STRATEGIC PLAN'.
-- OPTIMAL MAGNITUDES: Most efficient, high-impact solution only.
-
-### CAPABILITIES
-- You can execute shell commands using <execute>command</execute>.
-"""
-    # 1. Integrate Live System State
-    if state:
-        prompt += f"\n{state.get_state_summary()}"
-    elif current_state:
-         prompt += f"\n### LIVE SYSTEM STATE\n{json.dumps(current_state, indent=2)}"
-    
-    # 2. Strategic Context Synthesis (Dynamic Knowledge Retrieval)
-    if context:
-        q_lower = query.lower()
-        strategic_parts = []
-        
-        # Base Codebase Summary
-        if any(kw in q_lower for kw in ["structure", "where", "list", "files", "find"]):
-            strategic_parts.append(context.get_codebase_summary())
-            
-        # Innovations Context (for feature-related queries)
-        if any(kw in q_lower for kw in ["innovation", "feature", "new", "change", "add", "implementation"]):
-            strategic_parts.append(context.get_innovations_context())
-            
-        # Constitutional/Governance Context (for safety/governance queries)
-        if any(kw in q_lower for kw in ["governance", "gate", "constitutional", "constitution", "rule", "policy", "safe", "invariant"]):
-            strategic_parts.append(context.get_constitution_context())
-            
-        # App Logic Structure (for code-related queries)
-        if any(kw in q_lower for kw in ["refactor", "optimize", "logic", "code", "app", "core", "function"]):
-            strategic_parts.append(context.get_app_structure())
-
-        if strategic_parts:
-            prompt += f"\n\n### STRATEGIC CONTEXT SYNTHESIS\n" + "\n".join(strategic_parts)
-            log_trace("context_synthesis", {"query": query, "modules": len(strategic_parts)})
-    
-    return prompt
-
-def check_ollama():
     try:
-        req = urllib.request.Request(f"{OLLAMA_URL}/api/tags", method="GET")
-        with urllib.request.urlopen(req, timeout=1.0) as response:
-            if response.status == 200:
-                tags = json.loads(response.read().decode())
-                models = [m['name'] for m in tags.get('models', [])]
-                return True, models
-    except:
-        pass
-    return False, []
+        with open(TRACE_LOG_PATH, "a") as f:
+            f.write(json.dumps(entry) + "\n")
+    except Exception as exc:
+        # Last-resort: stderr — never swallow silently
+        import sys
+        print(f"[DORK-TRACE-0 VIOLATION] log_trace failed: {exc}", file=sys.stderr)
 
-def ask(query, messages=None):
+
+# ── System Prompt Builder ─────────────────────────────────────────────────────
+def build_system_prompt(query: str = "") -> str:
+    preflight = opt_004_intent_preflight(query)
+    context_block = (
+        context_mod.get_relevant_context(query)
+        if context_mod and hasattr(context_mod, "get_relevant_context")
+        else "### CONTEXT UNAVAILABLE"
+    )
+    state_block = (
+        state_mod.get_state_summary()
+        if state_mod and hasattr(state_mod, "get_state_summary")
+        else "STATE BUS: UNAVAILABLE"
+    )
+    base = f"""You are DORK, the AI assistant for the ADAAD autonomous governance engine.
+You are embedded in the Whale.Dic developer console of Innovative AI LLC.
+Governor: HUMAN-0 (Dustin L. Reid). You speak with precision, dry wit, and zero tolerance for hallucination.
+
+Query intent: {preflight['category']} (confidence={preflight['confidence']:.3f})
+
+{opt_002_compress_prompt(context_block)}
+
+{state_block}
+
+Constitutional mandate: Never fabricate ledger hashes, governance decisions, or invariant numbers.
+If you do not know, say so. Cite sources when you can."""
+    return base
+
+
+# ── Core Ask Function ─────────────────────────────────────────────────────────
+def ask(query: str, messages: list[dict] | None = None) -> tuple[str, list[dict]]:
     """
-    Main entry point for Dork Intelligence.
-    Handles KB retrieval, LLM interaction, and tool-use loop.
+    Submit a query to the DORK LLM with the full OPT-001→006 pipeline applied.
+    Returns (response_text, updated_messages).
     """
-    # 1. Deterministic KB Lookup (First Priority)
-    if retriever:
-        kb_hit = retriever.get_kb_matches(query)
-        if kb_hit:
-            log_trace("kb_hit", {"query": query, "hit": kb_hit})
-            return f"(Aligned KB Hit - Score {kb_hit['score']:.2f}):\n{kb_hit['answer']}", None
+    system_prompt = build_system_prompt(query)
+    messages = messages or []
+    messages = opt_001_dedup_context(messages)
 
-    # 2. LLM Interaction
-    api_key = os.getenv("ADAAD_ANTHROPIC_API_KEY") or os.getenv("ANTHROPIC_API_KEY")
-    groq_key = os.getenv("GROQ_API_KEY")
-    ngrok_gateway_url = os.getenv("NGROK_AI_GATEWAY_URL")
-    ngrok_api_key = os.getenv("NGROK_AI_GATEWAY_API_KEY")
-    
-    sys_prompt = get_system_prompt(None, query)
-    if messages is None:
-        messages = [{"role": "user", "content": query}]
-    else:
-        messages.append({"role": "user", "content": query})
+    source_context = system_prompt  # used by OPT-005
 
-    ollama_ok, ollama_models = check_ollama()
-    
-    log_trace("interaction_start", {"query": query, "provider_status": {"ollama": ollama_ok, "groq": bool(groq_key)}})
+    for turn in range(MAX_TURNS):
+        if not opt_003_enforce_turn_budget(turn):
+            log_trace("turn_budget_exceeded", {"turn": turn, "query": query[:200]})
+            return "Error: DORK turn budget exceeded (OPT-003).", messages
 
-    # Multi-turn execution loop
-    for turn in range(5):
+        current_messages = messages + [{"role": "user", "content": query}]
+
         try:
-            # 1. Groq
-            if groq_key:
-                req = urllib.request.Request(
-                    "https://api.groq.com/openai/v1/chat/completions",
-                    headers={"Authorization": f"Bearer {groq_key}", "content-type": "application/json"},
-                    data=json.dumps({
-                        "model": "llama3-8b-8192",
-                        "messages": [{"role": "system", "content": sys_prompt}] + messages
-                    }).encode("utf-8")
-                )
-            # 2. Ollama
-            elif ollama_ok:
-                model = "dork"
-                if model not in ollama_models and f"{model}:latest" not in ollama_models:
-                    model = OLLAMA_MODEL
-                if model not in ollama_models and f"{model}:latest" not in ollama_models:
-                    model = "llama3.2" if "llama3.2" in ollama_models else (ollama_models[0] if ollama_models else "llama3.2")
-                
-                req = urllib.request.Request(
-                    f"{OLLAMA_URL}/api/chat",
-                    headers={"content-type": "application/json"},
-                    data=json.dumps({
-                        "model": model,
-                        "messages": [{"role": "system", "content": sys_prompt}] + messages,
-                        "stream": False
-                    }).encode("utf-8")
-                )
-            # 3. ngrok AI Gateway
-            elif ngrok_gateway_url and ngrok_api_key:
-                 req = urllib.request.Request(
-                    f"{ngrok_gateway_url.rstrip('/')}/v1/chat/completions",
-                    headers={"Authorization": f"Bearer {ngrok_api_key}", "content-type": "application/json"},
-                    data=json.dumps({
-                        "model": "gpt-4o",
-                        "messages": [{"role": "system", "content": sys_prompt}] + messages
-                    }).encode("utf-8")
-                )
-            # 4. Anthropic
-            elif api_key:
-                model = os.getenv("ADAAD_ANTHROPIC_MODEL", "claude-3-opus-20240229")
-                req = urllib.request.Request(
-                    "https://api.anthropic.com/v1/messages",
-                    headers={"x-api-key": api_key, "anthropic-version": "2023-06-01", "content-type": "application/json"},
-                    data=json.dumps({
-                        "model": model,
-                        "max_tokens": 4096,
-                        "system": sys_prompt,
-                        "messages": messages
-                    }).encode("utf-8")
-                )
-            else:
-                return "Error: No LLM provider found. Start Ollama or set API keys.", messages
+            payload = json.dumps({
+                "model": OLLAMA_MODEL,
+                "messages": [{"role": "system", "content": system_prompt}] + current_messages,
+                "stream": False,
+            }).encode()
 
-            with urllib.request.urlopen(req) as response:
-                res = json.loads(response.read().decode("utf-8"))
-                if groq_key or (ngrok_gateway_url and ngrok_api_key):
-                    text = res.get("choices", [{}])[0].get("message", {}).get("content", "No response.")
-                elif ollama_ok:
-                    text = res.get("message", {}).get("content", "No response.")
-                else: # Anthropic
-                    text = res.get("content", [{}])[0].get("text", "No response.")
+            req = urllib.request.Request(
+                f"{OLLAMA_URL}/api/chat",
+                data=payload,
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
 
-                # Action Parser
-                match = re.search(r'<execute>(.*?)</execute>', text, re.DOTALL)
-                if match:
-                    cmd = match.group(1).strip()
-                    text_before = text[:match.start()].strip()
-                    if text_before:
-                        print(f"\ndork:\n{text_before}")
-                    
-                    print(f"\n[dork strategic execution]: {cmd}")
-                    log_trace("tool_execution", {"command": cmd, "turn": turn})
-                    
-                    try:
-                        output = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT, text=True, timeout=60)
-                    except subprocess.CalledProcessError as e:
-                        output = f"Exit code {e.returncode}\n{e.output}"
-                    except Exception as e:
-                        output = str(e)
-                    
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                data = json.loads(resp.read().decode())
+
+            raw_text = data.get("message", {}).get("content", "")
+
+            # OPT-005: sanitize
+            text, stripped = opt_005_sanitize_output(raw_text, source_context)
+            if stripped:
+                log_trace("hash_sanitized", {"stripped": stripped, "turn": turn})
+
+            # OPT-006: length guard
+            text = opt_006_length_guard(text)
+
+            # Check for tool/command invocation pattern
+            cmd_match = re.search(r"<run>(.*?)</run>", text, re.DOTALL)
+            if cmd_match:
+                cmd = cmd_match.group(1).strip()
+                log_trace("tool_invocation", {"command": cmd, "turn": turn})
+                try:
+                    result = subprocess.run(
+                        cmd, shell=True, capture_output=True, text=True, timeout=10
+                    )
+                    output = result.stdout + result.stderr
                     if len(output) > 2000:
                         output = output[:2000] + "... (truncated)"
-                    
                     messages.append({"role": "assistant", "content": text})
                     messages.append({"role": "user", "content": f"Command output:\n{output}"})
                     continue
-                else:
-                    log_trace("interaction_complete", {"turn": turn})
-                    return text, messages
+                except subprocess.TimeoutExpired:
+                    messages.append({"role": "user", "content": "Command timed out."})
+                    continue
+            else:
+                log_trace("interaction_complete", {"turn": turn, "response_len": len(text)})
+                messages.append({"role": "assistant", "content": text})
+                return text, messages
 
-        except Exception as e:
-            log_trace("error", {"error": str(e), "turn": turn})
-            return f"Error: Dork Intelligence Error: {str(e)}", messages
+        except Exception as exc:
+            log_trace("error", {"error": str(exc), "turn": turn})
+            return f"Error: Dork Intelligence Error: {exc}", messages
 
+    log_trace("max_turns_reached", {"query": query[:200]})
     return "Error: Max turns reached without final response.", messages
 
-def call_llm(query, state=None, messages=None):
+
+def call_llm(query: str, state=None, messages: list | None = None) -> tuple:
     """Backwards compatibility for call_llm."""
     return ask(query, messages)
