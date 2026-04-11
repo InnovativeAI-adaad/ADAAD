@@ -58,6 +58,12 @@ def fleet(stub_engine):
 class TestDorkLedgerPersistence:
     """T133-PERSIST-*: append-only JSONL ledger with fsync and chain continuity."""
 
+    @staticmethod
+    def _rewrite_entries(path: Path, mutator):
+        entries = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+        mutator(entries)
+        path.write_text("\n".join(json.dumps(entry) for entry in entries) + "\n", encoding="utf-8")
+
     def test_T133_PERSIST_01_append_creates_file(self, tmp_path):
         """T133-PERSIST-01: appending first entry creates ledger file on disk."""
         p = tmp_path / "ledger.jsonl"
@@ -127,6 +133,67 @@ class TestDorkLedgerPersistence:
         tmp_ledger.append("user", "a")
         tmp_ledger.append("assistant", "b")
         assert tmp_ledger.entry_count == 2
+
+    def test_T133_PERSIST_11_tampered_entry_hash_fails_verify(self, tmp_path):
+        """T133-PERSIST-11: tampered entry_hash fails verify with explicit mismatch reason."""
+        p = tmp_path / "ledger.jsonl"
+        dl = DorkLedgerPersistence(p)
+        dl.append("user", "a")
+        dl.append("assistant", "b")
+
+        self._rewrite_entries(
+            p,
+            lambda entries: entries.__setitem__(1, {**entries[1], "entry_hash": "f" * 64}),
+        )
+
+        valid, reason = DorkLedgerPersistence(p).verify()
+        assert valid is False
+        assert "index=1" in reason
+        assert "entry_hash_mismatch" in reason
+
+    def test_T133_PERSIST_12_tampered_timestamp_fails_verify(self, tmp_path):
+        """T133-PERSIST-12: tampered timestamp fails verify via entry_hash mismatch."""
+        p = tmp_path / "ledger.jsonl"
+        dl = DorkLedgerPersistence(p)
+        dl.append("user", "a")
+        dl.append("assistant", "b")
+
+        self._rewrite_entries(
+            p,
+            lambda entries: entries.__setitem__(1, {**entries[1], "timestamp": "2000-01-01T00:00:00+00:00"}),
+        )
+
+        valid, reason = DorkLedgerPersistence(p).verify()
+        assert valid is False
+        assert "index=1" in reason
+        assert "entry_hash_mismatch" in reason
+
+    def test_T133_PERSIST_13_broken_seq_continuity_fails_verify(self, tmp_path):
+        """T133-PERSIST-13: non-contiguous seq fails verify with seq mismatch reason."""
+        p = tmp_path / "ledger.jsonl"
+        dl = DorkLedgerPersistence(p)
+        dl.append("user", "a")
+        dl.append("assistant", "b")
+
+        self._rewrite_entries(
+            p,
+            lambda entries: entries.__setitem__(1, {**entries[1], "seq": 3}),
+        )
+
+        valid, reason = DorkLedgerPersistence(p).verify()
+        assert valid is False
+        assert "index=1" in reason
+        assert "seq_mismatch" in reason
+
+    def test_T133_PERSIST_14_intact_chain_still_passes_verify(self, tmp_path):
+        """T133-PERSIST-14: intact persisted chain still verifies after hardening checks."""
+        p = tmp_path / "ledger.jsonl"
+        dl = DorkLedgerPersistence(p)
+        for i in range(4):
+            dl.append("user" if i % 2 == 0 else "assistant", f"msg-{i}")
+        valid, reason = DorkLedgerPersistence(p).verify()
+        assert valid is True
+        assert reason == "chain_valid"
 
 
 # ── DFSB-HEAL-0: DorkFleetWatchdog — 7 tests ─────────────────────────────────

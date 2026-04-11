@@ -1,3 +1,17 @@
+## [9.69.0] — 2026-04-11 · Phase 133 · DFSB Ledger Verify Tamper-Detection Hardening
+
+### Fix: `DorkLedgerPersistence.verify()` now enforces canonical hash parity and strict sequence continuity
+
+- `runtime/dork_persist.py`
+  - `verify()` now recomputes `entry_hash` from canonical JSON with exactly:
+    `{seq, role, content_digest, timestamp, prev_hash}` and `sort_keys=True`.
+  - Added explicit failure reasons with deterministic mismatch typing and failing index:
+    `missing_field`, `seq_mismatch`, `prev_hash_mismatch`, `entry_hash_mismatch`.
+  - Enforced contiguous `seq` validation (`0..N-1`) during chain verification.
+- `tests/test_phase133_dfsb.py`
+  - Added regression coverage for tampered `entry_hash`, tampered `timestamp`,
+    broken `seq` continuity, and intact-chain pass behavior.
+
 ## [9.68.0] — 2026-04-11 · Phase 136 · DORK ConversationLedger Verify Hardening
 
 ### Fix: Canonical hash payload parity between append() and verify()
