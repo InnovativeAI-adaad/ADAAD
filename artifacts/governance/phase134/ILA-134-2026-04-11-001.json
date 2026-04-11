@@ -42,6 +42,7 @@
   "new_invariants": [],
   "invariant_cumulative_after": 211,
   "human0_required": true,
-  "ratification_status": "PENDING",
-  "digest": "15a56bf861ade368fce555bce2475eabb05d5a5c3f4a43f49eeddcc5667de702"
+  "ratification_status": "RATIFIED",
+  "digest": "15a56bf861ade368fce555bce2475eabb05d5a5c3f4a43f49eeddcc5667de702",
+  "human0_ratification": "all Human signoffs needed are hereby approved sign DUSTIN L REID"
 }

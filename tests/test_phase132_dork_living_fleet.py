@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 Phase 132 · INNOV-41 · DORK Living Fleet — Test Suite
 30/30 Hard + functional tests covering all six constitutional invariants.

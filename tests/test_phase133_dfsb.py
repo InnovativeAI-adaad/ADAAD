@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 Phase 133 · INNOV-42 · DORK Fleet Server Bridge — Test Suite
 32 tests covering DFSB-PERSIST-0, DFSB-HEAL-0, DFSB-FITNESS-0, DFSB-GATE-0.

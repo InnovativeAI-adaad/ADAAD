@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 test_phase117_crtv.py — Phase 117 · INNOV-32 · Constitutional Rollback & Temporal Versioning
 Tests: T117-CRTV-01 through T117-CRTV-30 (30/30)

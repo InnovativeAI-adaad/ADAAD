@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 ADAAD v8 — Ledger Pruner (Epoch Summarization Engine)
 =======================================================
