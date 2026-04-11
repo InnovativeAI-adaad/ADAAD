@@ -1,14 +1,15 @@
-## [Unreleased]
+## [9.68.0] — 2026-04-11 · Phase 132 · DORK ConversationLedger Verify Hardening
 
-### DFSB persistence integration hardening (Phase 133 follow-up)
+### Fix: Canonical hash payload parity between append() and verify()
 
-- Integrated `runtime/dork_persist.py::DorkLedgerPersistence` into
-  `DORKLivingFleet` startup and query append flow so server fleet endpoints
-  read restart-stable chain continuity, not process-lifetime-only state.
-- Added fail-closed invariant propagation for persistence write failures in
-  `/api/fleet/query` responses.
-- Added integration tests that exercise `/api/fleet/query`, `/api/fleet/ledger`,
-  and `/api/fleet/verify` across simulated restart boundaries.
+- `dorkllm/state.py`
+  - `ConversationLedger` now hashes a canonical payload keyed by
+    `{role, content_digest, timestamp, prev_hash}` in both append and verify paths.
+  - `verify()` now recomputes each expected `entry_hash` from the chain-derived
+    `prev_hash` and returns a seq-indexed `entry_hash mismatch` failure reason.
+- `tests/test_phase132_dork_living_fleet.py`
+  - Added tamper-detection tests proving verify failure for:
+    `content_digest`, `timestamp`, `entry_hash`, and `prev_hash` chain mutation.
 
 ## [9.67.0] — 2026-04-11 · Phase 135 · INNOV-43 Constitution Versioning and Rollback (CVR)
 
