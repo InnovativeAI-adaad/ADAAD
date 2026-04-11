@@ -1,16 +1,19 @@
-## [9.69.0] — 2026-04-11 · Phase 133 · DFSB Ledger Verify Tamper-Detection Hardening
+## [9.69.0] — 2026-04-11 · Phase 136 · Dork Runtime Enrichment Bridge Hardening
 
-### Fix: `DorkLedgerPersistence.verify()` now enforces canonical hash parity and strict sequence continuity
+### Fix: enrich `runtime.sendMessage` directly and standardize enrichment event surfacing
 
-- `runtime/dork_persist.py`
-  - `verify()` now recomputes `entry_hash` from canonical JSON with exactly:
-    `{seq, role, content_digest, timestamp, prev_hash}` and `sort_keys=True`.
-  - Added explicit failure reasons with deterministic mismatch typing and failing index:
-    `missing_field`, `seq_mismatch`, `prev_hash_mismatch`, `entry_hash_mismatch`.
-  - Enforced contiguous `seq` validation (`0..N-1`) during chain verification.
-- `tests/test_phase133_dfsb.py`
-  - Added regression coverage for tampered `entry_hash`, tampered `timestamp`,
-    broken `seq` continuity, and intact-chain pass behavior.
+- `ui/developer/ADAADdev/dork_runtime.js`
+  - Patched runtime-instance `sendMessage` via `initDorkRuntime` so enrichment metadata
+    (`intent`, `kbHit`, `fanOutCount`) is returned for both direct runtime usage and the
+    global `sendMessage` proxy path.
+  - Added an internal runtime event bridge (`EventTarget`) and `emitEvent` exposure so
+    enrichment events are emitted without relying on an undefined `_eventTarget`.
+- `ui/developer/ADAADdev/whaledic.html`
+  - Added `sendThroughDorkRuntime(msg, options)` integration bridge to route calls through
+    `dorkRuntime.sendMessage` when needed by UI contract checks.
+- `tests/test_dork_v2_makeover.py`
+  - Added static contract checks asserting runtime-instance patching, metadata return shape,
+    and whaledic runtime bridge wiring.
 
 ## [9.68.0] — 2026-04-11 · Phase 136 · DORK ConversationLedger Verify Hardening
 
