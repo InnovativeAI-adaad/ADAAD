@@ -223,7 +223,23 @@ class DorkCommandResolver:
         prev = self.GENESIS_HASH
         for e in self._ledger:
             if e.prev_hash != prev:
-                return False, f"Chain break at seq={e.seq}"
+                return False, f"Chain break at seq={e.seq}: prev_hash mismatch"
+
+            payload = json.dumps(
+                {
+                    "seq": e.seq,
+                    "slash": e.slash,
+                    "intent": e.intent,
+                    "status": e.status,
+                    "timestamp": e.timestamp,
+                    "prev_hash": e.prev_hash,
+                },
+                sort_keys=True,
+            )
+            recomputed_hash = hashlib.sha256(payload.encode()).hexdigest()
+            if e.entry_hash != recomputed_hash:
+                return False, f"Chain break at seq={e.seq}: entry_hash mismatch"
+
             prev = e.entry_hash
         return True, "chain_valid"
 
