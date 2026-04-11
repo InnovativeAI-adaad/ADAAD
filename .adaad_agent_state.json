@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.67.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": "v9.68.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -634,8 +634,8 @@
       "description": "Constitution Versioning and Rollback"
     }
   },
-  "last_agent_state_sync_digest": "gsync-1ccc3dbbb0377b21",
-  "last_completed_phase": "Phase 135 \u00b7 INNOV-43 Constitution Versioning and Rollback (CVR)",
+  "last_agent_state_sync_digest": "gsync-ace7e1f03ee3dd56",
+  "last_completed_phase": "Phase 11 \u00b7 Phase 136 \u00b7 DORK ConversationLedger Verify Hardening",
   "last_completed_pr": "feat/phase127-innov37-grrp",
   "last_gate_results": {
     "tier_0": "pass",
@@ -648,7 +648,7 @@
   "last_invocation": "2026-04-11",
   "last_phase_completed": 133,
   "last_phase_completed_label": "INNOV-42: DORK Fleet Server Bridge",
-  "last_sync_sha": "f126d944",
+  "last_sync_sha": "ef179591",
   "last_updated": "2026-04-11T12:38:12.268044+00:00",
   "next_phase": 134,
   "next_pr": "feat/phase128-tbd",
@@ -883,7 +883,7 @@
     127
   ],
   "schema_version": "1.5.0",
-  "software_version": "9.67.0",
+  "software_version": "9.68.0",
   "tife_active": true,
   "value_checkpoints_reached": [
     "phase0-track-a-hardening",
