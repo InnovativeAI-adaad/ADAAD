@@ -14,14 +14,16 @@ from app.api.schemas.dork_intents import (
     DorkTrustMetadata,
 )
 from app.orchestration.mutation_orchestration_service import MutationOrchestrationService
+from runtime.api.app_layer import (
+    DorkEventStream,
+    HumanApprovalGate,
+    OracleLedger,
+    SnapshotDeltaInterpreter,
+    now_iso,
+    read_gate_state,
+    summarize_oracle_memory,
+)
 from runtime.api.runtime_services import governance_health_service, reviewer_calibration_service
-from runtime.dork_event_stream import DorkEventStream
-from runtime.governance.human_approval_gate import HumanApprovalGate
-from runtime.oracle_ledger import OracleLedger
-from runtime.oracle_memory import summarize_oracle_memory
-from runtime.snapshot_delta import SnapshotDeltaInterpreter
-from runtime.system_status import read_gate_state
-from runtime.timeutils import now_iso
 
 
 class DorkIntentRouter:

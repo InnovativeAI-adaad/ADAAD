@@ -10,6 +10,7 @@ from typing import Any
 from app import APP_ROOT
 from adaad.orchestrator.runbook_composer import export_runbook_artifacts, render_runbook_summary
 from adaad.orchestrator.status import build_status_report, render_human_table, report_as_json
+from runtime.api.app_layer import classify_current_changes, get_operating_mode, get_required_gate_tiers
 from runtime.api.runtime_services import (
     EvolutionRuntime,
     ReplayProofBuilder,
@@ -291,6 +292,7 @@ def handle_runbook_composer(*, adaad_runbook: bool, trigger_mode: str, runbook_v
 def handle_explain_gates(*, explain_gates: bool) -> bool:
     if not explain_gates:
         return False
+
     
     from runtime.governance.fast_path_policy import get_operating_mode, get_required_gate_tiers
     from runtime.governance.change_classifier import classify_current_changes_decision
