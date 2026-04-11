@@ -348,33 +348,90 @@ class TestDORKLivingFleet:
         assert [e["role"] for e in tail] == ["user", "assistant"]
 
     def test_T132_FLEET_10_provider_failure_respects_fallback_policy(self, monkeypatch):
-        """T132-FLEET-10: provider error returns structured payload unless fallback explicitly enabled."""
-        engine = FleetEngine("engine", "dork_engine", "", "dork-model", 1)
-        engine._healthy = True
-        fleet = DORKLivingFleet(engines=[engine], manifest_path=MANIFEST_PATH)
+        """T132-FLEET-10: first provider failover dispatches to second healthy provider deterministically."""
+        p1 = FleetEngine("p1", "dork_engine", "", "m1", 1)
+        p2 = FleetEngine("p2", "dork_engine", "", "m2", 2)
+        p1._healthy = True
+        p2._healthy = True
+        fleet = DORKLivingFleet(engines=[p1, p2], manifest_path=MANIFEST_PATH)
 
-        def boom(_text, _eng):
-            raise RuntimeError("provider down")
+        seen = []
 
-        monkeypatch.setattr(fleet, "_dispatch_via_dork_engine", boom)
-        fleet._provider_dispatchers["dork_engine"] = fleet._dispatch_via_dork_engine
+        def dispatch(_text, eng):
+            seen.append(eng.name)
+            if eng.name == "p1":
+                raise RuntimeError("p1 down")
+            return "p2 ok aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+
+        monkeypatch.setattr(fleet, "_dispatch_provider", dispatch)
+
+        result = fleet.query("status please")
+        assert result.status == "ok"
+        assert result.engine_used == "p2"
+        assert seen == ["p1", "p2"]
+        summary = fleet._provider_registry.summary()
+        assert summary["p1"]["healthy"] is False
+        assert summary["p1"]["last_error"] == "p1 down"
+
+    def test_T132_FLEET_11_all_provider_failures_preserve_fail_closed_and_fallback(self, monkeypatch):
+        """T132-FLEET-11: all failed retries return error unless deterministic fallback is explicitly enabled."""
+        p1 = FleetEngine("p1", "dork_engine", "", "m1", 1)
+        p2 = FleetEngine("p2", "dork_engine", "", "m2", 2)
+        p1._healthy = True
+        p2._healthy = True
+        fleet = DORKLivingFleet(engines=[p1, p2], manifest_path=MANIFEST_PATH)
+
+        def always_fail(_text, eng):
+            raise RuntimeError(f"{eng.name} down")
+
+        monkeypatch.setattr(fleet, "_dispatch_provider", always_fail)
 
         monkeypatch.delenv("ADAAD_DORK_FLEET_ALLOW_DETERMINISTIC_FALLBACK", raising=False)
         result_error = fleet.query("status please")
         assert result_error.status == "error"
         assert result_error.error is not None
-        assert '"provider_name": "engine"' in result_error.error
+        assert '"attempted_providers": ["p1", "p2"]' in result_error.error
         assert '"fallback_applied": false' in result_error.error
 
         monkeypatch.setenv("ADAAD_DORK_FLEET_ALLOW_DETERMINISTIC_FALLBACK", "true")
+        p1._healthy = True
+        p2._healthy = True
         result_fallback = fleet.query("status please")
         assert result_fallback.status == "ok"
         assert "[DORK-FLEET deterministic fallback]" in result_fallback.response
         assert result_fallback.error is not None
         assert '"fallback_applied": true' in result_fallback.error
 
-    def test_T132_FLEET_11_output_sanitization_applied_on_success_and_failure(self, monkeypatch):
-        """T132-FLEET-11: OPT-005 sanitizer is always applied for provider output and error payloads."""
+    def test_T132_FLEET_12_deterministic_order_and_retry_bound(self, monkeypatch):
+        """T132-FLEET-12: retry sequence is priority-ordered and bounded to min(3, total providers)."""
+        providers = [
+            FleetEngine("p1", "dork_engine", "", "m1", 1),
+            FleetEngine("p2", "dork_engine", "", "m2", 2),
+            FleetEngine("p3", "dork_engine", "", "m3", 3),
+            FleetEngine("p4", "dork_engine", "", "m4", 4),
+        ]
+        for provider in providers:
+            provider._healthy = True
+        fleet = DORKLivingFleet(engines=providers, manifest_path=MANIFEST_PATH)
+
+        seen = []
+
+        def always_fail(_text, eng):
+            seen.append(eng.name)
+            raise RuntimeError(f"{eng.name} failed")
+
+        monkeypatch.setattr(fleet, "_dispatch_provider", always_fail)
+        monkeypatch.delenv("ADAAD_DORK_FLEET_ALLOW_DETERMINISTIC_FALLBACK", raising=False)
+
+        result = fleet.query("bounded retries")
+        assert result.status == "error"
+        assert seen == ["p1", "p2", "p3"]
+        assert result.error is not None
+        assert '"max_attempts": 3' in result.error
+        assert '"attempted_providers": ["p1", "p2", "p3"]' in result.error
+
+    def test_T132_FLEET_13_output_sanitization_applied_on_success_and_failure(self, monkeypatch):
+        """T132-FLEET-13: OPT-005 sanitizer is always applied for provider output and error payloads."""
         engine = FleetEngine("engine", "dork_engine", "", "dork-model", 1)
         engine._healthy = True
         fleet = DORKLivingFleet(engines=[engine], manifest_path=MANIFEST_PATH)
