@@ -394,6 +394,21 @@ class DORKLivingFleet:
             raise ValueError(f"unsupported_provider_type:{engine.provider_type}")
         return dispatcher(text, engine)
 
+    def _next_healthy_engine_by_priority(
+        self,
+        attempted: set[str],
+    ) -> FleetEngine | None:
+        """
+        Deterministically select the next healthy engine by ascending priority.
+        Engines already attempted for the current query are excluded.
+        """
+        for candidate in self._router.all_engines():
+            if candidate.name in attempted:
+                continue
+            if candidate.is_healthy():
+                return candidate
+        return None
+
     def query(self, text: str) -> FleetDispatchResult:
         """
         Route a natural-language DORK query through the full pipeline:
@@ -435,22 +450,61 @@ class DORKLivingFleet:
             error_payload = None
         else:
             # Standard LLM dispatch through concrete provider adapters.
-            try:
-                response = self._dispatch_provider(text, engine)
-                status = "ok"
-                error_payload = None
-            except Exception as exc:  # noqa: BLE001
+            total_providers = len(self._router.all_engines())
+            max_attempts = min(3, total_providers)
+            attempted_providers: list[str] = []
+            attempted_set: set[str] = set()
+            last_failure_reason = "provider_dispatch_unknown_failure"
+            last_failed_engine: FleetEngine = engine
+            successful_engine: FleetEngine | None = None
+
+            current_engine: FleetEngine | None = engine
+            while current_engine is not None and len(attempted_providers) < max_attempts:
+                attempted_providers.append(current_engine.name)
+                attempted_set.add(current_engine.name)
+                try:
+                    response = self._dispatch_provider(text, current_engine)
+                    status = "ok"
+                    error_payload = None
+                    successful_engine = current_engine
+                    break
+                except Exception as exc:  # noqa: BLE001
+                    last_failure_reason = str(exc)
+                    last_failed_engine = current_engine
+                    current_engine._healthy = False
+                    self._provider_registry.record(
+                        ProviderStatus(
+                            name=current_engine.name,
+                            healthy=False,
+                            latency_ms=0.0,
+                            error=last_failure_reason,
+                        )
+                    )
+                    try:
+                        self.probe_engine(current_engine.name)
+                    except Exception:
+                        pass
+                    current_engine = self._next_healthy_engine_by_priority(attempted_set)
+            else:
+                successful_engine = None
+
+            if successful_engine is not None:
+                engine = successful_engine
+            else:
                 fallback_allowed = self._deterministic_fallback_allowed()
                 error_payload = {
                     "type": "provider_dispatch_error",
-                    "provider_name": engine.name,
-                    "provider_type": engine.provider_type,
-                    "model": engine.model,
-                    "reason": str(exc),
+                    "provider_name": attempted_providers[-1] if attempted_providers else last_failed_engine.name,
+                    "provider_type": last_failed_engine.provider_type,
+                    "model": last_failed_engine.model,
+                    "reason": last_failure_reason,
+                    "terminal_failure_reason": last_failure_reason,
+                    "attempted_providers": attempted_providers,
+                    "max_attempts": max_attempts,
                     "fallback_applied": fallback_allowed,
                 }
                 if fallback_allowed:
-                    response = self._deterministic_fallback_response(text, engine, str(exc))
+                    response = self._deterministic_fallback_response(text, engine, last_failure_reason)
                     status = "ok"
                 else:
                     response = json.dumps(error_payload, sort_keys=True)
