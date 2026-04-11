@@ -35,10 +35,13 @@ const src = [
   'let _cachedPrompt = null;',
   'let _cachedGovHash = null;',
   extractConst('CANONICAL_INNOVATION_COVERAGE'),
+  extractConst('PERSONA_STYLES'),
   extractFunction('formatRuntimeIdentity'),
   extractFunction('buildWelcomeMessage'),
   extractFunction('buildSystemPrompt'),
+  extractFunction('applyPlainLanguage'),
   'globalThis.S = { gov: null };',
+  'globalThis.CFG = { persona: "concise", plainLanguage: false };',
   'globalThis.assert = (cond, msg) => { if (!cond) throw new Error(msg); };',
   `
 const runtimeA = {
@@ -76,6 +79,26 @@ const welcomeFallback = buildWelcomeMessage();
 const promptFallback = buildSystemPrompt();
 assert(welcomeFallback.includes('snapshot unavailable'), 'welcome fallback should say snapshot unavailable');
 assert(promptFallback.includes('snapshot unavailable'), 'prompt fallback should say snapshot unavailable');
+
+for (const persona of ['concise', 'coach', 'executive_brief', 'technical_deep_dive']) {
+  CFG.persona = persona;
+  _cachedPrompt = null;
+  const prompt = buildSystemPrompt();
+  assert(prompt.includes('Persona style directive: ' + persona), 'prompt should include persona directive for ' + persona);
+  assert(prompt.includes('read-only and advisory only'), 'hard read-only constraint must remain');
+  assert(prompt.includes('cannot modify the system, sign anything, merge code'), 'hard authority constraints must remain');
+  assert(prompt.includes('Never suggest bypassing governance gates'), 'hard no-bypass constraint must remain');
+}
+
+CFG.plainLanguage = false;
+const raw = 'Constitutional substrate with deterministic replay and Lineage Ledger invariants.';
+assert(applyPlainLanguage(raw) === raw, 'plain language disabled should be a no-op');
+
+CFG.plainLanguage = true;
+const plain = applyPlainLanguage(raw);
+assert(plain.includes('rules-based core system'), 'plain language should simplify constitutional substrate phrasing');
+assert(plain.includes('repeatable replay test'), 'plain language should simplify deterministic replay phrasing');
+assert(plain.includes('audit history ledger'), 'plain language should simplify lineage ledger phrasing');
 `
 ].join('\n\n');
 
