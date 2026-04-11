@@ -189,10 +189,14 @@ class Orchestrator:
         self.exit_after_boot = exit_after_boot
         self.evolution_runtime.set_replay_mode(self.replay_mode)
 
+        # Phase 107 Streamlining
+        from runtime.governance.fast_path_policy import OperatingMode, get_operating_mode
+        from runtime.governance.change_classifier import classify_current_changes_decision
         self.operating_mode = get_operating_mode()
         if self.fast_mode:
             self.operating_mode = OperatingMode.DEV_FAST
-        self.change_type = classify_current_changes()
+        self.change_decision = classify_current_changes_decision()
+        self.change_type = self.change_decision.change_type
 
     def _v(self, message: str) -> None:
         if not self.verbose:

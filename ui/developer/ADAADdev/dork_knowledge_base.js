@@ -43,7 +43,7 @@
     { key: 'market fitness', answer: 'Market-Conditioned Fitness (INNOV-22, Phase 107) extends the standard fitness signal with external-demand context: feature demand signals, comparative adoption curves, and operator-weighted priority adjustments. Implemented in market_fitness.py.', tags: ['market','fitness','innov-22','innovation'], confidence: 0.96 },
     // ── Versioning & Release ───────────────────────────────────────────
     { key: 'versioning', answer: 'Four-surface version alignment: VERSION file, pyproject.toml, .adaad_agent_state.json, and governance/report_version.json must all carry the same semver string after every phase promotion.', tags: ['versioning','semver','alignment','release'], confidence: 0.99 },
-    { key: 'current version', answer: 'ADAAD is currently at v9.58.0, Phase 125. Check .adaad_agent_state.json or the VERSION file for the authoritative current version at any time.', tags: ['version','current','phase'], confidence: 0.95 },
+    { key: 'current version', answer: 'ADAAD is currently at v9.60.0, Phase 127. Check .adaad_agent_state.json or the VERSION file for the authoritative current version at any time.', tags: ['version','current','phase'], confidence: 0.95 },
     { key: 'release readiness', answer: 'Release readiness is a 0–1 score derived from: active blockers, test pass rate, replay score, governance gate status, and documentation completeness. Score ≥0.9 with zero Hard blockers is the GA gate threshold.', tags: ['release','readiness','score','gate'], confidence: 0.98 },
     { key: 'ga release', answer: 'v1.1-GA is gated on FINDING-66-003 (patent filing). Patent counsel engagement is a pending HUMAN-0 action and a Hard gate block until resolved.', tags: ['ga','release','patent','finding-66-003','blocker'], confidence: 0.97 },
     // ── Phases & Roadmap ───────────────────────────────────────────────
@@ -71,6 +71,12 @@
     { key: 'providers', answer: 'DORK supports four LLM providers in priority sequence: (1) Claude/Anthropic (claude-haiku, via Anthropic Messages API). (2) Groq (cloud, llama-3.3-70b-versatile). (3) Ollama (local, llama3.2). (4) DorkEngine (built-in deterministic fallback).', tags: ['providers','groq','ollama','claude','anthropic','llm'], confidence: 0.99 },
     { key: 'testing patterns', answer: 'Key test fixes: (1) Patch pathlib.Path.open not builtins.open — container runs as root, chmod-based unwritability is unreliable. (2) Use epoch IDs with distinct first-8-character prefixes to avoid gap_id collision. (3) Always run with PYTHONPATH=/home/claude/adaad prefix from outside the repo.', tags: ['testing','pytest','patterns','fixes'], confidence: 0.98 },
     { key: 'innov-22', answer: 'INNOV-22 is Market-Conditioned Fitness (Phase 107). The market_fitness.py scaffold integrates external demand signals into mutation fitness scoring. Next phase after Phase 106 (v9.39.0).', tags: ['innov-22','market','fitness','phase-107'], confidence: 0.97 },
+    // ── Added Knowledge Bridge (DORK-MERGE v1.0) ───────────────────────
+    { key: '30 innovations', answer: 'ADAAD features 30+ key innovations across Constitutional Intelligence, Fitness Beyond Correctness, Memory and Identity, and Multi-Agent Architecture. See ADAAD_30_INNOVATIONS.md for the full index.', tags: ['innovations','roadmap','features'], confidence: 0.99 },
+    { key: 'merge gates', answer: 'DEVADAAD merges are protected by a 5-tier gate stack: Tier 0 (Baseline), Tier 1 (Full Test Suite), Tier 2 (Escalated Replay), Tier 3 (PR Completeness), and Tier M (Merge-specific Working Code Assertion).', tags: ['merge','gates','devadaad','security'], confidence: 0.99 },
+    { key: 'plans', answer: 'ADAAD offers three plan tiers: Free (limited seats/approvals), Pro (expanded limits, full mutation epochs), and Enterprise (unlimited scale/approvals).', tags: ['pricing','plans','enterprise'], confidence: 0.98 },
+    { key: 'current phase', answer: 'ADAAD is currently in Phase 127, executing Break-It Challenge Infrastructure (v9.60.0).', tags: ['phase','current','status'], confidence: 0.99 },
+    { key: 'next phase', answer: 'The next planned milestone is Phase 128, focusing on mobile runtime graduation.', tags: ['phase','roadmap','future'], confidence: 0.95 },
   ];
 
   function tokenise(text) {
@@ -104,6 +110,40 @@
 
   function listAll() { return KB.map((e) => ({ key: e.key, tags: e.tags, confidence: e.confidence })); }
   function listByTag(tag) { return KB.filter((e) => (e.tags || []).includes(tag)); }
+
+  // ── Phase 132 · INNOV-41 entries ────────────────────────────────────────────
+  KB.push(
+    {
+      key: 'what is dork living fleet',
+      answer: 'The DORK Living Fleet (INNOV-41, Phase 132) is a governed multi-engine orchestrator that routes DORK queries through a living fleet of LLM provider backends, slash-command resolvers, and conversation ledger engines — all enforced under six Hard constitutional invariants (DORK-FLEET-0, DORK-CMD-0, DORK-STATE-0, DORK-PROV-0, DORK-CTX-0, DORK-OUTPUT-0). It is a world-first: a constitutional fail-closed provider fleet with hash-chained conversation ledger and Jaccard-taxonomy intent routing under HUMAN-0 governance.',
+      tags: ['fleet', 'innov-41', 'phase-132', 'dork', 'innovation'],
+      confidence: 0.99,
+    },
+    {
+      key: 'what is dork-fleet-0',
+      answer: 'DORK-FLEET-0 is a Hard constitutional invariant introduced in Phase 132. It states: DORKLivingFleet MUST NOT promote any mutation without a successful DorkCommandResolver pre-validation pass. Fleet health status MUST be queryable at all times — a fleet with no healthy providers is constitutionally BLOCKED and raises FleetBlockedError.',
+      tags: ['invariant', 'fleet', 'constitutional', 'hard', 'phase-132'],
+      confidence: 0.99,
+    },
+    {
+      key: 'what are dork slash commands',
+      answer: 'DORK slash commands are /dork:-prefixed operator shortcuts (e.g. /dork:gate, /dork:fleet, /dork:brief) validated by the DorkCommandResolver against the canonical slash_commands.json manifest (DORK-CMD-0). Phase 132 ships 15 commands covering gate, mutation, replay, ledger, agents, phase, sandbox, signing, fleet, rank, delta, oracle, market, and help. Unknown commands are rejected — never silently forwarded.',
+      tags: ['slash', 'commands', 'dork', 'phase-132', 'cmd-resolver'],
+      confidence: 0.98,
+    },
+    {
+      key: 'what is context keyword taxonomy',
+      answer: 'The CONTEXT_KEYWORD_TAXONOMY (dorkllm/context.py, DORK-CTX-0) is the canonical 8-category keyword registry used to classify all DORK queries via Jaccard similarity scoring. Categories: governance, mutation, replay, ledger, agent, fleet, release, sandbox. classify_query() returns the best-matching category and confidence score. Ad-hoc keyword routing outside this taxonomy is constitutionally prohibited.',
+      tags: ['taxonomy', 'jaccard', 'context', 'dork-ctx-0', 'phase-132'],
+      confidence: 0.98,
+    },
+    {
+      key: 'what is conversation ledger',
+      answer: 'The ConversationLedger (dorkllm/state.py, DORK-STATE-0) is an append-only, SHA-256 hash-chained record of every DORK conversation turn (user + assistant). Each entry seals role, content digest, timestamp, and prev_hash. Mutating a prior entry raises ConversationLedgerViolation. The full chain is verifiable end-to-end via verify().',
+      tags: ['ledger', 'conversation', 'state', 'dork-state-0', 'phase-132'],
+      confidence: 0.99,
+    }
+  );
 
   global.DORK_KB = { lookup, listAll, listByTag, _entries: KB };
   // backward-compat shim for code reading DORK_KNOWLEDGE_BASE

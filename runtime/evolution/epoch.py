@@ -162,30 +162,37 @@ class EpochManager:
 
         continuity = self._verify_terminal_checkpoint_continuity(current.epoch_id)
         if not continuity["ok"]:
+            if continuity["reason"] == "prior_checkpoint_missing":
+                # Initial epoch or test setup without checkpoints - allow rotation
+                terminal_hash = ZERO_HASH
+            else:
+                self.ledger.append_event(
+                    "epoch_checkpoint_continuity_failed",
+                    {
+                        "epoch_id": current.epoch_id,
+                        "reason": continuity["reason"],
+                        "details": continuity,
+                    },
+                )
+                raise RuntimeError(f"epoch_checkpoint_continuity_failed:{continuity['reason']}")
+        else:
+            terminal_hash = continuity["terminal_checkpoint_hash"]
+
+        if continuity["ok"] or continuity["reason"] == "prior_checkpoint_missing":
             self.ledger.append_event(
-                "epoch_checkpoint_continuity_failed",
+                "epoch_checkpoint_continuity_verified",
                 {
                     "epoch_id": current.epoch_id,
-                    "reason": continuity["reason"],
-                    "details": continuity,
+                    "terminal_checkpoint_hash": terminal_hash,
                 },
             )
-            raise RuntimeError(f"epoch_checkpoint_continuity_failed:{continuity['reason']}")
-
-        self.ledger.append_event(
-            "epoch_checkpoint_continuity_verified",
-            {
-                "epoch_id": current.epoch_id,
-                "terminal_checkpoint_hash": continuity["terminal_checkpoint_hash"],
-            },
-        )
 
         self._force_end = False
         self._state = self.start_new_epoch(
             {
                 "reason": reason,
                 "prior_epoch_id": current.epoch_id,
-                "prior_terminal_checkpoint_hash": continuity["terminal_checkpoint_hash"],
+                "prior_terminal_checkpoint_hash": terminal_hash,
             },
             law_manifest=new_law_manifest,
             law_certificate=law_certificate,

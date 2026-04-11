@@ -41,6 +41,16 @@ Phase 95 aligns, enhances, and optimizes ADAAD's two AI intelligence surfaces �
 2. **Ollama** (local, user-configured model, completely free) — secondary
 3. **DorkEngine** (deterministic constitutional intelligence, zero cost) — always-available fallback
 
+### Dispatch/Fallback Semantics (current runtime alignment)
+
+- DORK fleet dispatch is priority-ordered and deterministic per request.
+- Provider dispatch failures trigger immediate unhealthy marking and probe recording in `ProviderHealthRegistry`.
+- Query-time failover excludes already-attempted providers and retries with a bounded sequence (`max_attempts = min(3, total_providers)`).
+- If all attempts fail:
+  - fail-closed behavior is preserved by default (error status + structured metadata),
+  - deterministic fallback text is used only when `ADAAD_DORK_FLEET_ALLOW_DETERMINISTIC_FALLBACK` is explicitly enabled.
+- Error metadata includes attempted provider order and the terminal failure reason for post-incident auditability.
+
 **Rationale:** Groq's free tier provides real LLM power at zero cost. Ollama enables fully local operation. DorkEngine guarantees governance intelligence even without any network connectivity. Oracle calls the Groq/Dork bridge via ADAAD_STATE_BUS — no separate API needed.
 
 ---

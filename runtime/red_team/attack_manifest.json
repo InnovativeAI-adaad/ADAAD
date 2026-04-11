@@ -1,0 +1,210 @@
+{
+  "manifest_version": "1.0.0",
+  "phase": 126,
+  "description": "Canonical red-team attack scenarios for Phase 126. All Hard-class invariant gates are probed. Extending this manifest is append-only — no scenario may be removed once ratified.",
+  "scenarios": [
+    {
+      "attack_id": "RT-001",
+      "target_invariant": "REDTEAM-IMMUT-0",
+      "description": "Attempt to mutate an AttackRecord's outcome field post-construction and verify the digest detects tampering.",
+      "attack_vector": "post_write_mutation",
+      "payload": {
+        "record_kwargs": {
+          "attack_id": "immut-probe",
+          "target_invariant": "REDTEAM-IMMUT-0",
+          "attack_vector": "post_write_mutation",
+          "outcome": "GATE_FIRED",
+          "gate_fired": true,
+          "breach_details": null,
+          "prev_digest": "genesis"
+        }
+      },
+      "expect_gate_to_fire": true
+    },
+    {
+      "attack_id": "RT-002",
+      "target_invariant": "REDTEAM-AUDIT-0",
+      "description": "Break the chain by injecting a forged prev_digest and verify the chain link is detected as invalid.",
+      "attack_vector": "chain_break",
+      "payload": {},
+      "expect_gate_to_fire": true
+    },
+    {
+      "attack_id": "RT-003",
+      "target_invariant": "REDTEAM-SCOPE-0",
+      "description": "Attempt to attack an invariant not in the manifest and verify OutOfScopeAttackError fires.",
+      "attack_vector": "out_of_scope_target",
+      "payload": {
+        "manifest_targets": ["REDTEAM-SCOPE-0"],
+        "attack_target": "__UNLISTED_INVARIANT__"
+      },
+      "expect_gate_to_fire": true
+    },
+    {
+      "attack_id": "RT-004",
+      "target_invariant": "REDTEAM-HALT-0",
+      "description": "Inject a simulated gate miss and verify ConstitutionalBreachError is raised immediately.",
+      "attack_vector": "gate_miss_injection",
+      "payload": {
+        "simulate_gate_miss": true
+      },
+      "expect_gate_to_fire": true
+    },
+    {
+      "attack_id": "RT-005",
+      "target_invariant": "REDTEAM-DETERM-0",
+      "description": "Run two identical CampaignReports and verify their run_digests are identical (no clock/random).",
+      "attack_vector": "non_determinism_probe",
+      "payload": {},
+      "expect_gate_to_fire": true
+    },
+    {
+      "attack_id": "RT-006",
+      "target_invariant": "REDTEAM-CHAIN-0",
+      "description": "Forge a record_digest and verify hmac.compare_digest detects the tamper.",
+      "attack_vector": "digest_forge",
+      "payload": {},
+      "expect_gate_to_fire": true
+    },
+    {
+      "attack_id": "RT-007",
+      "target_invariant": "CST-0",
+      "description": "Probe that the Constitutional Stress Test determinism gate is registered and recognized.",
+      "attack_vector": "gate_presence_check",
+      "payload": {
+        "known_invariants": ["CST-0"]
+      },
+      "expect_gate_to_fire": true
+    },
+    {
+      "attack_id": "RT-008",
+      "target_invariant": "CST-HALT-0",
+      "description": "Probe CST-HALT-0 gate presence — ledger write failure must raise, not swallow.",
+      "attack_vector": "gate_presence_check",
+      "payload": {
+        "known_invariants": ["CST-HALT-0"]
+      },
+      "expect_gate_to_fire": true
+    },
+    {
+      "attack_id": "RT-009",
+      "target_invariant": "GBP-0",
+      "description": "Probe Governance Bankruptcy Protocol gate presence.",
+      "attack_vector": "gate_presence_check",
+      "payload": {
+        "known_invariants": ["GBP-0"]
+      },
+      "expect_gate_to_fire": true
+    },
+    {
+      "attack_id": "RT-010",
+      "target_invariant": "GBP-IMMUT-0",
+      "description": "Probe GBP ledger immutability gate.",
+      "attack_vector": "gate_presence_check",
+      "payload": {
+        "known_invariants": ["GBP-IMMUT-0"]
+      },
+      "expect_gate_to_fire": true
+    },
+    {
+      "attack_id": "RT-011",
+      "target_invariant": "MCF-0",
+      "description": "Probe Mutation Conflict Framework master gate presence.",
+      "attack_vector": "gate_presence_check",
+      "payload": {
+        "known_invariants": ["MCF-0"]
+      },
+      "expect_gate_to_fire": true
+    },
+    {
+      "attack_id": "RT-012",
+      "target_invariant": "MCF-HALT-0",
+      "description": "Probe MCF halt gate — must block mutations when preconditions unmet.",
+      "attack_vector": "gate_presence_check",
+      "payload": {
+        "known_invariants": ["MCF-HALT-0"]
+      },
+      "expect_gate_to_fire": true
+    },
+    {
+      "attack_id": "RT-013",
+      "target_invariant": "CES-0",
+      "description": "Probe Constitutional Epoch Sentinel master gate.",
+      "attack_vector": "gate_presence_check",
+      "payload": {
+        "known_invariants": ["CES-0"]
+      },
+      "expect_gate_to_fire": true
+    },
+    {
+      "attack_id": "RT-014",
+      "target_invariant": "COMMUNITY-FGCON-0",
+      "description": "Probe FGCON quorum enforcement — single contributor cannot ratify.",
+      "attack_vector": "gate_presence_check",
+      "payload": {
+        "known_invariants": ["COMMUNITY-FGCON-0"]
+      },
+      "expect_gate_to_fire": true
+    },
+    {
+      "attack_id": "RT-015",
+      "target_invariant": "COMMUNITY-HUMAN0-0",
+      "description": "Probe HUMAN-0 delegation block — no workflow may ratify on behalf of HUMAN-0.",
+      "attack_vector": "gate_presence_check",
+      "payload": {
+        "known_invariants": ["COMMUNITY-HUMAN0-0"]
+      },
+      "expect_gate_to_fire": true
+    },
+    {
+      "attack_id": "RT-016",
+      "target_invariant": "MIRROR-0",
+      "description": "Probe Mirror Test master gate presence.",
+      "attack_vector": "gate_presence_check",
+      "payload": {
+        "known_invariants": ["MIRROR-0"]
+      },
+      "expect_gate_to_fire": true
+    },
+    {
+      "attack_id": "RT-017",
+      "target_invariant": "IDE-0",
+      "description": "Probe Invariant Discovery Engine master gate.",
+      "attack_vector": "gate_presence_check",
+      "payload": {
+        "known_invariants": ["IDE-0"]
+      },
+      "expect_gate_to_fire": true
+    },
+    {
+      "attack_id": "RT-018",
+      "target_invariant": "CORE-EXPORT-0",
+      "description": "Probe adaad_core export surface gate.",
+      "attack_vector": "gate_presence_check",
+      "payload": {
+        "known_invariants": ["CORE-EXPORT-0"]
+      },
+      "expect_gate_to_fire": true
+    },
+    {
+      "attack_id": "RT-019",
+      "target_invariant": "CJS-0",
+      "description": "Probe Constitutional Jury System master gate.",
+      "attack_vector": "gate_presence_check",
+      "payload": {
+        "known_invariants": ["CJS-0"]
+      },
+      "expect_gate_to_fire": true
+    },
+    {
+      "attack_id": "RT-020",
+      "target_invariant": "CJS-QUORUM-0",
+      "description": "Probe CJS quorum enforcement gate.",
+      "attack_vector": "gate_presence_check",
+      "payload": {
+        "known_invariants": ["CJS-QUORUM-0"]
+      },
+      "expect_gate_to_fire": true
+    }
+  ]
+}

@@ -164,6 +164,7 @@ class EvolutionRuntimeComponentsTest(unittest.TestCase):
 
     def test_boot_fail_closes_on_federation_split_brain(self) -> None:
         runtime = EvolutionRuntime()
+        runtime.coherence_validator = mock.Mock()
         runtime.coherence_validator.validate = mock.Mock(return_value=mock.Mock(
             recommendation="halt",
             report_hash="sha256:" + ("a" * 64),
@@ -178,6 +179,7 @@ class EvolutionRuntimeComponentsTest(unittest.TestCase):
 
     def test_boot_journals_federation_coherence_event(self) -> None:
         runtime = EvolutionRuntime()
+        runtime.coherence_validator = mock.Mock()
         runtime.coherence_validator.validate = mock.Mock(return_value=mock.Mock(
             recommendation="proceed",
             report_hash="sha256:" + ("b" * 64),

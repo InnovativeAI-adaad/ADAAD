@@ -1,45 +1,413 @@
-## [9.60.0] — 2026-04-06 · Phase 127 · Break-It Challenge Infrastructure
+## [9.69.0] — 2026-04-11 · Phase 136 · Dork Runtime Enrichment Bridge Hardening
 
-### Added
-- `docs/BREAK_IT_CHALLENGE.md` — public constitutional stress test: 167 Hard-class invariants open to adversarial challenge; in/out-of-scope rules; submission format; BYPASS_CONFIRMED / GUARANTEE_HOLDS / PARTIAL_BYPASS classifications; recognition policy; verification environment
-- `docs/break_it_log/README.md` — public submission log initialized at 0 attempts; summary table; entry format; active invariants table; coordinated disclosure policy
-- `.github/ISSUE_TEMPLATE/break_it_submission.md` — structured submission template: YAML frontmatter, all mandatory fields, result classification checkboxes, clean-clone reproduction requirement
-- `CONTRIBUTORS.md` — permanent recognition registry: HUMAN-0, Constitutional Auditors (Break-It), Community Governance Participants, Code contributors; recognition is permanent and never removed
-- `tests/test_phase127_break_it_challenge.py` — 30/30 acceptance tests T127-BRK-01..30 (DOC, LOG, TMPL, CONT, INV, PROC categories)
-- `artifacts/governance/phase127/` — sign-off JSON, attestation ILA-127-2026-04-06-001
+### Fix: enrich `runtime.sendMessage` directly and standardize enrichment event surfacing
 
-### Changed
-- `pytest.ini` — registered `phase127` marker
-- `VERSION` → `9.60.0`
-- `.adaad_agent_state.json` — version `9.60.0`, current_phase `127`
+- `ui/developer/ADAADdev/dork_runtime.js`
+  - Patched runtime-instance `sendMessage` via `initDorkRuntime` so enrichment metadata
+    (`intent`, `kbHit`, `fanOutCount`) is returned for both direct runtime usage and the
+    global `sendMessage` proxy path.
+  - Added an internal runtime event bridge (`EventTarget`) and `emitEvent` exposure so
+    enrichment events are emitted without relying on an undefined `_eventTarget`.
+- `ui/developer/ADAADdev/whaledic.html`
+  - Added `sendThroughDorkRuntime(msg, options)` integration bridge to route calls through
+    `dorkRuntime.sendMessage` when needed by UI contract checks.
+- `tests/test_dork_v2_makeover.py`
+  - Added static contract checks asserting runtime-instance patching, metadata return shape,
+    and whaledic runtime bridge wiring.
 
-### Governance
-- Attestation: ILA-127-2026-04-06-001 · Governor: DUSTIN L REID
-- No new Hard-class invariants (infrastructure phase)
-- Cumulative Hard-class invariants: **167**
-- 30/30 acceptance tests PASS
+## [9.68.0] — 2026-04-11 · Phase 136 · DORK ConversationLedger Verify Hardening
+
+### Fix: Canonical hash payload parity between append() and verify()
+
+- `dorkllm/state.py`
+  - `ConversationLedger` now hashes a canonical payload keyed by
+    `{role, content_digest, timestamp, prev_hash}` in both append and verify paths.
+  - `verify()` now recomputes each expected `entry_hash` from the chain-derived
+    `prev_hash` and returns a seq-indexed `entry_hash mismatch` failure reason.
+- `tests/test_phase132_dork_living_fleet.py`
+  - Added tamper-detection tests proving verify failure for:
+    `content_digest`, `timestamp`, `entry_hash`, and `prev_hash` chain mutation.
+
+### Fix: Restart hydration now restores canonical chain entries without double hashing
+
+- `dorkllm/state.py`
+  - Added `ConversationLedger.restore_entry(...)` for authoritative chain hydration.
+  - Enforces role validation, seq continuity, prev-hash continuity, and canonical
+    entry-hash recomputation before append-only insertion.
+- `runtime/innovations30/dork_living_fleet.py`
+  - Fleet startup hydration now uses restore semantics from persistence entries
+    instead of calling `append()` with pre-digested content.
+- `tests/test_phase132_dork_living_fleet.py`
+  - Added restore path coverage for exact hash preservation and fail-closed
+    prev-hash continuity enforcement.
+- `tests/test_phase133_dfsb.py`
+  - Added restart hydration regression proving persisted entries are restored
+    byte-for-byte in memory with seq/hash continuity.
+
+## [9.67.0] — 2026-04-11 · Phase 135 · INNOV-43 Constitution Versioning and Rollback (CVR)
+
+### World-First: Constitutional Git-Blame-Equivalent with Cryptographic Chain Integrity and HUMAN-0-Gated Rollback
+
+The Constitution Version Ledger (CVL) versions the ADAAD constitution itself. Every
+amendment receives a semantic version tag, a SHA-256 content digest, and a hash-chain
+link. Rollback is a new forward entry (never destructive) and requires HUMAN-0
+authorization. This is the first autonomous codebase to maintain a cryptographically
+auditable version history of its own governing constitution with full replay determinism.
+
+#### New Hard-class invariants (5)
+- **CVR-IMMUT-0** — CVL is append-only; delete/mutate raises `CVLImmutabilityViolation`
+- **CVR-DIGEST-0** — every entry carries SHA-256 content digest; mismatch raises `CVLDigestViolation`
+- **CVR-ROLLBACK-0** — rollback is a forward amendment; destructive rewrite is constitutionally prohibited
+- **CVR-HUMAN0-0** — rollback requires non-empty `human0_token`; absence raises `CVLAuthorizationViolation`
+- **CVR-CHAIN-0** — each entry carries `prev_hash`; chain break raises `CVLChainViolation`
+
+#### Cumulative Hard-class invariants: 216
+#### Test result: 30/30 (full suite: 325/325)
+#### Module: `runtime/innovations30/constitution_version_ledger.py`
+#### Data: `data/constitution/version_ledger.jsonl`
+
+### Maintenance update — DFSB watchdog runtime lifecycle hardening
+
+- `server.py` now creates exactly one `DorkFleetWatchdog` instance per FastAPI app runtime
+  and stores it on `app.state` alongside the fleet singleton.
+- Watchdog startup is scheduled idempotently after fleet creation, preventing duplicate
+  background probe tasks across repeated initialization paths.
+- FastAPI lifespan shutdown now awaits `watchdog.stop()` to avoid orphaned asyncio tasks.
+- Phase 133 DFSB tests extended to verify single-start lifecycle behavior and transition
+  audit emission during watchdog-driven health changes.
+
+## [9.66.0] — 2026-04-11 · Phase 134 · REF-001–004 DFSB Post-Ship Remediation
+
+### Remediation: DORK Fleet Server Bridge Configuration Hardening
+
+Four targeted remediations closing Phase 133 configuration debt. No new
+constitutional invariants added — this is a hardening pass that makes the
+DFSB provider registry, fleet engine, intent router, and slash commands
+fully consistent with the INNOV-42 specification.
+
+#### REF-001 — provider_config.json v2.0.0
+- Expanded from 2 providers to full 5-provider priority ladder:
+  DorkEngine(1) → Anthropic(2) → Groq(3) → ollama_local(4) → ollama_remote(5)
+- Each entry now carries `probe{}`, `constraints{}`, `api_key_env`
+- Schema bumped to `dork_provider_config_v2`
+
+#### REF-002 — dork_living_fleet.py
+- `FleetEngine` gains `api_key_env` and `probe_cfg` dataclass fields
+- `api_key` property resolves key from environment at runtime
+- `probe()` now type-dispatched: dork_engine (always healthy), anthropic/groq
+  (HTTP + `MISCONFIGURED` on missing key), ollama (original `/api/tags`)
+- `_default_engines()` reads `id`, `api_key_env`, `probe` from v2 config;
+  fallback is dork_engine-only fleet (not ollama_local)
+
+#### REF-003a — dork_intent_router.py
+- 5 Phase 133 DFSB intent rules appended:
+  `query_fleet_persist`, `trigger_fleet_heal`, `query_fleet_fitness`,
+  `verify_fleet_chain`, `query_fleet_endpoints`
+
+#### REF-003b — slash_commands.json v2.0.0
+- 5 new DFSB commands: `/dork:persist`, `/dork:heal`, `/dork:watchdog`,
+  `/dork:fitness`, `/dork:verify`
+- Command count: 15 → 20
+
+#### REF-004 — .adaad_agent_state.json
+- `constitutional_invariants.cumulative` corrected to 211
+- `hard_class_invariant_count` and `innovations_count` top-level fields added
+- `last_completed_phase` corruption fixed
+- INNOV-41 and INNOV-42 expanded to full records with invariant lists
+
+## [9.65.0] — 2026-04-11 · Phase 133 · INNOV-42 DORK Fleet Server Bridge (DFSB)
+
+### World-First: Governed Self-Healing LLM Provider Fleet with Cryptographically-Persistent Conversation Ledger as a Constitutional Governance Subsystem
+
+The DORK Fleet Server Bridge wires DORKLivingFleet into server.py as a first-class governed
+subsystem: 6 REST endpoints, fsync-persisted conversation ledger, asyncio auto-heal watchdog,
+fleet fitness reporting in governance health, and a live fleet status strip in dork.html.
+
+**New modules:**
+- `runtime/dork_persist.py` — DorkLedgerPersistence: append-only JSONL, fsync on every write,
+  restart-continuity (DFSB-PERSIST-0); chain verifiable from genesis after server restart
+- `runtime/dork_watchdog.py` — DorkFleetWatchdog: asyncio background probe loop, structured
+  audit log for every HEALTHY↔DEAD engine transition (DFSB-HEAL-0)
+
+**New REST endpoints (server.py):**
+- `GET  /api/fleet/status`  — live fleet health snapshot (DFSB-GATE-0 enforced)
+- `POST /api/fleet/query`   — natural-language query through full fleet pipeline
+- `POST /api/fleet/slash`   — validated slash command dispatch (DORK-CMD-0 enforced)
+- `GET  /api/fleet/ledger`  — conversation ledger tail with chain verification
+- `GET  /api/fleet/verify`  — cryptographic chain integrity proof (DFSB-PERSIST-0)
+- `POST /api/fleet/heal`    — immediate engine re-probe (DFSB-HEAL-0)
+
+**Enhanced:**
+- `governance_health` endpoint — DFSB-FITNESS-0: `fleet_fitness` block
+  `{score, blocked, healthy_count}` embedded in every governance health response
+- `ui/dork.html` fleet strip — now live: polls `/api/fleet/status` every 15s,
+  updates health dot (🔴 blocked / 🟢 active / ⚪ offline) and provider counts in real-time
+
+**Invariants introduced (4 Hard — cumulative: 211):**
+- `DFSB-PERSIST-0`: Ledger MUST survive restart with chain continuity provable from genesis
+- `DFSB-HEAL-0`: Dead engines re-probed on interval; fleet transitions BLOCKED→ACTIVE automatically
+- `DFSB-FITNESS-0`: Fleet fitness MUST be embedded in every governance health response
+- `DFSB-GATE-0`: Fleet endpoints only available when governance gate is OPEN; locked gate → 503
+
+**Test suite:** 30/30 passing (T133-PERSIST-01→10, T133-HEAL-01→07, T133-FITNESS-01→05,
+T133-GATE-01→04, T133-ROUTES-01→04)
 
 ---
 
-## [9.59.0] — 2026-04-06 · Phase 126 · Docs Market Positioning
+## [9.64.0] — 2026-04-10 · Phase 132 · INNOV-41 DORK Living Fleet
+
+### World-First: Constitutional Fail-Closed Provider Fleet with Hash-Chained Conversation Ledger and Jaccard-Taxonomy Intent Routing under HUMAN-0 Governance Authority
+
+The DORK Living Fleet (INNOV-41) is a governed, multi-engine orchestrator that routes
+DORK queries through a living fleet of LLM provider backends, slash-command resolvers,
+and conversation ledger engines — all under six Hard constitutional invariants enforced
+at every dispatch boundary.
+
+**New modules:**
+- `runtime/dork_cmd_resolver.py` — DorkCommandResolver: DORK-CMD-0 slash-command manifest
+  validation with append-only hash-chained CommandLedger; rejects unknown commands with
+  structured CommandError — never silently forwards
+- `runtime/innovations30/dork_living_fleet.py` — DORKLivingFleet: 4-engine orchestrator
+  (SlashCommand + ProviderFleet + Conversation + Intent), 6 Hard invariants, FleetRouter,
+  FleetBlockedError, mutation promotion guard, dual dispatch/conversation chain ledger
+- `data/dork/` — 5 configuration/manifest files: slash_commands.json (15 commands),
+  capability_manifest.json, intent_registry.json (20 intents), provider_config.json,
+  constitutional_invariants.json
+
+**Enhanced modules:**
+- `dorkllm/state.py` — ConversationLedger (append-only, SHA-256 hash-chained, DORK-STATE-0)
+  + ProviderHealthRegistry (structured probe recording, DORK-PROV-0)
+- `dorkllm/context.py` — CONTEXT_KEYWORD_TAXONOMY (8 categories, 80+ keywords, DORK-CTX-0)
+  + jaccard_score() + classify_query() + get_taxonomy_hints()
+- `dorkllm/intelligence.py` — OPT-001→OPT-006 optimization pipeline: context deduplication,
+  prompt compression, turn budget enforcement, intent preflight, output sanitizer
+  (hallucinated-hash stripping, DORK-OUTPUT-0), response length guard; DORK-TRACE-0 enforced
+- `ui/developer/ADAADdev/dork_capability_registry.js` — 5 new capabilities (fleet_health_monitor,
+  slash_command_dispatcher, conversation_ledger_inspector, intent_taxonomy_inspector,
+  provider_health_registry); total: 20 capabilities
+- `ui/developer/ADAADdev/dork_knowledge_base.js` — 5 new Phase 132 KB entries; total: ~55 entries
+- `app/orchestration/dork_intent_router.py` — 6 new intents (show_fleet_status,
+  resolve_slash_command, query_provider_health, replay_conversation_ledger,
+  classify_query_intent, inspect_fleet_dispatch); total: 12 intents
+- `ui/dork.html` — UX-001→UX-005: fleet quick-prompts, live fleet status strip, fleet health
+  dot, slash command palette (toggled by /dork:help), fleet JS initialisation
+
+**Invariants introduced (6 Hard):**
+- `DORK-FLEET-0`: Fleet MUST NOT promote mutation without CommandResolver pass; fleet BLOCKED when no healthy providers
+- `DORK-CMD-0`: All slash commands validated against manifest; unknown commands REJECTED, never forwarded
+- `DORK-STATE-0`: ConversationLedger append-only, hash-chained; mutation raises ConversationLedgerViolation
+- `DORK-PROV-0`: ProviderHealthRegistry records ALL probe outcomes; unhealthy providers never silently skipped
+- `DORK-CTX-0`: CONTEXT_KEYWORD_TAXONOMY mandatory for intent classification; ad-hoc routing prohibited
+- `DORK-OUTPUT-0`: ALL LLM responses sanitized via OPT-005 before delivery; hallucinated hashes flagged and stripped
+
+**Test suite:** 30/30 passing (T132-LEDGER-01→06, T132-PROV-01→05, T132-CTX-01→05,
+T132-CMD-01→06, T132-FLEET-01→08)
+
+**Cumulative Hard-class invariants:** 207
+
+---
+
+## [9.63.0] — 2026-04-08 · Phase 130 · INNOV-40 Cross-Epoch Agent Learning Transfer (CELT)
+
+### World-First: Governed Cross-Epoch Agent Behavioral Profile Transfer with Cryptographic Provenance
+
+An agent that has learned safe structural refactoring patterns across epochs can now package
+that knowledge into a signed LearningBundle and transfer it across instance boundaries.  The
+receiving instance enforces a strict pipeline: quarantine check (CELT-QUARANTINE-0), epoch
+boundary check (CELT-EPOCH-0), HMAC verification (CELT-VERIFY-0), schema sanitisation
+(CELT-SANITIZE-0), and additive deterministic merge (CELT-MERGE-0).  Every event — successful
+or rejected — is appended to the hash-chained transfer ledger before the call returns
+(CELT-CHAIN-0).  HUMAN-0 may permanently quarantine any bundle_id at any time.
+
+Extends INNOV-13 (IMT) and INNOV-16 (ERS).
+
+**New module:** `runtime/innovations30/cross_epoch_transfer.py`
+
+- `CELTEngine` — orchestrator: export / gate / quarantine / ledger
+- `LearningBundle` — signed, versioned cross-epoch transfer package (CELT-VERIFY-0, CELT-DETERM-0)
+- `ProfileSnapshot` — serialisable point-in-time agent behavioral profile
+- `TransferRecord` — append-only hash-chained ledger entry (CELT-CHAIN-0)
+- `MergeResult` — additive merge outcome with deterministic merge_digest
+- `sanitise_profile()` — schema validator; raises SanitizationError on malformed input (CELT-SANITIZE-0)
+- `merge_profile()` — additive deterministic merge; sums counts, sorts lists (CELT-MERGE-0)
+- `snapshot_from_profile()` — ERS AgentBehaviorProfile → CELT ProfileSnapshot converter
+
+**Invariants introduced:**
+- `CELT-0`: Profile MUST NOT be applied cross-epoch without passing celt_import_gate()
+- `CELT-VERIFY-0`: HMAC verified before any profile write
+- `CELT-CHAIN-0`: Every event appended to ledger before return
+- `CELT-DETERM-0`: bundle_digest pure function of identity + profile
+- `CELT-MERGE-0`: Additive, deterministic — no data silently discarded
+- `CELT-QUARANTINE-0`: HUMAN-0 quarantined bundles permanently blocked
+- `CELT-SANITIZE-0`: Profile schema validated before merge
+- `CELT-EPOCH-0`: Same-epoch transfer prohibited
+
+**Tests:** 30/30 (T130-CELT-01..30)
+**Failure modes covered:** `GateBypassError`, `VerificationError`, `ChainError`, `DeterminismError`, `MergeError`, `QuarantineError`, `SanitizationError`, `EpochBoundaryError`
+**Cumulative Hard-class invariants:** 193 → 201
+
+---
+
+## [9.62.0] — 2026-04-08 · Phase 129 · INNOV-39 Agent Coalition Formation (ACF)
+
+### World-First: Governed Agent Coalition Formation with Proportional Stake Redistribution
+
+When a mutation is classified HIGH-COMPLEXITY, agents automatically assemble into a temporary
+coalition before it can advance to GovernanceGate.  Each coalition member commits a positive
+stake (ACF-STAKE-0).  The coalition is sealed with a validated member count (ACF-FORM-0), then
+each member casts a verdict.  Majority outcome drives APPROVED / REJECTED; a tie routes to
+ESCALATED (HUMAN-0).  Stake is redistributed with exact integer arithmetic: winners recover their
+own stake plus a proportional share of loser forfeits; ties return all stakes in full
+(ACF-SHARE-0).  The coalition dissolves deterministically after resolution — no coalition
+survives an epoch boundary (ACF-DISSOLVE-0).  Every lifecycle event is appended to a
+hash-chained ledger (ACF-CHAIN-0).  Epoch advance is blocked by any unresolved or undissolved
+coalition (ACF-0).
+
+**New module:** `runtime/innovations30/agent_coalition.py`
+
+- `Coalition` — single-mutation coalition lifecycle: FORMING → SEALED → RESOLVED → DISSOLVED
+- `CoalitionEngine` — orchestrator: form / resolve / dissolve + ledger + epoch gate
+- `CoalitionRecord` — append-only hash-chained ledger entry (ACF-CHAIN-0)
+- `CoalitionMember` — agent identity, role, stake, verdict, share_returned
+- `StakeDistribution` — exact integer redistribution result with self-validating total (ACF-SHARE-0)
+- `requires_coalition()` — stateless complexity-class gate (ACF-0)
+
+**Invariants introduced:**
+- `ACF-0`: HIGH-COMPLEXITY mutations MUST NOT advance without a resolved CoalitionRecord
+- `ACF-FORM-0`: Coalition MUST have 2–7 members at formation time
+- `ACF-STAKE-0`: Every member MUST commit a positive stake
+- `ACF-RESOLVE-0`: Coalition resolution MUST be triggered exactly once
+- `ACF-DISSOLVE-0`: Resolved coalition MUST be dissolved before next epoch
+- `ACF-DETERM-0`: coalition_digest MUST be pure function of (coalition_id, member_ids, stakes, outcome)
+- `ACF-CHAIN-0`: Append-only hash-chained CoalitionRecord ledger
+- `ACF-SHARE-0`: Stake redistribution MUST use exact integer arithmetic; total MUST balance
+
+**Tests:** 30/30 (T129-ACF-01..30)
+**Failure modes covered:** `UnresolvedCoalitionError`, `CoalitionSizeError`, `StakeError`, `AlreadyResolvedError`, `EpochBoundaryError`, `DeterminismError`, `ChainError`, `ShareArithmeticError`
+**Cumulative Hard-class invariants:** 185 → 193
+
+---
+
+## [9.61.0] — 2026-04-08 · Phase 128 · INNOV-38 Autonomous Constitutional Self-Amendment Engine (ACSA)
+
+### World-First: Adversarially-Driven Constitutional Self-Amendment with Cryptographic Provenance
+
+ACSA closes the full adversarial evolution loop opened by Phase 126 (Red-Team) and Phase 127 (GRRP).
+AmendmentProposals produced by GRRPEngine are ingested, gate-checked, and — if approved — applied
+autonomously to the live constitution with a deterministic patch_digest and appended to a hash-chained
+amendment ledger.  CRITICAL and BREACH class proposals are hard-blocked without a HUMAN-0 acknowledgement
+token (ACSA-HUMAN0-0).  Duplicate replay is constitutionally prohibited (ACSA-REPLAY-0).  Silent discard
+is impossible: every proposal produces either a ConstitutionalPatch record or a BlockedAmendment record
+(ACSA-0).  The amendment ledger reloads on engine restart, preserving applied-ID state across sessions.
+
+**New module:** `runtime/innovations30/constitutional_self_amendment.py`
+
+- `ConstitutionalPatch` — signed, deterministic patch record with HMAC digest seal
+- `BlockedAmendment` — signed audit record for every gate-rejected proposal (ACSA-0)
+- `ACSARecord` — append-only hash-chained ledger entry (ACSA-CHAIN-0)
+- `ACSAEngine.apply_proposal()` — primary pipeline: gate-check → build-patch → apply → chain → persist
+- `ACSAEngine.verify_chain()` — independent ledger chain verifier; raises ChainIntegrityError on break
+- `ACSAEngine._load_ledger()` — startup replay; restores applied_ids and prev_digest from disk
+- `acsa_gate_check()` — stateless gate function; injectable for unit tests (ACSA-GATE-0)
+
+**Invariants introduced:**
+- `ACSA-0`: Every AmendmentProposal MUST produce a ConstitutionalPatch or BlockedAmendment — no silent discard
+- `ACSA-GATE-0`: acsa_gate_check() MUST return PASS before any patch is applied
+- `ACSA-CHAIN-0`: Every ACSARecord carries prev_digest; first record carries "genesis"
+- `ACSA-HUMAN0-0`: CRITICAL/BREACH proposals blocked without human0_ack token
+- `ACSA-DETERM-0`: patch_digest MUST be pure function of (proposal_id, invariant_target, patch_text)
+- `ACSA-REPLAY-0`: Replaying an already-applied proposal_id raises DuplicatePatchError
+
+**Tests:** 25/25 (T128-ACSA-01..25)
+**Failure modes covered:** `DiscardError`, `ACSAGateError`, `ChainIntegrityError`, `HumanGateBlockError`, `DeterminismError`, `DuplicatePatchError`
+**Cumulative Hard-class invariants:** 179 → 185
+
+---
+
+## [9.60.0] — 2026-04-06 · Phase 127 · INNOV-37 Governed Red-Team Response Protocol (GRRP)
+
+### World-First: Constitutionally Governed Red-Team Response Engine with HUMAN-0-Gated Amendment Routing
+
+GRRP closes the adversarial feedback loop opened by Phase 126. When the constitutional
+attacker surfaces a gate miss or scope violation, GRRP ingests the signed CampaignReport,
+classifies every finding, and routes it deterministically: CRITICAL/BREACH findings are
+escalated to HUMAN-0 and block epoch advancement; ADVISORY/WARNING findings are auto-patched
+into signed AmendmentProposals. No finding is silently discarded. No epoch advances while
+unprocessed reports remain pending.
+
+**New module:** `runtime/innovations30/red_team_response_protocol.py`
+
+- `Finding` — classified finding from a CampaignReport (ADVISORY / WARNING / CRITICAL / BREACH)
+- `AmendmentProposal` — HMAC-signed auto-patch for non-critical findings
+- `HumanEscalation` — HMAC-signed escalation record; sets `epoch_blocked=True`
+- `ResponseRecord` — HMAC-chained ledger record (GRRP-CHAIN-0)
+- `GRRPEngine.grrp_ingest()` — main pipeline: classify → route → sign → chain → persist
+- `GRRPEngine.assert_no_pending()` — epoch-advance gate (GRRP-0)
+- `GRRPEngine.assert_human0_ack()` — CRITICAL/BREACH amendment gate (GRRP-HUMAN0-0)
+- `GRRPEngine.classify()` — deterministic pure function; no clock reads (GRRP-DETERM-0)
+
+**Invariants introduced:**
+- `GRRP-0`: Every CampaignReport MUST be processed through grrp_ingest() before epoch advances
+- `GRRP-ROUTE-0`: CRITICAL/BREACH findings MUST route to HUMAN-0 escalation; auto-patch prohibited
+- `GRRP-SIGN-0`: Every AmendmentProposal and HumanEscalation MUST carry HMAC digest
+- `GRRP-DETERM-0`: response_digest MUST be pure function of (report_id, finding_ids, routing_decisions)
+- `GRRP-CHAIN-0`: Each ResponseRecord carries prev_digest chain link; genesis for first record
+- `GRRP-HUMAN0-0`: CRITICAL/BREACH amendments require human0_ack token before CEL advancement
+
+**Tests:** 30/30 (T127-GRRP-01..30 · BASIC · ROUTE · SIGN · DETERM · CHAIN · GATE · HUMAN0)
+**Failure modes covered:** `UnprocessedReportError`, `RoutingViolationError`, `IntegrityError`, `HumanGateBlockError`
+
+## [9.59.0] — 2026-04-06 · Phase 126 · Red-Team Challenge
+
+### World-First: Constitutional Invariant Attacker with Halt-on-Silent-Pass Enforcement
+
+ADAAD's constitutional attacker systematically probes every Hard-class invariant with
+adversarial mutations designed to bypass gate enforcement. If any gate fails to fire against
+a payload specifically crafted to trigger it, REDTEAM-HALT-0 raises ConstitutionalBreachError
+and halts — silent pass-through is categorically prohibited.
+
+**New module:** `runtime/red_team/constitutional_attacker.py`
+
+**Invariants introduced:**
+- `REDTEAM-IMMUT-0`: Attack ledger is append-only; tamper attempt raises ConstitutionalBreachError
+- `REDTEAM-AUDIT-0`: Every attempt chain-persisted with prev_digest before next begins
+- `REDTEAM-SCOPE-0`: Attacker may only target invariants in canonical AttackManifest
+- `REDTEAM-HALT-0`: Gate miss on targeted invariant raises ConstitutionalBreachError; no silent pass
+- `REDTEAM-DETERM-0`: run_digest is pure function of (campaign_id, attack_ids, outcomes)
+- `REDTEAM-CHAIN-0`: Each AttackRecord carries prev_digest chain link; genesis for first record
+
+**Tests:** 30/30 · **Cumulative Hard-class invariants:** 167 → 173
+
+
+
+## [9.59.0] — 2026-04-06 · Phase 126 · Red-Team Challenge
 
 ### Added
-- `docs/COMPETITIVE_ANALYSIS.md` — full competitive analysis: 16 verifiable property comparisons vs GitHub Copilot, Devin, CodeRabbit, SonarQube, and CI/CD; category map; 5 enterprise procurement questions; links to Trust Center and procurement fast-lane
-- `artifacts/governance/phase126/` — sign-off JSON, attestation ILA-126-2026-04-06-001
+- `runtime/red_team/constitutional_attacker.py` — adversarial invariant probe engine; probes all Hard-class gates with typed attack scenarios; fail-closed on every gate miss
+- `runtime/red_team/attack_manifest.json` — canonical 20-scenario attack registry; append-only; covers REDTEAM-* and all prior Hard-class invariant families
+- `tests/test_phase126_red_team.py` — 30/30 acceptance tests T126-RTEAM-01..30 (ATCK, DFNS, AUDIT, REPT categories)
+- `artifacts/governance/phase126/` — sign-off JSON, IP patent specification, invariant registry, test manifest (ILA-126-2026-04-06-001)
+- `pytest.ini` — registered `phase126` marker
+
+### Constitutional Invariants
+- `REDTEAM-IMMUT-0` (Hard-class) — attack ledger is append-only; post-write mutation raises `LedgerMutationError`; tamper detected via `hmac.compare_digest`
+- `REDTEAM-AUDIT-0` (Hard-class) — every attack attempt persisted with chain-linked `prev_digest` before next attempt begins; ledger write failure raises `ConstitutionalBreachError`
+- `REDTEAM-SCOPE-0` (Hard-class) — attacker may only target invariants in canonical manifest; unlisted targets raise `OutOfScopeAttackError`
+- `REDTEAM-HALT-0` (Hard-class) — any gate miss raises `ConstitutionalBreachError` immediately; silent pass-through is categorically prohibited
+- `REDTEAM-DETERM-0` (Hard-class) — `run_digest` is a pure function of (campaign_id, attack_ids, outcomes); no clock or random in digest computation
+- `REDTEAM-CHAIN-0` (Hard-class) — each `AttackRecord` carries `prev_digest` linking to prior record; first record carries `prev_digest="genesis"`
+- **Cumulative Hard-class invariants: 167 → 173**
 
 ### Changed
-- `README.md` — Phase 125 community governance added to timeline and Recent Phases table; 16-property competitor comparison table added; roadmap count 124→125 phases complete; version badge 9.58.0→9.59.0; links to new COMPETITIVE_ANALYSIS.md
-- `TRUST_CENTER.md` — version sync: v9.55.0→v9.58.0, 162→167 Hard-class invariants, Phase 122→125
 - `VERSION` → `9.59.0`
-- `.adaad_agent_state.json` — version `9.59.0`, current_phase `126`
+- `pyproject.toml` → `9.59.0`
+- `pytest.ini` — registered `phase126` marker
 
-### Governance
-- Attestation: ILA-126-2026-04-06-001 · Governor: DUSTIN L REID
-- No new Hard-class invariants (docs-only phase)
-- Cumulative Hard-class invariants: **167**
-
----
-
+### Sync Remediation (committed to main at 99defff)
+- FINDING-SYNC-126-001 (P1): `pyproject.toml` frozen at 9.57.0 — resolved
+- FINDING-SYNC-126-002 (P1): `agent_state.json` phase/version fields stale — resolved
+- FINDING-SYNC-126-003 (P1): autosync false attestation of AUTOSYNC-0 — resolved
+- FINDING-SYNC-126-004 (P2): dual invariant count fields unified at 167 — resolved
 
 ## [9.58.0] — 2026-04-05 · Phase 125 · Community Governance Infrastructure
 

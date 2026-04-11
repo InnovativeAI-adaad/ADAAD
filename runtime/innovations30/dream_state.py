@@ -224,10 +224,12 @@ class DreamStateEngine:
         state_path: Path = Path("data/dream_candidates.jsonl"),
         ledger_path: Path = Path("data/dream_ledger.jsonl"),
         depth: int = DREAM_DEPTH,
+        seed: int | None = None,
     ) -> None:
         self.state_path = Path(state_path)
         self.ledger_path = Path(ledger_path)
         self.depth = depth
+        self.seed = seed
         self._last_ledger_hash: str = "genesis"
 
     def dream(
@@ -241,6 +243,10 @@ class DreamStateEngine:
         Commits ledger event before returning (DSTE-0).
         Raises DreamGateViolation on any Hard-class invariant violation.
         """
+        # If no local seed provided, fallback to instance seed
+        if seed is None:
+            seed = self.seed
+
         timestamp = datetime.now(timezone.utc).isoformat()
 
         # Gate 0: pre-execution

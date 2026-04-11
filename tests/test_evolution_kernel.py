@@ -20,6 +20,15 @@ class EvolutionKernelTest(unittest.TestCase):
         self.dashboard_patch = mock.patch("runtime.evolution.evolution_kernel.push_to_dashboard", return_value=True)
         self.dashboard_push = self.dashboard_patch.start()
         self.addCleanup(self.dashboard_patch.stop)
+        self.trigger_signal = {
+            "previous_failed": False,
+            "previous_quarantined": False,
+            "latest_fitness_score": 0.6,
+            "latest_fitness_threshold": 0.7,
+        }
+        self.signal_patch = mock.patch.object(EvolutionKernel, "_load_previous_cycle_signal", return_value=self.trigger_signal)
+        self.signal_patch.start()
+        self.addCleanup(self.signal_patch.stop)
         self.agents_root = Path(self.tmp.name) / "app" / "agents"
         self.lineage_dir = self.agents_root / "lineage"
         self.agent_dir = self.agents_root / "agent-x"

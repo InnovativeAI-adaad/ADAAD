@@ -26,8 +26,8 @@
 #   PyNaCl             — pkg install python-nacl
 #                        Already optional in replay_attestation.py via _has_pynacl()
 
-fastapi==0.135.2
-uvicorn==0.42.0
+fastapi==0.135.3
+uvicorn==0.44.0
 starlette==0.52.1
 pydantic==1.10.26
 httpx==0.28.1
