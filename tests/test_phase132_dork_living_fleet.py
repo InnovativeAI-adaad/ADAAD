@@ -73,6 +73,43 @@ class TestConversationLedger:
         with pytest.raises(ConversationLedgerViolation):
             ledger.append("robot", "hi")
 
+    def test_T132_LEDGER_07_verify_fails_on_modified_content_digest(self):
+        """T132-LEDGER-07: verify() fails if content_digest is tampered."""
+        ledger = ConversationLedger()
+        ledger.append("user", "hello")
+        ledger._entries[0]["content_digest"] = "f" * 24
+        valid, reason = ledger.verify()
+        assert valid is False
+        assert reason == "Chain break at seq=0: entry_hash mismatch"
+
+    def test_T132_LEDGER_08_verify_fails_on_modified_timestamp(self):
+        """T132-LEDGER-08: verify() fails if timestamp is tampered."""
+        ledger = ConversationLedger()
+        ledger.append("assistant", "hello")
+        ledger._entries[0]["timestamp"] = "2026-01-01T00:00:00+00:00"
+        valid, reason = ledger.verify()
+        assert valid is False
+        assert reason == "Chain break at seq=0: entry_hash mismatch"
+
+    def test_T132_LEDGER_09_verify_fails_on_modified_entry_hash(self):
+        """T132-LEDGER-09: verify() fails if entry_hash is tampered."""
+        ledger = ConversationLedger()
+        ledger.append("user", "hello")
+        ledger._entries[0]["entry_hash"] = "0" * 64
+        valid, reason = ledger.verify()
+        assert valid is False
+        assert reason == "Chain break at seq=0: entry_hash mismatch"
+
+    def test_T132_LEDGER_10_verify_fails_on_broken_prev_hash_chain(self):
+        """T132-LEDGER-10: verify() fails if prev_hash chain is broken."""
+        ledger = ConversationLedger()
+        ledger.append("user", "first")
+        ledger.append("assistant", "second")
+        ledger._entries[1]["prev_hash"] = "a" * 64
+        valid, reason = ledger.verify()
+        assert valid is False
+        assert reason == "Chain break at seq=1: prev_hash mismatch"
+
 
 # ── ProviderHealthRegistry (DORK-PROV-0) — 5 tests ───────────────────────────
 

@@ -1,3 +1,16 @@
+## [9.68.0] — 2026-04-11 · Phase 132 · DORK ConversationLedger Verify Hardening
+
+### Fix: Canonical hash payload parity between append() and verify()
+
+- `dorkllm/state.py`
+  - `ConversationLedger` now hashes a canonical payload keyed by
+    `{role, content_digest, timestamp, prev_hash}` in both append and verify paths.
+  - `verify()` now recomputes each expected `entry_hash` from the chain-derived
+    `prev_hash` and returns a seq-indexed `entry_hash mismatch` failure reason.
+- `tests/test_phase132_dork_living_fleet.py`
+  - Added tamper-detection tests proving verify failure for:
+    `content_digest`, `timestamp`, `entry_hash`, and `prev_hash` chain mutation.
+
 ## [9.67.0] — 2026-04-11 · Phase 135 · INNOV-43 Constitution Versioning and Rollback (CVR)
 
 ### World-First: Constitutional Git-Blame-Equivalent with Cryptographic Chain Integrity and HUMAN-0-Gated Rollback

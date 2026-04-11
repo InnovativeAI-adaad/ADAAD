@@ -33,9 +33,15 @@ class ConversationLedger:
         self._entries: list[dict] = []
         self._prev_hash: str = self.GENESIS_HASH
 
-    def _hash_entry(self, role: str, content: str, timestamp: str, prev_hash: str) -> str:
+    def _hash_entry(self, role: str, content_digest: str, timestamp: str, prev_hash: str) -> str:
+        # Invariant: append() and verify() must hash the exact same canonical schema.
         payload = json.dumps(
-            {"role": role, "content": content, "timestamp": timestamp, "prev_hash": prev_hash},
+            {
+                "role": role,
+                "content_digest": content_digest,
+                "timestamp": timestamp,
+                "prev_hash": prev_hash,
+            },
             sort_keys=True,
         )
         return hashlib.sha256(payload.encode()).hexdigest()
@@ -45,11 +51,12 @@ class ConversationLedger:
         if role not in ("user", "assistant", "system"):
             raise ConversationLedgerViolation(f"Invalid role: {role!r}")
         timestamp = datetime.now(timezone.utc).isoformat()
-        entry_hash = self._hash_entry(role, content, timestamp, self._prev_hash)
+        content_digest = hashlib.sha256(content.encode()).hexdigest()[:24]
+        entry_hash = self._hash_entry(role, content_digest, timestamp, self._prev_hash)
         entry = {
             "seq": len(self._entries),
             "role": role,
-            "content_digest": hashlib.sha256(content.encode()).hexdigest()[:24],
+            "content_digest": content_digest,
             "timestamp": timestamp,
             "prev_hash": self._prev_hash,
             "entry_hash": entry_hash,
@@ -62,12 +69,13 @@ class ConversationLedger:
         """Re-derive chain from genesis. Returns (valid, reason)."""
         prev = self.GENESIS_HASH
         for i, e in enumerate(self._entries):
-            expected = self._hash_entry(
-                # We store content_digest not content — verify chain links only
-                e["role"], e["content_digest"], e["timestamp"], e["prev_hash"]
-            )
             if e["prev_hash"] != prev:
                 return False, f"Chain break at seq={i}: prev_hash mismatch"
+            expected = self._hash_entry(
+                e["role"], e["content_digest"], e["timestamp"], prev
+            )
+            if e["entry_hash"] != expected:
+                return False, f"Chain break at seq={i}: entry_hash mismatch"
             prev = e["entry_hash"]
         return True, "chain_valid"
 
