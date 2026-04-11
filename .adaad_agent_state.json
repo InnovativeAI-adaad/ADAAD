@@ -591,7 +591,7 @@
     "INNOV-41": "DORK Living Fleet",
     "INNOV-42": "DORK Fleet Server Bridge"
   },
-  "last_agent_state_sync_digest": "gsync-49ee50acfe0c210f",
+  "last_agent_state_sync_digest": "gsync-962950aa29a70156",
   "last_completed_phase": "Phase 11 \u00b7 Phase 133 \u00b7 INNOV-42 DORK Fleet Server Bridge (DFSB)",
   "last_completed_pr": "feat/phase127-innov37-grrp",
   "last_gate_results": {
@@ -605,7 +605,7 @@
   "last_invocation": "2026-04-11",
   "last_phase_completed": 133,
   "last_phase_completed_label": "INNOV-42: DORK Fleet Server Bridge",
-  "last_sync_sha": "b0f184a6",
+  "last_sync_sha": "a528fb05",
   "last_updated": "2026-04-11T12:38:12.268044+00:00",
   "next_phase": 134,
   "next_pr": "feat/phase128-tbd",
