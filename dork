@@ -201,6 +201,62 @@ def gpg_ceremony():
     print("\nMay the ledger remain immutable.")
 
 def sync_gemini():
+    section_title = "### Dork Intelligence Engine"
+    marker = "<!-- ADAAD:DORK_INTELLIGENCE_ENGINE:BEGIN -->"
+    desired_block = (
+        f"{marker}\n"
+        f"{section_title}\n"
+        "- Dork now operates with full 10-feature semantic enhancement.\n"
+        "<!-- ADAAD:DORK_INTELLIGENCE_ENGINE:END -->\n"
+    )
+
+    def _render_with_single_block(src: str) -> tuple[str, bool]:
+        # Preferred match: marker-delimited deterministic managed block.
+        marker_pattern = re.compile(
+            r"(?ms)^\s*<!-- ADAAD:DORK_INTELLIGENCE_ENGINE:BEGIN -->\n.*?"
+            r"<!-- ADAAD:DORK_INTELLIGENCE_ENGINE:END -->\n?"
+        )
+        marker_matches = list(marker_pattern.finditer(src))
+        if marker_matches:
+            first_start = marker_matches[0].start()
+            # Remove any duplicate managed blocks deterministically, then insert one canonical block.
+            without_markers = marker_pattern.sub("", src, count=0)
+            rendered = without_markers[:first_start] + desired_block + without_markers[first_start:]
+            return rendered, rendered != src
+
+        # Fallback for legacy unmanaged section; replace exactly that section if present.
+        heading_pattern = re.compile(
+            r"(?ms)^### Dork Intelligence Engine\n.*?(?=^### |\Z)"
+        )
+        heading_match = heading_pattern.search(src)
+        if heading_match:
+            rendered = (
+                src[: heading_match.start()] + desired_block + src[heading_match.end() :]
+            )
+            return rendered, rendered != src
+
+        # No section exists; append once.
+        suffix = "\n\n" if src and not src.endswith("\n") else "\n"
+        rendered = src.rstrip("\n") + suffix + desired_block
+        return rendered, rendered != src
+
+    print("[*] Initiating Auto-GEMINI Documentation Sync...")
+    print("Scanning architecture changes against GEMINI.md...")
+
+    gemini_path = "GEMINI.md"
+    with open(gemini_path, "r", encoding="utf-8") as f:
+        original = f.read()
+
+    updated, has_drift = _render_with_single_block(original)
+    if not has_drift:
+        print("[+] already aligned")
+        return
+
+    print("[+] Drift detected in GEMINI.md.")
+    print("[*] Writing autonomous patch to GEMINI.md...")
+    with open(gemini_path, "w", encoding="utf-8") as f:
+        f.write(updated)
+    print("[+] Sync complete. GEMINI.md is aligned with binary truth.")
     _print_info("Initiating Auto-GEMINI Documentation Sync...")
     print("Scanning architecture changes against GEMINI.md...")
     time.sleep(1)
