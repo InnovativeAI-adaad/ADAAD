@@ -1330,6 +1330,8 @@ function renderGov(data) {
   ].filter(([, v]) => v != null)
    .map(([k, v]) => `<span>${k} <span class="val">${v}</span></span>`)
    .join('');
+
+  D.sessionLabel.textContent = getOrCreateSessionLabel(r.epoch?.epoch);
 }
 
 /* ═══════════════════════════════════════════
@@ -1367,6 +1369,39 @@ function loadSession() {
     D.chat.scrollTop = D.chat.scrollHeight;
     return true;
   } catch (_) { return false; }
+}
+
+const DORK_SESSION_LABEL_KEY = 'dork_session_label';
+const DORK_SESSION_COUNTER_KEY = 'dork_session_counter';
+const DORK_SESSION_FIRST_POLL_TS_KEY = 'dork_session_first_poll_ts';
+const DORK_SESSION_EPOCH_KEY = 'dork_session_epoch_id';
+
+function normalizeEpochId(epochId) {
+  const candidate = String(epochId || 'unknown').trim().toLowerCase();
+  const compact = candidate.replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  return compact || 'unknown';
+}
+
+function getOrCreateSessionLabel(epochId) {
+  try {
+    const existing = sessionStorage.getItem(DORK_SESSION_LABEL_KEY);
+    if (existing) return existing;
+
+    const firstPollMs = Number(sessionStorage.getItem(DORK_SESSION_FIRST_POLL_TS_KEY)) || Date.now();
+    sessionStorage.setItem(DORK_SESSION_FIRST_POLL_TS_KEY, String(firstPollMs));
+
+    const nextCounter = (Number(sessionStorage.getItem(DORK_SESSION_COUNTER_KEY)) || 0) + 1;
+    sessionStorage.setItem(DORK_SESSION_COUNTER_KEY, String(nextCounter));
+
+    const epoch = normalizeEpochId(epochId);
+    sessionStorage.setItem(DORK_SESSION_EPOCH_KEY, epoch);
+
+    const label = `dork_ep-${epoch}_s-${nextCounter.toString(36)}`;
+    sessionStorage.setItem(DORK_SESSION_LABEL_KEY, label);
+    return label;
+  } catch (_) {
+    return `dork_ep-${normalizeEpochId(epochId)}_s-1`;
+  }
 }
 
 /* ═══════════════════════════════════════════
@@ -1440,7 +1475,8 @@ function welcome() {
    INIT
    ═══════════════════════════════════════════ */
 function init() {
-  D.sessionLabel.textContent = `dork_${Math.random().toString(36).slice(2, 10)}`;
+  /* Display-only identifier for UI observability; never used for auth/crypto decisions. */
+  D.sessionLabel.textContent = getOrCreateSessionLabel();
   D.version.textContent      = 'v9.63.0';
   D.inv.textContent          = '201 invariants';
 
