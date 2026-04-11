@@ -18,6 +18,14 @@ from pathlib import Path
 
 PORT = int(os.getenv("ADAAD_PORT", "8000"))
 URL = f"http://localhost:{PORT}/dork"
+HTTP_TIMEOUT_SECONDS = 5
+HTTP_ERROR_TYPES = (
+    ConnectionRefusedError,
+    TimeoutError,
+    http.client.HTTPException,
+    json.JSONDecodeError,
+    OSError,
+)
 
 
 def _print_section(title: str) -> None:
@@ -50,53 +58,98 @@ def start_server():
     env["ADAAD_ENV"] = "dev"
     env["ADAAD_PORT"] = str(PORT)
     env["ADAAD_HOST"] = "0.0.0.0"
+    popen_kwargs = {
+        "env": env,
+    }
+    if os.name == "nt":
+        create_new_process_group = getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", None)
+        if create_new_process_group is not None:
+            popen_kwargs["creationflags"] = create_new_process_group
+    else:
+        popen_kwargs["start_new_session"] = True
     with open("server.log", "a") as log_file:
-        subprocess.Popen(
+        proc = subprocess.Popen(
             [sys.executable, "server.py"],
-            env=env,
             stdout=log_file,
             stderr=log_file,
-            preexec_fn=os.setpgrp
+            **popen_kwargs,
         )
-    
-    for _ in range(15):
-        if is_server_running():
-            _print_ok("Server is live.")
-            return True
-        time.sleep(1)
+
+    probe_attempts = 15
+    probe_interval_seconds = 1
+    last_probe_error = "No probe attempt performed."
+    for attempt in range(1, probe_attempts + 1):
+        try:
+            conn = http.client.HTTPConnection("localhost", PORT, timeout=1)
+            conn.request("GET", "/api/health")
+            response = conn.getresponse()
+            if response.status == 200:
+                print("[+] Server is live.")
+                return True
+            last_probe_error = f"/api/health returned HTTP {response.status}"
+        except Exception as exc:
+            last_probe_error = f"{type(exc).__name__}: {exc}"
+        finally:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+        return_code = proc.poll()
+        if return_code is not None:
+            print(
+                "[-] Server startup failed before becoming reachable "
+                f"(attempt {attempt}/{probe_attempts}); process exited with code {return_code}."
+            )
+            print(f"[-] Final failure reason: {last_probe_error}")
+            return False
+
+        time.sleep(probe_interval_seconds)
+
+    total_wait_seconds = probe_attempts * probe_interval_seconds
+    print(
+        "[-] Server startup timeout: "
+        f"unreachable after {probe_attempts} probes over {total_wait_seconds}s."
+    )
+    print(f"[-] Final failure reason: {last_probe_error}")
     return False
 
-def get_api_health():
+
+def _request_json(path: str, *, timeout: int = HTTP_TIMEOUT_SECONDS):
+    conn = None
     try:
-        conn = http.client.HTTPConnection("localhost", PORT)
-        conn.request("GET", "/api/health")
+        conn = http.client.HTTPConnection("localhost", PORT, timeout=timeout)
+        conn.request("GET", path)
         resp = conn.getresponse()
-        if resp.status == 200:
-            return json.loads(resp.read().decode())
-    except:
-        pass
-    return None
+        payload = resp.read().decode()
+        if resp.status != 200:
+            print(f"[-] HTTP {resp.status} for {path}", file=sys.stderr)
+            return None
+        return json.loads(payload)
+    except HTTP_ERROR_TYPES as err:
+        print(f"[-] Request failed for {path}: {err}", file=sys.stderr)
+        return None
+    finally:
+        if conn is not None:
+            conn.close()
+
+def get_api_health():
+    return _request_json("/api/health")
 
 def fetch_adaad_state():
     state = {}
-    try:
-        conn = http.client.HTTPConnection("localhost", PORT)
-        # 1. Health
-        conn.request("GET", "/api/health")
-        r1 = conn.getresponse()
-        if r1.status == 200: state["health"] = json.loads(r1.read().decode())
-        
-        # 2. Governance
-        conn.request("GET", "/api/governance/health")
-        r2 = conn.getresponse()
-        if r2.status == 200: state["governance"] = json.loads(r2.read().decode())
-        
-        # 3. Readiness
-        conn.request("GET", "/api/readiness")
-        r3 = conn.getresponse()
-        if r3.status == 200: state["readiness"] = json.loads(r3.read().decode())
-    except:
-        pass
+    health = _request_json("/api/health")
+    if health is not None:
+        state["health"] = health
+
+    governance = _request_json("/api/governance/health")
+    if governance is not None:
+        state["governance"] = governance
+
+    readiness = _request_json("/api/readiness")
+    if readiness is not None:
+        state["readiness"] = readiness
+
     return state
 
 def show_status():
@@ -214,6 +267,22 @@ def list_merges(limit: int):
         _print_error(f"Error fetching merges: {e}")
         return 1
     return 0
+    data = _request_json(f"/api/governance/merges?limit={limit}")
+    if data is None:
+        return []
+
+    merges = data.get("merges", [])
+    print(f"--- Recent DEVADAAD Merges ({len(merges)}) ---")
+    for merge in merges:
+        payload = merge.get("payload", {})
+        pr_id = payload.get("pr_id", "Unknown PR")
+        sha = payload.get("merge_sha", "")[:8]
+        ts = merge.get("timestamp_utc", "")[:19].replace("T", " ")
+        tier_m = "PASS" if payload.get("tier_m_working_code") else "FAIL"
+        color = "\033[92m" if tier_m == "PASS" else "\033[91m"
+        reset = "\033[0m"
+        print(f"[{ts}] {pr_id} | SHA: {sha} | Tier M: {color}{tier_m}{reset}")
+    return merges
 
 def load_env():
     env_path = Path(".env")
