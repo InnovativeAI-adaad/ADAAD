@@ -441,3 +441,25 @@ class TestDfsbRestartContinuity:
                 verify = client.get("/api/fleet/verify").json()
                 assert verify["conversation_ledger"]["valid"] is True
                 assert verify["overall_valid"] is True
+
+    def test_T133_RESTART_03_hydration_restores_seq_and_hash_without_double_hash(self, tmp_path, monkeypatch):
+        """T133-RESTART-03: fleet hydration restores authoritative persisted entries with exact seq/hash continuity."""
+        ledger_path = tmp_path / "fleet-hydration.jsonl"
+        monkeypatch.setenv("DORK_FLEET_LEDGER_PATH", str(ledger_path))
+
+        from dorkllm.state import ProviderStatus
+
+        engine = FleetEngine("stub", "stub", "http://stub", "dork-stub", 1)
+        with patch.object(engine, "probe", return_value=ProviderStatus("stub", True, 1.0)):
+            fleet1 = DORKLivingFleet(engines=[engine], manifest_path=MANIFEST)
+        fleet1.query("before restart")
+
+        persisted = DorkLedgerPersistence(ledger_path).tail(10)
+        assert len(persisted) == 2
+
+        restarted_engine = FleetEngine("stub", "stub", "http://stub", "dork-stub", 1)
+        with patch.object(restarted_engine, "probe", return_value=ProviderStatus("stub", True, 1.0)):
+            fleet2 = DORKLivingFleet(engines=[restarted_engine], manifest_path=MANIFEST)
+
+        hydrated_tail = fleet2.conversation_ledger_tail(10)
+        assert hydrated_tail == persisted
