@@ -33,3 +33,15 @@ graph TD
 | Core | `adaad/core/` | Governance-critical primitives. |
 | Evolution | `runtime/evolution/` | 16-step CEL implementation. |
 | Ledger | `security/ledger/` | Tamper-evident hash-chained records. |
+
+## Governance Intelligence Layer (DORK)
+
+The Governance Intelligence Layer, powered by the **DORK (Developer Operator Runtime Kernel) Engine**, is the institutional consciousness of ADAAD. It ensures that the system's autonomous evolution remains constitutionally bounded and epistemologically aligned with human intent.
+
+**Core Components:**
+- **GovernanceGate:** The final arbiter for all mutation approvals.
+- **Constitutional Lineage Engine (CLE):** Traces the evolution of the system's legal framework.
+- **Multi-Dimensional Fitness Surface (MDFS):** Unified real-time health and fitness topography.
+- **Emergent Behavior Sentinel (EBS):** Detects un-governed novelty in module interactions.
+
+**Strategic Document:** [DORK_STRATEGIC_PLAN.md](docs/governance/DORK_STRATEGIC_PLAN.md)

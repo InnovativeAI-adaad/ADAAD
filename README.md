@@ -6,7 +6,7 @@
 
 <br/>
 
-<a href="#quickstart">⚡ Quickstart</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="docs/CONSTITUTION.md">📜 Constitution</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="ROADMAP.md">🗺 Roadmap</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="docs/thesis/ADAAD_THESIS.md">📖 Thesis</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="TRUST_CENTER.md">🏛 Trust Center</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="docs/VERIFIABLE_CLAIMS.md">✅ Verifiable Claims</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="CHANGELOG.md">📋 Changelog</a>
+<a href="#quickstart">⚡ Quickstart</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="docs/CONSTITUTION.md">📜 Constitution</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="ROADMAP.md">🗺 Roadmap</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="docs/thesis/ADAAD_THESIS.md">📖 Thesis</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="DORK.md">🕵️ DORK</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="TRUST_CENTER.md">🏛 Trust Center</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="docs/VERIFIABLE_CLAIMS.md">✅ Verifiable Claims</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="CHANGELOG.md">📋 Changelog</a>
 
 <br/>
 
