@@ -19,6 +19,21 @@ The **DORK Intelligence Module** is the strategic brain of ADAAD. it provides a 
 
 DORK automatically enters **Strategic Mode** when queries involve complex architectural tasks (e.g., "refactor", "optimize"). In this mode, it performs an extensive context synthesis of the codebase to provide more accurate and grounded responses.
 
+## `<run>` tool execution gate (fail-closed)
+
+`<run>...</run>` execution in `intelligence.py` is **disabled by default** and must be explicitly enabled.
+
+- **Primary gate (`ADAAD_DORK_ALLOW_RUN_TAGS`)**:
+  - Default: disabled (`unset`, `0`, `false`, etc.).
+  - Enable only with an explicit truthy value (`1`, `true`, `yes`, `on`).
+- **Allowlist controls (required when gate is enabled)**:
+  - `ADAAD_DORK_RUN_ALLOWLIST` — comma-separated exact executable names (e.g., `echo,pwd`).
+  - `ADAAD_DORK_RUN_ALLOW_PREFIXES` — comma-separated command-line prefixes.
+- **Execution constraints**:
+  - No `shell=True`; commands are parsed and executed as argument vectors.
+  - Deterministic timeout/output bounds are enforced (`ADAAD_DORK_RUN_TIMEOUT_SEC`, `ADAAD_DORK_RUN_OUTPUT_MAX_CHARS`).
+  - Blocked and allowed flows both emit structured trace events for auditability.
+
 ## Setup
 
 To build the local DORK model:
