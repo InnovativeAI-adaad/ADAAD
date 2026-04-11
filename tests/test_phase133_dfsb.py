@@ -214,8 +214,18 @@ class TestFleetFitness:
     def test_T133_FITNESS_03_fleet_status_has_invariant_id(self, fleet):
         """T133-FITNESS-03: fleet_status includes constitutional_invariants list."""
         fs = fleet.fleet_status()
-        assert "DFSB-FLEET-0" not in fs["constitutional_invariants"] or True
         assert "constitutional_invariants" in fs
+        invariants = fs["constitutional_invariants"]
+        assert isinstance(invariants, list)
+        assert invariants
+        assert invariants == [
+            "DORK-FLEET-0",
+            "DORK-CMD-0",
+            "DORK-STATE-0",
+            "DORK-PROV-0",
+            "DORK-CTX-0",
+            "DORK-OUTPUT-0",
+        ]
 
     def test_T133_FITNESS_04_fleet_status_always_has_blocked_field(self, fleet):
         """T133-FITNESS-04: fleet_status always returns 'blocked' field."""
