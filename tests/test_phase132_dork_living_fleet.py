@@ -244,6 +244,34 @@ class TestDorkCommandResolver:
         result = resolver.resolve("/dork:ledger --tail 5")
         assert result["args"].get("tail") == "5"
 
+    def test_T132_CMD_07_verify_fails_on_tampered_intent(self):
+        """T132-CMD-07: verify_ledger() fails if an entry intent is tampered."""
+        resolver = DorkCommandResolver(MANIFEST_PATH)
+        resolver.resolve("/dork:gate")
+        resolver._ledger[0].intent = "tampered_intent"
+        valid, reason = resolver.verify_ledger()
+        assert valid is False
+        assert reason == "Chain break at seq=0: entry_hash mismatch"
+
+    def test_T132_CMD_08_verify_fails_on_tampered_status(self):
+        """T132-CMD-08: verify_ledger() fails if an entry status is tampered."""
+        resolver = DorkCommandResolver(MANIFEST_PATH)
+        resolver.resolve("/dork:brief")
+        resolver._ledger[0].status = "tampered_status"
+        valid, reason = resolver.verify_ledger()
+        assert valid is False
+        assert reason == "Chain break at seq=0: entry_hash mismatch"
+
+    def test_T132_CMD_09_verify_passes_for_untampered_chain(self):
+        """T132-CMD-09: verify_ledger() still passes for an intact chain."""
+        resolver = DorkCommandResolver(MANIFEST_PATH)
+        resolver.resolve("/dork:gate")
+        resolver.resolve("/dork:brief")
+        resolver.resolve("/dork:fleet")
+        valid, reason = resolver.verify_ledger()
+        assert valid is True
+        assert reason == "chain_valid"
+
 
 # ── DORKLivingFleet (DORK-FLEET-0) — 8 tests ─────────────────────────────────
 
