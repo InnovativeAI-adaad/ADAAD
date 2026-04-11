@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": 132,
+  "active_phase": "v9.64.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -584,8 +584,8 @@
     },
     "INNOV-41": "DORK Living Fleet"
   },
-  "last_agent_state_sync_digest": "gsync-312e1cc9c7fe4b9d",
-  "last_completed_phase": 132,
+  "last_agent_state_sync_digest": "gsync-1cb1c707404b483d",
+  "last_completed_phase": "Phase 10 \u00b7 Phase 132 \u00b7 INNOV-41 DORK Living Fleet",
   "last_completed_pr": "feat/phase127-innov37-grrp",
   "last_gate_results": {
     "tier_0": "pass",
@@ -595,7 +595,7 @@
   },
   "last_innovation": "INNOV-41",
   "last_innovation_name": "DORK Living Fleet",
-  "last_invocation": "2026-04-10",
+  "last_invocation": "2026-04-11",
   "last_phase_completed": 132,
   "last_phase_completed_label": "INNOV-41: DORK Living Fleet",
   "last_sync_sha": "4ae50fed",
