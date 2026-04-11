@@ -4,9 +4,10 @@
 > **Canonical source (automation sequence control):** This document is the controlling source for **Phase 51+ PR order and closure state**, dependency graph, CI tier, and status used by ADAAD automation. It supersedes `ADAAD_PR_PROCESSION_2026-03.md` (Phase 6 era, now archived).
 
 **Authority chain:** `docs/CONSTITUTION.md` > `docs/ARCHITECTURE_CONTRACT.md` > `docs/governance/ARCHITECT_SPEC_v3.1.0.md` > this document
-**Last reviewed:** 2026-03-28
-**Milestone:** `v9.33.0` (Phase 101 complete — INNOV-16 Emergent Role Specialization (ERS))
+**Last reviewed:** 2026-04-11
+**Milestone:** `v9.26.0` (Phase 93 complete — INNOV-09 Adaptive Fitness Introspection Tuner (AFIT))
 **Canonical evidence anchor:** `artifacts/governance/phase93/phase93_sign_off.json` (SHA-256 `62b8f7b329202785fcb4a09e1e70f53778fff7565a07c7e0d6172d8225af68f3`) + merge SHA `ca3cc42`
+**Active-phase checkpoint:** `Phase 93 complete` → **Next:** `PR-PHASE94-01 (Phase 94 — INNOV-10 Morphogenetic Memory)`
 
 ---
 
@@ -184,7 +185,7 @@ adaad_pr_procession_contract:
   supersedes: "docs/governance/ADAAD_PR_PROCESSION_2026-03.md"
   active_phase: "phase93_complete"
   milestone: "v9.26.0"
-  last_state_align: "2026-03-28"
+  last_state_align: "2026-04-11"
   state_align_authority: "Dustin L. Reid — HUMAN-0 ratification artifacts phase92/phase93 + merge SHA ca3cc42"
   ordered_phase_ids:
     - phase47
@@ -600,6 +601,7 @@ A validator comparing this document to `.adaad_agent_state.json` should fail if:
 
 ## 3.2 Changelog
 
+- **2026-04-11:** State alignment updated on 2026-04-11 to reaffirm a single canonical checkpoint at **Phase 93 complete / v9.26.0** across metadata, Current/Next pointers, and machine-readable contract fields.
 - **2026-03-28:** Corrected procession contract state alignment to a single canonical checkpoint at **Phase 93 complete / v9.26.0**. This update removes duplicated preflight predicates and keeps `state_alignment` expectations aligned to **PR-PHASE94-01 (Phase 94 — INNOV-10 Morphogenetic Memory)**.
 
 
