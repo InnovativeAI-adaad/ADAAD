@@ -275,7 +275,7 @@
     "cumulative": 216,
     "hard_class_count": 201
   },
-  "current_phase": 133,
+  "current_phase": 136,
   "current_version": "9.68.0",
   "hard_class_count": 211,
   "hard_class_invariants_cumulative": 211,
@@ -1174,11 +1174,11 @@
     "phase124-world-first-governed-kernel-extraction",
     "v9.57.0-released"
   ],
-  "version": "9.65.0",
+  "version": "9.69.0",
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
   ],
   "hard_class_invariant_count": 216,
-  "innovations_count": 42
+  "innovations_count": 43
 }

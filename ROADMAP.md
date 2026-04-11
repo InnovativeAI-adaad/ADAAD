@@ -4,11 +4,11 @@
 
 ---
 
-## Current State — v9.65.0 · Phase 133 · INNOV-42 DORK Fleet Server Bridge
+## Current State — v9.69.0 · Phase 136 · DORK Enrichment Bridge Hardening
 
-**Date:** 2026-04-10
-**Status:** 42 innovations shipped (INNOV-01 through INNOV-42). Phase 133 complete. v9.65.0 released.
-**Hard-class invariants:** 211 (cumulative, enforced)
+**Date:** 2026-04-11
+**Status:** 43 innovations shipped (INNOV-01 through INNOV-43). Phase 136 complete. v9.69.0 released.
+**Hard-class invariants:** 216 (cumulative, enforced)
 **Constitutional Evolution Loop:** 16-step CEL, deterministic replay, wired
 **Self-Proposing Innovation Engine (SPIE):** active — system proposes its own next innovations; HUMAN-0 ratifies
 **Deterministic Audit Sandbox (DAS):** active — one-command external verification; `docker compose up das-demo`
@@ -55,6 +55,9 @@
 | INNOV-38 · ACSA | self_amendment_engine.py | 128 | v9.61.0 | ACSA-0..4 |
 | INNOV-39 · ACF | coalition_formation.py | 129 | v9.62.0 | ACF-0..4 |
 | INNOV-40 · CELT | agent_learning_transfer.py | 130 | v9.63.0 | CELT-0..4 |
+| INNOV-41 · DORK-FLEET | dork_living_fleet.py | 132 | v9.64.0 | DFLEET-0..4 |
+| INNOV-42 · DFSB | dork_fleet_server_bridge.py | 133 | v9.65.0 | DFSB-0..4 |
+| INNOV-43 · CVR | constitution_version_ledger.py | 135 | v9.67.0 | CVR-IMMUT-0, CVR-DIGEST-0, CVR-ROLLBACK-0, CVR-HUMAN0-0, CVR-CHAIN-0 |
 
 **Open GA blocker:** FINDING-66-004 (Governance Key Ceremony — Track B, Dustin)  
 **Strategic plan:** `docs/governance/POST_PIPELINE_STRATEGIC_PLAN.md`
@@ -71,11 +74,11 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | Phase | Title | Version | Status |
 |-------|-------|---------|--------|
 | 131 | DORK Genesis & Data Integrity | v9.64.0 | ✅ shipped |
-| 132 | DORK The Living Fleet (Observability) | v9.65.0 | 🔜 planned |
-| 133 | DORK Behavioral Intelligence | v9.66.0 | 🔜 planned |
-| 134 | DORK Structural Mechanics (Pressure) | v9.67.0 | 🔜 planned |
-| 135 | DORK Pre-Mutation Assurance (Safety) | v9.68.0 | 🔜 planned |
-| 136 | DORK The Sovereign Layer (Consolidation) | v9.69.0 | 🔜 planned |
+| 132 | INNOV-41 DORK Living Fleet | v9.64.0 | ✅ shipped |
+| 133 | INNOV-42 DORK Fleet Server Bridge (DFSB) | v9.65.0 | ✅ shipped |
+| 134 | REF-001–004 DFSB Post-Ship Remediation | v9.66.0 | ✅ shipped |
+| 135 | INNOV-43 CVR — Constitution Versioning and Rollback | v9.67.0 | ✅ shipped |
+| 136 | Phase 136 DORK Ledger + Enrichment Bridge Hardening | v9.69.0 | ✅ shipped |
 
 ---
 
@@ -102,4 +105,4 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 133 | INNOV-42 DORK Fleet Server Bridge (DFSB) | v9.65.0 | P1 | ✅ shipped |
 | 134 | REF-001–004 DFSB Post-Ship Remediation | v9.66.0 | P1 | ✅ shipped |
 | 135 | INNOV-43 Constitution Versioning and Rollback (CVR) | v9.67.0 | P1 | ✅ shipped |
-| 136 | Post-135 DORK Fleet Hardening Sweep (PRs #696–700) | v9.68.0 | P1 | ✅ shipped |
+| 136 | Phase 136 DORK ConversationLedger + Enrichment Bridge Hardening | v9.69.0 | P1 | ✅ shipped |

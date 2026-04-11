@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 runtime.mutation.code_intel.hotspot_map
 =======================================

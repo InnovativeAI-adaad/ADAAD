@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 tests/test_dork_v2_makeover.py
 DORK v2 Makeover Acceptance Tests — 30 assertions
