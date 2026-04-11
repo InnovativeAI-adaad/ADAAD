@@ -1,3 +1,42 @@
+## [9.66.0] — 2026-04-11 · Phase 134 · REF-001–004 DFSB Post-Ship Remediation
+
+### Remediation: DORK Fleet Server Bridge Configuration Hardening
+
+Four targeted remediations closing Phase 133 configuration debt. No new
+constitutional invariants added — this is a hardening pass that makes the
+DFSB provider registry, fleet engine, intent router, and slash commands
+fully consistent with the INNOV-42 specification.
+
+#### REF-001 — provider_config.json v2.0.0
+- Expanded from 2 providers to full 5-provider priority ladder:
+  DorkEngine(1) → Anthropic(2) → Groq(3) → ollama_local(4) → ollama_remote(5)
+- Each entry now carries `probe{}`, `constraints{}`, `api_key_env`
+- Schema bumped to `dork_provider_config_v2`
+
+#### REF-002 — dork_living_fleet.py
+- `FleetEngine` gains `api_key_env` and `probe_cfg` dataclass fields
+- `api_key` property resolves key from environment at runtime
+- `probe()` now type-dispatched: dork_engine (always healthy), anthropic/groq
+  (HTTP + `MISCONFIGURED` on missing key), ollama (original `/api/tags`)
+- `_default_engines()` reads `id`, `api_key_env`, `probe` from v2 config;
+  fallback is dork_engine-only fleet (not ollama_local)
+
+#### REF-003a — dork_intent_router.py
+- 5 Phase 133 DFSB intent rules appended:
+  `query_fleet_persist`, `trigger_fleet_heal`, `query_fleet_fitness`,
+  `verify_fleet_chain`, `query_fleet_endpoints`
+
+#### REF-003b — slash_commands.json v2.0.0
+- 5 new DFSB commands: `/dork:persist`, `/dork:heal`, `/dork:watchdog`,
+  `/dork:fitness`, `/dork:verify`
+- Command count: 15 → 20
+
+#### REF-004 — .adaad_agent_state.json
+- `constitutional_invariants.cumulative` corrected to 211
+- `hard_class_invariant_count` and `innovations_count` top-level fields added
+- `last_completed_phase` corruption fixed
+- INNOV-41 and INNOV-42 expanded to full records with invariant lists
+
 ## [9.65.0] — 2026-04-11 · Phase 133 · INNOV-42 DORK Fleet Server Bridge (DFSB)
 
 ### World-First: Governed Self-Healing LLM Provider Fleet with Cryptographically-Persistent Conversation Ledger as a Constitutional Governance Subsystem
