@@ -30,20 +30,60 @@ def start_server():
     env["ADAAD_ENV"] = "dev"
     env["ADAAD_PORT"] = str(PORT)
     env["ADAAD_HOST"] = "0.0.0.0"
+    popen_kwargs = {
+        "env": env,
+    }
+    if os.name == "nt":
+        create_new_process_group = getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", None)
+        if create_new_process_group is not None:
+            popen_kwargs["creationflags"] = create_new_process_group
+    else:
+        popen_kwargs["start_new_session"] = True
     with open("server.log", "a") as log_file:
-        subprocess.Popen(
+        proc = subprocess.Popen(
             [sys.executable, "server.py"],
-            env=env,
             stdout=log_file,
             stderr=log_file,
-            preexec_fn=os.setpgrp
+            **popen_kwargs,
         )
-    
-    for _ in range(15):
-        if is_server_running():
-            print("[+] Server is live.")
-            return True
-        time.sleep(1)
+
+    probe_attempts = 15
+    probe_interval_seconds = 1
+    last_probe_error = "No probe attempt performed."
+    for attempt in range(1, probe_attempts + 1):
+        try:
+            conn = http.client.HTTPConnection("localhost", PORT, timeout=1)
+            conn.request("GET", "/api/health")
+            response = conn.getresponse()
+            if response.status == 200:
+                print("[+] Server is live.")
+                return True
+            last_probe_error = f"/api/health returned HTTP {response.status}"
+        except Exception as exc:
+            last_probe_error = f"{type(exc).__name__}: {exc}"
+        finally:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+        return_code = proc.poll()
+        if return_code is not None:
+            print(
+                "[-] Server startup failed before becoming reachable "
+                f"(attempt {attempt}/{probe_attempts}); process exited with code {return_code}."
+            )
+            print(f"[-] Final failure reason: {last_probe_error}")
+            return False
+
+        time.sleep(probe_interval_seconds)
+
+    total_wait_seconds = probe_attempts * probe_interval_seconds
+    print(
+        "[-] Server startup timeout: "
+        f"unreachable after {probe_attempts} probes over {total_wait_seconds}s."
+    )
+    print(f"[-] Final failure reason: {last_probe_error}")
     return False
 
 def get_api_health():
