@@ -240,6 +240,19 @@ Whale.Dic dork + ledger API secrets are loaded via encrypted env payloads or OS 
 Plaintext fallback env vars are forbidden, and startup fails closed when required secrets are missing/invalid.
 Operator setup and rotation: `docs/security/whaledic-secrets-ops.md`.
 
+### dork browser key handling (non-persistent)
+For `ui/dork.html`, the optional Anthropic API key entered in the config modal is **not persisted to `localStorage`**.
+Key resolution order is:
+
+1. in-memory runtime value (current tab)
+2. optional `sessionStorage` record (only when **Remember key for this session** is enabled)
+3. blank (no key)
+
+When session remember is enabled, the key is stored with an explicit TTL and is cleared by either:
+
+- **Clear chat** (which now also clears secrets)
+- **Clear secrets** in the config modal
+
 ### Mutation authority
 None. Whale.Dic is a read-only runtime observer. It cannot trigger mutations, approve PRs,
 modify the evidence ledger, or alter agent state. dork's LLM outputs are advisory only.
