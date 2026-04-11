@@ -68,6 +68,14 @@ class FleetInvariantError(RuntimeError):
     """Raised when a hard fleet invariant is violated and execution must fail-closed."""
 
 
+class ProviderDispatchError(RuntimeError):
+    """Raised when provider dispatch cannot proceed with a structured fail-closed payload."""
+
+    def __init__(self, payload: dict[str, Any]) -> None:
+        self.payload = payload
+        super().__init__(payload.get("reason", "provider_dispatch_error"))
+
+
 # ── Engine Types ──────────────────────────────────────────────────────────────
 @dataclass
 class FleetEngine:
@@ -221,6 +229,14 @@ class DORKLivingFleet:
         self._engines = engines or self._default_engines()
         self._router = FleetRouter(self._engines)
         self._provider_registry = ProviderHealthRegistry()
+        self._provider_dispatchers = {
+            "dork_engine": self._dispatch_via_dork_engine,
+            "ollama": self._dispatch_via_ollama,
+            "anthropic": self._dispatch_via_remote_api,
+            "groq": self._dispatch_via_remote_api,
+            "remote": self._dispatch_via_remote_api,
+            "stub": self._dispatch_via_dork_engine,
+        }
 
         # Engine 3: Conversation ledger
         self._conversation_ledger = ConversationLedger()
@@ -391,7 +407,16 @@ class DORKLivingFleet:
     def _dispatch_provider(self, text: str, engine: FleetEngine) -> str:
         dispatcher = self._provider_dispatchers.get(engine.provider_type)
         if dispatcher is None:
-            raise ValueError(f"unsupported_provider_type:{engine.provider_type}")
+            raise ProviderDispatchError(
+                {
+                    "type": "provider_dispatch_error",
+                    "provider_name": engine.name,
+                    "provider_type": engine.provider_type,
+                    "model": engine.model,
+                    "reason": f"unsupported_provider_type:{engine.provider_type}",
+                    "terminal_failure_reason": f"unsupported_provider_type:{engine.provider_type}",
+                }
+            )
         return dispatcher(text, engine)
 
     def _next_healthy_engine_by_priority(
@@ -457,6 +482,7 @@ class DORKLivingFleet:
             last_failure_reason = "provider_dispatch_unknown_failure"
             last_failed_engine: FleetEngine = engine
             successful_engine: FleetEngine | None = None
+            error_payload: dict[str, Any] | None = None
 
             current_engine: FleetEngine | None = engine
             while current_engine is not None and len(attempted_providers) < max_attempts:
@@ -467,6 +493,11 @@ class DORKLivingFleet:
                     status = "ok"
                     error_payload = None
                     successful_engine = current_engine
+                    break
+                except ProviderDispatchError as exc:
+                    error_payload = dict(exc.payload)
+                    last_failure_reason = str(error_payload.get("reason", "provider_dispatch_error"))
+                    last_failed_engine = current_engine
                     break
                 except Exception as exc:  # noqa: BLE001
                     last_failure_reason = str(exc)
@@ -490,6 +521,15 @@ class DORKLivingFleet:
 
             if successful_engine is not None:
                 engine = successful_engine
+            elif error_payload is not None:
+                error_payload = {
+                    **error_payload,
+                    "attempted_providers": attempted_providers,
+                    "max_attempts": max_attempts,
+                    "fallback_applied": False,
+                }
+                response = json.dumps(error_payload, sort_keys=True)
+                status = "error"
             else:
                 fallback_allowed = self._deterministic_fallback_allowed()
                 error_payload = {
