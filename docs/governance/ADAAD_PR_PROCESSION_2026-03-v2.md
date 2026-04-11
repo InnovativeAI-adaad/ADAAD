@@ -135,6 +135,8 @@ Deterministic next-PR resolution rule for this historical slice was: **the only 
 
 Execution manifest for this roadmap slice: `docs/plans/PHASE_94_114_EXECUTION_MANIFEST.md` (branch map, gate checklist, evidence/closure checklist, and per-phase tracker).
 
+Mapping drift guard: `python scripts/validate_phase_innovation_mapping.py` (fails if one Innovation ID is assigned to multiple phases).
+
 ## 2) Active Planning — v1.0.0-GA Gate
 
 ### 2.1 What v1.0.0-GA means

@@ -1,11 +1,11 @@
-# Phase 108 Plan — INNOV-24: Semantic Version Promises
+# Phase 108 Plan — INNOV-23: Constitutional Epoch Sentinel
 
 ## Objective
-Deliver **INNOV-24 (Semantic Version Promises)** as a governed phase increment with deterministic implementation sequencing, constitutional gate coverage, and release evidence alignment.
+Deliver **INNOV-23 (Constitutional Epoch Sentinel)** as a governed phase increment with deterministic implementation sequencing, constitutional gate coverage, and release evidence alignment.
 
 ## Dependency Chain
 - Immediate predecessor: **Phase 107** (must be merged before any Phase 108 source writes).
-- Innovation lineage: `INNOV-23` → `INNOV-24` within `ADAAD_30_INNOVATIONS.md` phase roadmap (INNOV-10..30 mapped to Phases 94..114).
+- Innovation lineage: `INNOV-22` → `INNOV-23` per `docs/governance/PHASE_INNOVATION_MAPPING_CANONICAL.md` (Phase 107 → 108).
 - Release dependency: target version **v9.41.0** follows predecessor semantic progression.
 - Deterministic next-PR linkage: `state_alignment.expected_next_pr` resolves to `Phase 108` only when Phase 107 status is `shipped`.
 
@@ -33,7 +33,7 @@ Deliver **INNOV-24 (Semantic Version Promises)** as a governed phase increment w
 - `artifacts/governance/phase108/track_a_sign_off.json`
 - `artifacts/governance/phase108/replay_digest.txt`
 - `artifacts/governance/phase108/tier_summary.json`
-- `docs/comms/claims_evidence_matrix.md` row updated to `Complete` for Phase 108 / INNOV-24.
+- `docs/comms/claims_evidence_matrix.md` row updated to `Complete` for Phase 108 / INNOV-23.
 
 ## HUMAN-0 Checkpoints
 1. **Plan ratification checkpoint:** governor approves this plan before PR open.

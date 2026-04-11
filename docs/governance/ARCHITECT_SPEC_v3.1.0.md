@@ -8,11 +8,18 @@
 > **Authority:** ArchitectAgent · ADAAD Constitutional Governance
 > **Scope:** Phase 6 — Autonomous Roadmap Self-Amendment completion (M6-03, M6-04, M6-05)
 > **Effective:** 2026-03-07
-> **Supersedes:** `ARCHITECT_SPEC_v3.0.0.md` for Phase 6 additions only (Phase 5 rules remain fully in force)
+> **Supersession status:** `ARCHITECT_SPEC_v3.0.0.md` was retired and not retained in-repo; all canonical references are consolidated into `docs/governance/ARCHITECT_SPEC_v3.1.0.md`
 > **Status:** CANONICAL — machine-interpretable, audit-ready, replay-verifiable
 > **Authored by:** ArchitectAgent (constitutional governance role; no code generation authority)
 
 ---
+
+## Supersession Note (Path Mapping)
+
+- `docs/governance/ARCHITECT_SPEC_v3.0.0.md` → `docs/governance/ARCHITECT_SPEC_v3.1.0.md`
+
+`ARCHITECT_SPEC_v3.0.0.md` is not present in repository history and is treated as permanently
+superseded. All canonical references now resolve to this v3.1.0 artifact.
 
 ## Preamble
 
@@ -24,8 +31,9 @@ the completion of Phase 6 (Autonomous Roadmap Self-Amendment) across three remai
 - **M6-05** — Free Android Distribution pipeline (CI-governed APK signing + multi-track delivery)
 
 Shipped milestones M6-01 (`RoadmapAmendmentEngine`) and M6-02 (`ProposalDiffRenderer`) are
-complete and governed by `ARCHITECT_SPEC_v3.0.0.md`. All rules in that document remain in force.
-This document adds Phase 6 completion gates only.
+covered by this canonical v3.1.0 artifact. Earlier references to `ARCHITECT_SPEC_v3.0.0.md` have
+been superseded to this document to keep governance links live and deterministic.
+This document remains the canonical source for both inherited and Phase 6 completion gates.
 
 **Constitutional principle governing all Phase 6 work:**
 > ADAAD proposes. Humans approve. No mutation to ROADMAP.md, governance policy, or distribution

@@ -200,7 +200,7 @@ Policy hash: `71eb6499bc09d8b4…` (authoritative: `runtime/constitution.py → 
 **Next Review**: After 1000 mutations logged
 
 **Canonical implementation specs:**
-- Phase 5 (Federation): `docs/governance/ARCHITECT_SPEC_v3.0.0.md`
+- Phase 5 (Federation): `docs/governance/ARCHITECT_SPEC_v3.1.0.md`
 - Phase 6 (Roadmap Self-Amendment): `docs/governance/ARCHITECT_SPEC_v3.1.0.md`
 
 ---
