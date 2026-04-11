@@ -634,7 +634,7 @@
       "description": "Constitution Versioning and Rollback"
     }
   },
-  "last_agent_state_sync_digest": "gsync-e4e0baae18143d41",
+  "last_agent_state_sync_digest": "gsync-a3788729b07fbd1e",
   "last_completed_phase": "Phase 11 \u00b7 Phase 135 \u00b7 INNOV-43 Constitution Versioning and Rollback (CVR)",
   "last_completed_pr": "feat/phase127-innov37-grrp",
   "last_gate_results": {
@@ -648,7 +648,7 @@
   "last_invocation": "2026-04-11",
   "last_phase_completed": 133,
   "last_phase_completed_label": "INNOV-42: DORK Fleet Server Bridge",
-  "last_sync_sha": "b3c24870",
+  "last_sync_sha": "39a7aa27",
   "last_updated": "2026-04-11T12:38:12.268044+00:00",
   "next_phase": 134,
   "next_pr": "feat/phase128-tbd",
