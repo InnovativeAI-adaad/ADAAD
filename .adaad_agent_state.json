@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.65.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": "v9.66.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -272,11 +272,11 @@
     "phase130-complete"
   ],
   "constitutional_invariants": {
-    "cumulative": 201,
+    "cumulative": 211,
     "hard_class_count": 201
   },
   "current_phase": 133,
-  "current_version": "9.65.0",
+  "current_version": "9.66.0",
   "hard_class_count": 211,
   "hard_class_invariants_cumulative": 211,
   "human0_signoffs": [
@@ -588,11 +588,39 @@
       "tests": "30/30",
       "version": "9.59.0"
     },
-    "INNOV-41": "DORK Living Fleet",
-    "INNOV-42": "DORK Fleet Server Bridge"
+    "INNOV-41": {
+      "module": "dork_living_fleet.py",
+      "phase": 132,
+      "tests": "30/30",
+      "version": "9.64.0",
+      "hard_invariants": 6,
+      "invariants": [
+        "DORK-FLEET-0",
+        "DORK-CMD-0",
+        "DORK-STATE-0",
+        "DORK-PROV-0",
+        "DORK-CTX-0",
+        "DORK-OUTPUT-0"
+      ]
+    },
+    "INNOV-42": {
+      "module": "dork_living_fleet.py",
+      "phase": 133,
+      "tests": "30/30",
+      "version": "9.65.0",
+      "hard_invariants": 5,
+      "invariants": [
+        "DFSB-BRIDGE-0",
+        "DFSB-PROBE-0",
+        "DFSB-KEY-0",
+        "DFSB-ROUTE-0",
+        "DFSB-CHAIN-0"
+      ],
+      "description": "DORK Fleet Server Bridge"
+    }
   },
-  "last_agent_state_sync_digest": "gsync-962950aa29a70156",
-  "last_completed_phase": "Phase 11 \u00b7 Phase 133 \u00b7 INNOV-42 DORK Fleet Server Bridge (DFSB)",
+  "last_agent_state_sync_digest": "gsync-5108d519a59027fc",
+  "last_completed_phase": "Phase 11 \u00b7 Phase 134 \u00b7 REF-001\u2013004 DFSB Post-Ship Remediation",
   "last_completed_pr": "feat/phase127-innov37-grrp",
   "last_gate_results": {
     "tier_0": "pass",
@@ -605,7 +633,7 @@
   "last_invocation": "2026-04-11",
   "last_phase_completed": 133,
   "last_phase_completed_label": "INNOV-42: DORK Fleet Server Bridge",
-  "last_sync_sha": "a528fb05",
+  "last_sync_sha": "0e5f9f51",
   "last_updated": "2026-04-11T12:38:12.268044+00:00",
   "next_phase": 134,
   "next_pr": "feat/phase128-tbd",
@@ -817,7 +845,7 @@
     127
   ],
   "schema_version": "1.5.0",
-  "software_version": "9.65.0",
+  "software_version": "9.66.0",
   "tife_active": true,
   "value_checkpoints_reached": [
     "phase0-track-a-hardening",
@@ -1112,5 +1140,7 @@
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
-  ]
+  ],
+  "hard_class_invariant_count": 211,
+  "innovations_count": 42
 }

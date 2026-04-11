@@ -46,6 +46,7 @@ from adaad.agents.discovery import (
 from runtime.api.app_layer import (
     MutationCandidate,
     RuntimeDeterminismProvider,
+    ASTSnapshotStore,
     SeededDeterminismProvider,
     SystemDeterminismProvider,
     emit_pr_lifecycle_event,
@@ -157,6 +158,9 @@ class BeastModeLoop:
         self.mutation_window_sec = int(os.getenv("ADAAD_BEAST_MUTATION_WINDOW_SEC", "3600"))
         self.cooldown_sec = int(os.getenv("ADAAD_BEAST_COOLDOWN_SEC", "300"))
         self.state_path = self.agents_root.parent / "data" / "beast_mode_state.json"
+        self.ast_snapshot_store = ASTSnapshotStore(
+            self.agents_root.parent / "data" / "beast_ast_snapshot_state.json"
+        )
 
         # Lazy-initialised legacy adapter; see _legacy property below.
         self.__legacy: LegacyBeastModeCompatibilityAdapter | None = None
@@ -472,6 +476,28 @@ class BeastModeLoop:
         )
         return candidate, []
 
+    def _ast_module_id(self, payload: Dict[str, object], agent_id: str) -> str:
+        module = str(payload.get("target_module", "")).strip()
+        if module:
+            return module
+        return f"agent:{agent_id}"
+
+    def _evaluate_ast_change(
+        self, *, agent_id: str, payload: Dict[str, object]
+    ) -> tuple[str, str, bool]:
+        source = str(payload.get("content", ""))
+        module_id = self._ast_module_id(payload, agent_id)
+        snapshot = self.ast_snapshot_store.compute_digest(
+            source=source,
+            agent_id=agent_id,
+            module_id=module_id,
+        )
+        previous = self.ast_snapshot_store.read_previous_digest(
+            agent_id=agent_id, module_id=module_id
+        )
+        changed = previous != snapshot.digest
+        return module_id, snapshot.digest, changed
+
     def _execute_cycle(self, agent_id: Optional[str] = None) -> Dict[str, str]:
         """Core cycle execution — called by the kernel, overridable by adapters."""
         metrics.log(
@@ -608,6 +634,38 @@ class BeastModeLoop:
                     "agent": selected,
                     "staged_path": str(staged_dir),
                 }
+
+        module_id, current_digest, ast_changed = self._evaluate_ast_change(
+            agent_id=selected, payload=payload
+        )
+        if not ast_changed:
+            self.ast_snapshot_store.record_cosmetic_update(
+                agent_id=selected,
+                module_id=module_id,
+                observed_at=self._now(),
+            )
+            metrics.log(
+                event_type="cosmetic_update_only",
+                payload={
+                    "agent": selected,
+                    "module": module_id,
+                    "outcome": "ast_unchanged",
+                    "staged": str(staged_dir),
+                },
+                level="INFO",
+                element_id=ELEMENT_ID,
+            )
+            metrics.log(
+                event_type="beast_cycle_end",
+                payload={"status": "ast_unchanged", "agent": selected},
+                level="INFO",
+                element_id=ELEMENT_ID,
+            )
+            return {
+                "status": "ast_unchanged",
+                "agent": selected,
+                "outcome": "cosmetic_update_only",
+            }
 
         score = fitness.score_mutation(selected, payload)
         metrics.log(
@@ -908,6 +966,38 @@ class LegacyBeastModeCompatibilityAdapter(BeastModeLoop):
         if throttled:
             return {"status": "throttled", "agent": selected, "reason": throttled.get("reason")}
 
+        module_id, current_digest, ast_changed = self._evaluate_ast_change(
+            agent_id=selected, payload=payload
+        )
+        if not ast_changed:
+            self.ast_snapshot_store.record_cosmetic_update(
+                agent_id=selected,
+                module_id=module_id,
+                observed_at=self._now_wall(),
+            )
+            metrics.log(
+                event_type="cosmetic_update_only",
+                payload={
+                    "agent": selected,
+                    "module": module_id,
+                    "outcome": "ast_unchanged",
+                    "staged": str(staged_dir),
+                },
+                level="INFO",
+                element_id=ELEMENT_ID,
+            )
+            metrics.log(
+                event_type="beast_cycle_end",
+                payload={"status": "ast_unchanged", "agent": selected},
+                level="INFO",
+                element_id=ELEMENT_ID,
+            )
+            return {
+                "status": "ast_unchanged",
+                "agent": selected,
+                "outcome": "cosmetic_update_only",
+            }
+
         # Build candidate for autonomous scoring
         candidate, missing_fields = self._build_mutation_candidate(payload)
 
@@ -1023,6 +1113,12 @@ class LegacyBeastModeCompatibilityAdapter(BeastModeLoop):
             policy_version="1.0",
             evaluation_result="allow",
             decision_id=_promotion_decision_id,
+        )
+        self.ast_snapshot_store.record_accepted_ast_change(
+            agent_id=selected,
+            module_id=module_id,
+            digest=current_digest,
+            accepted_at=self._now_wall(),
         )
         return {"status": "promoted", "agent": selected, "score": score, "promoted_path": str(promoted)}
 

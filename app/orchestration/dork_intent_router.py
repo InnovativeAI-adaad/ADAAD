@@ -251,4 +251,54 @@ class DorkIntentExecutor:
         ], "Governance brief assembled from runtime health and reviewer calibration.", ["/ui/developer/ADAADdev/whaledic.html", "/ui/aponi/index.html"]
 
 
+        # ── INNOV-42 DFSB intent rules (Phase 133) ────────────────────────────
+        if intent == "query_fleet_persist":
+            from runtime.innovations30.dork_living_fleet import DORKLivingFleet
+            fleet = DORKLivingFleet()
+            status = fleet.fleet_status()
+            return status, [
+                DorkEvidenceRef(source="runtime.innovations30.dork_living_fleet.DORKLivingFleet.fleet_status",
+                                endpoint="/innovations/fleet/persist", panel="/ui/aponi/index.html"),
+            ], "Fleet persist snapshot assembled.", ["/ui/aponi/index.html"]
+
+        if intent == "trigger_fleet_heal":
+            from runtime.innovations30.dork_living_fleet import DORKLivingFleet
+            fleet = DORKLivingFleet()
+            fleet._probe_all()
+            status = fleet.fleet_status()
+            return status, [
+                DorkEvidenceRef(source="runtime.innovations30.dork_living_fleet.DORKLivingFleet._probe_all",
+                                endpoint="/innovations/fleet/heal", panel="/ui/aponi/index.html"),
+            ], "Fleet heal cycle triggered; re-probed all engines.", ["/ui/aponi/index.html"]
+
+        if intent == "query_fleet_fitness":
+            from runtime.innovations30.dork_living_fleet import DORKLivingFleet
+            fleet = DORKLivingFleet()
+            status = fleet.fleet_status()
+            healthy = not status.get("blocked", True)
+            return {"fitness": "HEALTHY" if healthy else "DEGRADED", "detail": status}, [
+                DorkEvidenceRef(source="runtime.innovations30.dork_living_fleet.DORKLivingFleet.fleet_status",
+                                endpoint="/innovations/fleet/fitness", panel="/ui/aponi/index.html"),
+            ], f"Fleet fitness: {'HEALTHY' if healthy else 'DEGRADED'}.", ["/ui/aponi/index.html"]
+
+        if intent == "verify_fleet_chain":
+            from runtime.innovations30.dork_living_fleet import DORKLivingFleet
+            fleet = DORKLivingFleet()
+            chain = fleet._dispatch_ledger
+            return {"chain_length": len(chain), "ledger": chain[-5:] if chain else []}, [
+                DorkEvidenceRef(source="runtime.innovations30.dork_living_fleet.DORKLivingFleet._dispatch_ledger",
+                                endpoint="/innovations/fleet/chain", panel="/ui/aponi/index.html"),
+            ], "Fleet dispatch chain verified.", ["/ui/aponi/index.html"]
+
+        if intent == "query_fleet_endpoints":
+            from runtime.innovations30.dork_living_fleet import DORKLivingFleet
+            fleet = DORKLivingFleet()
+            endpoints = [{"name": e.name, "type": e.provider_type, "url": e.url, "priority": e.priority}
+                         for e in fleet._engines]
+            return {"endpoints": endpoints}, [
+                DorkEvidenceRef(source="runtime.innovations30.dork_living_fleet.DORKLivingFleet._engines",
+                                endpoint="/innovations/fleet/endpoints", panel="/ui/aponi/index.html"),
+            ], "Fleet endpoint registry returned.", ["/ui/aponi/index.html"]
+
+
 __all__ = ["DorkIntentExecutor", "DorkIntentRouter"]
