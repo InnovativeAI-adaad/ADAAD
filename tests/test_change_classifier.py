@@ -22,6 +22,13 @@ class ChangeClassifierTest(unittest.TestCase):
         new_ast = ast.parse("x = 2\n")
         self.assertTrue(is_functional_change(old_ast, new_ast))
 
+    def test_is_functional_change_false_for_docstring_only_delta(self) -> None:
+        import ast
+
+        old_ast = ast.parse("def run():\n    return 1\n")
+        new_ast = ast.parse('def run():\n    """updated docs"""\n    return 1\n')
+        self.assertFalse(is_functional_change(old_ast, new_ast))
+
     def test_classify_metadata_only_non_functional(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             agent_path = Path(tmpdir)
