@@ -4,6 +4,10 @@ This repository uses tiered CI gating to keep pull request feedback fast while p
 
 All CI workflows that invoke `actions/setup-python` are pinned to Python `3.11.9`; version drift is fail-closed by `scripts/check_workflow_python_version.py` in CI.
 
+## Phase progression source consumed by automation
+
+For machine phase progression/state alignment, automation consumes only `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` §3.0 **Active Era Contract (Phases 131–136+)**. `ROADMAP.md` and innovation summary documents are human-facing mirrors and must remain consistent, but are not the progression authority.
+
 ## Inputs used by the CI classifier
 
 The CI classifier computes gate decisions from three signal groups:

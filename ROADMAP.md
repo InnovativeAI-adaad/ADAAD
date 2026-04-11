@@ -8,6 +8,7 @@
 
 **Date:** 2026-04-11
 **Status:** 43 innovations shipped (INNOV-01 through INNOV-43). Phase 136 complete. v9.69.0 released.
+**Automation pointer:** Machine phase progression consumes `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` §3.0 “Active Era Contract (Phases 131–136+)”.
 **Hard-class invariants:** 216 (cumulative, enforced)
 **Constitutional Evolution Loop:** 16-step CEL, deterministic replay, wired
 **Self-Proposing Innovation Engine (SPIE):** active — system proposes its own next innovations; HUMAN-0 ratifies
