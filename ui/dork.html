@@ -1035,9 +1035,46 @@ function renderMd(raw) {
    ═══════════════════════════════════════════ */
 let _cachedPrompt = null;
 let _cachedGovHash = null;
+const CANONICAL_INNOVATION_COVERAGE = 'INNOV-01 through INNOV-40';
+
+/* RUNTIME_IDENTITY_START */
+function formatRuntimeIdentity(runtime) {
+  if (!runtime) {
+    return {
+      version: 'unknown (snapshot unavailable)',
+      phase: 'unknown (snapshot unavailable)',
+      invariantCount: 'unknown (snapshot unavailable)',
+      innovationCoverage: `${CANONICAL_INNOVATION_COVERAGE} (snapshot unavailable)`,
+      snapshotAvailable: false,
+    };
+  }
+
+  const invariantCount = runtime.gov?.invariant_count;
+  return {
+    version: runtime.epoch?.version || 'unknown (snapshot unavailable)',
+    phase: runtime.epoch?.phase ?? 'unknown (snapshot unavailable)',
+    invariantCount: invariantCount != null
+      ? `${invariantCount} Hard-class invariants`
+      : 'unknown (snapshot unavailable)',
+    innovationCoverage: runtime.gov?.innovation_coverage || CANONICAL_INNOVATION_COVERAGE,
+    snapshotAvailable: true,
+  };
+}
+
+function buildWelcomeMessage(runtime = S.gov?.runtime) {
+  const identity = formatRuntimeIdentity(runtime);
+
+  return `Hey. I'm **dork** — ADAAD's advisory intelligence.\n\n` +
+    `I have eyes on the governance substrate, the Constitutional Evolution Loop, the mutation pipeline, the agent triad, the Lineage Ledger, and the replay engine.\n\n` +
+    `Right now ADAAD is at **${identity.version}**, Phase ${identity.phase}, with **${identity.invariantCount}** enforced. Innovation coverage: **${identity.innovationCoverage}**.\n\n` +
+    `I'm read-only. Advisory only. Ask me what's happening.\n\n` +
+    `*Hit ▾ to expand the live governance panel, or press **G**.*`;
+}
+/* RUNTIME_IDENTITY_END */
 
 function buildSystemPrompt() {
   const g = S.gov?.runtime;
+  const identity = formatRuntimeIdentity(g);
   const govHash = g ? JSON.stringify({
     epoch: g.epoch?.epoch, gate: g.gov?.ok, tier: g.gov?.tier,
     score: g.rep?.score, readiness: g.ready?.readiness_score,
@@ -1068,7 +1105,7 @@ You live inside the ADAAD governance substrate. You are **read-only and advisory
 ## ADAAD System Identity
 ADAAD (Autonomous Development & Adaptive Architecture Daemon) is a constitutionally governed code evolution engine. AI agents propose mutations; an invariant enforcement layer gates them; HUMAN-0 GPG-signs promotions. Every event is hash-chained in the Lineage Ledger.
 
-**Current state:** v9.63.0 · Phase 130 · 201 Hard-class invariants · 40 innovations shipped
+**Current state:** ${identity.version} · Phase ${identity.phase} · ${identity.invariantCount} · Innovation coverage: ${identity.innovationCoverage}
 
 ## The Three Agents
 - **Architect** (blue): methodical, structure-first, most conservative. Flags violations early.
@@ -1078,8 +1115,8 @@ ADAAD (Autonomous Development & Adaptive Architecture Daemon) is a constitutiona
 ## Constitutional Evolution Loop (CEL) — 16 steps
 Propose → ACSE adversarial stress → GovernanceGate → LSME shadow execution → Fitness score → DAS audit sandbox → GRRP response → ACSA self-amendment → ACF coalition (HIGH complexity only) → CJS jury → ARS reputation staking → HUMAN-0 gate (Tier 0) → GPG signing → Ledger append → CELT learning transfer → Epoch advance.
 
-## Innovations INNOV-01 through INNOV-40
-CSAP · TIFE · ACSE · SCDD · AOEP · CEPD · LSME · AFRT · AFIT · MMEM(10) · DSTE · MGV · IMT · CJS · ARS · ERS(16) · GBP · MCF · CES · SVP · HAF · MCF · CES · SVP · HAF · (21–30) · Mirror · IDE · KBEP · DAS · SPIE(35) · GRRP(37) · ACSA(38) · ACF(39) · CELT(40)
+## Innovations
+Canonical scope: ${CANONICAL_INNOVATION_COVERAGE}
 
 ## Governance Concepts
 - **Hard-class invariants**: blocking rules. Any violation rejects the mutation. 201 active.
@@ -1427,13 +1464,7 @@ function clearChat() {
    WELCOME
    ═══════════════════════════════════════════ */
 function welcome() {
-  addMsg('assistant',
-    `Hey. I'm **dork** — ADAAD's advisory intelligence.\n\n` +
-    `I have eyes on the governance substrate, the Constitutional Evolution Loop, the mutation pipeline, the agent triad, the Lineage Ledger, and the replay engine.\n\n` +
-    `Right now ADAAD is at **v9.63.0**, Phase 130, with **201 Hard-class constitutional invariants** enforced. We just shipped INNOV-40 (Cross-Epoch Agent Learning Transfer), closing the collective intelligence track.\n\n` +
-    `I'm read-only. Advisory only. Ask me what's happening.\n\n` +
-    `*Hit ▾ to expand the live governance panel, or press **G**.*`,
-    true);
+  addMsg('assistant', buildWelcomeMessage(), true);
 }
 
 /* ═══════════════════════════════════════════
