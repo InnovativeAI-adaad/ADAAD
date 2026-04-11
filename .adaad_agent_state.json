@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.65.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": "v9.66.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -619,8 +619,8 @@
       "description": "DORK Fleet Server Bridge"
     }
   },
-  "last_agent_state_sync_digest": "gsync-962950aa29a70156",
-  "last_completed_phase": "Phase 133 \u00b7 INNOV-42 DORK Fleet Server Bridge (DFSB)",
+  "last_agent_state_sync_digest": "gsync-5108d519a59027fc",
+  "last_completed_phase": "Phase 11 \u00b7 Phase 134 \u00b7 REF-001\u2013004 DFSB Post-Ship Remediation",
   "last_completed_pr": "feat/phase127-innov37-grrp",
   "last_gate_results": {
     "tier_0": "pass",
@@ -633,7 +633,7 @@
   "last_invocation": "2026-04-11",
   "last_phase_completed": 133,
   "last_phase_completed_label": "INNOV-42: DORK Fleet Server Bridge",
-  "last_sync_sha": "a528fb05",
+  "last_sync_sha": "0e5f9f51",
   "last_updated": "2026-04-11T12:38:12.268044+00:00",
   "next_phase": 134,
   "next_pr": "feat/phase128-tbd",
@@ -845,7 +845,7 @@
     127
   ],
   "schema_version": "1.5.0",
-  "software_version": "9.65.0",
+  "software_version": "9.66.0",
   "tife_active": true,
   "value_checkpoints_reached": [
     "phase0-track-a-hardening",
