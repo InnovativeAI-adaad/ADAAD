@@ -1577,6 +1577,26 @@ function welcome() {
   addMsg('assistant', buildWelcomeMessage(), true);
 }
 
+
+function applyDeepLinkSeed() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('dork') !== '1') return;
+  const prompt = (params.get('prompt') || '').trim();
+  if (!prompt) return;
+  D.input.value = prompt;
+  resize();
+  window.requestAnimationFrame(() => handleSend());
+}
+
+function bindExternalLauncherBridge() {
+  window.addEventListener('message', (event) => {
+    if (event.origin !== window.location.origin) return;
+    if (event.data && event.data.type === 'dork-focus-input') {
+      D.input.focus();
+    }
+  });
+}
+
 /* ═══════════════════════════════════════════
    INIT
    ═══════════════════════════════════════════ */
@@ -1590,6 +1610,9 @@ function init() {
 
   /* Restore previous session or greet fresh */
   if (!loadSession()) welcome();
+
+  bindExternalLauncherBridge();
+  applyDeepLinkSeed();
 
   /* Quick-prompt chips */
   D.quickPrompts.querySelectorAll('.qp').forEach(btn => {
@@ -1756,5 +1779,6 @@ document.addEventListener('DOMContentLoaded', init);
   setInterval(updateFleetStrip, 15000);
 })();
 </script>
+<script src="shared/dork_launcher.js"></script>
 </body>
 </html>
