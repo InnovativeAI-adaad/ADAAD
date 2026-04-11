@@ -263,10 +263,11 @@ def handle_explain_gates(*, explain_gates: bool) -> bool:
         return False
     
     from runtime.governance.fast_path_policy import get_operating_mode, get_required_gate_tiers
-    from runtime.governance.change_classifier import classify_current_changes
+    from runtime.governance.change_classifier import classify_current_changes_decision
     
     mode = get_operating_mode()
-    change_type = classify_current_changes()
+    change_decision = classify_current_changes_decision()
+    change_type = change_decision.change_type
     required_tiers = get_required_gate_tiers(mode, change_type)
     
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
@@ -274,6 +275,7 @@ def handle_explain_gates(*, explain_gates: bool) -> bool:
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     print(f"Operating Mode: {mode.value}")
     print(f"Change Type:    {change_type.value}")
+    print(f"Classifier:     {change_decision.reason}")
     print(f"Required Tiers: {sorted(required_tiers)}")
     print("------------------------------------------------------------")
     
