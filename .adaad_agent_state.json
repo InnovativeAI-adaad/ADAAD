@@ -619,7 +619,7 @@
       "description": "DORK Fleet Server Bridge"
     }
   },
-  "last_agent_state_sync_digest": "gsync-6615193b3e1594b1",
+  "last_agent_state_sync_digest": "gsync-8fd171feec98ed0a",
   "last_completed_phase": "Phase 11 \u00b7 Phase 134 \u00b7 REF-001\u2013004 DFSB Post-Ship Remediation",
   "last_completed_pr": "feat/phase127-innov37-grrp",
   "last_gate_results": {
@@ -633,7 +633,7 @@
   "last_invocation": "2026-04-11",
   "last_phase_completed": 133,
   "last_phase_completed_label": "INNOV-42: DORK Fleet Server Bridge",
-  "last_sync_sha": "cc65e346",
+  "last_sync_sha": "4fd30588",
   "last_updated": "2026-04-11T12:38:12.268044+00:00",
   "next_phase": 134,
   "next_pr": "feat/phase128-tbd",
