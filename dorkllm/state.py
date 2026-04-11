@@ -48,8 +48,7 @@ class ConversationLedger:
 
     def append(self, role: str, content: str) -> dict:
         """Append a new turn to the ledger. Returns the sealed entry."""
-        if role not in ("user", "assistant", "system"):
-            raise ConversationLedgerViolation(f"Invalid role: {role!r}")
+        self._validate_role(role)
         timestamp = datetime.now(timezone.utc).isoformat()
         content_digest = hashlib.sha256(content.encode()).hexdigest()[:24]
         entry_hash = self._hash_entry(role, content_digest, timestamp, self._prev_hash)
@@ -64,6 +63,57 @@ class ConversationLedger:
         self._entries.append(entry)
         self._prev_hash = entry_hash
         return entry
+
+    def restore_entry(
+        self,
+        *,
+        seq: int,
+        role: str,
+        content_digest: str,
+        timestamp: str,
+        prev_hash: str,
+        entry_hash: str,
+    ) -> dict:
+        """
+        Restore a precomputed ledger entry from an authoritative chain source.
+
+        Invariants enforced:
+        - role must be canonical
+        - seq must be contiguous append index
+        - prev_hash must equal current chain tail hash
+        - entry_hash must match canonical recomputation
+        """
+        self._validate_role(role)
+        expected_seq = len(self._entries)
+        if seq != expected_seq:
+            raise ConversationLedgerViolation(
+                f"Invalid seq continuity: expected {expected_seq}, got {seq}"
+            )
+        if prev_hash != self._prev_hash:
+            raise ConversationLedgerViolation(
+                "Invalid prev_hash continuity: restore entry does not chain from ledger tail"
+            )
+        expected_hash = self._hash_entry(role, content_digest, timestamp, prev_hash)
+        if entry_hash != expected_hash:
+            raise ConversationLedgerViolation(
+                "Invalid entry_hash: canonical recomputation mismatch during restore"
+            )
+        entry = {
+            "seq": seq,
+            "role": role,
+            "content_digest": content_digest,
+            "timestamp": timestamp,
+            "prev_hash": prev_hash,
+            "entry_hash": entry_hash,
+        }
+        self._entries.append(entry)
+        self._prev_hash = entry_hash
+        return entry
+
+    @staticmethod
+    def _validate_role(role: str) -> None:
+        if role not in ("user", "assistant", "system"):
+            raise ConversationLedgerViolation(f"Invalid role: {role!r}")
 
     def verify(self) -> tuple[bool, str]:
         """Re-derive chain from genesis. Returns (valid, reason)."""

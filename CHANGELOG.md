@@ -25,6 +25,22 @@
   - Added tamper-detection tests proving verify failure for:
     `content_digest`, `timestamp`, `entry_hash`, and `prev_hash` chain mutation.
 
+### Fix: Restart hydration now restores canonical chain entries without double hashing
+
+- `dorkllm/state.py`
+  - Added `ConversationLedger.restore_entry(...)` for authoritative chain hydration.
+  - Enforces role validation, seq continuity, prev-hash continuity, and canonical
+    entry-hash recomputation before append-only insertion.
+- `runtime/innovations30/dork_living_fleet.py`
+  - Fleet startup hydration now uses restore semantics from persistence entries
+    instead of calling `append()` with pre-digested content.
+- `tests/test_phase132_dork_living_fleet.py`
+  - Added restore path coverage for exact hash preservation and fail-closed
+    prev-hash continuity enforcement.
+- `tests/test_phase133_dfsb.py`
+  - Added restart hydration regression proving persisted entries are restored
+    byte-for-byte in memory with seq/hash continuity.
+
 ## [9.67.0] — 2026-04-11 · Phase 135 · INNOV-43 Constitution Versioning and Rollback (CVR)
 
 ### World-First: Constitutional Git-Blame-Equivalent with Cryptographic Chain Integrity and HUMAN-0-Gated Rollback

@@ -264,9 +264,13 @@ class DORKLivingFleet:
           - startup alignment must preserve seq continuity for live telemetry/state.
         """
         for entry in self._persistence:
-            self._conversation_ledger.append(
-                entry.get("role", "system"),
-                entry.get("content_digest", ""),
+            self._conversation_ledger.restore_entry(
+                seq=entry["seq"],
+                role=entry["role"],
+                content_digest=entry["content_digest"],
+                timestamp=entry["timestamp"],
+                prev_hash=entry["prev_hash"],
+                entry_hash=entry["entry_hash"],
             )
 
     # ── Default engines from provider_config.json ─────────────────────────────

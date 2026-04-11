@@ -111,6 +111,33 @@ class TestConversationLedger:
         assert valid is False
         assert reason == "Chain break at seq=1: prev_hash mismatch"
 
+    def test_T132_LEDGER_11_restore_entry_preserves_authoritative_hash(self):
+        """T132-LEDGER-11: restore_entry inserts precomputed chain entry without re-hashing content."""
+        src = ConversationLedger()
+        src.append("user", "hello")
+        src.append("assistant", "world")
+
+        restored = ConversationLedger()
+        for entry in src.tail(2):
+            restored.restore_entry(**entry)
+
+        assert restored.tail(2) == src.tail(2)
+        valid, reason = restored.verify()
+        assert valid is True
+        assert reason == "chain_valid"
+
+    def test_T132_LEDGER_12_restore_entry_rejects_non_contiguous_prev_hash(self):
+        """T132-LEDGER-12: restore_entry fails closed when prev_hash continuity is violated."""
+        src = ConversationLedger()
+        first = src.append("user", "hello")
+        entry = src.append("assistant", "world")
+        entry["prev_hash"] = "f" * 64
+
+        restored = ConversationLedger()
+        restored.restore_entry(**first)
+        with pytest.raises(ConversationLedgerViolation):
+            restored.restore_entry(**entry)
+
 
 # ── ProviderHealthRegistry (DORK-PROV-0) — 5 tests ───────────────────────────
 
