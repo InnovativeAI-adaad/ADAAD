@@ -20,6 +20,16 @@ auditable version history of its own governing constitution with full replay det
 #### Module: `runtime/innovations30/constitution_version_ledger.py`
 #### Data: `data/constitution/version_ledger.jsonl`
 
+### Patch notes (2026-04-11)
+- `runtime/innovations30/dork_living_fleet.py` non-slash `query()` path now dispatches
+  by `FleetEngine.provider_type` (`dork_engine`, `ollama`, `groq`, `anthropic`, `remote`)
+  instead of returning stub transport text.
+- Provider dispatch failures now produce structured error payloads containing provider,
+  model, and failure reason; deterministic fallback is only used when
+  `ADAAD_DORK_FLEET_ALLOW_DETERMINISTIC_FALLBACK` is explicitly enabled.
+- OPT-005 sanitizer is now applied uniformly to provider success output and structured
+  provider-failure payload responses.
+
 ## [9.66.0] — 2026-04-11 · Phase 134 · REF-001–004 DFSB Post-Ship Remediation
 
 ### Remediation: DORK Fleet Server Bridge Configuration Hardening
