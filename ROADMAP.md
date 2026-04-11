@@ -98,3 +98,7 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | GA | v1.1-GA Release | v1.1.0-GA | P0 (Track B) | 🔒 blocked on FINDING-66-004 |
 
 ---
+| 132 | INNOV-41 DORK Living Fleet | v9.64.0 | P1 | ✅ shipped |
+| 133 | INNOV-42 DORK Fleet Server Bridge (DFSB) | v9.65.0 | P1 | ✅ shipped |
+| 134 | REF-001–004 DFSB Post-Ship Remediation | v9.66.0 | P1 | ✅ shipped |
+| 135 | INNOV-43 Constitution Versioning and Rollback (CVR) | v9.67.0 | P1 | ✅ shipped |

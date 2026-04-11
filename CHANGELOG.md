@@ -1,3 +1,25 @@
+## [9.67.0] — 2026-04-11 · Phase 135 · INNOV-43 Constitution Versioning and Rollback (CVR)
+
+### World-First: Constitutional Git-Blame-Equivalent with Cryptographic Chain Integrity and HUMAN-0-Gated Rollback
+
+The Constitution Version Ledger (CVL) versions the ADAAD constitution itself. Every
+amendment receives a semantic version tag, a SHA-256 content digest, and a hash-chain
+link. Rollback is a new forward entry (never destructive) and requires HUMAN-0
+authorization. This is the first autonomous codebase to maintain a cryptographically
+auditable version history of its own governing constitution with full replay determinism.
+
+#### New Hard-class invariants (5)
+- **CVR-IMMUT-0** — CVL is append-only; delete/mutate raises `CVLImmutabilityViolation`
+- **CVR-DIGEST-0** — every entry carries SHA-256 content digest; mismatch raises `CVLDigestViolation`
+- **CVR-ROLLBACK-0** — rollback is a forward amendment; destructive rewrite is constitutionally prohibited
+- **CVR-HUMAN0-0** — rollback requires non-empty `human0_token`; absence raises `CVLAuthorizationViolation`
+- **CVR-CHAIN-0** — each entry carries `prev_hash`; chain break raises `CVLChainViolation`
+
+#### Cumulative Hard-class invariants: 216
+#### Test result: 30/30 (full suite: 325/325)
+#### Module: `runtime/innovations30/constitution_version_ledger.py`
+#### Data: `data/constitution/version_ledger.jsonl`
+
 ## [9.66.0] — 2026-04-11 · Phase 134 · REF-001–004 DFSB Post-Ship Remediation
 
 ### Remediation: DORK Fleet Server Bridge Configuration Hardening
