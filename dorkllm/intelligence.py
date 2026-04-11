@@ -7,6 +7,7 @@ import json
 import urllib.request
 import subprocess
 import re
+import shlex
 from datetime import datetime
 from pathlib import Path
 
@@ -22,6 +23,15 @@ except ImportError:
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "dork")
 TRACE_LOG_PATH = "logs/dork_llm_trace.jsonl"
+RUN_TAG_ENV = "ADAAD_DORK_ALLOW_RUN_TAGS"
+RUN_ALLOWLIST_ENV = "ADAAD_DORK_RUN_ALLOWLIST"
+RUN_ALLOW_PREFIX_ENV = "ADAAD_DORK_RUN_ALLOW_PREFIXES"
+RUN_TIMEOUT_SEC = int(os.getenv("ADAAD_DORK_RUN_TIMEOUT_SEC", "10"))
+RUN_OUTPUT_MAX_CHARS = int(os.getenv("ADAAD_DORK_RUN_OUTPUT_MAX_CHARS", "2000"))
+POLICY_BLOCKED_RUN_RESPONSE = (
+    "Policy blocked: `<run>` tool execution is disabled. "
+    "Set ADAAD_DORK_ALLOW_RUN_TAGS=1 to allow policy-gated execution."
+)
 
 # ── DORK-OUTPUT-0 ─────────────────────────────────────────────────────────────
 # Hard invariant: All LLM responses MUST be post-processed through the
@@ -157,6 +167,30 @@ If you do not know, say so. Cite sources when you can."""
     return base
 
 
+def _env_flag_enabled(name: str) -> bool:
+    value = os.getenv(name, "").strip().lower()
+    return value in {"1", "true", "yes", "on"}
+
+
+def _split_csv_env(name: str) -> list[str]:
+    raw = os.getenv(name, "")
+    return [item.strip() for item in raw.split(",") if item.strip()]
+
+
+def _is_run_command_allowed(argv: list[str]) -> tuple[bool, str]:
+    if not argv:
+        return False, "empty_command"
+    allowlisted_commands = set(_split_csv_env(RUN_ALLOWLIST_ENV))
+    allowlisted_prefixes = _split_csv_env(RUN_ALLOW_PREFIX_ENV)
+    command = argv[0]
+    if command in allowlisted_commands:
+        return True, "allowlist_command"
+    command_line = " ".join(argv)
+    if any(command_line.startswith(prefix) for prefix in allowlisted_prefixes):
+        return True, "allowlist_prefix"
+    return False, "command_not_allowlisted"
+
+
 # ── Core Ask Function ─────────────────────────────────────────────────────────
 def ask(query: str, messages: list[dict] | None = None) -> tuple[str, list[dict]]:
     """
@@ -207,18 +241,84 @@ def ask(query: str, messages: list[dict] | None = None) -> tuple[str, list[dict]
             cmd_match = re.search(r"<run>(.*?)</run>", text, re.DOTALL)
             if cmd_match:
                 cmd = cmd_match.group(1).strip()
-                log_trace("tool_invocation", {"command": cmd, "turn": turn})
+                if not _env_flag_enabled(RUN_TAG_ENV):
+                    log_trace(
+                        "tool_invocation_blocked",
+                        {
+                            "tool": "run",
+                            "policy": "run_tags_disabled",
+                            "command": cmd,
+                            "turn": turn,
+                            "gate_env": RUN_TAG_ENV,
+                        },
+                    )
+                    messages.append({"role": "assistant", "content": POLICY_BLOCKED_RUN_RESPONSE})
+                    return POLICY_BLOCKED_RUN_RESPONSE, messages
+
+                try:
+                    argv = shlex.split(cmd)
+                except ValueError as exc:
+                    log_trace(
+                        "tool_invocation_blocked",
+                        {
+                            "tool": "run",
+                            "policy": "invalid_command_parse",
+                            "command": cmd,
+                            "turn": turn,
+                            "error": str(exc),
+                        },
+                    )
+                    blocked_response = f"Policy blocked: malformed `<run>` command ({exc})."
+                    messages.append({"role": "assistant", "content": blocked_response})
+                    return blocked_response, messages
+
+                allowed, allow_reason = _is_run_command_allowed(argv)
+                if not allowed:
+                    log_trace(
+                        "tool_invocation_blocked",
+                        {
+                            "tool": "run",
+                            "policy": allow_reason,
+                            "command": cmd,
+                            "turn": turn,
+                            "allowlist_env": RUN_ALLOWLIST_ENV,
+                            "allow_prefix_env": RUN_ALLOW_PREFIX_ENV,
+                        },
+                    )
+                    blocked_response = (
+                        f"Policy blocked: `<run>` command not allowlisted ({allow_reason})."
+                    )
+                    messages.append({"role": "assistant", "content": blocked_response})
+                    return blocked_response, messages
+
+                log_trace(
+                    "tool_invocation_allowed",
+                    {
+                        "tool": "run",
+                        "policy": allow_reason,
+                        "command": cmd,
+                        "turn": turn,
+                    },
+                )
                 try:
                     result = subprocess.run(
-                        cmd, shell=True, capture_output=True, text=True, timeout=10
+                        argv,
+                        shell=False,
+                        capture_output=True,
+                        text=True,
+                        timeout=RUN_TIMEOUT_SEC,
                     )
                     output = result.stdout + result.stderr
-                    if len(output) > 2000:
-                        output = output[:2000] + "... (truncated)"
+                    if len(output) > RUN_OUTPUT_MAX_CHARS:
+                        output = output[:RUN_OUTPUT_MAX_CHARS] + "... (truncated)"
                     messages.append({"role": "assistant", "content": text})
                     messages.append({"role": "user", "content": f"Command output:\n{output}"})
                     continue
                 except subprocess.TimeoutExpired:
+                    log_trace(
+                        "tool_invocation_timeout",
+                        {"tool": "run", "command": cmd, "turn": turn, "timeout": RUN_TIMEOUT_SEC},
+                    )
                     messages.append({"role": "user", "content": "Command timed out."})
                     continue
             else:

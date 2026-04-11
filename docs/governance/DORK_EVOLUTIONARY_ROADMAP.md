@@ -4,6 +4,13 @@ This roadmap defines the implementation of the **DORK Governance Intelligence La
 
 ---
 
+## Execution Safety Invariant (current)
+
+- **DORK-RUN-GATE-0:** `<run>...</run>` execution is fail-closed by default and policy-gated via
+  `ADAAD_DORK_ALLOW_RUN_TAGS`.
+- When disabled, DORK must emit structured blocked-trace telemetry and must not execute any shell command.
+- When enabled, execution remains constrained to explicit allowlists/prefix rules and deterministic runtime bounds.
+
 ### PHASE 127 — GENESIS & DATA INTEGRITY
 **Focus:** Establishing the immutable records and monitoring the infrastructure that houses them.
 *   **DORK-PERM-001 (CLE):** Constitutional Lineage Engine. (Genesis mapping).
