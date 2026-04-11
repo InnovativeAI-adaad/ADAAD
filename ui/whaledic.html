@@ -854,5 +854,6 @@ loadCfg();
 (()=>{const lb={groq:'groq',ollama:'ollama',dorkengine:'engine'};document.getElementById('prov-btn').textContent='\u2699 '+(lb[llmCfg.provider]||'groq');document.getElementById('intro-badge').textContent=lb[llmCfg.provider]||'groq';if(!llmCfg.groqKey&&llmCfg.provider==='groq'){setTimeout(()=>{document.getElementById('w-llm').style.display='block';},1500);}const seed=dorkRuntime.getDeepLinkSeed&&dorkRuntime.getDeepLinkSeed();if(seed){document.getElementById('dinp').value=seed;sendDork();}})();
 restoreConv();renderDebt();refreshAll();startSSE();setInterval(refreshAll,30000);
 </script>
+<script src="shared/dork_launcher.js"></script>
 </body>
 </html>
