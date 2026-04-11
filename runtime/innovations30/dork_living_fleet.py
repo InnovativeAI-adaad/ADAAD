@@ -343,6 +343,57 @@ class DORKLivingFleet:
         return result
 
     # ── Natural language query dispatch ───────────────────────────────────────
+    def _deterministic_fallback_allowed(self) -> bool:
+        """
+        Deterministic fallback is explicitly opt-in.
+        Defaults fail-closed to preserve governance behavior.
+        """
+        raw = os.getenv("ADAAD_DORK_FLEET_ALLOW_DETERMINISTIC_FALLBACK", "")
+        return raw.strip().lower() in {"1", "true", "yes", "on"}
+
+    def _deterministic_fallback_response(self, text: str, engine: FleetEngine, reason: str) -> str:
+        return (
+            f"[DORK-FLEET deterministic fallback] provider={engine.name} "
+            f"model={engine.model} reason={reason} query_sha={hashlib.sha256(text.encode()).hexdigest()[:16]}"
+        )
+
+    def _dispatch_via_dork_engine(self, text: str, engine: FleetEngine) -> str:
+        from dorkllm.intelligence import ask
+
+        answer, _ = ask(text, messages=[])
+        return answer
+
+    def _dispatch_via_ollama(self, text: str, engine: FleetEngine) -> str:
+        # Ollama is routed through the existing dorkllm intelligence adapter.
+        return self._dispatch_via_dork_engine(text, engine)
+
+    def _dispatch_via_remote_api(self, text: str, engine: FleetEngine) -> str:
+        import urllib.request
+
+        payload = json.dumps({
+            "model": engine.model,
+            "messages": [{"role": "user", "content": text}],
+            "stream": False,
+        }).encode("utf-8")
+        req = urllib.request.Request(
+            f"{engine.url.rstrip('/')}/v1/chat/completions",
+            data=payload,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        if engine.api_key:
+            req.add_header("Authorization", f"Bearer {engine.api_key}")
+
+        with urllib.request.urlopen(req, timeout=engine.timeout_seconds) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+        return str(data.get("choices", [{}])[0].get("message", {}).get("content", ""))
+
+    def _dispatch_provider(self, text: str, engine: FleetEngine) -> str:
+        dispatcher = self._provider_dispatchers.get(engine.provider_type)
+        if dispatcher is None:
+            raise ValueError(f"unsupported_provider_type:{engine.provider_type}")
+        return dispatcher(text, engine)
+
     def query(self, text: str) -> FleetDispatchResult:
         """
         Route a natural-language DORK query through the full pipeline:
@@ -380,13 +431,30 @@ class DORKLivingFleet:
                 if slash_result["status"] == "ok"
                 else f"[DORK-CMD-0 VIOLATION] {slash_result['error']}"
             )
+            status = "ok"
+            error_payload = None
         else:
-            # Standard LLM dispatch (stub — actual Ollama call in intelligence.py)
-            response = (
-                f"[DORK·{engine.name}] Query routed to {engine.model} "
-                f"via {engine.url} (intent={intent_cat}, conf={intent_conf:.3f}). "
-                f"Connect Ollama to receive full response."
-            )
+            # Standard LLM dispatch through concrete provider adapters.
+            try:
+                response = self._dispatch_provider(text, engine)
+                status = "ok"
+                error_payload = None
+            except Exception as exc:  # noqa: BLE001
+                fallback_allowed = self._deterministic_fallback_allowed()
+                error_payload = {
+                    "type": "provider_dispatch_error",
+                    "provider_name": engine.name,
+                    "provider_type": engine.provider_type,
+                    "model": engine.model,
+                    "reason": str(exc),
+                    "fallback_applied": fallback_allowed,
+                }
+                if fallback_allowed:
+                    response = self._deterministic_fallback_response(text, engine, str(exc))
+                    status = "ok"
+                else:
+                    response = json.dumps(error_payload, sort_keys=True)
+                    status = "error"
 
         # Engine 3: Conversation ledger (DORK-STATE-0)
         try:
@@ -416,7 +484,8 @@ class DORKLivingFleet:
             conversation_ledger_seq=ledger_seq,
             fleet_health_snapshot=self.fleet_status(),
             duration_ms=duration,
-            status="ok",
+            status=status,
+            error=(json.dumps(error_payload, sort_keys=True) if error_payload else None),
         )
 
     # ── Mutation promotion guard (DORK-FLEET-0) ───────────────────────────────
