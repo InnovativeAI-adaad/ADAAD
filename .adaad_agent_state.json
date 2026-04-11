@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": 133,
+  "active_phase": "v9.65.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -591,8 +591,8 @@
     "INNOV-41": "DORK Living Fleet",
     "INNOV-42": "DORK Fleet Server Bridge"
   },
-  "last_agent_state_sync_digest": "gsync-a3db906b46c7cce1",
-  "last_completed_phase": 133,
+  "last_agent_state_sync_digest": "gsync-49ee50acfe0c210f",
+  "last_completed_phase": "Phase 11 \u00b7 Phase 133 \u00b7 INNOV-42 DORK Fleet Server Bridge (DFSB)",
   "last_completed_pr": "feat/phase127-innov37-grrp",
   "last_gate_results": {
     "tier_0": "pass",
