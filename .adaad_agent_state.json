@@ -578,7 +578,7 @@
     },
     "INNOV-41": "DORK Living Fleet"
   },
-  "last_agent_state_sync_digest": "gsync-2dead12cbf9eacbf",
+  "last_agent_state_sync_digest": "gsync-1cb1c707404b483d",
   "last_completed_phase": "Phase 10 \u00b7 Phase 132 \u00b7 INNOV-41 DORK Living Fleet",
   "last_completed_pr": "feat/phase127-innov37-grrp",
   "last_gate_results": {
@@ -592,7 +592,7 @@
   "last_invocation": "2026-04-11",
   "last_phase_completed": 132,
   "last_phase_completed_label": "INNOV-41: DORK Living Fleet",
-  "last_sync_sha": "3271c02e",
+  "last_sync_sha": "620ff5fb",
   "last_updated": "2026-04-11T04:14:04.352846+00:00",
   "next_phase": 133,
   "next_pr": "feat/phase128-tbd",
