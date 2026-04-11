@@ -4599,7 +4599,17 @@ def fleet_query(req: FleetQueryRequest):
     fleet = _get_fleet()
     if fleet is None:
         raise HTTPException(status_code=503, detail="fleet_unavailable")
-    result = fleet.query(req.text)
+    try:
+        result = fleet.query(req.text)
+    except RuntimeError as exc:
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "error": "fleet_invariant_violation",
+                "invariant": "DFSB-PERSIST-0",
+                "message": str(exc),
+            },
+        ) from exc
     return result.to_dict()
 
 

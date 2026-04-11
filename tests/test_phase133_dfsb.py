@@ -15,6 +15,7 @@ from unittest.mock import MagicMock, patch
 from fastapi.testclient import TestClient
 
 import pytest
+from fastapi.testclient import TestClient
 
 ROOT = Path(__file__).parent.parent
 import sys
@@ -380,3 +381,53 @@ class TestDfsbEndpointsRegistered:
     def test_T133_ROUTES_04_fleet_ledger_registered(self):
         """T133-ROUTES-04: /api/fleet/ledger endpoint defined in server.py."""
         assert '"/api/fleet/ledger"' in self._server_source()
+
+
+class TestDfsbRestartContinuity:
+    """T133-RESTART-*: persisted chain continuity across simulated server restarts."""
+
+    def _reset_fleet_singleton(self, server_module):
+        if hasattr(server_module.app.state, "_dork_fleet"):
+            delattr(server_module.app.state, "_dork_fleet")
+
+    def test_T133_RESTART_01_ledger_endpoint_survives_restart(self, tmp_path, monkeypatch):
+        """T133-RESTART-01: /api/fleet/ledger reflects persisted continuity after restart."""
+        ledger_path = tmp_path / "fleet-ledger.jsonl"
+        monkeypatch.setenv("DORK_FLEET_LEDGER_PATH", str(ledger_path))
+        import server
+
+        self._reset_fleet_singleton(server)
+        with patch.object(server, "_read_gate_state", return_value={"locked": False}):
+            with TestClient(server.app) as client:
+                r1 = client.post("/api/fleet/query", json={"text": "hello before restart"})
+                assert r1.status_code == 200
+                before = client.get("/api/fleet/ledger?tail=10").json()
+                assert len(before["entries"]) == 2
+
+        self._reset_fleet_singleton(server)
+        with patch.object(server, "_read_gate_state", return_value={"locked": False}):
+            with TestClient(server.app) as client:
+                r2 = client.post("/api/fleet/query", json={"text": "hello after restart"})
+                assert r2.status_code == 200
+                after = client.get("/api/fleet/ledger?tail=10").json()
+                assert len(after["entries"]) == 4
+                assert after["entries"][-1]["seq"] == 3
+
+    def test_T133_RESTART_02_verify_endpoint_reports_valid_chain_post_restart(self, tmp_path, monkeypatch):
+        """T133-RESTART-02: /api/fleet/verify remains chain-valid after restart boundary."""
+        ledger_path = tmp_path / "fleet-ledger-verify.jsonl"
+        monkeypatch.setenv("DORK_FLEET_LEDGER_PATH", str(ledger_path))
+        import server
+
+        self._reset_fleet_singleton(server)
+        with patch.object(server, "_read_gate_state", return_value={"locked": False}):
+            with TestClient(server.app) as client:
+                assert client.post("/api/fleet/query", json={"text": "a"}).status_code == 200
+                assert client.post("/api/fleet/query", json={"text": "b"}).status_code == 200
+
+        self._reset_fleet_singleton(server)
+        with patch.object(server, "_read_gate_state", return_value={"locked": False}):
+            with TestClient(server.app) as client:
+                verify = client.get("/api/fleet/verify").json()
+                assert verify["conversation_ledger"]["valid"] is True
+                assert verify["overall_valid"] is True
