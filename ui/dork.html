@@ -654,6 +654,18 @@ body {
   padding: 9px 13px;
   outline: none;
 }
+.cfg-field select {
+  width: 100%;
+  background: var(--bg-deep);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: var(--r-sm);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 9px 13px;
+  outline: none;
+}
+.cfg-field select:focus { border-color: var(--whale-border); }
 .cfg-field input:focus { border-color: var(--whale-border); }
 .cfg-field .hint {
   font-size: 11px; color: var(--text-muted);
@@ -787,6 +799,8 @@ body {
       color:#8c919b; flex-wrap:wrap;">
       <span style="color:#3b82f6; font-weight:700; letter-spacing:.05em;">FLEET</span>
       <span id="fleet-strip-providers">providers: —</span>
+      <span id="fleet-strip-model">model: —</span>
+      <span class="badge" id="active-persona-badge">persona: concise</span>
       <span id="fleet-strip-ledger">ledger: —</span>
       <span id="fleet-strip-intents">intents: 20</span>
       <span id="fleet-strip-cmds">cmds: 15</span>
@@ -861,6 +875,23 @@ body {
       <input type="text" id="cfg-model" placeholder="claude-sonnet-4-6">
     </div>
     <div class="cfg-field">
+      <label>Persona</label>
+      <select id="cfg-persona">
+        <option value="concise">Concise</option>
+        <option value="coach">Coach</option>
+        <option value="executive_brief">Executive brief</option>
+        <option value="technical_deep_dive">Technical deep-dive</option>
+      </select>
+      <div class="hint">Style changes only. Governance constraints remain hard and unchanged.</div>
+    </div>
+    <div class="cfg-field">
+      <label style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="cfg-plain-language">
+        Plain language mode
+      </label>
+      <div class="hint">Rewrites jargon-heavy phrasing into simpler language after generation.</div>
+    </div>
+    <div class="cfg-field">
       <label>Governance Endpoint</label>
       <input type="text" id="cfg-gov" placeholder="/api/whale/snapshot">
       <div class="hint">Relative or absolute URL. Leave default for local ADAAD server.</div>
@@ -890,6 +921,13 @@ const SESSION_KEY_TTL_MS      = 4 * 60 * 60 * 1000;
 const MEM = {
   dorkApiKey: '',
   rememberKeyForSession: false,
+};
+
+const PERSONA_STYLES = {
+  concise: 'Use short answers with quick bullets and direct conclusions.',
+  coach: 'Be supportive and encouraging. Explain step-by-step with practical next actions.',
+  executive_brief: 'Lead with outcomes, risk, and decision-ready summaries in compact bullets.',
+  technical_deep_dive: 'Provide deeper technical detail, assumptions, and tradeoffs with explicit precision.',
 };
 
 function readSessionKey() {
@@ -957,6 +995,19 @@ const CFG = {
   set model(v) { localStorage.setItem('dork_model', v); },
   get gov()    { return localStorage.getItem('dork_gov_url')  || '/api/whale/snapshot'; },
   set gov(v)   { localStorage.setItem('dork_gov_url', v); },
+  get persona() {
+    const stored = localStorage.getItem('dork_persona') || 'concise';
+    return PERSONA_STYLES[stored] ? stored : 'concise';
+  },
+  set persona(v) {
+    localStorage.setItem('dork_persona', PERSONA_STYLES[v] ? v : 'concise');
+  },
+  get plainLanguage() {
+    return localStorage.getItem('dork_plain_language') === '1';
+  },
+  set plainLanguage(v) {
+    localStorage.setItem('dork_plain_language', v ? '1' : '0');
+  },
   maxTokens: 4096,
   pollMs:    30_000,
 };
@@ -1154,6 +1205,7 @@ function buildSystemPrompt() {
 
   if (_cachedPrompt && govHash === _cachedGovHash) return _cachedPrompt;
   _cachedGovHash = govHash;
+  const personaDirective = PERSONA_STYLES[CFG.persona] || PERSONA_STYLES.concise;
 
   const liveCtx = g ? `
 
@@ -1198,7 +1250,13 @@ Canonical scope: ${CANONICAL_INNOVATION_COVERAGE}
 - **DAS**: Deterministic Audit Sandbox — isolated subprocess, pinned Docker digest.
 - **CELT**: Cross-epoch agent learning transfer — signed behavioral profiles migrate across boundaries.
 
-Style: conversational, warm, precise. Short paragraphs. Reference live data when available. If asked to modify the system, remind user you are read-only advisory.
+Hard constraints you must never violate:
+- Never claim write, signing, merge, or autonomous execution authority.
+- Never suggest bypassing governance gates, constitutional checks, or human-signoff requirements.
+- Always remain read-only and advisory.
+
+Persona style directive: ${CFG.persona} — ${personaDirective}
+Base style: conversational, warm, precise. Short paragraphs. Reference live data when available. If asked to modify the system, remind user you are read-only advisory.
 ${liveCtx}`;
 
   return _cachedPrompt;
@@ -1340,10 +1398,11 @@ async function stream() {
     }
 
     /* Final render to make sure last chunk lands */
-    contentEl.innerHTML = renderMd(fullText);
+    const processedText = applyPlainLanguage(fullText);
+    contentEl.innerHTML = renderMd(processedText);
 
     /* Persist completed message to history and session */
-    S.msgs.push({ role: 'assistant', content: fullText });
+    S.msgs.push({ role: 'assistant', content: processedText });
     saveSession();
 
   } catch (err) {
@@ -1525,6 +1584,25 @@ function setTyping(show) {
   if (show) scrollBottom();
 }
 
+function applyPlainLanguage(text) {
+  if (!CFG.plainLanguage) return text;
+  return (text || '')
+    .replace(/\bconstitutional\b/gi, 'rules-based')
+    .replace(/\bsubstrate\b/gi, 'core system')
+    .replace(/\binvariant(s)?\b/gi, 'hard safety rule$1')
+    .replace(/\bdeterministic replay\b/gi, 'repeatable replay test')
+    .replace(/\bgovernance gate(s)?\b/gi, 'safety gate$1')
+    .replace(/\bautonomous\b/gi, 'automatic')
+    .replace(/\blineage ledger\b/gi, 'audit history ledger');
+}
+
+function refreshPersonaBadge() {
+  const badge = document.getElementById('active-persona-badge');
+  if (badge) badge.textContent = `persona: ${CFG.persona.replaceAll('_', ' ')}`;
+  const model = document.getElementById('fleet-strip-model');
+  if (model) model.textContent = `model: ${CFG.model}`;
+}
+
 function checkScrollBtn() {
   const { scrollTop, scrollHeight, clientHeight } = D.chat;
   D.scrollBtn.classList.toggle('visible', scrollHeight - scrollTop - clientHeight > 120);
@@ -1537,6 +1615,8 @@ function openCfg() {
   q('#cfg-key').value   = CFG.key;
   q('#cfg-remember-key').checked = CFG.rememberKeyForSession;
   q('#cfg-model').value = CFG.model;
+  q('#cfg-persona').value = CFG.persona;
+  q('#cfg-plain-language').checked = CFG.plainLanguage;
   q('#cfg-gov').value   = CFG.gov;
   const hint = q('#key-hint');
   if (SERVER_KEY_AVAILABLE) {
@@ -1553,8 +1633,11 @@ function saveCfg() {
   CFG.rememberKeyForSession = q('#cfg-remember-key').checked;
   CFG.key   = q('#cfg-key').value.trim();
   CFG.model = q('#cfg-model').value.trim()  || 'claude-sonnet-4-6';
+  CFG.persona = q('#cfg-persona').value || 'concise';
+  CFG.plainLanguage = q('#cfg-plain-language').checked;
   CFG.gov   = q('#cfg-gov').value.trim()    || '/api/whale/snapshot';
   _cachedPrompt = null;
+  refreshPersonaBadge();
   closeCfg();
   clearInterval(S.govTimer);
   pollGov();
@@ -1585,6 +1668,7 @@ function init() {
   D.sessionLabel.textContent = getOrCreateSessionLabel();
   D.version.textContent      = 'v9.63.0';
   D.inv.textContent          = '201 invariants';
+  refreshPersonaBadge();
 
   if (SERVER_KEY_AVAILABLE) D.serverBanner.classList.add('visible');
 
