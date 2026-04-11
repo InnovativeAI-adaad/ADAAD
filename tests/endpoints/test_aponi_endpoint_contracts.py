@@ -3,6 +3,7 @@
 # ADAAD-LANE: endpoint-contracts
 
 import json
+from urllib import request as urlrequest
 from unittest.mock import patch
 from runtime.governance.event_taxonomy import (
     EVENT_TYPE_CONSTITUTION_ESCALATION,
@@ -101,7 +102,15 @@ def test_user_console_uses_external_script_for_csp_compatibility() -> None:
     assert 'data-action="rerun"' in script
     assert 'data-action="fork"' in script
     assert "id=\"uxSummary\"" in html
+    assert "id=\"sessionBriefCard\"" in html
+    assert "id=\"briefFrequency\"" in html
+    assert "id=\"briefMuteScope\"" in html
     assert "const UX_SESSION_KEY = 'aponi.ux.session.v1';" in script
+    assert "const BRIEF_SETTINGS_KEY = 'aponi.brief.settings.v1';" in script
+    assert "renderSessionBrief(brief || {});" in script
+    assert "buildBriefNudges(briefPayload)" in script
+    assert "runBriefCta(chipLabel)" in script
+    assert "frequencyMultiplier = settings.frequency === 'high' ? 0.7 : (settings.frequency === 'low' ? 1.8 : 1.0);" in script
     assert "function normalizeInsights(payload)" in script
     assert "function renderInsights(items)" in script
     assert "paint('uxSummary', '/ux/summary')" in script
@@ -231,3 +240,47 @@ def test_ux_summary_aggregates_recent_metrics_events() -> None:
     assert summary["event_count"] == 3
     assert summary["unique_sessions"] == 2
     assert summary["counts"]["interaction"] == 2
+
+
+def test_build_session_brief_payload_reflects_runtime_state_fields() -> None:
+    payload = aponi_dashboard._build_session_brief_payload(
+        state={
+            "locked": True,
+            "reason": "tier1_failed",
+            "blocker_count": 3,
+            "open_findings_count": 2,
+            "evidence_complete": False,
+            "readiness_score": 0.41,
+        },
+        intelligence={"replay_mode": "strict"},
+        risk={"replay_failure_rate": 0.08},
+        replay={"divergence_event_count": 4},
+    )
+
+    assert payload["ok"] is True
+    assert payload["summary"]["gate_status"] == "locked"
+    assert payload["summary"]["replay_divergence_count"] == 4
+    assert payload["summary"]["blocker_count"] == 3
+    assert payload["summary"]["open_findings_count"] == 2
+    assert payload["summary"]["evidence_complete"] is False
+    assert payload["summary"]["replay_mode"] == "strict"
+    assert payload["alerts"][0]["code"] == "gate_locked"
+    assert payload["recommendations"][0]["deterministic_score"] >= payload["recommendations"][1]["deterministic_score"]
+
+
+def test_session_brief_endpoint_uses_live_runtime_state(tmp_path, monkeypatch) -> None:
+    dashboard = aponi_dashboard.AponiDashboard(host="127.0.0.1", port=0)
+    dashboard.start({"status": "ok", "blocker_count": 1, "open_findings_count": 1, "evidence_complete": True})
+    try:
+        assert dashboard._server is not None
+        port = dashboard._server.server_port
+        with patch("ui.aponi_dashboard._read_gate_state", return_value={"locked": True, "reason": "manual_lock", "protocol": "cryovant.v1"}):
+            with urlrequest.urlopen(f"http://127.0.0.1:{port}/dork/session-brief", timeout=5) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+    finally:
+        dashboard.stop()
+
+    assert payload["ok"] is True
+    assert payload["summary"]["gate_status"] == "locked"
+    assert payload["summary"]["blocker_count"] == 1
+    assert payload["summary"]["open_findings_count"] == 1
