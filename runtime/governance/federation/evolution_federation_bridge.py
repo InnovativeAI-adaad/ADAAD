@@ -213,8 +213,23 @@ class EvolutionFederationBridge:
             post_accepted = len(self._broker.accepted_proposals())
             post_quarantined = len(self._broker.quarantined_proposals())
 
-            newly_accepted = post_accepted - pre_accepted
-            newly_quarantined = post_quarantined - pre_quarantined
+            raw_newly_accepted = post_accepted - pre_accepted
+            raw_newly_quarantined = post_quarantined - pre_quarantined
+            if raw_newly_accepted < 0 or raw_newly_quarantined < 0:
+                logger.warning(
+                    "federation_bridge.on_inbound_evaluation observed negative delta(s): "
+                    "accepted=%s quarantined=%s (pre: accepted=%s quarantined=%s, "
+                    "post: accepted=%s quarantined=%s). Possible broker list reset/compaction.",
+                    raw_newly_accepted,
+                    raw_newly_quarantined,
+                    pre_accepted,
+                    pre_quarantined,
+                    post_accepted,
+                    post_quarantined,
+                )
+
+            newly_accepted = max(0, raw_newly_accepted)
+            newly_quarantined = max(0, raw_newly_quarantined)
             evaluated = newly_accepted + newly_quarantined
 
             # Emit per-accepted audit events
