@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": 141,
+  "active_phase": "v9.74.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -333,7 +333,7 @@
   "last_invocation": "2026-04-12",
   "last_phase_completed": 141,
   "last_phase_completed_label": "Phase 141 \u00b7 INNOV-47 Live Knowledge Sync Engine (LKSE)",
-  "last_sync_sha": "7d525241",
+  "last_sync_sha": "34acee8d",
   "last_updated": "2026-04-11T12:38:12.268044+00:00",
   "next_phase": 142,
   "next_pr": "feat/phase128-tbd",
@@ -893,6 +893,6 @@
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
   ],
-  "last_completed_phase": "Phase 141 \u00b7 INNOV-47 Live Knowledge Sync Engine (LKSE)",
-  "last_agent_state_sync_digest": "gsync-eb0e09c7d1c0e788"
+  "last_completed_phase": "Phase 12 \u00b7 Phase 141 \u00b7 INNOV-47 Live Knowledge Sync Engine (LKSE)",
+  "last_agent_state_sync_digest": "gsync-e3b780e063ae6fc6"
 }
