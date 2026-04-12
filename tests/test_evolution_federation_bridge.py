@@ -24,6 +24,10 @@ from runtime.governance.federation.evolution_federation_bridge import (
     BridgeResult,
     _ZERO_HASH,
 )
+from runtime.governance.federation.federated_evidence_matrix import (
+    EpochAlreadyRegisteredSameDigest,
+    LocalEpochDigestConflictError,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -378,7 +382,7 @@ class TestOnEpochRotation:
 
     def test_digest_conflict_returns_not_ok(self):
         matrix = _make_matrix()
-        matrix.record_local_epoch.side_effect = RuntimeError(
+        matrix.record_local_epoch.side_effect = LocalEpochDigestConflictError(
             "federated_evidence:local_epoch_digest_conflict"
         )
         bridge = _make_bridge(matrix=matrix)
@@ -390,7 +394,7 @@ class TestOnEpochRotation:
 
     def test_conflict_emits_audit_event(self):
         matrix = _make_matrix()
-        matrix.record_local_epoch.side_effect = RuntimeError("digest_conflict")
+        matrix.record_local_epoch.side_effect = LocalEpochDigestConflictError("digest_conflict")
         audit_events: List = []
         bridge = _make_bridge(matrix=matrix, audit_events=audit_events)
 
@@ -403,17 +407,28 @@ class TestOnEpochRotation:
 
     def test_idempotent_reregistration_returns_ok(self):
         matrix = _make_matrix()
-        # First call succeeds; second call raises generic (non-conflict) exception
-        matrix.record_local_epoch.side_effect = [None, Exception("already registered")]
+        matrix.record_local_epoch.side_effect = [
+            None,
+            EpochAlreadyRegisteredSameDigest("already registered same digest"),
+        ]
         bridge = _make_bridge(matrix=matrix)
 
         bridge.on_epoch_rotation(epoch_id="epoch-10")
         result = bridge.on_epoch_rotation(epoch_id="epoch-10")
 
-        # Non-conflict exception treated as idempotent
         assert result.ok is True
         assert result.evidence_registered is False
         assert result.detail.get("idempotent") is True
+
+    def test_unexpected_error_returns_not_ok(self):
+        matrix = _make_matrix()
+        matrix.record_local_epoch.side_effect = RuntimeError("boom")
+        bridge = _make_bridge(matrix=matrix)
+
+        result = bridge.on_epoch_rotation(epoch_id="epoch-11")
+
+        assert result.ok is False
+        assert result.error == "boom"
 
 
 # ---------------------------------------------------------------------------

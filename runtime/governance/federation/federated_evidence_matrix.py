@@ -65,6 +65,14 @@ class FederatedEvidenceMatrixError(RuntimeError):
     """Raised when a cross-repo verification axis fails (fail-closed)."""
 
 
+class LocalEpochDigestConflictError(FederatedEvidenceMatrixError):
+    """Raised when a local epoch is re-registered with a different digest."""
+
+
+class EpochAlreadyRegisteredSameDigest(FederatedEvidenceMatrixError):
+    """Raised for idempotent re-registration of an existing local epoch digest."""
+
+
 @dataclass(frozen=True)
 class VerificationAxisResult:
     """Result of a single cross-repo determinism verification axis."""
@@ -154,18 +162,23 @@ class FederatedEvidenceMatrix:
 
         Raises
         ------
-        FederatedEvidenceMatrixError
+        LocalEpochDigestConflictError
             If ``epoch_id`` was already registered with a different digest.
+        EpochAlreadyRegisteredSameDigest
+            If ``epoch_id`` was already registered with the same digest.
         """
         _validate_digest(chain_digest, context=f"local_epoch:{epoch_id}")
         if epoch_id in self._local_epochs:
             stored = self._local_epochs[epoch_id]
             if stored != chain_digest:
-                raise FederatedEvidenceMatrixError(
+                raise LocalEpochDigestConflictError(
                     f"federated_evidence:local_epoch_digest_conflict:"
                     f"epoch={epoch_id} stored={stored[:20]} new={chain_digest[:20]}"
                 )
-            return  # idempotent
+            raise EpochAlreadyRegisteredSameDigest(
+                f"federated_evidence:local_epoch_already_registered_same_digest:"
+                f"epoch={epoch_id} digest={chain_digest}"
+            )
         self._local_epochs[epoch_id] = chain_digest
         log.debug("FederatedEvidenceMatrix: registered local epoch=%s", epoch_id)
 
