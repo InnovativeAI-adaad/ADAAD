@@ -108,3 +108,9 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 134 | REF-001–004 DFSB Post-Ship Remediation | v9.66.0 | P1 | ✅ shipped |
 | 135 | INNOV-43 Constitution Versioning and Rollback (CVR) | v9.67.0 | P1 | ✅ shipped |
 | 136 | Phase 136 DORK ConversationLedger + Enrichment Bridge Hardening | v9.69.0 | P1 | ✅ shipped |
+
+
+## Phase 140 — Constitutional P0 Sweep + P1 Hardening (v9.73.0) ✅
+- Resolved 5 P0 audit findings (WL-001..WL-005) from the deepest audit in ADAAD history
+- 5 new Hard-class invariants: HAPG-IDENTITY-0, HAPG-EXPIRY-0, REPLAY-ALGO-0, TEST-ATTEST-0, GRRP-KEY-0
+- Total invariants: 221 | Total phases: 140 | Tests: 30/30

@@ -1,0 +1,32 @@
+{
+  "event": "ILA-140",
+  "phase": 140,
+  "version": "9.73.0",
+  "timestamp_utc": "2026-04-12T02:28:33Z",
+  "ratified_by": "HUMAN-0:DUSTIN_L_REID",
+  "ratification_text": "HUMAN-0 ratification of Phase 140 scope: WL-001..WL-005 P0 sweep + WL-006,007,009,010,014 P1 hardening. APPROVED : DUSTIN L. REID",
+  "innovations": [],
+  "new_hard_invariants": [
+    "HAPG-IDENTITY-0",
+    "HAPG-EXPIRY-0",
+    "REPLAY-ALGO-0",
+    "TEST-ATTEST-0",
+    "GRRP-KEY-0"
+  ],
+  "p0_findings_addressed": [
+    "WL-001 / FINDING-126-NEW-001: Ghost tag v9.59.0 \u2014 Track B runbook redelivered",
+    "WL-002 / FINDING-66-004: Ed25519 key ceremony \u2014 Track B runbook redelivered",
+    "WL-003: pyproject.toml version 9.70.0 \u2192 9.73.0 (canonical sync)",
+    "WL-004 / FINDING-135-NEW-001: Unphased PRs #696-700 \u2014 closed as Phase 136 governance sweep",
+    "WL-005 / FINDING-135-NEW-003: CHANGELOG [9.68.0] phase label \u2014 confirmed resolved in live repo"
+  ],
+  "p1_hardening": [
+    "WL-006: HAPG-IDENTITY-0 \u2014 HumanApprovalGate GPG fingerprint binding for HUMAN-0",
+    "WL-007: HAPG-EXPIRY-0 \u2014 APPROVAL_EXPIRY_S enforced in is_approved()",
+    "WL-009: REPLAY-ALGO-0 \u2014 Production Ed25519 absence now fails closed, not silent HMAC downgrade",
+    "WL-010: TEST-ATTEST-0 \u2014 CI gate validates 30/30 attestation for all shipped innovations",
+    "WL-014: GRRP-KEY-0 \u2014 GRRP HMAC key loaded from ADAAD_GRRP_HMAC_KEY env, not hardcoded"
+  ],
+  "tests": "30/30",
+  "event_digest": "sha256:273abe0b374e7b85cda989634c34c54790f50706da83156b6fa742e795ff1f3c"
+}

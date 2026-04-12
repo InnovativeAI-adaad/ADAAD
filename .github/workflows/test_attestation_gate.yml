@@ -1,0 +1,46 @@
+name: TEST-ATTEST-0 Phase Test Attestation Gate
+
+# Constitutional invariant TEST-ATTEST-0 (Phase 140 · WL-010):
+# Every innovation in innovations_shipped MUST carry tests="30/30".
+# This gate blocks any PR that ships an innovation without a full passing
+# 30-test attestation recorded in .adaad_agent_state.json.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".adaad_agent_state.json"
+      - "runtime/innovations30/**"
+      - "tests/innovations/**"
+      - "tests/test_phase*.py"
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test-attestation-gate:
+    name: TEST-ATTEST-0 — 30-test attestation validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.9"
+
+      - name: Validate 30/30 test attestation for all shipped innovations
+        run: python scripts/validate_phase_test_attestation.py --format json
+
+      - name: Upload attestation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-attestation-report
+          path: "*.attestation.json"
+          if-no-files-found: ignore
