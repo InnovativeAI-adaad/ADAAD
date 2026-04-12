@@ -164,6 +164,15 @@ async def _lifespan(application: FastAPI):  # noqa: ARG001
 
 app = FastAPI(title="InnovativeAI-adaad Unified Server", lifespan=_lifespan)
 
+# ── MULTI-WORKER CONSTRAINT (audit H-3) ─────────────────────────────────────
+# _SIMULATION_STORE, _LEDGER_AGGREGATE_CACHE, and _pressure_audit_ledger are
+# process-local in-memory stores. Running multiple Uvicorn workers will cause
+# these stores to diverge silently. ADAAD MUST be run with --workers 1 (the
+# default). Multi-worker support requires migrating shared state to Redis —
+# tracked as Phase 143 backlog item.
+# Launch command: uvicorn server:app --workers 1 --host 127.0.0.1 --port 8000
+# ─────────────────────────────────────────────────────────────────────────────
+
 # ── CORS ────────────────────────────────────────────────────────────────────
 import os as _os
 
@@ -262,9 +271,19 @@ _PLAN_LIMITS: dict[str, dict[str, int]] = {
 
 
 def _resolve_plan(request: Request) -> str:
-    header_plan = (request.headers.get("x-adaad-plan") or "").strip().lower()
+    # SECURITY: Plan/entitlement tier must be derived server-side.
+    # The x-adaad-plan header is accepted ONLY when the env flag
+    # ADAAD_TRUST_PLAN_HEADER=1 is explicitly set (dev/test only).
+    # In all other cases the server-side ADAAD_DEFAULT_PLAN env var
+    # is the sole authority — never a client-supplied header.
+    # Audit finding H-4 · invariant: ENTITLEMENT-SERVER-0
+    _trust_header = os.getenv("ADAAD_TRUST_PLAN_HEADER", "0").strip() == "1"
     env_plan = (os.getenv("ADAAD_DEFAULT_PLAN", "enterprise") or "enterprise").strip().lower()
-    plan = header_plan or env_plan
+    if _trust_header:
+        header_plan = (request.headers.get("x-adaad-plan") or "").strip().lower()
+        plan = header_plan or env_plan
+    else:
+        plan = env_plan
     if plan not in _PLAN_LIMITS:
         return "free"
     return plan
@@ -4375,7 +4394,12 @@ async def trigger_mutation_cycle(
     _ = auth_ctx
     
     def run_epoch_task():
-        # Force dev mode and verbose for dork trigger
+        # SECURITY NOTE (audit H-2): subprocess.run is called from a FastAPI
+        # BackgroundTask (already async-safe). The env dict is derived solely
+        # from os.environ.copy() with two hard-coded overrides — no user-supplied
+        # values flow into the environment. This is acceptable for the current
+        # single-worker deployment model. Future work: replace with arq/Celery
+        # task queue for multi-worker support (audit finding H-2, Phase 143).
         env = os.environ.copy()
         env["ADAAD_ENV"] = "dev"
         env["ADAAD_CEL_ENABLED"] = "true"

@@ -134,7 +134,8 @@ python -m pytest -q tests/test_preflight_import_smoke.py
 
 **Never introduce in governance-critical paths:**
 - `random` without a fixed seed
-- `datetime.now()` or time-based scoring
+- `datetime.now()` — **naive (no timezone)** — nondeterministic across environments. Use `datetime.now(timezone.utc)` which is explicitly permitted; it produces a deterministic UTC timestamp independent of the host locale. The constitutional ban targets the zero-argument form only.
+- Time-based scoring without a deterministic provider
 - Environment-dependent policy evaluation
 - `uuid4()` without a deterministic provider
 - Federation HMAC key material in source files or log output

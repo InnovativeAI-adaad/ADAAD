@@ -371,6 +371,10 @@ jobs:
       - name: Enforce SPDX license headers
         # No pip install required — check_spdx_headers.py uses stdlib only.
         run: python scripts/check_spdx_headers.py
+      - name: Enforce invariant count consistency (audit C-2)
+        # Verifies all doc surfaces reference the canonical count from
+        # artifacts/governance/invariant_registry.json — stdlib only.
+        run: python scripts/check_invariant_count.py
 
   confidence-fast:
     runs-on: ubuntu-latest

@@ -1,0 +1,17 @@
+{
+  "_comment": "Machine-readable invariant registry — single source of truth for all Hard-class invariant counts. All badges, docs, and CI gates derive from this file. Do not edit manually; update via phase sign-off process.",
+  "version": "9.75.0",
+  "phase": 142,
+  "updated": "2026-04-12",
+  "cumulative_hard_class_invariants": 231,
+  "innovations_shipped": 48,
+  "phases_complete": 142,
+  "authoritative_source": "artifacts/governance/phase142/phase142_sign_off.json",
+  "phase_invariant_log": [
+    {"phase": 140, "cumulative": 221, "added": ["HAPG-IDENTITY-0", "HAPG-EXPIRY-0", "REPLAY-ALGO-0", "TEST-ATTEST-0", "GRRP-KEY-0"]},
+    {"phase": 141, "cumulative": 226, "added": ["LKSE-SYNC-0", "LKSE-DETERM-0", "LKSE-CHAIN-0", "LKSE-GATE-0", "LKSE-HUMAN0-0"]},
+    {"phase": 142, "cumulative": 231, "added": ["CSS-DETERM-0", "CSS-FALLBACK-0", "CSS-DIM-0", "CSS-COSINE-0", "CSS-PYDROID-0"]}
+  ],
+  "ci_check": "scripts/check_invariant_count.py",
+  "badge_template": "invariants-{count}%20Hard--class"
+}
