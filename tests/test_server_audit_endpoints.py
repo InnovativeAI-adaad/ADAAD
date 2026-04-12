@@ -346,6 +346,8 @@ def test_compliance_export_json_replay_attestations(monkeypatch, tmp_path) -> No
     assert payload["data"]["dataset"] == "immutable-replay-attestations"
     assert payload["data"]["record_count"] == 1
     assert payload["data"]["records"][0]["epoch_id"] == "epoch-1"
+    assert payload["data"]["pagination"]["returned_records"] == 1
+    assert payload["data"]["snapshot"]["snapshot_id"].startswith("sha256:")
 
 
 def test_compliance_export_csv_policy_history(monkeypatch) -> None:
@@ -375,6 +377,93 @@ def test_compliance_export_csv_policy_history(monkeypatch) -> None:
     assert "governance_policy_updated" in response.text
 
 
+def test_compliance_export_supports_limit_offset_pagination(monkeypatch) -> None:
+    monkeypatch.setenv("ADAAD_AUDIT_TOKENS", json.dumps({"audit-token": ["audit:read"]}))
+    monkeypatch.setattr(
+        server.journal,
+        "read_entries",
+        lambda limit=2000: [
+            {
+                "entry_id": "inc-1",
+                "timestamp": "2026-03-26T00:00:00Z",
+                "tx_type": "incident_opened",
+                "payload": {"status": "open", "severity": "high"},
+            },
+            {
+                "entry_id": "inc-2",
+                "timestamp": "2026-03-26T00:01:00Z",
+                "tx_type": "incident_remediation_started",
+                "payload": {"status": "in_progress", "severity": "medium"},
+            },
+            {
+                "entry_id": "inc-3",
+                "timestamp": "2026-03-26T00:02:00Z",
+                "tx_type": "incident_recovered",
+                "payload": {"status": "closed", "severity": "low"},
+            },
+        ],
+    )
+
+    with TestClient(server.app) as client:
+        response = client.get(
+            "/api/compliance/exports/incident-remediation-logs?fmt=json&limit=1&offset=1",
+            headers=_auth_header(),
+        )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["data"]["record_count"] == 1
+    assert payload["data"]["records"][0]["entry_id"] == "inc-2"
+    assert payload["data"]["pagination"]["next_cursor"] == "o:2"
+    assert payload["data"]["indexes"]["status_counts"]["open"] == 1
+
+
+def test_compliance_export_supports_cursor_pagination(monkeypatch) -> None:
+    monkeypatch.setenv("ADAAD_AUDIT_TOKENS", json.dumps({"audit-token": ["audit:read"]}))
+    monkeypatch.setattr(
+        server.journal,
+        "read_entries",
+        lambda limit=1000: [
+            {
+                "entry_id": "p-1",
+                "timestamp": "2026-03-26T00:00:00Z",
+                "tx_type": "governance_policy_updated",
+                "payload": {"reason_code": "rotation"},
+            },
+            {
+                "entry_id": "p-2",
+                "timestamp": "2026-03-27T00:00:00Z",
+                "tx_type": "governance_policy_updated",
+                "payload": {"reason_code": "hotfix"},
+            },
+        ],
+    )
+
+    with TestClient(server.app) as client:
+        response = client.get(
+            "/api/compliance/exports/policy-change-history?fmt=json&limit=1&cursor=o:1",
+            headers=_auth_header(),
+        )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["data"]["pagination"]["offset"] == 1
+    assert payload["data"]["records"][0]["entry_id"] == "p-2"
+
+
+def test_compliance_export_rejects_invalid_cursor(monkeypatch) -> None:
+    monkeypatch.setenv("ADAAD_AUDIT_TOKENS", json.dumps({"audit-token": ["audit:read"]}))
+
+    with TestClient(server.app) as client:
+        response = client.get(
+            "/api/compliance/exports/policy-change-history?fmt=json&cursor=bad",
+            headers=_auth_header(),
+        )
+
+    assert response.status_code == 422
+    assert response.json()["detail"] == "invalid_cursor"
+
+
 def test_compliance_export_job_writes_file(monkeypatch, tmp_path) -> None:
     monkeypatch.setenv("ADAAD_AUDIT_TOKENS", json.dumps({"audit-token": ["audit:read"]}))
     monkeypatch.setattr(server, "COMPLIANCE_EXPORT_DIR", tmp_path / "compliance")
@@ -392,3 +481,4 @@ def test_compliance_export_job_writes_file(monkeypatch, tmp_path) -> None:
     assert payload["data"]["dataset"] == "incident-remediation-logs"
     assert output_path.endswith(".json")
     assert server.Path(output_path).exists()
+    assert payload["data"]["snapshot"]["snapshot_id"].startswith("sha256:")

@@ -6,7 +6,7 @@ The compliance exports API provides governance-aligned snapshots and export jobs
 
 ### 1) Read exports directly
 
-`GET /api/compliance/exports/{dataset}?fmt={json|csv}`
+`GET /api/compliance/exports/{dataset}?fmt={json|csv}&limit={1..1000}&offset={0..N}&cursor={o:<offset>}`
 
 Supported datasets:
 
@@ -19,14 +19,14 @@ Authentication: bearer token with `audit:read` scope.
 
 ### 2) Create export jobs
 
-`POST /api/compliance/exports/{dataset}/jobs?fmt={json|csv}`
+`POST /api/compliance/exports/{dataset}/jobs?fmt={json|csv}&limit={1..1000}&offset={0..N}&cursor={o:<offset>}`
 
 The job endpoint writes immutable export artifacts under:
 
 - `reports/compliance_exports/*.json`
 - `reports/compliance_exports/*.csv`
 
-Each response includes `job_id`, `record_count`, `created_at`, and artifact path.
+Each response includes `job_id`, `record_count`, `created_at`, artifact path, pagination metadata, snapshot/version metadata, and dataset indexes (where available).
 
 ## Format contracts
 
@@ -37,6 +37,9 @@ JSON exports include:
 - `schema_version`
 - `dataset`
 - `record_count`
+- `pagination` (`limit`, `offset`, `cursor`, `next_cursor`, `has_more`, `returned_records`, `total_records`)
+- `snapshot` (`snapshot_id`, `source_version`)
+- `indexes` (dataset-specific summaries for hot collections)
 - `records[]`
 
 The direct API response also includes `authn` context and wraps records under `data`.
@@ -48,6 +51,8 @@ CSV exports are tabular snapshots intended for GRC tooling ingestion.
 - Header row is deterministic and alphabetically sorted.
 - Nested objects are serialized as canonical JSON strings.
 - Empty datasets return an empty CSV body.
+- CSV and JSON responses are streamed to reduce peak memory usage on large exports.
+- `limit` is capped at `1000` for safe bounds; values above that are rejected by request validation.
 
 ## Dataset mappings
 
@@ -69,10 +74,13 @@ Policy history combines:
 
 - current baseline policy artifact (`governance/governance_policy_v1.json`)
 - governance/policy-related journal entries from the ledger
+- includes precomputed `indexes.tx_type_counts` in the response metadata
 
 ### `incident-remediation-logs`
 
 Incident/remediation exports aggregate journal entries whose transaction or payload content references incident, remediation, or recovery events.
+
+- includes precomputed `indexes.status_counts` and `indexes.severity_counts` in the response metadata
 
 ## Connector guides (major GRC workflows)
 
