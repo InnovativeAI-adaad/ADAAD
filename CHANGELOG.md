@@ -1,3 +1,37 @@
+## [9.75.0] — 2026-04-12 · Phase 142 · INNOV-48 Contextual Semantic Search (CSS)
+
+### Semantic Cosine Retrieval Engine — 5 new Hard-class invariants (231 total)
+
+**INNOV-48 · Contextual Semantic Search (CSS)**
+
+- `dorkllm/embedder.py` — new CSS embedding engine; Ollama nomic-embed-text as primary
+  path; pure-Python TF-IDF + hash-space bag-of-words as fallback (CSS-PYDROID-0);
+  session-level dimension lock (CSS-DIM-0); `cosine_similarity()` canonical function
+  (CSS-COSINE-0); IDF builder callable from embed_corpus.py; no C/native extensions required.
+- `dorkllm/retriever.py` — fully rewritten with cosine similarity as the primary retrieval
+  path; three explicit strategies via `strategy=` parameter: `"semantic"` (cosine primary),
+  `"hybrid"` (0.6·cosine + 0.4·keyword), `"keyword"` (Phase 141 baseline); pre-computed
+  embeddings loaded from `data/dork/corpus_embeddings.json`; `get_corpus_status()` now
+  reports `embedded_count` and `embeddings_coverage`; all caches invalidated by
+  `invalidate_kb_cache()`.
+- `scripts/embed_corpus.py` — corpus pre-embedding generator with staleness detection;
+  `--force` / `--dry-run` / `--fallback` / `--output` flags; CSS-DIM-0 dimension validation
+  gate; deterministic sorted output (CSS-DETERM-0).
+
+**New Hard-class invariants**
+
+- `CSS-DETERM-0` — identical text → identical embedding vector; identical query + corpus →
+  identical retrieval result; no randomness anywhere in the CSS pipeline.
+- `CSS-FALLBACK-0` — TF-IDF / hash-space BoW fallback activates automatically when Ollama
+  is unreachable; system is never left with no embedding capability.
+- `CSS-DIM-0` — embedding dimension is locked after the first successful embed in a session;
+  mismatched dimension raises RuntimeError; enforced across all corpus and query vectors.
+- `CSS-COSINE-0` — retrieval ranking uses cosine similarity as the primary score; keyword
+  overlap is secondary only; all similarity scores are in [-1, 1].
+- `CSS-PYDROID-0` — no C/native extension required; embedder.py uses stdlib only (math,
+  re, hashlib, json, urllib); fallback always available on any Python 3.8+ environment.
+
+**Tests:** T142-CSS-01..30 (30/30 PASS)
 ## [9.74.0] — 2026-04-12 · Phase 141 · INNOV-47 Live Knowledge Sync Engine (LKSE)
 
 ### DORK Corpus Resurrection — 5 new Hard-class invariants (226 total)
