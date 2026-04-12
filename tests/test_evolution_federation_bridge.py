@@ -347,6 +347,50 @@ class TestOnInboundEvaluation:
 
         assert any(e["event_type"] == "federation_bridge_inbound_error" for e in audit_events)
 
+    def test_negative_delta_clamped_to_zero_and_warned_for_accepted(self, caplog):
+        broker = _make_broker()
+        acall = [0]
+
+        def aside():
+            acall[0] += 1
+            return [_make_accepted("prop-1"), _make_accepted("prop-2")] if acall[0] == 1 else []
+
+        broker.accepted_proposals.side_effect = aside
+        broker.quarantined_proposals.return_value = []
+        bridge = _make_bridge(broker=broker)
+
+        with caplog.at_level("WARNING"):
+            result = bridge.on_inbound_evaluation(epoch_id="epoch-1")
+
+        assert result.ok is True
+        assert result.inbound_accepted == 0
+        assert result.inbound_quarantined == 0
+        assert result.inbound_evaluated == 0
+        assert "negative delta" in caplog.text
+        assert "Possible broker list reset/compaction." in caplog.text
+
+    def test_negative_delta_clamped_to_zero_and_warned_for_quarantined(self, caplog):
+        broker = _make_broker()
+        qcall = [0]
+
+        def qside():
+            qcall[0] += 1
+            return [_make_quarantined("prop-1"), _make_quarantined("prop-2")] if qcall[0] == 1 else []
+
+        broker.accepted_proposals.return_value = []
+        broker.quarantined_proposals.side_effect = qside
+        bridge = _make_bridge(broker=broker)
+
+        with caplog.at_level("WARNING"):
+            result = bridge.on_inbound_evaluation(epoch_id="epoch-1")
+
+        assert result.ok is True
+        assert result.inbound_accepted == 0
+        assert result.inbound_quarantined == 0
+        assert result.inbound_evaluated == 0
+        assert "negative delta" in caplog.text
+        assert "Possible broker list reset/compaction." in caplog.text
+
 
 # ---------------------------------------------------------------------------
 # on_epoch_rotation
