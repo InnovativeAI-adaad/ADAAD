@@ -405,6 +405,19 @@ class KnowledgeBundleExchangeProtocol:
 
 
 # ── public surface ────────────────────────────────────────────────────────────
+def _append_event(event, ledger_path: str = "") -> None:
+    """Module-level append-only JSONL event stub [CED-INV-AUDIT]."""
+    import hashlib as _h, json as _j, dataclasses as _dc
+    from pathlib import Path as _P
+    if not ledger_path:
+        return
+    row = _dc.asdict(event) if hasattr(event, '__dataclass_fields__') else dict(event)
+    row["event_digest"] = "sha256:" + _h.sha256(_j.dumps(row, sort_keys=True).encode()).hexdigest()
+    p = _P(ledger_path); p.parent.mkdir(parents=True, exist_ok=True)
+    with p.open("a") as f:
+        f.write(_j.dumps(row, sort_keys=True) + "\n")
+
+
 __all__ = [
     "KnowledgeBundleExchangeProtocol",
     "FederationBundle",

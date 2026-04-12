@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+SEPRINEN_INV_CHAIN: str = "SEPRINEN-INV-CHAIN"
 import json
 from dataclasses import dataclass, field
 from pathlib import Path

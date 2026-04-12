@@ -39,6 +39,7 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+RETEREPR_INV_CHAIN: str = "RETEREPR-INV-CHAIN"
 import json
 import os
 from dataclasses import dataclass, field, asdict

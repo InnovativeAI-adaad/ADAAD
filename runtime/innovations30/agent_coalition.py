@@ -52,6 +52,7 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+AGCO_INV_CHAIN: str = "AGCO-INV-CHAIN"
 import json
 from dataclasses import dataclass, field, asdict
 from enum import Enum
