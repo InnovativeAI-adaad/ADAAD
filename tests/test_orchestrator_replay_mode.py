@@ -205,6 +205,70 @@ class OrchestratorReplayModeTest(unittest.TestCase):
         self.assertEqual(orch.state["agent_contract_preflight"]["ok"], True)
         self.assertEqual(orch.state["agent_contract_preflight"]["blocked_agent_ids"], [])
 
+    def test_constructor_does_not_eager_init_dashboard(self) -> None:
+        with mock.patch("app.main._build_aponi_dashboard") as build_dashboard:
+            Orchestrator(replay_mode="off")
+
+        build_dashboard.assert_not_called()
+
+    def test_exit_after_boot_skips_dashboard_init(self) -> None:
+        with contextlib.ExitStack() as stack:
+            stack.enter_context(mock.patch.object(Orchestrator, "_register_elements"))
+            stack.enter_context(mock.patch("app.main.DreamMode"))
+            stack.enter_context(mock.patch("app.main.BeastModeLoop"))
+            stack.enter_context(mock.patch("app.main.evaluate_boot_invariants", return_value=mock.Mock(ok=True, payload={"event_type": "boot_invariant_evaluation.v1"})))
+            stack.enter_context(mock.patch("app.main.validate_agent_contract_preflight", return_value={"ok": True, "checked_modules": 2, "failing_modules": []}))
+            stack.enter_context(mock.patch.object(Orchestrator, "_verify_checkpoint_chain"))
+            stack.enter_context(mock.patch.object(Orchestrator, "_health_check_architect"))
+            stack.enter_context(mock.patch.object(Orchestrator, "_health_check_dream"))
+            stack.enter_context(mock.patch.object(Orchestrator, "_health_check_beast"))
+            stack.enter_context(mock.patch.object(Orchestrator, "_governance_gate", return_value=True))
+            stack.enter_context(mock.patch("app.main.metrics.log"))
+            stack.enter_context(mock.patch("app.main.journal.write_entry"))
+            stack.enter_context(mock.patch("app.main.dump"))
+            stack.enter_context(mock.patch.object(Orchestrator, "_register_capabilities"))
+            build_dashboard = stack.enter_context(mock.patch("app.main._build_aponi_dashboard"))
+            orch = Orchestrator(replay_mode="off", exit_after_boot=True)
+            with self.assertRaises(SystemExit) as exit_info:
+                orch.boot()
+            self.assertEqual(exit_info.exception.code, 0)
+
+        build_dashboard.assert_not_called()
+
+    def test_verify_replay_only_does_not_init_dashboard(self) -> None:
+        with contextlib.ExitStack() as stack:
+            stack.enter_context(mock.patch.object(Orchestrator, "_register_elements"))
+            stack.enter_context(mock.patch.object(Orchestrator, "_verify_checkpoint_chain"))
+            stack.enter_context(mock.patch("app.main.evaluate_boot_invariants", return_value=mock.Mock(ok=True, payload={})))
+            stack.enter_context(mock.patch("app.main.metrics.log"))
+            build_dashboard = stack.enter_context(mock.patch("app.main._build_aponi_dashboard"))
+            replay_preflight = stack.enter_context(mock.patch.object(Orchestrator, "_run_replay_preflight", return_value={}))
+            orch = Orchestrator(replay_mode="audit")
+            orch.verify_replay_only()
+
+        replay_preflight.assert_called_once_with(verify_only=True)
+        build_dashboard.assert_not_called()
+
+    def test_fast_mode_skips_dream_and_beast_initialization(self) -> None:
+        with contextlib.ExitStack() as stack:
+            stack.enter_context(mock.patch.object(Orchestrator, "_register_elements"))
+            dream_mode = stack.enter_context(mock.patch("app.main.DreamMode"))
+            beast_mode = stack.enter_context(mock.patch("app.main.BeastModeLoop"))
+            stack.enter_context(mock.patch("app.main.evaluate_boot_invariants", return_value=mock.Mock(ok=True, payload={"event_type": "boot_invariant_evaluation.v1"})))
+            stack.enter_context(mock.patch.object(Orchestrator, "_verify_checkpoint_chain"))
+            stack.enter_context(mock.patch.object(Orchestrator, "_run_replay_preflight"))
+            stack.enter_context(mock.patch.object(Orchestrator, "_governance_gate", return_value=True))
+            stack.enter_context(mock.patch("app.main.metrics.log"))
+            stack.enter_context(mock.patch("app.main.journal.write_entry"))
+            stack.enter_context(mock.patch("app.main.dump"))
+            stack.enter_context(mock.patch.object(Orchestrator, "_register_capabilities"))
+            stack.enter_context(mock.patch.object(Orchestrator, "_init_ui"))
+            orch = Orchestrator(replay_mode="off", fast_mode=True)
+            orch.boot()
+
+        dream_mode.assert_not_called()
+        beast_mode.assert_not_called()
+
     def test_replay_off_skips_verification_and_continues_to_ready(self) -> None:
         with self._boot_context():
             orch = Orchestrator(replay_mode="off")
