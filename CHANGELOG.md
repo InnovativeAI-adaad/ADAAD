@@ -1,3 +1,27 @@
+## [9.72.0] — 2026-04-11 · Phase 139 · Canary Mutation Deployment
+
+### INNOV-46: Constitutional canary window with Mirror Test gate and auto-rollback — 5 new Hard-class invariants
+
+**New module**
+- `runtime/innovations30/canary_mutation_deployment.py` — `CanaryDeploymentEngine`
+  governs the full canary lifecycle: open → sample → mirror_result → close (promote
+  or auto-rollback). HUMAN-0 required to override a rollback. Every event hash-chained.
+
+**New Hard-class invariants**
+- `CMD-GATE-0`: high-risk (Tier 0) mutations require an open canary before full rollout
+- `CMD-MIRROR-0`: `close_canary()` blocked until Mirror Test result is recorded
+- `CMD-ROLLBACK-0`: failing Mirror Test triggers mandatory auto-rollback
+- `CMD-CHAIN-0`: every lifecycle event hash-chained in the canary ledger
+- `CMD-HUMAN0-0`: overriding a rollback requires `human_auth=True`
+
+**Tests**
+- 30/30 new acceptance tests in `tests/innovations/test_phase139_cmd.py`
+
+**World first**
+First constitutional canary deployment system where rollback is a hard-class
+invariant — not an operational policy — with hash-chained evidence for every
+traffic-routing decision.
+
 ## [9.71.0] — 2026-04-11 · Phase 138 · Invariant Interaction Graph
 
 ### INNOV-45: Co-fire tracking, conflict detection, redundancy analysis — 5 new Hard-class invariants

@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.71.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": "v9.72.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -280,16 +280,27 @@
     "phase138-iig-human0-0-enforced",
     "phase138-world-first-invariant-interaction-graph",
     "v9.71.0-released",
-    "phase138-complete"
+    "phase138-complete",
+    "phase139-plan-authored",
+    "phase139-human0-ratified",
+    "phase139-innov46-cmd-implemented",
+    "phase139-cmd-gate-0-enforced",
+    "phase139-cmd-mirror-0-enforced",
+    "phase139-cmd-rollback-0-enforced",
+    "phase139-cmd-chain-0-enforced",
+    "phase139-cmd-human0-0-enforced",
+    "phase139-world-first-constitutional-canary-deployment",
+    "v9.72.0-released",
+    "phase139-complete"
   ],
   "constitutional_invariants": {
-    "cumulative": 221,
-    "hard_class_count": 216
+    "cumulative": 226,
+    "hard_class_count": 221
   },
-  "current_phase": 138,
-  "current_version": "9.71.0",
-  "hard_class_count": 216,
-  "hard_class_invariants_cumulative": 216,
+  "current_phase": 139,
+  "current_version": "9.72.0",
+  "hard_class_count": 221,
+  "hard_class_invariants_cumulative": 221,
   "human0_signoffs": [
     {
       "date": "2026-03-27",
@@ -503,6 +514,13 @@
       "governor": "DUSTIN L REID",
       "scope": "Phase 138 INNOV-45 Invariant Interaction Graph (IIG) \u2014 30/30 tests green \u2014 5 IIG invariants \u2014 216 cumulative Hard-class invariants \u2014 v9.71.0 release",
       "session_digest": "phase138-iig-impl-2026-04-11"
+    },
+    {
+      "attestation_ref": "ILA-46-2026-04-11-001",
+      "date": "2026-04-11",
+      "governor": "DUSTIN L REID",
+      "scope": "Phase 139 INNOV-46 Canary Mutation Deployment (CMD) \u2014 30/30 tests green \u2014 5 CMD invariants \u2014 221 cumulative Hard-class invariants \u2014 v9.72.0 release",
+      "session_digest": "phase139-cmd-impl-2026-04-11"
     }
   ],
   "innovations_shipped": {
@@ -665,25 +683,40 @@
         "IIG-HUMAN0-0"
       ],
       "description": "Invariant Interaction Graph"
+    },
+    "INNOV-46": {
+      "module": "canary_mutation_deployment.py",
+      "phase": 139,
+      "tests": "30/30",
+      "version": "9.72.0",
+      "hard_invariants": 5,
+      "invariants": [
+        "CMD-GATE-0",
+        "CMD-MIRROR-0",
+        "CMD-ROLLBACK-0",
+        "CMD-CHAIN-0",
+        "CMD-HUMAN0-0"
+      ],
+      "description": "Canary Mutation Deployment"
     }
   },
   "last_agent_state_sync_digest": "gsync-11a40b1cfa0f6ede",
-  "last_completed_phase": "Phase 11 \u00b7 Phase 138 \u00b7 Invariant Interaction Graph",
-  "last_completed_pr": "feat/phase138-innov45-iig",
+  "last_completed_phase": "Phase 139 \u00b7 INNOV-46 \u00b7 Canary Mutation Deployment (CMD)",
+  "last_completed_pr": "feat/phase139-innov46-cmd",
   "last_gate_results": {
     "tier_0": "pass",
     "tier_1": "pass",
     "tier_2": "pass",
     "tier_3": "pass"
   },
-  "last_innovation": "INNOV-45",
-  "last_innovation_name": "Invariant Interaction Graph (IIG)",
-  "last_invocation": "2026-04-12",
+  "last_innovation": "INNOV-46",
+  "last_innovation_name": "Canary Mutation Deployment (CMD)",
+  "last_invocation": "2026-04-11",
   "last_phase_completed": 133,
   "last_phase_completed_label": "INNOV-42: DORK Fleet Server Bridge",
   "last_sync_sha": "09ddfaaf",
   "last_updated": "2026-04-11T12:38:12.268044+00:00",
-  "next_phase": 139,
+  "next_phase": 140,
   "next_pr": "feat/phase128-tbd",
   "open_findings": [
     {
