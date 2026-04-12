@@ -1,0 +1,18 @@
+{
+  "phase": 142,
+  "tier": "intelligence",
+  "lane": "dork-supremacy",
+  "version": "9.75.0",
+  "innovation": "INNOV-48",
+  "innovation_name": "Contextual Semantic Search (CSS)",
+  "summary": "Phase 142 upgrades DORK from lexical word-overlap retrieval (Phase 141) to full semantic cosine similarity search. The CSS engine introduces a two-layer embedder: Ollama nomic-embed-text as the primary path and a pure-Python TF-IDF / hash-space bag-of-words fallback (CSS-PYDROID-0) activated when Ollama is unreachable (CSS-FALLBACK-0). The retriever gains three explicit strategies — semantic (cosine primary), hybrid (0.6·cosine + 0.4·keyword), and keyword (Phase 141 baseline) — exposed via a new strategy= parameter on all public API functions. Session-level embedding dimension is locked after the first successful embed (CSS-DIM-0), enforcing dimensional consistency invariant. All similarity computations use cosine similarity (CSS-COSINE-0). The embed_corpus.py pre-computation script generates corpus_embeddings.json with staleness detection, --dry-run / --force / --fallback flags, and deterministic sorted output (CSS-DETERM-0). Pre-computed embeddings are consumed by the retriever at query time, reducing per-query latency to a single query embedding call.",
+  "invariants_added": 5,
+  "cumulative_invariants": 231,
+  "retrieval_strategies": {
+    "semantic": "cosine_similarity(query_embed, corpus_embed) — primary path",
+    "hybrid": "0.6 * cosine + 0.4 * keyword_overlap",
+    "keyword": "word-overlap baseline (Phase 141 preserved)"
+  },
+  "embed_corpus_flags": ["--force", "--dry-run", "--fallback", "--output"],
+  "timestamp_utc": "2026-04-12T00:00:00Z"
+}

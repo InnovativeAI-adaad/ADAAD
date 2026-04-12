@@ -15,7 +15,7 @@
   <circle cx="24" cy="38" r="7" fill="#00ff88" class="tk" filter="url(#gv)"/>
   <text x="40" y="43" font-family="'JetBrains Mono','Courier New',monospace" font-size="18" fill="#00ff88">LIVE</text>
   <rect x="80" y="18" width="1" height="24" fill="rgba(255,255,255,.1)"/>
-  <text x="94" y="43" font-family="'JetBrains Mono','Courier New',monospace" font-size="18" fill="rgba(255,255,255,.9)" filter="url(#gv)">v9.65.0</text>
+  <text x="94" y="43" font-family="'JetBrains Mono','Courier New',monospace" font-size="18" fill="rgba(255,255,255,.9)" filter="url(#gv)">v9.75.0</text>
   <rect x="168" y="18" width="1" height="24" fill="rgba(255,255,255,.1)"/>
   <text x="182" y="43" font-family="'JetBrains Mono','Courier New',monospace" font-size="18" fill="rgba(255,255,255,.4)">2026-04-06</text>
   <rect x="316" y="18" width="1" height="24" fill="rgba(255,255,255,.1)"/>
