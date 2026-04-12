@@ -39,7 +39,7 @@ from app.api.schemas.governance import (
     ParallelGateProbeLibraryResponse,
 )
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from app.api.nexus.mutate import router as mutate_router
 from app.api.governance import router as governance_router
@@ -56,6 +56,7 @@ from sse_starlette.sse import EventSourceResponse
 from app.api.versioning import register_v1_aliases
 from runtime.api.extensions import extension_sdk_descriptor
 from runtime.innovations_router import router as innovations_router
+from runtime.api.compliance_export_service import ComplianceExportService
 
 # ── Module-level runtime imports ─────────────────────────────────────────────
 # These are imported at module scope (not inside function bodies) so that
@@ -3594,6 +3595,86 @@ def api_status_mock_disabled() -> dict:
     raise HTTPException(status_code=404, detail="mock_endpoints_disabled")
 
 
+_COMPLIANCE_EXPORT_DATASETS: frozenset[str] = frozenset(
+    {
+        "control-evidence-snapshots",
+        "immutable-replay-attestations",
+        "policy-change-history",
+        "incident-remediation-logs",
+    }
+)
+_COMPLIANCE_EXPORT_LIMIT_DEFAULT = 200
+_COMPLIANCE_EXPORT_LIMIT_MAX = 1000
+_compliance_export_service: ComplianceExportService | None = None
+_compliance_export_service_key: tuple[str, int] | None = None
+
+
+def _jsonable_scalar(value: Any) -> Any:
+    if isinstance(value, (str, int, float, bool)) or value is None:
+        return value
+    return json.dumps(value, sort_keys=True, separators=(",", ":"))
+
+
+def _render_csv(rows: list[dict[str, Any]]) -> str:
+    if not rows:
+        return ""
+    keys: list[str] = sorted({key for row in rows for key in row.keys()})
+    buffer = io.StringIO()
+    writer = csv.DictWriter(buffer, fieldnames=keys)
+    writer.writeheader()
+    for row in rows:
+        writer.writerow({key: _jsonable_scalar(row.get(key)) for key in keys})
+    return buffer.getvalue()
+
+def _stream_csv_rows(rows: list[dict[str, Any]]):
+    if not rows:
+        return
+    keys: list[str] = sorted({key for row in rows for key in row.keys()})
+    buffer = io.StringIO()
+    writer = csv.DictWriter(buffer, fieldnames=keys)
+    writer.writeheader()
+    yield buffer.getvalue()
+    buffer.seek(0)
+    buffer.truncate(0)
+    for row in rows:
+        writer.writerow({key: _jsonable_scalar(row.get(key)) for key in keys})
+        yield buffer.getvalue()
+        buffer.seek(0)
+        buffer.truncate(0)
+
+
+def _stream_json_records(*, envelope: dict[str, Any], rows: list[dict[str, Any]]):
+    envelope_prefix = dict(envelope)
+    data = dict(envelope_prefix.get("data", {}))
+    data.pop("records", None)
+    envelope_prefix["data"] = data
+    prefix = json.dumps(envelope_prefix, separators=(",", ":"), sort_keys=True)[:-2]
+    yield prefix + ',\"records\":['
+    for idx, row in enumerate(rows):
+        if idx:
+            yield ","
+        yield json.dumps(row, separators=(",", ":"), sort_keys=True)
+    yield "]}}"
+
+
+def _resolve_pagination(*, limit: int, offset: int, cursor: str | None) -> tuple[int, str | None]:
+    try:
+        cursor_offset = _get_compliance_export_service().decode_cursor(cursor)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail="invalid_cursor") from exc
+    if cursor_offset is not None:
+        return cursor_offset, cursor
+    return offset, None
+
+
+def _get_compliance_export_service() -> ComplianceExportService:
+    global _compliance_export_service, _compliance_export_service_key
+    key = (str(REPLAY_PROOFS_DIR), id(journal.read_entries))
+    if _compliance_export_service is None or _compliance_export_service_key != key:
+        _compliance_export_service = ComplianceExportService(
+            root=ROOT,
+            replay_proofs_dir=REPLAY_PROOFS_DIR,
+            journal_read_entries=journal.read_entries,
 def _load_replay_attestations() -> list[dict[str, Any]]:
     """Deprecated compatibility shim; use app.services.compliance_exports."""
     warnings.warn("server._load_replay_attestations is deprecated; use app.services.compliance_exports.load_replay_attestations", DeprecationWarning, stacklevel=2)
@@ -3660,89 +3741,126 @@ def _load_incident_remediation_logs() -> list[dict[str, Any]]:
                 "payload": payload if isinstance(payload, dict) else {},
             }
         )
-    return rows
-
-
-def _compliance_dataset_rows(dataset: str) -> list[dict[str, Any]]:
-    if dataset == "control-evidence-snapshots":
-        return _load_control_evidence_snapshots()
-    if dataset == "immutable-replay-attestations":
-        return _load_replay_attestations()
-    if dataset == "policy-change-history":
-        return _load_policy_change_history()
-    if dataset == "incident-remediation-logs":
-        return _load_incident_remediation_logs()
-    raise HTTPException(status_code=404, detail="unknown_compliance_dataset")
+        _compliance_export_service_key = key
+    return _compliance_export_service
 
 
 @app.get("/api/compliance/exports/{dataset}")
 def get_compliance_export(
     dataset: str,
     fmt: str = Query(default="json", pattern="^(json|csv)$"),
+    limit: int = Query(default=_COMPLIANCE_EXPORT_LIMIT_DEFAULT, ge=1, le=_COMPLIANCE_EXPORT_LIMIT_MAX),
+    offset: int = Query(default=0, ge=0),
+    cursor: str | None = Query(default=None),
     auth_ctx: dict[str, Any] = Depends(require_audit_scope),
 ) -> Response:
     if dataset not in _COMPLIANCE_EXPORT_DATASETS:
         raise HTTPException(status_code=404, detail="unknown_compliance_dataset")
-    rows = _compliance_dataset_rows(dataset)
+    resolved_offset, used_cursor = _resolve_pagination(limit=limit, offset=offset, cursor=cursor)
+    export_service = _get_compliance_export_service()
+    snapshot = export_service.get_dataset_snapshot(dataset)
+    rows, page = export_service.paginate(snapshot, limit=limit, offset=resolved_offset)
+    data = {
+        "dataset": dataset,
+        "format": fmt,
+        "record_count": page["returned_records"],
+        "records": rows,
+        "pagination": {
+            "limit": page["limit"],
+            "offset": page["offset"],
+            "cursor": used_cursor,
+            "next_cursor": page["next_cursor"],
+            "has_more": page["has_more"],
+            "total_records": page["total_records"],
+            "returned_records": page["returned_records"],
+        },
+        "snapshot": {
+            "snapshot_id": snapshot.snapshot_id,
+            "source_version": snapshot.source_version,
+        },
+        "indexes": snapshot.indexes,
+    }
     if fmt == "csv":
-        body = _render_csv(rows)
-        return Response(
-            content=body,
+        return StreamingResponse(
+            _stream_csv_rows(rows),
             media_type="text/csv",
             headers={"Content-Disposition": f'attachment; filename="{dataset}.csv"'},
         )
-    payload = {
-        "schema_version": "1.0",
-        "authn": auth_ctx,
-        "data": {
-            "dataset": dataset,
-            "format": "json",
-            "record_count": len(rows),
-            "records": rows,
-        },
-    }
-    return JSONResponse(content=payload)
+    payload = {"schema_version": "1.1", "authn": auth_ctx, "data": data}
+    return StreamingResponse(_stream_json_records(envelope=payload, rows=rows), media_type="application/json")
 
 
 @app.post("/api/compliance/exports/{dataset}/jobs")
 def create_compliance_export_job(
     dataset: str,
     fmt: str = Query(default="json", pattern="^(json|csv)$"),
+    limit: int = Query(default=_COMPLIANCE_EXPORT_LIMIT_DEFAULT, ge=1, le=_COMPLIANCE_EXPORT_LIMIT_MAX),
+    offset: int = Query(default=0, ge=0),
+    cursor: str | None = Query(default=None),
     auth_ctx: dict[str, Any] = Depends(require_audit_scope),
 ) -> dict[str, Any]:
     if dataset not in _COMPLIANCE_EXPORT_DATASETS:
         raise HTTPException(status_code=404, detail="unknown_compliance_dataset")
-    rows = _compliance_dataset_rows(dataset)
+    resolved_offset, used_cursor = _resolve_pagination(limit=limit, offset=offset, cursor=cursor)
+    export_service = _get_compliance_export_service()
+    snapshot = export_service.get_dataset_snapshot(dataset)
+    rows, page = export_service.paginate(snapshot, limit=limit, offset=resolved_offset)
     COMPLIANCE_EXPORT_DIR.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     job_id = f"job-{uuid.uuid4().hex[:12]}"
     extension = "csv" if fmt == "csv" else "json"
     export_path = COMPLIANCE_EXPORT_DIR / f"{dataset}.{timestamp}.{job_id}.{extension}"
     if fmt == "csv":
-        export_path.write_text(_render_csv(rows), encoding="utf-8")
+        with export_path.open("w", encoding="utf-8", newline="") as handle:
+            for chunk in _stream_csv_rows(rows):
+                handle.write(chunk)
     else:
-        export_path.write_text(
-            json.dumps(
-                {
-                    "schema_version": "1.0",
-                    "dataset": dataset,
-                    "record_count": len(rows),
-                    "records": rows,
+        with export_path.open("w", encoding="utf-8") as handle:
+            payload = {
+                "schema_version": "1.1",
+                "dataset": dataset,
+                "format": "json",
+                "record_count": page["returned_records"],
+                "pagination": {
+                    "limit": page["limit"],
+                    "offset": page["offset"],
+                    "cursor": used_cursor,
+                    "next_cursor": page["next_cursor"],
+                    "has_more": page["has_more"],
+                    "total_records": page["total_records"],
+                    "returned_records": page["returned_records"],
                 },
-                indent=2,
-                sort_keys=True,
-            )
-            + "\n",
-            encoding="utf-8",
-        )
+                "snapshot": {
+                    "snapshot_id": snapshot.snapshot_id,
+                    "source_version": snapshot.source_version,
+                },
+                "indexes": snapshot.indexes,
+            }
+            for chunk in _stream_json_records(envelope={"data": payload}, rows=rows):
+                handle.write(chunk)
+            handle.write("\n")
     return {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "authn": auth_ctx,
         "data": {
             "job_id": job_id,
             "dataset": dataset,
             "format": fmt,
-            "record_count": len(rows),
+            "record_count": page["returned_records"],
+            "pagination": {
+                "limit": page["limit"],
+                "offset": page["offset"],
+                "cursor": used_cursor,
+                "next_cursor": page["next_cursor"],
+                "has_more": page["has_more"],
+                "total_records": page["total_records"],
+                "returned_records": page["returned_records"],
+            },
+            "snapshot": {
+                "snapshot_id": snapshot.snapshot_id,
+                "source_version": snapshot.source_version,
+            },
+            "indexes": snapshot.indexes,
             "path": str(export_path),
             "created_at": datetime.now(timezone.utc).isoformat(),
         },
