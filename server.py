@@ -4,6 +4,7 @@ import json
 import importlib
 import hashlib
 import logging
+import warnings
 import os
 import subprocess
 import sys
@@ -12,6 +13,7 @@ import asyncio
 import csv
 import io
 import uuid
+import threading
 import httpx
 from datetime import datetime, timezone
 from dataclasses import dataclass
@@ -44,6 +46,10 @@ from app.api.governance import router as governance_router
 from app.api.audit import router as audit_router
 from app.api.ui import router as ui_router
 from app.api.simulation import router as simulation_router
+from app.api.compliance import router as compliance_router
+from app.api.audit_exports import router as audit_exports_router
+from app.api.mutation_control import router as mutation_control_router
+from app.api.streams import router as streams_router
 from runtime.integrations.github_app import dispatch_event, verify_webhook_signature  # ADAADchat
 from app.api.dependencies import require_audit_scope, require_gate_open, require_tenant_context
 from sse_starlette.sse import EventSourceResponse
@@ -70,6 +76,11 @@ from runtime.system_status import (
     DEFAULT_VERSION_PATH,
     load_live_version as load_live_version_snapshot,
     read_gate_state as read_gate_state_snapshot,
+)
+from app.services.compliance_exports import (
+    load_control_evidence_snapshots as _svc_load_control_evidence_snapshots,
+    load_policy_change_history as _svc_load_policy_change_history,
+    load_replay_attestations as _svc_load_replay_attestations,
 )
 
 _LAZY_IMPORT_CACHE: dict[str, Any] = {}
@@ -112,8 +123,73 @@ WHALEDIC_DIR = ROOT / "ui" / "developer" / "ADAADdev"
 REPLAY_PROOFS_DIR = ROOT / "security" / "replay_manifests"
 FORENSIC_EXPORT_DIR = ROOT / "reports" / "forensics"
 COMPLIANCE_EXPORT_DIR = ROOT / "reports" / "compliance_exports"
+MUTATION_EPOCH_LOG_DIR = ROOT / "reports" / "mutation_epochs"
+MUTATION_EPOCH_STATUS_PATH = ROOT / "data" / "mutation_epoch_task_status.json"
 SEMVER_AUDIT_PATH = ROOT / "data" / "semver_verdicts.jsonl"
 GATE_LOCK_FILE = DEFAULT_GATE_LOCK_FILE
+
+_MUTATION_EPOCH_TASKS_LOCK = threading.Lock()
+_MUTATION_EPOCH_TASKS: dict[str, dict[str, Any]] = {}
+_MUTATION_STDIO_LOG_LIMIT_BYTES = 64 * 1024
+_MUTATION_EPOCH_TIMEOUT_SECONDS = 120
+
+
+def _digest_for_path(path: Path) -> str:
+    if not path.exists():
+        return ""
+    hasher = hashlib.sha256()
+    with path.open("rb") as handle:
+        while True:
+            chunk = handle.read(8192)
+            if not chunk:
+                break
+            hasher.update(chunk)
+    return hasher.hexdigest()
+
+
+def _truncate_log_file_in_place(path: Path, limit_bytes: int) -> int:
+    if not path.exists():
+        return 0
+    file_size = path.stat().st_size
+    if file_size <= limit_bytes:
+        return 0
+    with path.open("rb+") as handle:
+        handle.seek(file_size - limit_bytes)
+        tail = handle.read(limit_bytes)
+        handle.seek(0)
+        handle.write(tail)
+        handle.truncate()
+    return file_size - limit_bytes
+
+
+def _record_mutation_epoch_status(operation_id: str, payload: dict[str, Any]) -> None:
+    now = datetime.now(timezone.utc).isoformat()
+    entry = {"operation_id": operation_id, "updated_at": now, **payload}
+    with _MUTATION_EPOCH_TASKS_LOCK:
+        _MUTATION_EPOCH_TASKS[operation_id] = entry
+        MUTATION_EPOCH_STATUS_PATH.parent.mkdir(parents=True, exist_ok=True)
+        MUTATION_EPOCH_STATUS_PATH.write_text(
+            json.dumps(_MUTATION_EPOCH_TASKS, ensure_ascii=False, indent=2, sort_keys=True),
+            encoding="utf-8",
+        )
+
+
+def _read_mutation_epoch_status(operation_id: str) -> dict[str, Any] | None:
+    with _MUTATION_EPOCH_TASKS_LOCK:
+        cached = _MUTATION_EPOCH_TASKS.get(operation_id)
+        if cached is not None:
+            return dict(cached)
+        if MUTATION_EPOCH_STATUS_PATH.exists():
+            try:
+                persisted = json.loads(MUTATION_EPOCH_STATUS_PATH.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                return None
+            if isinstance(persisted, dict):
+                loaded = persisted.get(operation_id)
+                if isinstance(loaded, dict):
+                    _MUTATION_EPOCH_TASKS.update(persisted)
+                    return dict(loaded)
+    return None
 
 
 class SPAStaticFiles(StaticFiles):
@@ -757,6 +833,10 @@ app.include_router(governance_router)
 app.include_router(audit_router)
 app.include_router(ui_router)
 app.include_router(simulation_router)
+app.include_router(compliance_router)
+app.include_router(audit_exports_router)
+app.include_router(mutation_control_router)
+app.include_router(streams_router)
 
 
 def telemetry_decisions_legacy(
@@ -3514,95 +3594,16 @@ def api_status_mock_disabled() -> dict:
     raise HTTPException(status_code=404, detail="mock_endpoints_disabled")
 
 
-_COMPLIANCE_EXPORT_DATASETS: frozenset[str] = frozenset(
-    {
-        "control-evidence-snapshots",
-        "immutable-replay-attestations",
-        "policy-change-history",
-        "incident-remediation-logs",
-    }
-)
-
-
-def _jsonable_scalar(value: Any) -> Any:
-    if isinstance(value, (str, int, float, bool)) or value is None:
-        return value
-    return json.dumps(value, sort_keys=True, separators=(",", ":"))
-
-
-def _render_csv(rows: list[dict[str, Any]]) -> str:
-    if not rows:
-        return ""
-    keys: list[str] = sorted({key for row in rows for key in row.keys()})
-    buffer = io.StringIO()
-    writer = csv.DictWriter(buffer, fieldnames=keys)
-    writer.writeheader()
-    for row in rows:
-        writer.writerow({key: _jsonable_scalar(row.get(key)) for key in keys})
-    return buffer.getvalue()
-
-
 def _load_replay_attestations() -> list[dict[str, Any]]:
-    attestations: list[dict[str, Any]] = []
-    if not REPLAY_PROOFS_DIR.exists():
-        return attestations
-    for proof_file in sorted(REPLAY_PROOFS_DIR.glob("*.replay_attestation.v1.json")):
-        try:
-            bundle = json.loads(proof_file.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            continue
-        attestations.append(
-            {
-                "epoch_id": str(bundle.get("epoch_id") or proof_file.name.split(".", 1)[0]),
-                "proof_digest": str(bundle.get("proof_digest", "")),
-                "canonical_digest": str(bundle.get("canonical_digest", "")),
-                "checkpoint_chain_digest": str(bundle.get("checkpoint_chain_digest", "")),
-                "replay_digest": str(bundle.get("replay_digest", "")),
-                "signature_count": len(bundle.get("signatures", [])) if isinstance(bundle.get("signatures"), list) else 0,
-                "source_path": str(proof_file),
-            }
-        )
-    return attestations
+    """Deprecated compatibility shim; use app.services.compliance_exports."""
+    warnings.warn("server._load_replay_attestations is deprecated; use app.services.compliance_exports.load_replay_attestations", DeprecationWarning, stacklevel=2)
+    return _svc_load_replay_attestations(replay_proofs_dir=REPLAY_PROOFS_DIR)
 
 
 def _load_policy_change_history() -> list[dict[str, Any]]:
-    entries = journal.read_entries(limit=1000)
-    filtered: list[dict[str, Any]] = []
-    for item in entries:
-        tx_type = str(item.get("tx_type", ""))
-        payload = item.get("payload", {})
-        reason = ""
-        if isinstance(payload, dict):
-            reason = str(payload.get("reason_code") or payload.get("reason") or "")
-        text = f"{tx_type} {reason}".lower()
-        if "policy" not in text and "governance" not in text:
-            continue
-        filtered.append(
-            {
-                "entry_id": str(item.get("entry_id", "")),
-                "timestamp": str(item.get("timestamp", "")),
-                "tx_type": tx_type,
-                "reason_code": reason,
-                "payload": payload if isinstance(payload, dict) else {},
-            }
-        )
-    policy_baseline = ROOT / "governance" / "governance_policy_v1.json"
-    if policy_baseline.exists():
-        try:
-            baseline = json.loads(policy_baseline.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            baseline = {}
-        filtered.insert(
-            0,
-            {
-                "entry_id": "baseline-governance-policy-v1",
-                "timestamp": "",
-                "tx_type": "policy_baseline",
-                "reason_code": "",
-                "payload": baseline if isinstance(baseline, dict) else {},
-            },
-        )
-    return filtered
+    """Deprecated compatibility shim; use app.services.compliance_exports."""
+    warnings.warn("server._load_policy_change_history is deprecated; use app.services.compliance_exports.load_policy_change_history", DeprecationWarning, stacklevel=2)
+    return _svc_load_policy_change_history(root=ROOT, journal_module=journal)
 
 
 def _load_control_evidence_snapshots() -> list[dict[str, Any]]:
@@ -3884,6 +3885,10 @@ def audit_bundle(
             "validation": validation,
         },
     }
+    """Deprecated compatibility shim; use app.services.compliance_exports."""
+    warnings.warn("server._load_control_evidence_snapshots is deprecated; use app.services.compliance_exports.load_control_evidence_snapshots", DeprecationWarning, stacklevel=2)
+    replay_attestations = _svc_load_replay_attestations(replay_proofs_dir=REPLAY_PROOFS_DIR)
+    return _svc_load_control_evidence_snapshots(root=ROOT, replay_attestations=replay_attestations)
 
 
 def _authenticate_audit_request(authorization: str | None = Header(default=None)) -> dict[str, Any]:
@@ -4004,177 +4009,6 @@ def _resolve_ui_paths(create_placeholder: bool = False):
 
 
 # ── WebSocket /ws/events ──────────────────────────────────────────────────────
-
-@app.websocket("/ws/events")
-async def ws_events(websocket: WebSocket) -> None:
-    """Real-time event stream — Phase 70: persistent innovations bus relay.
-
-    Channels:
-    - "metrics"      — recent entries from runtime.metrics.tail()
-    - "journal"      — recent entries from security.ledger.journal.read_entries()
-    - "innovations"  — live CEL step / epoch / story_arc / personality / reflection frames
-
-    Each event has keys: channel, kind, timestamp, event.
-    After the initial batch, the connection stays open and pushes innovations
-    bus frames as they arrive (one JSON message per frame).
-
-    IBUS-FAILSAFE-0: disconnect from the bus on any send failure.
-    """
-    from runtime.innovations_bus import get_bus  # noqa: PLC0415 — avoid import-time cycle
-
-    relay_policy = websocket.query_params.get("relay_policy", "drop_oldest")
-    if relay_policy not in {"drop_oldest", "coalesce_latest"}:
-        await websocket.close(code=1008, reason="invalid_relay_policy")
-        return
-
-    def _parse_limit(name: str, default: int, cap: int) -> int:
-        raw = websocket.query_params.get(name)
-        if raw is None:
-            return default
-        try:
-            value = int(raw)
-        except (TypeError, ValueError):
-            raise HTTPException(status_code=422, detail=f"invalid_{name}") from None
-        if value < 0 or value > cap:
-            raise HTTPException(status_code=422, detail=f"invalid_{name}")
-        return value
-
-    def _parse_float(name: str, default: float, minimum: float, maximum: float) -> float:
-        raw = websocket.query_params.get(name)
-        if raw is None:
-            return default
-        try:
-            value = float(raw)
-        except (TypeError, ValueError):
-            raise HTTPException(status_code=422, detail=f"invalid_{name}") from None
-        if value < minimum or value > maximum:
-            raise HTTPException(status_code=422, detail=f"invalid_{name}")
-        return value
-
-    try:
-        metrics_limit = _parse_limit("metrics_limit", default=200, cap=500)
-        journal_limit = _parse_limit("journal_limit", default=200, cap=500)
-        relay_queue_limit = _parse_limit("relay_queue_limit", default=128, cap=512)
-        heartbeat_interval_s = _parse_float("heartbeat_interval_s", default=30.0, minimum=1.0, maximum=120.0)
-        stale_timeout_s = _parse_float("stale_timeout_s", default=90.0, minimum=2.0, maximum=300.0)
-    except HTTPException:
-        await websocket.close(code=1008, reason="invalid_query_params")
-        return
-
-    await websocket.accept()
-    # Hello frame
-    await websocket.send_json({
-        "type": "hello",
-        "channels": ["metrics", "journal", "innovations"],
-        "status": "live",
-        "endpoint_meta": {
-            "history_caps": {"metrics_limit_max": 500, "journal_limit_max": 500},
-            "queue_policy": relay_policy,
-            "relay_queue_limit": relay_queue_limit,
-            "heartbeat_interval_s": heartbeat_interval_s,
-            "stale_timeout_s": stale_timeout_s,
-        },
-    })
-    # Historical batch
-    events = []
-    for entry in metrics.tail(limit=metrics_limit):
-        events.append({
-            "channel": "metrics",
-            "kind": str(entry.get("event", entry.get("event_type", "metric"))),
-            "timestamp": str(entry.get("timestamp", entry.get("ts", ""))),
-            "event": entry,
-        })
-    for entry in journal.read_entries(limit=journal_limit):
-        events.append({
-            "channel": "journal",
-            "kind": str(entry.get("action", entry.get("tx_type", "journal"))),
-            "timestamp": str(entry.get("timestamp", entry.get("ts", ""))),
-            "event": entry,
-        })
-    await websocket.send_json({"type": "event_batch", "events": events})
-
-    # Subscribe to innovations bus and relay frames until disconnect
-    bus = get_bus()
-    queue = await bus.subscribe()
-    relay_queue: asyncio.Queue[dict[str, Any]] = asyncio.Queue(maxsize=relay_queue_limit)
-    disconnect_reason = "client_closed"
-    dropped_frames = 0
-    last_client_signal = asyncio.get_event_loop().time()
-    coalesced_latest: dict[str, Any] | None = None
-    stop_signal = asyncio.Event()
-
-    async def _client_reader() -> None:
-        nonlocal last_client_signal
-        while not stop_signal.is_set():
-            try:
-                message = await asyncio.wait_for(websocket.receive_json(), timeout=heartbeat_interval_s)
-            except asyncio.TimeoutError:
-                continue
-            except Exception:  # noqa: BLE001
-                break
-            if isinstance(message, dict) and message.get("type") == "pong":
-                last_client_signal = asyncio.get_event_loop().time()
-
-    async def _relay_ingress() -> None:
-        nonlocal dropped_frames, coalesced_latest
-        while not stop_signal.is_set():
-            frame = await queue.get()
-            if relay_policy == "coalesce_latest":
-                if relay_queue.full():
-                    coalesced_latest = frame
-                    dropped_frames += 1
-                    metrics.log("ws_events_frames_dropped", payload={"policy": relay_policy, "dropped": dropped_frames})
-                    continue
-            if relay_queue.full():
-                _ = relay_queue.get_nowait()
-                dropped_frames += 1
-                metrics.log("ws_events_frames_dropped", payload={"policy": relay_policy, "dropped": dropped_frames})
-            await relay_queue.put(frame)
-            if coalesced_latest is not None and not relay_queue.full():
-                await relay_queue.put(coalesced_latest)
-                coalesced_latest = None
-            metrics.log("ws_events_queue_depth", payload={"depth": relay_queue.qsize(), "limit": relay_queue_limit})
-
-    reader_task = asyncio.create_task(_client_reader())
-    ingress_task = asyncio.create_task(_relay_ingress())
-    try:
-        while True:
-            try:
-                now = asyncio.get_event_loop().time()
-                if (now - last_client_signal) >= stale_timeout_s:
-                    disconnect_reason = "stale_client_timeout"
-                    await websocket.send_json({"type": "disconnect", "reason": disconnect_reason})
-                    break
-                frame = await asyncio.wait_for(relay_queue.get(), timeout=heartbeat_interval_s)
-                await websocket.send_json({"type": "innovations", "channel": "innovations", **frame})
-            except asyncio.TimeoutError:
-                # Keepalive ping
-                await websocket.send_json({"type": "ping", "ts": datetime.now(timezone.utc).isoformat()})
-    except Exception:  # noqa: BLE001 — client disconnected
-        disconnect_reason = "send_or_receive_failure"
-    finally:
-        stop_signal.set()
-        ingress_task.cancel()
-        reader_task.cancel()
-        for task in (ingress_task, reader_task):
-            try:
-                await task
-            except BaseException:  # noqa: BLE001
-                pass
-        await bus.unsubscribe(queue)
-        metrics.log(
-            "ws_events_disconnect",
-            payload={
-                "cause": disconnect_reason,
-                "dropped_frames": dropped_frames,
-                "queue_depth": relay_queue.qsize(),
-            },
-        )
-        try:
-            await websocket.close(reason=disconnect_reason)
-        except Exception:  # noqa: BLE001
-            pass
-
 
 # /ui/aponi/{asset_path} — explicit asset route so monkeypatching APONI_DIR in tests works.
 # A static mount binds the directory at registration time; a route always reads APONI_DIR
@@ -4391,8 +4225,32 @@ async def trigger_mutation_cycle(
 ) -> dict[str, Any]:
     """Trigger a new mutation cycle in the background."""
     _ = auth_ctx
-    
-    def run_epoch_task():
+
+    operation_id = f"epoch-op-{uuid.uuid4().hex[:16]}"
+    MUTATION_EPOCH_LOG_DIR.mkdir(parents=True, exist_ok=True)
+    stdout_path = MUTATION_EPOCH_LOG_DIR / f"{operation_id}.stdout.log"
+    stderr_path = MUTATION_EPOCH_LOG_DIR / f"{operation_id}.stderr.log"
+    queued_at = datetime.now(timezone.utc).isoformat()
+    _record_mutation_epoch_status(
+        operation_id,
+        {
+            "status": "queued",
+            "queued_at": queued_at,
+            "completed_at": None,
+            "timeout_seconds": _MUTATION_EPOCH_TIMEOUT_SECONDS,
+            "timed_out": False,
+            "return_code": None,
+            "stdout_log_path": str(stdout_path),
+            "stderr_log_path": str(stderr_path),
+            "stdout_digest_sha256": "",
+            "stderr_digest_sha256": "",
+            "stdout_truncated_bytes": 0,
+            "stderr_truncated_bytes": 0,
+            "error_type": None,
+        },
+    )
+
+    def run_epoch_task(epoch_operation_id: str, task_stdout_path: Path, task_stderr_path: Path):
         # SECURITY NOTE (audit H-2): subprocess.run is called from a FastAPI
         # BackgroundTask (already async-safe). The env dict is derived solely
         # from os.environ.copy() with two hard-coded overrides — no user-supplied
@@ -4402,15 +4260,111 @@ async def trigger_mutation_cycle(
         env = os.environ.copy()
         env["ADAAD_ENV"] = "dev"
         env["ADAAD_CEL_ENABLED"] = "true"
-        subprocess.run(
-            [sys.executable, "-m", "app.main", "--verbose", "--exit-after-boot"],
-            env=env,
-            capture_output=True,
-            text=True
+        started_at = datetime.now(timezone.utc).isoformat()
+        _record_mutation_epoch_status(
+            epoch_operation_id,
+            {
+                "status": "running",
+                "queued_at": queued_at,
+                "started_at": started_at,
+                "completed_at": None,
+                "timeout_seconds": _MUTATION_EPOCH_TIMEOUT_SECONDS,
+                "timed_out": False,
+                "return_code": None,
+                "stdout_log_path": str(task_stdout_path),
+                "stderr_log_path": str(task_stderr_path),
+                "stdout_digest_sha256": "",
+                "stderr_digest_sha256": "",
+                "stdout_truncated_bytes": 0,
+                "stderr_truncated_bytes": 0,
+                "error_type": None,
+            },
         )
 
-    background_tasks.add_task(run_epoch_task)
-    return {"ok": True, "status": "staged", "message": "Mutation cycle triggered."}
+        with task_stdout_path.open("w", encoding="utf-8") as stdout_handle, task_stderr_path.open(
+            "w", encoding="utf-8"
+        ) as stderr_handle:
+            try:
+                result = subprocess.run(
+                    [sys.executable, "-m", "app.main", "--verbose", "--exit-after-boot"],
+                    env=env,
+                    stdout=stdout_handle,
+                    stderr=stderr_handle,
+                    text=True,
+                    check=True,
+                    timeout=_MUTATION_EPOCH_TIMEOUT_SECONDS,
+                )
+                status = "succeeded"
+                timed_out = False
+                error_type = None
+                return_code = result.returncode
+            except subprocess.TimeoutExpired as exc:
+                status = "failed"
+                timed_out = True
+                error_type = "TimeoutExpired"
+                return_code = exc.returncode if exc.returncode is not None else -1
+            except subprocess.CalledProcessError as exc:
+                status = "failed"
+                timed_out = False
+                error_type = "CalledProcessError"
+                return_code = exc.returncode
+
+        stdout_truncated_bytes = _truncate_log_file_in_place(task_stdout_path, _MUTATION_STDIO_LOG_LIMIT_BYTES)
+        stderr_truncated_bytes = _truncate_log_file_in_place(task_stderr_path, _MUTATION_STDIO_LOG_LIMIT_BYTES)
+        stdout_digest = _digest_for_path(task_stdout_path)
+        stderr_digest = _digest_for_path(task_stderr_path)
+        completed_at = datetime.now(timezone.utc).isoformat()
+
+        payload = {
+            "operation_id": epoch_operation_id,
+            "status": status,
+            "queued_at": queued_at,
+            "started_at": started_at,
+            "completed_at": completed_at,
+            "timeout_seconds": _MUTATION_EPOCH_TIMEOUT_SECONDS,
+            "timed_out": timed_out,
+            "return_code": return_code,
+            "stdout_log_path": str(task_stdout_path),
+            "stderr_log_path": str(task_stderr_path),
+            "stdout_digest_sha256": stdout_digest,
+            "stderr_digest_sha256": stderr_digest,
+            "stdout_truncated_bytes": stdout_truncated_bytes,
+            "stderr_truncated_bytes": stderr_truncated_bytes,
+            "error_type": error_type,
+        }
+
+        metrics.log(
+            event_type="mutation_epoch_task_completed",
+            payload=payload,
+            level="INFO" if status == "succeeded" else "ERROR",
+        )
+        journal.append_tx(
+            tx_type="mutation_epoch_task_completed.v1",
+            payload=payload,
+        )
+        _record_mutation_epoch_status(epoch_operation_id, payload)
+
+    background_tasks.add_task(run_epoch_task, operation_id, stdout_path, stderr_path)
+    return {
+        "ok": True,
+        "status": "staged",
+        "operation_id": operation_id,
+        "message": "Mutation cycle triggered.",
+        "status_endpoint": f"/api/mutations/epoch-status/{operation_id}",
+    }
+
+
+@app.get("/api/mutations/epoch-status/{operation_id}")
+async def get_mutation_cycle_status(
+    operation_id: str,
+    auth_ctx: dict[str, Any] = Depends(require_gate_open),
+) -> dict[str, Any]:
+    """Fetch persisted status for a mutation epoch background operation."""
+    _ = auth_ctx
+    status = _read_mutation_epoch_status(operation_id)
+    if status is None:
+        raise HTTPException(status_code=404, detail="mutation_epoch_operation_not_found")
+    return {"ok": True, "operation": status}
 
 @app.get("/api/webhooks/stream")
 async def webhooks_stream(request: Request):
@@ -4458,49 +4412,6 @@ def dork_v2() -> Response:
 def whaledic_legacy() -> Response:
     """Legacy Whale.Dic developer dashboard (Phase 107 shortcut, preserved for compat)."""
     return serve_whaledic_asset("whaledic.html")
-
-
-@app.post("/api/dork/stream")
-async def dork_stream_proxy(request: Request):
-    """Server-side Anthropic proxy for dork v2.0.
-
-    Accepts {system, messages, model, max_tokens} and streams the Anthropic
-    SSE response back to the client.  Uses the server's ANTHROPIC_API_KEY so
-    the key never reaches the browser.  Only available when the server key
-    is configured.
-    """
-    import httpx
-    import os as _os
-
-    api_key = _os.environ.get("ANTHROPIC_API_KEY", "")
-    if not api_key:
-        raise HTTPException(status_code=503, detail="server_api_key_not_configured")
-
-    body = await request.json()
-
-    async def _gen():
-        async with httpx.AsyncClient(timeout=120) as client:
-            async with client.stream(
-                "POST",
-                "https://api.anthropic.com/v1/messages",
-                headers={
-                    "x-api-key": api_key,
-                    "anthropic-version": "2023-06-01",
-                    "content-type": "application/json",
-                },
-                json={
-                    "model":      body.get("model", "claude-sonnet-4-6"),
-                    "max_tokens": body.get("max_tokens", 4096),
-                    "stream":     True,
-                    "system":     body.get("system", ""),
-                    "messages":   body.get("messages", []),
-                },
-            ) as resp:
-                async for chunk in resp.aiter_bytes():
-                    yield chunk
-
-    from starlette.responses import StreamingResponse as _SR
-    return _SR(_gen(), media_type="text/event-stream")
 
 
 # ── Phase 124 — adaad-core package info endpoint ──────────────────────────
