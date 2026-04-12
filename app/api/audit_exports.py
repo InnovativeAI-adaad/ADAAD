@@ -1,23 +1,18 @@
 from __future__ import annotations
 
-import importlib
 import json
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from app.api.dependencies import require_audit_scope, require_tenant_context
+from app.api.dependencies import get_runtime_context, require_audit_scope, require_tenant_context
+from app.services.runtime_context import RuntimeContext
 
 router = APIRouter()
 
 
-def _server_module() -> Any:
-    return importlib.import_module("server")
-
-
-def _load_bundle(bundle_id: str) -> tuple[dict[str, Any], str]:
-    srv = _server_module()
-    bundle_file = srv.FORENSIC_EXPORT_DIR / f"{bundle_id}.json"
+def _load_bundle(bundle_id: str, *, context: RuntimeContext) -> tuple[dict[str, Any], str]:
+    bundle_file = context.forensic_export_dir / f"{bundle_id}.json"
     if not bundle_file.exists():
         raise HTTPException(status_code=404, detail="bundle_not_found")
     try:
@@ -42,9 +37,9 @@ def audit_replay_proof(
     redaction: str | None = Query(default=None),
     auth_ctx: dict[str, Any] = Depends(require_audit_scope),
     tenant_ctx: dict[str, str] = Depends(require_tenant_context),
+    context: RuntimeContext = Depends(get_runtime_context),
 ) -> dict[str, Any]:
-    srv = _server_module()
-    proof_file = srv.REPLAY_PROOFS_DIR / f"{epoch_id}.replay_attestation.v1.json"
+    proof_file = context.replay_proofs_dir / f"{epoch_id}.replay_attestation.v1.json"
     if not proof_file.exists():
         raise HTTPException(status_code=404, detail="replay_proof_not_found")
     try:
@@ -82,13 +77,13 @@ def audit_epoch_lineage(
     epoch_id: str,
     auth_ctx: dict[str, Any] = Depends(require_audit_scope),
     tenant_ctx: dict[str, str] = Depends(require_tenant_context),
+    context: RuntimeContext = Depends(get_runtime_context),
 ) -> dict[str, Any]:
-    srv = _server_module()
-    ledger = srv.LineageLedgerV2(tenant_context=tenant_ctx)
+    ledger = context.lineage_ledger_cls(tenant_context=tenant_ctx)
     lineage = ledger.read_epoch(epoch_id)
     lineage_digest = ledger.compute_incremental_epoch_digest(epoch_id)
     expected = ledger.get_expected_epoch_digest(epoch_id) or ""
-    journal_entries = srv.journal.read_entries(limit=200, tenant_context=tenant_ctx)
+    journal_entries = context.journal.read_entries(limit=200, tenant_context=tenant_ctx)
     return {
         "schema_version": "1.0",
         "authn": auth_ctx,
@@ -107,16 +102,16 @@ def audit_bundle(
     bundle_id: str,
     auth_ctx: dict[str, Any] = Depends(require_audit_scope),
     tenant_ctx: dict[str, str] = Depends(require_tenant_context),
+    context: RuntimeContext = Depends(get_runtime_context),
 ) -> dict[str, Any]:
-    srv = _server_module()
-    raw_bundle, bundle_path = _load_bundle(bundle_id)
+    raw_bundle, bundle_path = _load_bundle(bundle_id, context=context)
     bundle_tenant = raw_bundle.get("tenant") if isinstance(raw_bundle.get("tenant"), dict) else {}
     bundle_tenant_id = str(raw_bundle.get("tenant_id") or bundle_tenant.get("tenant_id") or "").strip()
     bundle_workspace_id = str(raw_bundle.get("workspace_id") or bundle_tenant.get("workspace_id") or "").strip()
     if bundle_tenant_id and bundle_workspace_id:
         if bundle_tenant_id != tenant_ctx["tenant_id"] or bundle_workspace_id != tenant_ctx["workspace_id"]:
             raise HTTPException(status_code=403, detail="tenant_scope_mismatch")
-    builder = srv.EvidenceBundleBuilder(export_dir=srv.FORENSIC_EXPORT_DIR)
+    builder = context.evidence_bundle_builder_factory(export_dir=context.forensic_export_dir)
     validation = builder.validate_bundle(raw_bundle)
     return {
         "schema_version": "1.0",
