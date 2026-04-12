@@ -3783,8 +3783,7 @@ def audit_replay_proof(
             {k: v for k, v in sig.items() if k != "signature"}
             for sig in bundle.get("signatures", [])
         ]
-        bundle = {**bundle}
-        del bundle["signatures"]
+        bundle = {**bundle, "signatures": redacted_sigs}
 
     return {
         "schema_version": "1.0",

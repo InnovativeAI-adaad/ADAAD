@@ -14,9 +14,13 @@ def _auth_header(token: str = "audit-token") -> dict[str, str]:
     return {"Authorization": f"Bearer {token}"}
 
 
+def _tenant_headers() -> dict[str, str]:
+    return {"X-Tenant-Id": "tenant-test", "X-Workspace-Id": "workspace-test"}
+
+
 def test_audit_requires_authentication() -> None:
     with TestClient(server.app) as client:
-        response = client.get("/api/audit/epochs/epoch-1/replay-proof")
+        response = client.get("/api/audit/epochs/epoch-1/replay-proof", headers=_tenant_headers())
 
     assert response.status_code == 401
     assert response.json() == {"detail": "missing_authentication"}
@@ -25,7 +29,10 @@ def test_audit_requires_authentication() -> None:
 def test_audit_rejects_invalid_token(monkeypatch) -> None:
     monkeypatch.setenv("ADAAD_AUDIT_TOKENS", json.dumps({"known-token": ["audit:read"]}))
     with TestClient(server.app) as client:
-        response = client.get("/api/audit/epochs/epoch-1/replay-proof", headers=_auth_header("wrong-token"))
+        response = client.get(
+            "/api/audit/epochs/epoch-1/replay-proof",
+            headers={**_auth_header("wrong-token"), **_tenant_headers()},
+        )
 
     assert response.status_code == 401
     assert response.json() == {"detail": "invalid_token"}
@@ -49,6 +56,8 @@ def test_audit_rejects_insufficient_scope(monkeypatch, tmp_path) -> None:
                     "sandbox_policy_hash": "sha256:0",
                 },
                 "proof_digest": "sha256:" + "0" * 64,
+                "tenant_id": "tenant-test",
+                "workspace_id": "workspace-test",
                 "signatures": [
                     {
                         "key_id": "k",
@@ -65,7 +74,10 @@ def test_audit_rejects_insufficient_scope(monkeypatch, tmp_path) -> None:
     monkeypatch.setenv("ADAAD_AUDIT_TOKENS", json.dumps({"audit-token": ["metrics:read"]}))
 
     with TestClient(server.app) as client:
-        response = client.get("/api/audit/epochs/epoch-1/replay-proof", headers=_auth_header())
+        response = client.get(
+            "/api/audit/epochs/epoch-1/replay-proof",
+            headers={**_auth_header(), **_tenant_headers()},
+        )
 
     assert response.status_code == 403
     assert response.json() == {"detail": "insufficient_scope"}
@@ -87,6 +99,8 @@ def test_replay_proof_response_schema_and_redaction(monkeypatch, tmp_path) -> No
             "sandbox_policy_hash": "sha256:0",
         },
         "proof_digest": "sha256:" + "0" * 64,
+        "tenant_id": "tenant-test",
+        "workspace_id": "workspace-test",
         "signatures": [
             {
                 "key_id": "k",
@@ -104,7 +118,7 @@ def test_replay_proof_response_schema_and_redaction(monkeypatch, tmp_path) -> No
     with TestClient(server.app) as client:
         response = client.get(
             "/api/audit/epochs/epoch-1/replay-proof?redaction=sensitive",
-            headers=_auth_header(),
+            headers={**_auth_header(), **_tenant_headers()},
         )
 
     assert response.status_code == 200
@@ -113,7 +127,13 @@ def test_replay_proof_response_schema_and_redaction(monkeypatch, tmp_path) -> No
     assert payload["schema_version"] == "1.0"
     assert payload["authn"] == {"scheme": "bearer", "scope": "audit:read", "redaction": "sensitive"}
     assert list(payload["data"].keys()) == ["epoch_id", "bundle_path", "bundle", "verification"]
-    assert "signatures" not in payload["data"]["bundle"]
+    assert payload["data"]["bundle"]["signatures"] == [
+        {
+            "key_id": "k",
+            "algorithm": "hmac-sha256",
+            "signed_digest": "sha256:" + "0" * 64,
+        }
+    ]
 
 
 def test_lineage_response_schema(monkeypatch) -> None:
