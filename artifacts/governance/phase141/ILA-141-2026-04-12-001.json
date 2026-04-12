@@ -1,0 +1,29 @@
+{
+  "event": "ILA-141-2026-04-12-001",
+  "phase": 141,
+  "version": "9.74.0",
+  "timestamp_utc": "2026-04-12T00:00:00Z",
+  "ratified_by": "HUMAN-0:DUSTIN_L_REID",
+  "ratification_text": "HUMAN-0 ratification of Phase 141 scope: INNOV-47 Live Knowledge Sync Engine. Corpus Resurrection complete. 148 entries generated from live repo. 5 Hard-class invariants added. 30/30 tests passing. APPROVED: DUSTIN L. REID",
+  "innovation": "INNOV-47",
+  "innovation_name": "Live Knowledge Sync Engine (LKSE)",
+  "new_hard_invariants": [
+    "LKSE-SYNC-0",
+    "LKSE-DETERM-0",
+    "LKSE-CHAIN-0",
+    "LKSE-GATE-0",
+    "LKSE-HUMAN0-0"
+  ],
+  "cumulative_invariants": 226,
+  "world_first": "First local LLM with a constitutionally governed, auto-updating knowledge corpus synchronized from the live codebase at every phase boundary.",
+  "deliverables": [
+    "scripts/sync_dork_corpus.py — LKSE corpus generator",
+    "data/dork/corpus.jsonl — 148-entry live corpus",
+    "data/dork/corpus_manifest.json — HMAC chain manifest",
+    "dorkllm/retriever.py — updated corpus-first retrieval",
+    ".github/workflows/dork_corpus_sync.yml — CI sync gate",
+    "tests/test_phase141_lkse.py — 30/30 acceptance tests"
+  ],
+  "tests": "30/30",
+  "event_digest": "sha256:placeholder-track-b-will-compute-on-adaadell"
+}

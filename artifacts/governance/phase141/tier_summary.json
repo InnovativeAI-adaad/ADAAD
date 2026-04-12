@@ -1,0 +1,25 @@
+{
+  "phase": 141,
+  "tier": "intelligence",
+  "lane": "dork-supremacy",
+  "version": "9.74.0",
+  "innovation": "INNOV-47",
+  "innovation_name": "Live Knowledge Sync Engine (LKSE)",
+  "summary": "Phase 141 resurrects DORK's knowledge corpus from a stale 151-line JS file (Phase 125 vintage, 91 invariants claimed) to a live 148-entry JSONL corpus auto-synced at every phase boundary (Phase 140, 221 invariants). The LKSE pipeline generates entries for phases, invariants, innovations, findings, and governance mechanics directly from live repo artifacts. Retriever updated to prefer corpus.jsonl with word-overlap fallback for cold-start. CI gate ensures corpus stays within 1 phase of current_phase at all times.",
+  "invariants_added": 5,
+  "cumulative_invariants": 226,
+  "corpus_stats": {
+    "total_entries": 148,
+    "type_breakdown": {
+      "identity": 4,
+      "governance": 7,
+      "architecture": 6,
+      "phase": 22,
+      "invariant": 47,
+      "finding": 23,
+      "innovation": 38,
+      "system": 1
+    }
+  },
+  "timestamp_utc": "2026-04-12T00:00:00Z"
+}

@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.73.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": 141,
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -303,10 +303,10 @@
     "cumulative": 226,
     "hard_class_count": 221
   },
-  "current_phase": 140,
-  "current_version": "9.73.0",
-  "hard_class_count": 221,
-  "hard_class_invariant_count": 221,
+  "current_phase": 141,
+  "current_version": "9.74.0",
+  "hard_class_count": 226,
+  "hard_class_invariant_count": 226,
   "hard_class_invariants_cumulative": 221,
   "human0_signoffs": [
     {
@@ -328,14 +328,14 @@
       "session_digest": "gsync-phase93-v9.26.0-alignment-2026-03-28"
     }
   ],
-  "last_innovation": "INNOV-46",
-  "last_innovation_name": "Canary Mutation Deployment (CMD)",
+  "last_innovation": "INNOV-47",
+  "last_innovation_name": "Live Knowledge Sync Engine (LKSE)",
   "last_invocation": "2026-04-12",
-  "last_phase_completed": 133,
-  "last_phase_completed_label": "INNOV-42: DORK Fleet Server Bridge",
+  "last_phase_completed": 141,
+  "last_phase_completed_label": "Phase 141 \u00b7 INNOV-47 Live Knowledge Sync Engine (LKSE)",
   "last_sync_sha": "7d525241",
   "last_updated": "2026-04-11T12:38:12.268044+00:00",
-  "next_phase": 140,
+  "next_phase": 142,
   "next_pr": "feat/phase128-tbd",
   "open_findings": [
     {
@@ -597,7 +597,7 @@
     127
   ],
   "schema_version": "1.5.0",
-  "software_version": "9.73.0",
+  "software_version": "9.74.0",
   "tife_active": true,
   "value_checkpoints_reached": [
     "phase0-track-a-hardening",
@@ -888,11 +888,11 @@
     "phase124-world-first-governed-kernel-extraction",
     "v9.57.0-released"
   ],
-  "version": "9.73.0",
+  "version": "9.74.0",
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
   ],
-  "last_completed_phase": "Phase 11 \u00b7 Phase 140 \u00b7 Constitutional P0 Sweep + P1 Hardening",
+  "last_completed_phase": "Phase 141 \u00b7 INNOV-47 Live Knowledge Sync Engine (LKSE)",
   "last_agent_state_sync_digest": "gsync-eb0e09c7d1c0e788"
 }

@@ -1,0 +1,76 @@
+# SPDX-License-Identifier: Apache-2.0
+# dork_corpus_sync.yml — Phase 141 · INNOV-47 · Live Knowledge Sync Engine (LKSE)
+#
+# Triggers on every push to main (after merge) and on workflow_dispatch.
+# Regenerates data/dork/corpus.jsonl from live repo artifacts and commits it.
+#
+# LKSE-SYNC-0  enforced: sync_dork_corpus.py exits 1 (blocking) if corpus
+#              is more than 1 phase behind current_phase.
+# LKSE-GATE-0  enforced: this workflow is the CI gate — no corpus push without
+#              a passing sync_dork_corpus.py run.
+
+name: DORK Corpus Sync (LKSE)
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "data/dork/corpus.jsonl"
+      - "data/dork/corpus_manifest.json"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  corpus-sync:
+    name: Regenerate DORK Corpus
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run LKSE corpus generator
+        run: |
+          python scripts/sync_dork_corpus.py \
+            --repo-root . \
+            --out data/dork/corpus.jsonl
+        # LKSE-GATE-0: exits 1 if LKSE-SYNC-0 violated — blocks corpus commit
+
+      - name: Verify corpus.jsonl exists and is non-empty
+        run: |
+          test -f data/dork/corpus.jsonl || (echo "corpus.jsonl missing — LKSE-GATE-0 FAIL" && exit 1)
+          lines=$(wc -l < data/dork/corpus.jsonl)
+          echo "Corpus entries: $lines"
+          [ "$lines" -gt 0 ] || (echo "corpus.jsonl is empty — LKSE-GATE-0 FAIL" && exit 1)
+
+      - name: Verify corpus_manifest.json
+        run: |
+          python3 -c "
+          import json, sys
+          m = json.load(open('data/dork/corpus_manifest.json'))
+          assert m.get('chain_digest'), 'missing chain_digest'
+          assert m.get('entry_count', 0) > 0, 'zero entries'
+          print(f'Manifest OK: {m[\"entry_count\"]} entries · phase={m[\"source_phase\"]} · v{m[\"source_version\"]}')
+          "
+
+      - name: Commit updated corpus
+        run: |
+          git config user.email "devadaad@innovativeai.dev"
+          git config user.name "DEVADAAD"
+          git add data/dork/corpus.jsonl data/dork/corpus_manifest.json
+          if git diff --cached --quiet; then
+            echo "Corpus unchanged — no commit needed."
+          else
+            git commit -m "chore(lkse): auto-sync DORK corpus [lkse-sync]"
+            git push origin main
+          fi
