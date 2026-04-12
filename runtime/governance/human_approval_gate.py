@@ -43,6 +43,7 @@ import json
 import os
 import time
 from dataclasses import dataclass, asdict
+from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -58,6 +59,18 @@ DEFAULT_AUDIT_PATH  = Path("data/approval_audit.jsonl")
 DEFAULT_INDEX_PATH  = Path("data/approval_index.json")
 APPROVAL_EXPIRY_S   = 86400 * 7   # Approvals expire after 7 days (safety)
 
+# ---------------------------------------------------------------------------
+# HAPG-IDENTITY-0: HUMAN-0 operator identity binding
+# The canonical HUMAN-0 GPG fingerprint.  record_decision() MUST reject any
+# operator_id that does not match this value when ADAAD_STRICT_HUMAN0=1.
+# In dev/test mode the check is advisory only.
+# ---------------------------------------------------------------------------
+HUMAN0_GPG_FINGERPRINT: str = "4C95E2F99A775335B1CF3DAF247B015A1CCD95F6"
+_STRICT_HUMAN0: bool = (
+    (os.getenv("ADAAD_STRICT_HUMAN0", "0").strip() == "1")
+    or (os.getenv("ADAAD_ENV", "").strip().lower() not in {"dev", "test", ""})
+)
+
 
 # ---------------------------------------------------------------------------
 # Enums
@@ -69,6 +82,15 @@ class ApprovalStatus(str, Enum):
     REJECTED = "rejected"
     REVOKED  = "revoked"
     EXPIRED  = "expired"
+
+
+class IdentityViolationError(ValueError):
+    """Raised when operator_id does not match HUMAN0_GPG_FINGERPRINT in strict mode.
+
+    Constitutional invariant HAPG-IDENTITY-0: in production, the only valid
+    operator_id for approval decisions is the canonical HUMAN-0 GPG fingerprint.
+    Violations are hard-failed and ledger-appended before raising.
+    """
 
 
 class ApprovalReason(str, Enum):
@@ -324,18 +346,52 @@ class HumanApprovalGate:
 
     def is_approved(self, mutation_id: str) -> bool:
         """
-        Gate check: returns True only if mutation has a non-revoked APPROVED decision.
-        This is the canonical query point before any mutation advancement.
+        Gate check: returns True only if mutation has a non-revoked, non-expired
+        APPROVED decision.
+
+        HAPG-EXPIRY-0: Approvals older than APPROVAL_EXPIRY_S seconds are treated
+        as EXPIRED and return False.  The EXPIRED transition is appended to the
+        audit ledger so expiry is tamper-evident.
 
         Args:
             mutation_id: The mutation to check.
 
         Returns:
-            True if approved and not subsequently revoked. False otherwise.
+            True if approved, not revoked, and not expired. False otherwise.
         """
+        import time as _time
         state = self._load_index_or_rebuild()
         status = state["mutation_status"].get(mutation_id)
-        return status == ApprovalStatus.APPROVED.value
+        if status != ApprovalStatus.APPROVED.value:
+            return False
+
+        # HAPG-EXPIRY-0 — scan audit trail for the approval timestamp
+        for entry in self._read_audit():
+            if (
+                entry.get("event_type") == "approval_decision"
+                and entry.get("payload", {}).get("mutation_id") == mutation_id
+                and entry.get("payload", {}).get("status") == ApprovalStatus.APPROVED.value
+            ):
+                try:
+                    decided_at_str = entry["payload"]["decided_at"]
+                    decided_at = datetime.fromisoformat(decided_at_str.replace("Z", "+00:00"))
+                    age_s = (datetime.now(timezone.utc) - decided_at).total_seconds()
+                    if age_s > APPROVAL_EXPIRY_S:
+                        # Emit expiry event into audit ledger
+                        expiry_payload = {
+                            "mutation_id": mutation_id,
+                            "status": ApprovalStatus.EXPIRED.value,
+                            "age_seconds": int(age_s),
+                            "expiry_threshold_s": APPROVAL_EXPIRY_S,
+                        }
+                        self._write_audit(event_type="approval_expired", payload=expiry_payload)
+                        # Update in-memory status so subsequent calls are consistent
+                        state["mutation_status"][mutation_id] = ApprovalStatus.EXPIRED.value
+                        self._index_cache = None  # invalidate cache
+                        return False
+                except Exception:  # noqa: BLE001
+                    pass  # malformed timestamp — do not grant approval
+        return True
 
     def pending_queue(self) -> List[Dict[str, Any]]:
         """
@@ -490,6 +546,27 @@ class HumanApprovalGate:
         operator_id: str,
         notes: str = "",
     ) -> ApprovalDecision:
+        # HAPG-IDENTITY-0: In strict mode (production), operator_id MUST equal
+        # the canonical HUMAN-0 GPG fingerprint.  Violations are ledger-appended
+        # before raising so the attempt is permanently auditable.
+        canonical_op = operator_id.strip().upper().replace(" ", "").replace(":", "")
+        if _STRICT_HUMAN0 and canonical_op != HUMAN0_GPG_FINGERPRINT.replace(":", ""):
+            violation_payload = {
+                "operator_id_received": operator_id,
+                "expected_fingerprint": HUMAN0_GPG_FINGERPRINT,
+                "approval_id": approval_id,
+                "invariant": "HAPG-IDENTITY-0",
+            }
+            self._write_audit_with_state(
+                event_type="identity_violation",
+                payload=violation_payload,
+                state=state,
+            )
+            raise IdentityViolationError(
+                f"HAPG-IDENTITY-0: operator_id '{operator_id}' does not match "
+                f"HUMAN0_GPG_FINGERPRINT. Decision rejected and ledger-appended."
+            )
+
         request = self._find_request(approval_id)
         if approval_id in state["requests"]:
             request = state["requests"][approval_id]
@@ -651,4 +728,6 @@ __all__ = [
     "ApprovalDecision",
     "HumanApprovalGate",
     "APPROVAL_EXPIRY_S",
+    "HUMAN0_GPG_FINGERPRINT",
+    "IdentityViolationError",
 ]

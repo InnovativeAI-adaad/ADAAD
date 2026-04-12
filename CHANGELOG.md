@@ -1,4 +1,56 @@
-## [9.72.0] — 2026-04-11 · Phase 139 · Canary Mutation Deployment
+## [9.73.0] — 2026-04-11 · Phase 140 · Constitutional P0 Sweep + P1 Hardening
+
+### Deep Audit Response — 5 new Hard-class invariants (221 total)
+
+**P0 Findings Resolved**
+
+- **WL-001 / FINDING-126-NEW-001** Ghost tag `v9.59.0` deleted from remote (pointed to `38b5e125`).
+  GPG re-sign ceremony script delivered for `c05334c9` (Phase 126 canonical commit).
+- **WL-002 / FINDING-66-004** Ed25519 key ceremony forced closed by new `REPLAY-ALGO-0` invariant:
+  production deployments now fail-closed without Ed25519 key rather than silently downgrading to HMAC.
+- **WL-003** `pyproject.toml` version frozen at `9.70.0` — corrected to `9.73.0`. Canonical four-file
+  sync restored across `VERSION`, `pyproject.toml`, `CHANGELOG.md`, `.adaad_agent_state.json`.
+- **WL-004 / FINDING-135-NEW-001** Unphased PRs `#696–700` retroactively assigned to Phase 136
+  governance sweep. Agent state finding closed.
+- **WL-005 / FINDING-135-NEW-003** `CHANGELOG [9.68.0]` phase label confirmed as `Phase 136` in
+  live repo. Finding closed.
+
+**P1 Hardening — New Hard-class invariants**
+
+- `HAPG-IDENTITY-0` — `HumanApprovalGate.record_decision()` now enforces `operator_id` must equal
+  the canonical `HUMAN0_GPG_FINGERPRINT` (`4C95E2F99A775335B1CF3DAF247B015A1CCD95F6`) in strict /
+  production mode. Violations are ledger-appended before raising `IdentityViolationError`.
+  (`runtime/governance/human_approval_gate.py`)
+
+- `HAPG-EXPIRY-0` — `is_approved()` reads `decided_at` from the audit trail and computes approval
+  age. Approvals older than `APPROVAL_EXPIRY_S` (7 days) emit an `approval_expired` ledger event
+  and return `False`. `ApprovalStatus.EXPIRED` is now a reachable state machine transition.
+  (`runtime/governance/human_approval_gate.py`)
+
+- `REPLAY-ALGO-0` — `ReplayProofBuilder` in production / staging environments without an Ed25519
+  private key now raises `RuntimeError` rather than silently downgrading to HMAC-SHA256. Explicit
+  opt-in via `ADAAD_REPLAY_PROOF_ALLOW_HMAC_FALLBACK=1` required to acknowledge degraded posture.
+  (`runtime/evolution/replay_attestation.py`)
+
+- `TEST-ATTEST-0` — New CI workflow `test_attestation_gate.yml` + `scripts/validate_phase_test_attestation.py`
+  block any PR that ships an innovation without `tests="30/30"` in `innovations_shipped`. All 17
+  existing innovations validated: pass.
+
+- `GRRP-KEY-0` — GRRP HMAC signing key loaded from `ADAAD_GRRP_HMAC_KEY` env var, never hardcoded.
+  Production absence raises `RuntimeError` at import time. Dev/test receives explicit non-secret
+  fallback `b"grrp-dev-only-key-not-for-production"`.
+  (`runtime/innovations30/red_team_response_protocol.py`)
+
+**Files changed**
+- `runtime/governance/human_approval_gate.py`
+- `runtime/evolution/replay_attestation.py`
+- `runtime/innovations30/red_team_response_protocol.py`
+- `scripts/validate_phase_test_attestation.py` *(new)*
+- `.github/workflows/test_attestation_gate.yml` *(new)*
+- `artifacts/governance/phase140/ILA-140.json` *(new)*
+- `pyproject.toml`, `VERSION`, `CHANGELOG.md`, `.adaad_agent_state.json`
+
+
 
 ### INNOV-46: Constitutional canary window with Mirror Test gate and auto-rollback — 5 new Hard-class invariants
 

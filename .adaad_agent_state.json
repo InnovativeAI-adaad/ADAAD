@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.72.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": "v9.73.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -291,15 +291,22 @@
     "phase139-cmd-human0-0-enforced",
     "phase139-world-first-constitutional-canary-deployment",
     "v9.72.0-released",
-    "phase139-complete"
+    "phase139-complete",
+    "phase140-plan",
+    "phase140-human0-ratified",
+    "phase140-p0-sweep-implemented",
+    "phase140-p1-hardening-implemented",
+    "v9.73.0-released",
+    "phase140-complete"
   ],
   "constitutional_invariants": {
     "cumulative": 226,
     "hard_class_count": 221
   },
-  "current_phase": 139,
-  "current_version": "9.72.0",
+  "current_phase": 140,
+  "current_version": "9.73.0",
   "hard_class_count": 221,
+  "hard_class_invariant_count": 221,
   "hard_class_invariants_cumulative": 221,
   "human0_signoffs": [
     {
@@ -497,16 +504,16 @@
       "session_digest": "phase127-grrp-impl-2026-04-06"
     },
     {
-      "phase": 132,
+      "governor": "DUSTIN L REID",
       "innov": "INNOV-41",
-      "timestamp": "2026-04-11T11:02:25.774214+00:00",
-      "governor": "DUSTIN L REID"
+      "phase": 132,
+      "timestamp": "2026-04-11T11:02:25.774214+00:00"
     },
     {
-      "phase": 133,
+      "governor": "DUSTIN L REID",
       "innov": "INNOV-42",
-      "timestamp": "2026-04-11T12:38:12.268044+00:00",
-      "governor": "DUSTIN L REID"
+      "phase": 133,
+      "timestamp": "2026-04-11T12:38:12.268044+00:00"
     },
     {
       "attestation_ref": "ILA-45-2026-04-11-001",
@@ -523,6 +530,7 @@
       "session_digest": "phase139-cmd-impl-2026-04-11"
     }
   ],
+  "innovations_count": 43,
   "innovations_shipped": {
     "COMM-125": {
       "hard_invariants": 2,
@@ -609,6 +617,81 @@
       "tests": "30/30",
       "version": "9.60.0"
     },
+    "INNOV-41": {
+      "hard_invariants": 6,
+      "invariants": [
+        "DORK-FLEET-0",
+        "DORK-CMD-0",
+        "DORK-STATE-0",
+        "DORK-PROV-0",
+        "DORK-CTX-0",
+        "DORK-OUTPUT-0"
+      ],
+      "module": "dork_living_fleet.py",
+      "phase": 132,
+      "tests": "30/30",
+      "version": "9.64.0"
+    },
+    "INNOV-42": {
+      "description": "DORK Fleet Server Bridge",
+      "hard_invariants": 5,
+      "invariants": [
+        "DFSB-BRIDGE-0",
+        "DFSB-PROBE-0",
+        "DFSB-KEY-0",
+        "DFSB-ROUTE-0",
+        "DFSB-CHAIN-0"
+      ],
+      "module": "dork_living_fleet.py",
+      "phase": 133,
+      "tests": "30/30",
+      "version": "9.65.0"
+    },
+    "INNOV-43": {
+      "description": "Constitution Versioning and Rollback",
+      "hard_invariants": 5,
+      "invariants": [
+        "CVR-IMMUT-0",
+        "CVR-DIGEST-0",
+        "CVR-ROLLBACK-0",
+        "CVR-HUMAN0-0",
+        "CVR-CHAIN-0"
+      ],
+      "module": "constitution_version_ledger.py",
+      "phase": 135,
+      "tests": "30/30",
+      "version": "9.67.0"
+    },
+    "INNOV-45": {
+      "description": "Invariant Interaction Graph",
+      "hard_invariants": 5,
+      "invariants": [
+        "IIG-COFIRE-0",
+        "IIG-DETERM-0",
+        "IIG-PERSIST-0",
+        "IIG-CLUSTER-0",
+        "IIG-HUMAN0-0"
+      ],
+      "module": "invariant_interaction_graph.py",
+      "phase": 138,
+      "tests": "30/30",
+      "version": "9.71.0"
+    },
+    "INNOV-46": {
+      "description": "Canary Mutation Deployment",
+      "hard_invariants": 5,
+      "invariants": [
+        "CMD-GATE-0",
+        "CMD-MIRROR-0",
+        "CMD-ROLLBACK-0",
+        "CMD-CHAIN-0",
+        "CMD-HUMAN0-0"
+      ],
+      "module": "canary_mutation_deployment.py",
+      "phase": 139,
+      "tests": "30/30",
+      "version": "9.72.0"
+    },
     "PHASE-126": {
       "hard_invariants": 6,
       "invariants": [
@@ -624,84 +707,24 @@
       "tests": "30/30",
       "version": "9.59.0"
     },
-    "INNOV-41": {
-      "module": "dork_living_fleet.py",
-      "phase": 132,
-      "tests": "30/30",
-      "version": "9.64.0",
-      "hard_invariants": 6,
-      "invariants": [
-        "DORK-FLEET-0",
-        "DORK-CMD-0",
-        "DORK-STATE-0",
-        "DORK-PROV-0",
-        "DORK-CTX-0",
-        "DORK-OUTPUT-0"
-      ]
-    },
-    "INNOV-42": {
-      "module": "dork_living_fleet.py",
-      "phase": 133,
-      "tests": "30/30",
-      "version": "9.65.0",
+    "PHASE-140": {
+      "description": "Constitutional P0 Sweep + P1 Hardening \u2014 Phase 140",
       "hard_invariants": 5,
       "invariants": [
-        "DFSB-BRIDGE-0",
-        "DFSB-PROBE-0",
-        "DFSB-KEY-0",
-        "DFSB-ROUTE-0",
-        "DFSB-CHAIN-0"
+        "HAPG-IDENTITY-0",
+        "HAPG-EXPIRY-0",
+        "REPLAY-ALGO-0",
+        "TEST-ATTEST-0",
+        "GRRP-KEY-0"
       ],
-      "description": "DORK Fleet Server Bridge"
-    },
-    "INNOV-43": {
-      "module": "constitution_version_ledger.py",
-      "phase": 135,
+      "module": "human_approval_gate.py + replay_attestation.py + red_team_response_protocol.py",
+      "phase": 140,
       "tests": "30/30",
-      "version": "9.67.0",
-      "hard_invariants": 5,
-      "invariants": [
-        "CVR-IMMUT-0",
-        "CVR-DIGEST-0",
-        "CVR-ROLLBACK-0",
-        "CVR-HUMAN0-0",
-        "CVR-CHAIN-0"
-      ],
-      "description": "Constitution Versioning and Rollback"
-    },
-    "INNOV-45": {
-      "module": "invariant_interaction_graph.py",
-      "phase": 138,
-      "tests": "30/30",
-      "version": "9.71.0",
-      "hard_invariants": 5,
-      "invariants": [
-        "IIG-COFIRE-0",
-        "IIG-DETERM-0",
-        "IIG-PERSIST-0",
-        "IIG-CLUSTER-0",
-        "IIG-HUMAN0-0"
-      ],
-      "description": "Invariant Interaction Graph"
-    },
-    "INNOV-46": {
-      "module": "canary_mutation_deployment.py",
-      "phase": 139,
-      "tests": "30/30",
-      "version": "9.72.0",
-      "hard_invariants": 5,
-      "invariants": [
-        "CMD-GATE-0",
-        "CMD-MIRROR-0",
-        "CMD-ROLLBACK-0",
-        "CMD-CHAIN-0",
-        "CMD-HUMAN0-0"
-      ],
-      "description": "Canary Mutation Deployment"
+      "version": "9.73.0"
     }
   },
   "last_agent_state_sync_digest": "gsync-dbf92bb06be0c42b",
-  "last_completed_phase": "Phase 11 \u00b7 Phase 139 \u00b7 Canary Mutation Deployment",
+  "last_completed_phase": "Phase 140 \u00b7 Constitutional P0 Sweep + P1 Hardening",
   "last_completed_pr": "feat/phase139-innov46-cmd",
   "last_gate_results": {
     "tier_0": "pass",
@@ -892,11 +915,13 @@
     },
     {
       "id": "FINDING-126-NEW-001",
-      "note": "Runbook delivered. Ceremony execution deferred to HUMAN-0 Track B.",
+      "note": "Ghost tag v9.59.0 deleted from remote via PAT. GPG re-sign pending HUMAN-0 Track B ceremony on ADAADell (script delivered).",
       "phase_target": "126",
+      "resolved_date": "2026-04-11",
+      "resolved_phase": "140",
       "severity": "P0",
       "source": "ArchitectAgent 2026-04-06",
-      "status": "runbook_delivered",
+      "status": "resolved",
       "title": "Ghost tag v9.59.0 remediation \u2014 delete + re-sign required"
     },
     {
@@ -911,27 +936,49 @@
       "title": "33 DORK commits on main unphased \u2014 Option A selected by HUMAN-0"
     },
     {
-      "id": "FINDING-135-NEW-001",
-      "priority": "P1",
-      "status": "open",
-      "title": "5 unphased autonomous PRs (#696-700) on main post-Phase-135 \u2014 CHANGELOG at 9.68.0, VERSION/agent state at 9.67.0",
+      "action": "Assign to Phase 136 governance sweep or retroactively number as Phase 136 hardening; sync all version artifacts",
       "description": "PRs #696-700 (DORK fleet dispatch, ledger continuity, DFSB watchdog, ConversationLedger hardening, fleet invariant assertions) landed outside phase governance pipeline. CHANGELOG bumped to 9.68.0 but VERSION file, agent state, phase label, and governance artifacts not synced. CHANGELOG phase label says 'Phase 132' (incorrect).",
-      "action": "Assign to Phase 136 governance sweep or retroactively number as Phase 136 hardening; sync all version artifacts"
+      "id": "FINDING-135-NEW-001",
+      "note": "PRs #696-700 retroactively assigned to Phase 136 governance sweep. Governance artifacts created.",
+      "priority": "P1",
+      "resolved_date": "2026-04-11",
+      "resolved_phase": "140",
+      "status": "resolved",
+      "title": "5 unphased autonomous PRs (#696-700) on main post-Phase-135 \u2014 CHANGELOG at 9.68.0, VERSION/agent state at 9.67.0"
     },
     {
       "id": "FINDING-135-NEW-002",
       "priority": "P2",
+      "resolution": "Fixed to 'Phase 135 \u00b7 INNOV-43 Constitution Versioning and Rollback (CVR)'",
       "status": "resolved",
-      "title": "last_completed_phase field corrupted \u2014 'Phase 11 \u00b7 Phase 135 \u00b7 ...'",
-      "resolution": "Fixed to 'Phase 135 \u00b7 INNOV-43 Constitution Versioning and Rollback (CVR)'"
+      "title": "last_completed_phase field corrupted \u2014 'Phase 11 \u00b7 Phase 135 \u00b7 ...'"
     },
     {
-      "id": "FINDING-135-NEW-003",
-      "priority": "P2",
-      "status": "open",
-      "title": "CHANGELOG [9.68.0] labeled 'Phase 132' \u2014 incorrect phase attribution",
+      "action": "Correct phase label when Phase 136 is numbered",
       "description": "The 9.68.0 CHANGELOG entry was generated by autonomous PRs and carries wrong phase number. Should reference Phase 136 (post-135 hardening sweep) once that phase is properly assigned.",
-      "action": "Correct phase label when Phase 136 is numbered"
+      "id": "FINDING-135-NEW-003",
+      "note": "CHANGELOG [9.68.0] confirmed as Phase 136 in live repo. Finding closed.",
+      "priority": "P2",
+      "resolved_date": "2026-04-11",
+      "resolved_phase": "140",
+      "status": "resolved",
+      "title": "CHANGELOG [9.68.0] labeled 'Phase 132' \u2014 incorrect phase attribution"
+    },
+    {
+      "id": "FINDING-140-001",
+      "note": "Remote tag deleted. HUMAN-0 must run ceremony script on ADAADell to create GPG-signed v9.59.0 against c05334c919181ed2717d9e22ef62698e5acb1aa8.",
+      "severity": "P1",
+      "source": "Phase 140 Track B",
+      "status": "runbook_delivered",
+      "title": "v9.59.0 GPG re-sign ceremony pending \u2014 ghost tag deleted, new signed tag not yet pushed"
+    },
+    {
+      "id": "FINDING-140-002",
+      "note": "Fix: configure git remote with PAT embedded URL or use SSH key. Ceremony script below uses PAT-URL pattern.",
+      "severity": "P1",
+      "source": "Phase 140 Track B",
+      "status": "runbook_delivered",
+      "title": "ADAADell git credential manager broken \u2014 WSL cannot push via HTTPS with Windows GCM"
     }
   ],
   "pending_evidence_rows": [],
@@ -1244,7 +1291,5 @@
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
-  ],
-  "hard_class_invariant_count": 216,
-  "innovations_count": 43
+  ]
 }
