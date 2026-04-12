@@ -104,6 +104,7 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 138 | INNOV-45 IIG — Invariant Interaction Graph | v9.71.0 | P0 | ✅ shipped |
 | 139 | INNOV-46 CMD — Canary Mutation Deployment | v9.72.0 | P0 | ✅ shipped |
 | 140 | Constitutional P0 Sweep + P1 Hardening | v9.73.0 | P0 | ✅ shipped |
+| 141 | INNOV-47 LKSE — Live Knowledge Sync Engine | v9.74.0 | P0 | ✅ shipped |
 | GA | v1.1-GA Release | v1.1.0-GA | P0 | 🟡 FINDING-66-004 resolved · PyPI publication pending |
 
 ---

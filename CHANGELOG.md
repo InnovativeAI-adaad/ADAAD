@@ -1,3 +1,30 @@
+## [9.74.0] — 2026-04-12 · Phase 141 · INNOV-47 Live Knowledge Sync Engine (LKSE)
+
+### DORK Corpus Resurrection — 5 new Hard-class invariants (226 total)
+
+**INNOV-47 · Live Knowledge Sync Engine (LKSE)**
+
+- `scripts/sync_dork_corpus.py` — corpus generator reads agent state, CHANGELOG, all governance
+  artifacts, and ILA JSON files; produces `data/dork/corpus.jsonl` with 148 entries covering
+  phases, innovations, invariants, findings, and governance mechanics.
+- `data/dork/corpus.jsonl` — 148-entry live corpus (up from a stale 151-line JS file frozen at
+  Phase 125 with 91 invariants; now Phase 140 · 221 invariants · 46 innovations).
+- `data/dork/corpus_manifest.json` — HMAC-SHA256 chain manifest for tamper-detection.
+- `dorkllm/retriever.py` — rewritten with corpus-first retrieval; falls back to legacy KB on
+  cold-start; exposes `get_corpus_status()` for governance health-check.
+- `.github/workflows/dork_corpus_sync.yml` — CI gate runs on every merge to main; blocks if
+  `LKSE-SYNC-0` violated (corpus > 1 phase stale).
+
+**New Hard-class invariants**
+
+- `LKSE-SYNC-0` — corpus must be within 1 phase of `current_phase`; CI exits 1 if violated.
+- `LKSE-DETERM-0` — corpus.jsonl sorted by entry id; identical inputs → identical output.
+- `LKSE-CHAIN-0` — manifest digest is HMAC-SHA256 over sorted entry digests.
+- `LKSE-GATE-0` — CI workflow is the enforcement gate; no corpus push without passing sync.
+- `LKSE-HUMAN0-0` — corpus must never overwrite or omit HUMAN-0 canonical identity fields.
+
+**Tests:** T141-LKSE-01..30 (30/30 PASS)
+
 ## [9.73.0] — 2026-04-11 · Phase 140 · Constitutional P0 Sweep + P1 Hardening
 
 ### Deep Audit Response — 5 new Hard-class invariants (221 total)
