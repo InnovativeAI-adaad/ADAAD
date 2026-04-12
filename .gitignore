@@ -51,6 +51,7 @@ secrets.local.*
 # Never commit private keys
 security/keys/*
 !security/keys/.gitkeep
+!security/keys/ed25519_governance_ring.json
 venv/
 build/
 dist/
