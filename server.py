@@ -4,6 +4,7 @@ import json
 import importlib
 import hashlib
 import logging
+import warnings
 import os
 import subprocess
 import sys
@@ -44,6 +45,10 @@ from app.api.governance import router as governance_router
 from app.api.audit import router as audit_router
 from app.api.ui import router as ui_router
 from app.api.simulation import router as simulation_router
+from app.api.compliance import router as compliance_router
+from app.api.audit_exports import router as audit_exports_router
+from app.api.mutation_control import router as mutation_control_router
+from app.api.streams import router as streams_router
 from runtime.integrations.github_app import dispatch_event, verify_webhook_signature  # ADAADchat
 from app.api.dependencies import require_audit_scope, require_gate_open, require_tenant_context
 from sse_starlette.sse import EventSourceResponse
@@ -70,6 +75,11 @@ from runtime.system_status import (
     DEFAULT_VERSION_PATH,
     load_live_version as load_live_version_snapshot,
     read_gate_state as read_gate_state_snapshot,
+)
+from app.services.compliance_exports import (
+    load_control_evidence_snapshots as _svc_load_control_evidence_snapshots,
+    load_policy_change_history as _svc_load_policy_change_history,
+    load_replay_attestations as _svc_load_replay_attestations,
 )
 
 _LAZY_IMPORT_CACHE: dict[str, Any] = {}
@@ -757,6 +767,10 @@ app.include_router(governance_router)
 app.include_router(audit_router)
 app.include_router(ui_router)
 app.include_router(simulation_router)
+app.include_router(compliance_router)
+app.include_router(audit_exports_router)
+app.include_router(mutation_control_router)
+app.include_router(streams_router)
 
 
 def telemetry_decisions_legacy(
@@ -3514,377 +3528,23 @@ def api_status_mock_disabled() -> dict:
     raise HTTPException(status_code=404, detail="mock_endpoints_disabled")
 
 
-_COMPLIANCE_EXPORT_DATASETS: frozenset[str] = frozenset(
-    {
-        "control-evidence-snapshots",
-        "immutable-replay-attestations",
-        "policy-change-history",
-        "incident-remediation-logs",
-    }
-)
-
-
-def _jsonable_scalar(value: Any) -> Any:
-    if isinstance(value, (str, int, float, bool)) or value is None:
-        return value
-    return json.dumps(value, sort_keys=True, separators=(",", ":"))
-
-
-def _render_csv(rows: list[dict[str, Any]]) -> str:
-    if not rows:
-        return ""
-    keys: list[str] = sorted({key for row in rows for key in row.keys()})
-    buffer = io.StringIO()
-    writer = csv.DictWriter(buffer, fieldnames=keys)
-    writer.writeheader()
-    for row in rows:
-        writer.writerow({key: _jsonable_scalar(row.get(key)) for key in keys})
-    return buffer.getvalue()
-
-
 def _load_replay_attestations() -> list[dict[str, Any]]:
-    attestations: list[dict[str, Any]] = []
-    if not REPLAY_PROOFS_DIR.exists():
-        return attestations
-    for proof_file in sorted(REPLAY_PROOFS_DIR.glob("*.replay_attestation.v1.json")):
-        try:
-            bundle = json.loads(proof_file.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            continue
-        attestations.append(
-            {
-                "epoch_id": str(bundle.get("epoch_id") or proof_file.name.split(".", 1)[0]),
-                "proof_digest": str(bundle.get("proof_digest", "")),
-                "canonical_digest": str(bundle.get("canonical_digest", "")),
-                "checkpoint_chain_digest": str(bundle.get("checkpoint_chain_digest", "")),
-                "replay_digest": str(bundle.get("replay_digest", "")),
-                "signature_count": len(bundle.get("signatures", [])) if isinstance(bundle.get("signatures"), list) else 0,
-                "source_path": str(proof_file),
-            }
-        )
-    return attestations
+    """Deprecated compatibility shim; use app.services.compliance_exports."""
+    warnings.warn("server._load_replay_attestations is deprecated; use app.services.compliance_exports.load_replay_attestations", DeprecationWarning, stacklevel=2)
+    return _svc_load_replay_attestations(replay_proofs_dir=REPLAY_PROOFS_DIR)
 
 
 def _load_policy_change_history() -> list[dict[str, Any]]:
-    entries = journal.read_entries(limit=1000)
-    filtered: list[dict[str, Any]] = []
-    for item in entries:
-        tx_type = str(item.get("tx_type", ""))
-        payload = item.get("payload", {})
-        reason = ""
-        if isinstance(payload, dict):
-            reason = str(payload.get("reason_code") or payload.get("reason") or "")
-        text = f"{tx_type} {reason}".lower()
-        if "policy" not in text and "governance" not in text:
-            continue
-        filtered.append(
-            {
-                "entry_id": str(item.get("entry_id", "")),
-                "timestamp": str(item.get("timestamp", "")),
-                "tx_type": tx_type,
-                "reason_code": reason,
-                "payload": payload if isinstance(payload, dict) else {},
-            }
-        )
-    policy_baseline = ROOT / "governance" / "governance_policy_v1.json"
-    if policy_baseline.exists():
-        try:
-            baseline = json.loads(policy_baseline.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            baseline = {}
-        filtered.insert(
-            0,
-            {
-                "entry_id": "baseline-governance-policy-v1",
-                "timestamp": "",
-                "tx_type": "policy_baseline",
-                "reason_code": "",
-                "payload": baseline if isinstance(baseline, dict) else {},
-            },
-        )
-    return filtered
+    """Deprecated compatibility shim; use app.services.compliance_exports."""
+    warnings.warn("server._load_policy_change_history is deprecated; use app.services.compliance_exports.load_policy_change_history", DeprecationWarning, stacklevel=2)
+    return _svc_load_policy_change_history(root=ROOT, journal_module=journal)
 
 
 def _load_control_evidence_snapshots() -> list[dict[str, Any]]:
-    rows: list[dict[str, Any]] = []
-    evidence_matrix = ROOT / "docs" / "comms" / "claims_evidence_matrix.md"
-    if evidence_matrix.exists():
-        rows.append(
-            {
-                "control_id": "claims-evidence-matrix",
-                "snapshot_type": "evidence_matrix",
-                "source_path": str(evidence_matrix),
-                "sha256": hashlib.sha256(evidence_matrix.read_bytes()).hexdigest(),
-            }
-        )
-    runtime_profile = ROOT / "governance_runtime_profile.lock.json"
-    if runtime_profile.exists():
-        rows.append(
-            {
-                "control_id": "governance-runtime-profile",
-                "snapshot_type": "runtime_profile",
-                "source_path": str(runtime_profile),
-                "sha256": hashlib.sha256(runtime_profile.read_bytes()).hexdigest(),
-            }
-        )
-    rows.extend(
-        {
-            "control_id": f"replay-attestation:{row['epoch_id']}",
-            "snapshot_type": "immutable_replay_attestation",
-            "source_path": row["source_path"],
-            "sha256": row["proof_digest"] or row["canonical_digest"],
-        }
-        for row in _load_replay_attestations()
-    )
-    return rows
-
-
-def _load_incident_remediation_logs() -> list[dict[str, Any]]:
-    entries = journal.read_entries(limit=2000)
-    rows: list[dict[str, Any]] = []
-    for item in entries:
-        tx_type = str(item.get("tx_type", ""))
-        payload = item.get("payload", {})
-        payload_text = json.dumps(payload, sort_keys=True) if isinstance(payload, dict) else str(payload)
-        combined = f"{tx_type} {payload_text}".lower()
-        if "incident" not in combined and "remediation" not in combined and "recover" not in combined:
-            continue
-        rows.append(
-            {
-                "entry_id": str(item.get("entry_id", "")),
-                "timestamp": str(item.get("timestamp", "")),
-                "tx_type": tx_type,
-                "severity": str(payload.get("severity", "")) if isinstance(payload, dict) else "",
-                "status": str(payload.get("status", "")) if isinstance(payload, dict) else "",
-                "payload": payload if isinstance(payload, dict) else {},
-            }
-        )
-    return rows
-
-
-def _compliance_dataset_rows(dataset: str) -> list[dict[str, Any]]:
-    if dataset == "control-evidence-snapshots":
-        return _load_control_evidence_snapshots()
-    if dataset == "immutable-replay-attestations":
-        return _load_replay_attestations()
-    if dataset == "policy-change-history":
-        return _load_policy_change_history()
-    if dataset == "incident-remediation-logs":
-        return _load_incident_remediation_logs()
-    raise HTTPException(status_code=404, detail="unknown_compliance_dataset")
-
-
-@app.get("/api/compliance/exports/{dataset}")
-def get_compliance_export(
-    dataset: str,
-    fmt: str = Query(default="json", pattern="^(json|csv)$"),
-    auth_ctx: dict[str, Any] = Depends(require_audit_scope),
-) -> Response:
-    if dataset not in _COMPLIANCE_EXPORT_DATASETS:
-        raise HTTPException(status_code=404, detail="unknown_compliance_dataset")
-    rows = _compliance_dataset_rows(dataset)
-    if fmt == "csv":
-        body = _render_csv(rows)
-        return Response(
-            content=body,
-            media_type="text/csv",
-            headers={"Content-Disposition": f'attachment; filename="{dataset}.csv"'},
-        )
-    payload = {
-        "schema_version": "1.0",
-        "authn": auth_ctx,
-        "data": {
-            "dataset": dataset,
-            "format": "json",
-            "record_count": len(rows),
-            "records": rows,
-        },
-    }
-    return JSONResponse(content=payload)
-
-
-@app.post("/api/compliance/exports/{dataset}/jobs")
-def create_compliance_export_job(
-    dataset: str,
-    fmt: str = Query(default="json", pattern="^(json|csv)$"),
-    auth_ctx: dict[str, Any] = Depends(require_audit_scope),
-) -> dict[str, Any]:
-    if dataset not in _COMPLIANCE_EXPORT_DATASETS:
-        raise HTTPException(status_code=404, detail="unknown_compliance_dataset")
-    rows = _compliance_dataset_rows(dataset)
-    COMPLIANCE_EXPORT_DIR.mkdir(parents=True, exist_ok=True)
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    job_id = f"job-{uuid.uuid4().hex[:12]}"
-    extension = "csv" if fmt == "csv" else "json"
-    export_path = COMPLIANCE_EXPORT_DIR / f"{dataset}.{timestamp}.{job_id}.{extension}"
-    if fmt == "csv":
-        export_path.write_text(_render_csv(rows), encoding="utf-8")
-    else:
-        export_path.write_text(
-            json.dumps(
-                {
-                    "schema_version": "1.0",
-                    "dataset": dataset,
-                    "record_count": len(rows),
-                    "records": rows,
-                },
-                indent=2,
-                sort_keys=True,
-            )
-            + "\n",
-            encoding="utf-8",
-        )
-    return {
-        "schema_version": "1.0",
-        "authn": auth_ctx,
-        "data": {
-            "job_id": job_id,
-            "dataset": dataset,
-            "format": fmt,
-            "record_count": len(rows),
-            "path": str(export_path),
-            "created_at": datetime.now(timezone.utc).isoformat(),
-        },
-    }
-
-
-# ── Audit endpoints (Phase 46+ — evidence, replay proofs, lineage) ───────────
-
-@app.get("/api/audit/epochs/{epoch_id}/replay-proof")
-def audit_replay_proof(
-    epoch_id: str,
-    redaction: str | None = Query(default=None),
-    auth_ctx: dict[str, Any] = Depends(require_audit_scope),
-    tenant_ctx: dict[str, str] = Depends(require_tenant_context),
-) -> dict[str, Any]:
-    """Return the replay attestation proof bundle for an epoch.
-
-    Requires audit:read scope. When redaction=sensitive, strips signature values.
-    Response: {schema_version, authn, data: {epoch_id, bundle_path, bundle, verification}}
-    """
-    authn = auth_ctx
-    proof_file = REPLAY_PROOFS_DIR / f"{epoch_id}.replay_attestation.v1.json"
-    if not proof_file.exists():
-        raise HTTPException(status_code=404, detail="replay_proof_not_found")
-    try:
-        bundle: dict[str, Any] = json.loads(proof_file.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
-        raise HTTPException(status_code=500, detail="proof_read_error") from exc
-    proof_tenant = bundle.get("tenant") if isinstance(bundle.get("tenant"), dict) else {}
-    proof_tenant_id = str(bundle.get("tenant_id") or proof_tenant.get("tenant_id") or "").strip()
-    proof_workspace_id = str(bundle.get("workspace_id") or proof_tenant.get("workspace_id") or "").strip()
-    if proof_tenant_id and proof_workspace_id:
-        if proof_tenant_id != tenant_ctx["tenant_id"] or proof_workspace_id != tenant_ctx["workspace_id"]:
-            raise HTTPException(status_code=403, detail="tenant_scope_mismatch")
-
-    # Redact signature values when redaction=sensitive
-    if redaction == "sensitive" and "signatures" in bundle:
-        redacted_sigs = [
-            {k: v for k, v in sig.items() if k != "signature"}
-            for sig in bundle.get("signatures", [])
-        ]
-        bundle = {**bundle}
-        del bundle["signatures"]
-
-    return {
-        "schema_version": "1.0",
-        "authn": authn,
-        "data": {
-            "epoch_id": epoch_id,
-            "bundle_path": str(proof_file),
-            "bundle": bundle,
-            "verification": {
-                "proof_digest_present": "proof_digest" in bundle,
-                "signatures_present": "signatures" in bundle,
-            },
-        },
-    }
-
-
-@app.get("/api/audit/epochs/{epoch_id}/lineage")
-def audit_epoch_lineage(
-    epoch_id: str,
-    auth_ctx: dict[str, Any] = Depends(require_audit_scope),
-    tenant_ctx: dict[str, str] = Depends(require_tenant_context),
-) -> dict[str, Any]:
-    """Return lineage events and journal entries for an epoch.
-
-    Requires audit:read scope.
-    Response: {schema_version, authn, data: {epoch_id, lineage, lineage_digest,
-               expected_epoch_digest, journal_entries}}
-    """
-    authn = auth_ctx
-    ledger = LineageLedgerV2(tenant_context=tenant_ctx)
-    lineage = ledger.read_epoch(epoch_id)
-    lineage_digest = ledger.compute_incremental_epoch_digest(epoch_id)
-    expected = ledger.get_expected_epoch_digest(epoch_id) or ""
-    journal_entries = journal.read_entries(limit=200, tenant_context=tenant_ctx)
-    return {
-        "schema_version": "1.0",
-        "authn": authn,
-        "data": {
-            "epoch_id": epoch_id,
-            "lineage": lineage,
-            "lineage_digest": lineage_digest,
-            "expected_epoch_digest": expected,
-            "journal_entries": journal_entries,
-        },
-    }
-
-
-def _load_bundle(bundle_id: str) -> tuple[dict[str, Any], str]:
-    """Load and return a forensic bundle dict + its file path string."""
-    bundle_file = FORENSIC_EXPORT_DIR / f"{bundle_id}.json"
-    if not bundle_file.exists():
-        raise HTTPException(status_code=404, detail="bundle_not_found")
-    try:
-        return json.loads(bundle_file.read_text(encoding="utf-8")), str(bundle_file)
-    except (OSError, json.JSONDecodeError) as exc:
-        raise HTTPException(status_code=500, detail="bundle_read_error") from exc
-
-
-def _redact_bundle(bundle: dict[str, Any]) -> dict[str, Any]:
-    """Strip signature fields from export_metadata.signer for response."""
-    result = dict(bundle)
-    if "export_metadata" in result:
-        em = dict(result["export_metadata"])
-        if "signer" in em:
-            em["signer"] = {k: v for k, v in em["signer"].items() if k != "signature"}
-        result["export_metadata"] = em
-    return result
-
-
-@app.get("/api/audit/bundles/{bundle_id}")
-def audit_bundle(
-    bundle_id: str,
-    auth_ctx: dict[str, Any] = Depends(require_audit_scope),
-    tenant_ctx: dict[str, str] = Depends(require_tenant_context),
-) -> dict[str, Any]:
-    """Return a forensic evidence bundle with validation results.
-
-    Requires audit:read scope.
-    Response: {schema_version, authn, data: {bundle_id, bundle_path, bundle, validation}}
-    """
-    authn = auth_ctx
-    raw_bundle, bundle_path = _load_bundle(bundle_id)
-    bundle_tenant = raw_bundle.get("tenant") if isinstance(raw_bundle.get("tenant"), dict) else {}
-    bundle_tenant_id = str(raw_bundle.get("tenant_id") or bundle_tenant.get("tenant_id") or "").strip()
-    bundle_workspace_id = str(raw_bundle.get("workspace_id") or bundle_tenant.get("workspace_id") or "").strip()
-    if bundle_tenant_id and bundle_workspace_id:
-        if bundle_tenant_id != tenant_ctx["tenant_id"] or bundle_workspace_id != tenant_ctx["workspace_id"]:
-            raise HTTPException(status_code=403, detail="tenant_scope_mismatch")
-    builder = EvidenceBundleBuilder(export_dir=FORENSIC_EXPORT_DIR)
-    validation = builder.validate_bundle(raw_bundle)
-    return {
-        "schema_version": "1.0",
-        "authn": authn,
-        "data": {
-            "bundle_id": bundle_id,
-            "bundle_path": bundle_path,
-            "bundle": _redact_bundle(raw_bundle),
-            "validation": validation,
-        },
-    }
+    """Deprecated compatibility shim; use app.services.compliance_exports."""
+    warnings.warn("server._load_control_evidence_snapshots is deprecated; use app.services.compliance_exports.load_control_evidence_snapshots", DeprecationWarning, stacklevel=2)
+    replay_attestations = _svc_load_replay_attestations(replay_proofs_dir=REPLAY_PROOFS_DIR)
+    return _svc_load_control_evidence_snapshots(root=ROOT, replay_attestations=replay_attestations)
 
 
 def _authenticate_audit_request(authorization: str | None = Header(default=None)) -> dict[str, Any]:
@@ -4005,177 +3665,6 @@ def _resolve_ui_paths(create_placeholder: bool = False):
 
 
 # ── WebSocket /ws/events ──────────────────────────────────────────────────────
-
-@app.websocket("/ws/events")
-async def ws_events(websocket: WebSocket) -> None:
-    """Real-time event stream — Phase 70: persistent innovations bus relay.
-
-    Channels:
-    - "metrics"      — recent entries from runtime.metrics.tail()
-    - "journal"      — recent entries from security.ledger.journal.read_entries()
-    - "innovations"  — live CEL step / epoch / story_arc / personality / reflection frames
-
-    Each event has keys: channel, kind, timestamp, event.
-    After the initial batch, the connection stays open and pushes innovations
-    bus frames as they arrive (one JSON message per frame).
-
-    IBUS-FAILSAFE-0: disconnect from the bus on any send failure.
-    """
-    from runtime.innovations_bus import get_bus  # noqa: PLC0415 — avoid import-time cycle
-
-    relay_policy = websocket.query_params.get("relay_policy", "drop_oldest")
-    if relay_policy not in {"drop_oldest", "coalesce_latest"}:
-        await websocket.close(code=1008, reason="invalid_relay_policy")
-        return
-
-    def _parse_limit(name: str, default: int, cap: int) -> int:
-        raw = websocket.query_params.get(name)
-        if raw is None:
-            return default
-        try:
-            value = int(raw)
-        except (TypeError, ValueError):
-            raise HTTPException(status_code=422, detail=f"invalid_{name}") from None
-        if value < 0 or value > cap:
-            raise HTTPException(status_code=422, detail=f"invalid_{name}")
-        return value
-
-    def _parse_float(name: str, default: float, minimum: float, maximum: float) -> float:
-        raw = websocket.query_params.get(name)
-        if raw is None:
-            return default
-        try:
-            value = float(raw)
-        except (TypeError, ValueError):
-            raise HTTPException(status_code=422, detail=f"invalid_{name}") from None
-        if value < minimum or value > maximum:
-            raise HTTPException(status_code=422, detail=f"invalid_{name}")
-        return value
-
-    try:
-        metrics_limit = _parse_limit("metrics_limit", default=200, cap=500)
-        journal_limit = _parse_limit("journal_limit", default=200, cap=500)
-        relay_queue_limit = _parse_limit("relay_queue_limit", default=128, cap=512)
-        heartbeat_interval_s = _parse_float("heartbeat_interval_s", default=30.0, minimum=1.0, maximum=120.0)
-        stale_timeout_s = _parse_float("stale_timeout_s", default=90.0, minimum=2.0, maximum=300.0)
-    except HTTPException:
-        await websocket.close(code=1008, reason="invalid_query_params")
-        return
-
-    await websocket.accept()
-    # Hello frame
-    await websocket.send_json({
-        "type": "hello",
-        "channels": ["metrics", "journal", "innovations"],
-        "status": "live",
-        "endpoint_meta": {
-            "history_caps": {"metrics_limit_max": 500, "journal_limit_max": 500},
-            "queue_policy": relay_policy,
-            "relay_queue_limit": relay_queue_limit,
-            "heartbeat_interval_s": heartbeat_interval_s,
-            "stale_timeout_s": stale_timeout_s,
-        },
-    })
-    # Historical batch
-    events = []
-    for entry in metrics.tail(limit=metrics_limit):
-        events.append({
-            "channel": "metrics",
-            "kind": str(entry.get("event", entry.get("event_type", "metric"))),
-            "timestamp": str(entry.get("timestamp", entry.get("ts", ""))),
-            "event": entry,
-        })
-    for entry in journal.read_entries(limit=journal_limit):
-        events.append({
-            "channel": "journal",
-            "kind": str(entry.get("action", entry.get("tx_type", "journal"))),
-            "timestamp": str(entry.get("timestamp", entry.get("ts", ""))),
-            "event": entry,
-        })
-    await websocket.send_json({"type": "event_batch", "events": events})
-
-    # Subscribe to innovations bus and relay frames until disconnect
-    bus = get_bus()
-    queue = await bus.subscribe()
-    relay_queue: asyncio.Queue[dict[str, Any]] = asyncio.Queue(maxsize=relay_queue_limit)
-    disconnect_reason = "client_closed"
-    dropped_frames = 0
-    last_client_signal = asyncio.get_event_loop().time()
-    coalesced_latest: dict[str, Any] | None = None
-    stop_signal = asyncio.Event()
-
-    async def _client_reader() -> None:
-        nonlocal last_client_signal
-        while not stop_signal.is_set():
-            try:
-                message = await asyncio.wait_for(websocket.receive_json(), timeout=heartbeat_interval_s)
-            except asyncio.TimeoutError:
-                continue
-            except Exception:  # noqa: BLE001
-                break
-            if isinstance(message, dict) and message.get("type") == "pong":
-                last_client_signal = asyncio.get_event_loop().time()
-
-    async def _relay_ingress() -> None:
-        nonlocal dropped_frames, coalesced_latest
-        while not stop_signal.is_set():
-            frame = await queue.get()
-            if relay_policy == "coalesce_latest":
-                if relay_queue.full():
-                    coalesced_latest = frame
-                    dropped_frames += 1
-                    metrics.log("ws_events_frames_dropped", payload={"policy": relay_policy, "dropped": dropped_frames})
-                    continue
-            if relay_queue.full():
-                _ = relay_queue.get_nowait()
-                dropped_frames += 1
-                metrics.log("ws_events_frames_dropped", payload={"policy": relay_policy, "dropped": dropped_frames})
-            await relay_queue.put(frame)
-            if coalesced_latest is not None and not relay_queue.full():
-                await relay_queue.put(coalesced_latest)
-                coalesced_latest = None
-            metrics.log("ws_events_queue_depth", payload={"depth": relay_queue.qsize(), "limit": relay_queue_limit})
-
-    reader_task = asyncio.create_task(_client_reader())
-    ingress_task = asyncio.create_task(_relay_ingress())
-    try:
-        while True:
-            try:
-                now = asyncio.get_event_loop().time()
-                if (now - last_client_signal) >= stale_timeout_s:
-                    disconnect_reason = "stale_client_timeout"
-                    await websocket.send_json({"type": "disconnect", "reason": disconnect_reason})
-                    break
-                frame = await asyncio.wait_for(relay_queue.get(), timeout=heartbeat_interval_s)
-                await websocket.send_json({"type": "innovations", "channel": "innovations", **frame})
-            except asyncio.TimeoutError:
-                # Keepalive ping
-                await websocket.send_json({"type": "ping", "ts": datetime.now(timezone.utc).isoformat()})
-    except Exception:  # noqa: BLE001 — client disconnected
-        disconnect_reason = "send_or_receive_failure"
-    finally:
-        stop_signal.set()
-        ingress_task.cancel()
-        reader_task.cancel()
-        for task in (ingress_task, reader_task):
-            try:
-                await task
-            except BaseException:  # noqa: BLE001
-                pass
-        await bus.unsubscribe(queue)
-        metrics.log(
-            "ws_events_disconnect",
-            payload={
-                "cause": disconnect_reason,
-                "dropped_frames": dropped_frames,
-                "queue_depth": relay_queue.qsize(),
-            },
-        )
-        try:
-            await websocket.close(reason=disconnect_reason)
-        except Exception:  # noqa: BLE001
-            pass
-
 
 # /ui/aponi/{asset_path} — explicit asset route so monkeypatching APONI_DIR in tests works.
 # A static mount binds the directory at registration time; a route always reads APONI_DIR
@@ -4322,114 +3811,6 @@ async def release_readiness():
         "blockers": []
     }
 
-# ── Phase 107: Dork Empowerment (Mutations & Approvals) ──────────────────────
-
-@app.get("/api/governance/approvals/pending")
-async def get_pending_approvals(
-    auth_ctx: dict[str, Any] = Depends(require_audit_scope),
-) -> dict[str, Any]:
-    """List all pending human-in-the-loop approval requests."""
-    _ = auth_ctx
-    from runtime.governance.human_approval_gate import HumanApprovalGate
-    gate = HumanApprovalGate()
-    return {"ok": True, "pending": gate.pending_queue()}
-
-@app.get("/api/governance/merges")
-async def get_recent_merges(
-    limit: int = 20,
-) -> dict[str, Any]:
-    """Return recent DEVADAAD merge_attestation.v1 events from the lifecycle ledger."""
-    # In a full implementation, this reads from pr_lifecycle_events.jsonl or equivalent.
-    # For now, return a mock schema-compliant response bridging to dork UI telemetry.
-    mock_merges = [
-        {
-            "event_type": "merge_attestation.v1",
-            "timestamp_utc": datetime.now(timezone.utc).isoformat(),
-            "payload": {
-                "pr_id": "PR-PHASE108-01",
-                "merge_sha": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
-                "tier_0_digest": "sha256:1234567890abcdef",
-                "tier_1_tests_passed": 1050,
-                "tier_1_tests_failed": 0,
-                "tier_3_evidence_complete": True,
-                "tier_m_working_code": True,
-                "triggered_by": "DEVADAAD",
-            }
-        }
-    ]
-    return {"ok": True, "merges": mock_merges, "count": len(mock_merges)}
-
-class _ApprovalDecisionRequest(BaseModel):
-    approved: bool
-    operator_id: str
-    notes: str = ""
-
-@app.post("/api/governance/approvals/{approval_id}/decide")
-async def decide_approval(
-    approval_id: str,
-    body: _ApprovalDecisionRequest,
-    auth_ctx: dict[str, Any] = Depends(require_audit_scope),
-) -> dict[str, Any]:
-    """Record a human approval/rejection for a mutation advancement."""
-    _ = auth_ctx
-    from runtime.governance.human_approval_gate import HumanApprovalGate
-    gate = HumanApprovalGate()
-    try:
-        decision = gate.record_decision(
-            approval_id=approval_id,
-            approved=body.approved,
-            operator_id=body.operator_id,
-            notes=body.notes
-        )
-        return {"ok": True, "decision": decision.to_payload()}
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
-@app.post("/api/mutations/trigger-epoch")
-async def trigger_mutation_cycle(
-    background_tasks: BackgroundTasks,
-    auth_ctx: dict[str, Any] = Depends(require_gate_open),
-) -> dict[str, Any]:
-    """Trigger a new mutation cycle in the background."""
-    _ = auth_ctx
-    
-    def run_epoch_task():
-        # SECURITY NOTE (audit H-2): subprocess.run is called from a FastAPI
-        # BackgroundTask (already async-safe). The env dict is derived solely
-        # from os.environ.copy() with two hard-coded overrides — no user-supplied
-        # values flow into the environment. This is acceptable for the current
-        # single-worker deployment model. Future work: replace with arq/Celery
-        # task queue for multi-worker support (audit finding H-2, Phase 143).
-        env = os.environ.copy()
-        env["ADAAD_ENV"] = "dev"
-        env["ADAAD_CEL_ENABLED"] = "true"
-        subprocess.run(
-            [sys.executable, "-m", "app.main", "--verbose", "--exit-after-boot"],
-            env=env,
-            capture_output=True,
-            text=True
-        )
-
-    background_tasks.add_task(run_epoch_task)
-    return {"ok": True, "status": "staged", "message": "Mutation cycle triggered."}
-
-@app.get("/api/webhooks/stream")
-async def webhooks_stream(request: Request):
-    """SSE stream for live webhook monitoring (Phase 107)."""
-    async def event_generator():
-        # Emit initial connection event
-        yield {"event": "connected", "data": json.dumps({"ts": datetime.now(timezone.utc).isoformat()})}
-        
-        while True:
-            # In a real system, this would subscribe to a message bus.
-            # For this bridge, we'll just keep the connection alive.
-            if await request.is_disconnected():
-                break
-            await asyncio.sleep(30)
-            yield {"event": "heartbeat", "data": "ping"}
-
-    return EventSourceResponse(event_generator())
-
 @app.get("/dork")
 def dork_v2() -> Response:
     """Serve dork v2.0 — standalone advisory chat interface (drop-in replacement).
@@ -4459,49 +3840,6 @@ def dork_v2() -> Response:
 def whaledic_legacy() -> Response:
     """Legacy Whale.Dic developer dashboard (Phase 107 shortcut, preserved for compat)."""
     return serve_whaledic_asset("whaledic.html")
-
-
-@app.post("/api/dork/stream")
-async def dork_stream_proxy(request: Request):
-    """Server-side Anthropic proxy for dork v2.0.
-
-    Accepts {system, messages, model, max_tokens} and streams the Anthropic
-    SSE response back to the client.  Uses the server's ANTHROPIC_API_KEY so
-    the key never reaches the browser.  Only available when the server key
-    is configured.
-    """
-    import httpx
-    import os as _os
-
-    api_key = _os.environ.get("ANTHROPIC_API_KEY", "")
-    if not api_key:
-        raise HTTPException(status_code=503, detail="server_api_key_not_configured")
-
-    body = await request.json()
-
-    async def _gen():
-        async with httpx.AsyncClient(timeout=120) as client:
-            async with client.stream(
-                "POST",
-                "https://api.anthropic.com/v1/messages",
-                headers={
-                    "x-api-key": api_key,
-                    "anthropic-version": "2023-06-01",
-                    "content-type": "application/json",
-                },
-                json={
-                    "model":      body.get("model", "claude-sonnet-4-6"),
-                    "max_tokens": body.get("max_tokens", 4096),
-                    "stream":     True,
-                    "system":     body.get("system", ""),
-                    "messages":   body.get("messages", []),
-                },
-            ) as resp:
-                async for chunk in resp.aiter_bytes():
-                    yield chunk
-
-    from starlette.responses import StreamingResponse as _SR
-    return _SR(_gen(), media_type="text/event-stream")
 
 
 # ── Phase 124 — adaad-core package info endpoint ──────────────────────────
