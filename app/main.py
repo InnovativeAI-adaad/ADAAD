@@ -172,7 +172,7 @@ class Orchestrator:
         self.architect = ArchitectAgent(self.agents_root)
         self.dream: Optional[DreamMode] = None
         self.beast: Optional[BeastModeLoop] = None
-        self.dashboard = _build_aponi_dashboard()
+        self.dashboard: Optional[Any] = None
         self.evolution_runtime = EvolutionRuntime()
         self.snapshot_manager = SnapshotManager(APP_ROOT.parent / ".ledger_snapshots")
         self.recovery_hook = AutoRecoveryHook(self.snapshot_manager)
@@ -378,16 +378,16 @@ class Orchestrator:
         epoch_state = self.evolution_runtime.boot()
         self.state["epoch"] = epoch_state
         self._v("Replay baseline initialized")
-        self.dream = DreamMode(
-            self.agents_root,
-            self.lineage_dir,
-            replay_mode=self.replay_mode.value,
-            recovery_tier=self.evolution_runtime.governor.recovery_tier.value,
-        )
-        self.beast = BeastModeLoop(self.agents_root, self.lineage_dir)
         
         # Health-First Mode (Selective)
         if 1 in required_tiers:
+            self.dream = DreamMode(
+                self.agents_root,
+                self.lineage_dir,
+                replay_mode=self.replay_mode.value,
+                recovery_tier=self.evolution_runtime.governor.recovery_tier.value,
+            )
+            self.beast = BeastModeLoop(self.agents_root, self.lineage_dir)
             self._health_check_architect()
             self._health_check_dream()
             self._health_check_beast()
@@ -436,6 +436,7 @@ class Orchestrator:
 
     def verify_replay_only(self) -> None:
         self._v("Running replay verification-only mode")
+        self.state["verify_only"] = True
         metrics.log(event_type="orchestrator_start", payload={"verify_only": True}, level="INFO")
         boot_invariants = evaluate_boot_invariants(replay_mode=self.replay_mode.value, agents_root=self.agents_root)
         if not boot_invariants.ok:
@@ -918,6 +919,10 @@ class Orchestrator:
             register_capability(capability_name, capability_version, 1.0, owner, identity=identity)
 
     def _init_ui(self) -> None:
+        if self.exit_after_boot or self.state.get("verify_only"):
+            return
+        if self.dashboard is None:
+            self.dashboard = _build_aponi_dashboard()
         self.dashboard.start(self.state)
 
     def _simulate_fitness_score(self, request: MutationRequest) -> float:
