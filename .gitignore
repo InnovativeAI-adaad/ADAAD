@@ -101,3 +101,4 @@ security/replay_proof_keyring.local.json
 
 .gemini/
 gha-creds-*.json
+.env.ed25519_ceremony
