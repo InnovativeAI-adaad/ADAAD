@@ -1,10 +1,10 @@
 [build-system]
 requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "adaad-core"
-version = "9.57.0"
+version = "9.75.0"
 description = "ADAAD Constitutional Governance Kernel — stable API surface for governed autonomous software evolution"
 readme = "../../README.md"
 license = { text = "Apache-2.0" }
