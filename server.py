@@ -3607,6 +3607,284 @@ def _load_policy_change_history() -> list[dict[str, Any]]:
 
 
 def _load_control_evidence_snapshots() -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    evidence_matrix = ROOT / "docs" / "comms" / "claims_evidence_matrix.md"
+    if evidence_matrix.exists():
+        rows.append(
+            {
+                "control_id": "claims-evidence-matrix",
+                "snapshot_type": "evidence_matrix",
+                "source_path": str(evidence_matrix),
+                "sha256": hashlib.sha256(evidence_matrix.read_bytes()).hexdigest(),
+            }
+        )
+    runtime_profile = ROOT / "governance_runtime_profile.lock.json"
+    if runtime_profile.exists():
+        rows.append(
+            {
+                "control_id": "governance-runtime-profile",
+                "snapshot_type": "runtime_profile",
+                "source_path": str(runtime_profile),
+                "sha256": hashlib.sha256(runtime_profile.read_bytes()).hexdigest(),
+            }
+        )
+    rows.extend(
+        {
+            "control_id": f"replay-attestation:{row['epoch_id']}",
+            "snapshot_type": "immutable_replay_attestation",
+            "source_path": row["source_path"],
+            "sha256": row["proof_digest"] or row["canonical_digest"],
+        }
+        for row in _load_replay_attestations()
+    )
+    return rows
+
+
+def _load_incident_remediation_logs() -> list[dict[str, Any]]:
+    entries = journal.read_entries(limit=2000)
+    rows: list[dict[str, Any]] = []
+    for item in entries:
+        tx_type = str(item.get("tx_type", ""))
+        payload = item.get("payload", {})
+        payload_text = json.dumps(payload, sort_keys=True) if isinstance(payload, dict) else str(payload)
+        combined = f"{tx_type} {payload_text}".lower()
+        if "incident" not in combined and "remediation" not in combined and "recover" not in combined:
+            continue
+        rows.append(
+            {
+                "entry_id": str(item.get("entry_id", "")),
+                "timestamp": str(item.get("timestamp", "")),
+                "tx_type": tx_type,
+                "severity": str(payload.get("severity", "")) if isinstance(payload, dict) else "",
+                "status": str(payload.get("status", "")) if isinstance(payload, dict) else "",
+                "payload": payload if isinstance(payload, dict) else {},
+            }
+        )
+    return rows
+
+
+def _compliance_dataset_rows(dataset: str) -> list[dict[str, Any]]:
+    if dataset == "control-evidence-snapshots":
+        return _load_control_evidence_snapshots()
+    if dataset == "immutable-replay-attestations":
+        return _load_replay_attestations()
+    if dataset == "policy-change-history":
+        return _load_policy_change_history()
+    if dataset == "incident-remediation-logs":
+        return _load_incident_remediation_logs()
+    raise HTTPException(status_code=404, detail="unknown_compliance_dataset")
+
+
+@app.get("/api/compliance/exports/{dataset}")
+def get_compliance_export(
+    dataset: str,
+    fmt: str = Query(default="json", pattern="^(json|csv)$"),
+    auth_ctx: dict[str, Any] = Depends(require_audit_scope),
+) -> Response:
+    if dataset not in _COMPLIANCE_EXPORT_DATASETS:
+        raise HTTPException(status_code=404, detail="unknown_compliance_dataset")
+    rows = _compliance_dataset_rows(dataset)
+    if fmt == "csv":
+        body = _render_csv(rows)
+        return Response(
+            content=body,
+            media_type="text/csv",
+            headers={"Content-Disposition": f'attachment; filename="{dataset}.csv"'},
+        )
+    payload = {
+        "schema_version": "1.0",
+        "authn": auth_ctx,
+        "data": {
+            "dataset": dataset,
+            "format": "json",
+            "record_count": len(rows),
+            "records": rows,
+        },
+    }
+    return JSONResponse(content=payload)
+
+
+@app.post("/api/compliance/exports/{dataset}/jobs")
+def create_compliance_export_job(
+    dataset: str,
+    fmt: str = Query(default="json", pattern="^(json|csv)$"),
+    auth_ctx: dict[str, Any] = Depends(require_audit_scope),
+) -> dict[str, Any]:
+    if dataset not in _COMPLIANCE_EXPORT_DATASETS:
+        raise HTTPException(status_code=404, detail="unknown_compliance_dataset")
+    rows = _compliance_dataset_rows(dataset)
+    COMPLIANCE_EXPORT_DIR.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    job_id = f"job-{uuid.uuid4().hex[:12]}"
+    extension = "csv" if fmt == "csv" else "json"
+    export_path = COMPLIANCE_EXPORT_DIR / f"{dataset}.{timestamp}.{job_id}.{extension}"
+    if fmt == "csv":
+        export_path.write_text(_render_csv(rows), encoding="utf-8")
+    else:
+        export_path.write_text(
+            json.dumps(
+                {
+                    "schema_version": "1.0",
+                    "dataset": dataset,
+                    "record_count": len(rows),
+                    "records": rows,
+                },
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+    return {
+        "schema_version": "1.0",
+        "authn": auth_ctx,
+        "data": {
+            "job_id": job_id,
+            "dataset": dataset,
+            "format": fmt,
+            "record_count": len(rows),
+            "path": str(export_path),
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        },
+    }
+
+
+# ── Audit endpoints (Phase 46+ — evidence, replay proofs, lineage) ───────────
+
+@app.get("/api/audit/epochs/{epoch_id}/replay-proof")
+def audit_replay_proof(
+    epoch_id: str,
+    redaction: str | None = Query(default=None),
+    auth_ctx: dict[str, Any] = Depends(require_audit_scope),
+    tenant_ctx: dict[str, str] = Depends(require_tenant_context),
+) -> dict[str, Any]:
+    """Return the replay attestation proof bundle for an epoch.
+
+    Requires audit:read scope. When redaction=sensitive, strips signature values.
+    Response: {schema_version, authn, data: {epoch_id, bundle_path, bundle, verification}}
+    """
+    authn = auth_ctx
+    proof_file = REPLAY_PROOFS_DIR / f"{epoch_id}.replay_attestation.v1.json"
+    if not proof_file.exists():
+        raise HTTPException(status_code=404, detail="replay_proof_not_found")
+    try:
+        bundle: dict[str, Any] = json.loads(proof_file.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise HTTPException(status_code=500, detail="proof_read_error") from exc
+    proof_tenant = bundle.get("tenant") if isinstance(bundle.get("tenant"), dict) else {}
+    proof_tenant_id = str(bundle.get("tenant_id") or proof_tenant.get("tenant_id") or "").strip()
+    proof_workspace_id = str(bundle.get("workspace_id") or proof_tenant.get("workspace_id") or "").strip()
+    if proof_tenant_id and proof_workspace_id:
+        if proof_tenant_id != tenant_ctx["tenant_id"] or proof_workspace_id != tenant_ctx["workspace_id"]:
+            raise HTTPException(status_code=403, detail="tenant_scope_mismatch")
+
+    # Redact signature values when redaction=sensitive
+    if redaction == "sensitive" and "signatures" in bundle:
+        redacted_sigs = [
+            {k: v for k, v in sig.items() if k != "signature"}
+            for sig in bundle.get("signatures", [])
+        ]
+        bundle = {**bundle, "signatures": redacted_sigs}
+
+    return {
+        "schema_version": "1.0",
+        "authn": authn,
+        "data": {
+            "epoch_id": epoch_id,
+            "bundle_path": str(proof_file),
+            "bundle": bundle,
+            "verification": {
+                "proof_digest_present": "proof_digest" in bundle,
+                "signatures_present": "signatures" in bundle,
+            },
+        },
+    }
+
+
+@app.get("/api/audit/epochs/{epoch_id}/lineage")
+def audit_epoch_lineage(
+    epoch_id: str,
+    auth_ctx: dict[str, Any] = Depends(require_audit_scope),
+    tenant_ctx: dict[str, str] = Depends(require_tenant_context),
+) -> dict[str, Any]:
+    """Return lineage events and journal entries for an epoch.
+
+    Requires audit:read scope.
+    Response: {schema_version, authn, data: {epoch_id, lineage, lineage_digest,
+               expected_epoch_digest, journal_entries}}
+    """
+    authn = auth_ctx
+    ledger = LineageLedgerV2(tenant_context=tenant_ctx)
+    lineage = ledger.read_epoch(epoch_id)
+    lineage_digest = ledger.compute_incremental_epoch_digest(epoch_id)
+    expected = ledger.get_expected_epoch_digest(epoch_id) or ""
+    journal_entries = journal.read_entries(limit=200, tenant_context=tenant_ctx)
+    return {
+        "schema_version": "1.0",
+        "authn": authn,
+        "data": {
+            "epoch_id": epoch_id,
+            "lineage": lineage,
+            "lineage_digest": lineage_digest,
+            "expected_epoch_digest": expected,
+            "journal_entries": journal_entries,
+        },
+    }
+
+
+def _load_bundle(bundle_id: str) -> tuple[dict[str, Any], str]:
+    """Load and return a forensic bundle dict + its file path string."""
+    bundle_file = FORENSIC_EXPORT_DIR / f"{bundle_id}.json"
+    if not bundle_file.exists():
+        raise HTTPException(status_code=404, detail="bundle_not_found")
+    try:
+        return json.loads(bundle_file.read_text(encoding="utf-8")), str(bundle_file)
+    except (OSError, json.JSONDecodeError) as exc:
+        raise HTTPException(status_code=500, detail="bundle_read_error") from exc
+
+
+def _redact_bundle(bundle: dict[str, Any]) -> dict[str, Any]:
+    """Strip signature fields from export_metadata.signer for response."""
+    result = dict(bundle)
+    if "export_metadata" in result:
+        em = dict(result["export_metadata"])
+        if "signer" in em:
+            em["signer"] = {k: v for k, v in em["signer"].items() if k != "signature"}
+        result["export_metadata"] = em
+    return result
+
+
+@app.get("/api/audit/bundles/{bundle_id}")
+def audit_bundle(
+    bundle_id: str,
+    auth_ctx: dict[str, Any] = Depends(require_audit_scope),
+    tenant_ctx: dict[str, str] = Depends(require_tenant_context),
+) -> dict[str, Any]:
+    """Return a forensic evidence bundle with validation results.
+
+    Requires audit:read scope.
+    Response: {schema_version, authn, data: {bundle_id, bundle_path, bundle, validation}}
+    """
+    authn = auth_ctx
+    raw_bundle, bundle_path = _load_bundle(bundle_id)
+    bundle_tenant = raw_bundle.get("tenant") if isinstance(raw_bundle.get("tenant"), dict) else {}
+    bundle_tenant_id = str(raw_bundle.get("tenant_id") or bundle_tenant.get("tenant_id") or "").strip()
+    bundle_workspace_id = str(raw_bundle.get("workspace_id") or bundle_tenant.get("workspace_id") or "").strip()
+    if bundle_tenant_id and bundle_workspace_id:
+        if bundle_tenant_id != tenant_ctx["tenant_id"] or bundle_workspace_id != tenant_ctx["workspace_id"]:
+            raise HTTPException(status_code=403, detail="tenant_scope_mismatch")
+    builder = EvidenceBundleBuilder(export_dir=FORENSIC_EXPORT_DIR)
+    validation = builder.validate_bundle(raw_bundle)
+    return {
+        "schema_version": "1.0",
+        "authn": authn,
+        "data": {
+            "bundle_id": bundle_id,
+            "bundle_path": bundle_path,
+            "bundle": _redact_bundle(raw_bundle),
+            "validation": validation,
+        },
+    }
     """Deprecated compatibility shim; use app.services.compliance_exports."""
     warnings.warn("server._load_control_evidence_snapshots is deprecated; use app.services.compliance_exports.load_control_evidence_snapshots", DeprecationWarning, stacklevel=2)
     replay_attestations = _svc_load_replay_attestations(replay_proofs_dir=REPLAY_PROOFS_DIR)
