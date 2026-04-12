@@ -1,29 +1,29 @@
 from __future__ import annotations
 
 import asyncio
-import importlib
 import json
 import os
 from datetime import datetime, timezone
 from typing import Any
 
 import httpx
-from fastapi import APIRouter, HTTPException, Request, WebSocket
+from fastapi import APIRouter, Depends, HTTPException, Request, WebSocket
 from sse_starlette.sse import EventSourceResponse
 from starlette.responses import StreamingResponse
+
+from app.api.dependencies import get_runtime_context
+from app.services.runtime_context import RuntimeContext
 
 router = APIRouter()
 
 
-def _server_module() -> Any:
-    return importlib.import_module("server")
-
-
 @router.websocket("/ws/events")
-async def ws_events(websocket: WebSocket) -> None:
+async def ws_events(
+    websocket: WebSocket,
+    context: RuntimeContext = Depends(get_runtime_context),
+) -> None:
     from runtime.innovations_bus import get_bus
 
-    srv = _server_module()
     relay_policy = websocket.query_params.get("relay_policy", "drop_oldest")
     if relay_policy not in {"drop_oldest", "coalesce_latest"}:
         await websocket.close(code=1008, reason="invalid_relay_policy")
@@ -79,7 +79,7 @@ async def ws_events(websocket: WebSocket) -> None:
         }
     )
     events = []
-    for entry in srv.metrics.tail(limit=metrics_limit):
+    for entry in context.metrics.tail(limit=metrics_limit):
         events.append(
             {
                 "channel": "metrics",
@@ -88,7 +88,7 @@ async def ws_events(websocket: WebSocket) -> None:
                 "event": entry,
             }
         )
-    for entry in srv.journal.read_entries(limit=journal_limit):
+    for entry in context.journal.read_entries(limit=journal_limit):
         events.append(
             {
                 "channel": "journal",
@@ -128,17 +128,23 @@ async def ws_events(websocket: WebSocket) -> None:
                 if relay_queue.full():
                     coalesced_latest = frame
                     dropped_frames += 1
-                    srv.metrics.log("ws_events_frames_dropped", payload={"policy": relay_policy, "dropped": dropped_frames})
+                    context.metrics.log(
+                        "ws_events_frames_dropped",
+                        payload={"policy": relay_policy, "dropped": dropped_frames},
+                    )
                     continue
             if relay_queue.full():
                 _ = relay_queue.get_nowait()
                 dropped_frames += 1
-                srv.metrics.log("ws_events_frames_dropped", payload={"policy": relay_policy, "dropped": dropped_frames})
+                context.metrics.log(
+                    "ws_events_frames_dropped",
+                    payload={"policy": relay_policy, "dropped": dropped_frames},
+                )
             await relay_queue.put(frame)
             if coalesced_latest is not None and not relay_queue.full():
                 await relay_queue.put(coalesced_latest)
                 coalesced_latest = None
-            srv.metrics.log("ws_events_queue_depth", payload={"depth": relay_queue.qsize(), "limit": relay_queue_limit})
+            context.metrics.log("ws_events_queue_depth", payload={"depth": relay_queue.qsize(), "limit": relay_queue_limit})
 
     reader_task = asyncio.create_task(_client_reader())
     ingress_task = asyncio.create_task(_relay_ingress())
@@ -166,7 +172,7 @@ async def ws_events(websocket: WebSocket) -> None:
             except BaseException:
                 pass
         await bus.unsubscribe(queue)
-        srv.metrics.log(
+        context.metrics.log(
             "ws_events_disconnect",
             payload={
                 "cause": disconnect_reason,

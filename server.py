@@ -51,7 +51,13 @@ from app.api.audit_exports import router as audit_exports_router
 from app.api.mutation_control import router as mutation_control_router
 from app.api.streams import router as streams_router
 from runtime.integrations.github_app import dispatch_event, verify_webhook_signature  # ADAADchat
-from app.api.dependencies import require_audit_scope, require_gate_open, require_tenant_context
+from app.api.dependencies import (
+    require_audit_scope,
+    require_gate_open,
+    require_tenant_context,
+    set_gate_open_checker,
+)
+from app.services.runtime_context import RuntimeContext
 from sse_starlette.sse import EventSourceResponse
 from app.api.versioning import register_v1_aliases
 from runtime.api.extensions import extension_sdk_descriptor
@@ -212,6 +218,7 @@ class SPAStaticFiles(StaticFiles):
 @asynccontextmanager
 async def _lifespan(application: FastAPI):  # noqa: ARG001
     """Lifespan: ensure APONI assets exist at startup (stub-safe)."""
+    _configure_composition_root(application)
     APONI_DIR.mkdir(parents=True, exist_ok=True)
     WHALEDIC_DIR.mkdir(parents=True, exist_ok=True)
     (APONI_DIR / "mock").mkdir(exist_ok=True)
@@ -240,6 +247,29 @@ async def _lifespan(application: FastAPI):  # noqa: ARG001
 
 
 app = FastAPI(title="InnovativeAI-adaad Unified Server", lifespan=_lifespan)
+
+
+def _build_runtime_context() -> RuntimeContext:
+    """Build shared API dependencies from server-scoped runtime objects."""
+    return RuntimeContext(
+        root=ROOT,
+        replay_proofs_dir=REPLAY_PROOFS_DIR,
+        forensic_export_dir=FORENSIC_EXPORT_DIR,
+        compliance_export_dir=COMPLIANCE_EXPORT_DIR,
+        journal=journal,
+        metrics=metrics,
+        lineage_ledger_cls=LineageLedgerV2,
+        evidence_bundle_builder_factory=EvidenceBundleBuilder,
+    )
+
+
+def _configure_composition_root(application: FastAPI) -> None:
+    """Wire request-time dependencies in one place for API modules."""
+    application.state.runtime_context = _build_runtime_context()
+    set_gate_open_checker(_assert_gate_open)
+
+
+_configure_composition_root(app)
 
 # ── MULTI-WORKER CONSTRAINT (audit H-3) ─────────────────────────────────────
 # _SIMULATION_STORE, _LEDGER_AGGREGATE_CACHE, and _pressure_audit_ledger are

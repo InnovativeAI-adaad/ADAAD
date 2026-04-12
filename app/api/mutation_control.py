@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import importlib
 import os
 import subprocess
 import sys
@@ -13,10 +12,6 @@ from pydantic import BaseModel
 from app.api.dependencies import require_audit_scope, require_gate_open
 
 router = APIRouter()
-
-
-def _server_module() -> Any:
-    return importlib.import_module("server")
 
 
 @router.get("/api/governance/approvals/pending")
