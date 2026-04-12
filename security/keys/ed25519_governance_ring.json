@@ -1,0 +1,37 @@
+{
+    "schema_version": "1.0",
+    "ceremony_id": "ceremony-ed25519-2of3",
+    "threshold_policy": {
+        "algorithm": "ed25519",
+        "required_signers": 2,
+        "total_signers": 3,
+        "roles": [
+            "primary",
+            "secondary",
+            "recovery"
+        ]
+    },
+    "keys": {
+        "primary": {
+            "algorithm": "ed25519",
+            "role": "primary",
+            "public_key": "z+Mt84z22Q5UuhmqHiu/MivRGCPvLlbFvRn0jmhhzGg=",
+            "private_key_ref": "env:ADAAD_ED25519_GOVERNANCE_PRIMARY",
+            "key_purpose": "governance-threshold-signing (primary)"
+        },
+        "secondary": {
+            "algorithm": "ed25519",
+            "role": "secondary",
+            "public_key": "SIVdroBTNfNOcbgLjzR8J67rbzxONmLtt4UmgDHofes=",
+            "private_key_ref": "env:ADAAD_ED25519_GOVERNANCE_SECONDARY",
+            "key_purpose": "governance-threshold-signing (secondary)"
+        },
+        "recovery": {
+            "algorithm": "ed25519",
+            "role": "recovery",
+            "public_key": "cpfcnvTLsf3m4Dd79vvsaj1d0ejyG1zJLAFmkKPWlKw=",
+            "private_key_ref": "env:ADAAD_ED25519_GOVERNANCE_RECOVERY",
+            "key_purpose": "governance-threshold-signing (recovery)"
+        }
+    }
+}
