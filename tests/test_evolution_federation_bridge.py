@@ -171,7 +171,7 @@ class TestOnMutationCycleEnd:
         assert call_kwargs["source_mutation_id"] == "mut-002"
         assert call_kwargs["mutation_payload"] == {"k": "v"}
         assert call_kwargs["gate_decision_payload"] == {"approved": True, "score": 0.9}
-        assert call_kwargs["destination_repo_id"] == "repo-b"
+        assert call_kwargs["destination_repo"] == "repo-b"
 
     def test_default_destination_is_broadcast(self):
         proposal = _make_proposal()
@@ -187,7 +187,7 @@ class TestOnMutationCycleEnd:
         )
 
         call_kwargs = broker.propose_federated_mutation.call_args.kwargs
-        assert call_kwargs["destination_repo_id"] == "broadcast"
+        assert call_kwargs["destination_repo"] == "broadcast"
 
     def test_audit_event_emitted_on_success(self):
         proposal = _make_proposal(proposal_id="prop-audit")

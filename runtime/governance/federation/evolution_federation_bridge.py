@@ -149,14 +149,12 @@ class EvolutionFederationBridge:
         """
         hook_name = "on_mutation_cycle_end"
         try:
-            chain_digest = self._chain_digest_fn(epoch_id)
             proposal = self._broker.propose_federated_mutation(
                 source_epoch_id=epoch_id,
                 source_mutation_id=mutation_id,
+                destination_repo=destination_repo_id or "broadcast",
                 mutation_payload=mutation_payload,
                 gate_decision_payload=gate_decision_payload,
-                destination_repo_id=destination_repo_id or "broadcast",
-                chain_digest_fn=lambda: chain_digest,
             )
             self._safe_audit(
                 "federation_bridge_outbound_proposed",
