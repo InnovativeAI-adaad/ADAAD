@@ -896,12 +896,11 @@ def telemetry_analytics_legacy(
         class _MemoryAdapter:
             def __init__(self, s):
                 self._sink = s
-            def _all_payloads(self):
+            def payloads_chain_snapshot(self):
                 if self._sink is None:
-                    return []
-                return list(getattr(self._sink, "entries", lambda: [])())
-            def verify_chain(self):
-                return True
+                    return ([], True, 0)
+                payloads = list(getattr(self._sink, "entries", lambda: [])())
+                return (payloads, True, len(payloads))
         reader = _MemoryAdapter(sink)
     engine = StrategyAnalyticsEngine(reader, window_size=window_size)
     report = engine.generate_report()
@@ -929,12 +928,11 @@ def telemetry_strategy_detail_legacy(
         class _MemAdapter:
             def __init__(self, s):
                 self._sink = s
-            def _all_payloads(self):
+            def payloads_chain_snapshot(self):
                 if self._sink is None:
-                    return []
-                return list(getattr(self._sink, "entries", lambda: [])())
-            def verify_chain(self):
-                return True
+                    return ([], True, 0)
+                payloads = list(getattr(self._sink, "entries", lambda: [])())
+                return (payloads, True, len(payloads))
         reader = _MemAdapter(sink)
     engine = StrategyAnalyticsEngine(reader, window_size=window_size)
     report = engine.generate_report()
