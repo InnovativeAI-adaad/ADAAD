@@ -25,7 +25,7 @@ import logging
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable, Iterator
 
 log = logging.getLogger(__name__)
 
@@ -120,8 +120,10 @@ def _build_full_record(
 # ---------------------------------------------------------------------------
 
 
-def _verify_chain_from_lines(lines: list[str], source_label: str = "ledger") -> bool:
-    """Verify sha256 chain integrity over a list of raw JSONL lines.
+def _verify_chain_from_lines(
+    lines: Iterable[str], source_label: str = "ledger"
+) -> bool:
+    """Verify sha256 chain integrity over raw JSONL lines.
 
     Returns True on success.
     Raises TelemetryChainError on any violation.
@@ -309,20 +311,42 @@ class TelemetryLedgerReader:
 
     def __init__(self, path: Path | str) -> None:
         self._path = Path(path)
+        self._memoized_snapshot: _LedgerSnapshot | None = None
+
+    def _snapshot_key(self) -> tuple[int, int]:
+        """Return deterministic cache key (size + mtime_ns) for ledger path."""
+        stat = self._path.stat()
+        return (stat.st_size, stat.st_mtime_ns)
+
+    def iter_records(self) -> Iterator[dict[str, Any]]:
+        """Yield parsed ledger records in append order without whole-file reads."""
+        if not self._path.exists():
+            return
+        with self._path.open("r", encoding="utf-8") as fh:
+            for raw in fh:
+                stripped = raw.strip()
+                if not stripped:
+                    continue
+                try:
+                    yield json.loads(stripped)
+                except json.JSONDecodeError:
+                    continue
+
+    def _records_snapshot(self) -> tuple[dict[str, Any], ...]:
+        """Return memoized parsed records for the current file snapshot."""
+        if not self._path.exists():
+            self._memoized_snapshot = None
+            return ()
+        key = self._snapshot_key()
+        if self._memoized_snapshot is not None and self._memoized_snapshot.key == key:
+            return self._memoized_snapshot.records
+        records = tuple(self.iter_records())
+        self._memoized_snapshot = _LedgerSnapshot(key=key, records=records)
+        return records
 
     def _all_records(self) -> list[dict[str, Any]]:
         """Return all parsed records in sequence order (ascending)."""
-        if not self._path.exists():
-            return []
-        records: list[dict[str, Any]] = []
-        for raw in self._path.read_text(encoding="utf-8").splitlines():
-            stripped = raw.strip()
-            if stripped:
-                try:
-                    records.append(json.loads(stripped))
-                except json.JSONDecodeError:
-                    pass
-        return records
+        return list(self._records_snapshot())
 
     def _all_payloads(self) -> list[dict[str, Any]]:
         return [r["payload"] for r in self._all_records() if "payload" in r]
@@ -348,12 +372,28 @@ class TelemetryLedgerReader:
         """
         if limit > 500:
             limit = 500
-        payloads = list(reversed(self._all_payloads()))
-        if strategy_id is not None:
-            payloads = [p for p in payloads if p.get("strategy_id") == strategy_id]
-        if outcome is not None:
-            payloads = [p for p in payloads if p.get("outcome") == outcome]
-        return payloads[offset : offset + limit]
+        if offset < 0:
+            offset = 0
+        if limit < 0:
+            return []
+
+        results: list[dict[str, Any]] = []
+        matched = 0
+        for record in reversed(self._records_snapshot()):
+            payload = record.get("payload")
+            if not isinstance(payload, dict):
+                continue
+            if strategy_id is not None and payload.get("strategy_id") != strategy_id:
+                continue
+            if outcome is not None and payload.get("outcome") != outcome:
+                continue
+            if matched < offset:
+                matched += 1
+                continue
+            results.append(payload)
+            if len(results) >= limit:
+                break
+        return results
 
     def win_rate_by_strategy(self) -> dict[str, float]:
         """Compute approval win rate per strategy_id.
@@ -365,7 +405,10 @@ class TelemetryLedgerReader:
         """
         totals: dict[str, int] = {}
         wins: dict[str, int] = {}
-        for payload in self._all_payloads():
+        for record in self._records_snapshot():
+            payload = record.get("payload")
+            if not isinstance(payload, dict):
+                continue
             sid = payload.get("strategy_id")
             if not sid:
                 continue
@@ -387,7 +430,10 @@ class TelemetryLedgerReader:
             "rejected": int, "held": int}
         """
         summary: dict[str, dict[str, int]] = {}
-        for payload in self._all_payloads():
+        for record in self._records_snapshot():
+            payload = record.get("payload")
+            if not isinstance(payload, dict):
+                continue
             sid = payload.get("strategy_id")
             if not sid:
                 continue
@@ -412,8 +458,14 @@ class TelemetryLedgerReader:
         """
         if not self._path.exists():
             return True
-        lines = self._path.read_text(encoding="utf-8").splitlines()
-        return _verify_chain_from_lines(lines, source_label=str(self._path))
+        with self._path.open("r", encoding="utf-8") as fh:
+            return _verify_chain_from_lines(fh, source_label=str(self._path))
 
     def __len__(self) -> int:
-        return len(self._all_records())
+        return len(self._records_snapshot())
+
+
+@dataclass(frozen=True)
+class _LedgerSnapshot:
+    key: tuple[int, int]
+    records: tuple[dict[str, Any], ...]
