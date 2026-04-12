@@ -351,6 +351,65 @@ class TelemetryLedgerReader:
     def _all_payloads(self) -> list[dict[str, Any]]:
         return [r["payload"] for r in self._all_records() if "payload" in r]
 
+    def payloads_chain_snapshot(self) -> tuple[list[dict[str, Any]], bool, int]:
+        """Return payloads + chain status + record count in one file read.
+
+        Returns:
+            tuple(payloads, chain_valid, record_count)
+            - payloads: parsed payload dicts in sequence order (ascending).
+            - chain_valid: True only when the full chain validates.
+            - record_count: number of non-empty lines successfully parsed as JSON.
+        """
+        if not self._path.exists():
+            return ([], True, 0)
+
+        payloads: list[dict[str, Any]] = []
+        chain_valid = True
+        record_count = 0
+
+        prev_hash = GENESIS_PREV_HASH
+        expected_seq = 0
+
+        for raw_line in self._path.read_text(encoding="utf-8").splitlines():
+            line = raw_line.strip()
+            if not line:
+                continue
+            try:
+                record = json.loads(line)
+                record_count += 1
+            except json.JSONDecodeError:
+                chain_valid = False
+                continue
+
+            payload = record.get("payload")
+            if isinstance(payload, dict):
+                payloads.append(payload)
+
+            if not chain_valid:
+                continue
+
+            seq = record.get("sequence", -1)
+            stored_prev = record.get("prev_hash", "")
+            stored_hash = record.get("record_hash", "")
+            computed = _compute_record_hash(
+                sequence=seq,
+                prev_hash=stored_prev,
+                payload=record.get("payload", {}),
+            )
+
+            if (
+                seq != expected_seq
+                or stored_prev != prev_hash
+                or computed != stored_hash
+            ):
+                chain_valid = False
+                continue
+
+            prev_hash = stored_hash
+            expected_seq += 1
+
+        return (payloads, chain_valid, record_count)
+
     def query(
         self,
         *,

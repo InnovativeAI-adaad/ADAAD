@@ -169,7 +169,9 @@ class StrategyAnalyticsEngine:
     ----------
     reader:
         A TelemetryLedgerReader instance (or any object with a compatible
-        query/verify_chain interface — duck-typed for testability).
+        payloads_chain_snapshot interface — duck-typed for testability.
+        Legacy _all_payloads/verify_chain and entries()-based adapters are
+        still supported for backward compatibility.
     window_size:
         Number of most-recent decisions included in the rolling window.
         Must be in [WINDOW_SIZE_MIN, WINDOW_SIZE_MAX] = [10, 10_000].
@@ -199,27 +201,35 @@ class StrategyAnalyticsEngine:
         Reads the ledger once; computes all-time and window stats; classifies health.
         Never writes to the ledger. Never raises on empty ledger.
         """
-        # --- fetch all payloads in sequence order ---
-        try:
-            all_payloads: list[dict] = list(
-                getattr(self._reader, "_all_payloads", lambda: [])()
-            )
-        except Exception:
-            all_payloads = []
-
-        # fallback for objects with only .entries()
-        if not all_payloads:
+        # --- fetch payloads + chain status with a single reader pass when available ---
+        all_payloads: list[dict] = []
+        chain_valid = False
+        _record_count = 0
+        if hasattr(self._reader, "payloads_chain_snapshot"):
             try:
-                all_payloads = [r["payload"] if "payload" in r else r
-                                for r in (self._reader.entries() if hasattr(self._reader, "entries") else [])]
+                all_payloads, chain_valid, _record_count = self._reader.payloads_chain_snapshot()
             except Exception:
                 all_payloads = []
-
-        # --- chain verification ---
-        try:
-            chain_valid: bool = self._reader.verify_chain()
-        except Exception:
-            chain_valid = False
+                chain_valid = False
+                _record_count = 0
+        else:
+            # legacy compatibility for older/ad-hoc reader adapters
+            try:
+                all_payloads = list(getattr(self._reader, "_all_payloads", lambda: [])())
+            except Exception:
+                all_payloads = []
+            if not all_payloads:
+                try:
+                    all_payloads = [
+                        r["payload"] if "payload" in r else r
+                        for r in (self._reader.entries() if hasattr(self._reader, "entries") else [])
+                    ]
+                except Exception:
+                    all_payloads = []
+            try:
+                chain_valid = self._reader.verify_chain()
+            except Exception:
+                chain_valid = False
 
         total_decisions = len(all_payloads)
 
