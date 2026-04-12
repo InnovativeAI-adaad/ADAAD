@@ -333,7 +333,7 @@
   "last_invocation": "2026-04-12",
   "last_phase_completed": 133,
   "last_phase_completed_label": "INNOV-42: DORK Fleet Server Bridge",
-  "last_sync_sha": "6565b070",
+  "last_sync_sha": "10bafb35",
   "last_updated": "2026-04-11T12:38:12.268044+00:00",
   "next_phase": 140,
   "next_pr": "feat/phase128-tbd",
@@ -892,5 +892,5 @@
     "phase127-world-first-governed-redteam-response"
   ],
   "last_completed_phase": "Phase 11 \u00b7 Phase 140 \u00b7 Constitutional P0 Sweep + P1 Hardening",
-  "last_agent_state_sync_digest": "gsync-fb67132ade44ffe4"
+  "last_agent_state_sync_digest": "gsync-34cade4d0dd04824"
 }
