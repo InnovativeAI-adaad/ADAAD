@@ -395,6 +395,67 @@ class TestTelemetryLedgerReaderAnalytics:
         with pytest.raises(TelemetryChainError):
             reader.verify_chain()
 
+    def test_reader_shared_snapshot_reuses_single_parse_on_large_ledger(self, tmp_path, monkeypatch):
+        path = tmp_path / "large.jsonl"
+        sink = FileTelemetrySink(path)
+        for i in range(5000):
+            outcome = "approved" if i % 3 else "rejected"
+            sink.emit(_decision_payload(cycle_id=f"c{i}", strategy_id=f"s{i % 7}", outcome=outcome))
+
+        reader = TelemetryLedgerReader(path)
+        calls = {"iter_records": 0}
+        original = TelemetryLedgerReader.iter_records
+
+        def _counting_iter_records(self):
+            calls["iter_records"] += 1
+            yield from original(self)
+
+        monkeypatch.setattr(TelemetryLedgerReader, "iter_records", _counting_iter_records)
+
+        assert len(reader.query(limit=25)) == 25
+        assert reader.strategy_summary()
+        assert reader.win_rate_by_strategy()
+        assert len(reader) == 5000
+        assert calls["iter_records"] == 1
+
+    def test_reader_snapshot_invalidates_on_file_change(self, tmp_path, monkeypatch):
+        path = tmp_path / "evolving.jsonl"
+        sink = FileTelemetrySink(path)
+        for i in range(100):
+            sink.emit(_decision_payload(cycle_id=f"c{i}"))
+
+        reader = TelemetryLedgerReader(path)
+        calls = {"iter_records": 0}
+        original = TelemetryLedgerReader.iter_records
+
+        def _counting_iter_records(self):
+            calls["iter_records"] += 1
+            yield from original(self)
+
+        monkeypatch.setattr(TelemetryLedgerReader, "iter_records", _counting_iter_records)
+        assert len(reader) == 100
+        assert calls["iter_records"] == 1
+
+        sink.emit(_decision_payload(cycle_id="c100"))
+        assert len(reader) == 101
+        assert calls["iter_records"] == 2
+
+    def test_reader_methods_do_not_use_read_text(self, tmp_path, monkeypatch):
+        path = tmp_path / "stream.jsonl"
+        sink = FileTelemetrySink(path)
+        for i in range(25):
+            sink.emit(_decision_payload(cycle_id=f"c{i}"))
+        reader = TelemetryLedgerReader(path)
+
+        def _forbidden_read_text(*args, **kwargs):
+            raise AssertionError("TelemetryLedgerReader should stream file access, not read_text")
+
+        monkeypatch.setattr(Path, "read_text", _forbidden_read_text)
+
+        assert len(reader.query(limit=5)) == 5
+        assert len(reader) == 25
+        assert reader.verify_chain() is True
+
 
 # ---------------------------------------------------------------------------
 # Public API contract
