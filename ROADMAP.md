@@ -4,12 +4,12 @@
 
 ---
 
-## Current State — v9.69.0 · Phase 136 · DORK Enrichment Bridge Hardening
+## Current State — v9.73.0 · Phase 140 · Constitutional P0 Sweep + P1 Hardening
 
-**Date:** 2026-04-11
-**Status:** 43 innovations shipped (INNOV-01 through INNOV-43). Phase 136 complete. v9.69.0 released.
+**Date:** 2026-04-12
+**Status:** 46 innovations shipped (INNOV-01 through INNOV-46). Phase 140 complete. v9.73.0 released. 0 open findings.
 **Automation pointer:** Machine phase progression consumes `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` §3.0 “Active Era Contract (Phases 131–136+)”.
-**Hard-class invariants:** 216 (cumulative, enforced)
+**Hard-class invariants:** 221 (cumulative, enforced)
 **Constitutional Evolution Loop:** 16-step CEL, deterministic replay, wired
 **Self-Proposing Innovation Engine (SPIE):** active — system proposes its own next innovations; HUMAN-0 ratifies
 **Deterministic Audit Sandbox (DAS):** active — one-command external verification; `docker compose up das-demo`
@@ -60,7 +60,7 @@
 | INNOV-42 · DFSB | dork_fleet_server_bridge.py | 133 | v9.65.0 | DFSB-0..4 |
 | INNOV-43 · CVR | constitution_version_ledger.py | 135 | v9.67.0 | CVR-IMMUT-0, CVR-DIGEST-0, CVR-ROLLBACK-0, CVR-HUMAN0-0, CVR-CHAIN-0 |
 
-**Open GA blocker:** FINDING-66-004 (Governance Key Ceremony — Track B, Dustin)  
+**Open GA blocker:** None — FINDING-66-004 resolved (2026-04-12). All ceremonies complete. GA track unblocked.  
 **Strategic plan:** `docs/governance/POST_PIPELINE_STRATEGIC_PLAN.md`
 
 ---
@@ -80,6 +80,7 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 134 | REF-001–004 DFSB Post-Ship Remediation | v9.66.0 | ✅ shipped |
 | 135 | INNOV-43 CVR — Constitution Versioning and Rollback | v9.67.0 | ✅ shipped |
 | 136 | Phase 136 DORK Ledger + Enrichment Bridge Hardening | v9.69.0 | ✅ shipped |
+| 137 | INNOV-44 DORK Intelligence Hardening & Capability Expansion | v9.70.0 | ✅ shipped |
 
 ---
 
@@ -100,7 +101,10 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 130 | INNOV-40 CELT — Cross-Epoch Agent Learning Transfer | v9.63.0 | P1 | ✅ shipped |
 | 131 | DORK Genesis & Data Integrity | v9.64.0 | P0 | ✅ shipped |
 | 137 | INNOV-44 DORK Intelligence Hardening & Capability Expansion | v9.70.0 | P0 | ✅ shipped |
-| GA | v1.1-GA Release | v1.1.0-GA | P0 (Track B) | 🔒 blocked on FINDING-66-004 |
+| 138 | INNOV-45 IIG — Invariant Interaction Graph | v9.71.0 | P0 | ✅ shipped |
+| 139 | INNOV-46 CMD — Canary Mutation Deployment | v9.72.0 | P0 | ✅ shipped |
+| 140 | Constitutional P0 Sweep + P1 Hardening | v9.73.0 | P0 | ✅ shipped |
+| GA | v1.1-GA Release | v1.1.0-GA | P0 | 🟡 FINDING-66-004 resolved · PyPI publication pending |
 
 ---
 | 132 | INNOV-41 DORK Living Fleet | v9.64.0 | P1 | ✅ shipped |
