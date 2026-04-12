@@ -1,3 +1,27 @@
+## [9.71.0] — 2026-04-11 · Phase 138 · Invariant Interaction Graph
+
+### INNOV-45: Co-fire tracking, conflict detection, redundancy analysis — 5 new Hard-class invariants
+
+**New module**
+- `runtime/innovations30/invariant_interaction_graph.py` — `InvariantInteractionGraph`
+  tracks pairwise co-fire relationships between constitutional invariants across epochs.
+  Exposes greedy clustering (`IIG-CLUSTER-0`), orphan detection, strongest-pair ranking,
+  potential-conflict scoring, and hash-chained observation ledger (`IIG-COFIRE-0`).
+
+**New Hard-class invariants**
+- `IIG-COFIRE-0`: every co-fire observation hash-chained to predecessor (seq-inclusive schema)
+- `IIG-DETERM-0`: `graph_digest` is a pure function of observations — no wall-clock inputs
+- `IIG-PERSIST-0`: graph state round-trips through jsonl store without loss
+- `IIG-CLUSTER-0`: `greedy_clusters()` produces identical assignments for identical edge weights
+- `IIG-HUMAN0-0`: `remove_node()` requires `human_auth=True` — HUMAN-0 gated
+
+**Tests**
+- 30/30 new acceptance tests in `tests/innovations/test_phase138_iig.py`
+
+**World first**
+First governed constitutional invariant interaction graph with co-fire clustering,
+conflict detection, and redundancy analysis over live governed epochs.
+
 ## [9.70.0] — 2026-04-11 · Phase 137 · DORK Intelligence Hardening & Capability Expansion
 
 ### INNOV-44: Multi-surface hardening, 3 new Hard-class invariants, 5 bug fixes, 2 new OPT passes
