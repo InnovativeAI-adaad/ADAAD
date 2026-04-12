@@ -8,6 +8,19 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+RECO_INV_CHAIN: str = "RECO-INV-CHAIN"
+RECO_LEDGER_DEFAULT: str = "data/regulatory_compliance_events.jsonl"
+
+
+class RegulatoryComplianceViolation(RuntimeError):
+    """Raised when a Regulatory Compliance constitutional invariant is breached."""
+
+
+
 @dataclass
 class ComplianceRule:
     rule_id: str

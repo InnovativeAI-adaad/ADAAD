@@ -10,6 +10,19 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+RETEAG_INV_CHAIN: str = "RETEAG-INV-CHAIN"
+RETEAG_LEDGER_DEFAULT: str = "data/red_team_agent_events.jsonl"
+
+
+class RedTeamAgentViolation(RuntimeError):
+    """Raised when a Red Team Agent constitutional invariant is breached."""
+
+
+
 RED_TEAM_PASS_THRESHOLD: float = 0.70   # fraction of adversarial tests that must pass
 
 @dataclass
@@ -156,6 +169,7 @@ class RedTeamAgent:
 
     def _persist(self, verdict: RedTeamVerdict) -> None:
         import dataclasses
+
         self.state_path.parent.mkdir(parents=True, exist_ok=True)
         with self.state_path.open("a") as f:
             f.write(json.dumps(dataclasses.asdict(verdict)) + "\n")

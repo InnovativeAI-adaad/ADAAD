@@ -21,6 +21,19 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+ININGR_INV_CHAIN: str = "ININGR-INV-CHAIN"
+ININGR_LEDGER_DEFAULT: str = "data/invariant_interaction_graph_events.jsonl"
+
+
+class InvariantInteractionGraphViolation(RuntimeError):
+    """Raised when a Invariant Interaction Graph constitutional invariant is breached."""
+
+
+
 # ── Module metadata ────────────────────────────────────────────────────────────
 INNOV_ID = "INNOV-45"
 PHASE = 138
@@ -194,6 +207,7 @@ class InvariantInteractionGraph:
         """
         import itertools
         from datetime import datetime, timezone
+
 
         ts = timestamp or datetime.now(timezone.utc).isoformat()
         new_observations: list[CoFireObservation] = []

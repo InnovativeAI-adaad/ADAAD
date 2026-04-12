@@ -30,6 +30,19 @@ from pathlib import Path
 from typing import Any
 import logging
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+EMRO_INV_CHAIN: str = "EMRO-INV-CHAIN"
+EMRO_LEDGER_DEFAULT: str = "data/emergent_roles_events.jsonl"
+
+
+class EmergentRolesViolation(RuntimeError):
+    """Raised when a Emergent Roles constitutional invariant is breached."""
+
+
+
 logger = logging.getLogger(__name__)
 
 # ── Invariant constants ───────────────────────────────────────────────────────

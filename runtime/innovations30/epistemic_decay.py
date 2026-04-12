@@ -11,6 +11,19 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+EPDE_INV_CHAIN: str = "EPDE-INV-CHAIN"
+EPDE_LEDGER_DEFAULT: str = "data/epistemic_decay_events.jsonl"
+
+
+class EpistemicDecayViolation(RuntimeError):
+    """Raised when a Epistemic Decay constitutional invariant is breached."""
+
+
+
 DECAY_HALFLIFE: float = 30.0     # divergence units until confidence halves
 RECALIBRATION_THRESHOLD: float = 0.30  # below this → flag for recalibration
 

@@ -27,6 +27,19 @@ from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+CORO_INV_CHAIN: str = "CORO-INV-CHAIN"
+CORO_LEDGER_DEFAULT: str = "data/constitutional_rollback_events.jsonl"
+
+
+class ConstitutionalRollbackViolation(RuntimeError):
+    """Raised when a Constitutional Rollback constitutional invariant is breached."""
+
+
+
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------

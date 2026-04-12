@@ -9,6 +9,19 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+AGPO_INV_CHAIN: str = "AGPO-INV-CHAIN"
+AGPO_LEDGER_DEFAULT: str = "data/agent_postmortem_events.jsonl"
+
+
+class AgentPostmortemViolation(RuntimeError):
+    """Raised when a Agent Postmortem constitutional invariant is breached."""
+
+
+
 @dataclass
 class AgentReasoningEntry:
     agent_id: str

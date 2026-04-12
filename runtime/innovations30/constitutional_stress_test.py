@@ -29,6 +29,18 @@ from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Any, Callable, Sequence
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+COSTTE_INV_CHAIN: str = "COSTTE-INV-CHAIN"
+
+
+class ConstitutionalStressTestViolation(RuntimeError):
+    """Raised when a Constitutional Stress Test constitutional invariant is breached."""
+
+
+
 # ──────────────────────────────────────────────────────────
 # Constants
 # ──────────────────────────────────────────────────────────

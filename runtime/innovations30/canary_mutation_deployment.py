@@ -36,6 +36,19 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+CAMUDE_INV_CHAIN: str = "CAMUDE-INV-CHAIN"
+CAMUDE_LEDGER_DEFAULT: str = "data/canary_mutation_deployment_events.jsonl"
+
+
+class CanaryMutationDeploymentViolation(RuntimeError):
+    """Raised when a Canary Mutation Deployment constitutional invariant is breached."""
+
+
+
 
 # ── Module metadata ────────────────────────────────────────────────────────────
 INNOV_ID = "INNOV-46"

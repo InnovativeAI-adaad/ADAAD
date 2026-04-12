@@ -26,6 +26,19 @@ from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+BLRAMO_INV_CHAIN: str = "BLRAMO-INV-CHAIN"
+BLRAMO_LEDGER_DEFAULT: str = "data/blast_radius_model_events.jsonl"
+
+
+class BlastRadiusModelViolation(RuntimeError):
+    """Raised when a Blast Radius Model constitutional invariant is breached."""
+
+
+
 # ── Constitutional SLA constants [BLAST-SLA-0] ──────────────────────────────
 REVERSAL_SLA: dict[str, float] = {
     "low":      1.0,

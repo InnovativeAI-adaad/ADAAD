@@ -25,6 +25,19 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+REST_INV_CHAIN: str = "REST-INV-CHAIN"
+REST_LEDGER_DEFAULT: str = "data/reputation_staking_events.jsonl"
+
+
+class ReputationStakingViolation(RuntimeError):
+    """Raised when a Reputation Staking constitutional invariant is breached."""
+
+
+
 # ── Invariant constants ───────────────────────────────────────────────────────
 MIN_STAKE: float = 1.0
 MAX_STAKE_FRACTION: float = 0.20          # STAKE-CAP-0: max 20% of balance per proposal

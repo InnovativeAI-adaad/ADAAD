@@ -12,6 +12,19 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+COTE_INV_CHAIN: str = "COTE-INV-CHAIN"
+COTE_LEDGER_DEFAULT: str = "data/constitutional_tension_events.jsonl"
+
+
+class ConstitutionalTensionViolation(RuntimeError):
+    """Raised when a Constitutional Tension constitutional invariant is breached."""
+
+
+
 TENSION_THRESHOLD: int = 20  # epochs of consistent disagreement triggers proposal
 OVERRIDE_RATIO: float = 0.80  # rule_A overrides rule_B this fraction of the time
 

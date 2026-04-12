@@ -25,6 +25,18 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+INDI_INV_CHAIN: str = "INDI-INV-CHAIN"
+
+
+class InvariantDiscoveryViolation(RuntimeError):
+    """Raised when a Invariant Discovery constitutional invariant is breached."""
+
+
+
 MIN_PATTERN_FREQUENCY: int = 5
 MIN_PRECISION: float = 0.80
 _HMAC_SECRET: bytes = b"adaad-ide-chain-v1"

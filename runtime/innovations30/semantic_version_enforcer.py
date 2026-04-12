@@ -14,6 +14,19 @@ from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+SEVEEN_INV_CHAIN: str = "SEVEEN-INV-CHAIN"
+SEVEEN_LEDGER_DEFAULT: str = "data/semantic_version_enforcer_events.jsonl"
+
+
+class SemanticVersionEnforcerViolation(RuntimeError):
+    """Raised when a Semantic Version Enforcer constitutional invariant is breached."""
+
+
+
 SemVerImpact = str  # "patch" | "minor" | "major"
 
 

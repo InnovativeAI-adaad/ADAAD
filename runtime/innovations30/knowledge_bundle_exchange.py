@@ -30,6 +30,18 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+KNBUEX_INV_CHAIN: str = "KNBUEX-INV-CHAIN"
+
+
+class KnowledgeBundleExchangeViolation(RuntimeError):
+    """Raised when a Knowledge Bundle Exchange constitutional invariant is breached."""
+
+
+
 # ── module-level constants ──────────────────────────────────────────────────
 _KBEP_VERSION: str = "1.0"
 _KBEP_LEDGER: str = "data/kbep_exchange_ledger.jsonl"

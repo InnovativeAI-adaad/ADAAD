@@ -11,6 +11,19 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+IN_INV_CHAIN: str = "IN-INV-CHAIN"
+IN_LEDGER_DEFAULT: str = "data/integration_events.jsonl"
+
+
+class IntegrationViolation(RuntimeError):
+    """Raised when a Integration constitutional invariant is breached."""
+
+
+
 @dataclass
 class InnovationEvalResult:
     mutation_id: str

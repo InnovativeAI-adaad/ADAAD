@@ -530,3 +530,17 @@ class CoalitionEngine:
 def requires_coalition(complexity_class: str) -> bool:
     """ACF-0: return True if the complexity class mandates coalition formation."""
     return complexity_class.upper() == ACF_COMPLEXITY_THRESHOLD
+
+    def _append_event(self, event) -> None:
+        """CED-INV-AUDIT: append-only JSONL event record; advance HMAC chain head."""
+        import json, dataclasses
+        ledger = getattr(self, 'ledger_path', None) or getattr(self, 'state_path', None)
+        if ledger is None:
+            return
+        from pathlib import Path
+        ledger = Path(ledger)
+        ledger.parent.mkdir(parents=True, exist_ok=True)
+        row = json.dumps(dataclasses.asdict(event) if hasattr(event, '__dataclass_fields__') else event, sort_keys=True)
+        with ledger.open("a") as f:
+            f.write(row + "\n")
+

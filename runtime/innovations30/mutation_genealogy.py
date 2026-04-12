@@ -9,6 +9,19 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+MUGE_INV_CHAIN: str = "MUGE-INV-CHAIN"
+MUGE_LEDGER_DEFAULT: str = "data/mutation_genealogy_events.jsonl"
+
+
+class MutationGenealogyViolation(RuntimeError):
+    """Raised when a Mutation Genealogy constitutional invariant is breached."""
+
+
+
 @dataclass
 class PropertyInheritanceVector:
     parent_epoch: str
@@ -98,6 +111,7 @@ class MutationGenealogyAnalyzer:
 
     def _persist(self, v: PropertyInheritanceVector) -> None:
         import dataclasses
+
         self.ledger_path.parent.mkdir(parents=True, exist_ok=True)
         with self.ledger_path.open("a") as f:
             f.write(json.dumps(dataclasses.asdict(v)) + "\n")

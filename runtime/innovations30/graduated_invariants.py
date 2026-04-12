@@ -11,6 +11,19 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+GRIN_INV_CHAIN: str = "GRIN-INV-CHAIN"
+GRIN_LEDGER_DEFAULT: str = "data/graduated_invariants_events.jsonl"
+
+
+class GraduatedInvariantsViolation(RuntimeError):
+    """Raised when a Graduated Invariants constitutional invariant is breached."""
+
+
+
 PROMOTION_EPOCHS = 30     # epochs at current level before promotion eligible
 PROMOTION_PRECISION = 0.90  # must catch real violations this fraction of firings
 DEMOTION_FP_RATE = 0.30    # false positive rate above this → demotion candidate

@@ -26,6 +26,19 @@ from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+COENBU_INV_CHAIN: str = "COENBU-INV-CHAIN"
+COENBU_LEDGER_DEFAULT: str = "data/constitutional_entropy_budget_events.jsonl"
+
+
+class ConstitutionalEntropyBudgetViolation(RuntimeError):
+    """Raised when a Constitutional Entropy Budget constitutional invariant is breached."""
+
+
+
 # ── Constitutional thresholds [CEB-0] ────────────────────────────────────────
 DRIFT_WARNING_THRESHOLD: float = 0.20   # 20 % drift → warning
 DRIFT_CRITICAL_THRESHOLD: float = 0.30  # 30 % drift → double-HUMAN-0 required

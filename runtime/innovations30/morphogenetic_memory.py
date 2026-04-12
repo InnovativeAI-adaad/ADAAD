@@ -11,6 +11,19 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+MOME_INV_CHAIN: str = "MOME-INV-CHAIN"
+MOME_LEDGER_DEFAULT: str = "data/morphogenetic_memory_events.jsonl"
+
+
+class MorphogeneticMemoryViolation(RuntimeError):
+    """Raised when a Morphogenetic Memory constitutional invariant is breached."""
+
+
+
 @dataclass
 class IdentityStatement:
     statement_id: str

@@ -45,6 +45,18 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+DRST_INV_CHAIN: str = "DRST-INV-CHAIN"
+
+
+class DreamStateViolation(RuntimeError):
+    """Raised when a Dream State constitutional invariant is breached."""
+
+
+
 log = logging.getLogger(__name__)
 
 # ── Constitutional constants ──────────────────────────────────────────────────
@@ -285,6 +297,7 @@ class DreamStateEngine:
 
         # Core dream execution (DSTE-5: read-only on epoch_memory)
         import random
+
         rng = random.Random(seed)  # DSTE-1: seeded
 
         pool = epoch_memory[-self.depth:]

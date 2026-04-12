@@ -27,6 +27,19 @@ from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Any, Callable
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+MITE_INV_CHAIN: str = "MITE-INV-CHAIN"
+MITE_LEDGER_DEFAULT: str = "data/mirror_test_events.jsonl"
+
+
+class MirrorTestViolation(RuntimeError):
+    """Raised when a Mirror Test constitutional invariant is breached."""
+
+
+
 # ── Constitutional constants ─────────────────────────────────────────────────
 MIRROR_TEST_INTERVAL: int = 50
 CALIBRATION_THRESHOLD: float = 0.60

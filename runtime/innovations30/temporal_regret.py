@@ -11,6 +11,19 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+TERE_INV_CHAIN: str = "TERE-INV-CHAIN"
+TERE_LEDGER_DEFAULT: str = "data/temporal_regret_events.jsonl"
+
+
+class TemporalRegretViolation(RuntimeError):
+    """Raised when a Temporal Regret constitutional invariant is breached."""
+
+
+
 REGRET_CHECKPOINTS = (10, 25, 50)
 HIGH_REGRET_THRESHOLD = 0.30
 
@@ -102,6 +115,7 @@ class TemporalRegretScorer:
 
     def _save(self) -> None:
         import dataclasses
+
         self.state_path.parent.mkdir(parents=True, exist_ok=True)
         with self.state_path.open("w") as f:
             for r in self._records.values():

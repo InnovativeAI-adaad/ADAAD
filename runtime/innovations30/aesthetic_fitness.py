@@ -9,6 +9,19 @@ import ast, re, math
 from dataclasses import dataclass
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+AEFI_INV_CHAIN: str = "AEFI-INV-CHAIN"
+AEFI_LEDGER_DEFAULT: str = "data/aesthetic_fitness_events.jsonl"
+
+
+class AestheticFitnessViolation(RuntimeError):
+    """Raised when a Aesthetic Fitness constitutional invariant is breached."""
+
+
+
 AESTHETIC_WEIGHT: float = 0.05   # initial weight in composite fitness
 
 @dataclass

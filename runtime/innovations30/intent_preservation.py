@@ -11,6 +11,19 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+INPR_INV_CHAIN: str = "INPR-INV-CHAIN"
+INPR_LEDGER_DEFAULT: str = "data/intent_preservation_events.jsonl"
+
+
+class IntentPreservationViolation(RuntimeError):
+    """Raised when a Intent Preservation constitutional invariant is breached."""
+
+
+
 LOW_REALIZATION_THRESHOLD: float = 0.40
 CALIBRATION_TRIGGER_STREAK: int = 5  # consecutive epochs of low realization
 
@@ -118,6 +131,7 @@ class IntentPreservationVerifier:
 
     def _persist(self, score: IntentRealizationScore) -> None:
         import dataclasses
+
         self.ledger_path.parent.mkdir(parents=True, exist_ok=True)
         with self.ledger_path.open("a") as f:
             f.write(json.dumps(dataclasses.asdict(score)) + "\n")

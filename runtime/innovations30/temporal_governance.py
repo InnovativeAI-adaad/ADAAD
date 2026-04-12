@@ -14,6 +14,18 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+TEGO_INV_CHAIN: str = "TEGO-INV-CHAIN"
+
+
+class TemporalGovernanceViolation(RuntimeError):
+    """Raised when a Temporal Governance constitutional invariant is breached."""
+
+
+
 
 @dataclass
 class GovernanceWindow:

@@ -51,6 +51,18 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+COVELE_INV_CHAIN: str = "COVELE-INV-CHAIN"
+
+
+class ConstitutionVersionLedgerViolation(RuntimeError):
+    """Raised when a Constitution Version Ledger constitutional invariant is breached."""
+
+
+
 
 # ── INNOV-43 Metadata ─────────────────────────────────────────────────────────
 INNOV_ID = "INNOV-43"

@@ -24,6 +24,19 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+GOAR_INV_CHAIN: str = "GOAR-INV-CHAIN"
+GOAR_LEDGER_DEFAULT: str = "data/governance_archaeology_events.jsonl"
+
+
+class GovernanceArchaeologyViolation(RuntimeError):
+    """Raised when a Governance Archaeology constitutional invariant is breached."""
+
+
+
 _TERMINAL_EVENT_TYPES: frozenset[str] = frozenset(
     {"approved", "rejected", "promoted", "rolled_back"}
 )

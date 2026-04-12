@@ -11,6 +11,19 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+COFI_INV_CHAIN: str = "COFI-INV-CHAIN"
+COFI_LEDGER_DEFAULT: str = "data/counterfactual_fitness_events.jsonl"
+
+
+class CounterfactualFitnessViolation(RuntimeError):
+    """Raised when a Counterfactual Fitness constitutional invariant is breached."""
+
+
+
 COUNTERFACTUAL_DEPTH: int = 5  # how many recent mutations to undo
 
 @dataclass

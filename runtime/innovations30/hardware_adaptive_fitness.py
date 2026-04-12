@@ -21,6 +21,19 @@ import time
 from dataclasses import dataclass, field, asdict
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+HAADFI_INV_CHAIN: str = "HAADFI-INV-CHAIN"
+HAADFI_LEDGER_DEFAULT: str = "data/hardware_adaptive_fitness_events.jsonl"
+
+
+class HardwareAdaptiveFitnessViolation(RuntimeError):
+    """Raised when a Hardware Adaptive Fitness constitutional invariant is breached."""
+
+
+
 # ── Constitutional weight bounds [HAF-0] ─────────────────────────────────────
 WEIGHT_SUM_TOLERANCE: float = 0.001
 WEIGHT_MIN: float = 0.01

@@ -30,6 +30,19 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+COJU_INV_CHAIN: str = "COJU-INV-CHAIN"
+COJU_LEDGER_DEFAULT: str = "data/constitutional_jury_events.jsonl"
+
+
+class ConstitutionalJuryViolation(RuntimeError):
+    """Raised when a Constitutional Jury constitutional invariant is breached."""
+
+
+
 # ── Invariant constants ───────────────────────────────────────────────────────
 JURY_SIZE: int = 3
 MAJORITY_REQUIRED: int = 2

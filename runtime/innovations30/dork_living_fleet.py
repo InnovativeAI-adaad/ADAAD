@@ -44,6 +44,18 @@ from dorkllm.context import classify_query, get_taxonomy_hints
 from runtime.dork_cmd_resolver import DorkCommandResolver, CommandError, ManifestLoadError
 from runtime.dork_persist import DorkLedgerPersistence, PersistenceWriteError
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+DOLIFL_INV_CHAIN: str = "DOLIFL-INV-CHAIN"
+
+
+class DorkLivingFleetViolation(RuntimeError):
+    """Raised when a Dork Living Fleet constitutional invariant is breached."""
+
+
+
 
 # ── INNOV-41 Metadata ─────────────────────────────────────────────────────────
 INNOV_ID = "INNOV-41"
@@ -568,6 +580,7 @@ class DORKLivingFleet:
 
         # OPT-005 sanitize (DORK-OUTPUT-0)
         from dorkllm.intelligence import opt_005_sanitize_output
+
         response, _ = opt_005_sanitize_output(response, text)
 
         duration = (time.monotonic() - t0) * 1000

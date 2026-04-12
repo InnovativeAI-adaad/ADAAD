@@ -33,6 +33,18 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+FEGOCO_INV_CHAIN: str = "FEGOCO-INV-CHAIN"
+
+
+class FederationGovernanceConsensusViolation(RuntimeError):
+    """Raised when a Federation Governance Consensus constitutional invariant is breached."""
+
+
+
 # ── module-level constants ─────────────────────────────────────────────────
 _FGCON_VERSION: str = "1.0"
 _FGCON_LEDGER: str = "data/fgcon_consensus_ledger.jsonl"

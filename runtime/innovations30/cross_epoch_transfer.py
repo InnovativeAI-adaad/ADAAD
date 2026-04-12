@@ -59,6 +59,18 @@ from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+CREPTR_INV_CHAIN: str = "CREPTR-INV-CHAIN"
+
+
+class CrossEpochTransferViolation(RuntimeError):
+    """Raised when a Cross Epoch Transfer constitutional invariant is breached."""
+
+
+
 # ────────────────────────────────────────────────────────────────────────────
 # Exceptions
 # ────────────────────────────────────────────────────────────────────────────

@@ -27,6 +27,18 @@ from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+SEAWIN_INV_CHAIN: str = "SEAWIN-INV-CHAIN"
+
+
+class SelfAwarenessInvariantViolation(RuntimeError):
+    """Raised when a Self Awareness Invariant constitutional invariant is breached."""
+
+
+
 # ── Protected self-monitoring modules ───────────────────────────────────────
 _DEFAULT_PROTECTED: frozenset[str] = frozenset([
     "runtime/metrics.py",

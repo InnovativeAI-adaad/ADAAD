@@ -17,6 +17,18 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+KNTR_INV_CHAIN: str = "KNTR-INV-CHAIN"
+
+
+class KnowledgeTransferViolation(RuntimeError):
+    """Raised when a Knowledge Transfer constitutional invariant is breached."""
+
+
+
 _IMT_SIGN_ALGO: str = "sha256-hmac"
 _IMT_BUNDLE_VERSION: str = "1.1"
 _IMT_CHAIN_LEDGER: str = "data/governance_events.jsonl"
