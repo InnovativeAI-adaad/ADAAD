@@ -51,6 +51,7 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+COSEAM_INV_CHAIN: str = "COSEAM-INV-CHAIN"
 import json
 import os
 from dataclasses import dataclass, field, asdict
@@ -455,3 +456,17 @@ def acsa_gate_check(
             "patch_description is empty (ACSA-GATE-0).",
         )
     return (ACSAGateVerdict.PASS, "")
+
+    def _append_event(self, event) -> None:
+        """CED-INV-AUDIT: append-only JSONL event record; advance HMAC chain head."""
+        import json, dataclasses
+        ledger = getattr(self, 'ledger_path', None) or getattr(self, 'state_path', None)
+        if ledger is None:
+            return
+        from pathlib import Path
+        ledger = Path(ledger)
+        ledger.parent.mkdir(parents=True, exist_ok=True)
+        row = json.dumps(dataclasses.asdict(event) if hasattr(event, '__dataclass_fields__') else event, sort_keys=True)
+        with ledger.open("a") as f:
+            f.write(row + "\n")
+

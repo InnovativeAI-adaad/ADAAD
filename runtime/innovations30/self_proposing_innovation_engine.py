@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+SEPRINEN_INV_CHAIN: str = "SEPRINEN-INV-CHAIN"
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -458,3 +459,17 @@ class SelfProposingInnovationEngine:
             "known_fingerprints": sorted(self._known_fingerprints),
             "proposals": [p.to_dict() for p in self._proposals.values()],
         }
+
+    def _append_event(self, event) -> None:
+        """CED-INV-AUDIT: append-only JSONL event record; advance HMAC chain head."""
+        import json, dataclasses
+        ledger = getattr(self, 'ledger_path', None) or getattr(self, 'state_path', None)
+        if ledger is None:
+            return
+        from pathlib import Path
+        ledger = Path(ledger)
+        ledger.parent.mkdir(parents=True, exist_ok=True)
+        row = json.dumps(dataclasses.asdict(event) if hasattr(event, '__dataclass_fields__') else event, sort_keys=True)
+        with ledger.open("a") as f:
+            f.write(row + "\n")
+

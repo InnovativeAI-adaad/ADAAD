@@ -11,6 +11,19 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+TERE_INV_CHAIN: str = "TERE-INV-CHAIN"
+TERE_LEDGER_DEFAULT: str = "data/temporal_regret_events.jsonl"
+
+
+class TemporalRegretViolation(RuntimeError):
+    """Raised when a Temporal Regret constitutional invariant is breached."""
+
+
+
 REGRET_CHECKPOINTS = (10, 25, 50)
 HIGH_REGRET_THRESHOLD = 0.30
 
@@ -102,10 +115,43 @@ class TemporalRegretScorer:
 
     def _save(self) -> None:
         import dataclasses
+
         self.state_path.parent.mkdir(parents=True, exist_ok=True)
         with self.state_path.open("w") as f:
             for r in self._records.values():
                 f.write(json.dumps(dataclasses.asdict(r)) + "\n")
+
+
+# ── Chain-linkage scaffold (hardening pass — prev_digest + _append_event) ─────
+import hashlib as _hashlib
+import json as _json
+
+
+_MODULE_PREV_DIGEST: str = "genesis"   # prev_digest chain head for this module
+
+
+def _append_event(event: dict, ledger_path: str = "") -> None:
+    """Module-level append-only JSONL event stub [CED-INV-AUDIT, CED-INV-CHAIN].
+
+    Writes a chain-linked record to ledger_path (or discards if empty).
+    Full integration deferred to per-module deep-dive phase.
+    """
+    global _MODULE_PREV_DIGEST
+    if not ledger_path:
+        return
+    import dataclasses as _dc
+    from pathlib import Path as _Path
+    row = event if isinstance(event, dict) else (
+        _dc.asdict(event) if hasattr(event, '__dataclass_fields__') else {}
+    )
+    row["prev_digest"] = _MODULE_PREV_DIGEST
+    digest_payload = _json.dumps(row, sort_keys=True).encode()
+    row["event_digest"] = "sha256:" + _hashlib.sha256(digest_payload).hexdigest()
+    p = _Path(ledger_path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    with p.open("a") as f:
+        f.write(_json.dumps(row, sort_keys=True) + "\n")
+    _MODULE_PREV_DIGEST = row["event_digest"]
 
 
 __all__ = ["TemporalRegretScorer", "RegretRecord",

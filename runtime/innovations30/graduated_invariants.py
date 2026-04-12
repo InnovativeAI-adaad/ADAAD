@@ -11,6 +11,19 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+GRIN_INV_CHAIN: str = "GRIN-INV-CHAIN"
+GRIN_LEDGER_DEFAULT: str = "data/graduated_invariants_events.jsonl"
+
+
+class GraduatedInvariantsViolation(RuntimeError):
+    """Raised when a Graduated Invariants constitutional invariant is breached."""
+
+
+
 PROMOTION_EPOCHS = 30     # epochs at current level before promotion eligible
 PROMOTION_PRECISION = 0.90  # must catch real violations this fraction of firings
 DEMOTION_FP_RATE = 0.30    # false positive rate above this → demotion candidate
@@ -125,6 +138,38 @@ class GraduatedInvariantPromoter:
         self.state_path.write_text(json.dumps(
             {k: dataclasses.asdict(v) for k, v in self._calibrations.items()},
             indent=2))
+
+
+# ── Chain-linkage scaffold (hardening pass — prev_digest + _append_event) ─────
+import hashlib as _hashlib
+import json as _json
+
+
+_MODULE_PREV_DIGEST: str = "genesis"   # prev_digest chain head for this module
+
+
+def _append_event(event: dict, ledger_path: str = "") -> None:
+    """Module-level append-only JSONL event stub [CED-INV-AUDIT, CED-INV-CHAIN].
+
+    Writes a chain-linked record to ledger_path (or discards if empty).
+    Full integration deferred to per-module deep-dive phase.
+    """
+    global _MODULE_PREV_DIGEST
+    if not ledger_path:
+        return
+    import dataclasses as _dc
+    from pathlib import Path as _Path
+    row = event if isinstance(event, dict) else (
+        _dc.asdict(event) if hasattr(event, '__dataclass_fields__') else {}
+    )
+    row["prev_digest"] = _MODULE_PREV_DIGEST
+    digest_payload = _json.dumps(row, sort_keys=True).encode()
+    row["event_digest"] = "sha256:" + _hashlib.sha256(digest_payload).hexdigest()
+    p = _Path(ledger_path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    with p.open("a") as f:
+        f.write(_json.dumps(row, sort_keys=True) + "\n")
+    _MODULE_PREV_DIGEST = row["event_digest"]
 
 
 __all__ = ["GraduatedInvariantPromoter", "RuleCalibration",

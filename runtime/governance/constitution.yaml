@@ -1,6 +1,6 @@
 {
-  "policy_version": "0.9.0",
-  "version": "0.9.0",
+  "policy_version": "1.0.0",
+  "version": "1.0.0",
   "tiers": {
     "PRODUCTION": 0,
     "STABLE": 1,

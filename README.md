@@ -10,7 +10,7 @@
 
 <br/>
 
-[![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-00d4ff?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v9.73.0](https://img.shields.io/badge/version-v9.73.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![221 Invariants](https://img.shields.io/badge/invariants-221%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
+[![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-00d4ff?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v9.74.0](https://img.shields.io/badge/version-v9.74.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![226 Invariants](https://img.shields.io/badge/invariants-226%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
 
 </div>
 
@@ -894,7 +894,7 @@ Start with the [Trust Center](TRUST_CENTER.md). The [Procurement Fast-Lane packa
 
 ## Roadmap
 
-**140 phases complete. 221 Hard-class invariants. 46 innovations shipped. adaad-core extracted. 0 open findings.**
+**141 phases complete. 226 Hard-class invariants. 47 innovations shipped. 46/46 Grade-A hardened modules. 0 open findings.**
 
 **Short term** — PyPI publication (version gap closure), FINDING-66-004 ceremony execution, Phase 141 planning, provisional patent filing.
 

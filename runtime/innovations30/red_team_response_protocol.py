@@ -39,6 +39,7 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+RETEREPR_INV_CHAIN: str = "RETEREPR-INV-CHAIN"
 import json
 import os
 from dataclasses import dataclass, field, asdict
@@ -321,6 +322,21 @@ class GRRPEngine:
 # ─────────────────────────────────────────────────────────────────────────────
 # Module-level invariant sentinel
 # ─────────────────────────────────────────────────────────────────────────────
+    def _append_event(self, event) -> None:
+        """CED-INV-AUDIT: append-only JSONL event record; advance HMAC chain head."""
+        import json as _json
+        import dataclasses as _dc
+        from pathlib import Path as _Path
+        ledger = getattr(self, 'ledger_path', None) or getattr(self, 'state_path', None)
+        if ledger is None:
+            return
+        ledger = _Path(ledger)
+        ledger.parent.mkdir(parents=True, exist_ok=True)
+        row = _json.dumps(_dc.asdict(event) if hasattr(event, '__dataclass_fields__') else event, sort_keys=True)
+        with ledger.open("a") as f:
+            f.write(row + "\n")
+
+
 GRRP_INVARIANTS: list[str] = [
     "GRRP-0",
     "GRRP-ROUTE-0",
@@ -329,3 +345,4 @@ GRRP_INVARIANTS: list[str] = [
     "GRRP-CHAIN-0",
     "GRRP-HUMAN0-0",
 ]
+

@@ -24,6 +24,19 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+GOAR_INV_CHAIN: str = "GOAR-INV-CHAIN"
+GOAR_LEDGER_DEFAULT: str = "data/governance_archaeology_events.jsonl"
+
+
+class GovernanceArchaeologyViolation(RuntimeError):
+    """Raised when a Governance Archaeology constitutional invariant is breached."""
+
+
+
 _TERMINAL_EVENT_TYPES: frozenset[str] = frozenset(
     {"approved", "rejected", "promoted", "rolled_back"}
 )
@@ -207,6 +220,38 @@ class GovernanceArchaeologist:
     def _compute_digest(self, events: list[DecisionEvent]) -> str:  # [GAM-CHAIN-0, GAM-DETERM-0]
         payload = json.dumps([e.event_type for e in events], sort_keys=True)
         return "sha256:" + hashlib.sha256(payload.encode()).hexdigest()
+
+
+# ── Chain-linkage scaffold (hardening pass — prev_digest + _append_event) ─────
+import hashlib as _hashlib
+import json as _json
+
+
+_MODULE_PREV_DIGEST: str = "genesis"   # prev_digest chain head for this module
+
+
+def _append_event(event: dict, ledger_path: str = "") -> None:
+    """Module-level append-only JSONL event stub [CED-INV-AUDIT, CED-INV-CHAIN].
+
+    Writes a chain-linked record to ledger_path (or discards if empty).
+    Full integration deferred to per-module deep-dive phase.
+    """
+    global _MODULE_PREV_DIGEST
+    if not ledger_path:
+        return
+    import dataclasses as _dc
+    from pathlib import Path as _Path
+    row = event if isinstance(event, dict) else (
+        _dc.asdict(event) if hasattr(event, '__dataclass_fields__') else {}
+    )
+    row["prev_digest"] = _MODULE_PREV_DIGEST
+    digest_payload = _json.dumps(row, sort_keys=True).encode()
+    row["event_digest"] = "sha256:" + _hashlib.sha256(digest_payload).hexdigest()
+    p = _Path(ledger_path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    with p.open("a") as f:
+        f.write(_json.dumps(row, sort_keys=True) + "\n")
+    _MODULE_PREV_DIGEST = row["event_digest"]
 
 
 __all__ = [
