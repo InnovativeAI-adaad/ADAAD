@@ -58,6 +58,7 @@ dev = [
 server = [
   "fastapi>=0.135.2",
   "uvicorn[standard]>=0.41.0",
+  "sse-starlette>=2.0.0",
 ]
 
 [tool.setuptools.packages.find]

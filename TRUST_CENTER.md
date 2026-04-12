@@ -1,6 +1,6 @@
 # ADAAD Trust Center
 
-**v9.58.0 · Phase 125 · 36 Innovations Complete · 167 Hard-class Invariants**
+**v9.75.0 · Phase 142 · 48 Innovations Complete · 231 Hard-class Invariants**
 
 This Trust Center provides a buyer-facing overview of ADAAD governance, security, independent verification pathways, and operational assurance artifacts. It addresses the five questions enterprise procurement teams ask first.
 
@@ -99,14 +99,14 @@ If you are a security research firm, AI governance organization, or academic ins
 
 ADAAD uses a **phase-correlated version scheme** by design. Each minor increment in the `v9.x.0` series corresponds to one shipped, HUMAN-0-attested, evidence-linked governance phase — not a traditional semver backward-compatible feature addition.
 
-`v9.58.0` means 55 governed phase milestones have shipped in the v9 series. Each phase has:
+`v9.75.0` means 141 governed phase milestones have shipped in the v9 series. Each phase has:
 - A governance ledger event with `session_digest` sign-off
 - 30 passing acceptance tests named `T<N>-<MODULE>-01..30`
 - A CHANGELOG entry with evidence references
 - A four-file canonical version sync (`VERSION` · `pyproject.toml` · `CHANGELOG.md` · `.adaad_agent_state.json`)
 - A HUMAN-0 `human0_signoffs` record in `.adaad_agent_state.json`
 
-**What this means for an evaluator:** The version number is an audit counter. `v9.58.0` does not mean "55 API features were added" — it means "55 times, a human governor reviewed, signed off, and merged a governed, tested, cryptographically attested phase into main." The density signals governance discipline, not version inflation.
+**What this means for an evaluator:** The version number is an audit counter. `v9.75.0` does not mean "141 API features were added" — it means "141 times, a human governor reviewed, signed off, and merged a governed, tested, cryptographically attested phase into main." The density signals governance discipline, not version inflation.
 
 **Why AI-assisted development enables this cadence:** ADAAD is simultaneously the tool being built and the primary evidence for the value proposition it's claiming. One person building a constitutionally governed autonomous code evolution system in 12 weeks is itself the existence proof that the system works. The timeline is not suspicious — it is the thesis.
 
@@ -146,7 +146,7 @@ All other previously tracked GA blockers (FINDING-66-001 through FINDING-66-005)
 
 **The most important technical question for any serious evaluator.**
 
-The cold claim "167 Hard-class invariants enforced at runtime" must be distinguished from policy-layer enforcement that can be bypassed.
+The cold claim "231 Hard-class invariants enforced at runtime" must be distinguished from policy-layer enforcement that can be bypassed.
 
 ADAAD's Hard-class invariants are **structural** — they are embedded in the execution flow, not asserted in a verify step that could be skipped. A violation causes epoch abort via a typed exception (`GateViolation` subclass). They cannot be configured away, feature-flagged off, or bypassed by callers.
 
@@ -255,4 +255,4 @@ For deeper due-diligence requests — architecture contracts, CI gating policy, 
 
 *This Trust Center is governed by the same constitutional principles as the system it describes. Claims are backed by executable verification instructions. Self-asserted properties that cannot be independently verified are explicitly labelled as such.*
 
-*Last updated: 2026-04-05 · v9.58.0 · Phase 125*
+*Last updated: 2026-04-12 · v9.75.0 · Phase 142*

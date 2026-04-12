@@ -196,7 +196,7 @@ Policy hash: `71eb6499bc09d8b4…` (authoritative: `runtime/constitution.py → 
 
 **Version**: 0.9.0
 **Last Updated**: 2026-03-24
-**Active Phase**: 102 (v9.35.0 — INNOV-17 APM complete)
+**Active Phase**: 142 (v9.75.0 — INNOV-48 CSS complete · 231 Hard-class invariants · 48 innovations shipped)
 **Next Review**: After 1000 mutations logged
 
 **Canonical implementation specs:**

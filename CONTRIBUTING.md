@@ -7,7 +7,7 @@
 
 **Last reviewed:** 2026-04-05
 
-By submitting a contribution, you agree that your work is licensed under the MIT License (see `LICENSE`). No trademark rights are granted or implied; see `TRADEMARKS.md` and `BRAND_LICENSE.md`.
+By submitting a contribution, you agree that your work is licensed under the Apache License 2.0 (see `LICENSE`). The Apache 2.0 license includes an express patent grant — see Section 3 of the LICENSE file. No trademark rights are granted or implied; see `TRADEMARKS.md` and `BRAND_LICENSE.md`.
 
 ---
 
@@ -143,9 +143,9 @@ python -m pytest -q tests/test_preflight_import_smoke.py
 
 ## Active phase
 
-Current checkpoint: **Phase 93 shipped (v9.26.0)**.
+Current checkpoint: **Phase 142 shipped (v9.75.0) · 231 Hard-class invariants · 48 innovations complete**.
 
-Next phase: **Phase 94 (INNOV-10)**.
+Next phase: **Phase 143** — see [ROADMAP.md](ROADMAP.md) for current planning.
 
 For new governed work, use the current PR ID convention from `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` (for example, `PR-PHASE94-01`) rather than legacy `PR-PHASE6-*` identifiers.
 

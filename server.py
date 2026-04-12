@@ -207,8 +207,8 @@ app.add_middleware(
     allow_origins=_CORS_ORIGINS,
     allow_origin_regex=_CORS_ORIGIN_REGEX,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "X-ADAAD-Plan", "X-Request-ID", "X-Audit-Token"],
 )
 
 # ── Cryovant Gate Middleware ─────────────────────────────────────────────────
