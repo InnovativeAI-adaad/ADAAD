@@ -5,6 +5,7 @@ pytestmark = pytest.mark.regression_standard
 
 from dataclasses import dataclass
 import json
+import subprocess
 
 from fastapi.testclient import TestClient
 
@@ -173,6 +174,85 @@ def test_api_health_includes_version_and_runtime_profile() -> None:
     runtime_profile = payload.get("runtime_profile")
     assert isinstance(runtime_profile, dict)
     assert "present" in runtime_profile
+
+
+def test_trigger_mutation_cycle_returns_operation_id_and_persists_status(monkeypatch, tmp_path) -> None:
+    observed: dict[str, object] = {}
+    events: list[dict[str, object]] = []
+    journal_events: list[dict[str, object]] = []
+    status_file = tmp_path / "mutation_status.json"
+    log_dir = tmp_path / "epoch_logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+
+    monkeypatch.setattr(server, "MUTATION_EPOCH_STATUS_PATH", status_file)
+    monkeypatch.setattr(server, "MUTATION_EPOCH_LOG_DIR", log_dir)
+    monkeypatch.setattr(server, "_MUTATION_EPOCH_TASKS", {})
+    monkeypatch.setattr(server, "_MUTATION_STDIO_LOG_LIMIT_BYTES", 128)
+
+    def _fake_run(*args, **kwargs):
+        observed["kwargs"] = kwargs
+        return subprocess.CompletedProcess(args=args[0], returncode=0)
+
+    def _fake_metrics_log(*, event_type, payload, level="INFO", **_kwargs):
+        events.append({"event_type": event_type, "payload": payload, "level": level})
+
+    def _fake_append_tx(*, tx_type, payload, **_kwargs):
+        journal_events.append({"tx_type": tx_type, "payload": payload})
+        return {"ok": True}
+
+    monkeypatch.setattr(server.subprocess, "run", _fake_run)
+    monkeypatch.setattr(server.metrics, "log", _fake_metrics_log)
+    monkeypatch.setattr(server.journal, "append_tx", _fake_append_tx)
+
+    with TestClient(server.app) as client:
+        response = client.post("/api/mutations/trigger-epoch")
+
+    assert response.status_code == 200
+    payload = response.json()
+    operation_id = payload["operation_id"]
+    assert operation_id.startswith("epoch-op-")
+    assert payload["status_endpoint"].endswith(operation_id)
+    status_doc = json.loads(status_file.read_text(encoding="utf-8"))
+    assert status_doc[operation_id]["status"] == "succeeded"
+    assert status_doc[operation_id]["return_code"] == 0
+    kwargs = observed["kwargs"]
+    assert kwargs["timeout"] == server._MUTATION_EPOCH_TIMEOUT_SECONDS
+    assert kwargs["check"] is True
+    assert events[-1]["event_type"] == "mutation_epoch_task_completed"
+    assert journal_events[-1]["tx_type"] == "mutation_epoch_task_completed.v1"
+
+    with TestClient(server.app) as client:
+        status_response = client.get(f"/api/mutations/epoch-status/{operation_id}")
+    assert status_response.status_code == 200
+    assert status_response.json()["operation"]["status"] == "succeeded"
+
+
+def test_trigger_mutation_cycle_handles_timeout(monkeypatch, tmp_path) -> None:
+    status_file = tmp_path / "mutation_status.json"
+    log_dir = tmp_path / "epoch_logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+
+    monkeypatch.setattr(server, "MUTATION_EPOCH_STATUS_PATH", status_file)
+    monkeypatch.setattr(server, "MUTATION_EPOCH_LOG_DIR", log_dir)
+    monkeypatch.setattr(server, "_MUTATION_EPOCH_TASKS", {})
+    monkeypatch.setattr(server, "_MUTATION_STDIO_LOG_LIMIT_BYTES", 128)
+    monkeypatch.setattr(server.metrics, "log", lambda **_kwargs: None)
+    monkeypatch.setattr(server.journal, "append_tx", lambda **_kwargs: {"ok": True})
+
+    def _timeout_run(*args, **kwargs):
+        raise subprocess.TimeoutExpired(cmd=args[0], timeout=kwargs["timeout"])
+
+    monkeypatch.setattr(server.subprocess, "run", _timeout_run)
+
+    with TestClient(server.app) as client:
+        response = client.post("/api/mutations/trigger-epoch")
+
+    assert response.status_code == 200
+    operation_id = response.json()["operation_id"]
+    status_doc = json.loads(status_file.read_text(encoding="utf-8"))
+    assert status_doc[operation_id]["status"] == "failed"
+    assert status_doc[operation_id]["timed_out"] is True
+    assert status_doc[operation_id]["error_type"] == "TimeoutExpired"
 
 
 def test_post_proposal_alias_uses_same_handler(monkeypatch) -> None:

@@ -12,6 +12,7 @@ import asyncio
 import csv
 import io
 import uuid
+import threading
 import httpx
 from datetime import datetime, timezone
 from dataclasses import dataclass
@@ -112,8 +113,73 @@ WHALEDIC_DIR = ROOT / "ui" / "developer" / "ADAADdev"
 REPLAY_PROOFS_DIR = ROOT / "security" / "replay_manifests"
 FORENSIC_EXPORT_DIR = ROOT / "reports" / "forensics"
 COMPLIANCE_EXPORT_DIR = ROOT / "reports" / "compliance_exports"
+MUTATION_EPOCH_LOG_DIR = ROOT / "reports" / "mutation_epochs"
+MUTATION_EPOCH_STATUS_PATH = ROOT / "data" / "mutation_epoch_task_status.json"
 SEMVER_AUDIT_PATH = ROOT / "data" / "semver_verdicts.jsonl"
 GATE_LOCK_FILE = DEFAULT_GATE_LOCK_FILE
+
+_MUTATION_EPOCH_TASKS_LOCK = threading.Lock()
+_MUTATION_EPOCH_TASKS: dict[str, dict[str, Any]] = {}
+_MUTATION_STDIO_LOG_LIMIT_BYTES = 64 * 1024
+_MUTATION_EPOCH_TIMEOUT_SECONDS = 120
+
+
+def _digest_for_path(path: Path) -> str:
+    if not path.exists():
+        return ""
+    hasher = hashlib.sha256()
+    with path.open("rb") as handle:
+        while True:
+            chunk = handle.read(8192)
+            if not chunk:
+                break
+            hasher.update(chunk)
+    return hasher.hexdigest()
+
+
+def _truncate_log_file_in_place(path: Path, limit_bytes: int) -> int:
+    if not path.exists():
+        return 0
+    file_size = path.stat().st_size
+    if file_size <= limit_bytes:
+        return 0
+    with path.open("rb+") as handle:
+        handle.seek(file_size - limit_bytes)
+        tail = handle.read(limit_bytes)
+        handle.seek(0)
+        handle.write(tail)
+        handle.truncate()
+    return file_size - limit_bytes
+
+
+def _record_mutation_epoch_status(operation_id: str, payload: dict[str, Any]) -> None:
+    now = datetime.now(timezone.utc).isoformat()
+    entry = {"operation_id": operation_id, "updated_at": now, **payload}
+    with _MUTATION_EPOCH_TASKS_LOCK:
+        _MUTATION_EPOCH_TASKS[operation_id] = entry
+        MUTATION_EPOCH_STATUS_PATH.parent.mkdir(parents=True, exist_ok=True)
+        MUTATION_EPOCH_STATUS_PATH.write_text(
+            json.dumps(_MUTATION_EPOCH_TASKS, ensure_ascii=False, indent=2, sort_keys=True),
+            encoding="utf-8",
+        )
+
+
+def _read_mutation_epoch_status(operation_id: str) -> dict[str, Any] | None:
+    with _MUTATION_EPOCH_TASKS_LOCK:
+        cached = _MUTATION_EPOCH_TASKS.get(operation_id)
+        if cached is not None:
+            return dict(cached)
+        if MUTATION_EPOCH_STATUS_PATH.exists():
+            try:
+                persisted = json.loads(MUTATION_EPOCH_STATUS_PATH.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                return None
+            if isinstance(persisted, dict):
+                loaded = persisted.get(operation_id)
+                if isinstance(loaded, dict):
+                    _MUTATION_EPOCH_TASKS.update(persisted)
+                    return dict(loaded)
+    return None
 
 
 class SPAStaticFiles(StaticFiles):
@@ -4392,8 +4458,32 @@ async def trigger_mutation_cycle(
 ) -> dict[str, Any]:
     """Trigger a new mutation cycle in the background."""
     _ = auth_ctx
-    
-    def run_epoch_task():
+
+    operation_id = f"epoch-op-{uuid.uuid4().hex[:16]}"
+    MUTATION_EPOCH_LOG_DIR.mkdir(parents=True, exist_ok=True)
+    stdout_path = MUTATION_EPOCH_LOG_DIR / f"{operation_id}.stdout.log"
+    stderr_path = MUTATION_EPOCH_LOG_DIR / f"{operation_id}.stderr.log"
+    queued_at = datetime.now(timezone.utc).isoformat()
+    _record_mutation_epoch_status(
+        operation_id,
+        {
+            "status": "queued",
+            "queued_at": queued_at,
+            "completed_at": None,
+            "timeout_seconds": _MUTATION_EPOCH_TIMEOUT_SECONDS,
+            "timed_out": False,
+            "return_code": None,
+            "stdout_log_path": str(stdout_path),
+            "stderr_log_path": str(stderr_path),
+            "stdout_digest_sha256": "",
+            "stderr_digest_sha256": "",
+            "stdout_truncated_bytes": 0,
+            "stderr_truncated_bytes": 0,
+            "error_type": None,
+        },
+    )
+
+    def run_epoch_task(epoch_operation_id: str, task_stdout_path: Path, task_stderr_path: Path):
         # SECURITY NOTE (audit H-2): subprocess.run is called from a FastAPI
         # BackgroundTask (already async-safe). The env dict is derived solely
         # from os.environ.copy() with two hard-coded overrides — no user-supplied
@@ -4403,15 +4493,111 @@ async def trigger_mutation_cycle(
         env = os.environ.copy()
         env["ADAAD_ENV"] = "dev"
         env["ADAAD_CEL_ENABLED"] = "true"
-        subprocess.run(
-            [sys.executable, "-m", "app.main", "--verbose", "--exit-after-boot"],
-            env=env,
-            capture_output=True,
-            text=True
+        started_at = datetime.now(timezone.utc).isoformat()
+        _record_mutation_epoch_status(
+            epoch_operation_id,
+            {
+                "status": "running",
+                "queued_at": queued_at,
+                "started_at": started_at,
+                "completed_at": None,
+                "timeout_seconds": _MUTATION_EPOCH_TIMEOUT_SECONDS,
+                "timed_out": False,
+                "return_code": None,
+                "stdout_log_path": str(task_stdout_path),
+                "stderr_log_path": str(task_stderr_path),
+                "stdout_digest_sha256": "",
+                "stderr_digest_sha256": "",
+                "stdout_truncated_bytes": 0,
+                "stderr_truncated_bytes": 0,
+                "error_type": None,
+            },
         )
 
-    background_tasks.add_task(run_epoch_task)
-    return {"ok": True, "status": "staged", "message": "Mutation cycle triggered."}
+        with task_stdout_path.open("w", encoding="utf-8") as stdout_handle, task_stderr_path.open(
+            "w", encoding="utf-8"
+        ) as stderr_handle:
+            try:
+                result = subprocess.run(
+                    [sys.executable, "-m", "app.main", "--verbose", "--exit-after-boot"],
+                    env=env,
+                    stdout=stdout_handle,
+                    stderr=stderr_handle,
+                    text=True,
+                    check=True,
+                    timeout=_MUTATION_EPOCH_TIMEOUT_SECONDS,
+                )
+                status = "succeeded"
+                timed_out = False
+                error_type = None
+                return_code = result.returncode
+            except subprocess.TimeoutExpired as exc:
+                status = "failed"
+                timed_out = True
+                error_type = "TimeoutExpired"
+                return_code = exc.returncode if exc.returncode is not None else -1
+            except subprocess.CalledProcessError as exc:
+                status = "failed"
+                timed_out = False
+                error_type = "CalledProcessError"
+                return_code = exc.returncode
+
+        stdout_truncated_bytes = _truncate_log_file_in_place(task_stdout_path, _MUTATION_STDIO_LOG_LIMIT_BYTES)
+        stderr_truncated_bytes = _truncate_log_file_in_place(task_stderr_path, _MUTATION_STDIO_LOG_LIMIT_BYTES)
+        stdout_digest = _digest_for_path(task_stdout_path)
+        stderr_digest = _digest_for_path(task_stderr_path)
+        completed_at = datetime.now(timezone.utc).isoformat()
+
+        payload = {
+            "operation_id": epoch_operation_id,
+            "status": status,
+            "queued_at": queued_at,
+            "started_at": started_at,
+            "completed_at": completed_at,
+            "timeout_seconds": _MUTATION_EPOCH_TIMEOUT_SECONDS,
+            "timed_out": timed_out,
+            "return_code": return_code,
+            "stdout_log_path": str(task_stdout_path),
+            "stderr_log_path": str(task_stderr_path),
+            "stdout_digest_sha256": stdout_digest,
+            "stderr_digest_sha256": stderr_digest,
+            "stdout_truncated_bytes": stdout_truncated_bytes,
+            "stderr_truncated_bytes": stderr_truncated_bytes,
+            "error_type": error_type,
+        }
+
+        metrics.log(
+            event_type="mutation_epoch_task_completed",
+            payload=payload,
+            level="INFO" if status == "succeeded" else "ERROR",
+        )
+        journal.append_tx(
+            tx_type="mutation_epoch_task_completed.v1",
+            payload=payload,
+        )
+        _record_mutation_epoch_status(epoch_operation_id, payload)
+
+    background_tasks.add_task(run_epoch_task, operation_id, stdout_path, stderr_path)
+    return {
+        "ok": True,
+        "status": "staged",
+        "operation_id": operation_id,
+        "message": "Mutation cycle triggered.",
+        "status_endpoint": f"/api/mutations/epoch-status/{operation_id}",
+    }
+
+
+@app.get("/api/mutations/epoch-status/{operation_id}")
+async def get_mutation_cycle_status(
+    operation_id: str,
+    auth_ctx: dict[str, Any] = Depends(require_gate_open),
+) -> dict[str, Any]:
+    """Fetch persisted status for a mutation epoch background operation."""
+    _ = auth_ctx
+    status = _read_mutation_epoch_status(operation_id)
+    if status is None:
+        raise HTTPException(status_code=404, detail="mutation_epoch_operation_not_found")
+    return {"ok": True, "operation": status}
 
 @app.get("/api/webhooks/stream")
 async def webhooks_stream(request: Request):
