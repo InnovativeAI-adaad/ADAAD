@@ -34,6 +34,11 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
 
+from runtime.governance.federation.federated_evidence_matrix import (
+    EpochAlreadyRegisteredSameDigest,
+    LocalEpochDigestConflictError,
+)
+
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
@@ -302,26 +307,33 @@ class EvolutionFederationBridge:
                 evidence_registered=True,
                 detail={"chain_digest": resolved_digest},
             )
-        except Exception as exc:  # noqa: BLE001
-            # Conflict (same epoch, different digest) is a hard error
-            if "conflict" in str(exc).lower() or "digest_conflict" in str(exc).lower():
-                logger.error(
-                    "federation_bridge.on_epoch_rotation — epoch digest conflict: %s", exc
-                )
-                self._safe_audit(
-                    "federation_bridge_epoch_digest_conflict",
-                    {"epoch_id": epoch_id, "chain_digest": resolved_digest, "error": str(exc)},
-                )
-                return BridgeResult(
-                    hook=hook_name,
-                    epoch_id=epoch_id,
-                    ok=False,
-                    error=str(exc),
-                    detail={"chain_digest": resolved_digest},
-                )
-            # Idempotent re-registration: already registered with same digest — OK
+        except LocalEpochDigestConflictError as exc:
+            logger.error(
+                "federation_bridge.on_epoch_rotation conflict epoch=%s digest=%s error=%s",
+                epoch_id,
+                resolved_digest,
+                exc,
+            )
+            self._safe_audit(
+                "federation_bridge_epoch_digest_conflict",
+                {"epoch_id": epoch_id, "chain_digest": resolved_digest, "error": str(exc)},
+            )
+            return BridgeResult(
+                hook=hook_name,
+                epoch_id=epoch_id,
+                ok=False,
+                error=str(exc),
+                detail={"chain_digest": resolved_digest},
+            )
+        except EpochAlreadyRegisteredSameDigest as exc:
             logger.debug(
-                "federation_bridge.on_epoch_rotation idempotent: epoch=%s", epoch_id
+                "federation_bridge.on_epoch_rotation idempotent epoch=%s digest=%s",
+                epoch_id,
+                resolved_digest,
+            )
+            self._safe_audit(
+                "federation_bridge_epoch_idempotent",
+                {"epoch_id": epoch_id, "chain_digest": resolved_digest, "error": str(exc)},
             )
             return BridgeResult(
                 hook=hook_name,
@@ -329,6 +341,25 @@ class EvolutionFederationBridge:
                 ok=True,
                 evidence_registered=False,  # already registered
                 detail={"chain_digest": resolved_digest, "idempotent": True},
+            )
+        except Exception as exc:  # noqa: BLE001
+            logger.error(
+                "federation_bridge.on_epoch_rotation failed epoch=%s digest=%s error=%s",
+                epoch_id,
+                resolved_digest,
+                exc,
+                exc_info=True,
+            )
+            self._safe_audit(
+                "federation_bridge_epoch_registration_error",
+                {"epoch_id": epoch_id, "chain_digest": resolved_digest, "error": str(exc)},
+            )
+            return BridgeResult(
+                hook=hook_name,
+                epoch_id=epoch_id,
+                ok=False,
+                error=str(exc),
+                detail={"chain_digest": resolved_digest},
             )
 
     # ------------------------------------------------------------------
