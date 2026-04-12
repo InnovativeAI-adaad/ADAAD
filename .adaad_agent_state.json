@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.75.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": "v9.75.0 RELEASED \u00b7 Phase 142 \u00b7 INNOV-48 \u00b7 CSS \u00b7 231 invariants",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -300,12 +300,12 @@
     "phase140-complete"
   ],
   "constitutional_invariants": {
-    "cumulative": 226,
-    "hard_class_count": 221
+    "cumulative": 231,
+    "hard_class_count": 231
   },
   "current_phase": 142,
   "current_version": "9.75.0",
-  "hard_class_count": 226,
+  "hard_class_count": 231,
   "hard_class_invariant_count": 226,
   "hard_class_invariants_cumulative": 226,
   "human0_signoffs": [
