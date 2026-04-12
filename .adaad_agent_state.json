@@ -778,14 +778,15 @@
         },
         {
             "id": "FINDING-66-004",
-            "note": "Runbook committed. Ceremony execution deferred to Innovadaad.",
+            "note": "Ceremony script: scripts/ceremony_finding_66_004_ed25519_threshold.sh. Run on ADAADell to generate 3 Ed25519 key pairs and register 2-of-3 threshold policy. HUMAN-0 must execute to close.",
             "phase_target": "66",
             "resolved_date": "2026-03-14",
             "resolved_phase": "66",
             "severity": "P2",
             "source": "Deep Dive \u00a7VI Medium Term",
-            "status": "runbook_delivered",
-            "title": "Governance Key Ceremony (PR-01): 2-of-3 Ed25519 threshold not yet executed"
+            "status": "ceremony_script_delivered",
+            "title": "Governance Key Ceremony (PR-01): 2-of-3 Ed25519 threshold not yet executed",
+            "ceremony_script": "scripts/ceremony_finding_66_004_ed25519_threshold.sh"
         },
         {
             "id": "FINDING-66-005",
@@ -966,19 +967,21 @@
         },
         {
             "id": "FINDING-140-001",
-            "note": "Remote tag deleted. HUMAN-0 must run ceremony script on ADAADell to create GPG-signed v9.59.0 against c05334c919181ed2717d9e22ef62698e5acb1aa8.",
+            "note": "RESOLVED: v9.59.0 tag verified GPG-signed against correct commit c05334c9 (Phase 126 canonical feat commit). Signed by Dustin L. Reid <dl_rd@yahoo.com> in Phase 140 Track B ceremony. PGP signature confirmed present in git cat-file output. Finding closed.",
             "severity": "P1",
             "source": "Phase 140 Track B",
-            "status": "runbook_delivered",
-            "title": "v9.59.0 GPG re-sign ceremony pending \u2014 ghost tag deleted, new signed tag not yet pushed"
+            "status": "resolved",
+            "title": "v9.59.0 GPG re-sign ceremony pending \u2014 ghost tag deleted, new signed tag not yet pushed",
+            "resolved_date": "2026-04-12"
         },
         {
             "id": "FINDING-140-002",
-            "note": "Fix: configure git remote with PAT embedded URL or use SSH key. Ceremony script below uses PAT-URL pattern.",
+            "note": "Ceremony script: scripts/ceremony_finding_140_002_adaadell_git_creds.sh. Run on ADAADell WSL. Offers Option A (PAT-embedded URL, immediate) or Option B (SSH deploy key, permanent). HUMAN-0 must execute to close.",
             "severity": "P1",
             "source": "Phase 140 Track B",
-            "status": "runbook_delivered",
-            "title": "ADAADell git credential manager broken \u2014 WSL cannot push via HTTPS with Windows GCM"
+            "status": "ceremony_script_delivered",
+            "title": "ADAADell git credential manager broken \u2014 WSL cannot push via HTTPS with Windows GCM",
+            "ceremony_script": "scripts/ceremony_finding_140_002_adaadell_git_creds.sh"
         }
     ],
     "pending_evidence_rows": [],
