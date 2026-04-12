@@ -59,8 +59,8 @@ def audit_replay_proof(
             raise HTTPException(status_code=403, detail="tenant_scope_mismatch")
 
     if redaction == "sensitive" and "signatures" in bundle:
-        bundle = {**bundle}
-        del bundle["signatures"]
+        redacted_sigs = [{k: v for k, v in sig.items() if k != "signature"} for sig in bundle.get("signatures", [])]
+        bundle = {**bundle, "signatures": redacted_sigs}
 
     return {
         "schema_version": "1.0",
