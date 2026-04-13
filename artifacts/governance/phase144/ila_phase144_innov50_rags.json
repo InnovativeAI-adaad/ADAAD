@@ -1,0 +1,93 @@
+{
+  "schema": "ILA-v1",
+  "phase": 144,
+  "innovation_code": "INNOV-50",
+  "innovation_name": "Retrieval-Augmented Governance Synthesis (RAGS)",
+  "version": "9.77.0",
+  "timestamp": "2026-04-13T04:02:56.088230+00:00",
+  "authored_by": "DEVADAAD",
+  "ratification_pending": "HUMAN-0",
+  "world_first_claim": "First constitutionally governed Retrieval-Augmented Generation pipeline for a local LLM governance assistant \u2014 corpus retrieval events are constitutional mutations, hash-chained to the LKSE ledger (INNOV-47), scored by CSS cosine similarity (INNOV-48), and injected into phi4's 32K context window (INNOV-49). Every grounded response is cryptographically linked to its corpus evidence.",
+  "world_first_index": 13,
+  "constitutional_invariants": {
+    "new_hard_class": [
+      {
+        "code": "RAGS-GROUND-0",
+        "class": "Hard",
+        "description": "Every grounded response must cite >= 1 corpus entry; zero-citation responses are constitutionally prohibited",
+        "enforcement": "dorkllm/grounded_responder.py::assert_grounded"
+      },
+      {
+        "code": "RAGS-CTX-0",
+        "class": "Hard",
+        "description": "Context block must not exceed RAGS_MAX_CONTEXT_CHARS; overflow triggers logged truncation, never silent drop",
+        "enforcement": "dorkllm/grounded_responder.py::assemble_context"
+      },
+      {
+        "code": "RAGS-DETERM-0",
+        "class": "Hard",
+        "description": "Grounding ledger entries are HMAC-SHA256 hash-chained (prev_hash -> entry_hash); write failure raises RAGSLedgerWriteError",
+        "enforcement": "dorkllm/grounded_responder.py::append_grounding_ledger"
+      },
+      {
+        "code": "RAGS-CHAIN-0",
+        "class": "Hard",
+        "description": "Each ledger entry must carry the LKSE corpus_entry_hash of every cited document (provenance bridge to INNOV-47)",
+        "enforcement": "dorkllm/grounded_responder.py::_assert_chain_hashes"
+      },
+      {
+        "code": "RAGS-GATE-0",
+        "class": "Hard",
+        "description": "If no corpus entry scores >= RAGS_MIN_COSINE_THRESHOLD, RAGS raises RAGSZeroGroundingError rather than pass empty context",
+        "enforcement": "dorkllm/grounded_responder.py::retrieve_top_k"
+      }
+    ],
+    "hard_class_total_before": 236,
+    "hard_class_total_after": 241
+  },
+  "trilogy_completion": {
+    "INNOV-47": "LKSE \u2014 corpus synchronized and HMAC-SHA256 chain-linked",
+    "INNOV-48": "CSS \u2014 cosine semantic search over embedded corpus",
+    "INNOV-49": "CMU \u2014 phi4:14b 32K context window, constitutional model upgrade",
+    "INNOV-50": "RAGS \u2014 wires LKSE + CSS + CMU into governed grounded responses",
+    "status": "DORK Intelligence Trilogy COMPLETE"
+  },
+  "artifacts_shipped": [
+    "dorkllm/grounded_responder.py",
+    "tests/test_phase144_innov50_rags.py",
+    "artifacts/governance/phase144/ila_phase144_innov50_rags.json"
+  ],
+  "test_results": {
+    "total": 30,
+    "passed": 30,
+    "failed": 0,
+    "pass_rate": 1.0,
+    "marker": "phase144"
+  },
+  "pre_implementation_findings": [
+    {
+      "id": "FIND-144-001",
+      "severity": "P1",
+      "status": "RESOLVED",
+      "description": "agent_state.version drift 9.75.0 vs VERSION 9.76.0"
+    },
+    {
+      "id": "FIND-144-002",
+      "severity": "P1",
+      "status": "RESOLVED",
+      "description": "agent_state.last_phase_completed=141 vs actual 143"
+    },
+    {
+      "id": "FIND-144-003",
+      "severity": "P2",
+      "status": "RESOLVED",
+      "description": "corpus_manifest.source_version stale at 9.75.0"
+    },
+    {
+      "id": "FIND-144-004",
+      "severity": "P2",
+      "status": "RESOLVED",
+      "description": "capability_manifest.phase=132 stale by 11 phases"
+    }
+  ]
+}
