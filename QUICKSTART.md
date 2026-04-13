@@ -1,10 +1,10 @@
-# ADAAD — Quick Start
+# ADAAD — Quickstart
 
-> **First time?** Just run: `python onboard.py` — it handles everything.
+> **First time?** One command: `python onboard.py` — it handles everything.
 
 ---
 
-## One command
+## The fast path
 
 ```bash
 git clone https://github.com/InnovativeAI-adaad/ADAAD.git
@@ -12,13 +12,11 @@ cd ADAAD
 python onboard.py
 ```
 
-`onboard.py` sets up your environment, validates governance schemas, and runs a governed dry-run. No manual steps required. Safe to re-run any time.
-
-**On Android / Termux:** See [`TERMUX_SETUP.md`](TERMUX_SETUP.md) for the complete guide.
+`onboard.py` creates your virtual environment, installs dependencies, validates governance schemas, and runs a governed dry-run of the Constitutional Evolution Loop. Safe to re-run any time.
 
 ---
 
-## What success looks like
+## What you'll see
 
 ```
   ✔ Python 3.12.x
@@ -32,129 +30,111 @@ python onboard.py
   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   ADAAD is ready.
 
-  Run the dashboard   python server.py
-  Run an epoch        adaad demo
-  Inspect ledger      adaad inspect-ledger data/evolution_ledger.jsonl
-  Propose mutation    adaad propose "upgrade system x"
-  Strict replay       python -m app.main --replay strict --verbose
-  Architecture docs   ARCHITECTURE.md
+  Run the dashboard       python server.py
+  Run an epoch            adaad demo
+  Inspect the ledger      adaad inspect-ledger data/evolution_ledger.jsonl
+  Propose a mutation      adaad propose "upgrade system x"
+  Strict replay           python -m app.main --replay strict --verbose
+  Verify the audit box    docker compose up das-demo
   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-### CLI Interface
+---
 
-ADAAD now includes a formal CLI. To use it, ensure `scripts/` is in your PATH or call it directly:
+## CLI reference
 
 ```bash
+# Ensure scripts/ is in your PATH, or call directly:
 ./scripts/adaad --help
-./scripts/adaad demo
-./scripts/adaad inspect-ledger <path>
-./scripts/adaad propose "<description>"
+./scripts/adaad demo                              # Dry-run the CEL
+./scripts/adaad inspect-ledger <path>             # Summarize the evolution ledger
+./scripts/adaad propose "<description>"           # Inject a mutation proposal at CEL Step 4
 ```
 
-> **Soulbound key warning** — You'll see this on first run. It's expected:
->
-> ```
-> ⚠  ADAAD_SOULBOUND_KEY is not set.
->    Phase 9+ soulbound ledger writes will be fail-closed without it.
->    Generate a dev key: python -c "import secrets; print(secrets.token_hex(32))"
->    export ADAAD_SOULBOUND_KEY=<your-key>
-> ```
->
-> For local development, generate a key and export it. For production, source from a secret manager.
+All CLI-initiated mutations default to sandbox-only execution (`CLI-SANDBOX-0`). Promote explicitly.
+
+---
+
+## Soulbound key (first run)
+
+You'll see this warning on first run — it's expected:
+
+```
+⚠  ADAAD_SOULBOUND_KEY is not set.
+   Phase 9+ soulbound ledger writes will be fail-closed without it.
+   Generate a dev key: python -c "import secrets; print(secrets.token_hex(32))"
+   export ADAAD_SOULBOUND_KEY=<your-key>
+```
+
+For local development: generate a key and export it.  
+For production: source from a secret manager.
+
+---
+
+## Install from PyPI
+
+```bash
+pip install adaad                 # Python ≥ 3.11 required
+```
+
+The PyPI package (`adaad-core`) contains the extractable governance kernel. The full runtime requires cloning the repository.
 
 ---
 
 ## Manual setup (fallback)
 
-Use this if `python onboard.py` is unavailable.
-
 ```bash
-# Option A — Install from PyPI (Python ≥ 3.11, recommended)
-pip install adaad
-
-# Option B — Run from source
-# 1. Virtual environment
 python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\Activate.ps1
-
-# 2. Dependencies
-python -m pip install --upgrade pip
-pip install -r requirements.server.txt
-
-# 3. Configure
-export ADAAD_ENV=dev
-export ADAAD_SOULBOUND_KEY=$(python -c "import secrets; print(secrets.token_hex(32))")
-
-# 4. Initialize workspace
-python nexus_setup.py
-
-# 5. Verify
-python -m app.main --dry-run --replay audit --verbose
+source .venv/bin/activate         # Windows: .venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+cp .env.example .env              # Edit as needed
+python -m pytest tests/ -v       # Run the full test suite
 ```
 
 ---
 
-## Run the governance dashboard
+## Platform notes
+
+| Platform | Notes |
+|:---------|:------|
+| **Linux** | Primary target. Works out of the box. |
+| **macOS** | Python 3.12 via Homebrew recommended. |
+| **Windows** | PowerShell. Use `.venv\Scripts\Activate.ps1`. |
+| **Android / Termux** | See [`TERMUX_SETUP.md`](TERMUX_SETUP.md) for the complete guide. Full governed runtime on commodity hardware. |
+| **Docker** | See [`docker-compose.yml`](docker-compose.yml). Pinned image digest mandatory — `:latest` is constitutionally prohibited by `DAS-DOCKER-0`. |
+
+---
+
+## Run the DORK dashboard
 
 ```bash
 python server.py
-# → http://localhost:8000
+# Open ui/dork.html in your browser
+# Or access the production instance at https://aponi.adaad.pro
 ```
 
-The Aponi dashboard shows live governance health signals, audit ledger entries, mutation history, and constitution state.
+DORK gives you natural-language access to the full constitutional history of your ADAAD instance. Ask it anything about the governance ledger.
 
 ---
 
-## Run an epoch
+## Verify everything independently
 
 ```bash
-# Single governed epoch
-python -m app.main --verbose
-
-# Strict deterministic replay (must set ADAAD_DETERMINISTIC_SEED)
-export ADAAD_DETERMINISTIC_SEED=my-seed
-python -m app.main --replay strict --verbose
+docker compose up das-demo
 ```
 
----
-
-## Run the test suite
-
-```bash
-# Fast targeted suite (governance + determinism)
-pytest tests/governance/ tests/determinism/ -q
-
-# Full suite
-pytest tests/ -q
-```
-
-3828+ tests passing. All 20 previously-tracked failures resolved as of v7.0.0.
+The Deterministic Audit Sandbox (INNOV-36) runs the full pipeline from scratch and produces a verifiable output. No trust required. See [`BREAK_IT_CHALLENGE.md`](docs/BREAK_IT_CHALLENGE.md) for the formal third-party verification protocol.
 
 ---
 
-## Key environment variables
+## Next steps
 
-| Variable | Default | What it does |
-|:---|:---|:---|
-| `ADAAD_ENV` | — | Set to `dev` for local development |
-| `ADAAD_SOULBOUND_KEY` | — | Required for Phase 9+ ledger writes. 32-byte hex. |
-| `ADAAD_REPLAY_MODE` | `off` | Set to `strict` for byte-identical deterministic replay |
-| `ADAAD_DETERMINISTIC_SEED` | — | Required when `ADAAD_REPLAY_MODE=strict` |
-| `ADAAD_GATE_LOCKED` | — | Set to `1` to lock the GovernanceGate in CI |
-| `ADAAD_DISPATCH_LATENCY_BUDGET_MS` | `50.0` | Dispatch latency threshold for governance audit events |
-
-Full reference: [`docs/ENVIRONMENT_VARIABLES.md`](docs/ENVIRONMENT_VARIABLES.md)
-
----
-
-## Where to go next
-
-| Goal | Resource |
-|:---|:---|
-| Understand the architecture | [`docs/ARCHITECTURE_CONTRACT.md`](docs/ARCHITECTURE_CONTRACT.md) |
-| Read the constitution | [`docs/CONSTITUTION.md`](docs/CONSTITUTION.md) |
-| Android / Termux install | [`TERMUX_SETUP.md`](TERMUX_SETUP.md) · [`INSTALL_ANDROID.md`](INSTALL_ANDROID.md) |
-| Current roadmap | [`ROADMAP.md`](ROADMAP.md) |
-| Full changelog | [`CHANGELOG.md`](CHANGELOG.md) |
-| Full docs index | [`docs/README.md`](docs/README.md) |
+| Resource | What it covers |
+|:---------|:---------------|
+| [`ARCHITECTURE.md`](ARCHITECTURE.md) | Full system architecture and module map |
+| [`docs/CONSTITUTION.md`](docs/CONSTITUTION.md) | The 241 Hard-class invariants |
+| [`DORK.md`](DORK.md) | The governance intelligence layer |
+| [`ROADMAP.md`](ROADMAP.md) | All 50 shipped innovations and what's next |
+| [`TRUST_CENTER.md`](TRUST_CENTER.md) | Security posture and disclosure policy |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Contribution protocol |
+| [`TERMUX_SETUP.md`](TERMUX_SETUP.md) | Android / Termux setup guide |
