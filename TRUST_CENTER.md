@@ -120,7 +120,7 @@ ADAAD is effectively built by one person: Dustin L. Reid, Governor, Innovative A
 
 **Mitigation path:**
 
-1. **FINDING-66-004 — Ed25519 2-of-3 key ceremony (P3, runbook delivered):** The governance architecture already specifies a 2-of-3 Ed25519 threshold key ceremony (`FINDING-66-004`, status: `runbook_delivered`). Execution of this ceremony distributes Tier 0 authority across 3 key holders, eliminating single-point-of-failure on the governor key. This is the next critical human-action item.
+1. **FINDING-66-004 — Ed25519 2-of-3 key ceremony (✅ RESOLVED 2026-04-12):** The 2-of-3 Ed25519 threshold key ceremony was executed on ADAADell. Three key pairs generated (primary, secondary, recovery). Public key ring committed at `security/keys/ed25519_governance_ring.json`. Attestation artifact: `artifacts/governance/ceremony/ceremony-ed25519-2of3-20260412.json`. Tier 0 authority is now distributed across 3 key holders.
 
 2. **Open source mitigates bus factor:** The constitutional framework, invariant enforcement, ledger architecture, and all 36 innovations are fully open source under Apache 2.0. Any competent Python engineer can audit, fork, and operate the system from the public repository.
 
@@ -134,7 +134,7 @@ ADAAD is effectively built by one person: Dustin L. Reid, Governor, Innovative A
 
 ## VI. GA Blocker — Current Status
 
-The active GA blocker is **FINDING-66-004: 2-of-3 Ed25519 key ceremony** (status: `runbook_delivered`, P3 severity).
+FINDING-66-004 is **resolved** (2026-04-12). The active GA gate is PyPI v1.1-GA publication. All ceremonies complete.
 
 This is intentionally transparent. ADAAD is not claiming false GA readiness. The finding requires Dustin L. Reid (HUMAN-0) to execute a physical key ceremony with two additional key holders. This is a human-in-the-loop action that cannot be automated or delegated.
 

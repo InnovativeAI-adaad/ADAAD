@@ -920,7 +920,7 @@ Start with the [Trust Center](TRUST_CENTER.md). The [Procurement Fast-Lane packa
 
 **142 phases complete. 231 Hard-class invariants. 48 innovations shipped. 46/46 Grade-A hardened modules. 0 open findings.**
 
-**Short term** — PyPI publication (version gap closure), FINDING-66-004 ceremony execution, Phase 143 planning, provisional patent filing.
+**Short term** — PyPI publication (v1.1-GA), Phase 143 (INNOV-49 · CMU) execution, provisional patent filing.
 
 **Mid term** — device-anchored mobile runtime graduation, reproducible packaging, cross-device federation.
 

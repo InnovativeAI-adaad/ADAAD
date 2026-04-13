@@ -65,9 +65,9 @@ The following gaps were identified through the attached external strategic analy
 
 | ID | Title | Severity | Status |
 |----|-------|----------|--------|
-| FINDING-66-004 | Governance Key Ceremony: 2-of-3 Ed25519 threshold not executed | P2 | Runbook delivered; ceremony deferred |
+| FINDING-66-004 | Governance Key Ceremony: 2-of-3 Ed25519 threshold | P2 | ✅ Resolved 2026-04-12 · ceremony executed on ADAADell |
 
-All other findings resolved. v1.1-GA gate is single-item: FINDING-66-004.
+All findings resolved. v1.1-GA gate: PyPI publication pending.
 
 ---
 
@@ -299,15 +299,10 @@ Public red-team challenge:
 
 #### Deliverable 4.4 — v1.1-GA Release Gate Closure
 
-**Track:** B (Dustin)  
-**Blocker:** FINDING-66-004
+**Track:** B (Dustin) — **COMPLETE**  
+**Blocker:** ✅ FINDING-66-004 resolved 2026-04-12
 
-The single remaining GA blocker is the Governance Key Ceremony (2-of-3 Ed25519 threshold). Runbook is delivered at `docs/runbooks/governance_key_ceremony.md`. Execution is deferred to Dustin on ADAADell.
-
-Upon ceremony completion:
-- `governance/key_ceremony_attestation.json` is produced
-- FINDING-66-004 status → resolved
-- v1.1-GA tag is eligible for GPG signing and release
+Key ceremony executed on ADAADell. Attestation artifact committed: `artifacts/governance/ceremony/ceremony-ed25519-2of3-20260412.json`. v1.1-GA tag eligible pending PyPI publication.
 
 ---
 
@@ -398,20 +393,17 @@ See `docs/governance/PHASE126_RED_TEAM_AUDIT_2026-04-06.md`.
 
 ---
 
-### v1.1-GA Gate (FINDING-66-004)
+### v1.1-GA Gate
 
-**Track B — Dustin on ADAADell:**
+**Status: ✅ FINDING-66-004 resolved 2026-04-12** — ceremony artifact at `artifacts/governance/ceremony/ceremony-ed25519-2of3-20260412.json`
+
+**Remaining Track B action — PyPI publication:**
 
 ```bash
-# Step 1: Execute key ceremony per runbook
-cat docs/runbooks/governance_key_ceremony.md
-
-# Step 2: Produce attestation
-# (per runbook — generates governance/key_ceremony_attestation.json)
-
-# Step 3: Tag GA release
-git tag -s v1.1.0-GA -m "v1.1-GA: FINDING-66-004 resolved; key ceremony complete"
+# Tag GA release
+git tag -s v1.1.0-GA -m "v1.1-GA: all ceremonies complete; PyPI publication"
 git push origin v1.1.0-GA
+# Then: twine upload dist/*
 ```
 
 ---
@@ -451,7 +443,7 @@ The following invariants apply to the execution of this plan itself:
 | PLAN-TRACK-0 | Track A and Track B boundaries are inviolable. Claude executes Track A. Dustin executes Track B. |
 | PLAN-CLAIM-0 | README rewrite must not introduce new unsubstantiated claims. Every claim maps to a test file. |
 | PLAN-LEDGER-0 | `verify_ledger.py` must be tested against a known-good and known-tampered ledger in CI before merge |
-| PLAN-GATE-0 | v1.1-GA tag requires FINDING-66-004 closure. No GA tag without key ceremony attestation. |
+| PLAN-GATE-0 | v1.1-GA tag requires key ceremony attestation. ✅ FINDING-66-004 resolved 2026-04-12. No GA tag without PyPI publication. |
 | PLAN-CORE-0 | `adaad-core` API surface is semver-governed from first PyPI publication. No breaking changes without major bump. |
 
 ---
@@ -477,12 +469,9 @@ git tag -s v9.53.0 -m "Phase 120 · INNOV-35 SPIE · 155 Hard-class invariants"
 git push origin v9.50.0 v9.51.0 v9.52.0 v9.53.0
 ```
 
-### Key Ceremony (FINDING-66-004)
+### Key Ceremony (FINDING-66-004) — ✅ RESOLVED 2026-04-12
 
-```bash
-# See full runbook:
-cat ~/adaad/docs/runbooks/governance_key_ceremony.md
-```
+Ceremony executed on ADAADell. Artifact: `artifacts/governance/ceremony/ceremony-ed25519-2of3-20260412.json`
 
 ### PR Creation (After Each Track A Branch)
 

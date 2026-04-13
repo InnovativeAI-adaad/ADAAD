@@ -107,7 +107,7 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 140 | Constitutional P0 Sweep + P1 Hardening | v9.73.0 | P0 | ✅ shipped |
 | 141 | INNOV-47 LKSE — Live Knowledge Sync Engine | v9.74.0 | P0 | ✅ shipped |
 | 142 | INNOV-48 CSS — Contextual Semantic Search | v9.75.0 | P0 | ✅ shipped |
-| GA | v1.1-GA Release | v1.1.0-GA | P0 | 🟡 FINDING-66-004 resolved · PyPI publication pending |
+| GA | v1.1-GA Release | v1.1.0-GA | P0 | 🟡 PyPI publication pending · all ceremonies complete |
 
 ---
 | 132 | INNOV-41 DORK Living Fleet | v9.64.0 | P1 | ✅ shipped |
