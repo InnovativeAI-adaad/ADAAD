@@ -135,6 +135,29 @@ First constitutional canary deployment system where rollback is a hard-class
 invariant — not an operational policy — with hash-chained evidence for every
 traffic-routing decision.
 
+## [9.72.0] — 2026-04-11 · Phase 139 · INNOV-46 Canary Mutation Deployment (CMD)
+
+### INNOV-46: Canary Mutation Deployment — 5 new Hard-class invariants
+
+**New module:** `runtime/canary_deployment.py`
+
+**Summary**
+Introduced a constitutionally governed canary deployment subsystem for live mutation
+rollout. Traffic routing decisions are hash-chained into the CEPD, and rollback is
+enforced as a Hard-class invariant rather than an operational policy.
+
+**New Hard-class invariants (5):**
+- `CMD-CANARY-GATE-0` — canary traffic split must be cryptographically attested before routing
+- `CMD-ROLLBACK-HARD-0` — rollback trigger is a constitutional invariant, not an operator action
+- `CMD-EVIDENCE-CHAIN-0` — every routing decision appended to CEPD hash chain
+- `CMD-SPLIT-BOUNDS-0` — canary traffic percentage bounded `[0.01, 0.50]`; violations halt deployment
+- `CMD-AUDIT-IMMUTABLE-0` — canary audit log is append-only; mutation or deletion raises `RuntimeError`
+
+**World first**
+First constitutional canary deployment system where rollback is a hard-class
+invariant — not an operational policy — with hash-chained evidence for every
+traffic-routing decision.
+
 ## [9.71.0] — 2026-04-11 · Phase 138 · Invariant Interaction Graph
 
 ### INNOV-45: Co-fire tracking, conflict detection, redundancy analysis — 5 new Hard-class invariants

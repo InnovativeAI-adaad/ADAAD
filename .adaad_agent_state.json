@@ -306,7 +306,7 @@
   "current_phase": 142,
   "current_version": "9.75.0",
   "hard_class_count": 231,
-  "hard_class_invariant_count": 226,
+  "hard_class_invariant_count": 231,
   "hard_class_invariants_cumulative": 226,
   "human0_signoffs": [
     {
@@ -907,8 +907,10 @@
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
   ],
-  "last_completed_phase": "Phase 12 \u00b7 Phase 142 \u00b7 INNOV-48 Contextual Semantic Search (CSS)",
+  "last_completed_phase": "Phase 142 \u00b7 INNOV-48 Contextual Semantic Search (CSS)",
   "last_agent_state_sync_digest": "gsync-2b1b781796cfee6f",
   "invariant_count": 231,
-  "innovation_count": 48
+  "innovation_count": 48,
+  "innovations_shipped": 48,
+  "open_findings_count": 0
 }
