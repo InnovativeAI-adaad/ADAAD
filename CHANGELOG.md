@@ -1,3 +1,38 @@
+## [9.77.0] — 2026-04-13 · Phase 144 · INNOV-50 Retrieval-Augmented Governance Synthesis (RAGS)
+
+### DORK Intelligence Trilogy Complete — 5 new Hard-class invariants (241 total)
+
+**INNOV-50 · Retrieval-Augmented Governance Synthesis (RAGS)**
+
+**New module**
+- `dorkllm/grounded_responder.py` — RAGS constitutional pipeline: LKSE corpus loader,
+  pure-Python keyword retriever (Pydroid3-safe), context assembler (RAGS-CTX-0),
+  HMAC-SHA256 hash-chained grounding ledger (RAGS-DETERM-0), LKSE provenance bridge
+  (RAGS-CHAIN-0), zero-grounding gate (RAGS-GATE-0), `ground_query()` public API,
+  `verify_grounding_ledger()` chain verifier.
+
+**Trilogy completion**
+- INNOV-47 LKSE + INNOV-48 CSS + INNOV-49 CMU + INNOV-50 RAGS = full governed
+  grounded-response pipeline for DORK: corpus sync → semantic retrieval → phi4 context
+  injection → hash-chained provenance.
+
+**New Hard-class invariants (5):**
+- `RAGS-GROUND-0` — responses must cite >= 1 corpus entry; zero-citation prohibited
+- `RAGS-CTX-0` — context overflow triggers logged truncation, never silent drop
+- `RAGS-DETERM-0` — grounding ledger is HMAC-SHA256 hash-chained; write failures raise
+- `RAGS-CHAIN-0` — each ledger entry carries LKSE corpus_entry_hash of every cited doc
+- `RAGS-GATE-0` — sub-threshold retrieval raises RAGSZeroGroundingError; no empty context
+
+**Pre-implementation remediation**
+- FIND-144-001/002 (P1): agent_state version and last_phase_completed drift corrected
+- FIND-144-003/004 (P2): corpus_manifest and capability_manifest phase staleness resolved
+
+**World-first claim (INNOV-50 #13)**
+First constitutionally governed RAG pipeline for a local LLM governance assistant —
+every corpus citation is cryptographically linked to its LKSE ledger provenance.
+
+**Tests:** 30 new · 30/30 pass · `pytest -m phase144`
+
 ## [9.76.0] — 2026-04-12 · Phase 143 · INNOV-49 Constitutional Model Upgrade (CMU)
 
 ### Constitutional Model Upgrade — 5 new Hard-class invariants (236 total)
