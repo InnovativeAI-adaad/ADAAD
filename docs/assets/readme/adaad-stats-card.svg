@@ -18,15 +18,15 @@
   <!-- Card 1 -->
   <rect x="0" y="0" width="300" height="200" fill="url(#bg1)"/>
   <rect x="0" y="0" width="300" height="5" fill="url(#bar1)"/>
-  <g filter="url(#gc)"><text x="150" y="92" text-anchor="middle" font-family="'Segoe UI',system-ui,Arial,sans-serif" font-size="52" font-weight="900" fill="#00d4ff" letter-spacing="-2" style="animation:sp 5s ease-in-out infinite">v9.65.0</text></g>
+  <g filter="url(#gc)"><text x="150" y="92" text-anchor="middle" font-family="'Segoe UI',system-ui,Arial,sans-serif" font-size="52" font-weight="900" fill="#00d4ff" letter-spacing="-2" style="animation:sp 5s ease-in-out infinite">v9.77.0</text></g>
   <text x="150" y="128" text-anchor="middle" font-family="'JetBrains Mono','Courier New',monospace" font-size="16" fill="rgba(255,255,255,.4)" letter-spacing="3">CURRENT RELEASE</text>
-  <text x="150" y="152" text-anchor="middle" font-family="'JetBrains Mono','Courier New',monospace" font-size="14" fill="rgba(255,255,255,.18)">2026-04-06</text>
+  <text x="150" y="152" text-anchor="middle" font-family="'JetBrains Mono','Courier New',monospace" font-size="14" fill="rgba(255,255,255,.18)">2026-04-13</text>
   <!-- Card 2 -->
   <rect x="301" y="0" width="299" height="200" fill="url(#bg2)"/>
   <rect x="301" y="0" width="299" height="5" fill="#00ff88"/>
-  <g filter="url(#gg)"><text x="450" y="92" text-anchor="middle" font-family="'Segoe UI',system-ui,Arial,sans-serif" font-size="52" font-weight="900" fill="#00ff88" letter-spacing="-2" style="animation:sp 5s .5s ease-in-out infinite">133</text></g>
+  <g filter="url(#gg)"><text x="450" y="92" text-anchor="middle" font-family="'Segoe UI',system-ui,Arial,sans-serif" font-size="52" font-weight="900" fill="#00ff88" letter-spacing="-2" style="animation:sp 5s .5s ease-in-out infinite">144</text></g>
   <text x="450" y="128" text-anchor="middle" font-family="'JetBrains Mono','Courier New',monospace" font-size="16" fill="rgba(255,255,255,.4)" letter-spacing="3">PHASES COMPLETE</text>
-  <text x="450" y="152" text-anchor="middle" font-family="'JetBrains Mono','Courier New',monospace" font-size="14" fill="rgba(255,255,255,.18)">⛓ Phase 142 · 🌱 231 Hard-class Invariants</text>
+  <text x="450" y="152" text-anchor="middle" font-family="'JetBrains Mono','Courier New',monospace" font-size="14" fill="rgba(255,255,255,.18)">⛓ Phase 144 · 🌱 241 Hard-class Invariants</text>
   <!-- Card 3 -->
   <rect x="601" y="0" width="299" height="200" fill="url(#bg3)"/>
   <rect x="601" y="0" width="299" height="5" fill="#f5c842"/>
@@ -36,7 +36,7 @@
   <!-- Card 4 -->
   <rect x="901" y="0" width="299" height="200" fill="url(#bg4)"/>
   <rect x="901" y="0" width="299" height="5" fill="#a855f7"/>
-  <g filter="url(#gp)"><text x="1050" y="92" text-anchor="middle" font-family="'Segoe UI',system-ui,Arial,sans-serif" font-size="52" font-weight="900" fill="#a855f7" letter-spacing="-2" style="animation:sp 5s 1s ease-in-out infinite">42</text></g>
+  <g filter="url(#gp)"><text x="1050" y="92" text-anchor="middle" font-family="'Segoe UI',system-ui,Arial,sans-serif" font-size="52" font-weight="900" fill="#a855f7" letter-spacing="-2" style="animation:sp 5s 1s ease-in-out infinite">50</text></g>
   <text x="1050" y="128" text-anchor="middle" font-family="'JetBrains Mono','Courier New',monospace" font-size="16" fill="rgba(255,255,255,.4)" letter-spacing="3">CONSTITUTIONAL INVARIANTS</text>
   <text x="1050" y="152" text-anchor="middle" font-family="'JetBrains Mono','Courier New',monospace" font-size="14" fill="rgba(255,255,255,.18)">23 supreme rules · v0.9.0</text>
 </svg>

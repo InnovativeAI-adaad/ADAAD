@@ -10,7 +10,7 @@
 
 <br/>
 
-[![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-00d4ff?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v9.75.0](https://img.shields.io/badge/version-v9.75.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![231 Invariants](https://img.shields.io/badge/invariants-231%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
+[![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-00d4ff?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v9.77.0](https://img.shields.io/badge/version-v9.77.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![241 Invariants](https://img.shields.io/badge/invariants-241%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
 
 </div>
 
@@ -30,7 +30,7 @@
 
 **ADAAD is not a tool you run. It is a system that runs itself — within constitutional boundaries you set, sign, and own.**
 
-Every mutation is proposed by AI agents, challenged by an adversarial red team, shadow-executed against live traffic, scored across 231 constitutional invariants, and sealed with a cryptographic proof chain before it can touch production. Your GPG key is the only key that unlocks critical changes. That is not configurable.
+Every mutation is proposed by AI agents, challenged by an adversarial red team, shadow-executed against live traffic, scored across 241 constitutional invariants, and sealed with a cryptographic proof chain before it can touch production. Your GPG key is the only key that unlocks critical changes. That is not configurable.
 
 </div>
 
@@ -67,6 +67,8 @@ These aren't design goals. They are shipped, hash-chained, GPG-attested mileston
 | **22** | First governed AI system to reach 0 open findings after full security audit — with 2-of-3 Ed25519 threshold key ceremony executed | [→ Phase 140](#shipped-capabilities) |
 | **23** | First local LLM with a constitutionally governed, auto-updating knowledge corpus synchronized from the live codebase at every phase boundary (`LKSE`) | [→ INNOV-47](#shipped-capabilities) |
 | **24** | First constitutionally governed local LLM retrieval engine with pure-Python semantic cosine similarity search, deterministic TF-IDF fallback, and session-locked embedding dimensions — zero native dependencies (`CSS`) | [→ INNOV-48](#shipped-capabilities) |
+| **25** | First governed local LLM with a constitutionally validated model upgrade pipeline — Modelfile parameters enforced as constitutional invariants; model changes are mutations under the same gate (`CMU`) | [→ INNOV-49](#shipped-capabilities) |
+| **26** | First constitutionally governed RAG pipeline for a local LLM governance assistant — every corpus citation cryptographically linked to its LKSE ledger provenance; zero-citation responses are a constitutional violation (`RAGS`) | [→ INNOV-50](#shipped-capabilities) |
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 
@@ -106,7 +108,7 @@ These are runtime-enforced invariants. Violating any one **aborts the epoch imme
 | Governance drift rate capped at 30% before double sign-off | Meta-governance limits constitutional change velocity | `CEB-0` |
 | No mutation may reduce self-monitoring observability | Transparency is structural and non-negotiable | `SELF-AWARE-0` |
 | adaad-core exports are semver-governed and HUMAN-0 gated | Breaking changes require major version bump + ratification | `CORE-SEMVER-0` |
-| **231 Hard-class invariants enforced at runtime** | Epoch aborts on any violation — no silent failures | 231 total |
+| **241 Hard-class invariants enforced at runtime** | Epoch aborts on any violation — no silent failures | 241 total |
 
 → [Full invariants matrix](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md) · [Constitution](docs/CONSTITUTION.md) · [Verifiable claims](docs/VERIFIABLE_CLAIMS.md)
 
@@ -171,7 +173,7 @@ ADAAD runs a **16-step Constitutional Evolution Loop (CEL)** on every proposed c
 | `evolution/constitutional_evolution_loop.py` | 16-step CEL dispatch. Calls GovernanceGate, AFRT, LSME, CJS. |
 | `evolution/fitness_v2.py` | `FitnessEngineV2` — 8-signal scoring including identity. |
 | `memory/identity_ledger.py` | Hash-chained HUMAN-0-gated `IdentityLedger`. MMEM-0/CHAIN-0/LEDGER-0. |
-| `innovations30/__init__.py` | Boot completeness gate — all 46 importable or `RuntimeError` (INNOV-COMPLETE-0). |
+| `innovations30/__init__.py` | Boot completeness gate — all 50 importable or `RuntimeError` (INNOV-COMPLETE-0). |
 | `innovations30/constitutional_jury.py` | INNOV-14 — 2-of-3 quorum, dissent ledger, high-stakes gate. |
 | `innovations30/constitutional_entropy_budget.py` | INNOV-26 — governance drift rate limiter, double-HUMAN-0 at 30%. |
 | `innovations30/self_awareness_invariant.py` | INNOV-28 — structural observability protection. |
@@ -258,6 +260,8 @@ The governance kernel is now independently installable (`pip install adaad-core`
 | INNOV-46 | `canary_mutation_deployment.py` | 139 | Canary gate for mutations · shadow mirror · constitutional rollback on regression |
 | INNOV-47 | `sync_dork_corpus.py` | 141 | Live Knowledge Sync Engine — constitutionally governed, auto-updating DORK corpus synchronized from the live codebase at every phase boundary |
 | INNOV-48 | `embedder.py` | 142 | Contextual Semantic Search — governed local LLM retrieval with Ollama primary + pure-Python TF-IDF/hash-BoW fallback · session-locked dimensions · zero native deps |
+| INNOV-49 | `model_validator.py` | 143 | Constitutional Model Upgrade — governed Modelfile upgrade pipeline; Modelfile params enforced as invariants; phi4:14b-q4_K_M · num_ctx 32768 · governance benchmark suite |
+| INNOV-50 | `grounded_responder.py` | 144 | Retrieval-Augmented Governance Synthesis — constitutionally governed RAG pipeline; LKSE corpus grounding; HMAC-SHA256 hash-chained grounding ledger; zero-citation responses prohibited |
 
 Full specifications: [ADAAD_30_INNOVATIONS.md](ADAAD_30_INNOVATIONS.md)
 
@@ -346,7 +350,7 @@ All 46 constitutional innovations shipped. `boot_completeness_check()` confirms 
 
 The constitutional governance kernel extracted as `adaad_core` — a standalone, semver-governed, independently installable package. Six stable exports: `GovernanceGate`, `ConstitutionalRollbackEngine`, `InvariantDiscoveryEngine`, `MirrorTestEngine`, `EpochMemoryStore`, `verify_ledger`. 
 
-Breaking changes require `CORE-SEMVER-0` ratification and HUMAN-0 approval. The governance kernel is now a first-class public API. 231 Hard-class invariants. See [ADAAD_CORE_API.md](docs/ADAAD_CORE_API.md).
+Breaking changes require `CORE-SEMVER-0` ratification and HUMAN-0 approval. The governance kernel is now a first-class public API. 241 Hard-class invariants. See [ADAAD_CORE_API.md](docs/ADAAD_CORE_API.md).
 </details>
 
 <details>
@@ -460,6 +464,24 @@ The deepest audit in ADAAD history. Phase 140 resolved 5 P0 findings (WL-001..WL
 `dorkllm/embedder.py` delivers a two-tier embedding architecture: Ollama `nomic-embed-text` as primary, pure-Python TF-IDF/hash-BoW as constitutional fallback. `dorkllm/retriever.py` uses cosine similarity against the LKSE corpus. Five new Hard-class invariants enforce the retrieval boundary: `CSS-DETERM-0` (deterministic embedding), `CSS-FALLBACK-0` (fallback always reachable), `CSS-DIM-0` (session-locked dimensions), `CSS-COSINE-0` (cosine-only scoring), `CSS-PYDROID-0` (zero native dep constraint preserved on Android). 30/30 acceptance tests pass.
 </details>
 
+<details>
+<summary><b>🤖 April 12, 2026 — Constitutional Model Upgrade (Phase 143 · INNOV-49)</b></summary>
+<br/>
+
+**First governed local LLM with a constitutionally validated model upgrade pipeline — Modelfile parameters are enforced as constitutional invariants; upgrading the model is a mutation governed by the same gate as code changes.**
+
+`dorkllm/model_validator.py` delivers a five-invariant Modelfile enforcement layer: `CMU-CTX-0` (num_ctx ≥ 16384), `CMU-TEMP-0` (temperature ≤ 0.10), `CMU-BENCH-0` (30-question governance benchmark, 85% pass threshold), `CMU-DETERM-0` (hash-chained CMU ledger), `CMU-HUMAN0-0` (model promotion requires HUMAN-0 ratification advisory). The DORK model was upgraded from llama3.2 to phi4:14b-q4_K_M with a 4× context window (32768). 30/30 acceptance tests pass.
+</details>
+
+<details>
+<summary><b>🔗 April 13, 2026 — Retrieval-Augmented Governance Synthesis (Phase 144 · INNOV-50)</b></summary>
+<br/>
+
+**First constitutionally governed RAG pipeline for a local LLM governance assistant — every corpus citation is cryptographically linked to its LKSE ledger provenance. Zero-citation responses are a constitutional violation.**
+
+`dorkllm/grounded_responder.py` completes the DORK Intelligence Trilogy: LKSE (INNOV-47) corpus sync → CSS (INNOV-48) semantic retrieval → CMU (INNOV-49) model upgrade → RAGS (INNOV-50) grounded response. Five Hard-class invariants: `RAGS-GROUND-0` (≥1 corpus citation required), `RAGS-CTX-0` (overflow triggers logged truncation, never silent drop), `RAGS-DETERM-0` (HMAC-SHA256 hash-chained grounding ledger), `RAGS-CHAIN-0` (each entry carries LKSE corpus_entry_hash), `RAGS-GATE-0` (sub-threshold retrieval raises RAGSZeroGroundingError). 30/30 acceptance tests pass.
+</details>
+
 <a name="community-governance"></a>
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
@@ -472,7 +494,7 @@ Every guarantee below is runtime-enforced. Not a policy. Not a pledge. Violation
 |:---|:---|:---:|
 | ⛓ **Tamper-evident ledger** | SHA-256 hash-chained — alter one entry and every subsequent hash breaks | `CEL-EVIDENCE-0` |
 | ♻️ **Deterministic replay** | Any epoch re-runs from original inputs producing byte-identical results | `CEL-REPLAY-0` |
-| 📜 **Constitutional gate** | 231 rules evaluated at runtime — violation halts epoch | `GOV-SOLE-0` |
+| 📜 **Constitutional gate** | 241 rules evaluated at runtime — violation halts epoch | `GOV-SOLE-0` |
 | ⚔️ **Adversarial red-team** | Every mutation challenged before scoring — cannot approve | `AFRT-0` |
 | 🛡 **Shadow execution** | Zero-write harness before live promotion | `LSME-0` |
 | 🔬 **Identity gate** | Self-model consulted before proposals are generated | `MMEM-0` |
@@ -494,7 +516,7 @@ Every guarantee below is runtime-enforced. Not a policy. Not a pledge. Violation
 | 🔑 GPG-sign Tier 0 changes | Generate mutation proposals via Claude agents |
 | 🌱 Approve seed promotions | Red-team challenge every proposal before scoring |
 | 📜 Set constitutional rules | Shadow-execute mutations in zero-write harness |
-| 🏷 Tag version ceremonies | Score against 231 constitutional invariants |
+| 🏷 Tag version ceremonies | Score against 241 constitutional invariants |
 | ⚙️ Ratify new Hard-class invariants | Hash-chain every decision into the ledger |
 | 🧬 Amend `IdentityLedger` statements | Consult self-model before every proposal |
 | 📋 Patent and IP decisions | Build cryptographic evolution proof DAGs |
@@ -672,6 +694,8 @@ ADAAD evolves through numbered phases. Each phase ships a specific capability, r
 | **140** | **Constitutional P0 Sweep + P1 Hardening** | `HAPG-IDENTITY-0` · `HAPG-EXPIRY-0` · `REPLAY-ALGO-0` · `TEST-ATTEST-0` · `GRRP-KEY-0` | ✅ |
 | 141 | Live Knowledge Sync Engine (INNOV-47) | `LKSE-SYNC-0` · `LKSE-DETERM-0` · `LKSE-CHAIN-0` · `LKSE-GATE-0` · `LKSE-HUMAN0-0` | ✅ |
 | **142** | **Contextual Semantic Search (INNOV-48)** | `CSS-DETERM-0` · `CSS-FALLBACK-0` · `CSS-DIM-0` · `CSS-COSINE-0` · `CSS-PYDROID-0` | ✅ |
+| **143** | **Constitutional Model Upgrade (INNOV-49)** | `CMU-CTX-0` · `CMU-TEMP-0` · `CMU-BENCH-0` · `CMU-DETERM-0` · `CMU-HUMAN0-0` | ✅ |
+| **144** | **Retrieval-Augmented Governance Synthesis (INNOV-50)** | `RAGS-GROUND-0` · `RAGS-CTX-0` · `RAGS-DETERM-0` · `RAGS-CHAIN-0` · `RAGS-GATE-0` | ✅ |
 
 <details>
 <summary><b>How a phase ships (contributor reference)</b></summary>
@@ -769,7 +793,7 @@ PRs without evidence artifacts are returned, not merged.
 
 ADAAD uses a **phase-correlated version scheme** by design. Each minor increment in the `v9.x.0` series corresponds to one shipped, HUMAN-0-attested, evidence-linked governance phase.
 
-`v9.75.0` means 141 governed phase milestones have shipped in the v9 series. Each phase delivers: a governance ledger event, a HUMAN-0 `session_digest` sign-off, 30 passing acceptance tests, a CHANGELOG entry, and a four-file canonical version sync (`VERSION` · `pyproject.toml` · `.adaad_agent_state.json` · `governance/report_version.json`).
+`v9.77.0` means 144 governed phase milestones have shipped in the v9 series. Each phase delivers: a governance ledger event, a HUMAN-0 `session_digest` sign-off, 30 passing acceptance tests, a CHANGELOG entry, and a four-file canonical version sync (`VERSION` · `pyproject.toml` · `.adaad_agent_state.json` · `governance/report_version.json`).
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 
@@ -918,9 +942,9 @@ Start with the [Trust Center](TRUST_CENTER.md). The [Procurement Fast-Lane packa
 
 ## Roadmap
 
-**142 phases complete. 231 Hard-class invariants. 48 innovations shipped. 46/46 Grade-A hardened modules. 0 open findings.**
+**144 phases complete. 241 Hard-class invariants. 50 innovations shipped. 50/50 Grade-A hardened modules. 0 open findings.**
 
-**Short term** — PyPI publication (v1.1-GA), Phase 143 (INNOV-49 · CMU) execution, provisional patent filing.
+**Short term** — PyPI publication (v1.1-GA), Phase 145 (INNOV-51) scoping and execution, provisional patent filing.
 
 **Mid term** — device-anchored mobile runtime graduation, reproducible packaging, cross-device federation.
 
