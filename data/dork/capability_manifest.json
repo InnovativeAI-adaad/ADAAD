@@ -1,8 +1,16 @@
 {
   "version": "1.0.0",
-  "phase": 132,
+  "phase": 143,
   "total_capabilities": 20,
-  "categories": ["replay", "governance", "agent", "ledger", "release", "sandbox", "fleet"],
+  "categories": [
+    "replay",
+    "governance",
+    "agent",
+    "ledger",
+    "release",
+    "sandbox",
+    "fleet"
+  ],
   "fleet_capabilities": [
     "dork_cmd_resolver",
     "fleet_health_monitor",
