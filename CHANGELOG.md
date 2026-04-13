@@ -1,3 +1,37 @@
+## [9.76.0] — 2026-04-12 · Phase 143 · INNOV-49 Constitutional Model Upgrade (CMU)
+
+### Constitutional Model Upgrade — 5 new Hard-class invariants (236 total)
+
+**INNOV-49 · Constitutional Model Upgrade (CMU)**
+
+**New modules**
+- `dorkllm/model_validator.py` — CMU invariant enforcement layer: Modelfile parser,
+  CMU-CTX-0/CMU-TEMP-0 assertion, hash-chained CMU ledger (CMU-DETERM-0), 30-question
+  governance benchmark suite (CMU-BENCH-0)
+- `scripts/build_dork_model.sh` — one-command DORK model build pipeline with pre-validation,
+  Ollama pull, `ollama create`, ledger append, and CMU-HUMAN0-0 ratification advisory
+
+**Modelfile upgrade (`dorkllm/Modelfile`)**
+- Base model: `llama3.2` → `phi4:14b-q4_K_M` (4× reasoning depth, multi-hop governance)
+- Context window: `num_ctx 8192` → `num_ctx 32768` (4× — fits constitution + phase context + conversation)
+- Temperature: `0.1` → `0.07` (tighter governance precision, CMU-TEMP-0 compliant)
+- System prompt fully rebuilt: 22 world-firsts enumerated, 236 invariant families listed,
+  slash command registry documented, HUMAN-0 operational constraints baked in
+
+**New Hard-class invariants (5):**
+- `CMU-CTX-0` — `num_ctx` must be ≥ 16384; smaller context is a constitutional model regression
+- `CMU-TEMP-0` — temperature must be ≤ 0.10 for governance persona; higher is constitutionally prohibited
+- `CMU-BENCH-0` — 30-question governance benchmark must be defined; pass threshold 85%
+- `CMU-DETERM-0` — model build events are hash-chained into `data/dork/cmu_ledger.jsonl`; silent failures raise `CMULedgerWriteError`
+- `CMU-HUMAN0-0` — model upgrades are constitutional mutations requiring HUMAN-0 ratification
+
+**World-first claim (INNOV-49 #12)**
+First governed local LLM with a constitutionally validated model upgrade pipeline — model
+changes are mutations, governed by the same invariant gate as code changes. The Modelfile
+is a constitutional document; its parameters are enforced by the runtime.
+
+**Tests:** 30 new · 30/30 pass · `pytest -m phase143`
+
 ## [9.75.0] — 2026-04-12 · Phase 142 · INNOV-48 Contextual Semantic Search (CSS)
 
 ### Semantic Cosine Retrieval Engine — 5 new Hard-class invariants (231 total)

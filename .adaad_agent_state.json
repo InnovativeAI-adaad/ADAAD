@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.75.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": "Phase 143 \u00b7 INNOV-49 Constitutional Model Upgrade (CMU)",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -303,10 +303,10 @@
     "cumulative": 231,
     "hard_class_count": 231
   },
-  "current_phase": 142,
-  "current_version": "9.75.0",
+  "current_phase": 143,
+  "current_version": "9.76.0",
   "hard_class_count": 231,
-  "hard_class_invariant_count": 231,
+  "hard_class_invariant_count": 236,
   "hard_class_invariants_cumulative": 226,
   "human0_signoffs": [
     {
@@ -907,10 +907,10 @@
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
   ],
-  "last_completed_phase": "Phase 12 \u00b7 Phase 142 \u00b7 INNOV-48 Contextual Semantic Search (CSS)",
+  "last_completed_phase": "Phase 143 \u00b7 INNOV-49 Constitutional Model Upgrade (CMU)",
   "last_agent_state_sync_digest": "gsync-a4d49188331b3fba",
   "invariant_count": 231,
   "innovation_count": 48,
-  "innovations_shipped": 48,
+  "innovations_shipped": 49,
   "open_findings_count": 0
 }

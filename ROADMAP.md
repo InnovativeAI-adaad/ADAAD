@@ -4,9 +4,9 @@
 
 ---
 
-## Current State — v9.75.0 · Phase 142 · INNOV-48 Contextual Semantic Search (CSS)
+## Current State — v9.76.0 · Phase 143 · INNOV-49 Constitutional Model Upgrade (CMU)
 
-**Status:** 48 innovations shipped (INNOV-01 through INNOV-48). Phase 142 complete. v9.75.0 released. 46/46 Grade-A modules hardened.
+**Status:** 49 innovations shipped (INNOV-01 through INNOV-49). Phase 143 complete. v9.76.0 released. 46/46 Grade-A modules hardened.
 **Automation pointer:** Machine phase progression consumes `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` §3.0 “Active Era Contract (Phases 131–136+)”.
 **Hard-class invariants:** 231 (cumulative, enforced)
 **Constitutional Evolution Loop:** 16-step CEL, deterministic replay, wired
@@ -60,6 +60,7 @@
 | INNOV-43 · CVR | constitution_version_ledger.py | 135 | v9.67.0 | CVR-IMMUT-0, CVR-DIGEST-0, CVR-ROLLBACK-0, CVR-HUMAN0-0, CVR-CHAIN-0 |
 | INNOV-47 · LKSE | sync_dork_corpus.py | 141 | v9.74.0 | LKSE-SYNC-0, LKSE-DETERM-0, LKSE-CHAIN-0, LKSE-GATE-0, LKSE-HUMAN0-0 |
 | INNOV-48 · CSS | embedder.py | 142 | v9.75.0 | CSS-DETERM-0, CSS-FALLBACK-0, CSS-DIM-0, CSS-COSINE-0, CSS-PYDROID-0 |
+| INNOV-49 · CMU | model_validator.py | 143 | v9.76.0 | CMU-CTX-0, CMU-TEMP-0, CMU-BENCH-0, CMU-DETERM-0, CMU-HUMAN0-0 |
 
 **Open GA blocker:** None — FINDING-66-004 resolved (2026-04-12). All ceremonies complete. GA track unblocked.  
 **Strategic plan:** `docs/governance/POST_PIPELINE_STRATEGIC_PLAN.md`
@@ -107,6 +108,7 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 140 | Constitutional P0 Sweep + P1 Hardening | v9.73.0 | P0 | ✅ shipped |
 | 141 | INNOV-47 LKSE — Live Knowledge Sync Engine | v9.74.0 | P0 | ✅ shipped |
 | 142 | INNOV-48 CSS — Contextual Semantic Search | v9.75.0 | P0 | ✅ shipped |
+| 143 | INNOV-49 CMU — Constitutional Model Upgrade | v9.76.0 | P0 | ✅ shipped |
 | GA | v1.1-GA Release | v1.1.0-GA | P0 | 🟡 PyPI publication pending · all ceremonies complete |
 
 ---
