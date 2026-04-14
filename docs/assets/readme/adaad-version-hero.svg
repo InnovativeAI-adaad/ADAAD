@@ -15,12 +15,12 @@
   <circle cx="24" cy="38" r="7" fill="#00ff88" class="tk" filter="url(#gv)"/>
   <text x="40" y="43" font-family="'JetBrains Mono','Courier New',monospace" font-size="18" fill="#00ff88">LIVE</text>
   <rect x="80" y="18" width="1" height="24" fill="rgba(255,255,255,.1)"/>
-  <text x="94" y="43" font-family="'JetBrains Mono','Courier New',monospace" font-size="18" fill="rgba(255,255,255,.9)" filter="url(#gv)">v9.56.0</text>
+  <text x="94" y="43" font-family="'JetBrains Mono','Courier New',monospace" font-size="18" fill="rgba(255,255,255,.9)" filter="url(#gv)">v9.77.0</text>
   <rect x="168" y="18" width="1" height="24" fill="rgba(255,255,255,.1)"/>
-  <text x="182" y="43" font-family="'JetBrains Mono','Courier New',monospace" font-size="18" fill="rgba(255,255,255,.4)">2026-04-06</text>
+  <text x="182" y="43" font-family="'JetBrains Mono','Courier New',monospace" font-size="18" fill="rgba(255,255,255,.4)">2026-04-13</text>
   <rect x="316" y="18" width="1" height="24" fill="rgba(255,255,255,.1)"/>
-  <text x="330" y="43" font-family="'JetBrains Mono','Courier New',monospace" font-size="18" fill="#00d4ff">123 phases complete</text>
+  <text x="330" y="43" font-family="'JetBrains Mono','Courier New',monospace" font-size="18" fill="#00d4ff">144 phases complete</text>
   <rect x="560" y="18" width="1" height="24" fill="rgba(255,255,255,.1)"/>
-  <text x="574" y="43" font-family="'JetBrains Mono','Courier New',monospace" font-size="18" fill="#f5c842">next: Phase 85 — KMS/HSM</text>
+  <text x="574" y="43" font-family="'JetBrains Mono','Courier New',monospace" font-size="18" fill="#f5c842">next: v1.1-GA · INNOV-51 Phase 145</text>
   <text x="1190" y="43" text-anchor="end" font-family="'JetBrains Mono','Courier New',monospace" font-size="14" fill="rgba(255,255,255,.18)">GOV-SOLE-0 · AUDIT-0 · REPLAY-0 · HUMAN-0</text>
 </svg>

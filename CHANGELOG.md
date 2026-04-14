@@ -1,3 +1,499 @@
+## [9.77.0] — 2026-04-13 · Phase 144 · INNOV-50 Retrieval-Augmented Governance Synthesis (RAGS)
+
+### DORK Intelligence Trilogy Complete — 5 new Hard-class invariants (241 total)
+
+**INNOV-50 · Retrieval-Augmented Governance Synthesis (RAGS)**
+
+**New module**
+- `dorkllm/grounded_responder.py` — RAGS constitutional pipeline: LKSE corpus loader,
+  pure-Python keyword retriever (Pydroid3-safe), context assembler (RAGS-CTX-0),
+  HMAC-SHA256 hash-chained grounding ledger (RAGS-DETERM-0), LKSE provenance bridge
+  (RAGS-CHAIN-0), zero-grounding gate (RAGS-GATE-0), `ground_query()` public API,
+  `verify_grounding_ledger()` chain verifier.
+
+**Trilogy completion**
+- INNOV-47 LKSE + INNOV-48 CSS + INNOV-49 CMU + INNOV-50 RAGS = full governed
+  grounded-response pipeline for DORK: corpus sync → semantic retrieval → phi4 context
+  injection → hash-chained provenance.
+
+**New Hard-class invariants (5):**
+- `RAGS-GROUND-0` — responses must cite >= 1 corpus entry; zero-citation prohibited
+- `RAGS-CTX-0` — context overflow triggers logged truncation, never silent drop
+- `RAGS-DETERM-0` — grounding ledger is HMAC-SHA256 hash-chained; write failures raise
+- `RAGS-CHAIN-0` — each ledger entry carries LKSE corpus_entry_hash of every cited doc
+- `RAGS-GATE-0` — sub-threshold retrieval raises RAGSZeroGroundingError; no empty context
+
+**Pre-implementation remediation**
+- FIND-144-001/002 (P1): agent_state version and last_phase_completed drift corrected
+- FIND-144-003/004 (P2): corpus_manifest and capability_manifest phase staleness resolved
+
+**World-first claim (INNOV-50 #13)**
+First constitutionally governed RAG pipeline for a local LLM governance assistant —
+every corpus citation is cryptographically linked to its LKSE ledger provenance.
+
+**Tests:** 30 new · 30/30 pass · `pytest -m phase144`
+
+## [9.76.0] — 2026-04-12 · Phase 143 · INNOV-49 Constitutional Model Upgrade (CMU)
+
+### Constitutional Model Upgrade — 5 new Hard-class invariants (236 total)
+
+**INNOV-49 · Constitutional Model Upgrade (CMU)**
+
+**New modules**
+- `dorkllm/model_validator.py` — CMU invariant enforcement layer: Modelfile parser,
+  CMU-CTX-0/CMU-TEMP-0 assertion, hash-chained CMU ledger (CMU-DETERM-0), 30-question
+  governance benchmark suite (CMU-BENCH-0)
+- `scripts/build_dork_model.sh` — one-command DORK model build pipeline with pre-validation,
+  Ollama pull, `ollama create`, ledger append, and CMU-HUMAN0-0 ratification advisory
+
+**Modelfile upgrade (`dorkllm/Modelfile`)**
+- Base model: `llama3.2` → `phi4:14b-q4_K_M` (4× reasoning depth, multi-hop governance)
+- Context window: `num_ctx 8192` → `num_ctx 32768` (4× — fits constitution + phase context + conversation)
+- Temperature: `0.1` → `0.07` (tighter governance precision, CMU-TEMP-0 compliant)
+- System prompt fully rebuilt: 22 world-firsts enumerated, 236 invariant families listed,
+  slash command registry documented, HUMAN-0 operational constraints baked in
+
+**New Hard-class invariants (5):**
+- `CMU-CTX-0` — `num_ctx` must be ≥ 16384; smaller context is a constitutional model regression
+- `CMU-TEMP-0` — temperature must be ≤ 0.10 for governance persona; higher is constitutionally prohibited
+- `CMU-BENCH-0` — 30-question governance benchmark must be defined; pass threshold 85%
+- `CMU-DETERM-0` — model build events are hash-chained into `data/dork/cmu_ledger.jsonl`; silent failures raise `CMULedgerWriteError`
+- `CMU-HUMAN0-0` — model upgrades are constitutional mutations requiring HUMAN-0 ratification
+
+**World-first claim (INNOV-49 #12)**
+First governed local LLM with a constitutionally validated model upgrade pipeline — model
+changes are mutations, governed by the same invariant gate as code changes. The Modelfile
+is a constitutional document; its parameters are enforced by the runtime.
+
+**Tests:** 30 new · 30/30 pass · `pytest -m phase143`
+
+## [9.75.0] — 2026-04-12 · Phase 142 · INNOV-48 Contextual Semantic Search (CSS)
+
+### Semantic Cosine Retrieval Engine — 5 new Hard-class invariants (231 total)
+
+**INNOV-48 · Contextual Semantic Search (CSS)**
+
+- `dorkllm/embedder.py` — new CSS embedding engine; Ollama nomic-embed-text as primary
+  path; pure-Python TF-IDF + hash-space bag-of-words as fallback (CSS-PYDROID-0);
+  session-level dimension lock (CSS-DIM-0); `cosine_similarity()` canonical function
+  (CSS-COSINE-0); IDF builder callable from embed_corpus.py; no C/native extensions required.
+- `dorkllm/retriever.py` — fully rewritten with cosine similarity as the primary retrieval
+  path; three explicit strategies via `strategy=` parameter: `"semantic"` (cosine primary),
+  `"hybrid"` (0.6·cosine + 0.4·keyword), `"keyword"` (Phase 141 baseline); pre-computed
+  embeddings loaded from `data/dork/corpus_embeddings.json`; `get_corpus_status()` now
+  reports `embedded_count` and `embeddings_coverage`; all caches invalidated by
+  `invalidate_kb_cache()`.
+- `scripts/embed_corpus.py` — corpus pre-embedding generator with staleness detection;
+  `--force` / `--dry-run` / `--fallback` / `--output` flags; CSS-DIM-0 dimension validation
+  gate; deterministic sorted output (CSS-DETERM-0).
+
+**New Hard-class invariants**
+
+- `CSS-DETERM-0` — identical text → identical embedding vector; identical query + corpus →
+  identical retrieval result; no randomness anywhere in the CSS pipeline.
+- `CSS-FALLBACK-0` — TF-IDF / hash-space BoW fallback activates automatically when Ollama
+  is unreachable; system is never left with no embedding capability.
+- `CSS-DIM-0` — embedding dimension is locked after the first successful embed in a session;
+  mismatched dimension raises RuntimeError; enforced across all corpus and query vectors.
+- `CSS-COSINE-0` — retrieval ranking uses cosine similarity as the primary score; keyword
+  overlap is secondary only; all similarity scores are in [-1, 1].
+- `CSS-PYDROID-0` — no C/native extension required; embedder.py uses stdlib only (math,
+  re, hashlib, json, urllib); fallback always available on any Python 3.8+ environment.
+
+**Tests:** T142-CSS-01..30 (30/30 PASS)
+## [9.74.0] — 2026-04-12 · Phase 141 · INNOV-47 Live Knowledge Sync Engine (LKSE)
+
+### DORK Corpus Resurrection — 5 new Hard-class invariants (226 total)
+
+**INNOV-47 · Live Knowledge Sync Engine (LKSE)**
+
+- `scripts/sync_dork_corpus.py` — corpus generator reads agent state, CHANGELOG, all governance
+  artifacts, and ILA JSON files; produces `data/dork/corpus.jsonl` with 148 entries covering
+  phases, innovations, invariants, findings, and governance mechanics.
+- `data/dork/corpus.jsonl` — 148-entry live corpus (up from a stale 151-line JS file frozen at
+  Phase 125 with 91 invariants; now Phase 140 · 221 invariants · 46 innovations).
+- `data/dork/corpus_manifest.json` — HMAC-SHA256 chain manifest for tamper-detection.
+- `dorkllm/retriever.py` — rewritten with corpus-first retrieval; falls back to legacy KB on
+  cold-start; exposes `get_corpus_status()` for governance health-check.
+- `.github/workflows/dork_corpus_sync.yml` — CI gate runs on every merge to main; blocks if
+  `LKSE-SYNC-0` violated (corpus > 1 phase stale).
+
+**New Hard-class invariants**
+
+- `LKSE-SYNC-0` — corpus must be within 1 phase of `current_phase`; CI exits 1 if violated.
+- `LKSE-DETERM-0` — corpus.jsonl sorted by entry id; identical inputs → identical output.
+- `LKSE-CHAIN-0` — manifest digest is HMAC-SHA256 over sorted entry digests.
+- `LKSE-GATE-0` — CI workflow is the enforcement gate; no corpus push without passing sync.
+- `LKSE-HUMAN0-0` — corpus must never overwrite or omit HUMAN-0 canonical identity fields.
+
+**Tests:** T141-LKSE-01..30 (30/30 PASS)
+
+## [9.73.0] — 2026-04-11 · Phase 140 · Constitutional P0 Sweep + P1 Hardening
+
+### Deep Audit Response — 5 new Hard-class invariants (221 total)
+
+**P0 Findings Resolved**
+
+- **WL-001 / FINDING-126-NEW-001** Ghost tag `v9.59.0` deleted from remote (pointed to `38b5e125`).
+  GPG re-sign ceremony script delivered for `c05334c9` (Phase 126 canonical commit).
+- **WL-002 / FINDING-66-004** Ed25519 key ceremony forced closed by new `REPLAY-ALGO-0` invariant:
+  production deployments now fail-closed without Ed25519 key rather than silently downgrading to HMAC.
+- **WL-003** `pyproject.toml` version frozen at `9.70.0` — corrected to `9.73.0`. Canonical four-file
+  sync restored across `VERSION`, `pyproject.toml`, `CHANGELOG.md`, `.adaad_agent_state.json`.
+- **WL-004 / FINDING-135-NEW-001** Unphased PRs `#696–700` retroactively assigned to Phase 136
+  governance sweep. Agent state finding closed.
+- **WL-005 / FINDING-135-NEW-003** `CHANGELOG [9.68.0]` phase label confirmed as `Phase 136` in
+  live repo. Finding closed.
+
+**P1 Hardening — New Hard-class invariants**
+
+- `HAPG-IDENTITY-0` — `HumanApprovalGate.record_decision()` now enforces `operator_id` must equal
+  the canonical `HUMAN0_GPG_FINGERPRINT` (`4C95E2F99A775335B1CF3DAF247B015A1CCD95F6`) in strict /
+  production mode. Violations are ledger-appended before raising `IdentityViolationError`.
+  (`runtime/governance/human_approval_gate.py`)
+
+- `HAPG-EXPIRY-0` — `is_approved()` reads `decided_at` from the audit trail and computes approval
+  age. Approvals older than `APPROVAL_EXPIRY_S` (7 days) emit an `approval_expired` ledger event
+  and return `False`. `ApprovalStatus.EXPIRED` is now a reachable state machine transition.
+  (`runtime/governance/human_approval_gate.py`)
+
+- `REPLAY-ALGO-0` — `ReplayProofBuilder` in production / staging environments without an Ed25519
+  private key now raises `RuntimeError` rather than silently downgrading to HMAC-SHA256. Explicit
+  opt-in via `ADAAD_REPLAY_PROOF_ALLOW_HMAC_FALLBACK=1` required to acknowledge degraded posture.
+  (`runtime/evolution/replay_attestation.py`)
+
+- `TEST-ATTEST-0` — New CI workflow `test_attestation_gate.yml` + `scripts/validate_phase_test_attestation.py`
+  block any PR that ships an innovation without `tests="30/30"` in `innovations_shipped`. All 17
+  existing innovations validated: pass.
+
+- `GRRP-KEY-0` — GRRP HMAC signing key loaded from `ADAAD_GRRP_HMAC_KEY` env var, never hardcoded.
+  Production absence raises `RuntimeError` at import time. Dev/test receives explicit non-secret
+  fallback `b"grrp-dev-only-key-not-for-production"`.
+  (`runtime/innovations30/red_team_response_protocol.py`)
+
+**Files changed**
+- `runtime/governance/human_approval_gate.py`
+- `runtime/evolution/replay_attestation.py`
+- `runtime/innovations30/red_team_response_protocol.py`
+- `scripts/validate_phase_test_attestation.py` *(new)*
+- `.github/workflows/test_attestation_gate.yml` *(new)*
+- `artifacts/governance/phase140/ILA-140.json` *(new)*
+- `pyproject.toml`, `VERSION`, `CHANGELOG.md`, `.adaad_agent_state.json`
+
+
+
+### INNOV-46: Constitutional canary window with Mirror Test gate and auto-rollback — 5 new Hard-class invariants
+
+**New module**
+- `runtime/innovations30/canary_mutation_deployment.py` — `CanaryDeploymentEngine`
+  governs the full canary lifecycle: open → sample → mirror_result → close (promote
+  or auto-rollback). HUMAN-0 required to override a rollback. Every event hash-chained.
+
+**New Hard-class invariants**
+- `CMD-GATE-0`: high-risk (Tier 0) mutations require an open canary before full rollout
+- `CMD-MIRROR-0`: `close_canary()` blocked until Mirror Test result is recorded
+- `CMD-ROLLBACK-0`: failing Mirror Test triggers mandatory auto-rollback
+- `CMD-CHAIN-0`: every lifecycle event hash-chained in the canary ledger
+- `CMD-HUMAN0-0`: overriding a rollback requires `human_auth=True`
+
+**Tests**
+- 30/30 new acceptance tests in `tests/innovations/test_phase139_cmd.py`
+
+**World first**
+First constitutional canary deployment system where rollback is a hard-class
+invariant — not an operational policy — with hash-chained evidence for every
+traffic-routing decision.
+
+## [9.72.0] — 2026-04-11 · Phase 139 · INNOV-46 Canary Mutation Deployment (CMD)
+
+### INNOV-46: Canary Mutation Deployment — 5 new Hard-class invariants
+
+**New module:** `runtime/canary_deployment.py`
+
+**Summary**
+Introduced a constitutionally governed canary deployment subsystem for live mutation
+rollout. Traffic routing decisions are hash-chained into the CEPD, and rollback is
+enforced as a Hard-class invariant rather than an operational policy.
+
+**New Hard-class invariants (5):**
+- `CMD-CANARY-GATE-0` — canary traffic split must be cryptographically attested before routing
+- `CMD-ROLLBACK-HARD-0` — rollback trigger is a constitutional invariant, not an operator action
+- `CMD-EVIDENCE-CHAIN-0` — every routing decision appended to CEPD hash chain
+- `CMD-SPLIT-BOUNDS-0` — canary traffic percentage bounded `[0.01, 0.50]`; violations halt deployment
+- `CMD-AUDIT-IMMUTABLE-0` — canary audit log is append-only; mutation or deletion raises `RuntimeError`
+
+**World first**
+First constitutional canary deployment system where rollback is a hard-class
+invariant — not an operational policy — with hash-chained evidence for every
+traffic-routing decision.
+
+## [9.71.0] — 2026-04-11 · Phase 138 · Invariant Interaction Graph
+
+### INNOV-45: Co-fire tracking, conflict detection, redundancy analysis — 5 new Hard-class invariants
+
+**New module**
+- `runtime/innovations30/invariant_interaction_graph.py` — `InvariantInteractionGraph`
+  tracks pairwise co-fire relationships between constitutional invariants across epochs.
+  Exposes greedy clustering (`IIG-CLUSTER-0`), orphan detection, strongest-pair ranking,
+  potential-conflict scoring, and hash-chained observation ledger (`IIG-COFIRE-0`).
+
+**New Hard-class invariants**
+- `IIG-COFIRE-0`: every co-fire observation hash-chained to predecessor (seq-inclusive schema)
+- `IIG-DETERM-0`: `graph_digest` is a pure function of observations — no wall-clock inputs
+- `IIG-PERSIST-0`: graph state round-trips through jsonl store without loss
+- `IIG-CLUSTER-0`: `greedy_clusters()` produces identical assignments for identical edge weights
+- `IIG-HUMAN0-0`: `remove_node()` requires `human_auth=True` — HUMAN-0 gated
+
+**Tests**
+- 30/30 new acceptance tests in `tests/innovations/test_phase138_iig.py`
+
+**World first**
+First governed constitutional invariant interaction graph with co-fire clustering,
+conflict detection, and redundancy analysis over live governed epochs.
+
+## [9.70.0] — 2026-04-11 · Phase 137 · DORK Intelligence Hardening & Capability Expansion
+
+### INNOV-44: Multi-surface hardening, 3 new Hard-class invariants, 5 bug fixes, 2 new OPT passes
+
+**Bug fixes**
+- `dorkllm/state.py` — DORK-LEDGER-HASH-0: `ConversationLedger._hash_entry()` now
+  includes `seq` in canonical hash payload, achieving schema parity with
+  `DorkLedgerPersistence`; fixes latent hash mismatch that broke restart hydration
+- `app/orchestration/dork_intent_router.py` — All 11 INNOV-41/42 fleet `_dispatch()`
+  handlers were unreachable dead code (placed after fallback return); moved before fallback
+- `app/api/schemas/dork_intents.py` — `DorkIntentName` Literal was missing 11 fleet
+  intents; Pydantic validation rejected any fleet intent bundle
+- `app/orchestration/dork_intent_router.py` — `DORKLivingFleet()` instantiated per-call,
+  defeating fleet lifecycle and watchdog continuity; replaced with module singleton
+- `dorkllm/context.py` — `get_relevant_context()` never invoked the KB retriever;
+  KB was completely siloed from the LLM context pipeline
+
+**New Hard-class invariants**
+- `DORK-LEDGER-HASH-0` (`state.py`): seq-inclusive hash schema mandatory
+- `DORK-KB-0` (`context.py`): KB lookup mandatory on every context build
+- `DORK-FLEET-0` (`dork_intent_router.py`): fleet singleton per-process
+
+**New capabilities**
+- OPT-007: KB-grounded context enrichment — authoritative KB block prepended to
+  system prompt on score >= 0.35 hit
+- OPT-008: TTL query cache (60s default, 128-entry LRU) — short-circuits repeated queries
+- DORK-PROVIDER-0: multi-provider fallback chain with circuit breaker
+- Bigram tokenization in `context.py` for improved short-query classification
+- `persist` taxonomy category covering Phase 133+ dfsb/restore/hydrate vocabulary
+- Per-intent calibrated confidence table (17 entries) in `dork_intent_router.py`
+- `consensus` trust mode in `DorkTrustMetadata` for future multi-provider merging
+- `ProviderHealthRegistry.circuit_open()` — trips at < 34% availability over >= 3 probes
+- JSON-first KB parse strategy with LRU cache; `get_kb_top_n()` for multi-result enrichment
+
+## [9.69.0] — 2026-04-11 · Phase 136 · Dork Runtime Enrichment Bridge Hardening
+
+### Fix: enrich `runtime.sendMessage` directly and standardize enrichment event surfacing
+
+- `ui/developer/ADAADdev/dork_runtime.js`
+  - Patched runtime-instance `sendMessage` via `initDorkRuntime` so enrichment metadata
+    (`intent`, `kbHit`, `fanOutCount`) is returned for both direct runtime usage and the
+    global `sendMessage` proxy path.
+  - Added an internal runtime event bridge (`EventTarget`) and `emitEvent` exposure so
+    enrichment events are emitted without relying on an undefined `_eventTarget`.
+- `ui/developer/ADAADdev/whaledic.html`
+  - Added `sendThroughDorkRuntime(msg, options)` integration bridge to route calls through
+    `dorkRuntime.sendMessage` when needed by UI contract checks.
+- `tests/test_dork_v2_makeover.py`
+  - Added static contract checks asserting runtime-instance patching, metadata return shape,
+    and whaledic runtime bridge wiring.
+
+## [9.68.0] — 2026-04-11 · Phase 136 · DORK ConversationLedger Verify Hardening
+
+### Fix: Canonical hash payload parity between append() and verify()
+
+- `dorkllm/state.py`
+  - `ConversationLedger` now hashes a canonical payload keyed by
+    `{role, content_digest, timestamp, prev_hash}` in both append and verify paths.
+  - `verify()` now recomputes each expected `entry_hash` from the chain-derived
+    `prev_hash` and returns a seq-indexed `entry_hash mismatch` failure reason.
+- `tests/test_phase132_dork_living_fleet.py`
+  - Added tamper-detection tests proving verify failure for:
+    `content_digest`, `timestamp`, `entry_hash`, and `prev_hash` chain mutation.
+
+### Fix: Restart hydration now restores canonical chain entries without double hashing
+
+- `dorkllm/state.py`
+  - Added `ConversationLedger.restore_entry(...)` for authoritative chain hydration.
+  - Enforces role validation, seq continuity, prev-hash continuity, and canonical
+    entry-hash recomputation before append-only insertion.
+- `runtime/innovations30/dork_living_fleet.py`
+  - Fleet startup hydration now uses restore semantics from persistence entries
+    instead of calling `append()` with pre-digested content.
+- `tests/test_phase132_dork_living_fleet.py`
+  - Added restore path coverage for exact hash preservation and fail-closed
+    prev-hash continuity enforcement.
+- `tests/test_phase133_dfsb.py`
+  - Added restart hydration regression proving persisted entries are restored
+    byte-for-byte in memory with seq/hash continuity.
+
+## [9.67.0] — 2026-04-11 · Phase 135 · INNOV-43 Constitution Versioning and Rollback (CVR)
+
+### World-First: Constitutional Git-Blame-Equivalent with Cryptographic Chain Integrity and HUMAN-0-Gated Rollback
+
+The Constitution Version Ledger (CVL) versions the ADAAD constitution itself. Every
+amendment receives a semantic version tag, a SHA-256 content digest, and a hash-chain
+link. Rollback is a new forward entry (never destructive) and requires HUMAN-0
+authorization. This is the first autonomous codebase to maintain a cryptographically
+auditable version history of its own governing constitution with full replay determinism.
+
+#### New Hard-class invariants (5)
+- **CVR-IMMUT-0** — CVL is append-only; delete/mutate raises `CVLImmutabilityViolation`
+- **CVR-DIGEST-0** — every entry carries SHA-256 content digest; mismatch raises `CVLDigestViolation`
+- **CVR-ROLLBACK-0** — rollback is a forward amendment; destructive rewrite is constitutionally prohibited
+- **CVR-HUMAN0-0** — rollback requires non-empty `human0_token`; absence raises `CVLAuthorizationViolation`
+- **CVR-CHAIN-0** — each entry carries `prev_hash`; chain break raises `CVLChainViolation`
+
+#### Cumulative Hard-class invariants: 216
+#### Test result: 30/30 (full suite: 325/325)
+#### Module: `runtime/innovations30/constitution_version_ledger.py`
+#### Data: `data/constitution/version_ledger.jsonl`
+
+### Maintenance update — DFSB watchdog runtime lifecycle hardening
+
+- `server.py` now creates exactly one `DorkFleetWatchdog` instance per FastAPI app runtime
+  and stores it on `app.state` alongside the fleet singleton.
+- Watchdog startup is scheduled idempotently after fleet creation, preventing duplicate
+  background probe tasks across repeated initialization paths.
+- FastAPI lifespan shutdown now awaits `watchdog.stop()` to avoid orphaned asyncio tasks.
+- Phase 133 DFSB tests extended to verify single-start lifecycle behavior and transition
+  audit emission during watchdog-driven health changes.
+
+## [9.66.0] — 2026-04-11 · Phase 134 · REF-001–004 DFSB Post-Ship Remediation
+
+### Remediation: DORK Fleet Server Bridge Configuration Hardening
+
+Four targeted remediations closing Phase 133 configuration debt. No new
+constitutional invariants added — this is a hardening pass that makes the
+DFSB provider registry, fleet engine, intent router, and slash commands
+fully consistent with the INNOV-42 specification.
+
+#### REF-001 — provider_config.json v2.0.0
+- Expanded from 2 providers to full 5-provider priority ladder:
+  DorkEngine(1) → Anthropic(2) → Groq(3) → ollama_local(4) → ollama_remote(5)
+- Each entry now carries `probe{}`, `constraints{}`, `api_key_env`
+- Schema bumped to `dork_provider_config_v2`
+
+#### REF-002 — dork_living_fleet.py
+- `FleetEngine` gains `api_key_env` and `probe_cfg` dataclass fields
+- `api_key` property resolves key from environment at runtime
+- `probe()` now type-dispatched: dork_engine (always healthy), anthropic/groq
+  (HTTP + `MISCONFIGURED` on missing key), ollama (original `/api/tags`)
+- `_default_engines()` reads `id`, `api_key_env`, `probe` from v2 config;
+  fallback is dork_engine-only fleet (not ollama_local)
+
+#### REF-003a — dork_intent_router.py
+- 5 Phase 133 DFSB intent rules appended:
+  `query_fleet_persist`, `trigger_fleet_heal`, `query_fleet_fitness`,
+  `verify_fleet_chain`, `query_fleet_endpoints`
+
+#### REF-003b — slash_commands.json v2.0.0
+- 5 new DFSB commands: `/dork:persist`, `/dork:heal`, `/dork:watchdog`,
+  `/dork:fitness`, `/dork:verify`
+- Command count: 15 → 20
+
+#### REF-004 — .adaad_agent_state.json
+- `constitutional_invariants.cumulative` corrected to 211
+- `hard_class_invariant_count` and `innovations_count` top-level fields added
+- `last_completed_phase` corruption fixed
+- INNOV-41 and INNOV-42 expanded to full records with invariant lists
+
+## [9.65.0] — 2026-04-11 · Phase 133 · INNOV-42 DORK Fleet Server Bridge (DFSB)
+
+### World-First: Governed Self-Healing LLM Provider Fleet with Cryptographically-Persistent Conversation Ledger as a Constitutional Governance Subsystem
+
+The DORK Fleet Server Bridge wires DORKLivingFleet into server.py as a first-class governed
+subsystem: 6 REST endpoints, fsync-persisted conversation ledger, asyncio auto-heal watchdog,
+fleet fitness reporting in governance health, and a live fleet status strip in dork.html.
+
+**New modules:**
+- `runtime/dork_persist.py` — DorkLedgerPersistence: append-only JSONL, fsync on every write,
+  restart-continuity (DFSB-PERSIST-0); chain verifiable from genesis after server restart
+- `runtime/dork_watchdog.py` — DorkFleetWatchdog: asyncio background probe loop, structured
+  audit log for every HEALTHY↔DEAD engine transition (DFSB-HEAL-0)
+
+**New REST endpoints (server.py):**
+- `GET  /api/fleet/status`  — live fleet health snapshot (DFSB-GATE-0 enforced)
+- `POST /api/fleet/query`   — natural-language query through full fleet pipeline
+- `POST /api/fleet/slash`   — validated slash command dispatch (DORK-CMD-0 enforced)
+- `GET  /api/fleet/ledger`  — conversation ledger tail with chain verification
+- `GET  /api/fleet/verify`  — cryptographic chain integrity proof (DFSB-PERSIST-0)
+- `POST /api/fleet/heal`    — immediate engine re-probe (DFSB-HEAL-0)
+
+**Enhanced:**
+- `governance_health` endpoint — DFSB-FITNESS-0: `fleet_fitness` block
+  `{score, blocked, healthy_count}` embedded in every governance health response
+- `ui/dork.html` fleet strip — now live: polls `/api/fleet/status` every 15s,
+  updates health dot (🔴 blocked / 🟢 active / ⚪ offline) and provider counts in real-time
+
+**Invariants introduced (4 Hard — cumulative: 211):**
+- `DFSB-PERSIST-0`: Ledger MUST survive restart with chain continuity provable from genesis
+- `DFSB-HEAL-0`: Dead engines re-probed on interval; fleet transitions BLOCKED→ACTIVE automatically
+- `DFSB-FITNESS-0`: Fleet fitness MUST be embedded in every governance health response
+- `DFSB-GATE-0`: Fleet endpoints only available when governance gate is OPEN; locked gate → 503
+
+**Test suite:** 30/30 passing (T133-PERSIST-01→10, T133-HEAL-01→07, T133-FITNESS-01→05,
+T133-GATE-01→04, T133-ROUTES-01→04)
+
+---
+
+## [9.64.0] — 2026-04-10 · Phase 132 · INNOV-41 DORK Living Fleet
+
+### World-First: Constitutional Fail-Closed Provider Fleet with Hash-Chained Conversation Ledger and Jaccard-Taxonomy Intent Routing under HUMAN-0 Governance Authority
+
+The DORK Living Fleet (INNOV-41) is a governed, multi-engine orchestrator that routes
+DORK queries through a living fleet of LLM provider backends, slash-command resolvers,
+and conversation ledger engines — all under six Hard constitutional invariants enforced
+at every dispatch boundary.
+
+**New modules:**
+- `runtime/dork_cmd_resolver.py` — DorkCommandResolver: DORK-CMD-0 slash-command manifest
+  validation with append-only hash-chained CommandLedger; rejects unknown commands with
+  structured CommandError — never silently forwards
+- `runtime/innovations30/dork_living_fleet.py` — DORKLivingFleet: 4-engine orchestrator
+  (SlashCommand + ProviderFleet + Conversation + Intent), 6 Hard invariants, FleetRouter,
+  FleetBlockedError, mutation promotion guard, dual dispatch/conversation chain ledger
+- `data/dork/` — 5 configuration/manifest files: slash_commands.json (15 commands),
+  capability_manifest.json, intent_registry.json (20 intents), provider_config.json,
+  constitutional_invariants.json
+
+**Enhanced modules:**
+- `dorkllm/state.py` — ConversationLedger (append-only, SHA-256 hash-chained, DORK-STATE-0)
+  + ProviderHealthRegistry (structured probe recording, DORK-PROV-0)
+- `dorkllm/context.py` — CONTEXT_KEYWORD_TAXONOMY (8 categories, 80+ keywords, DORK-CTX-0)
+  + jaccard_score() + classify_query() + get_taxonomy_hints()
+- `dorkllm/intelligence.py` — OPT-001→OPT-006 optimization pipeline: context deduplication,
+  prompt compression, turn budget enforcement, intent preflight, output sanitizer
+  (hallucinated-hash stripping, DORK-OUTPUT-0), response length guard; DORK-TRACE-0 enforced
+- `ui/developer/ADAADdev/dork_capability_registry.js` — 5 new capabilities (fleet_health_monitor,
+  slash_command_dispatcher, conversation_ledger_inspector, intent_taxonomy_inspector,
+  provider_health_registry); total: 20 capabilities
+- `ui/developer/ADAADdev/dork_knowledge_base.js` — 5 new Phase 132 KB entries; total: ~55 entries
+- `app/orchestration/dork_intent_router.py` — 6 new intents (show_fleet_status,
+  resolve_slash_command, query_provider_health, replay_conversation_ledger,
+  classify_query_intent, inspect_fleet_dispatch); total: 12 intents
+- `ui/dork.html` — UX-001→UX-005: fleet quick-prompts, live fleet status strip, fleet health
+  dot, slash command palette (toggled by /dork:help), fleet JS initialisation
+
+**Invariants introduced (6 Hard):**
+- `DORK-FLEET-0`: Fleet MUST NOT promote mutation without CommandResolver pass; fleet BLOCKED when no healthy providers
+- `DORK-CMD-0`: All slash commands validated against manifest; unknown commands REJECTED, never forwarded
+- `DORK-STATE-0`: ConversationLedger append-only, hash-chained; mutation raises ConversationLedgerViolation
+- `DORK-PROV-0`: ProviderHealthRegistry records ALL probe outcomes; unhealthy providers never silently skipped
+- `DORK-CTX-0`: CONTEXT_KEYWORD_TAXONOMY mandatory for intent classification; ad-hoc routing prohibited
+- `DORK-OUTPUT-0`: ALL LLM responses sanitized via OPT-005 before delivery; hallucinated hashes flagged and stripped
+
+**Test suite:** 30/30 passing (T132-LEDGER-01→06, T132-PROV-01→05, T132-CTX-01→05,
+T132-CMD-01→06, T132-FLEET-01→08)
+
+**Cumulative Hard-class invariants:** 207
+
+---
+
 ## [9.63.0] — 2026-04-08 · Phase 130 · INNOV-40 Cross-Epoch Agent Learning Transfer (CELT)
 
 ### World-First: Governed Cross-Epoch Agent Behavioral Profile Transfer with Cryptographic Provenance

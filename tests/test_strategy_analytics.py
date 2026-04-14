@@ -377,3 +377,63 @@ class TestNoLedgerMutation:
         reader = TelemetryLedgerReader(ledger)
         StrategyAnalyticsEngine(reader).generate_report()
         assert ledger.stat().st_size == size_before
+
+
+class TestUnifiedReaderContract:
+    def test_report_identical_for_unified_and_legacy_reader_contracts(self):
+        payloads = [
+            _approved("conservative_hold"),
+            _rejected("conservative_hold"),
+            _approved("safety_hardening"),
+            _approved("safety_hardening"),
+            _rejected("exploratory_probe"),
+        ]
+
+        class _LegacyReader:
+            def __init__(self, items):
+                self._items = list(items)
+
+            def _all_payloads(self):
+                return list(self._items)
+
+            def verify_chain(self):
+                return True
+
+        class _UnifiedReader:
+            def __init__(self, items):
+                self._items = list(items)
+
+            def payloads_chain_snapshot(self):
+                return (list(self._items), True, len(self._items))
+
+        legacy_report = StrategyAnalyticsEngine(_LegacyReader(payloads), window_size=10).generate_report()
+        unified_report = StrategyAnalyticsEngine(_UnifiedReader(payloads), window_size=10).generate_report()
+        assert legacy_report == unified_report
+
+    def test_unified_reader_avoids_duplicate_legacy_calls(self):
+        payloads = [_approved("conservative_hold")] * 12
+
+        class _CountingReader:
+            def __init__(self, items):
+                self._items = list(items)
+                self.snapshot_calls = 0
+                self.all_payload_calls = 0
+                self.verify_calls = 0
+
+            def payloads_chain_snapshot(self):
+                self.snapshot_calls += 1
+                return (list(self._items), True, len(self._items))
+
+            def _all_payloads(self):
+                self.all_payload_calls += 1
+                return list(self._items)
+
+            def verify_chain(self):
+                self.verify_calls += 1
+                return True
+
+        reader = _CountingReader(payloads)
+        StrategyAnalyticsEngine(reader, window_size=10).generate_report()
+        assert reader.snapshot_calls == 1
+        assert reader.all_payload_calls == 0
+        assert reader.verify_calls == 0

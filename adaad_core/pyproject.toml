@@ -1,13 +1,14 @@
+# SPDX-License-Identifier: Apache-2.0
 [build-system]
 requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "adaad-core"
-version = "9.57.0"
+version = "9.75.0"
 description = "ADAAD Constitutional Governance Kernel — stable API surface for governed autonomous software evolution"
-readme = "../../README.md"
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
+readme = { file = "README_CORE.md", content-type = "text/markdown" }
 authors = [
     { name = "Innovative AI LLC", email = "devadaad@innovativeai.dev" }
 ]
@@ -15,12 +16,11 @@ keywords = ["adaad", "governance", "autonomous", "constitutional", "ai-safety"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: Apache Software License",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Security",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "Topic :: Software Development :: Libraries",
-    "Topic :: Security",
 ]
 requires-python = ">=3.11"
 dependencies = [
@@ -33,6 +33,12 @@ Homepage = "https://github.com/InnovativeAI-adaad/adaad"
 Repository = "https://github.com/InnovativeAI-adaad/adaad"
 Documentation = "https://github.com/InnovativeAI-adaad/adaad/blob/main/docs/ADAAD_CORE_API.md"
 
+[tool.setuptools]
+package-dir = {"" = ".."}
+
 [tool.setuptools.packages.find]
-where = ["../.."]
-include = ["adaad_core*"]
+where = [".."]
+include = [
+    "adaad_core*",
+    "runtime*",
+]

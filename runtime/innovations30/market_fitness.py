@@ -8,6 +8,19 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+MAFI_INV_CHAIN: str = "MAFI-INV-CHAIN"
+MAFI_LEDGER_DEFAULT: str = "data/market_fitness_events.jsonl"
+
+
+class MarketFitnessViolation(RuntimeError):
+    """Raised when a Market Fitness constitutional invariant is breached."""
+
+
+
 @dataclass
 class ExternalSignal:
     signal_id: str
@@ -138,9 +151,42 @@ class MarketConditionedFitness:
 
     def _persist(self, signal: ExternalSignal) -> None:
         import dataclasses
+
         self.signals_path.parent.mkdir(parents=True, exist_ok=True)
         with self.signals_path.open("a") as f:
             f.write(json.dumps(dataclasses.asdict(signal)) + "\n")
+
+
+# ── Chain-linkage scaffold (hardening pass — prev_digest + _append_event) ─────
+import hashlib as _hashlib
+import json as _json
+
+
+_MODULE_PREV_DIGEST: str = "genesis"   # prev_digest chain head for this module
+
+
+def _append_event(event: dict, ledger_path: str = "") -> None:
+    """Module-level append-only JSONL event stub [CED-INV-AUDIT, CED-INV-CHAIN].
+
+    Writes a chain-linked record to ledger_path (or discards if empty).
+    Full integration deferred to per-module deep-dive phase.
+    """
+    global _MODULE_PREV_DIGEST
+    if not ledger_path:
+        return
+    import dataclasses as _dc
+    from pathlib import Path as _Path
+    row = event if isinstance(event, dict) else (
+        _dc.asdict(event) if hasattr(event, '__dataclass_fields__') else {}
+    )
+    row["prev_digest"] = _MODULE_PREV_DIGEST
+    digest_payload = _json.dumps(row, sort_keys=True).encode()
+    row["event_digest"] = "sha256:" + _hashlib.sha256(digest_payload).hexdigest()
+    p = _Path(ledger_path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    with p.open("a") as f:
+        f.write(_json.dumps(row, sort_keys=True) + "\n")
+    _MODULE_PREV_DIGEST = row["event_digest"]
 
 
 __all__ = [

@@ -1,0 +1,41 @@
+{
+  "phase": 141,
+  "pr_id": "PR-PHASE141-01",
+  "title": "Phase 141 — INNOV-47 Live Knowledge Sync Engine (LKSE) · Corpus Resurrection",
+  "version": "9.74.0",
+  "human_0": "Dustin L. Reid",
+  "ratification_date": "2026-04-12",
+  "attestation_ref": "ILA-141-2026-04-12-001",
+  "innovation": "INNOV-47",
+  "innovation_name": "Live Knowledge Sync Engine (LKSE)",
+  "new_module": "scripts/sync_dork_corpus.py",
+  "new_classes": [],
+  "new_artifacts": [
+    "scripts/sync_dork_corpus.py",
+    "data/dork/corpus.jsonl",
+    "data/dork/corpus_manifest.json",
+    ".github/workflows/dork_corpus_sync.yml"
+  ],
+  "new_invariants": [
+    "LKSE-SYNC-0",
+    "LKSE-DETERM-0",
+    "LKSE-CHAIN-0",
+    "LKSE-GATE-0",
+    "LKSE-HUMAN0-0"
+  ],
+  "cumulative_invariants": 226,
+  "tests": "T141-LKSE-01..30 (30/30 PASS)",
+  "test_module": "tests/test_phase141_lkse.py",
+  "dependency": "Phase 140 — Constitutional P0 Sweep + P1 Hardening — v9.73.0",
+  "lane": "dork-supremacy",
+  "tier": "intelligence",
+  "world_first": "First local LLM with a constitutionally governed, auto-updating knowledge corpus synchronized from the live codebase at every phase boundary.",
+  "corpus_stats": {
+    "total_entries": 148,
+    "phases_covered": 22,
+    "invariants_indexed": 47,
+    "innovations_indexed": 38,
+    "findings_indexed": 23
+  },
+  "timestamp_utc": "2026-04-12T00:00:00Z"
+}

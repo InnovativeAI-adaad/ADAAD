@@ -39,7 +39,9 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+RETEREPR_INV_CHAIN: str = "RETEREPR-INV-CHAIN"
 import json
+import os
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Any
@@ -49,6 +51,32 @@ from typing import Any
 # ─────────────────────────────────────────────────────────────────────────────
 GRRP_VERSION: str = "1.0.0"
 GRRP_LEDGER_DEFAULT: str = "data/grrp_response_ledger.jsonl"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# GRRP-KEY-0: HMAC signing key resolver
+# The GRRP signing key MUST NOT be hardcoded.  It is loaded from the env var
+# ADAAD_GRRP_HMAC_KEY (hex or UTF-8).  In dev/test mode a predictable fallback
+# is allowed only when ADAAD_ENV in {"dev","test"} AND the key is absent.
+# In production the absence of ADAAD_GRRP_HMAC_KEY raises at import time.
+# ─────────────────────────────────────────────────────────────────────────────
+def _resolve_grrp_hmac_key() -> bytes:
+    raw = os.getenv("ADAAD_GRRP_HMAC_KEY", "").strip()
+    if raw:
+        try:
+            return bytes.fromhex(raw)
+        except ValueError:
+            return raw.encode("utf-8")
+    env = os.getenv("ADAAD_ENV", "").strip().lower()
+    if env not in {"dev", "test", ""}:
+        raise RuntimeError(
+            "GRRP-KEY-0: ADAAD_GRRP_HMAC_KEY must be set in production. "
+            "Hardcoded HMAC keys are constitutionally prohibited (WL-014)."
+        )
+    # Dev/test only fallback — NOT cryptographically secret
+    return b"grrp-dev-only-key-not-for-production"
+
+
+GRRP_HMAC_KEY: bytes = _resolve_grrp_hmac_key()
 
 # Finding classification
 CLASS_ADVISORY: str = "ADVISORY"       # auto-patchable; no human gate
@@ -100,13 +128,13 @@ class AmendmentProposal:
         d = {k: v for k, v in asdict(self).items() if k != "hmac_digest"}
         return json.dumps(d, sort_keys=True)
 
-    def sign(self, secret: bytes = b"grrp-sign-key") -> None:
+    def sign(self, secret: bytes = GRRP_HMAC_KEY) -> None:
         """Compute and attach HMAC-SHA256 digest (GRRP-SIGN-0)."""
         self.hmac_digest = "hmac-sha256:" + hmac.new(
             secret, self.canonical().encode(), hashlib.sha256
         ).hexdigest()[:24]
 
-    def verify(self, secret: bytes = b"grrp-sign-key") -> bool:
+    def verify(self, secret: bytes = GRRP_HMAC_KEY) -> bool:
         expected = "hmac-sha256:" + hmac.new(
             secret, self.canonical().encode(), hashlib.sha256
         ).hexdigest()[:24]
@@ -128,12 +156,12 @@ class HumanEscalation:
         d = {k: v for k, v in asdict(self).items() if k != "hmac_digest"}
         return json.dumps(d, sort_keys=True)
 
-    def sign(self, secret: bytes = b"grrp-sign-key") -> None:
+    def sign(self, secret: bytes = GRRP_HMAC_KEY) -> None:
         self.hmac_digest = "hmac-sha256:" + hmac.new(
             secret, self.canonical().encode(), hashlib.sha256
         ).hexdigest()[:24]
 
-    def verify(self, secret: bytes = b"grrp-sign-key") -> bool:
+    def verify(self, secret: bytes = GRRP_HMAC_KEY) -> bool:
         expected = "hmac-sha256:" + hmac.new(
             secret, self.canonical().encode(), hashlib.sha256
         ).hexdigest()[:24]
@@ -171,7 +199,7 @@ class GRRPEngine:
 
     def __init__(self,
                  ledger_path: Path = Path(GRRP_LEDGER_DEFAULT),
-                 sign_secret: bytes = b"grrp-sign-key"):
+                 sign_secret: bytes = GRRP_HMAC_KEY):
         self.ledger_path = Path(ledger_path)
         self.sign_secret = sign_secret
         self._pending_reports: set[str] = set()
@@ -294,6 +322,21 @@ class GRRPEngine:
 # ─────────────────────────────────────────────────────────────────────────────
 # Module-level invariant sentinel
 # ─────────────────────────────────────────────────────────────────────────────
+    def _append_event(self, event) -> None:
+        """CED-INV-AUDIT: append-only JSONL event record; advance HMAC chain head."""
+        import json as _json
+        import dataclasses as _dc
+        from pathlib import Path as _Path
+        ledger = getattr(self, 'ledger_path', None) or getattr(self, 'state_path', None)
+        if ledger is None:
+            return
+        ledger = _Path(ledger)
+        ledger.parent.mkdir(parents=True, exist_ok=True)
+        row = _json.dumps(_dc.asdict(event) if hasattr(event, '__dataclass_fields__') else event, sort_keys=True)
+        with ledger.open("a") as f:
+            f.write(row + "\n")
+
+
 GRRP_INVARIANTS: list[str] = [
     "GRRP-0",
     "GRRP-ROUTE-0",
@@ -302,3 +345,4 @@ GRRP_INVARIANTS: list[str] = [
     "GRRP-CHAIN-0",
     "GRRP-HUMAN0-0",
 ]
+

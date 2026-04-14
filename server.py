@@ -4,6 +4,7 @@ import json
 import importlib
 import hashlib
 import logging
+import warnings
 import os
 import subprocess
 import sys
@@ -12,6 +13,7 @@ import asyncio
 import csv
 import io
 import uuid
+import threading
 import httpx
 from datetime import datetime, timezone
 from dataclasses import dataclass
@@ -37,19 +39,30 @@ from app.api.schemas.governance import (
     ParallelGateProbeLibraryResponse,
 )
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from app.api.nexus.mutate import router as mutate_router
 from app.api.governance import router as governance_router
 from app.api.audit import router as audit_router
 from app.api.ui import router as ui_router
 from app.api.simulation import router as simulation_router
+from app.api.compliance import router as compliance_router
+from app.api.audit_exports import router as audit_exports_router
+from app.api.mutation_control import router as mutation_control_router
+from app.api.streams import router as streams_router
 from runtime.integrations.github_app import dispatch_event, verify_webhook_signature  # ADAADchat
-from app.api.dependencies import require_audit_scope, require_gate_open, require_tenant_context
+from app.api.dependencies import (
+    require_audit_scope,
+    require_gate_open,
+    require_tenant_context,
+    set_gate_open_checker,
+)
+from app.services.runtime_context import RuntimeContext
 from sse_starlette.sse import EventSourceResponse
 from app.api.versioning import register_v1_aliases
 from runtime.api.extensions import extension_sdk_descriptor
 from runtime.innovations_router import router as innovations_router
+from runtime.api.compliance_export_service import ComplianceExportService
 
 # ── Module-level runtime imports ─────────────────────────────────────────────
 # These are imported at module scope (not inside function bodies) so that
@@ -70,6 +83,11 @@ from runtime.system_status import (
     DEFAULT_VERSION_PATH,
     load_live_version as load_live_version_snapshot,
     read_gate_state as read_gate_state_snapshot,
+)
+from app.services.compliance_exports import (
+    load_control_evidence_snapshots as _svc_load_control_evidence_snapshots,
+    load_policy_change_history as _svc_load_policy_change_history,
+    load_replay_attestations as _svc_load_replay_attestations,
 )
 
 _LAZY_IMPORT_CACHE: dict[str, Any] = {}
@@ -112,8 +130,73 @@ WHALEDIC_DIR = ROOT / "ui" / "developer" / "ADAADdev"
 REPLAY_PROOFS_DIR = ROOT / "security" / "replay_manifests"
 FORENSIC_EXPORT_DIR = ROOT / "reports" / "forensics"
 COMPLIANCE_EXPORT_DIR = ROOT / "reports" / "compliance_exports"
+MUTATION_EPOCH_LOG_DIR = ROOT / "reports" / "mutation_epochs"
+MUTATION_EPOCH_STATUS_PATH = ROOT / "data" / "mutation_epoch_task_status.json"
 SEMVER_AUDIT_PATH = ROOT / "data" / "semver_verdicts.jsonl"
 GATE_LOCK_FILE = DEFAULT_GATE_LOCK_FILE
+
+_MUTATION_EPOCH_TASKS_LOCK = threading.Lock()
+_MUTATION_EPOCH_TASKS: dict[str, dict[str, Any]] = {}
+_MUTATION_STDIO_LOG_LIMIT_BYTES = 64 * 1024
+_MUTATION_EPOCH_TIMEOUT_SECONDS = 120
+
+
+def _digest_for_path(path: Path) -> str:
+    if not path.exists():
+        return ""
+    hasher = hashlib.sha256()
+    with path.open("rb") as handle:
+        while True:
+            chunk = handle.read(8192)
+            if not chunk:
+                break
+            hasher.update(chunk)
+    return hasher.hexdigest()
+
+
+def _truncate_log_file_in_place(path: Path, limit_bytes: int) -> int:
+    if not path.exists():
+        return 0
+    file_size = path.stat().st_size
+    if file_size <= limit_bytes:
+        return 0
+    with path.open("rb+") as handle:
+        handle.seek(file_size - limit_bytes)
+        tail = handle.read(limit_bytes)
+        handle.seek(0)
+        handle.write(tail)
+        handle.truncate()
+    return file_size - limit_bytes
+
+
+def _record_mutation_epoch_status(operation_id: str, payload: dict[str, Any]) -> None:
+    now = datetime.now(timezone.utc).isoformat()
+    entry = {"operation_id": operation_id, "updated_at": now, **payload}
+    with _MUTATION_EPOCH_TASKS_LOCK:
+        _MUTATION_EPOCH_TASKS[operation_id] = entry
+        MUTATION_EPOCH_STATUS_PATH.parent.mkdir(parents=True, exist_ok=True)
+        MUTATION_EPOCH_STATUS_PATH.write_text(
+            json.dumps(_MUTATION_EPOCH_TASKS, ensure_ascii=False, indent=2, sort_keys=True),
+            encoding="utf-8",
+        )
+
+
+def _read_mutation_epoch_status(operation_id: str) -> dict[str, Any] | None:
+    with _MUTATION_EPOCH_TASKS_LOCK:
+        cached = _MUTATION_EPOCH_TASKS.get(operation_id)
+        if cached is not None:
+            return dict(cached)
+        if MUTATION_EPOCH_STATUS_PATH.exists():
+            try:
+                persisted = json.loads(MUTATION_EPOCH_STATUS_PATH.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                return None
+            if isinstance(persisted, dict):
+                loaded = persisted.get(operation_id)
+                if isinstance(loaded, dict):
+                    _MUTATION_EPOCH_TASKS.update(persisted)
+                    return dict(loaded)
+    return None
 
 
 class SPAStaticFiles(StaticFiles):
@@ -135,6 +218,7 @@ class SPAStaticFiles(StaticFiles):
 @asynccontextmanager
 async def _lifespan(application: FastAPI):  # noqa: ARG001
     """Lifespan: ensure APONI assets exist at startup (stub-safe)."""
+    _configure_composition_root(application)
     APONI_DIR.mkdir(parents=True, exist_ok=True)
     WHALEDIC_DIR.mkdir(parents=True, exist_ok=True)
     (APONI_DIR / "mock").mkdir(exist_ok=True)
@@ -149,10 +233,52 @@ async def _lifespan(application: FastAPI):  # noqa: ARG001
             "<p>Place the full Aponi build in <code>ui/aponi/</code>.</p></body></html>",
             encoding="utf-8",
         )
-    yield
+
+    fleet = _get_fleet()
+    if fleet is not None:
+        _start_fleet_watchdog_once()
+
+    try:
+        yield
+    finally:
+        watchdog = getattr(application.state, "_dork_fleet_watchdog", None)
+        if watchdog is not None:
+            await watchdog.stop()
 
 
 app = FastAPI(title="InnovativeAI-adaad Unified Server", lifespan=_lifespan)
+
+
+def _build_runtime_context() -> RuntimeContext:
+    """Build shared API dependencies from server-scoped runtime objects."""
+    return RuntimeContext(
+        root=ROOT,
+        replay_proofs_dir=REPLAY_PROOFS_DIR,
+        forensic_export_dir=FORENSIC_EXPORT_DIR,
+        compliance_export_dir=COMPLIANCE_EXPORT_DIR,
+        journal=journal,
+        metrics=metrics,
+        lineage_ledger_cls=LineageLedgerV2,
+        evidence_bundle_builder_factory=EvidenceBundleBuilder,
+    )
+
+
+def _configure_composition_root(application: FastAPI) -> None:
+    """Wire request-time dependencies in one place for API modules."""
+    application.state.runtime_context = _build_runtime_context()
+    set_gate_open_checker(_assert_gate_open)
+
+
+_configure_composition_root(app)
+
+# ── MULTI-WORKER CONSTRAINT (audit H-3) ─────────────────────────────────────
+# _SIMULATION_STORE, _LEDGER_AGGREGATE_CACHE, and _pressure_audit_ledger are
+# process-local in-memory stores. Running multiple Uvicorn workers will cause
+# these stores to diverge silently. ADAAD MUST be run with --workers 1 (the
+# default). Multi-worker support requires migrating shared state to Redis —
+# tracked as Phase 143 backlog item.
+# Launch command: uvicorn server:app --workers 1 --host 127.0.0.1 --port 8000
+# ─────────────────────────────────────────────────────────────────────────────
 
 # ── CORS ────────────────────────────────────────────────────────────────────
 import os as _os
@@ -197,8 +323,8 @@ app.add_middleware(
     allow_origins=_CORS_ORIGINS,
     allow_origin_regex=_CORS_ORIGIN_REGEX,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "X-ADAAD-Plan", "X-Request-ID", "X-Audit-Token"],
 )
 
 # ── Cryovant Gate Middleware ─────────────────────────────────────────────────
@@ -252,9 +378,19 @@ _PLAN_LIMITS: dict[str, dict[str, int]] = {
 
 
 def _resolve_plan(request: Request) -> str:
-    header_plan = (request.headers.get("x-adaad-plan") or "").strip().lower()
+    # SECURITY: Plan/entitlement tier must be derived server-side.
+    # The x-adaad-plan header is accepted ONLY when the env flag
+    # ADAAD_TRUST_PLAN_HEADER=1 is explicitly set (dev/test only).
+    # In all other cases the server-side ADAAD_DEFAULT_PLAN env var
+    # is the sole authority — never a client-supplied header.
+    # Audit finding H-4 · invariant: ENTITLEMENT-SERVER-0
+    _trust_header = os.getenv("ADAAD_TRUST_PLAN_HEADER", "0").strip() == "1"
     env_plan = (os.getenv("ADAAD_DEFAULT_PLAN", "enterprise") or "enterprise").strip().lower()
-    plan = header_plan or env_plan
+    if _trust_header:
+        header_plan = (request.headers.get("x-adaad-plan") or "").strip().lower()
+        plan = header_plan or env_plan
+    else:
+        plan = env_plan
     if plan not in _PLAN_LIMITS:
         return "free"
     return plan
@@ -695,6 +831,21 @@ def governance_health(
     resolved_epoch = epoch_id or "current"
     result = governance_health_service(epoch_id=resolved_epoch)
     result["constitutional_floor"] = "enforced"
+
+    # DFSB-FITNESS-0: embed fleet fitness in governance health
+    try:
+        fleet = _get_fleet()
+        if fleet is not None:
+            fs = fleet.fleet_status()
+            result["fleet_fitness"] = {
+                "score": 1.0 if not fs.get("blocked") and fs.get("healthy_provider_count", 0) > 0 else 0.0,
+                "blocked": fs.get("blocked", True),
+                "healthy_count": fs.get("healthy_provider_count", 0),
+                "invariant": "DFSB-FITNESS-0",
+            }
+    except Exception:
+        result["fleet_fitness"] = {"score": None, "blocked": None, "healthy_count": None, "invariant": "DFSB-FITNESS-0"}
+
     return {"schema_version": "1.0", "authn": authn, "data": result}
 
 
@@ -713,6 +864,10 @@ app.include_router(governance_router)
 app.include_router(audit_router)
 app.include_router(ui_router)
 app.include_router(simulation_router)
+app.include_router(compliance_router)
+app.include_router(audit_exports_router)
+app.include_router(mutation_control_router)
+app.include_router(streams_router)
 
 
 def telemetry_decisions_legacy(
@@ -771,12 +926,11 @@ def telemetry_analytics_legacy(
         class _MemoryAdapter:
             def __init__(self, s):
                 self._sink = s
-            def _all_payloads(self):
+            def payloads_chain_snapshot(self):
                 if self._sink is None:
-                    return []
-                return list(getattr(self._sink, "entries", lambda: [])())
-            def verify_chain(self):
-                return True
+                    return ([], True, 0)
+                payloads = list(getattr(self._sink, "entries", lambda: [])())
+                return (payloads, True, len(payloads))
         reader = _MemoryAdapter(sink)
     engine = StrategyAnalyticsEngine(reader, window_size=window_size)
     report = engine.generate_report()
@@ -804,12 +958,11 @@ def telemetry_strategy_detail_legacy(
         class _MemAdapter:
             def __init__(self, s):
                 self._sink = s
-            def _all_payloads(self):
+            def payloads_chain_snapshot(self):
                 if self._sink is None:
-                    return []
-                return list(getattr(self._sink, "entries", lambda: [])())
-            def verify_chain(self):
-                return True
+                    return ([], True, 0)
+                payloads = list(getattr(self._sink, "entries", lambda: [])())
+                return (payloads, True, len(payloads))
         reader = _MemAdapter(sink)
     engine = StrategyAnalyticsEngine(reader, window_size=window_size)
     report = engine.generate_report()
@@ -3478,6 +3631,10 @@ _COMPLIANCE_EXPORT_DATASETS: frozenset[str] = frozenset(
         "incident-remediation-logs",
     }
 )
+_COMPLIANCE_EXPORT_LIMIT_DEFAULT = 200
+_COMPLIANCE_EXPORT_LIMIT_MAX = 1000
+_compliance_export_service: ComplianceExportService | None = None
+_compliance_export_service_key: tuple[str, int] | None = None
 
 
 def _jsonable_scalar(value: Any) -> Any:
@@ -3497,68 +3654,70 @@ def _render_csv(rows: list[dict[str, Any]]) -> str:
         writer.writerow({key: _jsonable_scalar(row.get(key)) for key in keys})
     return buffer.getvalue()
 
+def _stream_csv_rows(rows: list[dict[str, Any]]):
+    if not rows:
+        return
+    keys: list[str] = sorted({key for row in rows for key in row.keys()})
+    buffer = io.StringIO()
+    writer = csv.DictWriter(buffer, fieldnames=keys)
+    writer.writeheader()
+    yield buffer.getvalue()
+    buffer.seek(0)
+    buffer.truncate(0)
+    for row in rows:
+        writer.writerow({key: _jsonable_scalar(row.get(key)) for key in keys})
+        yield buffer.getvalue()
+        buffer.seek(0)
+        buffer.truncate(0)
+
+
+def _stream_json_records(*, envelope: dict[str, Any], rows: list[dict[str, Any]]):
+    envelope_prefix = dict(envelope)
+    data = dict(envelope_prefix.get("data", {}))
+    data.pop("records", None)
+    envelope_prefix["data"] = data
+    prefix = json.dumps(envelope_prefix, separators=(",", ":"), sort_keys=True)[:-2]
+    yield prefix + ',\"records\":['
+    for idx, row in enumerate(rows):
+        if idx:
+            yield ","
+        yield json.dumps(row, separators=(",", ":"), sort_keys=True)
+    yield "]}}"
+
+
+def _resolve_pagination(*, limit: int, offset: int, cursor: str | None) -> tuple[int, str | None]:
+    try:
+        cursor_offset = _get_compliance_export_service().decode_cursor(cursor)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail="invalid_cursor") from exc
+    if cursor_offset is not None:
+        return cursor_offset, cursor
+    return offset, None
+
+
+def _get_compliance_export_service() -> ComplianceExportService:
+    global _compliance_export_service, _compliance_export_service_key
+    key = (str(REPLAY_PROOFS_DIR), id(journal.read_entries))
+    if _compliance_export_service is None or _compliance_export_service_key != key:
+        _compliance_export_service = ComplianceExportService(
+            root=ROOT,
+            replay_proofs_dir=REPLAY_PROOFS_DIR,
+            journal_read_entries=journal.read_entries,
+        )
+        _compliance_export_service_key = key
+    return _compliance_export_service
+
 
 def _load_replay_attestations() -> list[dict[str, Any]]:
-    attestations: list[dict[str, Any]] = []
-    if not REPLAY_PROOFS_DIR.exists():
-        return attestations
-    for proof_file in sorted(REPLAY_PROOFS_DIR.glob("*.replay_attestation.v1.json")):
-        try:
-            bundle = json.loads(proof_file.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            continue
-        attestations.append(
-            {
-                "epoch_id": str(bundle.get("epoch_id") or proof_file.name.split(".", 1)[0]),
-                "proof_digest": str(bundle.get("proof_digest", "")),
-                "canonical_digest": str(bundle.get("canonical_digest", "")),
-                "checkpoint_chain_digest": str(bundle.get("checkpoint_chain_digest", "")),
-                "replay_digest": str(bundle.get("replay_digest", "")),
-                "signature_count": len(bundle.get("signatures", [])) if isinstance(bundle.get("signatures"), list) else 0,
-                "source_path": str(proof_file),
-            }
-        )
-    return attestations
+    """Deprecated compatibility shim; use app.services.compliance_exports."""
+    warnings.warn("server._load_replay_attestations is deprecated; use app.services.compliance_exports.load_replay_attestations", DeprecationWarning, stacklevel=2)
+    return _svc_load_replay_attestations(replay_proofs_dir=REPLAY_PROOFS_DIR)
 
 
 def _load_policy_change_history() -> list[dict[str, Any]]:
-    entries = journal.read_entries(limit=1000)
-    filtered: list[dict[str, Any]] = []
-    for item in entries:
-        tx_type = str(item.get("tx_type", ""))
-        payload = item.get("payload", {})
-        reason = ""
-        if isinstance(payload, dict):
-            reason = str(payload.get("reason_code") or payload.get("reason") or "")
-        text = f"{tx_type} {reason}".lower()
-        if "policy" not in text and "governance" not in text:
-            continue
-        filtered.append(
-            {
-                "entry_id": str(item.get("entry_id", "")),
-                "timestamp": str(item.get("timestamp", "")),
-                "tx_type": tx_type,
-                "reason_code": reason,
-                "payload": payload if isinstance(payload, dict) else {},
-            }
-        )
-    policy_baseline = ROOT / "governance" / "governance_policy_v1.json"
-    if policy_baseline.exists():
-        try:
-            baseline = json.loads(policy_baseline.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            baseline = {}
-        filtered.insert(
-            0,
-            {
-                "entry_id": "baseline-governance-policy-v1",
-                "timestamp": "",
-                "tx_type": "policy_baseline",
-                "reason_code": "",
-                "payload": baseline if isinstance(baseline, dict) else {},
-            },
-        )
-    return filtered
+    """Deprecated compatibility shim; use app.services.compliance_exports."""
+    warnings.warn("server._load_policy_change_history is deprecated; use app.services.compliance_exports.load_policy_change_history", DeprecationWarning, stacklevel=2)
+    return _svc_load_policy_change_history(root=ROOT, journal_module=journal)
 
 
 def _load_control_evidence_snapshots() -> list[dict[str, Any]]:
@@ -3618,178 +3777,7 @@ def _load_incident_remediation_logs() -> list[dict[str, Any]]:
     return rows
 
 
-def _compliance_dataset_rows(dataset: str) -> list[dict[str, Any]]:
-    if dataset == "control-evidence-snapshots":
-        return _load_control_evidence_snapshots()
-    if dataset == "immutable-replay-attestations":
-        return _load_replay_attestations()
-    if dataset == "policy-change-history":
-        return _load_policy_change_history()
-    if dataset == "incident-remediation-logs":
-        return _load_incident_remediation_logs()
-    raise HTTPException(status_code=404, detail="unknown_compliance_dataset")
-
-
-@app.get("/api/compliance/exports/{dataset}")
-def get_compliance_export(
-    dataset: str,
-    fmt: str = Query(default="json", pattern="^(json|csv)$"),
-    auth_ctx: dict[str, Any] = Depends(require_audit_scope),
-) -> Response:
-    if dataset not in _COMPLIANCE_EXPORT_DATASETS:
-        raise HTTPException(status_code=404, detail="unknown_compliance_dataset")
-    rows = _compliance_dataset_rows(dataset)
-    if fmt == "csv":
-        body = _render_csv(rows)
-        return Response(
-            content=body,
-            media_type="text/csv",
-            headers={"Content-Disposition": f'attachment; filename="{dataset}.csv"'},
-        )
-    payload = {
-        "schema_version": "1.0",
-        "authn": auth_ctx,
-        "data": {
-            "dataset": dataset,
-            "format": "json",
-            "record_count": len(rows),
-            "records": rows,
-        },
-    }
-    return JSONResponse(content=payload)
-
-
-@app.post("/api/compliance/exports/{dataset}/jobs")
-def create_compliance_export_job(
-    dataset: str,
-    fmt: str = Query(default="json", pattern="^(json|csv)$"),
-    auth_ctx: dict[str, Any] = Depends(require_audit_scope),
-) -> dict[str, Any]:
-    if dataset not in _COMPLIANCE_EXPORT_DATASETS:
-        raise HTTPException(status_code=404, detail="unknown_compliance_dataset")
-    rows = _compliance_dataset_rows(dataset)
-    COMPLIANCE_EXPORT_DIR.mkdir(parents=True, exist_ok=True)
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    job_id = f"job-{uuid.uuid4().hex[:12]}"
-    extension = "csv" if fmt == "csv" else "json"
-    export_path = COMPLIANCE_EXPORT_DIR / f"{dataset}.{timestamp}.{job_id}.{extension}"
-    if fmt == "csv":
-        export_path.write_text(_render_csv(rows), encoding="utf-8")
-    else:
-        export_path.write_text(
-            json.dumps(
-                {
-                    "schema_version": "1.0",
-                    "dataset": dataset,
-                    "record_count": len(rows),
-                    "records": rows,
-                },
-                indent=2,
-                sort_keys=True,
-            )
-            + "\n",
-            encoding="utf-8",
-        )
-    return {
-        "schema_version": "1.0",
-        "authn": auth_ctx,
-        "data": {
-            "job_id": job_id,
-            "dataset": dataset,
-            "format": fmt,
-            "record_count": len(rows),
-            "path": str(export_path),
-            "created_at": datetime.now(timezone.utc).isoformat(),
-        },
-    }
-
-
-# ── Audit endpoints (Phase 46+ — evidence, replay proofs, lineage) ───────────
-
-@app.get("/api/audit/epochs/{epoch_id}/replay-proof")
-def audit_replay_proof(
-    epoch_id: str,
-    redaction: str | None = Query(default=None),
-    auth_ctx: dict[str, Any] = Depends(require_audit_scope),
-    tenant_ctx: dict[str, str] = Depends(require_tenant_context),
-) -> dict[str, Any]:
-    """Return the replay attestation proof bundle for an epoch.
-
-    Requires audit:read scope. When redaction=sensitive, strips signature values.
-    Response: {schema_version, authn, data: {epoch_id, bundle_path, bundle, verification}}
-    """
-    authn = auth_ctx
-    proof_file = REPLAY_PROOFS_DIR / f"{epoch_id}.replay_attestation.v1.json"
-    if not proof_file.exists():
-        raise HTTPException(status_code=404, detail="replay_proof_not_found")
-    try:
-        bundle: dict[str, Any] = json.loads(proof_file.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
-        raise HTTPException(status_code=500, detail="proof_read_error") from exc
-    proof_tenant = bundle.get("tenant") if isinstance(bundle.get("tenant"), dict) else {}
-    proof_tenant_id = str(bundle.get("tenant_id") or proof_tenant.get("tenant_id") or "").strip()
-    proof_workspace_id = str(bundle.get("workspace_id") or proof_tenant.get("workspace_id") or "").strip()
-    if proof_tenant_id and proof_workspace_id:
-        if proof_tenant_id != tenant_ctx["tenant_id"] or proof_workspace_id != tenant_ctx["workspace_id"]:
-            raise HTTPException(status_code=403, detail="tenant_scope_mismatch")
-
-    # Redact signature values when redaction=sensitive
-    if redaction == "sensitive" and "signatures" in bundle:
-        redacted_sigs = [
-            {k: v for k, v in sig.items() if k != "signature"}
-            for sig in bundle.get("signatures", [])
-        ]
-        bundle = {**bundle}
-        del bundle["signatures"]
-
-    return {
-        "schema_version": "1.0",
-        "authn": authn,
-        "data": {
-            "epoch_id": epoch_id,
-            "bundle_path": str(proof_file),
-            "bundle": bundle,
-            "verification": {
-                "proof_digest_present": "proof_digest" in bundle,
-                "signatures_present": "signatures" in bundle,
-            },
-        },
-    }
-
-
-@app.get("/api/audit/epochs/{epoch_id}/lineage")
-def audit_epoch_lineage(
-    epoch_id: str,
-    auth_ctx: dict[str, Any] = Depends(require_audit_scope),
-    tenant_ctx: dict[str, str] = Depends(require_tenant_context),
-) -> dict[str, Any]:
-    """Return lineage events and journal entries for an epoch.
-
-    Requires audit:read scope.
-    Response: {schema_version, authn, data: {epoch_id, lineage, lineage_digest,
-               expected_epoch_digest, journal_entries}}
-    """
-    authn = auth_ctx
-    ledger = LineageLedgerV2(tenant_context=tenant_ctx)
-    lineage = ledger.read_epoch(epoch_id)
-    lineage_digest = ledger.compute_incremental_epoch_digest(epoch_id)
-    expected = ledger.get_expected_epoch_digest(epoch_id) or ""
-    journal_entries = journal.read_entries(limit=200, tenant_context=tenant_ctx)
-    return {
-        "schema_version": "1.0",
-        "authn": authn,
-        "data": {
-            "epoch_id": epoch_id,
-            "lineage": lineage,
-            "lineage_digest": lineage_digest,
-            "expected_epoch_digest": expected,
-            "journal_entries": journal_entries,
-        },
-    }
-
-
 def _load_bundle(bundle_id: str) -> tuple[dict[str, Any], str]:
-    """Load and return a forensic bundle dict + its file path string."""
     bundle_file = FORENSIC_EXPORT_DIR / f"{bundle_id}.json"
     if not bundle_file.exists():
         raise HTTPException(status_code=404, detail="bundle_not_found")
@@ -3800,7 +3788,6 @@ def _load_bundle(bundle_id: str) -> tuple[dict[str, Any], str]:
 
 
 def _redact_bundle(bundle: dict[str, Any]) -> dict[str, Any]:
-    """Strip signature fields from export_metadata.signer for response."""
     result = dict(bundle)
     if "export_metadata" in result:
         em = dict(result["export_metadata"])
@@ -3808,39 +3795,6 @@ def _redact_bundle(bundle: dict[str, Any]) -> dict[str, Any]:
             em["signer"] = {k: v for k, v in em["signer"].items() if k != "signature"}
         result["export_metadata"] = em
     return result
-
-
-@app.get("/api/audit/bundles/{bundle_id}")
-def audit_bundle(
-    bundle_id: str,
-    auth_ctx: dict[str, Any] = Depends(require_audit_scope),
-    tenant_ctx: dict[str, str] = Depends(require_tenant_context),
-) -> dict[str, Any]:
-    """Return a forensic evidence bundle with validation results.
-
-    Requires audit:read scope.
-    Response: {schema_version, authn, data: {bundle_id, bundle_path, bundle, validation}}
-    """
-    authn = auth_ctx
-    raw_bundle, bundle_path = _load_bundle(bundle_id)
-    bundle_tenant = raw_bundle.get("tenant") if isinstance(raw_bundle.get("tenant"), dict) else {}
-    bundle_tenant_id = str(raw_bundle.get("tenant_id") or bundle_tenant.get("tenant_id") or "").strip()
-    bundle_workspace_id = str(raw_bundle.get("workspace_id") or bundle_tenant.get("workspace_id") or "").strip()
-    if bundle_tenant_id and bundle_workspace_id:
-        if bundle_tenant_id != tenant_ctx["tenant_id"] or bundle_workspace_id != tenant_ctx["workspace_id"]:
-            raise HTTPException(status_code=403, detail="tenant_scope_mismatch")
-    builder = EvidenceBundleBuilder(export_dir=FORENSIC_EXPORT_DIR)
-    validation = builder.validate_bundle(raw_bundle)
-    return {
-        "schema_version": "1.0",
-        "authn": authn,
-        "data": {
-            "bundle_id": bundle_id,
-            "bundle_path": bundle_path,
-            "bundle": _redact_bundle(raw_bundle),
-            "validation": validation,
-        },
-    }
 
 
 def _authenticate_audit_request(authorization: str | None = Header(default=None)) -> dict[str, Any]:
@@ -3961,177 +3915,6 @@ def _resolve_ui_paths(create_placeholder: bool = False):
 
 
 # ── WebSocket /ws/events ──────────────────────────────────────────────────────
-
-@app.websocket("/ws/events")
-async def ws_events(websocket: WebSocket) -> None:
-    """Real-time event stream — Phase 70: persistent innovations bus relay.
-
-    Channels:
-    - "metrics"      — recent entries from runtime.metrics.tail()
-    - "journal"      — recent entries from security.ledger.journal.read_entries()
-    - "innovations"  — live CEL step / epoch / story_arc / personality / reflection frames
-
-    Each event has keys: channel, kind, timestamp, event.
-    After the initial batch, the connection stays open and pushes innovations
-    bus frames as they arrive (one JSON message per frame).
-
-    IBUS-FAILSAFE-0: disconnect from the bus on any send failure.
-    """
-    from runtime.innovations_bus import get_bus  # noqa: PLC0415 — avoid import-time cycle
-
-    relay_policy = websocket.query_params.get("relay_policy", "drop_oldest")
-    if relay_policy not in {"drop_oldest", "coalesce_latest"}:
-        await websocket.close(code=1008, reason="invalid_relay_policy")
-        return
-
-    def _parse_limit(name: str, default: int, cap: int) -> int:
-        raw = websocket.query_params.get(name)
-        if raw is None:
-            return default
-        try:
-            value = int(raw)
-        except (TypeError, ValueError):
-            raise HTTPException(status_code=422, detail=f"invalid_{name}") from None
-        if value < 0 or value > cap:
-            raise HTTPException(status_code=422, detail=f"invalid_{name}")
-        return value
-
-    def _parse_float(name: str, default: float, minimum: float, maximum: float) -> float:
-        raw = websocket.query_params.get(name)
-        if raw is None:
-            return default
-        try:
-            value = float(raw)
-        except (TypeError, ValueError):
-            raise HTTPException(status_code=422, detail=f"invalid_{name}") from None
-        if value < minimum or value > maximum:
-            raise HTTPException(status_code=422, detail=f"invalid_{name}")
-        return value
-
-    try:
-        metrics_limit = _parse_limit("metrics_limit", default=200, cap=500)
-        journal_limit = _parse_limit("journal_limit", default=200, cap=500)
-        relay_queue_limit = _parse_limit("relay_queue_limit", default=128, cap=512)
-        heartbeat_interval_s = _parse_float("heartbeat_interval_s", default=30.0, minimum=1.0, maximum=120.0)
-        stale_timeout_s = _parse_float("stale_timeout_s", default=90.0, minimum=2.0, maximum=300.0)
-    except HTTPException:
-        await websocket.close(code=1008, reason="invalid_query_params")
-        return
-
-    await websocket.accept()
-    # Hello frame
-    await websocket.send_json({
-        "type": "hello",
-        "channels": ["metrics", "journal", "innovations"],
-        "status": "live",
-        "endpoint_meta": {
-            "history_caps": {"metrics_limit_max": 500, "journal_limit_max": 500},
-            "queue_policy": relay_policy,
-            "relay_queue_limit": relay_queue_limit,
-            "heartbeat_interval_s": heartbeat_interval_s,
-            "stale_timeout_s": stale_timeout_s,
-        },
-    })
-    # Historical batch
-    events = []
-    for entry in metrics.tail(limit=metrics_limit):
-        events.append({
-            "channel": "metrics",
-            "kind": str(entry.get("event", entry.get("event_type", "metric"))),
-            "timestamp": str(entry.get("timestamp", entry.get("ts", ""))),
-            "event": entry,
-        })
-    for entry in journal.read_entries(limit=journal_limit):
-        events.append({
-            "channel": "journal",
-            "kind": str(entry.get("action", entry.get("tx_type", "journal"))),
-            "timestamp": str(entry.get("timestamp", entry.get("ts", ""))),
-            "event": entry,
-        })
-    await websocket.send_json({"type": "event_batch", "events": events})
-
-    # Subscribe to innovations bus and relay frames until disconnect
-    bus = get_bus()
-    queue = await bus.subscribe()
-    relay_queue: asyncio.Queue[dict[str, Any]] = asyncio.Queue(maxsize=relay_queue_limit)
-    disconnect_reason = "client_closed"
-    dropped_frames = 0
-    last_client_signal = asyncio.get_event_loop().time()
-    coalesced_latest: dict[str, Any] | None = None
-    stop_signal = asyncio.Event()
-
-    async def _client_reader() -> None:
-        nonlocal last_client_signal
-        while not stop_signal.is_set():
-            try:
-                message = await asyncio.wait_for(websocket.receive_json(), timeout=heartbeat_interval_s)
-            except asyncio.TimeoutError:
-                continue
-            except Exception:  # noqa: BLE001
-                break
-            if isinstance(message, dict) and message.get("type") == "pong":
-                last_client_signal = asyncio.get_event_loop().time()
-
-    async def _relay_ingress() -> None:
-        nonlocal dropped_frames, coalesced_latest
-        while not stop_signal.is_set():
-            frame = await queue.get()
-            if relay_policy == "coalesce_latest":
-                if relay_queue.full():
-                    coalesced_latest = frame
-                    dropped_frames += 1
-                    metrics.log("ws_events_frames_dropped", payload={"policy": relay_policy, "dropped": dropped_frames})
-                    continue
-            if relay_queue.full():
-                _ = relay_queue.get_nowait()
-                dropped_frames += 1
-                metrics.log("ws_events_frames_dropped", payload={"policy": relay_policy, "dropped": dropped_frames})
-            await relay_queue.put(frame)
-            if coalesced_latest is not None and not relay_queue.full():
-                await relay_queue.put(coalesced_latest)
-                coalesced_latest = None
-            metrics.log("ws_events_queue_depth", payload={"depth": relay_queue.qsize(), "limit": relay_queue_limit})
-
-    reader_task = asyncio.create_task(_client_reader())
-    ingress_task = asyncio.create_task(_relay_ingress())
-    try:
-        while True:
-            try:
-                now = asyncio.get_event_loop().time()
-                if (now - last_client_signal) >= stale_timeout_s:
-                    disconnect_reason = "stale_client_timeout"
-                    await websocket.send_json({"type": "disconnect", "reason": disconnect_reason})
-                    break
-                frame = await asyncio.wait_for(relay_queue.get(), timeout=heartbeat_interval_s)
-                await websocket.send_json({"type": "innovations", "channel": "innovations", **frame})
-            except asyncio.TimeoutError:
-                # Keepalive ping
-                await websocket.send_json({"type": "ping", "ts": datetime.now(timezone.utc).isoformat()})
-    except Exception:  # noqa: BLE001 — client disconnected
-        disconnect_reason = "send_or_receive_failure"
-    finally:
-        stop_signal.set()
-        ingress_task.cancel()
-        reader_task.cancel()
-        for task in (ingress_task, reader_task):
-            try:
-                await task
-            except BaseException:  # noqa: BLE001
-                pass
-        await bus.unsubscribe(queue)
-        metrics.log(
-            "ws_events_disconnect",
-            payload={
-                "cause": disconnect_reason,
-                "dropped_frames": dropped_frames,
-                "queue_depth": relay_queue.qsize(),
-            },
-        )
-        try:
-            await websocket.close(reason=disconnect_reason)
-        except Exception:  # noqa: BLE001
-            pass
-
 
 # /ui/aponi/{asset_path} — explicit asset route so monkeypatching APONI_DIR in tests works.
 # A static mount binds the directory at registration time; a route always reads APONI_DIR
@@ -4278,108 +4061,17 @@ async def release_readiness():
         "blockers": []
     }
 
-# ── Phase 107: Dork Empowerment (Mutations & Approvals) ──────────────────────
-
-@app.get("/api/governance/approvals/pending")
-async def get_pending_approvals(
-    auth_ctx: dict[str, Any] = Depends(require_audit_scope),
-) -> dict[str, Any]:
-    """List all pending human-in-the-loop approval requests."""
-    _ = auth_ctx
-    from runtime.governance.human_approval_gate import HumanApprovalGate
-    gate = HumanApprovalGate()
-    return {"ok": True, "pending": gate.pending_queue()}
-
-@app.get("/api/governance/merges")
-async def get_recent_merges(
-    limit: int = 20,
-) -> dict[str, Any]:
-    """Return recent DEVADAAD merge_attestation.v1 events from the lifecycle ledger."""
-    # In a full implementation, this reads from pr_lifecycle_events.jsonl or equivalent.
-    # For now, return a mock schema-compliant response bridging to dork UI telemetry.
-    mock_merges = [
-        {
-            "event_type": "merge_attestation.v1",
-            "timestamp_utc": datetime.now(timezone.utc).isoformat(),
-            "payload": {
-                "pr_id": "PR-PHASE108-01",
-                "merge_sha": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
-                "tier_0_digest": "sha256:1234567890abcdef",
-                "tier_1_tests_passed": 1050,
-                "tier_1_tests_failed": 0,
-                "tier_3_evidence_complete": True,
-                "tier_m_working_code": True,
-                "triggered_by": "DEVADAAD",
-            }
-        }
-    ]
-    return {"ok": True, "merges": mock_merges, "count": len(mock_merges)}
-
-class _ApprovalDecisionRequest(BaseModel):
-    approved: bool
-    operator_id: str
-    notes: str = ""
-
-@app.post("/api/governance/approvals/{approval_id}/decide")
-async def decide_approval(
-    approval_id: str,
-    body: _ApprovalDecisionRequest,
-    auth_ctx: dict[str, Any] = Depends(require_audit_scope),
-) -> dict[str, Any]:
-    """Record a human approval/rejection for a mutation advancement."""
-    _ = auth_ctx
-    from runtime.governance.human_approval_gate import HumanApprovalGate
-    gate = HumanApprovalGate()
-    try:
-        decision = gate.record_decision(
-            approval_id=approval_id,
-            approved=body.approved,
-            operator_id=body.operator_id,
-            notes=body.notes
-        )
-        return {"ok": True, "decision": decision.to_payload()}
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
-@app.post("/api/mutations/trigger-epoch")
-async def trigger_mutation_cycle(
-    background_tasks: BackgroundTasks,
+@app.get("/api/mutations/epoch-status/{operation_id}")
+async def get_mutation_cycle_status(
+    operation_id: str,
     auth_ctx: dict[str, Any] = Depends(require_gate_open),
 ) -> dict[str, Any]:
-    """Trigger a new mutation cycle in the background."""
+    """Fetch persisted status for a mutation epoch background operation."""
     _ = auth_ctx
-    
-    def run_epoch_task():
-        # Force dev mode and verbose for dork trigger
-        env = os.environ.copy()
-        env["ADAAD_ENV"] = "dev"
-        env["ADAAD_CEL_ENABLED"] = "true"
-        subprocess.run(
-            [sys.executable, "-m", "app.main", "--verbose", "--exit-after-boot"],
-            env=env,
-            capture_output=True,
-            text=True
-        )
-
-    background_tasks.add_task(run_epoch_task)
-    return {"ok": True, "status": "staged", "message": "Mutation cycle triggered."}
-
-@app.get("/api/webhooks/stream")
-async def webhooks_stream(request: Request):
-    """SSE stream for live webhook monitoring (Phase 107)."""
-    async def event_generator():
-        # Emit initial connection event
-        yield {"event": "connected", "data": json.dumps({"ts": datetime.now(timezone.utc).isoformat()})}
-        
-        while True:
-            # In a real system, this would subscribe to a message bus.
-            # For this bridge, we'll just keep the connection alive.
-            if await request.is_disconnected():
-                break
-            await asyncio.sleep(30)
-            yield {"event": "heartbeat", "data": "ping"}
-
-    return EventSourceResponse(event_generator())
+    status = _read_mutation_epoch_status(operation_id)
+    if status is None:
+        raise HTTPException(status_code=404, detail="mutation_epoch_operation_not_found")
+    return {"ok": True, "operation": status}
 
 @app.get("/dork")
 def dork_v2() -> Response:
@@ -4412,49 +4104,6 @@ def whaledic_legacy() -> Response:
     return serve_whaledic_asset("whaledic.html")
 
 
-@app.post("/api/dork/stream")
-async def dork_stream_proxy(request: Request):
-    """Server-side Anthropic proxy for dork v2.0.
-
-    Accepts {system, messages, model, max_tokens} and streams the Anthropic
-    SSE response back to the client.  Uses the server's ANTHROPIC_API_KEY so
-    the key never reaches the browser.  Only available when the server key
-    is configured.
-    """
-    import httpx
-    import os as _os
-
-    api_key = _os.environ.get("ANTHROPIC_API_KEY", "")
-    if not api_key:
-        raise HTTPException(status_code=503, detail="server_api_key_not_configured")
-
-    body = await request.json()
-
-    async def _gen():
-        async with httpx.AsyncClient(timeout=120) as client:
-            async with client.stream(
-                "POST",
-                "https://api.anthropic.com/v1/messages",
-                headers={
-                    "x-api-key": api_key,
-                    "anthropic-version": "2023-06-01",
-                    "content-type": "application/json",
-                },
-                json={
-                    "model":      body.get("model", "claude-sonnet-4-6"),
-                    "max_tokens": body.get("max_tokens", 4096),
-                    "stream":     True,
-                    "system":     body.get("system", ""),
-                    "messages":   body.get("messages", []),
-                },
-            ) as resp:
-                async for chunk in resp.aiter_bytes():
-                    yield chunk
-
-    from starlette.responses import StreamingResponse as _SR
-    return _SR(_gen(), media_type="text/event-stream")
-
-
 # ── Phase 124 — adaad-core package info endpoint ──────────────────────────
 @app.get("/api/core/info")
 def core_info():
@@ -4470,7 +4119,205 @@ def core_info():
     }
 
 
+# ── INNOV-42 · DORK Fleet Server Bridge (DFSB) · Phase 133 ──────────────────
+# Constitutional invariants: DFSB-PERSIST-0, DFSB-HEAL-0, DFSB-FITNESS-0,
+#                            DFSB-GATE-0
+#
+# DFSB-GATE-0 (Hard): Fleet endpoints are only available when the governance
+# gate is OPEN. A locked gate returns 503 with a structured gate_locked error.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _get_or_create_fleet_watchdog(fleet):
+    watchdog = getattr(app.state, "_dork_fleet_watchdog", None)
+    if watchdog is None:
+        from runtime.dork_watchdog import DorkFleetWatchdog
+
+        watchdog = DorkFleetWatchdog(fleet)
+        app.state._dork_fleet_watchdog = watchdog
+    return watchdog
+
+
+def _start_fleet_watchdog_once() -> bool:
+    watchdog_started = getattr(app.state, "_dork_fleet_watchdog_started", False)
+    if watchdog_started:
+        return False
+
+    watchdog = getattr(app.state, "_dork_fleet_watchdog", None)
+    if watchdog is None:
+        fleet = getattr(app.state, "_dork_fleet", None)
+        if fleet is None:
+            return False
+        watchdog = _get_or_create_fleet_watchdog(fleet)
+
+    watchdog.start()
+    app.state._dork_fleet_watchdog_started = True
+    return True
+
+
+def _get_fleet():
+    """
+    Lazy-load and cache DORKLivingFleet on app.state.
+    DFSB-PERSIST-0: fleet singleton survives the server lifetime; ledger is
+    serialised to disk on every append so chain continuity survives restart.
+    """
+    fleet = getattr(app.state, "_dork_fleet", None)
+    if fleet is None:
+        try:
+            from runtime.innovations30.dork_living_fleet import DORKLivingFleet
+
+            fleet = DORKLivingFleet()
+            app.state._dork_fleet = fleet
+            logging.getLogger("adaad.fleet").info(
+                "DORKLivingFleet initialised — INNOV-42 DFSB active"
+            )
+        except Exception as exc:
+            logging.getLogger("adaad.fleet").error(f"Fleet init failed: {exc}")
+            return None
+
+    _get_or_create_fleet_watchdog(fleet)
+    return fleet
+
+
+def _assert_gate_open_for_fleet():
+    """DFSB-GATE-0: raise 503 if governance gate is locked."""
+    gate = _read_gate_state()
+    if gate.get("locked"):
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "error": "gate_locked",
+                "invariant": "DFSB-GATE-0",
+                "message": "Fleet endpoints are unavailable while the governance gate is LOCKED.",
+                "gate": gate,
+            },
+        )
+
+
+@app.get("/api/fleet/status")
+def fleet_status():
+    """
+    INNOV-42 · DFSB: Live fleet health snapshot.
+    Returns provider availability, ledger counts, and blocked state.
+    DFSB-GATE-0 enforced.
+    """
+    _assert_gate_open_for_fleet()
+    fleet = _get_fleet()
+    if fleet is None:
+        raise HTTPException(status_code=503, detail="fleet_unavailable")
+    return fleet.fleet_status()
+
+
+class FleetQueryRequest(BaseModel):
+    text: str
+    session_id: str | None = None
+
+
+@app.post("/api/fleet/query")
+def fleet_query(req: FleetQueryRequest):
+    """
+    INNOV-42 · DFSB: Route a natural-language query through the DORK Living Fleet.
+    Returns FleetDispatchResult with intent, engine_used, response, and ledger seq.
+    DFSB-GATE-0 enforced.
+    """
+    _assert_gate_open_for_fleet()
+    fleet = _get_fleet()
+    if fleet is None:
+        raise HTTPException(status_code=503, detail="fleet_unavailable")
+    try:
+        result = fleet.query(req.text)
+    except RuntimeError as exc:
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "error": "fleet_invariant_violation",
+                "invariant": "DFSB-PERSIST-0",
+                "message": str(exc),
+            },
+        ) from exc
+    return result.to_dict()
+
+
+class FleetSlashRequest(BaseModel):
+    command: str
+
+
+@app.post("/api/fleet/slash")
+def fleet_slash(req: FleetSlashRequest):
+    """
+    INNOV-42 · DFSB: Dispatch a validated DORK slash command through the fleet.
+    DORK-CMD-0 enforced — unknown commands return structured error, never forwarded.
+    DFSB-GATE-0 enforced.
+    """
+    _assert_gate_open_for_fleet()
+    fleet = _get_fleet()
+    if fleet is None:
+        raise HTTPException(status_code=503, detail="fleet_unavailable")
+    return fleet.dispatch_slash(req.command)
+
+
+@app.get("/api/fleet/ledger")
+def fleet_ledger(tail: int = Query(default=20, ge=1, le=200)):
+    """
+    INNOV-42 · DFSB: Return the tail of the conversation ledger.
+    DFSB-PERSIST-0: entries reflect the full hash-chained session history.
+    """
+    _assert_gate_open_for_fleet()
+    fleet = _get_fleet()
+    if fleet is None:
+        raise HTTPException(status_code=503, detail="fleet_unavailable")
+    valid, reason = fleet.verify_conversation_ledger()
+    return {
+        "entries": fleet.conversation_ledger_tail(tail),
+        "chain_valid": valid,
+        "chain_reason": reason,
+        "dispatch_ledger_tail": fleet.dispatch_ledger_tail(10),
+    }
+
+
+@app.get("/api/fleet/verify")
+def fleet_verify():
+    """
+    INNOV-42 · DFSB: Verify both dispatch and conversation ledger chain integrity.
+    Returns cryptographic proof of chain continuity from genesis.
+    """
+    _assert_gate_open_for_fleet()
+    fleet = _get_fleet()
+    if fleet is None:
+        raise HTTPException(status_code=503, detail="fleet_unavailable")
+    conv_valid, conv_reason = fleet.verify_conversation_ledger()
+    disp_valid, disp_reason = fleet.verify_dispatch_ledger()
+    return {
+        "conversation_ledger": {"valid": conv_valid, "reason": conv_reason},
+        "dispatch_ledger": {"valid": disp_valid, "reason": disp_reason},
+        "overall_valid": conv_valid and disp_valid,
+        "invariant": "DFSB-PERSIST-0",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+
+
+@app.post("/api/fleet/heal")
+def fleet_heal():
+    """
+    INNOV-42 · DFSB: Trigger immediate re-probe of all engines.
+    DFSB-HEAL-0: fleet transitions BLOCKED→ACTIVE on recovery without restart.
+    """
+    _assert_gate_open_for_fleet()
+    fleet = _get_fleet()
+    if fleet is None:
+        raise HTTPException(status_code=503, detail="fleet_unavailable")
+    fleet._probe_all()
+    status = fleet.fleet_status()
+    return {
+        "healed": True,
+        "invariant": "DFSB-HEAL-0",
+        "fleet_status": status,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+
+
 app.mount("/", SPAStaticFiles(directory=str(APONI_DIR), html=True, index_path=INDEX), name="aponi")
+
+
 
 
 # ── Direct run: python server.py ──────────────────────────────────────────

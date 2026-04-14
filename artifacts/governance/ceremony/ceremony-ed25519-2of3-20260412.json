@@ -1,0 +1,22 @@
+{
+    "attestation_id": "ceremony-ed25519-2of3-20260412",
+    "attestation_type": "ed25519_governance_threshold_ceremony",
+    "finding_closed": "FINDING-66-004",
+    "governor": "Dustin L. Reid",
+    "governor_role": "HUMAN-0",
+    "gpg_key_fingerprint": "4C95E2F99A775335B1CF3DAF247B015A1CCD95F6",
+    "ceremony_date": "2026-04-12T07:39:35.325859+00:00",
+    "ceremony_machine": "ADAADell",
+    "threshold_policy": {
+        "algorithm": "ed25519",
+        "required_signers": 2,
+        "total_signers": 3,
+        "roles": [
+            "primary",
+            "secondary",
+            "recovery"
+        ]
+    },
+    "registry_sha256": "8aa639878aa5aa4b6ffe8ca93ab6913ba2444d53c77f0da1397a95bb34294cf5",
+    "status": "ceremony_complete"
+}

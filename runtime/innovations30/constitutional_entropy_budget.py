@@ -26,6 +26,19 @@ from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+COENBU_INV_CHAIN: str = "COENBU-INV-CHAIN"
+COENBU_LEDGER_DEFAULT: str = "data/constitutional_entropy_budget_events.jsonl"
+
+
+class ConstitutionalEntropyBudgetViolation(RuntimeError):
+    """Raised when a Constitutional Entropy Budget constitutional invariant is breached."""
+
+
+
 # ── Constitutional thresholds [CEB-0] ────────────────────────────────────────
 DRIFT_WARNING_THRESHOLD: float = 0.20   # 20 % drift → warning
 DRIFT_CRITICAL_THRESHOLD: float = 0.30  # 30 % drift → double-HUMAN-0 required
@@ -268,6 +281,38 @@ class ConstitutionalEntropyBudget:
                 indent=2,
             )
         )
+
+
+# ── Chain-linkage scaffold (hardening pass — prev_digest + _append_event) ─────
+import hashlib as _hashlib
+import json as _json
+
+
+_MODULE_PREV_DIGEST: str = "genesis"   # prev_digest chain head for this module
+
+
+def _append_event(event: dict, ledger_path: str = "") -> None:
+    """Module-level append-only JSONL event stub [CED-INV-AUDIT, CED-INV-CHAIN].
+
+    Writes a chain-linked record to ledger_path (or discards if empty).
+    Full integration deferred to per-module deep-dive phase.
+    """
+    global _MODULE_PREV_DIGEST
+    if not ledger_path:
+        return
+    import dataclasses as _dc
+    from pathlib import Path as _Path
+    row = event if isinstance(event, dict) else (
+        _dc.asdict(event) if hasattr(event, '__dataclass_fields__') else {}
+    )
+    row["prev_digest"] = _MODULE_PREV_DIGEST
+    digest_payload = _json.dumps(row, sort_keys=True).encode()
+    row["event_digest"] = "sha256:" + _hashlib.sha256(digest_payload).hexdigest()
+    p = _Path(ledger_path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    with p.open("a") as f:
+        f.write(_json.dumps(row, sort_keys=True) + "\n")
+    _MODULE_PREV_DIGEST = row["event_digest"]
 
 
 __all__ = [

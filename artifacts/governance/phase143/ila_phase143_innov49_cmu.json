@@ -1,0 +1,76 @@
+{
+  "schema": "ILA-v1",
+  "phase": 143,
+  "innovation_code": "INNOV-49",
+  "innovation_name": "Constitutional Model Upgrade (CMU)",
+  "version": "9.76.0",
+  "timestamp": "2026-04-13T03:24:07.839834+00:00",
+  "authored_by": "DEVADAAD",
+  "ratification_pending": "HUMAN-0",
+  "world_first_claim": "First governed local LLM with a constitutionally validated model upgrade pipeline \u2014 model changes are constitutional mutations, governed by the same invariant gate as code changes. The Modelfile is a constitutional document; its parameters are enforced by the runtime.",
+  "world_first_index": 12,
+  "constitutional_invariants": {
+    "new_hard_class": [
+      {
+        "code": "CMU-CTX-0",
+        "class": "Hard",
+        "description": "num_ctx must be >= 16384; smaller context is a constitutional model regression",
+        "enforcement": "dorkllm/model_validator.py::assert_ctx"
+      },
+      {
+        "code": "CMU-TEMP-0",
+        "class": "Hard",
+        "description": "temperature must be <= 0.10 for governance persona; higher temperature is constitutionally prohibited",
+        "enforcement": "dorkllm/model_validator.py::assert_temperature"
+      },
+      {
+        "code": "CMU-BENCH-0",
+        "class": "Hard",
+        "description": "30-question governance benchmark must be defined and callable; pass threshold 85%",
+        "enforcement": "dorkllm/model_validator.py::run_benchmark"
+      },
+      {
+        "code": "CMU-DETERM-0",
+        "class": "Hard",
+        "description": "model build events hash-chained into cmu_ledger.jsonl; silent failures raise CMULedgerWriteError",
+        "enforcement": "dorkllm/model_validator.py::append_cmu_ledger"
+      },
+      {
+        "code": "CMU-HUMAN0-0",
+        "class": "Hard",
+        "description": "model upgrades are constitutional mutations requiring HUMAN-0 ratification",
+        "enforcement": "scripts/build_dork_model.sh (advisory) + cmu_ledger.jsonl ratified_by_human0 field"
+      }
+    ],
+    "hard_class_total_after": 236,
+    "hard_class_total_before": 231
+  },
+  "artifacts_shipped": [
+    "dorkllm/Modelfile",
+    "dorkllm/model_validator.py",
+    "scripts/build_dork_model.sh",
+    "tests/test_phase143_innov49_cmu.py"
+  ],
+  "test_results": {
+    "total": 30,
+    "passed": 30,
+    "failed": 0,
+    "pass_rate": 1.0,
+    "marker": "phase143"
+  },
+  "model_upgrade": {
+    "from_model": "llama3.2",
+    "to_model": "phi4:14b-q4_K_M",
+    "ctx_from": 8192,
+    "ctx_to": 32768,
+    "temp_from": 0.1,
+    "temp_to": 0.07
+  },
+  "replay_digest": "8945d1974a489a1c695524e1bb89aa92b361548d56926f72de507677eb9de625",
+  "tier_summary": {
+    "tier": 1,
+    "track_a_complete": true,
+    "track_b_gpg_pending": true,
+    "track_b_actor": "HUMAN-0 / Dustin L. Reid"
+  }
+}

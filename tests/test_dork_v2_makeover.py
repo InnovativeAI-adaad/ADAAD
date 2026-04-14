@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 tests/test_dork_v2_makeover.py
 DORK v2 Makeover Acceptance Tests — 30 assertions
@@ -141,6 +142,24 @@ def test_runtime_kb_enricher():
     src = RUNTIME.read_text(encoding="utf-8")
     assert "function enrichWithKB(" in src
 
+def test_runtime_patches_instance_send_message_not_only_global():
+    src = RUNTIME.read_text(encoding="utf-8")
+    assert "function patchRuntimeInstance(runtime)" in src
+    assert "runtime.sendMessage = async function sendMessageV2" in src
+    assert "global.initDorkRuntime = function patchedInitDorkRuntime" in src
+
+def test_runtime_enrichment_metadata_return_contract():
+    src = RUNTIME.read_text(encoding="utf-8")
+    assert "fanOutCount: fanOut.length" in src
+    assert "kbHit: kbHit || null" in src
+    assert "intent" in src
+
+def test_runtime_has_internal_event_bridge_without_event_target_dependency():
+    src = RUNTIME.read_text(encoding="utf-8")
+    assert "const eventBridge = (typeof global.EventTarget === \"function\") ? new global.EventTarget() : null;" in src
+    assert "eventBridge.dispatchEvent(new global.CustomEvent(type, { detail: evt }))" in src
+    assert "_eventTarget" not in src
+
 
 # ── Whaledic UI Wiring ────────────────────────────────────────────────────
 
@@ -196,3 +215,8 @@ def test_whaledic_claude_key_in_save_cfg():
 def test_whaledic_dork_v2_label():
     html = WHALEDIC.read_text(encoding="utf-8")
     assert "dork-title" in html and "v2" in html
+
+def test_whaledic_runtime_send_message_bridge_exists():
+    html = WHALEDIC.read_text(encoding="utf-8")
+    assert "async function sendThroughDorkRuntime(msg, options)" in html
+    assert "return dorkRuntime.sendMessage(msg, options||{});" in html

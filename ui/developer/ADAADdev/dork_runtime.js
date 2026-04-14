@@ -22,6 +22,7 @@
     let totalTokens = 0;
     let inFlight = false;
     const listeners = new Set();
+    const eventBridge = (typeof global.EventTarget === "function") ? new global.EventTarget() : null;
     let channel = null;
 
     try {
@@ -53,9 +54,18 @@
       listeners.forEach((listener) => {
         try { listener(evt); } catch (_) {}
       });
+      if (eventBridge && typeof global.CustomEvent === "function") {
+        try {
+          eventBridge.dispatchEvent(new global.CustomEvent(type, { detail: evt }));
+        } catch (_) {}
+      }
       if (typeof cfg.onEvent === "function") {
         try { cfg.onEvent(evt); } catch (_) {}
       }
+    }
+
+    function emitEvent(type, payload){
+      emit(type, payload);
     }
 
     function loadConversation(){
@@ -329,6 +339,8 @@
     return {
       sendMessage,
       subscribeEvents,
+      emitEvent,
+      getEventBridge: () => eventBridge,
       hydrateContext: applyStatePatch,
       getConversation,
       getConfig,
@@ -517,31 +529,105 @@
       if (stored) global._dork_claude_key = stored;
     } catch (_) {}
 
-    // Wrap the global sendMessage to inject intent, KB enrichment, and fan-out
-    const origSend = global.sendMessage;
-    if (origSend && !origSend._v2) {
-      global.sendMessage = async function sendMessageV2(text, options) {
+    function patchRuntimeInstance(runtime) {
+      if (!runtime || typeof runtime.sendMessage !== "function" || runtime.sendMessage._v2runtime) return runtime;
+      const origRuntimeSend = runtime.sendMessage.bind(runtime);
+      runtime.sendMessage = async function sendMessageV2(text, options) {
+        const skillStart = Date.now();
+        const skillApi = global.DORK_SKILLS;
+        if (skillApi && typeof skillApi.routeSkill === "function") {
+          let skillResult = null;
+          try {
+            skillResult = skillApi.routeSkill(text, global.ADAAD_STATE_BUS || {});
+            const skillLatencyMs = Date.now() - skillStart;
+            if (typeof runtime.emitEvent === "function") {
+              runtime.emitEvent("dork_skill_usage", {
+                intent: skillResult.intent,
+                command: skillResult.command,
+                confidence: skillResult.confidence,
+                needs_clarification: Boolean(skillResult.needs_clarification),
+                latency_ms: skillLatencyMs,
+              });
+            }
+            if (typeof runtime.hydrateContext === "function") {
+              runtime.hydrateContext(
+                {
+                  dork_skill_last: {
+                    command: skillResult.command,
+                    intent: skillResult.intent,
+                    confidence: skillResult.confidence,
+                    failure_reason: skillResult.failure_reason || "",
+                    latency_ms: skillLatencyMs,
+                    ts: new Date().toISOString(),
+                  },
+                },
+                { source: "dork_skill_router", broadcast: true, persist: true },
+              );
+            }
+            if (skillResult.needs_clarification) {
+              return {
+                response: skillResult.clarifying_question,
+                provider: "dorkskill",
+                intent: skillResult.intent,
+                skill: skillResult,
+              };
+            }
+            if (skillResult.markdown) {
+              return {
+                response: skillResult.markdown,
+                provider: "dorkskill",
+                intent: skillResult.intent,
+                skill: skillResult,
+              };
+            }
+          } catch (err) {
+            const skillLatencyMs = Date.now() - skillStart;
+            if (typeof runtime.emitEvent === "function") {
+              runtime.emitEvent("dork_skill_failure", {
+                reason: err && err.message ? err.message : String(err),
+                latency_ms: skillLatencyMs,
+                text: String(text || "").slice(0, 120),
+              });
+            }
+          }
+        }
+
         const intent = classifyIntent(text);
         const kbHit = enrichWithKB(text);
         const fanOut = fanOutCapabilities(text, global.ADAAD_STATE_BUS || {});
         const opts = options || {};
-        // Surface KB hit and fan-out via event before LLM call
-        if (kbHit || fanOut.length) {
-          try {
-            const evtTarget = global.ADAADDorkRuntime._eventTarget;
-            if (evtTarget && typeof evtTarget.dispatchEvent === 'function') {
-              evtTarget.dispatchEvent(new CustomEvent('dork_enrichment', { detail: { intent, kbHit, fanOut } }));
-            }
-          } catch (_) {}
-          if (opts.onEnrichment && typeof opts.onEnrichment === 'function') {
-            opts.onEnrichment({ intent, kbHit, fanOut });
-          }
+        const enrichment = { intent, kbHit: kbHit || null, fanOut };
+        if (typeof runtime.emitEvent === "function") {
+          runtime.emitEvent("dork_enrichment", enrichment);
         }
-        const result = await origSend(text, options);
+        if (opts.onEnrichment && typeof opts.onEnrichment === "function") {
+          opts.onEnrichment(enrichment);
+        }
+        const result = await origRuntimeSend(text, options);
         return { ...result, intent, kbHit: kbHit || null, fanOutCount: fanOut.length };
       };
-      global.sendMessage._v2 = true;
+      runtime.sendMessage._v2runtime = true;
+      return runtime;
     }
+
+    // Patch init so runtime.sendMessage is enriched for both direct and proxy calls.
+    global.initDorkRuntime = function patchedInitDorkRuntime(config) {
+      const runtime = origInit(config);
+      return patchRuntimeInstance(runtime);
+    };
+
+    // Ensure global proxy usage still resolves to patched runtime.sendMessage.
+    const origGlobalSend = global.sendMessage;
+    if (origGlobalSend && !origGlobalSend._v2proxy) {
+      global.sendMessage = function sendMessageProxyV2(text, options) {
+        const runtime = global.initDorkRuntime();
+        return runtime.sendMessage(text, options);
+      };
+      global.sendMessage._v2proxy = true;
+    }
+
+    // Patch any already-initialized runtime singleton.
+    try { patchRuntimeInstance(global.initDorkRuntime()); } catch (_) {}
 
     origInit._v2patched = true;
   }

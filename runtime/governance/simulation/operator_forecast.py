@@ -4,15 +4,20 @@ from __future__ import annotations
 
 import json
 import threading
+from hashlib import sha256
 from pathlib import Path
 from typing import Any
 
-from app.simulation_utils import stable_hash
 from runtime import ROOT_DIR
 from runtime import metrics
 
 _OPERATOR_SIM_AUDIT_PATH = ROOT_DIR / "reports" / "operator_simulation_audit.jsonl"
 _AUDIT_LOCK = threading.Lock()
+
+
+def _stable_hash(payload: Any) -> str:
+    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False, default=str)
+    return sha256(canonical.encode("utf-8")).hexdigest()
 
 
 def _clip(value: float, *, minimum: float = 0.0, maximum: float = 1.0) -> float:
@@ -153,11 +158,11 @@ def run_operator_simulation(*, state: dict[str, Any], actions: list[dict[str, An
 
     record = {
         "event_type": "operator_simulation.v1",
-        "simulation_id": stable_hash({"state": state, "actions": actions, "scenario_name": response["scenario_name"]}),
+        "simulation_id": _stable_hash({"state": state, "actions": actions, "scenario_name": response["scenario_name"]}),
         "input": {
             "scenario_name": response["scenario_name"],
             "actions": actions,
-            "state_digest": stable_hash(state),
+            "state_digest": _stable_hash(state),
         },
         "output": {
             "predicted": response["predicted"],

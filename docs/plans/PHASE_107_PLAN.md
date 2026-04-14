@@ -1,11 +1,11 @@
-# Phase 107 Plan — INNOV-23: Regulatory Compliance Layer
+# Phase 107 Plan — INNOV-22: Market-Conditioned Fitness
 
 ## Objective
-Deliver **INNOV-23 (Regulatory Compliance Layer)** as a governed phase increment with deterministic implementation sequencing, constitutional gate coverage, and release evidence alignment.
+Deliver **INNOV-22 (Market-Conditioned Fitness)** as a governed phase increment with deterministic implementation sequencing, constitutional gate coverage, and release evidence alignment.
 
 ## Dependency Chain
 - Immediate predecessor: **Phase 106** (must be merged before any Phase 107 source writes).
-- Innovation lineage: `INNOV-22` → `INNOV-23` within `ADAAD_30_INNOVATIONS.md` phase roadmap (INNOV-10..30 mapped to Phases 94..114).
+- Innovation lineage: `INNOV-21` → `INNOV-22` per `docs/governance/PHASE_INNOVATION_MAPPING_CANONICAL.md` (Phase 106 → 107).
 - Release dependency: target version **v9.40.0** follows predecessor semantic progression.
 - Deterministic next-PR linkage: `state_alignment.expected_next_pr` resolves to `Phase 107` only when Phase 106 status is `shipped`.
 
@@ -33,7 +33,7 @@ Deliver **INNOV-23 (Regulatory Compliance Layer)** as a governed phase increment
 - `artifacts/governance/phase107/track_a_sign_off.json`
 - `artifacts/governance/phase107/replay_digest.txt`
 - `artifacts/governance/phase107/tier_summary.json`
-- `docs/comms/claims_evidence_matrix.md` row updated to `Complete` for Phase 107 / INNOV-23.
+- `docs/comms/claims_evidence_matrix.md` row updated to `Complete` for Phase 107 / INNOV-22.
 
 ## HUMAN-0 Checkpoints
 1. **Plan ratification checkpoint:** governor approves this plan before PR open.

@@ -11,6 +11,19 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import hashlib
+import hmac
+
+# Hardening scaffold — injected by fix/senior-deep-dive-hardening
+EPDE_INV_CHAIN: str = "EPDE-INV-CHAIN"
+EPDE_LEDGER_DEFAULT: str = "data/epistemic_decay_events.jsonl"
+
+
+class EpistemicDecayViolation(RuntimeError):
+    """Raised when a Epistemic Decay constitutional invariant is breached."""
+
+
+
 DECAY_HALFLIFE: float = 30.0     # divergence units until confidence halves
 RECALIBRATION_THRESHOLD: float = 0.30  # below this → flag for recalibration
 
@@ -122,6 +135,38 @@ class EpistemicDecayEngine:
         self.state_path.parent.mkdir(parents=True, exist_ok=True)
         self.state_path.write_text(json.dumps(
             {k: dataclasses.asdict(v) for k, v in self._states.items()}, indent=2))
+
+
+# ── Chain-linkage scaffold (hardening pass — prev_digest + _append_event) ─────
+import hashlib as _hashlib
+import json as _json
+
+
+_MODULE_PREV_DIGEST: str = "genesis"   # prev_digest chain head for this module
+
+
+def _append_event(event: dict, ledger_path: str = "") -> None:
+    """Module-level append-only JSONL event stub [CED-INV-AUDIT, CED-INV-CHAIN].
+
+    Writes a chain-linked record to ledger_path (or discards if empty).
+    Full integration deferred to per-module deep-dive phase.
+    """
+    global _MODULE_PREV_DIGEST
+    if not ledger_path:
+        return
+    import dataclasses as _dc
+    from pathlib import Path as _Path
+    row = event if isinstance(event, dict) else (
+        _dc.asdict(event) if hasattr(event, '__dataclass_fields__') else {}
+    )
+    row["prev_digest"] = _MODULE_PREV_DIGEST
+    digest_payload = _json.dumps(row, sort_keys=True).encode()
+    row["event_digest"] = "sha256:" + _hashlib.sha256(digest_payload).hexdigest()
+    p = _Path(ledger_path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    with p.open("a") as f:
+        f.write(_json.dumps(row, sort_keys=True) + "\n")
+    _MODULE_PREV_DIGEST = row["event_digest"]
 
 
 __all__ = ["EpistemicDecayEngine", "WeightCalibrationState",

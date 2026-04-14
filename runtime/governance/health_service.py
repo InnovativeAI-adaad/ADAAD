@@ -206,7 +206,7 @@ def _append_degradation_reason(
 def _build_routing_analytics_engine() -> tuple[Any | None, str | None]:
     """Best-effort routing analytics engine from configured telemetry sink."""
     try:
-        from app.api.telemetry import get_telemetry_sink
+        from runtime.api.runtime_services import get_telemetry_sink
         from runtime.intelligence.file_telemetry_sink import (
             FileTelemetrySink,
             TelemetryLedgerReader,

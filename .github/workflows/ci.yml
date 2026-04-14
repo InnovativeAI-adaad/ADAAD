@@ -235,6 +235,8 @@ jobs:
         run: python scripts/validate_context_memory.py
       - name: Validate Dork evidence schema contract
         run: python scripts/validate_dork_evidence_schema.py
+      - name: Enforce unique method/path route registrations
+        run: PYTHONPATH=. python scripts/validate_route_inventory.py --fail-on-duplicates
       - name: Block plaintext secrets in repository content
         run: python scripts/scan_secrets.py --path .
 
@@ -371,6 +373,10 @@ jobs:
       - name: Enforce SPDX license headers
         # No pip install required — check_spdx_headers.py uses stdlib only.
         run: python scripts/check_spdx_headers.py
+      - name: Enforce invariant count consistency (audit C-2)
+        # Verifies all doc surfaces reference the canonical count from
+        # artifacts/governance/invariant_registry.json — stdlib only.
+        run: python scripts/check_invariant_count.py
 
   confidence-fast:
     runs-on: ubuntu-latest

@@ -1,0 +1,13 @@
+{
+  "artifact_type": "HUMAN0_SIGNOFF",
+  "artifact_id": "SIGNOFF-136-2026-04-11-001",
+  "phase": 136,
+  "version": "9.69.0",
+  "references_ila": "ILA-136-2026-04-11-001",
+  "ila_digest": "7d8b646732b038ce51345e76843505a9ee759382eaff9f00fcdc177f8dbe00db",
+  "timestamp_utc": "2026-04-11T00:00:00.000000+00:00",
+  "signatory": "DUSTIN L REID",
+  "role": "HUMAN-0",
+  "ratification_phrase": "all Human signoffs needed are hereby approved sign DUSTIN L REID",
+  "status": "RATIFIED"
+}

@@ -137,7 +137,7 @@ A module that does not meet all 6 of these criteria is a **scaffold**, not a con
 | SHA-256 | All ledger hashes, evidence digests, Merkle nodes | `CEL-EVIDENCE-0` |
 | HMAC-SHA256 | Security comparisons (constant-time) | AUTH-CT-0 |
 | GPG (Ed25519/RSA) | Release tags, Tier 0 governance events | `HUMAN-0` |
-| Ed25519 2-of-3 | Planned: distributed governor key ceremony | FINDING-66-004 |
+| Ed25519 2-of-3 | ✅ Executed 2026-04-12 on ADAADell | FINDING-66-004 resolved |
 
 All cryptographic comparisons use `hmac.compare_digest` — short-circuit comparisons are prohibited and constitute a P0 finding.
 

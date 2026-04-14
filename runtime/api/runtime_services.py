@@ -163,6 +163,7 @@ __all__ = [
     "evaluate_mutation",
     "evaluate_boot_invariants",
     "generate_tool_manifest",
+    "get_telemetry_sink",
     "get_forced_tier",
     "metrics",
     "normalize_replay_mode",
@@ -188,3 +189,10 @@ def governance_health_service(*, epoch_id: str) -> dict[str, Any]:
     from runtime.governance.health_service import governance_health_service as _canonical_governance_health_service
 
     return _canonical_governance_health_service(epoch_id=epoch_id)
+
+
+def get_telemetry_sink():
+    """Facade accessor for app telemetry sink required by runtime analytics."""
+    from app.api.telemetry import get_telemetry_sink as _get_telemetry_sink
+
+    return _get_telemetry_sink()

@@ -24,6 +24,10 @@ from runtime.governance.federation.evolution_federation_bridge import (
     BridgeResult,
     _ZERO_HASH,
 )
+from runtime.governance.federation.federated_evidence_matrix import (
+    EpochAlreadyRegisteredSameDigest,
+    LocalEpochDigestConflictError,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -171,7 +175,7 @@ class TestOnMutationCycleEnd:
         assert call_kwargs["source_mutation_id"] == "mut-002"
         assert call_kwargs["mutation_payload"] == {"k": "v"}
         assert call_kwargs["gate_decision_payload"] == {"approved": True, "score": 0.9}
-        assert call_kwargs["destination_repo_id"] == "repo-b"
+        assert call_kwargs["destination_repo"] == "repo-b"
 
     def test_default_destination_is_broadcast(self):
         proposal = _make_proposal()
@@ -187,7 +191,7 @@ class TestOnMutationCycleEnd:
         )
 
         call_kwargs = broker.propose_federated_mutation.call_args.kwargs
-        assert call_kwargs["destination_repo_id"] == "broadcast"
+        assert call_kwargs["destination_repo"] == "broadcast"
 
     def test_audit_event_emitted_on_success(self):
         proposal = _make_proposal(proposal_id="prop-audit")
@@ -343,6 +347,50 @@ class TestOnInboundEvaluation:
 
         assert any(e["event_type"] == "federation_bridge_inbound_error" for e in audit_events)
 
+    def test_negative_delta_clamped_to_zero_and_warned_for_accepted(self, caplog):
+        broker = _make_broker()
+        acall = [0]
+
+        def aside():
+            acall[0] += 1
+            return [_make_accepted("prop-1"), _make_accepted("prop-2")] if acall[0] == 1 else []
+
+        broker.accepted_proposals.side_effect = aside
+        broker.quarantined_proposals.return_value = []
+        bridge = _make_bridge(broker=broker)
+
+        with caplog.at_level("WARNING"):
+            result = bridge.on_inbound_evaluation(epoch_id="epoch-1")
+
+        assert result.ok is True
+        assert result.inbound_accepted == 0
+        assert result.inbound_quarantined == 0
+        assert result.inbound_evaluated == 0
+        assert "negative delta" in caplog.text
+        assert "Possible broker list reset/compaction." in caplog.text
+
+    def test_negative_delta_clamped_to_zero_and_warned_for_quarantined(self, caplog):
+        broker = _make_broker()
+        qcall = [0]
+
+        def qside():
+            qcall[0] += 1
+            return [_make_quarantined("prop-1"), _make_quarantined("prop-2")] if qcall[0] == 1 else []
+
+        broker.accepted_proposals.return_value = []
+        broker.quarantined_proposals.side_effect = qside
+        bridge = _make_bridge(broker=broker)
+
+        with caplog.at_level("WARNING"):
+            result = bridge.on_inbound_evaluation(epoch_id="epoch-1")
+
+        assert result.ok is True
+        assert result.inbound_accepted == 0
+        assert result.inbound_quarantined == 0
+        assert result.inbound_evaluated == 0
+        assert "negative delta" in caplog.text
+        assert "Possible broker list reset/compaction." in caplog.text
+
 
 # ---------------------------------------------------------------------------
 # on_epoch_rotation
@@ -378,7 +426,7 @@ class TestOnEpochRotation:
 
     def test_digest_conflict_returns_not_ok(self):
         matrix = _make_matrix()
-        matrix.record_local_epoch.side_effect = RuntimeError(
+        matrix.record_local_epoch.side_effect = LocalEpochDigestConflictError(
             "federated_evidence:local_epoch_digest_conflict"
         )
         bridge = _make_bridge(matrix=matrix)
@@ -390,7 +438,7 @@ class TestOnEpochRotation:
 
     def test_conflict_emits_audit_event(self):
         matrix = _make_matrix()
-        matrix.record_local_epoch.side_effect = RuntimeError("digest_conflict")
+        matrix.record_local_epoch.side_effect = LocalEpochDigestConflictError("digest_conflict")
         audit_events: List = []
         bridge = _make_bridge(matrix=matrix, audit_events=audit_events)
 
@@ -403,17 +451,28 @@ class TestOnEpochRotation:
 
     def test_idempotent_reregistration_returns_ok(self):
         matrix = _make_matrix()
-        # First call succeeds; second call raises generic (non-conflict) exception
-        matrix.record_local_epoch.side_effect = [None, Exception("already registered")]
+        matrix.record_local_epoch.side_effect = [
+            None,
+            EpochAlreadyRegisteredSameDigest("already registered same digest"),
+        ]
         bridge = _make_bridge(matrix=matrix)
 
         bridge.on_epoch_rotation(epoch_id="epoch-10")
         result = bridge.on_epoch_rotation(epoch_id="epoch-10")
 
-        # Non-conflict exception treated as idempotent
         assert result.ok is True
         assert result.evidence_registered is False
         assert result.detail.get("idempotent") is True
+
+    def test_unexpected_error_returns_not_ok(self):
+        matrix = _make_matrix()
+        matrix.record_local_epoch.side_effect = RuntimeError("boom")
+        bridge = _make_bridge(matrix=matrix)
+
+        result = bridge.on_epoch_rotation(epoch_id="epoch-11")
+
+        assert result.ok is False
+        assert result.error == "boom"
 
 
 # ---------------------------------------------------------------------------

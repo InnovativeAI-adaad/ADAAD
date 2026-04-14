@@ -96,7 +96,8 @@ def _imports(tree: ast.AST) -> set[str]:
 
 def _constants(tree: ast.AST) -> list[str]:
     values: list[str] = []
-    for node in ast.walk(tree):
+    stripped_tree = _without_docstrings(tree)
+    for node in ast.walk(stripped_tree):
         if isinstance(node, ast.Constant):
             values.append(repr(node.value))
     return sorted(values)

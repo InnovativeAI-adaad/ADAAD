@@ -1,0 +1,46 @@
+{
+  "phase": 142,
+  "pr_id": "PR-PHASE142-01",
+  "title": "Phase 142 — INNOV-48 Contextual Semantic Search (CSS) · Cosine Retrieval Engine",
+  "version": "9.75.0",
+  "human_0": "Dustin L. Reid",
+  "ratification_date": "2026-04-12",
+  "attestation_ref": "ILA-142-2026-04-12-001",
+  "innovation": "INNOV-48",
+  "innovation_name": "Contextual Semantic Search (CSS)",
+  "new_modules": [
+    "dorkllm/embedder.py",
+    "scripts/embed_corpus.py"
+  ],
+  "updated_modules": [
+    "dorkllm/retriever.py"
+  ],
+  "new_artifacts": [
+    "dorkllm/embedder.py",
+    "scripts/embed_corpus.py",
+    "artifacts/governance/phase142/phase142_sign_off.json",
+    "artifacts/governance/phase142/tier_summary.json",
+    "artifacts/governance/phase142/ILA-142-2026-04-12-001.json"
+  ],
+  "new_invariants": [
+    "CSS-DETERM-0",
+    "CSS-FALLBACK-0",
+    "CSS-DIM-0",
+    "CSS-COSINE-0",
+    "CSS-PYDROID-0"
+  ],
+  "cumulative_invariants": 231,
+  "tests": "T142-CSS-01..30 (30/30 PASS)",
+  "test_module": "tests/test_phase142_css.py",
+  "dependency": "Phase 141 — INNOV-47 Live Knowledge Sync Engine (LKSE) — v9.74.0",
+  "lane": "dork-supremacy",
+  "tier": "intelligence",
+  "world_first": "First constitutionally governed local LLM retrieval engine with pure-Python semantic cosine similarity search, deterministic TF-IDF fallback, and session-locked embedding dimensions — requiring zero native dependencies.",
+  "embedding_architecture": {
+    "primary": "Ollama nomic-embed-text",
+    "fallback": "Pure-Python TF-IDF bag-of-words + hash-space BoW cold-start",
+    "strategies": ["semantic", "hybrid", "keyword"],
+    "hybrid_weights": {"cosine": 0.6, "keyword": 0.4}
+  },
+  "timestamp_utc": "2026-04-12T00:00:00Z"
+}

@@ -411,8 +411,26 @@ class ReplayProofBuilder:
         resolved_algorithm = (algorithm or os.getenv("ADAAD_REPLAY_PROOF_ALGO", "")).strip()
         if not resolved_algorithm:
             env_name = os.getenv("ADAAD_ENV", "dev").strip().lower()
-            if env_name in {"production", "prod", "staging"} and _has_ed25519_private_key(self.key_id):
-                resolved_algorithm = PREFERRED_PROOF_SIGNING_ALGORITHM
+            if env_name in {"production", "prod", "staging"}:
+                if _has_ed25519_private_key(self.key_id):
+                    resolved_algorithm = PREFERRED_PROOF_SIGNING_ALGORITHM
+                else:
+                    # REPLAY-ALGO-0: In production, if Ed25519 key is absent and no
+                    # explicit override is set, FAIL CLOSED rather than silently
+                    # downgrading to HMAC.  The only permitted escape is the explicit
+                    # opt-in env var ADAAD_REPLAY_PROOF_ALLOW_HMAC_FALLBACK=1.
+                    allow_fallback = os.getenv(
+                        "ADAAD_REPLAY_PROOF_ALLOW_HMAC_FALLBACK", ""
+                    ).strip().lower() in {"1", "true", "yes", "on"}
+                    if not allow_fallback:
+                        raise RuntimeError(
+                            "REPLAY-ALGO-0: Ed25519 key absent in production environment. "
+                            "Silent HMAC downgrade is constitutionally prohibited. "
+                            "Execute the Ed25519 key ceremony (FINDING-66-004) or set "
+                            "ADAAD_REPLAY_PROOF_ALLOW_HMAC_FALLBACK=1 to explicitly "
+                            "acknowledge the degraded security posture."
+                        )
+                    resolved_algorithm = DEFAULT_PROOF_SIGNING_ALGORITHM
             else:
                 resolved_algorithm = DEFAULT_PROOF_SIGNING_ALGORITHM
         if resolved_algorithm == "ed25519" and not _has_pynacl():

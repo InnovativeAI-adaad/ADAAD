@@ -24,10 +24,11 @@ from unittest import mock
 
 import fcntl
 
-from adaad.agents.base_agent import stage_offspring
+from adaad.agents.base_agent import promote_offspring, stage_offspring
 from app.beast_mode_loop import BeastModeLoop
 from runtime import capability_graph, metrics
 from runtime.autonomy.mutation_scaffold import MutationCandidate, rank_mutation_candidates
+from runtime.mutation.ast_substrate.ast_snapshot import compute_digest
 from runtime.manifest.generator import generate_tool_manifest
 from security.ledger import journal
 from runtime.evolution import lineage_v2 as _lineage_v2_mod
@@ -230,6 +231,85 @@ class BeastPromotionTest(unittest.TestCase):
         kernel_run.assert_called_once_with(agent_id="agentA")
         self.assertEqual(result["status"], "kernel-routed")
 
+    def test_ast_unchanged_skips_scoring_and_promotion_sequence(self) -> None:
+        agents_root, lineage_dir, _ = self._seed_agent()
+        beast = BeastModeLoop(agents_root, lineage_dir)
+
+        initial_staged = stage_offspring("agentA", "print('same')\n", lineage_dir)
+        self._update_staged_payload(
+            initial_staged,
+            mutation_id="m-ast-seed",
+            expected_gain=0.8,
+            risk_score=0.1,
+            complexity=0.1,
+            coverage_delta=0.3,
+        )
+        with mock.patch("app.beast_mode_loop.fitness.score_mutation", return_value=0.99):
+            seed_result = beast.run_cycle("agentA")
+        self.assertEqual(seed_result["status"], "promoted")
+
+        same_staged = stage_offspring("agentA", "print('same')\n", lineage_dir)
+        self._update_staged_payload(
+            same_staged,
+            mutation_id="m-ast-unchanged",
+            expected_gain=0.8,
+            risk_score=0.1,
+            complexity=0.1,
+            coverage_delta=0.3,
+        )
+
+        with (
+            mock.patch("app.beast_mode_loop.fitness.score_mutation") as score_mutation,
+            mock.patch("app.beast_mode_loop.promote_offspring") as promote_offspring_mock,
+            mock.patch("app.beast_mode_loop.cryovant.evolve_certificate") as evolve_cert,
+        ):
+            result = beast.run_cycle("agentA")
+
+        self.assertEqual(result["status"], "ast_unchanged")
+        self.assertEqual(result["outcome"], "cosmetic_update_only")
+        score_mutation.assert_not_called()
+        promote_offspring_mock.assert_not_called()
+        evolve_cert.assert_not_called()
+
+    def test_ast_changed_runs_existing_sequence(self) -> None:
+        agents_root, lineage_dir, _ = self._seed_agent()
+        beast = BeastModeLoop(agents_root, lineage_dir)
+
+        initial_staged = stage_offspring("agentA", "print('old')\n", lineage_dir)
+        self._update_staged_payload(
+            initial_staged,
+            mutation_id="m-ast-seed-2",
+            expected_gain=0.8,
+            risk_score=0.1,
+            complexity=0.1,
+            coverage_delta=0.3,
+        )
+        with mock.patch("app.beast_mode_loop.fitness.score_mutation", return_value=0.99):
+            seed_result = beast.run_cycle("agentA")
+        self.assertEqual(seed_result["status"], "promoted")
+
+        changed_staged = stage_offspring("agentA", "print('new')\n", lineage_dir)
+        self._update_staged_payload(
+            changed_staged,
+            mutation_id="m-ast-changed",
+            expected_gain=0.8,
+            risk_score=0.1,
+            complexity=0.1,
+            coverage_delta=0.3,
+        )
+
+        with (
+            mock.patch("app.beast_mode_loop.fitness.score_mutation", return_value=0.99) as score_mutation,
+            mock.patch("app.beast_mode_loop.cryovant.evolve_certificate") as evolve_cert,
+            mock.patch("app.beast_mode_loop.promote_offspring", wraps=promote_offspring) as promote_offspring_mock,
+        ):
+            result = beast.run_cycle("agentA")
+
+        self.assertEqual(result["status"], "promoted")
+        score_mutation.assert_called_once()
+        evolve_cert.assert_called_once()
+        promote_offspring_mock.assert_called_once()
+
     def test_tie_breaking_by_mutation_id_is_deterministic(self) -> None:
         candidates = [
             MutationCandidate("mutation-z", expected_gain=0.8, risk_score=0.2, complexity=0.1, coverage_delta=0.1),
@@ -262,6 +342,111 @@ class BeastPromotionTest(unittest.TestCase):
         payload_clone = dict(payload)
         candidate_clone, _ = beast._build_mutation_candidate(payload_clone)
         self.assertEqual(candidate_clone.mutation_id, candidate.mutation_id)
+
+    def test_ast_unchanged_skips_scoring_and_promotion_sequence(self) -> None:
+        agents_root, lineage_dir, _ = self._seed_agent()
+        staged = stage_offspring("agentA", "mutate-me", lineage_dir)
+        unchanged_source = "def run(input=None):\n    return {'ok': True}\n"
+        self._update_staged_payload(
+            staged,
+            content=unchanged_source,
+            expected_gain=0.8,
+            risk_score=0.1,
+            complexity=0.1,
+            coverage_delta=0.3,
+        )
+        beast = BeastModeLoop(agents_root, lineage_dir)
+        digest = compute_digest(unchanged_source, filename="agentA")
+        beast.state_path.parent.mkdir(parents=True, exist_ok=True)
+        beast.state_path.write_text(
+            json.dumps(
+                {
+                    "cycle_window_start": 0.0,
+                    "cycle_count": 0.0,
+                    "mutation_window_start": 0.0,
+                    "mutation_count": 0.0,
+                    "cooldown_until": 0.0,
+                    "ast_snapshots": {
+                        "agentA::unknown": {
+                            "digest": digest,
+                            "version": 2,
+                            "updated_at": 100.0,
+                            "last_outcome": "ast_changed",
+                        }
+                    },
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
+
+        with (
+            mock.patch("app.beast_mode_loop.fitness.score_mutation") as score_mock,
+            mock.patch("app.beast_mode_loop.promote_offspring") as promote_mock,
+            mock.patch("app.beast_mode_loop.cryovant.evolve_certificate") as cert_mock,
+        ):
+            result = beast.run_cycle("agentA")
+
+        self.assertEqual(result["status"], "ast_unchanged")
+        score_mock.assert_not_called()
+        promote_mock.assert_not_called()
+        cert_mock.assert_not_called()
+        persisted = json.loads(beast.state_path.read_text(encoding="utf-8"))
+        snapshot = persisted["ast_snapshots"]["agentA::unknown"]
+        self.assertEqual(snapshot["version"], 2)
+        self.assertEqual(snapshot["last_outcome"], "ast_unchanged")
+        self.assertIn("last_cosmetic_update_at", snapshot)
+
+    def test_ast_changed_runs_existing_scoring_and_promotion_sequence(self) -> None:
+        agents_root, lineage_dir, _ = self._seed_agent()
+        staged = stage_offspring("agentA", "mutate-me", lineage_dir)
+        previous_source = "def run(input=None):\n    return {'ok': True}\n"
+        changed_source = "def run(input=None):\n    return {'ok': False}\n"
+        self._update_staged_payload(
+            staged,
+            content=changed_source,
+            expected_gain=0.8,
+            risk_score=0.1,
+            complexity=0.1,
+            coverage_delta=0.3,
+        )
+        beast = BeastModeLoop(agents_root, lineage_dir)
+        beast.state_path.parent.mkdir(parents=True, exist_ok=True)
+        beast.state_path.write_text(
+            json.dumps(
+                {
+                    "cycle_window_start": 0.0,
+                    "cycle_count": 0.0,
+                    "mutation_window_start": 0.0,
+                    "mutation_count": 0.0,
+                    "cooldown_until": 0.0,
+                    "ast_snapshots": {
+                        "agentA::unknown": {
+                            "digest": compute_digest(previous_source, filename="agentA"),
+                            "version": 3,
+                            "updated_at": 100.0,
+                            "last_outcome": "ast_changed",
+                        }
+                    },
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
+
+        with (
+            mock.patch("app.beast_mode_loop.fitness.score_mutation", return_value=0.2) as score_mock,
+            mock.patch("app.beast_mode_loop.cryovant.evolve_certificate") as cert_mock,
+        ):
+            result = beast.run_cycle("agentA")
+
+        self.assertEqual(result["status"], "promoted")
+        score_mock.assert_called_once()
+        cert_mock.assert_called_once()
+        persisted = json.loads(beast.state_path.read_text(encoding="utf-8"))
+        snapshot = persisted["ast_snapshots"]["agentA::unknown"]
+        self.assertEqual(snapshot["version"], 4)
+        self.assertEqual(snapshot["last_outcome"], "ast_changed")
 
 
     def test_concurrent_run_cycle_updates_cycle_count_without_corrupting_state(self) -> None:

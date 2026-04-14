@@ -17,6 +17,7 @@ Minimal HTTP dashboard served with the standard library.
 
 import argparse
 import concurrent.futures
+import datetime as dt
 import importlib
 import json
 import logging
@@ -59,6 +60,13 @@ from runtime.system_status import (
 ELEMENT_ID = "Metal"
 FEDERATION_PANEL_SECTION_ID = "federation-panel"
 _LAZY_IMPORT_CACHE: Dict[str, Any] = {}
+
+BRIEF_ALERT_CODES = {
+    "gate_locked": "gate_locked",
+    "replay_divergence_spike": "replay_divergence_spike",
+    "evidence_incomplete": "evidence_incomplete",
+    "open_findings": "open_findings",
+}
 
 
 def _lazy_import(module_path: str, attr_name: str) -> Any:
@@ -215,6 +223,129 @@ def _require_governance_policy():
         detail = GOVERNANCE_POLICY_ERROR or "governance policy unavailable"
         raise GovernancePolicyError(f"policy unavailable (fail-closed): {detail}")
     return policy
+
+
+def _to_int(value: Any, default: int = 0) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _to_float(value: Any, default: float = 0.0) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _build_session_brief_payload(
+    *,
+    state: dict[str, Any],
+    intelligence: dict[str, Any],
+    risk: dict[str, Any],
+    replay: dict[str, Any],
+) -> dict[str, Any]:
+    gate_locked = bool(state.get("locked", False) or state.get("gate_locked", False))
+    gate_reason = str(state.get("reason", "") or state.get("gate_reason", "")).strip()
+    replay_divergence_count = _to_int(replay.get("divergence_event_count", 0))
+    replay_failure_rate = _to_float(risk.get("replay_failure_rate", 0.0))
+    readiness_score = _to_float(state.get("readiness_score", risk.get("instability", 0.0)), 0.0)
+    blocker_count = _to_int(state.get("blocker_count", len(state.get("blocked_dependencies", []) or [])), 0)
+    evidence_complete = bool(state.get("evidence_complete", state.get("release_evidence_complete", True)))
+    open_findings = _to_int(state.get("open_findings_count", len(state.get("open_findings", []) or [])), 0)
+    replay_mode = str(intelligence.get("replay_mode", state.get("replay_mode", "audit"))).lower()
+
+    alerts: list[dict[str, Any]] = []
+    if gate_locked:
+        alerts.append(
+            {
+                "code": BRIEF_ALERT_CODES["gate_locked"],
+                "severity": "critical",
+                "title": "Gate locked",
+                "summary": gate_reason or "Cryovant governance gate is locked.",
+                "cta": ["Show blockers", "What to fix first"],
+            }
+        )
+    if replay_divergence_count > 0 or replay_failure_rate >= 0.05:
+        alerts.append(
+            {
+                "code": BRIEF_ALERT_CODES["replay_divergence_spike"],
+                "severity": "warning" if replay_divergence_count <= 3 else "critical",
+                "title": "Replay divergence detected",
+                "summary": f"{replay_divergence_count} divergence events and replay failure rate {replay_failure_rate:.3f}.",
+                "cta": ["Explain replay divergence", "Show blockers"],
+            }
+        )
+    if not evidence_complete:
+        alerts.append(
+            {
+                "code": BRIEF_ALERT_CODES["evidence_incomplete"],
+                "severity": "warning",
+                "title": "Evidence incomplete",
+                "summary": "Release evidence is not complete for current lane.",
+                "cta": ["Show blockers", "What to fix first"],
+            }
+        )
+    if open_findings > 0:
+        alerts.append(
+            {
+                "code": BRIEF_ALERT_CODES["open_findings"],
+                "severity": "warning",
+                "title": "Open findings",
+                "summary": f"{open_findings} findings remain unresolved.",
+                "cta": ["Show blockers", "What to fix first"],
+            }
+        )
+
+    severity_weight = {"critical": 300, "warning": 200, "info": 100}
+    for item in alerts:
+        impact = (
+            (100 if gate_locked else 0)
+            + min(100, replay_divergence_count * 15)
+            + min(100, open_findings * 10)
+            + (50 if not evidence_complete else 0)
+        )
+        item["deterministic_score"] = severity_weight.get(str(item.get("severity", "info")), 100) + impact
+    alerts.sort(key=lambda item: (-int(item["deterministic_score"]), str(item["code"])))
+
+    summary = {
+        "date_utc": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d"),
+        "gate_status": "locked" if gate_locked else "open",
+        "replay_mode": replay_mode,
+        "replay_divergence_count": replay_divergence_count,
+        "replay_failure_rate": round(replay_failure_rate, 6),
+        "readiness_score": round(readiness_score, 6),
+        "blocker_count": blocker_count,
+        "open_findings_count": open_findings,
+        "evidence_complete": evidence_complete,
+        "top_alert_code": alerts[0]["code"] if alerts else "none",
+    }
+    recommendations = [
+        {
+            "id": "fix_gate_first",
+            "severity": "critical" if gate_locked else "warning",
+            "deterministic_score": (500 if gate_locked else 250) + (blocker_count * 10),
+            "label": "What to fix first",
+            "reason": "Unlock gate and clear blockers before mutation/promotion actions.",
+        },
+        {
+            "id": "triage_replay",
+            "severity": "warning",
+            "deterministic_score": 200 + int(replay_divergence_count * 20 + replay_failure_rate * 100),
+            "label": "Explain replay divergence",
+            "reason": "Divergence must be triaged before readiness can recover.",
+        },
+        {
+            "id": "review_findings",
+            "severity": "warning" if open_findings > 0 else "info",
+            "deterministic_score": 120 + (open_findings * 15),
+            "label": "Show blockers",
+            "reason": "Open findings and dependency blockers define next safe action.",
+        },
+    ]
+    recommendations.sort(key=lambda item: (-int(item["deterministic_score"]), str(item["id"])))
+    return {"ok": True, "summary": summary, "alerts": alerts, "recommendations": recommendations}
 CONTROL_AGENT_ID_RE = re.compile(r"^[a-z0-9_\-]{3,64}$")
 CONTROL_COMMAND_ID_RE = re.compile(r"^cmd-[0-9]{6}-[0-9a-f]{12}$")
 CONTROL_GOVERNANCE_PROFILES = {"strict", "high-assurance"}
@@ -1362,6 +1493,10 @@ class AponiDashboard:
                         return
                     self._send_validated_response("/alerts/evaluate", "alerts_evaluate.schema.json", payload)
                     return
+                if path.startswith("/dork/session-brief"):
+                    payload = self._run_background(self._dork_session_brief)
+                    self._send_json(payload)
+                    return
                 if path.startswith("/replay/diff"):
                     epoch_id = query.get("epoch_id", [""])[0].strip()
                     if not epoch_id:
@@ -2319,6 +2454,19 @@ class AponiDashboard:
                     },
                 }
 
+            @classmethod
+            def _dork_session_brief(cls) -> Dict:
+                state_payload = dict(state_ref)
+                gate = _read_gate_state()
+                state_payload["locked"] = bool(gate.get("locked", False))
+                state_payload["reason"] = str(gate.get("reason", ""))
+                return _build_session_brief_payload(
+                    state=state_payload,
+                    intelligence=cls._intelligence_snapshot(),
+                    risk=cls._risk_summary(),
+                    replay=cls._replay_divergence(),
+                )
+
             @staticmethod
             def _state_fingerprint(value) -> str:
                 return state_fingerprint(value, json)
@@ -2616,6 +2764,16 @@ class AponiDashboard:
     .quick-actions {{ display: flex; gap: 0.5rem; flex-wrap: wrap; }}
     .quick-action {{ border: 1px solid #3f5f89; background: #18304d; color: #dbe9ff; border-radius: 8px; padding: 0.42rem 0.75rem; cursor: pointer; transition: transform 120ms ease, box-shadow 120ms ease; }}
     .quick-action:hover {{ transform: translateY(-1px); box-shadow: 0 6px 14px rgba(17,35,58,0.45); }}
+    .brief-grid {{ display: grid; gap: 0.5rem; }}
+    .brief-summary {{ font-size: 0.84rem; color: #c7d8f0; }}
+    .brief-alert-list {{ display: grid; gap: 0.45rem; }}
+    .brief-alert {{ border: 1px solid #38577d; border-radius: 8px; padding: 0.5rem; background: #0f2034; }}
+    .brief-alert.critical {{ border-color: #9c3f3f; background: #2a1717; }}
+    .brief-alert.warning {{ border-color: #8a6a31; background: #2b2314; }}
+    .brief-alert-title {{ font-size: 0.82rem; font-weight: 700; }}
+    .brief-chip-row {{ margin-top: 0.35rem; display: flex; gap: 0.35rem; flex-wrap: wrap; }}
+    .brief-chip {{ border: 1px solid #3f5f89; border-radius: 999px; background: #173251; color: #dbe9ff; padding: 0.2rem 0.5rem; font-size: 0.74rem; cursor: pointer; }}
+    .brief-controls {{ display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }}
     .action-grid {{ display: grid; gap: 0.7rem; }}
     .action-card {{ border: 1px solid #2e4464; background: #0d192a; border-radius: 8px; padding: 0.65rem; display: grid; gap: 0.55rem; }}
     .action-card h3 {{ margin: 0; font-size: 0.95rem; }}
@@ -2670,30 +2828,30 @@ class AponiDashboard:
     .replay-detail {{ max-height: 220px; overflow: auto; font-size: 0.74rem; }}
   
     /* ── GitHub Feed Panel (Phase 78) ─────────────────────────────── */
-    .github-feed-toolbar { display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem; }
-    .github-feed-status  { font-size:0.8rem; color:#7090a0; }
-    .feed-refresh-btn    { font-size:0.75rem; padding:0.25rem 0.6rem; border:1px solid #2a4060;
-                           border-radius:4px; background:#0d1f30; color:#a0c8e8; cursor:pointer; }
-    .feed-refresh-btn:hover { background:#1a3050; }
-    .github-feed-list    { display:flex; flex-direction:column; gap:0.4rem; max-height:540px;
-                           overflow-y:auto; }
-    .feed-empty          { color:#506070; font-size:0.85rem; padding:1rem 0; }
-    .feed-event-card     { border:1px solid #1e3048; border-radius:6px; padding:0.5rem 0.75rem;
+    .github-feed-toolbar {{ display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem; }}
+    .github-feed-status  {{ font-size:0.8rem; color:#7090a0; }}
+    .feed-refresh-btn    {{ font-size:0.75rem; padding:0.25rem 0.6rem; border:1px solid #2a4060;
+                           border-radius:4px; background:#0d1f30; color:#a0c8e8; cursor:pointer; }}
+    .feed-refresh-btn:hover {{ background:#1a3050; }}
+    .github-feed-list    {{ display:flex; flex-direction:column; gap:0.4rem; max-height:540px;
+                           overflow-y:auto; }}
+    .feed-empty          {{ color:#506070; font-size:0.85rem; padding:1rem 0; }}
+    .feed-event-card     {{ border:1px solid #1e3048; border-radius:6px; padding:0.5rem 0.75rem;
                            background:#0b1a28; display:grid;
-                           grid-template-columns:auto 1fr auto; gap:0 0.6rem; align-items:start; }
-    .feed-event-icon     { font-size:1rem; line-height:1.4; }
-    .feed-event-body     { min-width:0; }
-    .feed-event-type     { font-size:0.72rem; font-weight:700; text-transform:uppercase;
-                           letter-spacing:0.04em; color:#4a90c0; }
-    .feed-event-detail   { font-size:0.82rem; color:#c0d8e8; white-space:nowrap;
-                           overflow:hidden; text-overflow:ellipsis; }
-    .feed-event-meta     { font-size:0.7rem; color:#506070; white-space:nowrap; }
-    .feed-event-card.push      { border-left:3px solid #00d4ff; }
-    .feed-event-card.pr        { border-left:3px solid #00ff88; }
-    .feed-event-card.ci        { border-left:3px solid #f97316; }
-    .feed-event-card.slash     { border-left:3px solid #a855f7; }
-    .feed-event-card.install   { border-left:3px solid #f5c842; }
-    .feed-event-card.rejected  { border-left:3px solid #ff4466; }
+                           grid-template-columns:auto 1fr auto; gap:0 0.6rem; align-items:start; }}
+    .feed-event-icon     {{ font-size:1rem; line-height:1.4; }}
+    .feed-event-body     {{ min-width:0; }}
+    .feed-event-type     {{ font-size:0.72rem; font-weight:700; text-transform:uppercase;
+                           letter-spacing:0.04em; color:#4a90c0; }}
+    .feed-event-detail   {{ font-size:0.82rem; color:#c0d8e8; white-space:nowrap;
+                           overflow:hidden; text-overflow:ellipsis; }}
+    .feed-event-meta     {{ font-size:0.7rem; color:#506070; white-space:nowrap; }}
+    .feed-event-card.push      {{ border-left:3px solid #00d4ff; }}
+    .feed-event-card.pr        {{ border-left:3px solid #00ff88; }}
+    .feed-event-card.ci        {{ border-left:3px solid #f97316; }}
+    .feed-event-card.slash     {{ border-left:3px solid #a855f7; }}
+    .feed-event-card.install   {{ border-left:3px solid #f5c842; }}
+    .feed-event-card.rejected  {{ border-left:3px solid #ff4466; }}
     </style>
 </head>
 <body>
@@ -2757,6 +2915,30 @@ class AponiDashboard:
       <section>
         <h2>Quick actions</h2>
         <div id="homeQuickActions" class="quick-actions"></div>
+      </section>
+      <section>
+        <h2>Daily / Session Brief</h2>
+        <div class="brief-controls">
+          <label>Frequency
+            <select id="briefFrequency" class="meta-select">
+              <option value="high">High</option>
+              <option value="normal">Normal</option>
+              <option value="low">Low</option>
+            </select>
+          </label>
+          <label>Mute scope
+            <select id="briefMuteScope" class="meta-select">
+              <option value="none">None</option>
+              <option value="info">Info only</option>
+              <option value="warning">Info + warning</option>
+              <option value="all">All</option>
+            </select>
+          </label>
+        </div>
+        <div id="sessionBriefCard" class="brief-grid">
+          <div id="sessionBriefSummary" class="brief-summary">Loading session brief…</div>
+          <div id="sessionBriefAlerts" class="brief-alert-list"></div>
+        </div>
       </section>
     </div>
     <div id="view-insights" class="view" role="tabpanel" aria-hidden="true">
@@ -2914,6 +3096,7 @@ class AponiDashboard:
 const DRAFT_STORAGE_KEY = 'aponi.control.draft.v1';
 const MODE_STORAGE_KEY = 'aponi.user.mode.v1';
 const UX_SESSION_KEY = 'aponi.ux.session.v1';
+const BRIEF_SETTINGS_KEY = 'aponi.brief.settings.v1';
 let uxFirstSuccessMarked = false;
 const DEFAULT_MODE = 'builder';
 const QUICK_ACTION_LIMIT = 3;
@@ -2953,6 +3136,7 @@ let queueTimer = null;
 let refreshFailureCount = 0;
 let queueFailureCount = 0;
 let replayInspector = null;
+let previousBriefSignals = null;
 
 // === Safe DOM Rendering Utilities ===
 // SECURITY: Do not use innerHTML for any API-derived content.
@@ -3746,7 +3930,9 @@ function computeAdaptiveDelay(baseDelayMs, elapsedMs, failureCount) {
 function scheduleNextRefresh(startTime = performance.now()) {
   if (refreshTimer) clearTimeout(refreshTimer);
   const elapsed = performance.now() - startTime;
-  const delay = computeAdaptiveDelay(REFRESH_BASE_DELAY_MS, elapsed, refreshFailureCount);
+  const settings = getBriefSettings();
+  const frequencyMultiplier = settings.frequency === 'high' ? 0.7 : (settings.frequency === 'low' ? 1.8 : 1.0);
+  const delay = computeAdaptiveDelay(Math.round(REFRESH_BASE_DELAY_MS * frequencyMultiplier), elapsed, refreshFailureCount);
   refreshTimer = setTimeout(refresh, delay);
 }
 
@@ -4510,11 +4696,13 @@ async function refresh() {
       state: '/state',
       intelligence: '/system/intelligence',
       risk: '/risk/summary',
+      brief: '/dork/session-brief',
     };
-    const [stateResponse, intelligenceResponse, riskResponse] = await Promise.allSettled([
+    const [stateResponse, intelligenceResponse, riskResponse, briefResponse] = await Promise.allSettled([
       fetchWithTimeout(endpoints.state, { cache: 'no-store' }, REFRESH_TIMEOUT_MS),
       fetchWithTimeout(endpoints.intelligence, { cache: 'no-store' }, REFRESH_TIMEOUT_MS),
       fetchWithTimeout(endpoints.risk, { cache: 'no-store' }, REFRESH_TIMEOUT_MS),
+      fetchWithTimeout(endpoints.brief, { cache: 'no-store' }, REFRESH_TIMEOUT_MS),
     ]);
 
     const parseResult = async (result) => {
@@ -4530,6 +4718,7 @@ async function refresh() {
     const state = await parseResult(stateResponse);
     const intelligence = await parseResult(intelligenceResponse);
     const risk = await parseResult(riskResponse);
+    const brief = await parseResult(briefResponse);
 
     if (requestId !== refreshRequestId) return;
 
@@ -4538,6 +4727,7 @@ async function refresh() {
     if (risk) document.getElementById('risk').textContent = JSON.stringify(risk, null, 2);
 
     renderHome(state || {}, intelligence || {}, risk || {});
+    renderSessionBrief(brief || {});
 
     const divergencePayload = await paint('replay', '/replay/divergence');
     const replayInspectorRef = ensureReplayInspector();
@@ -4620,6 +4810,88 @@ function _sanitizeBannerText(text) {
     .replace(/missing_api_key[^.]*[.]?/gi, 'provider_unconfigured. ')
     .replace(/provider_unavailable[^.]*[.]?/gi, 'provider_unavailable. ')
     .trim();
+}
+
+function getBriefSettings() {
+  const fallback = { frequency: 'normal', mute_scope: 'none' };
+  try {
+    const parsed = JSON.parse(localStorage.getItem(BRIEF_SETTINGS_KEY) || '{}');
+    const frequency = ['high', 'normal', 'low'].includes(parsed.frequency) ? parsed.frequency : fallback.frequency;
+    const mute_scope = ['none', 'info', 'warning', 'all'].includes(parsed.mute_scope) ? parsed.mute_scope : fallback.mute_scope;
+    return { frequency, mute_scope };
+  } catch (_) {
+    return fallback;
+  }
+}
+
+function persistBriefSettings() {
+  const frequencyEl = document.getElementById('briefFrequency');
+  const muteEl = document.getElementById('briefMuteScope');
+  const settings = {
+    frequency: String(frequencyEl?.value || 'normal'),
+    mute_scope: String(muteEl?.value || 'none'),
+  };
+  localStorage.setItem(BRIEF_SETTINGS_KEY, JSON.stringify(settings));
+  return settings;
+}
+
+function isSeverityMuted(severity, muteScope) {
+  if (muteScope === 'all') return true;
+  if (muteScope === 'warning') return severity === 'info' || severity === 'warning';
+  if (muteScope === 'info') return severity === 'info';
+  return false;
+}
+
+function buildBriefNudges(briefPayload) {
+  const alerts = safeArray(briefPayload?.alerts);
+  const currentSignals = {
+    gate_locked: alerts.some((item) => item && item.code === 'gate_locked'),
+    replay_divergence_spike: alerts.some((item) => item && item.code === 'replay_divergence_spike'),
+    evidence_incomplete: alerts.some((item) => item && item.code === 'evidence_incomplete'),
+  };
+  const nudges = [];
+  if (previousBriefSignals) {
+    if (!previousBriefSignals.gate_locked && currentSignals.gate_locked) nudges.push('Gate flipped to locked. Show blockers.');
+    if (!previousBriefSignals.replay_divergence_spike && currentSignals.replay_divergence_spike) nudges.push('Replay divergence increased. Explain replay divergence.');
+    if (!previousBriefSignals.evidence_incomplete && currentSignals.evidence_incomplete) nudges.push('Evidence became incomplete. What to fix first.');
+  }
+  previousBriefSignals = currentSignals;
+  return nudges;
+}
+
+function runBriefCta(label) {
+  const normalized = String(label || '').toLowerCase();
+  if (normalized.includes('blocker')) return activateView('insights');
+  if (normalized.includes('replay')) return activateView('history');
+  if (normalized.includes('fix first')) return openControlPanel();
+  return refresh();
+}
+
+function renderSessionBrief(briefPayload) {
+  const summaryEl = document.getElementById('sessionBriefSummary');
+  const alertsEl = document.getElementById('sessionBriefAlerts');
+  if (!summaryEl || !alertsEl) return;
+  clearNode(alertsEl);
+  const summary = briefPayload?.summary || {};
+  summaryEl.textContent = `Gate: ${summary.gate_status || 'unknown'} · Replay divergence: ${Number(summary.replay_divergence_count || 0)} · Blockers: ${Number(summary.blocker_count || 0)} · Findings: ${Number(summary.open_findings_count || 0)}.`;
+  const settings = getBriefSettings();
+  const nudges = buildBriefNudges(briefPayload);
+  nudges.forEach((text) => alertsEl.appendChild(el('div', { className: 'brief-summary', text: `Nudge: ${text}` })));
+  safeArray(briefPayload?.alerts).forEach((alert) => {
+    const severity = String(alert?.severity || 'info');
+    if (isSeverityMuted(severity, settings.mute_scope)) return;
+    const card = el('article', { className: `brief-alert ${severity}` });
+    card.appendChild(el('div', { className: 'brief-alert-title', text: `${String(alert?.title || 'Alert')} (${severity.toUpperCase()})` }));
+    card.appendChild(el('div', { className: 'brief-summary', text: String(alert?.summary || '') }));
+    const chips = el('div', { className: 'brief-chip-row' });
+    safeArray(alert?.cta).forEach((chipLabel) => {
+      const chip = el('button', { className: 'brief-chip', text: chipLabel, attrs: { type: 'button' } });
+      chip.addEventListener('click', () => runBriefCta(chipLabel));
+      chips.appendChild(chip);
+    });
+    card.appendChild(chips);
+    alertsEl.appendChild(card);
+  });
 }
 
 function renderHome(state, intelligence, risk) {
@@ -4793,14 +5065,14 @@ function renderGithubFeedCard(event) {
   const actor = (event.data && (event.data.pusher || event.data.merged_by || event.data.actor || event.data.sender)) || '';
   const detail = [repo, actor].filter(Boolean).join(' · ') || JSON.stringify(event.data || {}).slice(0, 80);
   const ts = (event.ts || event.timestamp || '').slice(0, 19).replace('T', ' ');
-  return `<div class="feed-event-card ${cls}" role="listitem">
-    <span class="feed-event-icon">${icon}</span>
-    <div class="feed-event-body">
-      <div class="feed-event-type">${evtName}</div>
-      <div class="feed-event-detail" title="${detail}">${detail}</div>
-    </div>
-    <span class="feed-event-meta">${ts}</span>
-  </div>`;
+  const card = el('div', { className: `feed-event-card ${cls}`, attrs: { role: 'listitem' } });
+  card.appendChild(el('span', { className: 'feed-event-icon', text: icon }));
+  const body = el('div', { className: 'feed-event-body' });
+  body.appendChild(el('div', { className: 'feed-event-type', text: evtName }));
+  body.appendChild(el('div', { className: 'feed-event-detail', text: detail, attrs: { title: detail } }));
+  card.appendChild(body);
+  card.appendChild(el('span', { className: 'feed-event-meta', text: ts }));
+  return card;
 }
 
 async function loadGithubFeed() {
@@ -4813,11 +5085,13 @@ async function loadGithubFeed() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const events = await res.json();
     if (!Array.isArray(events) || events.length === 0) {
-      list.innerHTML = '<div class="feed-empty">No GitHub events recorded yet.</div>';
+      clearNode(list);
+      list.appendChild(el('div', { className: 'feed-empty', text: 'No GitHub events recorded yet.' }));
       status && (status.textContent = 'No events');
       return;
     }
-    list.innerHTML = events.map(renderGithubFeedCard).join('');
+    clearNode(list);
+    events.forEach((event) => list.appendChild(renderGithubFeedCard(event)));
     status && (status.textContent = `${events.length} event${events.length !== 1 ? 's' : ''}`);
   } catch (err) {
     // Fallback: try to read from JSONL audit log via governance endpoint
@@ -4827,13 +5101,15 @@ async function loadGithubFeed() {
         const data = await r2.json();
         const evts = data.events || data || [];
         if (evts.length > 0) {
-          list.innerHTML = evts.map(renderGithubFeedCard).join('');
+          clearNode(list);
+          evts.forEach((event) => list.appendChild(renderGithubFeedCard(event)));
           status && (status.textContent = `${evts.length} events (governance bridge)`);
           return;
         }
       }
     } catch (_) {}
-    list.innerHTML = '<div class="feed-empty">GitHub feed unavailable — governance API not reachable.</div>';
+    clearNode(list);
+    list.appendChild(el('div', { className: 'feed-empty', text: 'GitHub feed unavailable — governance API not reachable.' }));
     status && (status.textContent = 'Unavailable');
   }
 }
@@ -4851,6 +5127,13 @@ function setupGithubFeedPanel() {
 
 setupViews();
 markFeatureEntry('dashboard_loaded');
+const briefSettings = getBriefSettings();
+const briefFrequencyEl = document.getElementById('briefFrequency');
+const briefMuteScopeEl = document.getElementById('briefMuteScope');
+if (briefFrequencyEl) briefFrequencyEl.value = briefSettings.frequency;
+if (briefMuteScopeEl) briefMuteScopeEl.value = briefSettings.mute_scope;
+briefFrequencyEl?.addEventListener('change', () => { persistBriefSettings(); refresh(); });
+briefMuteScopeEl?.addEventListener('change', () => { persistBriefSettings(); refresh(); });
 setupGithubFeedPanel();
 setupFloatingPanel();
 setupModeTracking();

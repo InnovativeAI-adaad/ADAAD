@@ -111,6 +111,40 @@
   function listAll() { return KB.map((e) => ({ key: e.key, tags: e.tags, confidence: e.confidence })); }
   function listByTag(tag) { return KB.filter((e) => (e.tags || []).includes(tag)); }
 
+  // ── Phase 132 · INNOV-41 entries ────────────────────────────────────────────
+  KB.push(
+    {
+      key: 'what is dork living fleet',
+      answer: 'The DORK Living Fleet (INNOV-41, Phase 132) is a governed multi-engine orchestrator that routes DORK queries through a living fleet of LLM provider backends, slash-command resolvers, and conversation ledger engines — all enforced under six Hard constitutional invariants (DORK-FLEET-0, DORK-CMD-0, DORK-STATE-0, DORK-PROV-0, DORK-CTX-0, DORK-OUTPUT-0). It is a world-first: a constitutional fail-closed provider fleet with hash-chained conversation ledger and Jaccard-taxonomy intent routing under HUMAN-0 governance.',
+      tags: ['fleet', 'innov-41', 'phase-132', 'dork', 'innovation'],
+      confidence: 0.99,
+    },
+    {
+      key: 'what is dork-fleet-0',
+      answer: 'DORK-FLEET-0 is a Hard constitutional invariant introduced in Phase 132. It states: DORKLivingFleet MUST NOT promote any mutation without a successful DorkCommandResolver pre-validation pass. Fleet health status MUST be queryable at all times — a fleet with no healthy providers is constitutionally BLOCKED and raises FleetBlockedError.',
+      tags: ['invariant', 'fleet', 'constitutional', 'hard', 'phase-132'],
+      confidence: 0.99,
+    },
+    {
+      key: 'what are dork slash commands',
+      answer: 'DORK slash commands are /dork:-prefixed operator shortcuts (e.g. /dork:gate, /dork:fleet, /dork:brief) validated by the DorkCommandResolver against the canonical slash_commands.json manifest (DORK-CMD-0). Phase 132 ships 15 commands covering gate, mutation, replay, ledger, agents, phase, sandbox, signing, fleet, rank, delta, oracle, market, and help. Unknown commands are rejected — never silently forwarded.',
+      tags: ['slash', 'commands', 'dork', 'phase-132', 'cmd-resolver'],
+      confidence: 0.98,
+    },
+    {
+      key: 'what is context keyword taxonomy',
+      answer: 'The CONTEXT_KEYWORD_TAXONOMY (dorkllm/context.py, DORK-CTX-0) is the canonical 8-category keyword registry used to classify all DORK queries via Jaccard similarity scoring. Categories: governance, mutation, replay, ledger, agent, fleet, release, sandbox. classify_query() returns the best-matching category and confidence score. Ad-hoc keyword routing outside this taxonomy is constitutionally prohibited.',
+      tags: ['taxonomy', 'jaccard', 'context', 'dork-ctx-0', 'phase-132'],
+      confidence: 0.98,
+    },
+    {
+      key: 'what is conversation ledger',
+      answer: 'The ConversationLedger (dorkllm/state.py, DORK-STATE-0) is an append-only, SHA-256 hash-chained record of every DORK conversation turn (user + assistant). Each entry seals role, content digest, timestamp, and prev_hash. Mutating a prior entry raises ConversationLedgerViolation. The full chain is verifiable end-to-end via verify().',
+      tags: ['ledger', 'conversation', 'state', 'dork-state-0', 'phase-132'],
+      confidence: 0.99,
+    }
+  );
+
   global.DORK_KB = { lookup, listAll, listByTag, _entries: KB };
   // backward-compat shim for code reading DORK_KNOWLEDGE_BASE
   global.DORK_KNOWLEDGE_BASE = KB.reduce((acc, e) => { acc[e.key] = e.answer; return acc; }, {});

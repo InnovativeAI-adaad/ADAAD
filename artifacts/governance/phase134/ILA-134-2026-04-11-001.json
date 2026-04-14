@@ -1,0 +1,48 @@
+{
+  "artifact_type": "ILA",
+  "artifact_id": "ILA-134-2026-04-11-001",
+  "phase": 134,
+  "version": "9.66.0",
+  "innov_id": "REF-001-004",
+  "title": "DFSB Post-Ship Remediation \u2014 provider_config, fleet_engine, intent_router, slash_commands, agent_state",
+  "timestamp_utc": "2026-04-11T17:16:40.553502+00:00",
+  "remediations": [
+    {
+      "id": "REF-001",
+      "file": "data/dork/provider_config.json",
+      "change": "v1.0.0/2-providers \u2192 v2.0.0/5-providers with probe,constraints,api_key_env"
+    },
+    {
+      "id": "REF-002",
+      "file": "runtime/innovations30/dork_living_fleet.py",
+      "change": "FleetEngine api_key_env+probe_cfg fields; type-dispatched probe(); _default_engines v2 compat"
+    },
+    {
+      "id": "REF-003a",
+      "file": "app/orchestration/dork_intent_router.py",
+      "change": "5 DFSB intent rules: query_fleet_persist,trigger_fleet_heal,query_fleet_fitness,verify_fleet_chain,query_fleet_endpoints"
+    },
+    {
+      "id": "REF-003b",
+      "file": "data/dork/slash_commands.json",
+      "change": "v1.0.0/15-cmds \u2192 v2.0.0/20-cmds; added /dork:persist,heal,watchdog,fitness,verify"
+    },
+    {
+      "id": "REF-004",
+      "file": ".adaad_agent_state.json",
+      "change": "cumulative invariants=211; hard_class_invariant_count+innovations_count fields; INNOV-41/42 full records"
+    }
+  ],
+  "test_result": {
+    "run": 295,
+    "passed": 295,
+    "failed": 0,
+    "result": "PASS"
+  },
+  "new_invariants": [],
+  "invariant_cumulative_after": 211,
+  "human0_required": true,
+  "ratification_status": "RATIFIED",
+  "digest": "15a56bf861ade368fce555bce2475eabb05d5a5c3f4a43f49eeddcc5667de702",
+  "human0_ratification": "all Human signoffs needed are hereby approved sign DUSTIN L REID"
+}

@@ -53,6 +53,7 @@ from app.orchestration.cli_handlers import (
 from app.orchestration.runtime_factory import build_orchestrator
 from app.orchestration.replay_preflight import execute_replay_preflight
 from runtime.api import MutationEngine, MutationRequest, agent_path_from_id, iter_agent_dirs, resolve_agent_id
+from runtime.api.app_layer import OperatingMode, classify_current_changes, get_operating_mode, get_required_gate_tiers
 from runtime.api.mutation_runtime import verify_all
 from runtime.api.runtime_services import (
     AutoRecoveryHook,
@@ -171,7 +172,7 @@ class Orchestrator:
         self.architect = ArchitectAgent(self.agents_root)
         self.dream: Optional[DreamMode] = None
         self.beast: Optional[BeastModeLoop] = None
-        self.dashboard = _build_aponi_dashboard()
+        self.dashboard: Optional[Any] = None
         self.evolution_runtime = EvolutionRuntime()
         self.snapshot_manager = SnapshotManager(APP_ROOT.parent / ".ledger_snapshots")
         self.recovery_hook = AutoRecoveryHook(self.snapshot_manager)
@@ -190,11 +191,12 @@ class Orchestrator:
 
         # Phase 107 Streamlining
         from runtime.governance.fast_path_policy import OperatingMode, get_operating_mode
-        from runtime.governance.change_classifier import classify_current_changes
+        from runtime.governance.change_classifier import classify_current_changes_decision
         self.operating_mode = get_operating_mode()
         if self.fast_mode:
             self.operating_mode = OperatingMode.DEV_FAST
-        self.change_type = classify_current_changes()
+        self.change_decision = classify_current_changes_decision()
+        self.change_type = self.change_decision.change_type
 
     def _v(self, message: str) -> None:
         if not self.verbose:
@@ -327,7 +329,6 @@ class Orchestrator:
             self._v("Warning: dry-run + strict replay may not reflect production execution semantics.")
         
         # Phase 107: Fast Path Orientation
-        from runtime.governance.fast_path_policy import get_required_gate_tiers, OperatingMode
         required_tiers = get_required_gate_tiers(self.operating_mode, self.change_type)
         self._v(f"Operating mode: {self.operating_mode.value} | Change type: {self.change_type.value}")
         self._v(f"Required gate tiers: {sorted(required_tiers)}")
@@ -377,16 +378,16 @@ class Orchestrator:
         epoch_state = self.evolution_runtime.boot()
         self.state["epoch"] = epoch_state
         self._v("Replay baseline initialized")
-        self.dream = DreamMode(
-            self.agents_root,
-            self.lineage_dir,
-            replay_mode=self.replay_mode.value,
-            recovery_tier=self.evolution_runtime.governor.recovery_tier.value,
-        )
-        self.beast = BeastModeLoop(self.agents_root, self.lineage_dir)
         
         # Health-First Mode (Selective)
         if 1 in required_tiers:
+            self.dream = DreamMode(
+                self.agents_root,
+                self.lineage_dir,
+                replay_mode=self.replay_mode.value,
+                recovery_tier=self.evolution_runtime.governor.recovery_tier.value,
+            )
+            self.beast = BeastModeLoop(self.agents_root, self.lineage_dir)
             self._health_check_architect()
             self._health_check_dream()
             self._health_check_beast()
@@ -435,6 +436,7 @@ class Orchestrator:
 
     def verify_replay_only(self) -> None:
         self._v("Running replay verification-only mode")
+        self.state["verify_only"] = True
         metrics.log(event_type="orchestrator_start", payload={"verify_only": True}, level="INFO")
         boot_invariants = evaluate_boot_invariants(replay_mode=self.replay_mode.value, agents_root=self.agents_root)
         if not boot_invariants.ok:
@@ -917,6 +919,10 @@ class Orchestrator:
             register_capability(capability_name, capability_version, 1.0, owner, identity=identity)
 
     def _init_ui(self) -> None:
+        if self.exit_after_boot or self.state.get("verify_only"):
+            return
+        if self.dashboard is None:
+            self.dashboard = _build_aponi_dashboard()
         self.dashboard.start(self.state)
 
     def _simulate_fitness_score(self, request: MutationRequest) -> float:

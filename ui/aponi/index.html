@@ -169,6 +169,39 @@
       transition:color .12s,border-color .12s;
     }
     .btn-ghost:hover{color:var(--text);border-color:rgba(255,255,255,.18)}
+    .btn-link{
+      background:none;border:none;color:var(--accent2);cursor:pointer;
+      font-size:11px;padding:0;
+    }
+    .btn-link:hover{text-decoration:underline}
+
+    #onboardingModal{
+      display:none;position:fixed;inset:0;z-index:8500;
+      background:rgba(0,0,0,.72);backdrop-filter:blur(6px);
+      align-items:center;justify-content:center;padding:18px;
+    }
+    #onboardingModal.open{display:flex}
+    .onboard-box{
+      width:min(860px,100%);
+      background:var(--panel);border:1px solid var(--border);
+      border-radius:var(--r);box-shadow:0 24px 64px rgba(0,0,0,.72);
+      overflow:hidden;
+    }
+    .onboard-head{
+      padding:16px;border-bottom:1px solid var(--border);
+      display:flex;justify-content:space-between;align-items:center;gap:10px;
+    }
+    .onboard-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px}
+    .onboard-item{
+      border:1px solid var(--border);border-radius:10px;padding:10px;
+      background:rgba(255,255,255,.02);font-size:12px;color:var(--muted);line-height:1.5;
+    }
+    .onboard-item b{color:var(--text)}
+    .cap-list{display:flex;flex-direction:column;gap:8px}
+    .cap-item{border:1px solid var(--border);border-radius:10px;padding:9px;background:rgba(255,255,255,.02)}
+    .cap-item .meta{color:var(--muted);font-size:11px;margin-top:4px}
+    .starter-prompts{display:flex;flex-wrap:wrap;gap:8px}
+    .starter-prompts .btn{padding:8px 10px;font-size:11px}
 
     .pulse-dot{position:relative;display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);flex-shrink:0}
     .pulse-dot::before{content:"";position:absolute;inset:-3px;border-radius:50%;background:var(--ok);opacity:.4;animation:pulse-ring 1.8s ease-out infinite}
@@ -447,11 +480,41 @@
       <div class="kbd-row"><kbd>1</kbd>–<kbd>6</kbd><span class="kbd-desc">Switch tabs (Overview → Logs)</span></div>
       <div class="kbd-row"><kbd>7</kbd><span class="kbd-desc">Innovations panel (Oracle, Story Mode, Galaxy, Seeds)</span></div>
       <div class="kbd-row"><kbd>R</kbd><span class="kbd-desc">Refresh all data now</span></div>
+      <div class="kbd-row"><kbd>T</kbd><span class="kbd-desc">Replay guided onboarding tour</span></div>
       <div class="kbd-row"><kbd>/</kbd><span class="kbd-desc">Focus log filter (Logs tab)</span></div>
       <div class="kbd-row"><kbd>?</kbd><span class="kbd-desc">Toggle this help overlay</span></div>
       <div class="kbd-row"><kbd>Esc</kbd><span class="kbd-desc">Close overlay / clear focus</span></div>
       <div style="margin-top:18px;text-align:right">
         <button class="btn" id="kbdHelpClose">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="onboardingModal" role="dialog" aria-modal="true" aria-label="First-run walkthrough">
+    <div class="onboard-box">
+      <div class="onboard-head">
+        <div>
+          <div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Guided Onboarding</div>
+          <div style="font-size:15px;font-weight:700;margin-top:4px">Understand APONI in under two minutes</div>
+        </div>
+        <button class="btn" id="btnCloseOnboarding">Close</button>
+      </div>
+      <div class="onboard-grid">
+        <div class="onboard-item"><b>Read-only advisory role.</b> APONI is visibility + recommendation only. Constitutional and gate controls remain authoritative.</div>
+        <div class="onboard-item"><b>Data sources.</b> Health, protocol, governance, and memory snapshots are fetched from live ADAAD endpoints on your configured base URL.</div>
+        <div class="onboard-item"><b>Available commands.</b> Use shortcuts: <code>R</code> refresh, <code>1-7</code> tab switch, <code>/</code> log search, <code>?</code> shortcut help.</div>
+        <div class="onboard-item"><b>Privacy & key handling.</b> Dashboard does not expose signing keys; control actions are audit-scoped and policy-gated by backend endpoints.</div>
+      </div>
+      <div style="padding:0 14px 14px">
+        <label for="onboardingRole" style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px">Select role for starter prompts</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <select id="onboardingRole" class="btn" style="min-width:170px">
+            <option value="operator">Operator</option>
+            <option value="developer">Developer</option>
+            <option value="reviewer">Reviewer</option>
+          </select>
+          <button class="btn primary" id="btnCompleteOnboarding">Complete onboarding</button>
+        </div>
       </div>
     </div>
   </div>
@@ -554,6 +617,11 @@
     readinessMode: "engineering",
     lastEpochMemory: null,
     lastRefreshAt: null,   // Phase 55: timestamp of last successful hardRefresh
+    lastSnapshotPollAt: null,
+    endpointStatus: {},
+    userRole: "operator",
+    promptConversions: 0,
+    onboardingCompleted: false,
 
     logs: [],
     logFilter: "",         // Phase 55: log search filter term
@@ -583,9 +651,81 @@
 
   // ---------- Gate (vanilla) ----------
   const GATE_KEY = "ADAAD_GATE_STATE";
+  const ONBOARDING_KEY = "aponi.onboarding.completed.v1";
+  const ONBOARDING_SESSION_KEY = "aponi.onboarding.session.completed.v1";
+  const ROLE_KEY = "aponi.onboarding.role.v1";
   // gate.locked  → server returned a confirmed 423 with gate_ok=false
   // gate.connecting → initial load, no confirmed health response yet
   const gate = { locked:false, reason:"", lastStatus:null, connecting:true };
+  const starterPromptsByRole = {
+    operator: [
+      "Show current governance blockers and readiness status.",
+      "Summarize endpoint failures from the last 10 minutes.",
+    ],
+    developer: [
+      "Identify protocol and replay-related anomalies with suggested fixes.",
+      "Compare current memory signal against previous epoch trend.",
+    ],
+    reviewer: [
+      "Generate a risk-focused review brief for governance evidence.",
+      "Highlight constitutional floor or debt threshold warnings.",
+    ],
+  };
+  const capabilityCatalog = [
+    { name: "Governance Intelligence", example: "What is the current governance health score and floor state?" },
+    { name: "Replay Inspector", example: "Show latest replay digest and any divergence indicators." },
+    { name: "Agent Registry View", example: "List agents missing certificates or entrypoints." },
+    { name: "Memory Signal Monitor", example: "Summarize top agents and strategy performance in epoch memory." },
+  ];
+
+  function loadUserPrefs(){
+    try{
+      state.onboardingCompleted = localStorage.getItem(ONBOARDING_KEY) === "1";
+      state.userRole = localStorage.getItem(ROLE_KEY) || "operator";
+      if (!["operator","developer","reviewer"].includes(state.userRole)) state.userRole = "operator";
+      const sessionDone = sessionStorage.getItem(ONBOARDING_SESSION_KEY) === "1";
+      if (!state.onboardingCompleted || !sessionDone){
+        openOnboarding();
+      }
+    }catch(_){
+      state.onboardingCompleted = false;
+      state.userRole = "operator";
+      openOnboarding();
+    }
+  }
+
+  function completeOnboarding(){
+    state.onboardingCompleted = true;
+    try{
+      localStorage.setItem(ONBOARDING_KEY, "1");
+      localStorage.setItem(ROLE_KEY, state.userRole);
+      sessionStorage.setItem(ONBOARDING_SESSION_KEY, "1");
+    }catch(_){}
+    closeOnboarding();
+    toast("Onboarding complete", `Role: ${state.userRole}`, "ok", 2200);
+    render();
+  }
+
+  function openOnboarding(){
+    const modal = $("#onboardingModal");
+    if (modal) modal.classList.add("open");
+    const role = $("#onboardingRole");
+    if (role) role.value = state.userRole;
+  }
+
+  function closeOnboarding(){
+    const modal = $("#onboardingModal");
+    if (modal) modal.classList.remove("open");
+  }
+
+  function markEndpointStatus(name, path, ok, statusCode){
+    state.endpointStatus[name] = {
+      path,
+      ok: !!ok,
+      statusCode: statusCode ?? null,
+      at: Date.now(),
+    };
+  }
 
   function loadGate(){
     // Phase 56 fix: NEVER restore a persisted locked state on boot.
@@ -838,6 +978,10 @@
         if (!gate.locked){ hardRefresh(); toast("Refreshing…", "", "ok", 1800); }
         return;
       }
+      if (e.key === "t" || e.key === "T"){
+        openOnboarding();
+        return;
+      }
       if (e.key === "/" && state.tab === "logs"){
         e.preventDefault();
         const lf = $(".log-filter");
@@ -1079,12 +1223,61 @@
     cfg.innerHTML = `
       <input id="baseUrlInput" value="${escapeHtml(state.baseUrl)}" style="min-width:260px;flex:1 1 auto" />
       <button class="btn" id="btnSaveBase">Set URL</button>
+      <button class="btn" id="btnReplayTour">Replay tour</button>
     `;
     rbody.appendChild(cfg);
 
     right.appendChild(card("Routing", "Base URL and controls", `
       <span class="badge">${escapeHtml(gate.locked ? "blocked" : "ok")}</span>
     `, rbody));
+
+    const promptsBody = document.createElement("div");
+    const starterPrompts = starterPromptsByRole[state.userRole] || starterPromptsByRole.operator;
+    promptsBody.innerHTML = `
+      <div style="color:var(--muted);font-size:12px;margin-bottom:10px">Role: <b style="color:var(--text)">${escapeHtml(state.userRole)}</b></div>
+      <div class="starter-prompts">
+        ${starterPrompts.map((p, idx) => `<button class="btn" data-starter-index="${idx}" title="${escapeHtml(p)}">${escapeHtml(p.slice(0,58))}${p.length>58?"…":""}</button>`).join("")}
+      </div>
+      <div style="margin-top:8px;color:var(--muted);font-size:11px">Prompt conversions this session: ${state.promptConversions}</div>
+    `;
+    left.appendChild(card("Starter Prompts", "Role-seeded guided prompts", `<span class="badge">seeded</span>`, promptsBody));
+
+    const capBody = document.createElement("div");
+    capBody.className = "cap-list";
+    capBody.innerHTML = capabilityCatalog.map(cap => `
+      <div class="cap-item">
+        <div>${escapeHtml(cap.name)}</div>
+        <div class="meta">${escapeHtml(cap.example)}</div>
+      </div>
+    `).join("");
+    right.appendChild(card("Capabilities", "Supported skills + example prompts", `<span class="badge ok">${capabilityCatalog.length} skills</span>`, capBody));
+
+    const freshBody = document.createElement("div");
+    const statusRows = Object.entries(state.endpointStatus)
+      .sort((a,b) => (b[1]?.at || 0) - (a[1]?.at || 0))
+      .map(([name, info]) => `
+        <tr>
+          <td style="padding:7px 6px;border-bottom:1px solid var(--border);color:var(--muted)">${escapeHtml(name)}</td>
+          <td style="padding:7px 6px;border-bottom:1px solid var(--border)" class="mono">${escapeHtml(info.path || "—")}</td>
+          <td style="padding:7px 6px;border-bottom:1px solid var(--border)">${badge(info.ok ? "ok" : "bad")}</td>
+          <td style="padding:7px 6px;border-bottom:1px solid var(--border)" class="mono">${escapeHtml(info.statusCode ?? "—")}</td>
+          <td style="padding:7px 6px;border-bottom:1px solid var(--border)" class="mono">${escapeHtml(fmtTs(info.at || null))}</td>
+        </tr>
+      `).join("");
+    freshBody.innerHTML = `
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Last snapshot poll: <span class="mono" style="color:var(--text)">${escapeHtml(fmtTs(state.lastSnapshotPollAt))}</span></div>
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead><tr>
+          <th style="text-align:left;font-size:10px;color:var(--muted);padding:4px 6px">Endpoint</th>
+          <th style="text-align:left;font-size:10px;color:var(--muted);padding:4px 6px">Path</th>
+          <th style="text-align:left;font-size:10px;color:var(--muted);padding:4px 6px">Status</th>
+          <th style="text-align:left;font-size:10px;color:var(--muted);padding:4px 6px">HTTP</th>
+          <th style="text-align:left;font-size:10px;color:var(--muted);padding:4px 6px">Checked</th>
+        </tr></thead>
+        <tbody>${statusRows || `<tr><td colspan="5" style="padding:8px 6px;color:var(--muted)">No endpoint probes yet.</td></tr>`}</tbody>
+      </table>
+    `;
+    left.appendChild(card("Data Freshness", "Live snapshot + endpoint status", `<span class="badge">${freshTag(state.lastSnapshotPollAt).replace(/<[^>]+>/g,"") || "pending"}</span>`, freshBody));
 
     root.appendChild(left);
     root.appendChild(right);
@@ -1099,6 +1292,18 @@
         toast("URL updated", state.baseUrl, "ok", 2500);
         await hardRefresh();
       };
+      $("#btnReplayTour").onclick = () => openOnboarding();
+      $$(".starter-prompts [data-starter-index]").forEach(btn => {
+        btn.onclick = () => {
+          const idx = Number(btn.getAttribute("data-starter-index"));
+          const prompt = (starterPromptsByRole[state.userRole] || [])[idx];
+          if (!prompt) return;
+          state.promptConversions += 1;
+          state.logs.push(`[starter-prompt] ${prompt}`);
+          setTab("logs");
+          toast("Starter prompt added to logs", "Use Copy logs to move into your workflow", "ok", 2200);
+        };
+      });
     }, 0);
 
     return root;
@@ -1635,12 +1840,14 @@
   async function fetchGovernanceData(){
     try{
       const ghRes = await fetch(`${state.baseUrl}/governance/health`, { method:"GET" });
+      markEndpointStatus("governance.health", "/governance/health", ghRes.ok, ghRes.status);
       if (ghRes.ok) state.lastGovernanceHealth = await ghRes.json().catch(() => null);
-    }catch(_){}
+    }catch(_){ markEndpointStatus("governance.health", "/governance/health", false, null); }
     try{
       const rcRes = await fetch(`${state.baseUrl}/governance/reviewer-calibration?epoch_id=current`, { method:"GET" });
+      markEndpointStatus("governance.reviewer_calibration", "/governance/reviewer-calibration?epoch_id=current", rcRes.ok, rcRes.status);
       if (rcRes.ok) state.lastReviewerCalibration = await rcRes.json().catch(() => null);
-    }catch(_){}
+    }catch(_){ markEndpointStatus("governance.reviewer_calibration", "/governance/reviewer-calibration?epoch_id=current", false, null); }
     await fetchGovernanceEvidenceData();
   }
 
@@ -1657,10 +1864,11 @@
     for (const [key, path] of endpoints){
       try{
         const res = await fetch(`${state.baseUrl}${path}`, { method: "GET" });
+        markEndpointStatus(`evidence.${key}`, path, res.ok, res.status);
         if (res.ok){
           out[key] = await res.json().catch(() => null);
         }
-      }catch(_){}
+      }catch(_){ markEndpointStatus(`evidence.${key}`, path, false, null); }
     }
     state.lastGovernanceEvidence = out;
   }
@@ -1669,8 +1877,9 @@
   async function fetchMemoryData(){
     try{
       const memRes = await fetch(`${state.baseUrl}/intelligence/epoch-memory`, { method:"GET" });
+      markEndpointStatus("memory.epoch", "/intelligence/epoch-memory", memRes.ok, memRes.status);
       if (memRes.ok) state.lastEpochMemory = await memRes.json().catch(() => null);
-    }catch(_){}
+    }catch(_){ markEndpointStatus("memory.epoch", "/intelligence/epoch-memory", false, null); }
   }
 
   async function sendStubMutation(){
@@ -1693,6 +1902,7 @@
 
   async function hardRefresh(){
     try{
+      state.lastSnapshotPollAt = Date.now();
       state.logs.push(`[poll] health`);
       await probeHealth(true);
 
@@ -1809,6 +2019,24 @@
       };
       try{ await navigator.clipboard.writeText(JSON.stringify(payload, null, 2)); }catch(_){}
     };
+
+    const closeOnboard = $("#btnCloseOnboarding");
+    if (closeOnboard) closeOnboard.onclick = closeOnboarding;
+    const completeBtn = $("#btnCompleteOnboarding");
+    if (completeBtn) completeBtn.onclick = completeOnboarding;
+    const roleSel = $("#onboardingRole");
+    if (roleSel){
+      roleSel.value = state.userRole;
+      roleSel.onchange = () => {
+        state.userRole = roleSel.value;
+        try{ localStorage.setItem(ROLE_KEY, state.userRole); }catch(_){}
+        render();
+      };
+    }
+    const onboarding = $("#onboardingModal");
+    if (onboarding){
+      onboarding.onclick = (e) => { if (e.target === onboarding) closeOnboarding(); };
+    }
   }
 
   loadGate();
@@ -1818,6 +2046,7 @@
   renderGate();
   bindUi();
   bindKeyboard();   // Phase 55: keyboard shortcuts
+  loadUserPrefs();
   render();
   hardRefresh();
   startGatePolling();
@@ -1825,5 +2054,6 @@
 })();
 </script>
 <script src="innovations_panel.js"></script>
+<script src="../shared/dork_launcher.js"></script>
 </body>
 </html>

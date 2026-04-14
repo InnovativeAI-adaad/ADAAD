@@ -1,0 +1,98 @@
+{
+  "version": "2.0.0",
+  "schema": "dork_provider_config_v2",
+  "phase": 133,
+  "updated": "2025-04-11",
+  "description": "DORK Fleet Server Bridge (DFSB) provider registry — INNOV-42",
+  "priority_ladder": [1, 2, 3, 4, 5],
+  "providers": [
+    {
+      "id": "dork_engine",
+      "priority": 1,
+      "type": "dork_engine",
+      "label": "DORK Native Engine",
+      "always_available": true,
+      "api_key_env": null,
+      "probe": {
+        "type": "dork_engine",
+        "endpoint": null
+      },
+      "constraints": {
+        "max_tokens": null,
+        "rate_limit_rpm": null
+      }
+    },
+    {
+      "id": "anthropic",
+      "priority": 2,
+      "type": "anthropic",
+      "label": "Anthropic Claude",
+      "always_available": false,
+      "api_key_env": "ANTHROPIC_API_KEY",
+      "probe": {
+        "type": "http",
+        "endpoint": "https://api.anthropic.com/v1/models",
+        "method": "GET",
+        "headers": {"x-api-key": "${ANTHROPIC_API_KEY}", "anthropic-version": "2023-06-01"}
+      },
+      "constraints": {
+        "max_tokens": 4096,
+        "rate_limit_rpm": 60
+      }
+    },
+    {
+      "id": "groq",
+      "priority": 3,
+      "type": "groq",
+      "label": "Groq LPU",
+      "always_available": false,
+      "api_key_env": "GROQ_API_KEY",
+      "probe": {
+        "type": "http",
+        "endpoint": "https://api.groq.com/openai/v1/models",
+        "method": "GET",
+        "headers": {"Authorization": "Bearer ${GROQ_API_KEY}"}
+      },
+      "constraints": {
+        "max_tokens": 8192,
+        "rate_limit_rpm": 30
+      }
+    },
+    {
+      "id": "ollama_local",
+      "priority": 4,
+      "type": "ollama",
+      "label": "Ollama Local",
+      "always_available": false,
+      "api_key_env": null,
+      "probe": {
+        "type": "http",
+        "endpoint": "http://localhost:11434/api/tags",
+        "method": "GET",
+        "headers": {}
+      },
+      "constraints": {
+        "max_tokens": 4096,
+        "rate_limit_rpm": null
+      }
+    },
+    {
+      "id": "ollama_remote",
+      "priority": 5,
+      "type": "ollama",
+      "label": "Ollama Remote",
+      "always_available": false,
+      "api_key_env": null,
+      "probe": {
+        "type": "http",
+        "endpoint": "http://ollama.remote:11434/api/tags",
+        "method": "GET",
+        "headers": {}
+      },
+      "constraints": {
+        "max_tokens": 4096,
+        "rate_limit_rpm": null
+      }
+    }
+  ]
+}

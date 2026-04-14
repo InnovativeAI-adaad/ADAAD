@@ -1,0 +1,158 @@
+{
+  "version": "2.0.0",
+  "phase": 133,
+  "commands": [
+    {
+      "slash": "/dork:gate",
+      "description": "Show current gate status and tier lock state",
+      "intent": "show_gate_status",
+      "args": [],
+      "example": "/dork:gate"
+    },
+    {
+      "slash": "/dork:brief",
+      "description": "Generate governance executive brief for current phase",
+      "intent": "generate_governance_brief",
+      "args": [],
+      "example": "/dork:brief"
+    },
+    {
+      "slash": "/dork:mutation",
+      "description": "Inspect mutation pipeline and pending proposals",
+      "intent": "inspect_mutation_pipeline",
+      "args": [
+        "--id"
+      ],
+      "example": "/dork:mutation --id innov-41"
+    },
+    {
+      "slash": "/dork:replay",
+      "description": "Show replay health score and divergence metrics",
+      "intent": "show_replay_health",
+      "args": [],
+      "example": "/dork:replay"
+    },
+    {
+      "slash": "/dork:ledger",
+      "description": "Run ledger forensics and verify hash chain integrity",
+      "intent": "run_ledger_forensics",
+      "args": [
+        "--tail"
+      ],
+      "example": "/dork:ledger --tail 10"
+    },
+    {
+      "slash": "/dork:agents",
+      "description": "Diagnose Architect / Dream / Beast agent triad status",
+      "intent": "diagnose_agent_triad",
+      "args": [],
+      "example": "/dork:agents"
+    },
+    {
+      "slash": "/dork:phase",
+      "description": "Show current phase progress and remaining milestones",
+      "intent": "track_phase_progress",
+      "args": [
+        "--phase"
+      ],
+      "example": "/dork:phase --phase 132"
+    },
+    {
+      "slash": "/dork:sandbox",
+      "description": "Run DAS preflight check for proposed mutation",
+      "intent": "run_sandbox_preflight",
+      "args": [
+        "--target"
+      ],
+      "example": "/dork:sandbox --target runtime/innovations30/dork_living_fleet.py"
+    },
+    {
+      "slash": "/dork:sign",
+      "description": "Query GPG signing ceremony status and pending attestations",
+      "intent": "query_signing_ceremony",
+      "args": [],
+      "example": "/dork:sign"
+    },
+    {
+      "slash": "/dork:fleet",
+      "description": "Show DORK Living Fleet engine health and provider availability",
+      "intent": "show_fleet_status",
+      "args": [],
+      "example": "/dork:fleet"
+    },
+    {
+      "slash": "/dork:rank",
+      "description": "Rank pending agent proposals by constitutional fitness score",
+      "intent": "rank_agent_proposals",
+      "args": [
+        "--limit"
+      ],
+      "example": "/dork:rank --limit 5"
+    },
+    {
+      "slash": "/dork:delta",
+      "description": "Interpret epoch delta and summarize what changed since last epoch",
+      "intent": "interpret_epoch_delta",
+      "args": [
+        "--from"
+      ],
+      "example": "/dork:delta --from epoch-130"
+    },
+    {
+      "slash": "/dork:oracle",
+      "description": "Open oracle projection and forecast readiness trajectory",
+      "intent": "open_oracle_history",
+      "args": [],
+      "example": "/dork:oracle"
+    },
+    {
+      "slash": "/dork:market",
+      "description": "Evaluate market fitness readiness metrics",
+      "intent": "evaluate_market_fitness",
+      "args": [],
+      "example": "/dork:market"
+    },
+    {
+      "slash": "/dork:help",
+      "description": "List all available DORK slash commands",
+      "intent": "list_commands",
+      "args": [],
+      "example": "/dork:help"
+    },
+    {
+      "command": "/dork:persist",
+      "intent": "query_fleet_persist",
+      "description": "Snapshot fleet persistence state",
+      "phase": 133,
+      "innov": "INNOV-42"
+    },
+    {
+      "command": "/dork:heal",
+      "intent": "trigger_fleet_heal",
+      "description": "Trigger fleet heal / re-probe cycle",
+      "phase": 133,
+      "innov": "INNOV-42"
+    },
+    {
+      "command": "/dork:watchdog",
+      "intent": "trigger_fleet_heal",
+      "description": "Watchdog: re-probe and report degraded engines",
+      "phase": 133,
+      "innov": "INNOV-42"
+    },
+    {
+      "command": "/dork:fitness",
+      "intent": "query_fleet_fitness",
+      "description": "Return fleet fitness score (HEALTHY/DEGRADED)",
+      "phase": 133,
+      "innov": "INNOV-42"
+    },
+    {
+      "command": "/dork:verify",
+      "intent": "verify_fleet_chain",
+      "description": "Verify HMAC dispatch chain integrity",
+      "phase": 133,
+      "innov": "INNOV-42"
+    }
+  ]
+}

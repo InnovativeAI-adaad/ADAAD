@@ -26,8 +26,10 @@ pytestmark = pytest.mark.regression_standard
 
 from runtime.governance.federation.federated_evidence_matrix import (
     CrossRepoVerificationResult,
+    EpochAlreadyRegisteredSameDigest,
     FederatedEvidenceMatrix,
     FederatedEvidenceMatrixError,
+    LocalEpochDigestConflictError,
     VerificationAxisResult,
     _validate_digest,
 )
@@ -112,12 +114,16 @@ class TestEpochRegistration:
     def test_local_epoch_idempotent(self) -> None:
         m = _make_matrix()
         m.record_local_epoch("ep-1", _GOOD_DIGEST)
-        m.record_local_epoch("ep-1", _GOOD_DIGEST)  # same — no raise
+        with pytest.raises(
+            EpochAlreadyRegisteredSameDigest,
+            match="local_epoch_already_registered_same_digest",
+        ):
+            m.record_local_epoch("ep-1", _GOOD_DIGEST)
 
     def test_local_epoch_conflict_raises(self) -> None:
         m = _make_matrix()
         m.record_local_epoch("ep-1", _GOOD_DIGEST)
-        with pytest.raises(FederatedEvidenceMatrixError, match="local_epoch_digest_conflict"):
+        with pytest.raises(LocalEpochDigestConflictError, match="local_epoch_digest_conflict"):
             m.record_local_epoch("ep-1", _GOOD_DIGEST_2)
 
     def test_peer_epoch_idempotent(self) -> None:

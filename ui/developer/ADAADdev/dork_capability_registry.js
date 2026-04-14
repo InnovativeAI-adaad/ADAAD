@@ -730,6 +730,148 @@
         return buildCard(this.id, summary, details, nextActions, confidence, [], fallbackUsed);
       },
     },
+    // ── Phase 132 · INNOV-41 · DORK Living Fleet capabilities ────────────────
+    {
+      id: 'fleet_health_monitor',
+      label: 'DORK fleet health',
+      intents: ['fleet', 'provider', 'health', 'engine', 'ollama', 'blocked'],
+      triggers: [/\bfleet\b/i, /\bprovider\b/i, /\bellama\b/i, /\bengine\s+health\b/i, /\bno\s+healthy\b/i],
+      dependencies: [
+        { id: 'fleet.healthy_count', path: 'fleet.healthy_provider_count', required: true, fallback: 'count_unavailable' },
+        { id: 'fleet.blocked', path: 'fleet.blocked', required: true, fallback: 'status_unknown' },
+        { id: 'fleet.providers', path: 'fleet.providers', required: false, fallback: 'providers_unavailable' },
+      ],
+      execute(context) {
+        const healthy = context?.fleet?.healthy_provider_count ?? null;
+        const blocked = context?.fleet?.blocked ?? null;
+        const providers = context?.fleet?.providers ?? {};
+        const fallbackUsed = healthy === null;
+        const confidence = fallbackUsed ? 0.40 : blocked ? 0.20 : healthy > 0 ? 0.94 : 0.30;
+        const summary = fallbackUsed
+          ? 'Fleet health unavailable — runtime context not loaded.'
+          : blocked
+            ? `DORK-FLEET-0: Fleet BLOCKED — 0 healthy providers. Restore at least one provider.`
+            : `Fleet healthy: ${healthy} provider(s) available and responding.`;
+        const details = fallbackUsed
+          ? ['Load runtime state to inspect provider fleet.']
+          : Object.entries(providers).map(([name, s]) =>
+              `${name}: ${s.healthy ? '✅' : '❌'} availability=${(s.availability * 100).toFixed(0)}%`);
+        const nextActions = blocked
+          ? ['Check Ollama is running: ollama serve', 'Probe provider: /dork:fleet', 'Review provider_config.json']
+          : ['Monitor provider availability.', 'Run /dork:fleet for real-time status.'];
+        return { id: this.id, summary, details, nextActions, confidence, fallbackUsed };
+      },
+    },
+    {
+      id: 'slash_command_dispatcher',
+      label: 'DORK slash commands',
+      intents: ['slash', 'command', 'resolver', 'dork:', '/dork', 'dispatch'],
+      triggers: [/^\/dork:/i, /\bslash\s+command\b/i, /\bdork:help\b/i, /\bcmd\s+resolver\b/i],
+      dependencies: [
+        { id: 'fleet.cmd_resolver_loaded', path: 'fleet.cmd_resolver_loaded', required: true, fallback: 'resolver_unknown' },
+        { id: 'fleet.cmd_resolver_commands', path: 'fleet.cmd_resolver_commands', required: false, fallback: 0 },
+      ],
+      execute(context) {
+        const loaded = context?.fleet?.cmd_resolver_loaded ?? null;
+        const count = context?.fleet?.cmd_resolver_commands ?? 0;
+        const fallbackUsed = loaded === null;
+        const confidence = fallbackUsed ? 0.45 : loaded ? 0.95 : 0.25;
+        const summary = fallbackUsed
+          ? 'Command resolver status unknown — check fleet context.'
+          : loaded
+            ? `DorkCommandResolver active: ${count} slash commands registered (DORK-CMD-0 enforced).`
+            : 'DORK-CMD-0 VIOLATION: CommandResolver not loaded — manifest missing.';
+        const details = loaded
+          ? [
+              'All commands validated against slash_commands.json before dispatch.',
+              'Unknown commands rejected with structured CommandError.',
+              'Every dispatch is hash-chained in the command ledger.',
+              `Try: /dork:help, /dork:gate, /dork:fleet, /dork:brief`,
+            ]
+          : ['Verify data/dork/slash_commands.json exists.', 'Restart DORK fleet to reload manifest.'];
+        const nextActions = loaded
+          ? ['Run /dork:help to list all commands.', 'Use /dork:gate to check gate status.']
+          : ['Restore slash_commands.json manifest.', 'Re-initialise DORKLivingFleet.'];
+        return { id: this.id, summary, details, nextActions, confidence, fallbackUsed };
+      },
+    },
+    {
+      id: 'conversation_ledger_inspector',
+      label: 'conversation ledger',
+      intents: ['conversation', 'ledger', 'chat', 'history', 'chain', 'session'],
+      triggers: [/\bconversation\s+ledger\b/i, /\bchat\s+history\b/i, /\bsession\s+chain\b/i, /\bledger.*conversation\b/i],
+      dependencies: [
+        { id: 'fleet.conversation_ledger_entries', path: 'fleet.conversation_ledger_entries', required: true, fallback: 0 },
+      ],
+      execute(context) {
+        const entries = context?.fleet?.conversation_ledger_entries ?? null;
+        const fallbackUsed = entries === null;
+        const confidence = fallbackUsed ? 0.38 : 0.91;
+        const summary = fallbackUsed
+          ? 'Conversation ledger count unavailable — load fleet status context.'
+          : `ConversationLedger: ${entries} entries, hash-chained (DORK-STATE-0 active).`;
+        const details = [
+          'Each turn is sealed with SHA-256 hash of role + content + timestamp + prev_hash.',
+          'Append-only — mutation of any prior entry raises ConversationLedgerViolation.',
+          'Chain is verifiable end-to-end with verify() at any point.',
+        ];
+        const nextActions = [
+          'Query ledger tail via fleet.conversation_ledger_tail().',
+          'Verify chain integrity before any audit export.',
+        ];
+        return { id: this.id, summary, details, nextActions, confidence, fallbackUsed };
+      },
+    },
+    {
+      id: 'intent_taxonomy_inspector',
+      label: 'intent taxonomy',
+      intents: ['intent', 'taxonomy', 'jaccard', 'classification', 'routing', 'category'],
+      triggers: [/\bjaccard\b/i, /\btaxonomy\b/i, /\bintent\s+class/i, /\bquery\s+rout/i, /\bDORK-CTX/i],
+      dependencies: [],
+      execute(context) {
+        const confidence = 0.92;
+        const summary = 'DORK-CTX-0: CONTEXT_KEYWORD_TAXONOMY active — 8 categories, Jaccard-scored routing.';
+        const details = [
+          'Categories: governance, mutation, replay, ledger, agent, fleet, release, sandbox.',
+          'Jaccard score = |intersection| / |union| of query tokens vs category keyword set.',
+          'classify_query() returns (best_category, confidence) for every DORK query.',
+          'Ad-hoc keyword routing outside the taxonomy is constitutionally prohibited.',
+        ];
+        const nextActions = [
+          'Inspect CONTEXT_KEYWORD_TAXONOMY in dorkllm/context.py.',
+          'Use get_taxonomy_hints(query, top_n=3) for multi-category scoring.',
+        ];
+        return { id: this.id, summary, details, nextActions, confidence, fallbackUsed: false };
+      },
+    },
+    {
+      id: 'provider_health_registry',
+      label: 'provider health registry',
+      intents: ['provider', 'registry', 'availability', 'probe', 'backend', 'DORK-PROV'],
+      triggers: [/\bprovider\s+registry\b/i, /\bhealth\s+probe\b/i, /\bavailability.*provider\b/i, /\bDORK-PROV/i],
+      dependencies: [
+        { id: 'fleet.providers', path: 'fleet.providers', required: false, fallback: 'providers_unavailable' },
+      ],
+      execute(context) {
+        const providers = context?.fleet?.providers ?? null;
+        const fallbackUsed = providers === null;
+        const count = providers ? Object.keys(providers).length : 0;
+        const confidence = fallbackUsed ? 0.42 : count > 0 ? 0.93 : 0.50;
+        const summary = fallbackUsed
+          ? 'ProviderHealthRegistry: no data — load fleet status context.'
+          : `ProviderHealthRegistry: ${count} provider(s) tracked (DORK-PROV-0 active).`;
+        const details = fallbackUsed
+          ? ['Initialise DORKLivingFleet and probe engines to populate registry.']
+          : Object.entries(providers).map(([n, s]) =>
+              `${n}: healthy=${s.healthy}, avail=${(s.availability * 100).toFixed(0)}%, probes=${s.probe_count}`);
+        const nextActions = [
+          'Probe individual engines: fleet.probe_engine(name).',
+          'Review provider_config.json to add/remove backends.',
+          'DORK-PROV-0: unhealthy providers are never silently skipped.',
+        ];
+        return { id: this.id, summary, details, nextActions, confidence, fallbackUsed };
+      },
+    },
   ];
 
   // Merge into the base registry exposed by the first module

@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.63.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": "v9.77.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -269,16 +269,45 @@
     "phase130-celt-epoch-0-enforced",
     "phase130-world-first-cross-epoch-learning-transfer",
     "v9.63.0-released",
-    "phase130-complete"
+    "phase130-complete",
+    "phase138-plan-authored",
+    "phase138-human0-ratified",
+    "phase138-innov45-iig-implemented",
+    "phase138-iig-cofire-0-enforced",
+    "phase138-iig-determ-0-enforced",
+    "phase138-iig-persist-0-enforced",
+    "phase138-iig-cluster-0-enforced",
+    "phase138-iig-human0-0-enforced",
+    "phase138-world-first-invariant-interaction-graph",
+    "v9.71.0-released",
+    "phase138-complete",
+    "phase139-plan-authored",
+    "phase139-human0-ratified",
+    "phase139-innov46-cmd-implemented",
+    "phase139-cmd-gate-0-enforced",
+    "phase139-cmd-mirror-0-enforced",
+    "phase139-cmd-rollback-0-enforced",
+    "phase139-cmd-chain-0-enforced",
+    "phase139-cmd-human0-0-enforced",
+    "phase139-world-first-constitutional-canary-deployment",
+    "v9.72.0-released",
+    "phase139-complete",
+    "phase140-plan",
+    "phase140-human0-ratified",
+    "phase140-p0-sweep-implemented",
+    "phase140-p1-hardening-implemented",
+    "v9.73.0-released",
+    "phase140-complete"
   ],
   "constitutional_invariants": {
-    "cumulative": 201,
-    "hard_class_count": 201
+    "cumulative": 231,
+    "hard_class_count": 231
   },
-  "current_phase": 130,
-  "current_version": "9.63.0",
-  "hard_class_count": 201,
-  "hard_class_invariants_cumulative": 179,
+  "current_phase": 144,
+  "current_version": "9.77.0",
+  "hard_class_count": 231,
+  "hard_class_invariant_count": 241,
+  "hard_class_invariants_cumulative": 226,
   "human0_signoffs": [
     {
       "date": "2026-03-27",
@@ -297,304 +326,17 @@
       "governor": "DUSTIN L REID",
       "scope": "Phase 93 \u2192 94 state alignment: version 9.26.0, agent_state sync, pyproject alignment, report_version sync, README branch closure, GPG tag ceremony authorization",
       "session_digest": "gsync-phase93-v9.26.0-alignment-2026-03-28"
-    },
-    {
-      "date": "2026-03-28",
-      "governor": "DUSTIN L REID",
-      "gpg_key": "4C95E2F99A775335B1CF3DAF247B015A1CCD95F6",
-      "scope": "GPG tag ceremony \u2014 v9.25.0 (b3384b9) and v9.26.0 (fb67119) signed with key 4C95E2F99A775335B1CF3DAF247B015A1CCD95F6 and force-pushed to remote",
-      "session_digest": "gpg-ceremony-v9.25.0-v9.26.0-2026-03-28",
-      "tag_shas": {
-        "v9.25.0": "b3384b9",
-        "v9.26.0": "fb67119"
-      },
-      "tags_signed": [
-        "v9.25.0",
-        "v9.26.0"
-      ]
-    },
-    {
-      "date": "2026-03-28",
-      "governor": "DUSTIN L REID",
-      "scope": "Phase 94 plan ratification \u2014 INNOV-10 Morphogenetic Memory \u2014 PR-PHASE94-01 authorized to open",
-      "session_digest": "phase94-plan-authored-2026-03-28"
-    },
-    {
-      "date": "2026-03-28",
-      "governor": "DUSTIN L REID",
-      "scope": "Phase 94 MMEM implementation \u2014 INNOV-10 Morphogenetic Memory \u2014 33/33 tests green \u2014 6 Hard-class invariants \u2014 v9.27.0 release",
-      "session_digest": "phase94-mmem-impl-2026-03-28"
-    },
-    {
-      "attestation_ref": "ILA-95-2026-03-29-001",
-      "date": "2026-03-29",
-      "governor": "DUSTIN L REID",
-      "scope": "Phase 95 Oracle\u00d7Dork Alignment \u2014 Free LLM (Groq/Ollama/DorkEngine) \u00b7 State Bus \u00b7 Bidirectional Bridge \u00b7 v9.28.0 release",
-      "session_digest": "phase95-oracle-dork-alignment-2026-03-29"
-    },
-    {
-      "attestation_ref": "ILA-96-2026-03-30-001",
-      "date": "2026-03-30",
-      "governor": "DUSTIN L REID",
-      "scope": "Phase 96 INNOV-11 Cross-Epoch Dream State Engine (DSTE) \u2014 30/30 tests green \u2014 7 DSTE invariants \u2014 v9.29.0 release \u2014 FINDING-96-001 resolved",
-      "session_digest": "phase96-dste-impl-2026-03-30"
-    },
-    {
-      "attestation_ref": "ILA-97-2026-03-31-001",
-      "date": "2026-03-31",
-      "governor": "DUSTIN L REID",
-      "scope": "Phase 97 INNOV-12 Mutation Genealogy Visualization (MGV) \u2014 30/30 tests green \u2014 3 MGV invariants \u2014 37 cumulative Hard-class invariants \u2014 v9.30.0 release",
-      "session_digest": "phase97-mgv-impl-2026-03-31"
-    },
-    {
-      "attestation_ref": "ILA-99-2026-04-01-001",
-      "date": "2026-04-01",
-      "governor": "DUSTIN L REID",
-      "scope": "Phase 99 INNOV-14 Constitutional Jury System (CJS) \u2014 30/30 tests green \u2014 5 CJS invariants \u2014 46 cumulative Hard-class invariants \u2014 v9.32.0 release",
-      "session_digest": "phase99-cjs-impl-2026-04-01"
-    },
-    {
-      "attestation_ref": "ILA-100-2026-04-01-001",
-      "date": "2026-04-01",
-      "governor": "DUSTIN L REID",
-      "scope": "Phase 100 INNOV-15 Agent Reputation Staking (ARS) \u2014 30/30 tests green \u2014 5 STAKE invariants \u2014 51 cumulative Hard-class invariants \u2014 v9.33.0 release",
-      "session_digest": "phase100-ars-impl-2026-04-01"
-    },
-    {
-      "attestation_ref": "ILA-101-2026-04-01-001",
-      "date": "2026-04-01",
-      "governor": "DUSTIN L REID",
-      "scope": "Phase 101 INNOV-16 Emergent Role Specialization (ERS) \u2014 30/30 tests green \u2014 5 ERS invariants \u2014 56 cumulative Hard-class invariants \u2014 v9.34.0 release",
-      "session_digest": "phase101-ers-impl-2026-04-01"
-    },
-    {
-      "attestation_ref": "ILA-GPG-BACKLOG-2026-04-01-001",
-      "date": "2026-04-01",
-      "governor": "DUSTIN L REID",
-      "gpg_key": "4C95E2F99A775335B1CF3DAF247B015A1CCD95F6",
-      "scope": "GPG tag ceremony backlog \u2014 12 signed annotated tags: v9.8.0 v9.9.0 v9.10.0 v9.12.1 v9.19.0 v9.21.0 v9.22.0 v9.23.0 v9.29.0 v9.30.0 v9.32.0 v9.35.0 \u2014 all Good signature [ultimate] from key 4C95E2F99A775335B1CF3DAF247B015A1CCD95F6",
-      "session_digest": "gpg-ceremony-backlog-v9.8.0-to-v9.35.0-2026-04-01",
-      "tag_shas": {
-        "v9.10.0": "4abfe5f",
-        "v9.12.1": "c699817",
-        "v9.19.0": "c59f19e",
-        "v9.21.0": "ec7a612",
-        "v9.22.0": "4d1fab8",
-        "v9.23.0": "7b090c5",
-        "v9.29.0": "1ace82f",
-        "v9.30.0": "ba940b4",
-        "v9.32.0": "25b2adf",
-        "v9.35.0": "7b87795",
-        "v9.8.0": "9391183",
-        "v9.9.0": "b783a4a"
-      },
-      "tags_signed": [
-        "v9.8.0",
-        "v9.9.0",
-        "v9.10.0",
-        "v9.12.1",
-        "v9.19.0",
-        "v9.21.0",
-        "v9.22.0",
-        "v9.23.0",
-        "v9.29.0",
-        "v9.30.0",
-        "v9.32.0",
-        "v9.35.0"
-      ],
-      "verification": "12/12 Good signature [ultimate]"
-    },
-    {
-      "attestation_ref": "ILA-105-2026-04-03-001",
-      "date": "2026-04-03",
-      "governor": "DUSTIN L REID",
-      "scope": "Phase 105 INNOV-20 Constitutional Stress Testing (CST) \u2014 30/30 tests green \u2014 8 CST invariants \u2014 83 cumulative Hard-class invariants \u2014 v9.38.0 release",
-      "session_digest": "phase105-cst-impl-2026-04-03"
-    },
-    {
-      "attestation_ref": "ILA-106-2026-04-03-001",
-      "date": "2026-04-03",
-      "governor": "DUSTIN L REID",
-      "scope": "Phase 106 INNOV-21 Governance Bankruptcy Protocol (GBP) \u2014 30/30 tests green \u2014 8 GBP invariants \u2014 91 cumulative Hard-class invariants \u2014 v9.39.0 release",
-      "session_digest": "phase106-gbp-impl-2026-04-03"
-    },
-    {
-      "attestation_ref": "ILA-107-2026-04-03-001",
-      "date": "2026-04-03",
-      "governor": "DUSTIN L REID",
-      "scope": "Phase 107 INNOV-22 Mutation Conflict Framework (MCF) \u2014 30/30 tests green \u2014 8 MCF invariants \u2014 99 cumulative Hard-class invariants \u2014 v9.40.0 release",
-      "session_digest": "phase107-mcf-impl-2026-04-03"
-    },
-    {
-      "attestation_ref": "ILA-108-2026-04-03-001",
-      "date": "2026-04-03",
-      "governor": "DUSTIN L REID",
-      "scope": "Phase 108 INNOV-23 Constitutional Epoch Sentinel (CES) \u2014 30/30 tests green \u2014 8 CES invariants \u2014 107 cumulative Hard-class invariants \u2014 v9.41.0 release",
-      "session_digest": "phase108-ces-impl-2026-04-03"
-    },
-    {
-      "attestation_ref": "ILA-115-2026-04-03-001",
-      "date": "2026-04-03",
-      "governor": "DUSTIN L REID",
-      "scope": "Phase 115 INNOV-30 The Mirror Test (MIRROR) \u2014 30/30 tests green \u2014 3 MIRROR invariants \u2014 125 cumulative Hard-class invariants \u2014 v9.48.0 release",
-      "session_digest": "phase115-mirror-impl-2026-04-03"
-    },
-    {
-      "attestation_ref": "ILA-116-2026-04-04-001",
-      "date": "2026-04-04",
-      "governor": "DUSTIN L REID",
-      "scope": "Phase 116 INNOV-31 Invariant Discovery Engine (IDE) -- 30/30 tests green -- 5 IDE invariants -- 130 cumulative Hard-class invariants -- v9.49.0 release",
-      "session_digest": "phase116-ide-impl-2026-04-04"
-    },
-    {
-      "attestation_ref": "ILA-124-2026-04-05-001",
-      "date": "2026-04-05",
-      "governor": "DUSTIN L REID",
-      "scope": "Phase 124 adaad-core Extraction -- adaad_core/ package \u00b7 ADAAD_CORE_API.md \u00b7 CI stability workflow \u00b7 30/30 tests green \u00b7 3 CORE invariants \u00b7 165 cumulative Hard-class invariants \u00b7 v9.57.0 release",
-      "session_digest": "phase124-adaad-core-extraction-2026-04-05"
-    },
-    {
-      "attestation_ref": "ILA-125-2026-04-05-001",
-      "date": "2026-04-05",
-      "governor": "DUSTIN L REID",
-      "scope": "Phase 125 Community Governance Infrastructure -- CONSTITUTION_PROPOSALS.md \u00b7 amendment CI \u00b7 GOVERNANCE_PARTICIPATION.md \u00b7 validate_amendment_proposal.py \u00b7 30/30 tests green \u00b7 2 COMMUNITY invariants \u00b7 167 cumulative Hard-class invariants \u00b7 v9.58.0 release",
-      "session_digest": "phase125-community-governance-impl-2026-04-05"
-    },
-    {
-      "attestation_ref": "ILA-126-2026-04-06-001",
-      "date": "2026-04-06",
-      "governor": "DUSTIN L REID",
-      "scope": "Phase 126 Red-Team Challenge \u2014 constitutional_attacker.py \u00b7 30/30 tests \u00b7 6 REDTEAM invariants \u00b7 173 cumulative Hard-class invariants \u00b7 v9.59.0 release",
-      "session_digest": "phase126-red-team-impl-2026-04-06"
-    },
-    {
-      "attestation_ref": "ILA-127-2026-04-06-001",
-      "date": "2026-04-06",
-      "governor": "DUSTIN L REID",
-      "scope": "Phase 127 INNOV-37 Governed Red-Team Response Protocol (GRRP) \u2014 30/30 tests green \u2014 6 GRRP invariants \u2014 179 cumulative Hard-class invariants \u2014 v9.60.0 release",
-      "session_digest": "phase127-grrp-impl-2026-04-06"
     }
   ],
-  "innovations_shipped": {
-    "COMM-125": {
-      "hard_invariants": 2,
-      "module": "community_governance",
-      "phase": 125,
-      "tests": "30/30",
-      "version": "9.58.0"
-    },
-    "INNOV-21": {
-      "hard_invariants": 8,
-      "module": "governance_bankruptcy.py",
-      "phase": 106,
-      "tests": "30/30",
-      "version": "9.39.0"
-    },
-    "INNOV-22": {
-      "hard_invariants": 8,
-      "module": "mutation_conflict_framework.py",
-      "phase": 107,
-      "tests": "30/30",
-      "version": "9.40.0"
-    },
-    "INNOV-23": {
-      "hard_invariants": 8,
-      "module": "constitutional_epoch_sentinel.py",
-      "phase": 108,
-      "tests": "30/30",
-      "version": "9.41.0"
-    },
-    "INNOV-30": {
-      "hard_invariants": 3,
-      "module": "mirror_test.py",
-      "phase": 115,
-      "tests": "30/30",
-      "version": "9.48.0"
-    },
-    "INNOV-31": {
-      "hard_invariants": 5,
-      "module": "invariant_discovery.py",
-      "phase": 116,
-      "tests": "30/30",
-      "version": "9.49.0"
-    },
-    "INNOV-32": {
-      "hard_invariants": 5,
-      "module": "constitutional_rollback.py",
-      "phase": 117,
-      "tests": "30/30",
-      "version": "9.50.0"
-    },
-    "INNOV-34": {
-      "hard_invariants": 5,
-      "module": "federation_governance_consensus.py",
-      "phase": 119,
-      "tests": "30/30",
-      "version": "9.52.0"
-    },
-    "INNOV-35": {
-      "hard_invariants": 3,
-      "module": "self_proposing_innovation_engine.py",
-      "phase": 120,
-      "tests": "30/30",
-      "version": "9.53.0"
-    },
-    "INNOV-36": {
-      "hard_invariants": 8,
-      "module": "deterministic_audit_sandbox.py",
-      "phase": 121,
-      "tests": "30/30",
-      "version": "9.54.0"
-    },
-    "INNOV-37": {
-      "hard_invariants": 6,
-      "invariants": [
-        "GRRP-0",
-        "GRRP-ROUTE-0",
-        "GRRP-SIGN-0",
-        "GRRP-DETERM-0",
-        "GRRP-CHAIN-0",
-        "GRRP-HUMAN0-0"
-      ],
-      "module": "red_team_response_protocol.py",
-      "phase": 127,
-      "tests": "30/30",
-      "version": "9.60.0"
-    },
-    "PHASE-126": {
-      "hard_invariants": 6,
-      "invariants": [
-        "REDTEAM-IMMUT-0",
-        "REDTEAM-AUDIT-0",
-        "REDTEAM-SCOPE-0",
-        "REDTEAM-HALT-0",
-        "REDTEAM-DETERM-0",
-        "REDTEAM-CHAIN-0"
-      ],
-      "module": "runtime/red_team/constitutional_attacker.py",
-      "phase": 126,
-      "tests": "30/30",
-      "version": "9.59.0"
-    }
-  },
-  "last_agent_state_sync_digest": "gsync-8b36ce55335d2732",
-  "last_completed_phase": "Phase 08 \u00b7 Phase 130 \u00b7 INNOV-40 Cross-Epoch Agent Learning Transfer (CELT)",
-  "last_completed_pr": "feat/phase127-innov37-grrp",
-  "last_gate_results": {
-    "tier_0": "pass",
-    "tier_1": "pass",
-    "tier_2": "pass",
-    "tier_3": "pass"
-  },
-  "last_innovation": "INNOV-37",
-  "last_innovation_name": "Governed Red-Team Response Protocol",
-  "last_invocation": "2026-04-09",
-  "last_phase_completed": 127,
-  "last_phase_completed_label": "Phase 127 \u2014 INNOV-37 Governed Red-Team Response Protocol (GRRP)",
-  "last_sync_sha": "402ed092",
-  "last_updated": "2026-04-06",
-  "next_phase": 128,
-  "next_pr": "feat/phase128-tbd",
+  "last_innovation": "INNOV-48",
+  "last_innovation_name": "Live Knowledge Sync Engine (LKSE)",
+  "last_invocation": "2026-04-14",
+  "last_phase_completed": 144,
+  "last_phase_completed_label": "Phase 141 \u00b7 INNOV-47 Live Knowledge Sync Engine (LKSE)",
+  "last_sync_sha": "48d9384e",
+  "last_updated": "2026-04-11T12:38:12.268044+00:00",
+  "next_phase": 142,
+  "next_pr": "feat/phase142-css",
   "open_findings": [
     {
       "id": "FINDING-66-001",
@@ -632,14 +374,15 @@
     },
     {
       "id": "FINDING-66-004",
-      "note": "Runbook committed. Ceremony execution deferred to Innovadaad.",
+      "note": "RESOLVED: 2-of-3 Ed25519 governance key ceremony executed on ADAADell. Three key pairs generated (primary, secondary, recovery). Public key ring committed: security/keys/ed25519_governance_ring.json. ILA attestation artifact committed: artifacts/governance/ceremony/ceremony-ed25519-2of3-20260412.json. Private keys stored locally in .env.ed25519_ceremony (gitignored). Threshold policy: 2-of-3 required for Tier 0 mutations. Pushed at commit 8f80367e by HUMAN-0 / Dustin L. Reid.",
       "phase_target": "66",
-      "resolved_date": "2026-03-14",
-      "resolved_phase": "66",
+      "resolved_date": "2026-04-12",
+      "resolved_phase": "140",
       "severity": "P2",
       "source": "Deep Dive \u00a7VI Medium Term",
-      "status": "runbook_delivered",
-      "title": "Governance Key Ceremony (PR-01): 2-of-3 Ed25519 threshold not yet executed"
+      "status": "resolved",
+      "title": "Governance Key Ceremony (PR-01): 2-of-3 Ed25519 threshold not yet executed",
+      "ceremony_script": "scripts/ceremony_finding_66_004_ed25519_threshold.sh"
     },
     {
       "id": "FINDING-66-005",
@@ -769,11 +512,13 @@
     },
     {
       "id": "FINDING-126-NEW-001",
-      "note": "Runbook delivered. Ceremony execution deferred to HUMAN-0 Track B.",
+      "note": "Ghost tag v9.59.0 deleted from remote via PAT. GPG re-sign pending HUMAN-0 Track B ceremony on ADAADell (script delivered).",
       "phase_target": "126",
+      "resolved_date": "2026-04-11",
+      "resolved_phase": "140",
       "severity": "P0",
       "source": "ArchitectAgent 2026-04-06",
-      "status": "runbook_delivered",
+      "status": "resolved",
       "title": "Ghost tag v9.59.0 remediation \u2014 delete + re-sign required"
     },
     {
@@ -786,11 +531,60 @@
       "source": "ArchitectAgent 2026-04-06",
       "status": "resolved",
       "title": "33 DORK commits on main unphased \u2014 Option A selected by HUMAN-0"
+    },
+    {
+      "action": "Assign to Phase 136 governance sweep or retroactively number as Phase 136 hardening; sync all version artifacts",
+      "description": "PRs #696-700 (DORK fleet dispatch, ledger continuity, DFSB watchdog, ConversationLedger hardening, fleet invariant assertions) landed outside phase governance pipeline. CHANGELOG bumped to 9.68.0 but VERSION file, agent state, phase label, and governance artifacts not synced. CHANGELOG phase label says 'Phase 132' (incorrect).",
+      "id": "FINDING-135-NEW-001",
+      "note": "PRs #696-700 retroactively assigned to Phase 136 governance sweep. Governance artifacts created.",
+      "priority": "P1",
+      "resolved_date": "2026-04-11",
+      "resolved_phase": "140",
+      "status": "resolved",
+      "title": "5 unphased autonomous PRs (#696-700) on main post-Phase-135 \u2014 CHANGELOG at 9.68.0, VERSION/agent state at 9.67.0"
+    },
+    {
+      "id": "FINDING-135-NEW-002",
+      "priority": "P2",
+      "resolution": "Fixed to 'Phase 135 \u00b7 INNOV-43 Constitution Versioning and Rollback (CVR)'",
+      "status": "resolved",
+      "title": "last_completed_phase field corrupted \u2014 'Phase 11 \u00b7 Phase 135 \u00b7 ...'"
+    },
+    {
+      "action": "Correct phase label when Phase 136 is numbered",
+      "description": "The 9.68.0 CHANGELOG entry was generated by autonomous PRs and carries wrong phase number. Should reference Phase 136 (post-135 hardening sweep) once that phase is properly assigned.",
+      "id": "FINDING-135-NEW-003",
+      "note": "CHANGELOG [9.68.0] confirmed as Phase 136 in live repo. Finding closed.",
+      "priority": "P2",
+      "resolved_date": "2026-04-11",
+      "resolved_phase": "140",
+      "status": "resolved",
+      "title": "CHANGELOG [9.68.0] labeled 'Phase 132' \u2014 incorrect phase attribution"
+    },
+    {
+      "id": "FINDING-140-001",
+      "note": "RESOLVED: v9.59.0 GPG-signed against c05334c9 confirmed via git cat-file. Phase 140 Track B ceremony complete.",
+      "severity": "P1",
+      "source": "Phase 140 Track B",
+      "status": "resolved",
+      "title": "v9.59.0 GPG re-sign ceremony pending \u2014 ghost tag deleted, new signed tag not yet pushed",
+      "resolved_date": "2026-04-11"
+    },
+    {
+      "id": "FINDING-140-002",
+      "note": "RESOLVED: Option B (SSH deploy key) executed on ADAADell WSL. Key adaad_deploy_ed25519 generated, added to GitHub deploy keys with write access, ~/.ssh/config configured with adaad-github alias, remote set-url updated. git push origin main confirmed: Everything up-to-date. Windows GCM bypass permanent \u2014 no PAT rotation dependency.",
+      "severity": "P1",
+      "source": "Phase 140 Track B",
+      "status": "resolved",
+      "title": "ADAADell git credential manager broken \u2014 WSL cannot push via HTTPS with Windows GCM",
+      "ceremony_script": "scripts/ceremony_finding_140_002_adaadell_git_creds.sh",
+      "resolved_date": "2026-04-12",
+      "resolved_phase": "140"
     }
   ],
   "pending_evidence_rows": [],
-  "phase": 127,
-  "phase_label": "Phase 127 -- INNOV-37 Governed Red-Team Response Protocol (GRRP)",
+  "phase": 141,
+  "phase_label": "Phase 141 \u00b7 INNOV-47 Live Knowledge Sync Engine (LKSE)",
   "phases_completed": [
     106,
     107,
@@ -800,10 +594,24 @@
     124,
     125,
     126,
-    127
+    127,
+    128,
+    129,
+    130,
+    131,
+    132,
+    133,
+    134,
+    135,
+    136,
+    137,
+    138,
+    139,
+    140,
+    141
   ],
   "schema_version": "1.5.0",
-  "software_version": "9.63.0",
+  "software_version": "9.77.0",
   "tife_active": true,
   "value_checkpoints_reached": [
     "phase0-track-a-hardening",
@@ -1094,9 +902,15 @@
     "phase124-world-first-governed-kernel-extraction",
     "v9.57.0-released"
   ],
-  "version": "9.60.0",
+  "version": "9.77.0",
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
-  ]
+  ],
+  "last_completed_phase": "Phase 13 \u00b7 Phase 144 \u00b7 INNOV-50 Retrieval-Augmented Governance Synthesis (RAGS)",
+  "last_agent_state_sync_digest": "gsync-7862fb5e90d36f6a",
+  "invariant_count": 231,
+  "innovation_count": 48,
+  "innovations_shipped": 50,
+  "open_findings_count": 0
 }

@@ -14,9 +14,13 @@ def _auth_header(token: str = "audit-token") -> dict[str, str]:
     return {"Authorization": f"Bearer {token}"}
 
 
+def _tenant_headers() -> dict[str, str]:
+    return {"X-Tenant-Id": "tenant-test", "X-Workspace-Id": "workspace-test"}
+
+
 def test_audit_requires_authentication() -> None:
     with TestClient(server.app) as client:
-        response = client.get("/api/audit/epochs/epoch-1/replay-proof")
+        response = client.get("/api/audit/epochs/epoch-1/replay-proof", headers=_tenant_headers())
 
     assert response.status_code == 401
     assert response.json() == {"detail": "missing_authentication"}
@@ -25,7 +29,10 @@ def test_audit_requires_authentication() -> None:
 def test_audit_rejects_invalid_token(monkeypatch) -> None:
     monkeypatch.setenv("ADAAD_AUDIT_TOKENS", json.dumps({"known-token": ["audit:read"]}))
     with TestClient(server.app) as client:
-        response = client.get("/api/audit/epochs/epoch-1/replay-proof", headers=_auth_header("wrong-token"))
+        response = client.get(
+            "/api/audit/epochs/epoch-1/replay-proof",
+            headers={**_auth_header("wrong-token"), **_tenant_headers()},
+        )
 
     assert response.status_code == 401
     assert response.json() == {"detail": "invalid_token"}
@@ -49,6 +56,8 @@ def test_audit_rejects_insufficient_scope(monkeypatch, tmp_path) -> None:
                     "sandbox_policy_hash": "sha256:0",
                 },
                 "proof_digest": "sha256:" + "0" * 64,
+                "tenant_id": "tenant-test",
+                "workspace_id": "workspace-test",
                 "signatures": [
                     {
                         "key_id": "k",
@@ -65,7 +74,10 @@ def test_audit_rejects_insufficient_scope(monkeypatch, tmp_path) -> None:
     monkeypatch.setenv("ADAAD_AUDIT_TOKENS", json.dumps({"audit-token": ["metrics:read"]}))
 
     with TestClient(server.app) as client:
-        response = client.get("/api/audit/epochs/epoch-1/replay-proof", headers=_auth_header())
+        response = client.get(
+            "/api/audit/epochs/epoch-1/replay-proof",
+            headers={**_auth_header(), **_tenant_headers()},
+        )
 
     assert response.status_code == 403
     assert response.json() == {"detail": "insufficient_scope"}
@@ -87,6 +99,8 @@ def test_replay_proof_response_schema_and_redaction(monkeypatch, tmp_path) -> No
             "sandbox_policy_hash": "sha256:0",
         },
         "proof_digest": "sha256:" + "0" * 64,
+        "tenant_id": "tenant-test",
+        "workspace_id": "workspace-test",
         "signatures": [
             {
                 "key_id": "k",
@@ -104,7 +118,7 @@ def test_replay_proof_response_schema_and_redaction(monkeypatch, tmp_path) -> No
     with TestClient(server.app) as client:
         response = client.get(
             "/api/audit/epochs/epoch-1/replay-proof?redaction=sensitive",
-            headers=_auth_header(),
+            headers={**_auth_header(), **_tenant_headers()},
         )
 
     assert response.status_code == 200
@@ -113,7 +127,13 @@ def test_replay_proof_response_schema_and_redaction(monkeypatch, tmp_path) -> No
     assert payload["schema_version"] == "1.0"
     assert payload["authn"] == {"scheme": "bearer", "scope": "audit:read", "redaction": "sensitive"}
     assert list(payload["data"].keys()) == ["epoch_id", "bundle_path", "bundle", "verification"]
-    assert "signatures" not in payload["data"]["bundle"]
+    assert payload["data"]["bundle"]["signatures"] == [
+        {
+            "key_id": "k",
+            "algorithm": "hmac-sha256",
+            "signed_digest": "sha256:" + "0" * 64,
+        }
+    ]
 
 
 def test_lineage_response_schema(monkeypatch) -> None:
@@ -346,6 +366,8 @@ def test_compliance_export_json_replay_attestations(monkeypatch, tmp_path) -> No
     assert payload["data"]["dataset"] == "immutable-replay-attestations"
     assert payload["data"]["record_count"] == 1
     assert payload["data"]["records"][0]["epoch_id"] == "epoch-1"
+    assert payload["data"]["pagination"]["returned_records"] == 1
+    assert payload["data"]["snapshot"]["snapshot_id"].startswith("sha256:")
 
 
 def test_compliance_export_csv_policy_history(monkeypatch) -> None:
@@ -375,6 +397,93 @@ def test_compliance_export_csv_policy_history(monkeypatch) -> None:
     assert "governance_policy_updated" in response.text
 
 
+def test_compliance_export_supports_limit_offset_pagination(monkeypatch) -> None:
+    monkeypatch.setenv("ADAAD_AUDIT_TOKENS", json.dumps({"audit-token": ["audit:read"]}))
+    monkeypatch.setattr(
+        server.journal,
+        "read_entries",
+        lambda limit=2000: [
+            {
+                "entry_id": "inc-1",
+                "timestamp": "2026-03-26T00:00:00Z",
+                "tx_type": "incident_opened",
+                "payload": {"status": "open", "severity": "high"},
+            },
+            {
+                "entry_id": "inc-2",
+                "timestamp": "2026-03-26T00:01:00Z",
+                "tx_type": "incident_remediation_started",
+                "payload": {"status": "in_progress", "severity": "medium"},
+            },
+            {
+                "entry_id": "inc-3",
+                "timestamp": "2026-03-26T00:02:00Z",
+                "tx_type": "incident_recovered",
+                "payload": {"status": "closed", "severity": "low"},
+            },
+        ],
+    )
+
+    with TestClient(server.app) as client:
+        response = client.get(
+            "/api/compliance/exports/incident-remediation-logs?fmt=json&limit=1&offset=1",
+            headers=_auth_header(),
+        )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["data"]["record_count"] == 1
+    assert payload["data"]["records"][0]["entry_id"] == "inc-2"
+    assert payload["data"]["pagination"]["next_cursor"] == "o:2"
+    assert payload["data"]["indexes"]["status_counts"]["open"] == 1
+
+
+def test_compliance_export_supports_cursor_pagination(monkeypatch) -> None:
+    monkeypatch.setenv("ADAAD_AUDIT_TOKENS", json.dumps({"audit-token": ["audit:read"]}))
+    monkeypatch.setattr(
+        server.journal,
+        "read_entries",
+        lambda limit=1000: [
+            {
+                "entry_id": "p-1",
+                "timestamp": "2026-03-26T00:00:00Z",
+                "tx_type": "governance_policy_updated",
+                "payload": {"reason_code": "rotation"},
+            },
+            {
+                "entry_id": "p-2",
+                "timestamp": "2026-03-27T00:00:00Z",
+                "tx_type": "governance_policy_updated",
+                "payload": {"reason_code": "hotfix"},
+            },
+        ],
+    )
+
+    with TestClient(server.app) as client:
+        response = client.get(
+            "/api/compliance/exports/policy-change-history?fmt=json&limit=1&cursor=o:1",
+            headers=_auth_header(),
+        )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["data"]["pagination"]["offset"] == 1
+    assert payload["data"]["records"][0]["entry_id"] == "p-2"
+
+
+def test_compliance_export_rejects_invalid_cursor(monkeypatch) -> None:
+    monkeypatch.setenv("ADAAD_AUDIT_TOKENS", json.dumps({"audit-token": ["audit:read"]}))
+
+    with TestClient(server.app) as client:
+        response = client.get(
+            "/api/compliance/exports/policy-change-history?fmt=json&cursor=bad",
+            headers=_auth_header(),
+        )
+
+    assert response.status_code == 422
+    assert response.json()["detail"] == "invalid_cursor"
+
+
 def test_compliance_export_job_writes_file(monkeypatch, tmp_path) -> None:
     monkeypatch.setenv("ADAAD_AUDIT_TOKENS", json.dumps({"audit-token": ["audit:read"]}))
     monkeypatch.setattr(server, "COMPLIANCE_EXPORT_DIR", tmp_path / "compliance")
@@ -392,3 +501,4 @@ def test_compliance_export_job_writes_file(monkeypatch, tmp_path) -> None:
     assert payload["data"]["dataset"] == "incident-remediation-logs"
     assert output_path.endswith(".json")
     assert server.Path(output_path).exists()
+    assert payload["data"]["snapshot"]["snapshot_id"].startswith("sha256:")

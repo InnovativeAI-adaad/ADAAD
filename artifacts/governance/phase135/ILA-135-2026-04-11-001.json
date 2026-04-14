@@ -1,0 +1,56 @@
+{
+  "artifact_type": "ILA",
+  "artifact_id": "ILA-135-2026-04-11-001",
+  "phase": 135,
+  "version": "9.67.0",
+  "innov_id": "INNOV-43",
+  "title": "Constitution Versioning and Rollback (CVR)",
+  "world_first": "Constitutional git-blame-equivalent with cryptographic chain integrity and HUMAN-0-gated rollback \u2014 first autonomous codebase to version its own governing constitution with full replay determinism",
+  "timestamp_utc": "2026-04-11T17:33:15.530189+00:00",
+  "module": "runtime/innovations30/constitution_version_ledger.py",
+  "test_suite": "tests/innovations/test_phase135_cvr.py",
+  "test_result": {
+    "run": 30,
+    "passed": 30,
+    "failed": 0,
+    "result": "PASS"
+  },
+  "full_suite_result": {
+    "run": 325,
+    "passed": 325,
+    "failed": 0,
+    "result": "PASS"
+  },
+  "new_invariants": [
+    {
+      "id": "CVR-IMMUT-0",
+      "class": "Hard",
+      "statement": "CVL is append-only; delete/mutate raises CVLImmutabilityViolation"
+    },
+    {
+      "id": "CVR-DIGEST-0",
+      "class": "Hard",
+      "statement": "Every entry carries SHA-256 content digest; mismatch raises CVLDigestViolation"
+    },
+    {
+      "id": "CVR-ROLLBACK-0",
+      "class": "Hard",
+      "statement": "Rollback is a forward amendment entry; destructive rewrite is prohibited"
+    },
+    {
+      "id": "CVR-HUMAN0-0",
+      "class": "Hard",
+      "statement": "Rollback requires non-empty human0_token; absence raises CVLAuthorizationViolation"
+    },
+    {
+      "id": "CVR-CHAIN-0",
+      "class": "Hard",
+      "statement": "Each entry carries prev_hash; chain break raises CVLChainViolation"
+    }
+  ],
+  "invariant_cumulative_before": 211,
+  "invariant_cumulative_after": 216,
+  "human0_ratification": "all Human signoffs needed are hereby approved sign DUSTIN L REID",
+  "ratification_status": "RATIFIED",
+  "digest": "00f1c833615e9e0fffba0f618b2ae6171c4dc2095c2d8c6b947225693bf68057"
+}

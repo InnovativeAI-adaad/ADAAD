@@ -510,6 +510,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 <script src="./dork_knowledge_base.js"></script>
 <script src="./dork_runtime.js"></script>
 <script src="./dork_capability_registry.js"></script>
+<script src="./dork_skills.js"></script>
 <script>
 // ── CONSTANTS ─────────────────────────────────────────────────────
 const ROUTES={governance:'/api/governance/status',mutations:'/api/mutations/recent?limit=20',replay:'/api/replay/score',epoch:'/api/epoch/current',agents:'/api/agents/health',ledger:'/api/ledger/entries?limit=50',whRecent:'/api/webhooks/recent?limit=20',whStream:'/api/webhooks/stream',readiness:'/api/release/readiness',ledgerLog:'/api/ledger/log',dorkEventAppend:'/api/ledger/log/events',dorkEventStream:'/api/ledger/log/stream'};
@@ -537,6 +538,7 @@ let llmCfg={provider:'groq',groqKey:'',ollamaModel:'llama3.2',claudeKey:''};
 let selProvider='groq';
 let eventBus=[],eventBusFilter='all',eventBusExpanded=false,eventBusSeq=0;
 let dorkSeedAutoStarted=false;
+let dorkAutoLoaded=false;
 
 // ── ADAAD STATE BUS (Phase 101 L1) ───────────────────────────────
 window.ADAAD_STATE_BUS=null;
@@ -1282,6 +1284,14 @@ async function sendDork(){
   }
 }
 
+async function sendThroughDorkRuntime(msg, options){
+  if(!window.initDorkRuntime) return null;
+  const dorkRuntime=window.initDorkRuntime();
+  if(!dorkRuntime||typeof dorkRuntime.sendMessage!=='function') return null;
+  return dorkRuntime.sendMessage(msg, options||{});
+}
+window.sendThroughDorkRuntime=sendThroughDorkRuntime;
+
 function addThink(id){
   const dm=document.getElementById('dork-msgs');
   const d=document.createElement('div');d.className='dork-msg assistant';d.id=id;
@@ -1348,6 +1358,22 @@ function autostartDorkSeed(){
   ar(inp);
   updateBus({dork_last_fingerprint:{prompt_sha1:fingerprint(seeded),result_sha1:'',issued_at_iso:new Date().toISOString()}});
   bus('bridge','dork_seed autostart');
+  sendDork();
+}
+
+// ── DORK AUTO-LOAD (unconditional fresh-session boot) ─────────────
+function autostartDorkLoad(){
+  if(dorkAutoLoaded)return;
+  if(dorkSeedAutoStarted)return;          // URL seed takes priority
+  if(conv&&conv.length>0)return;          // existing session — don't clobber
+  const inp=document.getElementById('dinp');
+  if(!inp)return;
+  dorkAutoLoaded=true;
+  const defaultQuery='Show current governance gate status, epoch, agent triad health, and replay score.';
+  inp.value=defaultQuery;
+  ar(inp);
+  updateBus({dork_last_fingerprint:{prompt_sha1:fingerprint(defaultQuery),result_sha1:'',issued_at_iso:new Date().toISOString()}});
+  bus('bridge','dork_autoload boot');
   sendDork();
 }
 
@@ -1626,6 +1652,7 @@ restoreConv();restoreEventBus();renderEventBus();renderDebt();refreshAll();start
 applyProviderBadges(llmCfg.provider);
 bootstrapProvider();
 setTimeout(autostartDorkSeed,0);
+setTimeout(autostartDorkLoad,2000);
 </script>
 </body>
 </html>

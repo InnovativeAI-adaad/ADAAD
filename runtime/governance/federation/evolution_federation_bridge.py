@@ -34,6 +34,11 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
 
+from runtime.governance.federation.federated_evidence_matrix import (
+    EpochAlreadyRegisteredSameDigest,
+    LocalEpochDigestConflictError,
+)
+
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
@@ -149,14 +154,12 @@ class EvolutionFederationBridge:
         """
         hook_name = "on_mutation_cycle_end"
         try:
-            chain_digest = self._chain_digest_fn(epoch_id)
             proposal = self._broker.propose_federated_mutation(
                 source_epoch_id=epoch_id,
                 source_mutation_id=mutation_id,
+                destination_repo=destination_repo_id or "broadcast",
                 mutation_payload=mutation_payload,
                 gate_decision_payload=gate_decision_payload,
-                destination_repo_id=destination_repo_id or "broadcast",
-                chain_digest_fn=lambda: chain_digest,
             )
             self._safe_audit(
                 "federation_bridge_outbound_proposed",
@@ -213,8 +216,23 @@ class EvolutionFederationBridge:
             post_accepted = len(self._broker.accepted_proposals())
             post_quarantined = len(self._broker.quarantined_proposals())
 
-            newly_accepted = post_accepted - pre_accepted
-            newly_quarantined = post_quarantined - pre_quarantined
+            raw_newly_accepted = post_accepted - pre_accepted
+            raw_newly_quarantined = post_quarantined - pre_quarantined
+            if raw_newly_accepted < 0 or raw_newly_quarantined < 0:
+                logger.warning(
+                    "federation_bridge.on_inbound_evaluation observed negative delta(s): "
+                    "accepted=%s quarantined=%s (pre: accepted=%s quarantined=%s, "
+                    "post: accepted=%s quarantined=%s). Possible broker list reset/compaction.",
+                    raw_newly_accepted,
+                    raw_newly_quarantined,
+                    pre_accepted,
+                    pre_quarantined,
+                    post_accepted,
+                    post_quarantined,
+                )
+
+            newly_accepted = max(0, raw_newly_accepted)
+            newly_quarantined = max(0, raw_newly_quarantined)
             evaluated = newly_accepted + newly_quarantined
 
             # Emit per-accepted audit events
@@ -302,26 +320,33 @@ class EvolutionFederationBridge:
                 evidence_registered=True,
                 detail={"chain_digest": resolved_digest},
             )
-        except Exception as exc:  # noqa: BLE001
-            # Conflict (same epoch, different digest) is a hard error
-            if "conflict" in str(exc).lower() or "digest_conflict" in str(exc).lower():
-                logger.error(
-                    "federation_bridge.on_epoch_rotation — epoch digest conflict: %s", exc
-                )
-                self._safe_audit(
-                    "federation_bridge_epoch_digest_conflict",
-                    {"epoch_id": epoch_id, "chain_digest": resolved_digest, "error": str(exc)},
-                )
-                return BridgeResult(
-                    hook=hook_name,
-                    epoch_id=epoch_id,
-                    ok=False,
-                    error=str(exc),
-                    detail={"chain_digest": resolved_digest},
-                )
-            # Idempotent re-registration: already registered with same digest — OK
+        except LocalEpochDigestConflictError as exc:
+            logger.error(
+                "federation_bridge.on_epoch_rotation conflict epoch=%s digest=%s error=%s",
+                epoch_id,
+                resolved_digest,
+                exc,
+            )
+            self._safe_audit(
+                "federation_bridge_epoch_digest_conflict",
+                {"epoch_id": epoch_id, "chain_digest": resolved_digest, "error": str(exc)},
+            )
+            return BridgeResult(
+                hook=hook_name,
+                epoch_id=epoch_id,
+                ok=False,
+                error=str(exc),
+                detail={"chain_digest": resolved_digest},
+            )
+        except EpochAlreadyRegisteredSameDigest as exc:
             logger.debug(
-                "federation_bridge.on_epoch_rotation idempotent: epoch=%s", epoch_id
+                "federation_bridge.on_epoch_rotation idempotent epoch=%s digest=%s",
+                epoch_id,
+                resolved_digest,
+            )
+            self._safe_audit(
+                "federation_bridge_epoch_idempotent",
+                {"epoch_id": epoch_id, "chain_digest": resolved_digest, "error": str(exc)},
             )
             return BridgeResult(
                 hook=hook_name,
@@ -329,6 +354,25 @@ class EvolutionFederationBridge:
                 ok=True,
                 evidence_registered=False,  # already registered
                 detail={"chain_digest": resolved_digest, "idempotent": True},
+            )
+        except Exception as exc:  # noqa: BLE001
+            logger.error(
+                "federation_bridge.on_epoch_rotation failed epoch=%s digest=%s error=%s",
+                epoch_id,
+                resolved_digest,
+                exc,
+                exc_info=True,
+            )
+            self._safe_audit(
+                "federation_bridge_epoch_registration_error",
+                {"epoch_id": epoch_id, "chain_digest": resolved_digest, "error": str(exc)},
+            )
+            return BridgeResult(
+                hook=hook_name,
+                epoch_id=epoch_id,
+                ok=False,
+                error=str(exc),
+                detail={"chain_digest": resolved_digest},
             )
 
     # ------------------------------------------------------------------
