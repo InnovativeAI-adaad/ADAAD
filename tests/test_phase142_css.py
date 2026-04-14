@@ -510,8 +510,9 @@ def test_T142_CSS_29_governance_artifacts_phase142_exist():
 
 @pytest.mark.phase142
 def test_T142_CSS_30_version_bump_to_9_75_0():
-    """T142-CSS-30: VERSION file must be 9.75.0 for Phase 142 closure."""
+    """T142-CSS-30: VERSION must be >= 9.75.0 (Phase 142 closure; semver forward-compatible)."""
     version_file = Path("VERSION")
     assert version_file.exists(), "VERSION file must exist"
     version = version_file.read_text().strip()
-    assert version == "9.75.0", f"VERSION must be 9.75.0; got {version!r}"
+    version_tuple = tuple(int(x) for x in version.split("."))
+    assert version_tuple >= (9, 75, 0), f"VERSION must be >= 9.75.0; got {version!r}"

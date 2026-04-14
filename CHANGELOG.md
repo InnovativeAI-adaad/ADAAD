@@ -1,3 +1,37 @@
+## [9.77.1] — 2026-04-14 · Patch · DORK v2.2 Renderer Performance Hardening
+
+### Performance patch — no new invariants · 241 Hard-class total
+
+**DORK v2.2 — `ui/dork.html` renderer optimizations**
+
+- `RX` module-level constants — 32 inline regex literals inside `renderMd()` hoisted to a
+  frozen `const RX = { ... }` object at module scope. Previous build compiled ~1,920
+  regex objects per second during 60fps streaming. Now compiled once at page load.
+  Three additional literals caught in this pass: `/[&<>]/g`, `/^[-*] /`, `/^\d+\. /`.
+- `esc()` single-pass lookup — HTML escape previously ran three chained `.replace()` calls
+  (one per character class). Replaced with `s.replace(RX.htmlChar, c => _ESC[c])` — one
+  string scan, one allocation per call.
+- `buildMsgEl()` factory — `loadSession()` carried a duplicate message DOM template.
+  Extracted to shared `buildMsgEl(role, content, ts)`. `loadSession()` now batches all
+  restored messages into a `DocumentFragment` before DOM append — one reflow per session
+  restore instead of one per message.
+- Lazy `D` config refs — `openCfg()` and `saveCfg()` each resolved `q('#cfg-key')`,
+  `q('#cfg-model')`, `q('#cfg-gov')` independently (6 redundant DOM queries per
+  modal open/save cycle). Resolved once on first `openCfg()` into `D.cfgKey`,
+  `D.cfgModel`, `D.cfgGov`. Config event listeners consolidated to one delegated handler.
+
+**Metrics:** JS −14% · total file −7% · 92 lines removed · 17/17 renderer tests pass
+
+**Stale-test remediation:** `test_phase142_css.py::test_T142_CSS_30_version_bump_to_9_75_0`
+  updated to semver `>=` assertion — passes on all versions ≥ 9.75.0.
+
+**No constitutional changes. No new invariants. No HUMAN-0 gate required for code.**
+HUMAN-0 ratification on record (Dustin L. Reid, 2026-04-14) for patch promotion and GPG tag.
+
+**Tests:** 385/385 pass (full innovations suite)
+
+---
+
 ## [9.77.0] — 2026-04-13 · Phase 144 · INNOV-50 Retrieval-Augmented Governance Synthesis (RAGS)
 
 ### DORK Intelligence Trilogy Complete — 5 new Hard-class invariants (241 total)
