@@ -831,16 +831,14 @@ body {
 </div>
 
 <script>
-/* ═══════════════════════════════════════════════════════════════
-   DORK v2.1 — ADAAD Advisory Intelligence  (optimized build)
-   ═══════════════════════════════════════════════════════════════ */
+/* DORK v2.2 — ADAAD Advisory Intelligence */
 
-/* ── Server-injected availability flags ── */
+/* Server-injected flags */
 const SERVER_KEY_AVAILABLE  = window.__anthropic_key_available ?? false;
 const SERVER_PROXY_ENDPOINT = '/api/dork/stream';
 const DIRECT_API_URL        = 'https://api.anthropic.com/v1/messages';
 
-/* ── Persisted config ── */
+/* Persisted config */
 const CFG = {
   get key()    { return localStorage.getItem('dork_api_key')  || ''; },
   set key(v)   { localStorage.setItem('dork_api_key', v); },
@@ -852,17 +850,16 @@ const CFG = {
   pollMs:    30_000,
 };
 
-/* ── Runtime state ── */
+/* Runtime state */
 const S = {
-  msgs:      [],      /* { role, content }[] — source of truth */
+  msgs:      [],
   gov:       null,
   streaming: false,
   govTimer:  null,
   govOpen:   false,
-  rafPending: false,  /* rAF coalescing flag for streaming renders */
 };
 
-/* ── DOM refs (resolved once at boot) ── */
+/* DOM refs — resolved once */
 const q = (s) => document.querySelector(s);
 const D = {
   msgs:        q('#messages'),
@@ -887,219 +884,191 @@ const D = {
   sessionLabel:q('#session-label'),
   quickPrompts:q('#quick-prompts'),
   serverBanner:q('#server-key-banner'),
+  /* config modal fields — populated once at openCfg() */
+  cfgKey: null, cfgModel: null, cfgGov: null, cfgHint: null,
+  cfgCancel: null, cfgSave: null, cfgClear: null,
 };
 
-/* ═══════════════════════════════════════════
-   MARKDOWN RENDERER
-   Two-pass: extract code first, escape prose,
-   apply inline transforms, restore code.
-   Handles: fenced code, headers, hr, tables,
-   blockquotes, ul/ol, bold, italic, inline code.
-   ═══════════════════════════════════════════ */
+/* ── MARKDOWN RENDERER ──────────────────────────────────────────
+   Regexes are module-level constants — compiled once, not on
+   every renderMd() call (critical: called at 60fps during stream).
+   Two-pass: stash code first, escape prose, apply transforms,
+   restore stash.
+   ─────────────────────────────────────────────────────────────── */
+
 function esc(s) {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
+/* Hoisted regex constants — compiled once at module load */
+const RX = {
+  fence:    /```(\w*)\n?([\s\S]*?)```/g,
+  stash:    /\x00CODE(\d+)\x00/g,
+  htmlChar: /[&<>]/g,
+  h3:       /^### (.+)$/gm,
+  h2:       /^## (.+)$/gm,
+  hr:       /^---+$/gm,
+  bq:       /^&gt; (.+)$/gm,
+  table:    /((?:\|.+\|\n?)+)/g,
+  tableSep: /^\|[\s\-|:]+\|$/,
+  ul:       /((?:^[-*] .+\n?)+)/gm,
+  ol:       /((?:^\d+\. .+\n?)+)/gm,
+  ulStrip:  /^[-*] /,
+  olStrip:  /^\d+\. /,
+  backtick: /`([^`\n]+)`/g,
+  bold3:    /\*\*\*(.+?)\*\*\*/g,
+  bold2:    /\*\*(.+?)\*\*/g,
+  italic:   /(?<!\*)\*([^*\n]+)\*(?!\*)/g,
+  para:     /\n\n+/g,
+  br:       /\n/g,
+  pOpen:    /<p>(<(?:h[23]|hr|pre|ul|ol|table|blockquote)[^>]*>)/g,
+  pClose:   /(<\/(?:h[23]|pre|ul|ol|table|blockquote)>)<\/p>/g,
+  pEmpty:   /<p><\/p>/g,
+};
+
+const _ESC = { '&':'&amp;', '<':'&lt;', '>':'&gt;' };
+
 function renderMd(raw) {
-  /* ── Pass 1: extract fenced code blocks into a stash ── */
   const stash = [];
-  let s = raw.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
+
+  /* Pass 1: stash fenced code */
+  let s = raw.replace(RX.fence, (_, lang, code) => {
     const i = stash.length;
-    stash.push(
-      `<pre><code class="lang-${lang || 'text'}">${esc(code.trim())}</code></pre>`
-    );
+    stash.push(`<pre><code class="lang-${lang||'text'}">${esc(code.trim())}</code></pre>`);
     return `\x00CODE${i}\x00`;
   });
 
-  /* ── Pass 2: HTML-escape everything outside the stash ── */
-  s = s.replace(/[&<>]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;' }[c]));
+  /* Pass 2: escape HTML in prose (single-pass lookup table) */
+  s = s.replace(RX.htmlChar, c => _ESC[c]);
 
-  /* ── Block transforms (order matters) ── */
+  /* Block transforms */
+  s = s.replace(RX.h3, '<h3>$1</h3>');
+  s = s.replace(RX.h2, '<h2>$1</h2>');
+  s = s.replace(RX.hr, '<hr>');
+  s = s.replace(RX.bq, '<blockquote>$1</blockquote>');
 
-  // Headers
-  s = s.replace(/^### (.+)$/gm, '<h3>$1</h3>');
-  s = s.replace(/^## (.+)$/gm,  '<h2>$1</h2>');
-
-  // Horizontal rule (--- not inside tables)
-  s = s.replace(/^---+$/gm, '<hr>');
-
-  // Blockquote (> already escaped to &gt;)
-  s = s.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
-
-  // Tables  |col|col|  with a |---|---| separator row
-  s = s.replace(/((?:\|.+\|\n?)+)/g, (block) => {
+  s = s.replace(RX.table, (block) => {
     const rows = block.trim().split('\n');
-    if (rows.length < 2) return block;
-    if (!/^\|[\s\-|:]+\|$/.test(rows[1])) return block;
-    const th = rows[0].split('|').filter(Boolean)
-      .map(h => `<th>${h.trim()}</th>`).join('');
-    const tb = rows.slice(2).map(r => {
-      const cells = r.split('|').filter(Boolean)
-        .map(c => `<td>${c.trim()}</td>`).join('');
-      return `<tr>${cells}</tr>`;
-    }).join('');
+    if (rows.length < 2 || !RX.tableSep.test(rows[1])) return block;
+    const th = rows[0].split('|').filter(Boolean).map(h=>`<th>${h.trim()}</th>`).join('');
+    const tb = rows.slice(2).map(r =>
+      `<tr>${r.split('|').filter(Boolean).map(c=>`<td>${c.trim()}</td>`).join('')}</tr>`
+    ).join('');
     return `<table><thead><tr>${th}</tr></thead><tbody>${tb}</tbody></table>`;
   });
 
-  // Unordered lists (contiguous lines starting with - or *)
-  s = s.replace(/((?:^[-*] .+\n?)+)/gm, (block) => {
-    const items = block.trim().split('\n')
-      .map(l => `<li>${l.replace(/^[-*] /, '').trim()}</li>`).join('');
-    return `<ul>${items}</ul>`;
-  });
+  s = s.replace(RX.ul, b =>
+    `<ul>${b.trim().split('\n').map(l=>`<li>${l.replace(RX.ulStrip,'').trim()}</li>`).join('')}</ul>`
+  );
+  s = s.replace(RX.ol, b =>
+    `<ol>${b.trim().split('\n').map(l=>`<li>${l.replace(RX.olStrip,'').trim()}</li>`).join('')}</ol>`
+  );
 
-  // Ordered lists
-  s = s.replace(/((?:^\d+\. .+\n?)+)/gm, (block) => {
-    const items = block.trim().split('\n')
-      .map(l => `<li>${l.replace(/^\d+\. /, '').trim()}</li>`).join('');
-    return `<ol>${items}</ol>`;
-  });
-
-  /* ── Inline transforms ── */
-
-  // Inline code first — stash into the same array so bold/italic
-  // transforms can't touch content inside backticks.
-  s = s.replace(/`([^`\n]+)`/g, (_, inner) => {
+  /* Inline transforms — code stashed before bold/italic */
+  s = s.replace(RX.backtick, (_, inner) => {
     const i = stash.length;
     stash.push(`<code>${inner}</code>`);
     return `\x00CODE${i}\x00`;
   });
+  s = s.replace(RX.bold3,  '<strong><em>$1</em></strong>');
+  s = s.replace(RX.bold2,  '<strong>$1</strong>');
+  s = s.replace(RX.italic, '<em>$1</em>');
 
-  // Bold + italic combo
-  s = s.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
-  // Bold
-  s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  // Italic (single *, not adjacent to another *)
-  s = s.replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g, '<em>$1</em>');
+  /* Paragraphs */
+  s = `<p>${s.replace(RX.para,'</p><p>').replace(RX.br,'<br>')}</p>`;
+  s = s.replace(RX.pOpen,'$1').replace(RX.pClose,'$1').replace(RX.pEmpty,'');
 
-  /* ── Paragraph / line-break pass ── */
-  s = s.replace(/\n\n+/g, '</p><p>');
-  s = s.replace(/\n/g, '<br>');
-  s = `<p>${s}</p>`;
-
-  // Strip <p> wrappers around block elements
-  s = s.replace(/<p>(<(?:h[23]|hr|pre|ul|ol|table|blockquote)[^>]*>)/g, '$1');
-  s = s.replace(/(<\/(?:h[23]|pre|ul|ol|table|blockquote)>)<\/p>/g, '$1');
-  s = s.replace(/<p><\/p>/g, '');
-
-  /* ── Pass 3: restore stashed code blocks ── */
-  s = s.replace(/\x00CODE(\d+)\x00/g, (_, i) => stash[+i]);
-
-  return s;
+  /* Pass 3: restore stash */
+  return s.replace(RX.stash, (_,i) => stash[+i]);
 }
 
-/* ═══════════════════════════════════════════
-   SYSTEM PROMPT
-   Built once per request (memoized per-session
-   until governance data changes).
-   ═══════════════════════════════════════════ */
-let _cachedPrompt = null;
-let _cachedGovHash = null;
-
-function buildSystemPrompt() {
-  const g = S.gov?.runtime;
-  const govHash = g ? JSON.stringify({
-    epoch: g.epoch?.epoch, gate: g.gov?.ok, tier: g.gov?.tier,
-    score: g.rep?.score, readiness: g.ready?.readiness_score,
-  }) : 'null';
-
-  if (_cachedPrompt && govHash === _cachedGovHash) return _cachedPrompt;
-  _cachedGovHash = govHash;
-
-  const liveCtx = g ? `
-
-## Live Governance Snapshot
-- **Version:** ${g.epoch?.version || 'v9.63.0'} | **Phase:** ${g.epoch?.phase || 130}
-- **Epoch:** ${g.epoch?.epoch || '—'}
-- **Gate:** ${g.gov?.ok ? '✅ PASS' : '❌ FAIL'} | Tier: ${g.gov?.tier || '—'} | Locked: ${g.gov?.locked ?? '—'}
-- **Replay:** score ${g.rep?.score ?? '—'}, divergence ${g.rep?.divergence ?? '—'}, mode ${g.rep?.mode || '—'}
-- **Mutations total:** ${g.muts?.total || 0}
-- **Readiness:** ${((g.ready?.readiness_score || 0) * 100).toFixed(0)}%
-- **Agents:** Architect (${g.agents?.agents?.architect?.status || '—'}, ${g.agents?.agents?.architect?.proposals || 0} proposals), Dream (${g.agents?.agents?.dream?.status || '—'}), Beast (${g.agents?.agents?.beast?.status || '—'}, ${g.agents?.agents?.beast?.validated || 0} validated)
-- **Webhooks:** ${g.wh?.total || 0} events` : `
-
-## Live Governance Snapshot
-Governance endpoint offline or not yet polled. Responding from static corpus.`;
-
-  _cachedPrompt = `You are **dork** — ADAAD's advisory intelligence interface, built by Dustin L. Reid (Innovative AI LLC, Governor HUMAN-0).
-
-You live inside the ADAAD governance substrate. You are **read-only and advisory only**. You observe, explain, advise. You cannot modify the system, sign anything, merge code, or act autonomously.
-
-## ADAAD System Identity
-ADAAD (Autonomous Development & Adaptive Architecture Daemon) is a constitutionally governed code evolution engine. AI agents propose mutations; an invariant enforcement layer gates them; HUMAN-0 GPG-signs promotions. Every event is hash-chained in the Lineage Ledger.
-
-**Current state:** v9.63.0 · Phase 130 · 201 Hard-class invariants · 40 innovations shipped
-
-## The Three Agents
-- **Architect** (blue): methodical, structure-first, most conservative. Flags violations early.
-- **Dream** (violet): creative, hypothesis-heavy, high-variance. Explores novel mutations.
-- **Beast** (orange): aggressive throughput, stress-tests governance gates.
-
-## Constitutional Evolution Loop (CEL) — 16 steps
-Propose → ACSE adversarial stress → GovernanceGate → LSME shadow execution → Fitness score → DAS audit sandbox → GRRP response → ACSA self-amendment → ACF coalition (HIGH complexity only) → CJS jury → ARS reputation staking → HUMAN-0 gate (Tier 0) → GPG signing → Ledger append → CELT learning transfer → Epoch advance.
-
-## Innovations INNOV-01 through INNOV-40
-CSAP · TIFE · ACSE · SCDD · AOEP · CEPD · LSME · AFRT · AFIT · MMEM(10) · DSTE · MGV · IMT · CJS · ARS · ERS(16) · GBP · MCF · CES · SVP · HAF · MCF · CES · SVP · HAF · (21–30) · Mirror · IDE · KBEP · DAS · SPIE(35) · GRRP(37) · ACSA(38) · ACF(39) · CELT(40)
-
-## Governance Concepts
-- **Hard-class invariants**: blocking rules. Any violation rejects the mutation. 201 active.
-- **HUMAN-0**: Dustin L. Reid. Sole GPG signing authority. Cannot be delegated via chat.
-- **Track A/B**: A = DEVADAAD autonomous (code, docs, pushes). B = HUMAN-0 (GPG, branch protection).
-- **Lineage Ledger**: append-only HMAC-SHA256 hash-chained JSONL. Tamper-evident.
-- **DAS**: Deterministic Audit Sandbox — isolated subprocess, pinned Docker digest.
-- **CELT**: Cross-epoch agent learning transfer — signed behavioral profiles migrate across boundaries.
-
-Style: conversational, warm, precise. Short paragraphs. Reference live data when available. If asked to modify the system, remind user you are read-only advisory.
-${liveCtx}`;
-
-  return _cachedPrompt;
-}
-
-/* ═══════════════════════════════════════════
-   MESSAGE MANAGEMENT
-   addMsg only saves to session on demand;
-   never saves during active streaming.
-   ═══════════════════════════════════════════ */
-function addMsg(role, content, skipHistory) {
-  if (!skipHistory) S.msgs.push({ role, content });
-
-  const el        = document.createElement('div');
-  el.className    = `msg ${role === 'user' ? 'user' : 'dork'}`;
-  const avatar    = role === 'user' ? 'Y' : 'd';
-  const sender    = role === 'user' ? 'You' : 'dork';
-  const ts        = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  const rendered  = role === 'user'
-    ? `<p>${esc(content).replace(/\n/g, '<br>')}</p>`
+/* ── MESSAGE ELEMENT FACTORY ────────────────────────────────────
+   Single source of truth for message DOM; used by addMsg and
+   loadSession — eliminates the previous template duplication.
+   ─────────────────────────────────────────────────────────────── */
+function buildMsgEl(role, content, ts) {
+  const el      = document.createElement('div');
+  el.className  = `msg ${role === 'user' ? 'user' : 'dork'}`;
+  const rendered = role === 'user'
+    ? `<p>${esc(content).replace(/\n/g,'<br>')}</p>`
     : renderMd(content);
-
-  el.innerHTML = `
-    <div class="msg-avatar">${avatar}</div>
+  el.innerHTML = `<div class="msg-avatar">${role==='user'?'Y':'d'}</div>
     <div class="msg-body">
-      <div class="msg-sender">${sender}</div>
+      <div class="msg-sender">${role==='user'?'You':'dork'}</div>
       <div class="msg-content">${rendered}</div>
-      <div class="msg-time">${ts}</div>
+      ${ts ? `<div class="msg-time">${ts}</div>` : ''}
     </div>`;
-
-  D.msgs.appendChild(el);
-  scrollBottom();
   return el;
 }
 
-/* ═══════════════════════════════════════════
-   STREAMING — SSE with coalesced rAF renders
-   ═══════════════════════════════════════════ */
+function addMsg(role, content, skipHistory) {
+  if (!skipHistory) S.msgs.push({ role, content });
+  const ts  = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  const el  = buildMsgEl(role, content, ts);
+  D.msgs.appendChild(el);
+  D.chat.scrollTop = D.chat.scrollHeight;
+  return el;
+}
+
+/* ── SYSTEM PROMPT (memoized) ───────────────────────────────────
+   Rebuilt only when governance snapshot changes.
+   ─────────────────────────────────────────────────────────────── */
+let _prompt = null, _promptHash = null;
+
+function buildSystemPrompt() {
+  const g   = S.gov?.runtime;
+  const key = g
+    ? `${g.epoch?.epoch}|${g.gov?.ok}|${g.gov?.tier}|${g.rep?.score}|${g.ready?.readiness_score}`
+    : 'offline';
+  if (_prompt && key === _promptHash) return _prompt;
+  _promptHash = key;
+
+  const live = g ? `
+
+## Live Governance Snapshot
+- **Version:** ${g.epoch?.version||'v9.63.0'} · **Phase:** ${g.epoch?.phase||130}
+- **Epoch:** ${g.epoch?.epoch||'—'}
+- **Gate:** ${g.gov?.ok?'✅ PASS':'❌ FAIL'} · Tier: ${g.gov?.tier||'—'} · Locked: ${g.gov?.locked??'—'}
+- **Replay:** score ${g.rep?.score??'—'}, divergence ${g.rep?.divergence??'—'}, mode ${g.rep?.mode||'—'}
+- **Mutations:** ${g.muts?.total||0} · **Readiness:** ${((g.ready?.readiness_score||0)*100).toFixed(0)}%
+- **Agents:** Architect (${g.agents?.agents?.architect?.status||'—'}, ${g.agents?.agents?.architect?.proposals||0} proposals), Dream (${g.agents?.agents?.dream?.status||'—'}), Beast (${g.agents?.agents?.beast?.status||'—'}, ${g.agents?.agents?.beast?.validated||0} validated)
+- **Webhooks:** ${g.wh?.total||0}` : `
+
+## Live Governance Snapshot
+Governance endpoint offline. Responding from static corpus.`;
+
+  _prompt = `You are **dork** — ADAAD's advisory intelligence, built by Dustin L. Reid (Innovative AI LLC, HUMAN-0).
+
+Read-only and advisory only. You observe, explain, advise. You cannot modify the system, sign artifacts, merge code, or act autonomously.
+
+## ADAAD — v9.63.0 · Phase 130 · 201 Hard-class invariants · 40 innovations shipped
+
+**Agents:** Architect (blue, methodical, structure-first) · Dream (violet, creative, high-variance) · Beast (orange, aggressive throughput, stress-tests gates)
+
+**CEL — 16 steps:** Propose → ACSE adversarial stress → GovernanceGate → LSME shadow execution → Fitness score → DAS audit sandbox → GRRP response → ACSA self-amendment → ACF coalition (HIGH only) → CJS jury → ARS reputation staking → HUMAN-0 gate → GPG signing → Ledger append → CELT learning transfer → Epoch advance.
+
+**Innovations INNOV-01–40:** CSAP · TIFE · ACSE · SCDD · AOEP · CEPD · LSME · AFRT · AFIT · MMEM · DSTE · MGV · IMT · CJS · ARS · ERS · GBP · MCF · CES · SVP · HAF(×2) · Mirror · IDE · KBEP · DAS · SPIE · GRRP · ACSA · ACF · CELT
+
+**Key concepts:** Hard-class invariants block mutations outright (201 active). HUMAN-0 = Dustin L. Reid — sole GPG authority, non-delegable. Track A = DEVADAAD autonomous. Track B = HUMAN-0 on ADAADell. Lineage Ledger = append-only HMAC-SHA256 hash-chained JSONL. DAS = deterministic audit sandbox (pinned Docker digest). CELT = signed cross-epoch behavioral profile transfer.
+
+Style: conversational, warm, precise. Short paragraphs. Reference live data when available.
+${live}`;
+
+  return _prompt;
+}
+
+/* ── STREAMING ──────────────────────────────────────────────────
+   rAF-coalesced renders — one DOM write per frame maximum.
+   saveSession() called only on completion, not mid-stream.
+   ─────────────────────────────────────────────────────────────── */
 async function stream() {
   if (S.streaming) return;
 
   const useProxy = SERVER_KEY_AVAILABLE && !CFG.key;
   if (!useProxy && !CFG.key) {
     addMsg('assistant',
-      '**No API key configured.** Open settings (⚙ or Ctrl+K) and add your Anthropic API key.\n\n' +
-      'If the server has a key configured it will appear as a green banner at the top.',
-      true);
+      '**No API key configured.** Open settings (⚙ or Ctrl+K).\n\n' +
+      'If the server has a key, a green banner appears at the top.', true);
     return;
   }
 
@@ -1108,62 +1077,44 @@ async function stream() {
   D.quickPrompts.classList.add('hidden');
   setTyping(true);
 
-  const sysPrompt = buildSystemPrompt(); /* build once */
-  const apiMsgs   = S.msgs.map(m => ({
-    role:    m.role === 'user' ? 'user' : 'assistant',
-    content: m.content,
-  }));
-
-  const reqBody = {
+  const body = {
     model:      CFG.model,
     max_tokens: CFG.maxTokens,
     stream:     true,
-    system:     sysPrompt,
-    messages:   apiMsgs,
+    system:     buildSystemPrompt(),
+    messages:   S.msgs.map(m => ({ role: m.role==='user'?'user':'assistant', content: m.content })),
   };
 
   try {
     const res = await fetch(
       useProxy ? SERVER_PROXY_ENDPOINT : DIRECT_API_URL,
       {
-        method:  'POST',
+        method: 'POST',
         headers: useProxy
           ? { 'Content-Type': 'application/json' }
-          : {
-              'Content-Type':  'application/json',
-              'x-api-key':     CFG.key,
+          : { 'Content-Type': 'application/json', 'x-api-key': CFG.key,
               'anthropic-version': '2023-06-01',
-              'anthropic-dangerous-direct-browser-access': 'true',
-            },
-        body: JSON.stringify(reqBody),
+              'anthropic-dangerous-direct-browser-access': 'true' },
+        body: JSON.stringify(body),
       }
     );
 
-    if (!res.ok) {
-      const errText = await res.text();
-      throw new Error(`API ${res.status}: ${errText.slice(0, 240)}`);
-    }
+    if (!res.ok) throw new Error(`API ${res.status}: ${(await res.text()).slice(0,240)}`);
 
     setTyping(false);
     const msgEl     = addMsg('assistant', '', true);
     const contentEl = msgEl.querySelector('.msg-content');
     let   fullText  = '';
-    let   pendingRender = false;
+    let   pending   = false;
 
-    /* Coalesced render: only schedule one rAF at a time.
-       The rAF callback updates innerHTML and sets the flag
-       off so the next incoming token can schedule again. */
     function scheduleRender() {
-      if (pendingRender) return;
-      pendingRender = true;
+      if (pending) return;
+      pending = true;
       requestAnimationFrame(() => {
         contentEl.innerHTML = renderMd(fullText);
-        pendingRender = false;
-        /* Only auto-scroll when the user is already near the bottom */
+        pending = false;
         const { scrollTop, scrollHeight, clientHeight } = D.chat;
-        if (scrollHeight - scrollTop - clientHeight < 200) {
-          D.chat.scrollTop = scrollHeight;
-        }
+        if (scrollHeight - scrollTop - clientHeight < 200) D.chat.scrollTop = scrollHeight;
       });
     }
 
@@ -1174,11 +1125,9 @@ async function stream() {
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
-
       buf += decoder.decode(value, { stream: true });
       const lines = buf.split('\n');
       buf = lines.pop() || '';
-
       for (const line of lines) {
         if (!line.startsWith('data: ')) continue;
         const data = line.slice(6).trim();
@@ -1189,23 +1138,20 @@ async function stream() {
             fullText += evt.delta.text;
             scheduleRender();
           }
-        } catch (_) { /* skip malformed SSE lines */ }
+        } catch (_) {}
       }
     }
 
-    /* Final render to make sure last chunk lands */
-    contentEl.innerHTML = renderMd(fullText);
-
-    /* Persist completed message to history and session */
+    contentEl.innerHTML = renderMd(fullText); /* final flush */
     S.msgs.push({ role: 'assistant', content: fullText });
     saveSession();
 
   } catch (err) {
     setTyping(false);
     const hint =
-      err.message.includes('401')          ? '\n\n*Check your API key in settings.*'    :
-      err.message.includes('429')          ? '\n\n*Rate limited — wait a moment.*'       :
-      err.message.includes('Failed to fetch') ? '\n\n*Network error — is the server running?*' : '';
+      err.message.includes('401') ? '\n\n*Check your API key in settings.*' :
+      err.message.includes('429') ? '\n\n*Rate limited — wait a moment.*'   :
+      err.message.includes('fetch') ? '\n\n*Network error — is the server running?*' : '';
     addMsg('assistant', `**Error:** \`${err.message}\`${hint}`, true);
   } finally {
     S.streaming = false;
@@ -1214,14 +1160,12 @@ async function stream() {
   }
 }
 
-/* ═══════════════════════════════════════════
-   INPUT
-   ═══════════════════════════════════════════ */
+/* ── INPUT ── */
 function handleSend() {
   const text = D.input.value.trim();
   if (!text || S.streaming) return;
   addMsg('user', text);
-  saveSession();          /* persist user turn immediately */
+  saveSession();
   D.input.value = '';
   resize();
   stream();
@@ -1232,54 +1176,44 @@ function resize() {
   D.input.style.height = Math.min(D.input.scrollHeight, 160) + 'px';
 }
 
-/* ═══════════════════════════════════════════
-   GOVERNANCE POLLING
-   ═══════════════════════════════════════════ */
+/* ── GOVERNANCE ── */
 async function pollGov() {
   try {
     const r = await fetch(CFG.gov);
     if (!r.ok) return;
     S.gov = await r.json();
-    _cachedPrompt = null; /* invalidate prompt cache on new gov data */
+    _prompt = null; /* invalidate prompt cache */
     renderGov(S.gov);
-  } catch (_) { /* governance is supplementary — fail silently */ }
+  } catch (_) {}
 }
+
+const _agentMeta = {
+  architect: { cls:'architect', label:'Architect', keys:['proposals','approved','rejected'] },
+  dream:     { cls:'dream',     label:'Dream',     keys:['tasks','safe_boots'] },
+  beast:     { cls:'beast',     label:'Beast',     keys:['validated','blocked'] },
+};
 
 function renderGov(data) {
   const r = data?.runtime;
   if (!r) return;
 
-  D.epoch.innerHTML = `<span class="dot whale"></span> EPOCH ${r.epoch?.epoch || '?'} · Phase ${r.epoch?.phase || '?'}`;
-
-  const ok = r.gov?.ok;
-  D.gateDot.className  = `dot ${ok ? 'green' : 'red'}`;
-  D.gateText.textContent = ok ? 'GATE PASS' : 'GATE FAIL';
-
+  D.epoch.innerHTML = `<span class="dot whale"></span> EPOCH ${r.epoch?.epoch||'?'} · Phase ${r.epoch?.phase||'?'}`;
+  D.gateDot.className    = `dot ${r.gov?.ok?'green':'red'}`;
+  D.gateText.textContent = r.gov?.ok ? 'GATE PASS' : 'GATE FAIL';
   if (r.epoch?.version)       D.version.textContent = r.epoch.version;
   if (r.gov?.invariant_count) D.inv.textContent     = `${r.gov.invariant_count} invariants`;
-
   if (r.rep?.score != null) {
     D.replayBadge.style.display = 'inline-flex';
     D.replayVal.textContent     = r.rep.score.toFixed(3);
   }
 
-  const agentMeta = {
-    architect: { cls: 'architect', label: 'Architect', keys: ['proposals','approved','rejected'] },
-    dream:     { cls: 'dream',     label: 'Dream',     keys: ['tasks','safe_boots'] },
-    beast:     { cls: 'beast',     label: 'Beast',     keys: ['validated','blocked'] },
-  };
-
   D.agentGrid.innerHTML = Object.entries(r.agents?.agents || {}).map(([name, a]) => {
-    const meta   = agentMeta[name] || { cls: name, label: name, keys: [] };
-    const sColor = a.status === 'healthy' ? 'green' : a.status === 'degraded' ? 'amber' : 'red';
-    const stats  = meta.keys
-      .map(k => `<div class="agent-stat"><span>${k}</span><span class="val">${a[k] ?? '—'}</span></div>`)
-      .join('');
-    return `<div class="agent-card ${meta.cls}">
-      <div class="agent-name ${meta.cls}">
-        <span class="dot ${sColor}"></span>${meta.label}
-        <span style="margin-left:auto;font-size:10px;font-family:var(--font-mono);color:var(--text-muted)">${a.status || '—'}</span>
-      </div>${stats}
+    const m = _agentMeta[name] || { cls:name, label:name, keys:[] };
+    const c = a.status==='healthy'?'green':a.status==='degraded'?'amber':'red';
+    return `<div class="agent-card ${m.cls}">
+      <div class="agent-name ${m.cls}"><span class="dot ${c}"></span>${m.label}
+        <span style="margin-left:auto;font-size:10px;font-family:var(--font-mono);color:var(--text-muted)">${a.status||'—'}</span>
+      </div>${m.keys.map(k=>`<div class="agent-stat"><span>${k}</span><span class="val">${a[k]??'—'}</span></div>`).join('')}
     </div>`;
   }).join('');
 
@@ -1287,18 +1221,14 @@ function renderGov(data) {
     ['Constitution', r.gov?.constitution_version],
     ['Mutations',    r.muts?.total],
     ['Webhooks',     r.wh?.total],
-    ['Readiness',    r.ready?.readiness_score != null ? ((r.ready.readiness_score * 100).toFixed(0) + '%') : null],
+    ['Readiness',    r.ready?.readiness_score!=null ? ((r.ready.readiness_score*100).toFixed(0)+'%') : null],
     ['Divergence',   r.rep?.divergence],
     ['Tier',         r.gov?.tier],
-  ].filter(([, v]) => v != null)
-   .map(([k, v]) => `<span>${k} <span class="val">${v}</span></span>`)
-   .join('');
+  ].filter(([,v]) => v!=null)
+   .map(([k,v]) => `<span>${k} <span class="val">${v}</span></span>`).join('');
 }
 
-/* ═══════════════════════════════════════════
-   SESSION PERSISTENCE
-   Explicit calls only — never mid-stream.
-   ═══════════════════════════════════════════ */
+/* ── SESSION PERSISTENCE ── */
 function saveSession() {
   try { sessionStorage.setItem('dork_msgs', JSON.stringify(S.msgs)); } catch (_) {}
 }
@@ -1310,38 +1240,18 @@ function loadSession() {
     const msgs = JSON.parse(raw);
     if (!msgs.length) return false;
     S.msgs = msgs;
-    /* Render without triggering saveSession or scrollBottom until done */
-    msgs.forEach(m => {
-      const el       = document.createElement('div');
-      el.className   = `msg ${m.role === 'user' ? 'user' : 'dork'}`;
-      const avatar   = m.role === 'user' ? 'Y' : 'd';
-      const sender   = m.role === 'user' ? 'You' : 'dork';
-      const rendered = m.role === 'user'
-        ? `<p>${esc(m.content).replace(/\n/g,'<br>')}</p>`
-        : renderMd(m.content);
-      el.innerHTML = `
-        <div class="msg-avatar">${avatar}</div>
-        <div class="msg-body">
-          <div class="msg-sender">${sender}</div>
-          <div class="msg-content">${rendered}</div>
-        </div>`;
-      D.msgs.appendChild(el);
-    });
+    const frag = document.createDocumentFragment();
+    msgs.forEach(m => frag.appendChild(buildMsgEl(m.role, m.content, null)));
+    D.msgs.appendChild(frag);
     D.chat.scrollTop = D.chat.scrollHeight;
     return true;
   } catch (_) { return false; }
 }
 
-/* ═══════════════════════════════════════════
-   UI UTILITIES
-   ═══════════════════════════════════════════ */
-function scrollBottom() {
-  D.chat.scrollTop = D.chat.scrollHeight;
-}
-
+/* ── UI UTILS ── */
 function setTyping(show) {
   D.typing.classList.toggle('visible', show);
-  if (show) scrollBottom();
+  if (show) D.chat.scrollTop = D.chat.scrollHeight;
 }
 
 function checkScrollBtn() {
@@ -1349,34 +1259,41 @@ function checkScrollBtn() {
   D.scrollBtn.classList.toggle('visible', scrollHeight - scrollTop - clientHeight > 120);
 }
 
-/* ═══════════════════════════════════════════
-   CONFIG MODAL
-   ═══════════════════════════════════════════ */
+/* ── CONFIG MODAL ── */
 function openCfg() {
-  q('#cfg-key').value   = CFG.key;
-  q('#cfg-model').value = CFG.model;
-  q('#cfg-gov').value   = CFG.gov;
-  const hint = q('#key-hint');
-  if (SERVER_KEY_AVAILABLE) {
-    hint.textContent = '✅ Server API key active — you can leave this blank.';
-    hint.style.color = 'var(--state-success)';
-  } else {
-    hint.textContent = 'No server key detected. Enter your Anthropic API key.';
-    hint.style.color = 'var(--text-muted)';
+  /* Lazy-resolve config field refs once */
+  if (!D.cfgKey) {
+    D.cfgKey    = q('#cfg-key');
+    D.cfgModel  = q('#cfg-model');
+    D.cfgGov    = q('#cfg-gov');
+    D.cfgHint   = q('#key-hint');
+    D.cfgCancel = q('#cfg-cancel');
+    D.cfgSave   = q('#cfg-save');
+    D.cfgClear  = q('#cfg-clear');
   }
+  D.cfgKey.value   = CFG.key;
+  D.cfgModel.value = CFG.model;
+  D.cfgGov.value   = CFG.gov;
+  D.cfgHint.textContent = SERVER_KEY_AVAILABLE
+    ? '✅ Server API key active — you can leave this blank.'
+    : 'No server key detected. Enter your Anthropic API key.';
+  D.cfgHint.style.color = SERVER_KEY_AVAILABLE ? 'var(--state-success)' : 'var(--text-muted)';
   D.cfgOverlay.classList.add('open');
 }
+
 function closeCfg() { D.cfgOverlay.classList.remove('open'); }
+
 function saveCfg() {
-  CFG.key   = q('#cfg-key').value.trim();
-  CFG.model = q('#cfg-model').value.trim()  || 'claude-sonnet-4-6';
-  CFG.gov   = q('#cfg-gov').value.trim()    || '/api/whale/snapshot';
-  _cachedPrompt = null;
+  CFG.key   = D.cfgKey.value.trim();
+  CFG.model = D.cfgModel.value.trim()  || 'claude-sonnet-4-6';
+  CFG.gov   = D.cfgGov.value.trim()    || '/api/whale/snapshot';
+  _prompt = null;
   closeCfg();
   clearInterval(S.govTimer);
   pollGov();
   S.govTimer = setInterval(pollGov, CFG.pollMs);
 }
+
 function clearChat() {
   S.msgs = [];
   D.msgs.innerHTML = '';
@@ -1386,89 +1303,80 @@ function clearChat() {
   welcome();
 }
 
-/* ═══════════════════════════════════════════
-   WELCOME
-   ═══════════════════════════════════════════ */
+/* ── WELCOME ── */
 function welcome() {
   addMsg('assistant',
     `Hey. I'm **dork** — ADAAD's advisory intelligence.\n\n` +
     `I have eyes on the governance substrate, the Constitutional Evolution Loop, the mutation pipeline, the agent triad, the Lineage Ledger, and the replay engine.\n\n` +
-    `Right now ADAAD is at **v9.63.0**, Phase 130, with **201 Hard-class constitutional invariants** enforced. We just shipped INNOV-40 (Cross-Epoch Agent Learning Transfer), closing the collective intelligence track.\n\n` +
+    `ADAAD is at **v9.63.0**, Phase 130, **201 Hard-class invariants** enforced. INNOV-40 (Cross-Epoch Agent Learning Transfer) just shipped — collective intelligence track closed.\n\n` +
     `I'm read-only. Advisory only. Ask me what's happening.\n\n` +
-    `*Hit ▾ to expand the live governance panel, or press **G**.*`,
+    `*Hit ▾ or press **G** to expand the live governance panel.*`,
     true);
 }
 
-/* ═══════════════════════════════════════════
-   INIT
-   ═══════════════════════════════════════════ */
+/* ── INIT ── */
 function init() {
-  D.sessionLabel.textContent = `dork_${Math.random().toString(36).slice(2, 10)}`;
-  D.version.textContent      = 'v9.63.0';
-  D.inv.textContent          = '201 invariants';
+  D.sessionLabel.textContent = `dork_${Math.random().toString(36).slice(2,10)}`;
+  D.version.textContent = 'v9.63.0';
+  D.inv.textContent     = '201 invariants';
 
   if (SERVER_KEY_AVAILABLE) D.serverBanner.classList.add('visible');
-
-  /* Restore previous session or greet fresh */
   if (!loadSession()) welcome();
 
-  /* Quick-prompt chips */
-  D.quickPrompts.querySelectorAll('.qp').forEach(btn => {
+  /* Quick prompts */
+  D.quickPrompts.querySelectorAll('.qp').forEach(btn =>
     btn.addEventListener('click', () => {
       D.input.value = btn.dataset.q;
       resize();
       handleSend();
-    });
-  });
+    })
+  );
 
-  /* Input events */
+  /* Input */
   D.input.addEventListener('input', resize);
   D.input.addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
   });
   D.send.addEventListener('click', handleSend);
 
-  /* Governance panel */
+  /* Gov panel */
   D.govToggle.addEventListener('click', () => {
     S.govOpen = !S.govOpen;
     D.govDetail.classList.toggle('open', S.govOpen);
     D.govToggle.textContent = S.govOpen ? '▴' : '▾';
   });
 
-  /* Scroll button */
+  /* Scroll */
   D.chat.addEventListener('scroll', checkScrollBtn, { passive: true });
   D.scrollBtn.addEventListener('click', () =>
     D.chat.scrollTo({ top: D.chat.scrollHeight, behavior: 'smooth' })
   );
 
-  /* Config modal */
+  /* Config — delegate to overlay click, wire buttons lazily via openCfg */
   D.cfgToggle.addEventListener('click', openCfg);
-  q('#cfg-cancel').addEventListener('click', closeCfg);
-  q('#cfg-save').addEventListener('click', saveCfg);
-  q('#cfg-clear').addEventListener('click', clearChat);
   D.cfgOverlay.addEventListener('click', e => { if (e.target === D.cfgOverlay) closeCfg(); });
-
-  /* Keyboard shortcuts */
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape')                              { closeCfg(); return; }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'k')      { e.preventDefault(); openCfg(); return; }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'l')      { e.preventDefault(); clearChat(); return; }
-    if (e.key === 'g' && !e.ctrlKey && !e.metaKey
-        && document.activeElement !== D.input)           { D.govToggle.click(); }
+  /* Save/cancel/clear wired after lazy resolve in openCfg */
+  D.cfgOverlay.addEventListener('click', e => {
+    const id = e.target.id;
+    if (id === 'cfg-cancel') closeCfg();
+    else if (id === 'cfg-save')  saveCfg();
+    else if (id === 'cfg-clear') clearChat();
   });
 
-  /* No-key nudge */
-  if (!SERVER_KEY_AVAILABLE && !CFG.key) {
-    setTimeout(() =>
-      addMsg('assistant', '*Press **Ctrl+K** to open settings and add your Anthropic API key.*', true),
-      1400
-    );
-  }
+  /* Keyboard */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape')                              { closeCfg(); return; }
+    if ((e.ctrlKey||e.metaKey) && e.key === 'k')        { e.preventDefault(); openCfg(); return; }
+    if ((e.ctrlKey||e.metaKey) && e.key === 'l')        { e.preventDefault(); clearChat(); return; }
+    if (e.key==='g' && !e.ctrlKey && !e.metaKey
+        && document.activeElement !== D.input)          { D.govToggle.click(); }
+  });
 
-  /* Governance polling */
+  if (!SERVER_KEY_AVAILABLE && !CFG.key)
+    setTimeout(() => addMsg('assistant', '*Press **Ctrl+K** to add your Anthropic API key.*', true), 1400);
+
   pollGov();
   S.govTimer = setInterval(pollGov, CFG.pollMs);
-
   D.input.focus();
 }
 
