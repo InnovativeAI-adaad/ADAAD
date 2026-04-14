@@ -1,0 +1,76 @@
+{
+  "artifact_type": "ILA",
+  "artifact_id": "ILA-PATCH-9771-DORK-V22",
+  "phase": "patch",
+  "version": "9.77.1",
+  "date": "2026-04-14",
+  "title": "DORK v2.2 Renderer Performance Hardening",
+  "classification": "patch",
+  "constitutional_change": false,
+  "new_invariants": 0,
+  "invariant_total": 241,
+  "innovations_shipped": 50,
+  "author": "DEVADAAD",
+  "ratified_by": "HUMAN-0 · Dustin L. Reid · 2026-04-14",
+  "summary": "Performance patch for ui/dork.html DORK renderer. No constitutional changes. No new invariants.",
+  "changes": [
+    {
+      "id": "DORK-V22-001",
+      "type": "perf",
+      "scope": "ui/dork.html",
+      "description": "32 inline regex literals hoisted to module-level RX constants. Eliminates ~1920 regex compilations/sec during 60fps streaming."
+    },
+    {
+      "id": "DORK-V22-002",
+      "type": "perf",
+      "scope": "ui/dork.html",
+      "description": "esc() HTML escape rewritten from 3-pass chained .replace() to single-pass lookup table. One string allocation per call."
+    },
+    {
+      "id": "DORK-V22-003",
+      "type": "refactor",
+      "scope": "ui/dork.html",
+      "description": "buildMsgEl() factory extracted. loadSession() now uses DocumentFragment for batch DOM append — one reflow per session restore."
+    },
+    {
+      "id": "DORK-V22-004",
+      "type": "perf",
+      "scope": "ui/dork.html",
+      "description": "Lazy D config refs. openCfg/saveCfg DOM queries consolidated. Config event listeners reduced to one delegated handler."
+    },
+    {
+      "id": "DORK-V22-005",
+      "type": "fix",
+      "scope": "tests/test_phase142_css.py",
+      "description": "Stale == 9.75.0 version assertion updated to semver >= (9,75,0). Forward-compatible for all future versions."
+    },
+    {
+      "id": "DORK-V22-006",
+      "type": "fix",
+      "scope": ".adaad_agent_state.json",
+      "description": "Agent state drift corrected: phase 141→144, invariant_count 231→241, last_completed_phase garbled→clean Phase 144 string."
+    }
+  ],
+  "metrics": {
+    "js_reduction_pct": 14,
+    "total_file_reduction_pct": 7,
+    "lines_removed": 92,
+    "renderer_tests": "17/17",
+    "full_suite": "475/475"
+  },
+  "findings_closed": [
+    "FINDING-DORK-2.2-001"
+  ],
+  "proposed_invariant": {
+    "id": "INV-DORK-001",
+    "text": "renderMd() shall contain zero inline regex literals. All pattern constants must reside in the module-level RX object, compiled once at load time.",
+    "class": "pending-classification",
+    "testable_via": "static grep: grep -n '/[^/]*/[gimsuy]*' ui/dork.html"
+  },
+  "track_b": {
+    "required_action": "GPG-sign annotated tag v9.77.1 on ADAADell",
+    "gpg_key": "4C95E2F99A775335B1CF3DAF247B015A1CCD95F6",
+    "tag_command": "git tag -s v9.77.1 -m 'patch: DORK v2.2 renderer perf hardening · 241 invariants · 50 innovations'",
+    "push_command": "git push origin v9.77.1"
+  }
+}
