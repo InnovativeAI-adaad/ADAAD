@@ -10,13 +10,16 @@ from typing import Any, Dict, Tuple
 from runtime.api.agents import MutationRequest
 from runtime.constitution import Tier
 from runtime.governance.decision_pipeline import evaluate_mutation_decision
+from runtime.preflight import migrate_runtime_profile_lock
 
 # Backward-compatible alias for tests and existing patch points.
 evaluate_mutation = evaluate_mutation_decision
 
 SCHEMA_PATH = Path("schemas/llm_mutation_proposal.v1.json")
+RUNTIME_PROFILE_PATH = Path("governance_runtime_profile.lock.json")
 TIER0_PATH_PREFIXES = ("runtime/", "security/")
 TIER0_EXACT_PATHS = {"app/main.py", "app/mutation_executor.py", "runtime/constitution.py"}
+_GROK_AGENT_IDS = frozenset({"grok-integrator", "grok-proposal-agent"})
 
 
 class ProposalValidationError(ValueError):
@@ -90,6 +93,39 @@ def _is_tier0_path(path: str) -> bool:
     return any(normalized.startswith(prefix) for prefix in TIER0_PATH_PREFIXES)
 
 
+def _resolve_grok_vault_path(vault_ref: str) -> Path:
+    candidate = Path(vault_ref)
+    return candidate if candidate.is_absolute() else Path.cwd() / candidate
+
+
+def _validate_grok_binding(payload: Dict[str, Any]) -> None:
+    agent_id = str(payload.get("agent_id") or "").strip().lower()
+    if agent_id not in _GROK_AGENT_IDS:
+        return
+
+    if not RUNTIME_PROFILE_PATH.exists():
+        raise ProposalValidationError(503, "grok_runtime_profile_missing", "runtime profile lock unavailable")
+
+    try:
+        profile = json.loads(RUNTIME_PROFILE_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ProposalValidationError(503, "grok_runtime_profile_unreadable", type(exc).__name__) from exc
+
+    migrated = migrate_runtime_profile_lock(profile)["profile"]
+    agents = migrated.get("agents") if isinstance(migrated.get("agents"), dict) else {}
+    grok = agents.get("grok-integrator") if isinstance(agents, dict) else None
+    if not isinstance(grok, dict) or not bool(grok.get("enabled")):
+        raise ProposalValidationError(403, "grok_disabled", "grok-integrator is disabled in governance runtime profile")
+
+    metadata = grok.get("metadata") if isinstance(grok.get("metadata"), dict) else {}
+    vault_file = str(metadata.get("vault_file") or "").strip()
+    if not vault_file:
+        raise ProposalValidationError(403, "grok_unbound", "vault_file metadata is required when grok-integrator is enabled")
+
+    if not _resolve_grok_vault_path(vault_file).exists():
+        raise ProposalValidationError(403, "grok_unbound", f"vault_file_missing:{vault_file}")
+
+
 def validate_proposal(raw_payload: Dict[str, Any]) -> Tuple[MutationRequest, Dict[str, Any]]:
     schema = _load_schema()
 
@@ -97,6 +133,8 @@ def validate_proposal(raw_payload: Dict[str, Any]) -> Tuple[MutationRequest, Dic
     _validate_schema(raw_payload, schema)
 
     payload = dict(raw_payload)
+    _validate_grok_binding(payload)
+
     # 2. unconditional authority override
     payload["authority_level"] = "governor-review"
 
