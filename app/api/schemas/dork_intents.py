@@ -100,6 +100,31 @@ class DorkIntentBundle(BaseModel):
     trust_metadata: DorkTrustMetadata
 
 
+class DorkConsoleRouteRequest(BaseModel):
+    """Contract payload for the UI Dork console endpoint."""
+
+    query: StrictStr = Field(min_length=1, max_length=512)
+    limit: int = Field(default=25, ge=1, le=200)
+    epoch_id: StrictStr = Field(default="")
+    before_snapshot: dict[str, Any] = Field(default_factory=dict)
+    after_snapshot: dict[str, Any] = Field(default_factory=dict)
+
+
+class DorkConsoleRouteResponse(BaseModel):
+    """UI contract response for deterministic approved/blocked surfacing."""
+
+    outcome: Literal["approved", "blocked"]
+    outcome_reason: StrictStr = Field(default="")
+    console_message: StrictStr
+    bundle: DorkIntentBundle
+
+
+class DorkConsoleRouteError(BaseModel):
+    """Typed error schema for UI contract failures."""
+
+    error_code: Literal["governance_blocked", "validation_error", "http_error"]
+    message: StrictStr
+    detail: dict[str, Any] = Field(default_factory=dict)
 class DorkProposalExecuteRequest(BaseModel):
     """Request envelope for DORK-governed mutation proposal execution."""
 

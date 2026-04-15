@@ -3,10 +3,16 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.api.dependencies import require_audit_scope
 from app.api.schemas.dork_intents import (
+    DorkConsoleRouteError,
+    DorkConsoleRouteRequest,
+    DorkConsoleRouteResponse,
+    DorkIntentBundle,
+    DorkIntentRouteRequest,
+)
     DorkIntentBundle,
     DorkIntentRouteRequest,
     DorkProposalExecuteRequest,
@@ -25,10 +31,55 @@ def route_dork_intent(
 ) -> DorkIntentBundle:
     """Route Dork query -> typed intent and execute a deterministic bundle."""
     _ = auth_ctx
+    return _execute_dork_bundle(body)
+
+
+def _execute_dork_bundle(body: DorkIntentRouteRequest) -> DorkIntentBundle:
+    from app.orchestration.dork_intent_router import DorkIntentExecutor, DorkIntentRouter
+
     decision = DorkIntentRouter().route(body)
     return DorkIntentExecutor().execute(request=body, decision=decision)
 
 
+def _console_outcome(bundle: DorkIntentBundle) -> tuple[str, str]:
+    response = bundle.response if isinstance(bundle.response, dict) else {}
+    if bundle.intent == "explain_blockers" and int(response.get("blocker_count", 0)) > 0:
+        return "blocked", "governance_blockers_detected"
+    if bundle.intent == "prepare_mutation_review":
+        transition = response.get("transition") if isinstance(response.get("transition"), dict) else {}
+        if transition.get("status") != "ok":
+            return "blocked", str(transition.get("reason") or "mutation_blocked_fail_closed")
+    return "approved", "advisory_clear"
+
+
+@router.post(
+    "/api/dork/console/route",
+    response_model=DorkConsoleRouteResponse,
+    responses={409: {"model": DorkConsoleRouteError}},
+)
+def route_dork_console(
+    body: DorkConsoleRouteRequest,
+    auth_ctx: dict[str, Any] = Depends(require_audit_scope),
+) -> DorkConsoleRouteResponse:
+    """Contract-first route for dork.html deterministic console outcomes."""
+    _ = auth_ctx
+    request = DorkIntentRouteRequest(**body.model_dump())
+    bundle = _execute_dork_bundle(request)
+    outcome, reason = _console_outcome(bundle)
+    if outcome == "blocked":
+        raise HTTPException(
+            status_code=409,
+            detail=DorkConsoleRouteError(
+                error_code="governance_blocked",
+                message="Governance gate blocked this request.",
+                detail={"reason": reason, "intent": bundle.intent, "bundle_digest": bundle.bundle_digest},
+            ).model_dump(),
+        )
+    return DorkConsoleRouteResponse(
+        outcome=outcome,
+        outcome_reason=reason,
+        console_message=f"Approved: {bundle.summary}",
+        bundle=bundle,
 @router.post("/api/dork/proposals/execute", response_model=DorkProposalExecuteResponse)
 def execute_dork_proposal_route(
     body: DorkProposalExecuteRequest,
@@ -60,7 +111,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field
 

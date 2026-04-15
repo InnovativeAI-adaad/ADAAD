@@ -910,9 +910,8 @@ body {
 /* DORK v2.2 — ADAAD Advisory Intelligence */
 
 /* Server-injected flags */
-const SERVER_KEY_AVAILABLE  = window.__anthropic_key_available ?? false;
-const SERVER_PROXY_ENDPOINT = '/api/dork/stream';
-const DIRECT_API_URL        = 'https://api.anthropic.com/v1/messages';
+const SERVER_KEY_AVAILABLE = window.__anthropic_key_available ?? false;
+const DORK_CONSOLE_ROUTE_ENDPOINT = '/api/dork/console/route';
 const SESSION_KEY_STORAGE_KEY = 'dork_api_key_session_v1';
 const SESSION_KEY_TTL_MS      = 4 * 60 * 60 * 1000;
 
@@ -927,6 +926,7 @@ const PERSONA_STYLES = {
   executive_brief: 'Lead with outcomes, risk, and decision-ready summaries in compact bullets.',
   technical_deep_dive: 'Provide deeper technical detail, assumptions, and tradeoffs with explicit precision.',
 };
+const CANONICAL_INNOVATION_COVERAGE = 'INNOV-01 through INNOV-40';
 
 function readSessionKey() {
   try {
@@ -1170,18 +1170,33 @@ function addMsg(role, content, skipHistory) {
   return el;
 }
 
-/* ── SYSTEM PROMPT (memoized) ───────────────────────────────────
-   Rebuilt only when governance snapshot changes.
-   ─────────────────────────────────────────────────────────────── */
-let _prompt = null, _promptHash = null;
+function formatRuntimeIdentity(runtime) {
+  if (!runtime) return 'snapshot unavailable';
+  const version = runtime?.epoch?.version || 'v9.63.0';
+  const phase = runtime?.epoch?.phase ?? 130;
+  const coverage = runtime?.gov?.innovation_coverage || CANONICAL_INNOVATION_COVERAGE;
+  return `${version} · Phase ${phase} · ${coverage}`;
+}
+
+function buildWelcomeMessage() {
+  const runtime = S.gov?.runtime;
+  if (!runtime) return "Hey. I'm **dork** — advisory console online (snapshot unavailable).";
+  return `Hey. I'm **dork** — advisory console online for ${formatRuntimeIdentity(runtime)}.`;
+}
+
+/* ── SYSTEM PROMPT (memoized) ─────────────────────────────────── */
+let _cachedPrompt = null, _cachedGovHash = null;
 
 function buildSystemPrompt() {
   const g   = S.gov?.runtime;
+  const runtimeVersion = g?.epoch?.version || 'v9.63.0';
+  const runtimePhase = g?.epoch?.phase ?? 130;
+  const runtimeCoverage = g?.gov?.innovation_coverage || CANONICAL_INNOVATION_COVERAGE;
   const key = g
-    ? `${g.epoch?.epoch}|${g.gov?.ok}|${g.gov?.tier}|${g.rep?.score}|${g.ready?.readiness_score}`
+    ? `${g.epoch?.epoch}|${g.gov?.ok}|${g.gov?.tier}|${g.rep?.score}|${g.ready?.readiness_score}|${runtimeCoverage}`
     : 'offline';
-  if (_prompt && key === _promptHash) return _prompt;
-  _promptHash = key;
+  if (_cachedPrompt && key === _cachedGovHash) return _cachedPrompt;
+  _cachedGovHash = key;
 
   const live = g ? `
 
@@ -1195,13 +1210,15 @@ function buildSystemPrompt() {
 - **Webhooks:** ${g.wh?.total||0}` : `
 
 ## Live Governance Snapshot
-Governance endpoint offline. Responding from static corpus.`;
+Governance endpoint offline (snapshot unavailable). Responding from static corpus.`;
 
-  _prompt = `You are **dork** — ADAAD's advisory intelligence, built by Dustin L. Reid (Innovative AI LLC, HUMAN-0).
+  _cachedPrompt = `You are **dork** — ADAAD's advisory intelligence, built by Dustin L. Reid (Innovative AI LLC, HUMAN-0).
 
-Read-only and advisory only. You observe, explain, advise. You cannot modify the system, sign artifacts, merge code, or act autonomously.
+read-only and advisory only. You observe, explain, advise. You cannot modify the system, sign anything, merge code, or act autonomously.
+Never suggest bypassing governance gates, constitutional checks, or human-signoff requirements.
+Persona style directive: ${CFG.persona}
 
-## ADAAD — v9.63.0 · Phase 130 · 201 Hard-class invariants · 40 innovations shipped
+## ADAAD — ${runtimeVersion} · Phase ${runtimePhase} · 201 Hard-class invariants · ${runtimeCoverage}
 
 **Agents:** Architect (blue, methodical, structure-first) · Dream (violet, creative, high-variance) · Beast (orange, aggressive throughput, stress-tests gates)
 
@@ -1214,105 +1231,71 @@ Read-only and advisory only. You observe, explain, advise. You cannot modify the
 Style: conversational, warm, precise. Short paragraphs. Reference live data when available.
 ${live}`;
 
-  return _prompt;
+  return _cachedPrompt;
 }
 
-/* ── STREAMING ──────────────────────────────────────────────────
-   rAF-coalesced renders — one DOM write per frame maximum.
-   saveSession() called only on completion, not mid-stream.
-   ─────────────────────────────────────────────────────────────── */
+function buildConsoleMarkdown(payload) {
+  const outcome = String(payload?.outcome || 'approved').toLowerCase() === 'blocked' ? 'BLOCKED' : 'APPROVED';
+  const reason = payload?.outcome_reason ? `\n- **Reason:** ${payload.outcome_reason}` : '';
+  const intent = payload?.bundle?.intent ? `\n- **Intent:** ${payload.bundle.intent}` : '';
+  const summary = payload?.bundle?.summary || payload?.console_message || 'No summary provided.';
+  return `### ${outcome}\n${summary}${intent}${reason}`;
+}
+
+function buildConsoleErrorMarkdown(status, payload) {
+  if (status === 422) {
+    return '### VALIDATION ERROR\nRequest payload failed schema validation. Check query length and payload shape.';
+  }
+  const detail = payload?.detail && typeof payload.detail === 'object' ? payload.detail : {};
+  const code = detail?.error_code || payload?.error_code || 'http_error';
+  if (status === 409 && code === 'governance_blocked') {
+    const blockedReason = detail?.detail?.reason || detail?.reason || 'governance_blocked';
+    const intent = detail?.detail?.intent || detail?.intent || 'unknown';
+    return `### BLOCKED\nGovernance blocked this request.\n- **Intent:** ${intent}\n- **Reason:** ${blockedReason}`;
+  }
+  return `### HTTP FAILURE\n- **Status:** ${status}\n- **Error code:** ${code}`;
+}
+
+/* ── CONSOLE REQUEST ──────────────────────────────────────────── */
 async function stream() {
   if (S.streaming) return;
-
-  const useProxy = SERVER_KEY_AVAILABLE && !CFG.key;
-  if (!useProxy && !CFG.key) {
-    addMsg('assistant',
-      '**No API key configured.** Open settings (⚙ or Ctrl+K).\n\n' +
-      'If the server has a key, a green banner appears at the top.', true);
-    return;
-  }
 
   S.streaming = true;
   D.send.disabled = true;
   D.quickPrompts.classList.add('hidden');
   setTyping(true);
 
+  const latestUserMessage = [...S.msgs].reverse().find((m) => m.role === 'user');
   const body = {
-    model:      CFG.model,
-    max_tokens: CFG.maxTokens,
-    stream:     true,
-    system:     buildSystemPrompt(),
-    messages:   S.msgs.map(m => ({ role: m.role==='user'?'user':'assistant', content: m.content })),
+    query: latestUserMessage?.content || '',
+    limit: 25,
+    epoch_id: String(S.gov?.runtime?.epoch?.epoch || ''),
+    before_snapshot: {},
+    after_snapshot: {},
   };
 
   try {
-    const res = await fetch(
-      useProxy ? SERVER_PROXY_ENDPOINT : DIRECT_API_URL,
-      {
-        method: 'POST',
-        headers: useProxy
-          ? { 'Content-Type': 'application/json' }
-          : { 'Content-Type': 'application/json', 'x-api-key': CFG.key,
-              'anthropic-version': '2023-06-01',
-              'anthropic-dangerous-direct-browser-access': 'true' },
-        body: JSON.stringify(body),
-      }
-    );
-
-    if (!res.ok) throw new Error(`API ${res.status}: ${(await res.text()).slice(0,240)}`);
-
+    const headers = { 'Content-Type': 'application/json' };
+    if (CFG.key) headers.Authorization = CFG.key.startsWith('Bearer ') ? CFG.key : `Bearer ${CFG.key}`;
+    const res = await fetch(DORK_CONSOLE_ROUTE_ENDPOINT, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(body),
+    });
+    const payload = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      addMsg('assistant', buildConsoleErrorMarkdown(res.status, payload), true);
+      return;
+    }
+    const fullText = buildConsoleMarkdown(payload);
     setTyping(false);
-    const msgEl     = addMsg('assistant', '', true);
-    const contentEl = msgEl.querySelector('.msg-content');
-    let   fullText  = '';
-    let   pending   = false;
-
-    function scheduleRender() {
-      if (pending) return;
-      pending = true;
-      requestAnimationFrame(() => {
-        contentEl.innerHTML = renderMd(fullText);
-        pending = false;
-        const { scrollTop, scrollHeight, clientHeight } = D.chat;
-        if (scrollHeight - scrollTop - clientHeight < 200) D.chat.scrollTop = scrollHeight;
-      });
-    }
-
-    const reader  = res.body.getReader();
-    const decoder = new TextDecoder();
-    let   buf     = '';
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buf += decoder.decode(value, { stream: true });
-      const lines = buf.split('\n');
-      buf = lines.pop() || '';
-      for (const line of lines) {
-        if (!line.startsWith('data: ')) continue;
-        const data = line.slice(6).trim();
-        if (data === '[DONE]') continue;
-        try {
-          const evt = JSON.parse(data);
-          if (evt.type === 'content_block_delta' && evt.delta?.text) {
-            fullText += evt.delta.text;
-            scheduleRender();
-          }
-        } catch (_) {}
-      }
-    }
-
-    contentEl.innerHTML = renderMd(fullText); /* final flush */
+    addMsg('assistant', fullText, true);
     S.msgs.push({ role: 'assistant', content: fullText });
     saveSession();
 
   } catch (err) {
     setTyping(false);
-    const hint =
-      err.message.includes('401') ? '\n\n*Check your API key in settings.*' :
-      err.message.includes('429') ? '\n\n*Rate limited — wait a moment.*'   :
-      err.message.includes('fetch') ? '\n\n*Network error — is the server running?*' : '';
-    addMsg('assistant', `**Error:** \`${err.message}\`${hint}`, true);
+    addMsg('assistant', `### HTTP FAILURE\n\`${err.message}\`\n\n*Network error — is the server running?*`, true);
   } finally {
     S.streaming = false;
     D.send.disabled = false;
@@ -1342,7 +1325,7 @@ async function pollGov() {
     const r = await fetch(CFG.gov);
     if (!r.ok) return;
     S.gov = await r.json();
-    _prompt = null; /* invalidate prompt cache */
+    _cachedPrompt = null; /* invalidate prompt cache */
     renderGov(S.gov);
   } catch (_) {}
 }
@@ -1466,7 +1449,7 @@ function saveCfg() {
   CFG.key   = D.cfgKey.value.trim();
   CFG.model = D.cfgModel.value.trim()  || 'claude-sonnet-4-6';
   CFG.gov   = D.cfgGov.value.trim()    || '/api/whale/snapshot';
-  _prompt = null;
+  _cachedPrompt = null;
   closeCfg();
   clearInterval(S.govTimer);
   pollGov();
@@ -1486,7 +1469,7 @@ function clearChat() {
 /* ── WELCOME ── */
 function welcome() {
   addMsg('assistant',
-    `Hey. I'm **dork** — ADAAD's advisory intelligence.\n\n` +
+    `${buildWelcomeMessage()}\n\n` +
     `I have eyes on the governance substrate, the Constitutional Evolution Loop, the mutation pipeline, the agent triad, the Lineage Ledger, and the replay engine.\n\n` +
     `ADAAD is at **v9.63.0**, Phase 130, **201 Hard-class invariants** enforced. INNOV-40 (Cross-Epoch Agent Learning Transfer) just shipped — collective intelligence track closed.\n\n` +
     `I'm read-only. Advisory only. Ask me what's happening.\n\n` +
@@ -1542,6 +1525,7 @@ function init() {
     else if (id === 'cfg-save')  saveCfg();
     else if (id === 'cfg-clear') clearChat();
   });
+  q('#cfg-clear-secrets').addEventListener('click', clearSecrets);
 
   /* Keyboard */
   document.addEventListener('keydown', e => {
