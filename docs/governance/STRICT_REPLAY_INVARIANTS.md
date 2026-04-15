@@ -21,8 +21,11 @@ This document defines the invariants that must hold for strict replay validation
 6. **Hermetic runtime profile must validate before governance-critical boot.**
    - `governance_runtime_profile.lock.json` is the canonical runtime lock artifact.
    - It is committed to source control and versioned with governance/release changes.
+   - Payload must validate against `schemas/governance_runtime_profile.lock.v1.json`.
+   - Schema-aware migration is permitted only for backward-compatible additive sections (for example, top-level `agents` metadata).
    - dependency fingerprint must match the pinned lock target (`requirements.server.txt`).
    - mutable filesystem and network surfaces must be disabled or explicitly allowlisted.
+   - `agents.grok-integrator` metadata is a tolerated governance extension and MUST remain non-authoritative when `enabled=false`.
 7. **Fail-closed boot posture.**
    - Any runtime profile mismatch (fingerprint/provider/surface policy) must halt boot prior to mutation execution.
 

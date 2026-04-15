@@ -29,5 +29,16 @@
         "localhost"
       ]
     }
+  },
+  "agents": {
+    "grok-integrator": {
+      "enabled": false,
+      "provider": "xai",
+      "profile": "governance-observer",
+      "metadata": {
+        "migration": "schema-aware-default",
+        "notes": "Reserved for future grok bridge activation; ignored when disabled."
+      }
+    }
   }
 }

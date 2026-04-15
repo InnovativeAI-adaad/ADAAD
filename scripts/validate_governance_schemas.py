@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
-"""Validate governance constitution document against its schema when available."""
+"""Validate governance schema corpus + constitution + runtime profile lock payload."""
 
 from __future__ import annotations
 
@@ -8,9 +8,14 @@ import json
 from pathlib import Path
 from typing import Any
 
+from runtime.governance.schema_validator import validate_governance_schemas
+from runtime.preflight import _validate_against_schema, migrate_runtime_profile_lock
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CONSTITUTION_PATH = REPO_ROOT / "runtime/governance/constitution.yaml"
 SCHEMA_PATH = REPO_ROOT / "docs/schemas/constitution.v1.json"
+RUNTIME_PROFILE_PATH = REPO_ROOT / "governance_runtime_profile.lock.json"
+RUNTIME_PROFILE_SCHEMA_PATH = REPO_ROOT / "schemas/governance_runtime_profile.lock.v1.json"
 
 
 def _validate_node(instance: Any, schema: dict[str, Any], path: str = "$") -> list[str]:
@@ -53,26 +58,47 @@ def _validate_node(instance: Any, schema: dict[str, Any], path: str = "$") -> li
 
 
 def main() -> int:
+    schema_errors = validate_governance_schemas()
+    if schema_errors:
+        print("governance_schema_corpus_validation:failed")
+        for schema_path, errors in sorted(schema_errors.items()):
+            print(f"- {schema_path}: {', '.join(errors)}")
+        return 1
+
     try:
         constitution = json.loads(CONSTITUTION_PATH.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         print(f"governance_schema_validation:failed:{exc}")
         return 1
 
-    if not SCHEMA_PATH.exists():
+    if SCHEMA_PATH.exists():
+        try:
+            schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            print(f"governance_schema_validation:failed:{exc}")
+            return 1
+
+        errors = _validate_node(constitution, schema)
+        if errors:
+            print("governance_schema_validation:failed")
+            for error in errors:
+                print(f"- {error}")
+            return 1
+    else:
         print("governance_schema_validation:ok:schema_missing_skipped")
-        return 0
 
     try:
-        schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+        runtime_profile = json.loads(RUNTIME_PROFILE_PATH.read_text(encoding="utf-8"))
+        runtime_profile_schema = json.loads(RUNTIME_PROFILE_SCHEMA_PATH.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
-        print(f"governance_schema_validation:failed:{exc}")
+        print(f"governance_runtime_profile_validation:failed:{exc}")
         return 1
 
-    errors = _validate_node(constitution, schema)
-    if errors:
-        print("governance_schema_validation:failed")
-        for error in errors:
+    migration = migrate_runtime_profile_lock(runtime_profile)
+    runtime_errors = _validate_against_schema(runtime_profile_schema, migration["profile"])
+    if runtime_errors:
+        print("governance_runtime_profile_validation:failed")
+        for error in runtime_errors:
             print(f"- {error}")
         return 1
 
