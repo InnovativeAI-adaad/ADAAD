@@ -125,6 +125,22 @@ class DorkConsoleRouteError(BaseModel):
     error_code: Literal["governance_blocked", "validation_error", "http_error"]
     message: StrictStr
     detail: dict[str, Any] = Field(default_factory=dict)
+
+class DorkGipProposeRequest(BaseModel):
+    """Validated payload for the DORK GIP proposal staging endpoint."""
+
+    simulation: StrictBool = False
+    trigger: StrictStr = Field(default="ADAAD", min_length=5, max_length=16, pattern="^(ADAAD|DEVADAAD)$")
+    verified_sha: StrictStr = Field(min_length=40, max_length=64, pattern="^[a-fA-F0-9]{40,64}$")
+
+
+class DorkGipProposeResponse(BaseModel):
+    """Stable envelope returned by /api/dork/gip/propose."""
+
+    status: StrictStr
+    proposal_id: StrictStr
+    failure: dict[str, Any] | None = None
+
 class DorkProposalExecuteRequest(BaseModel):
     """Request envelope for DORK-governed mutation proposal execution."""
 
