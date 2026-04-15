@@ -156,6 +156,27 @@ def test_post_proposal_delegates_to_mcp_validation_and_queue(monkeypatch) -> Non
     assert observed["proposal_id"] == "proposal-123"
 
 
+
+
+def test_post_proposal_returns_structured_grok_rejection(monkeypatch) -> None:
+    class _Err(Exception):
+        status_code = 403
+        code = "grok_disabled"
+        detail = "grok-integrator is disabled in governance runtime profile"
+
+    def _fake_validate(_payload):
+        raise _Err()
+
+    monkeypatch.setattr(server, "validate_proposal", _fake_validate)
+
+    with TestClient(server.app) as client:
+        response = client.post("/api/mutations/proposals", json={"agent_id": "grok-integrator", "intent": "optimize"})
+
+    assert response.status_code == 403
+    payload = response.json()["detail"]
+    assert payload["reason"] == "grok_disabled"
+    assert payload["structured"]["component"] == "grok-integrator"
+
 def test_mock_endpoints_disabled_by_default() -> None:
     with TestClient(server.app) as client:
         response = client.get("/api/status")

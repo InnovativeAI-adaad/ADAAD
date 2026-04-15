@@ -3470,7 +3470,27 @@ def _handle_proposal(
     tenant_ctx: dict[str, str],
 ) -> dict:
     """Core proposal handler — validate, queue, optionally emit Aponi editor event."""
-    req_obj, validation = validate_proposal(payload)
+    try:
+        req_obj, validation = validate_proposal(payload)
+    except Exception as exc:
+        code = str(getattr(exc, "code", "proposal_validation_failed") or "proposal_validation_failed")
+        detail = str(getattr(exc, "detail", "") or "")
+        status_code = int(getattr(exc, "status_code", 422) or 422)
+        if code in {"grok_disabled", "grok_unbound", "grok_runtime_profile_missing", "grok_runtime_profile_unreadable"}:
+            raise HTTPException(
+                status_code=status_code,
+                detail={
+                    "ok": False,
+                    "reason": code,
+                    "detail": detail,
+                    "structured": {
+                        "component": "grok-integrator",
+                        "binding_status": "disabled" if code == "grok_disabled" else "unbound",
+                    },
+                },
+            ) from exc
+        raise
+
     provider = default_provider()
     proposal_id: str = provider.next_id(label="proposal", length=12)
     queue_result = append_proposal(proposal_id=proposal_id, request=req_obj)
