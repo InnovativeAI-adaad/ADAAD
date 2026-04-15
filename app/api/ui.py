@@ -12,14 +12,14 @@ from app.api.schemas.dork_intents import (
     DorkConsoleRouteResponse,
     DorkIntentBundle,
     DorkIntentRouteRequest,
-)
-    DorkIntentBundle,
-    DorkIntentRouteRequest,
     DorkProposalExecuteRequest,
     DorkProposalExecuteResponse,
 )
-from app.orchestration.dork_intent_router import DorkIntentExecutor, DorkIntentRouter
-from runtime.governance.dork_proposal_adapter import ProposalValidationError, execute_dork_proposal
+from runtime.governance.dork_proposal_adapter import (
+    DorkProposalPreflightError,
+    ProposalValidationError,
+    execute_dork_proposal,
+)
 
 router = APIRouter(tags=["ui"])
 
@@ -80,6 +80,9 @@ def route_dork_console(
         outcome_reason=reason,
         console_message=f"Approved: {bundle.summary}",
         bundle=bundle,
+    )
+
+
 @router.post("/api/dork/proposals/execute", response_model=DorkProposalExecuteResponse)
 def execute_dork_proposal_route(
     body: DorkProposalExecuteRequest,
@@ -93,6 +96,8 @@ def execute_dork_proposal_route(
             trust_mode=body.trust_mode,
             actor=body.actor,
         )
+    except DorkProposalPreflightError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=exc.code) from exc
     except ProposalValidationError as exc:
         raise HTTPException(status_code=exc.status_code, detail=exc.code) from exc
     except PermissionError as exc:
