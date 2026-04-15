@@ -1,15 +1,23 @@
 # SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
 
-from typing import Any
+import asyncio
+import json
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Literal
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.api.dependencies import require_audit_scope
 from app.api.schemas.dork_intents import (
     DorkConsoleRouteError,
     DorkConsoleRouteRequest,
     DorkConsoleRouteResponse,
+    DorkGipProposeRequest,
+    DorkGipProposeResponse,
     DorkIntentBundle,
     DorkIntentRouteRequest,
     DorkProposalExecuteRequest,
@@ -20,8 +28,16 @@ from runtime.governance.dork_proposal_adapter import (
     ProposalValidationError,
     execute_dork_proposal,
 )
+from app.orchestration.adaad_trigger import GovernanceProposalAdapter
+from runtime.governance.dork_proposal_adapter import ProposalValidationError, execute_dork_proposal
+from security.ledger import journal
+from security.ledger.append import append_entry
 
 router = APIRouter(tags=["ui"])
+
+_DORK_EVENT_LEDGER_PATH = Path("security/ledger/dork_events.jsonl")
+_STREAM_SUBSCRIBERS: list[asyncio.Queue[dict[str, Any]]] = []
+_STREAM_LOCK = asyncio.Lock()
 
 
 @router.post("/api/dork/intents/route", response_model=DorkIntentBundle)
@@ -83,6 +99,25 @@ def route_dork_console(
     )
 
 
+@router.post("/api/dork/gip/propose", response_model=DorkGipProposeResponse)
+def propose_dork_gip(
+    body: DorkGipProposeRequest,
+    auth_ctx: dict[str, Any] = Depends(require_audit_scope),
+) -> DorkGipProposeResponse:
+    """Stage a governance proposal from DORK through GovernanceProposalAdapter."""
+    _ = auth_ctx
+    stage_result = GovernanceProposalAdapter(repo_root=Path.cwd()).stage(
+        simulation=body.simulation,
+        trigger=body.trigger,
+        verified_sha=body.verified_sha,
+    )
+    return DorkGipProposeResponse(
+        status=str(stage_result.get("status", "blocked")),
+        proposal_id=str(stage_result.get("proposal_id", "")),
+        failure=stage_result.get("failure") if isinstance(stage_result.get("failure"), dict) else None,
+    )
+
+
 @router.post("/api/dork/proposals/execute", response_model=DorkProposalExecuteResponse)
 def execute_dork_proposal_route(
     body: DorkProposalExecuteRequest,
@@ -110,22 +145,6 @@ def execute_dork_proposal_route(
         queued_event_type=result.queued_event_type,
         queue_hash=result.queue_hash,
     )
-import asyncio
-import json
-from datetime import datetime, timezone
-from pathlib import Path
-from typing import Any, Literal
-
-from fastapi import Request
-from fastapi.responses import StreamingResponse
-from pydantic import BaseModel, ConfigDict, Field
-
-from security.ledger import journal
-from security.ledger.append import append_entry
-
-_DORK_EVENT_LEDGER_PATH = Path("security/ledger/dork_events.jsonl")
-_STREAM_SUBSCRIBERS: list[asyncio.Queue[dict[str, Any]]] = []
-_STREAM_LOCK = asyncio.Lock()
 
 
 class DorkEventEnvelope(BaseModel):

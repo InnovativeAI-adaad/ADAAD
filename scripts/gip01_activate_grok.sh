@@ -4,6 +4,7 @@ set -euo pipefail
 SCRIPT_NAME="gip01_activate_grok"
 DEFAULT_VAULT_FILE="security/ledger/credentials/grok_pat.vault"
 VAULT_FILE="${GIP01_VAULT_FILE:-$DEFAULT_VAULT_FILE}"
+OPERATOR_ID="${GIP01_OPERATOR_ID:-}"
 
 fail() {
   local code="$1"
@@ -20,6 +21,10 @@ fi
 
 if [[ -z "${GITHUB_PAT:-}" ]]; then
   fail "TOKEN_MISSING"
+fi
+
+if [[ -z "${OPERATOR_ID}" ]]; then
+  fail "OPERATOR_ID_REQUIRED"
 fi
 
 mkdir -p "$(dirname "$VAULT_FILE")"
@@ -49,5 +54,15 @@ if (( group_written != 0 || other_written != 0 )); then
 fi
 
 unset GITHUB_PAT
+
+if [[ "${GIP01_CONFIRM_ENABLE:-}" != "ENABLE_GROK" ]]; then
+  fail "OPERATOR_CONFIRMATION_REQUIRED"
+fi
+
+python scripts/gip01_activate_grok.py \
+  --enable \
+  --confirm-enable \
+  --vault-file "$VAULT_FILE" \
+  --operator-id "$OPERATOR_ID"
 
 echo "${SCRIPT_NAME}_success vault_file=${VAULT_FILE}"

@@ -912,6 +912,7 @@ body {
 /* Server-injected flags */
 const SERVER_KEY_AVAILABLE = window.__anthropic_key_available ?? false;
 const DORK_CONSOLE_ROUTE_ENDPOINT = '/api/dork/console/route';
+const DORK_GIP_PROPOSE_ENDPOINT = '/api/dork/gip/propose';
 const SESSION_KEY_STORAGE_KEY = 'dork_api_key_session_v1';
 const SESSION_KEY_TTL_MS      = 4 * 60 * 60 * 1000;
 
@@ -1242,6 +1243,44 @@ function buildConsoleMarkdown(payload) {
   return `### ${outcome}\n${summary}${intent}${reason}`;
 }
 
+
+
+function parseGipProposeCommand(raw) {
+  const text = String(raw || '').trim();
+  const tokens = text.split(/\s+/);
+  if (tokens.length < 2) return null;
+  const head = tokens[0].toLowerCase();
+  const verb = tokens[1].toLowerCase();
+  if (!((head === '/dork:gip/propose') || (head === '/gip' && verb === 'propose'))) return null;
+
+  const offset = head === '/dork:gip/propose' ? 1 : 2;
+  const verifiedSha = tokens[offset] || '';
+  const trigger = String(tokens[offset + 1] || 'ADAAD').toUpperCase();
+  return {
+    simulation: false,
+    trigger,
+    verified_sha: verifiedSha,
+  };
+}
+
+function buildGipProposeMarkdown(payload) {
+  const status = String(payload?.status || '').toLowerCase();
+  const proposalId = payload?.proposal_id || 'unknown';
+  const failure = payload?.failure && typeof payload.failure === 'object' ? payload.failure : null;
+  if (status === 'blocked') {
+    const failureCode = failure?.code || 'governance_blocked';
+    const failureMessage = failure?.message || 'Governance gate blocked this proposal.';
+    return `### BLOCKED
+Proposal could not be staged.
+- **Proposal ID:** ${proposalId}
+- **Failure code:** ${failureCode}
+- **Failure:** ${failureMessage}`;
+  }
+  return `### APPROVED
+Proposal staged successfully.
+- **Proposal ID:** ${proposalId}
+- **Status:** ${payload?.status || 'executed'}`;
+}
 function buildConsoleErrorMarkdown(status, payload) {
   if (status === 422) {
     return '### VALIDATION ERROR\nRequest payload failed schema validation. Check query length and payload shape.';
@@ -1266,8 +1305,10 @@ async function stream() {
   setTyping(true);
 
   const latestUserMessage = [...S.msgs].reverse().find((m) => m.role === 'user');
+  const latestMessageText = latestUserMessage?.content || '';
+  const gipCommand = parseGipProposeCommand(latestMessageText);
   const body = {
-    query: latestUserMessage?.content || '',
+    query: latestMessageText,
     limit: 25,
     epoch_id: String(S.gov?.runtime?.epoch?.epoch || ''),
     before_snapshot: {},
@@ -1277,17 +1318,19 @@ async function stream() {
   try {
     const headers = { 'Content-Type': 'application/json' };
     if (CFG.key) headers.Authorization = CFG.key.startsWith('Bearer ') ? CFG.key : `Bearer ${CFG.key}`;
-    const res = await fetch(DORK_CONSOLE_ROUTE_ENDPOINT, {
+    const endpoint = gipCommand ? DORK_GIP_PROPOSE_ENDPOINT : DORK_CONSOLE_ROUTE_ENDPOINT;
+    const payloadBody = gipCommand || body;
+    const res = await fetch(endpoint, {
       method: 'POST',
       headers,
-      body: JSON.stringify(body),
+      body: JSON.stringify(payloadBody),
     });
     const payload = await res.json().catch(() => ({}));
     if (!res.ok) {
       addMsg('assistant', buildConsoleErrorMarkdown(res.status, payload), true);
       return;
     }
-    const fullText = buildConsoleMarkdown(payload);
+    const fullText = gipCommand ? buildGipProposeMarkdown(payload) : buildConsoleMarkdown(payload);
     setTyping(false);
     addMsg('assistant', fullText, true);
     S.msgs.push({ role: 'assistant', content: fullText });
