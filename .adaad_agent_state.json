@@ -333,7 +333,7 @@
   "last_invocation": "2026-04-15",
   "last_phase_completed": 144,
   "last_phase_completed_label": "Phase 141 \u00b7 INNOV-47 Live Knowledge Sync Engine (LKSE)",
-  "last_sync_sha": "0c1af9c2",
+  "last_sync_sha": "758ef4ae",
   "last_updated": "2026-04-11T12:38:12.268044+00:00",
   "next_phase": 142,
   "next_pr": "feat/phase142-css",
@@ -908,7 +908,7 @@
     "phase127-world-first-governed-redteam-response"
   ],
   "last_completed_phase": "Phase 14 \u00b7 Patch \u00b7 DORK v2.2 Renderer Performance Hardening",
-  "last_agent_state_sync_digest": "gsync-6da91658dd668ff6",
+  "last_agent_state_sync_digest": "gsync-222b189a4a30145f",
   "invariant_count": 241,
   "innovation_count": 48,
   "innovations_shipped": 50,

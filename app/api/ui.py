@@ -13,6 +13,13 @@ from app.api.schemas.dork_intents import (
     DorkIntentBundle,
     DorkIntentRouteRequest,
 )
+    DorkIntentBundle,
+    DorkIntentRouteRequest,
+    DorkProposalExecuteRequest,
+    DorkProposalExecuteResponse,
+)
+from app.orchestration.dork_intent_router import DorkIntentExecutor, DorkIntentRouter
+from runtime.governance.dork_proposal_adapter import ProposalValidationError, execute_dork_proposal
 
 router = APIRouter(tags=["ui"])
 
@@ -73,6 +80,30 @@ def route_dork_console(
         outcome_reason=reason,
         console_message=f"Approved: {bundle.summary}",
         bundle=bundle,
+@router.post("/api/dork/proposals/execute", response_model=DorkProposalExecuteResponse)
+def execute_dork_proposal_route(
+    body: DorkProposalExecuteRequest,
+    auth_ctx: dict[str, Any] = Depends(require_audit_scope),
+) -> DorkProposalExecuteResponse:
+    """Execute a DORK proposal through GovernanceGate + approved proposal queue."""
+    _ = auth_ctx
+    try:
+        result = execute_dork_proposal(
+            proposal_payload=body.proposal,
+            trust_mode=body.trust_mode,
+            actor=body.actor,
+        )
+    except ProposalValidationError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=exc.code) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=423, detail=str(exc)) from exc
+    return DorkProposalExecuteResponse(
+        ok=True,
+        proposal_id=result.proposal_id,
+        gate_decision_id=result.gate_decision_id,
+        governance_decision=result.governance_decision,
+        queued_event_type=result.queued_event_type,
+        queue_hash=result.queue_hash,
     )
 import asyncio
 import json

@@ -125,3 +125,20 @@ class DorkConsoleRouteError(BaseModel):
     error_code: Literal["governance_blocked", "validation_error", "http_error"]
     message: StrictStr
     detail: dict[str, Any] = Field(default_factory=dict)
+class DorkProposalExecuteRequest(BaseModel):
+    """Request envelope for DORK-governed mutation proposal execution."""
+
+    proposal: dict[str, Any]
+    trust_mode: StrictStr = Field(default="standard", min_length=1, max_length=64)
+    actor: StrictStr = Field(default="dork", min_length=1, max_length=128)
+
+
+class DorkProposalExecuteResponse(BaseModel):
+    """Response envelope for DORK-governed mutation proposal execution."""
+
+    ok: StrictBool
+    proposal_id: StrictStr
+    gate_decision_id: StrictStr
+    governance_decision: StrictStr
+    queued_event_type: StrictStr
+    queue_hash: StrictStr

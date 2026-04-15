@@ -1,3 +1,17 @@
+## [9.77.2] — 2026-04-15 · Patch · Runtime Profile Schema + grok-integrator metadata
+
+- Added canonical runtime profile lock schema: `schemas/governance_runtime_profile.lock.v1.json`.
+- Extended `governance_runtime_profile.lock.json` with optional top-level `agents`
+  metadata (`grok-integrator`).
+- Updated preflight runtime profile handling to perform schema-aware migration for
+  legacy lock files missing `agents`, while remaining fail-closed on malformed
+  `agents` payloads.
+- Updated governance schema validation path to include runtime profile schema/payload
+  checks in `scripts/validate_governance_schemas.py`.
+- Added backward-compatibility tests for legacy runtime profile lock files.
+
+---
+
 ## [9.77.1] — 2026-04-14 · Patch · DORK v2.2 Renderer Performance Hardening
 
 ### Performance patch — no new invariants · 241 Hard-class total

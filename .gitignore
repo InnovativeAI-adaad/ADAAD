@@ -47,6 +47,8 @@ secrets.local.*
 /security/ledger/*.jsonl
 !/security/ledger/cryovant_journal.genesis.jsonl
 /security/ledger/gate_hash.txt
+/security/ledger/credentials/*
+!/security/ledger/credentials/.gitkeep
 
 # Never commit private keys
 security/keys/*
