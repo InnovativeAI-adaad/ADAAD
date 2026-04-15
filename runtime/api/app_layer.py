@@ -75,6 +75,7 @@ __all__ = [
     "push_to_dashboard",
     "rank_mutation_candidates",
     "record_external_governance_event",
+    "mediate_grok_proposal",
     "register_capability",
     "require_replay_safe_provider",
     "read_gate_state",
@@ -91,6 +92,11 @@ def record_external_governance_event(*args, **kwargs):
 
     return record(*args, **kwargs)
 
+
+def mediate_grok_proposal(*args, **kwargs):
+    from runtime.governance.grok_proposal_mediator import mediate_grok_proposal as _mediate
+
+    return _mediate(*args, **kwargs)
 
 
 def __getattr__(name: str):
