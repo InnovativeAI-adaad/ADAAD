@@ -5,19 +5,20 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
+import hashlib
 from pathlib import Path
-import subprocess
 from typing import Any, Callable, Mapping, Sequence
 
 from runtime.api.governance_events import (
     build_merge_attestation_event,
     build_merge_attestation_payload,
 )
-
-
-GIT_READ_TIMEOUT_S = 5
-GIT_MUTATION_TIMEOUT_S = 15
-GIT_ERROR_OUTPUT_MAX_CHARS = 240
+from runtime.governance.gate import GovernanceGate
+from runtime.mutation_lifecycle import (
+    LifecycleTransitionError,
+    MutationLifecycleContext,
+    transition as lifecycle_transition,
+)
 
 
 @dataclass(frozen=True)
@@ -101,17 +102,90 @@ class VirtualLedgerWriter:
         return {"status": "validated", "simulated": True, "event_type": str(event["event_type"])}
 
 
-class GitMutationAdapter:
-    """Executes mutating git operations unless simulation mode is enabled."""
+class GovernanceProposalAdapter:
+    """Submits proposals into governance/lifecycle flow without mutating branches."""
 
     def __init__(self, repo_root: Path) -> None:
         self.repo_root = repo_root
+        self._gate = GovernanceGate()
 
-    def stage(self, *, simulation: bool) -> dict[str, Any]:
+    @staticmethod
+    def _failure(code: str, *, message: str, details: Mapping[str, Any] | None = None) -> dict[str, Any]:
+        return {
+            "code": code,
+            "message": message,
+            "details": dict(details or {}),
+        }
+
+    @staticmethod
+    def _proposal_id(*, trigger: str, verified_sha: str) -> str:
+        seed = f"{trigger}:{verified_sha or 'no-verified-sha'}".encode("utf-8")
+        digest = hashlib.sha256(seed).hexdigest()[:20]
+        return f"grok-proposal-{digest}"
+
+    def stage(self, *, simulation: bool, trigger: str, verified_sha: str) -> dict[str, Any]:
+        proposal_id = self._proposal_id(trigger=trigger, verified_sha=verified_sha)
         if simulation:
-            return {"status": "skipped", "simulation": True, "operation": "git_add"}
-        self._run_git_mutation("git_add", ["git", "add", "-A"])
-        return {"status": "executed", "simulation": False, "operation": "git_add"}
+            return {
+                "status": "skipped",
+                "simulation": True,
+                "operation": "proposal_submit",
+                "proposal_id": proposal_id,
+            }
+
+        gate_decision = self._gate.approve_mutation(
+            mutation_id=proposal_id,
+            trust_mode="dev",
+            mutation_payload={"source": "trigger_orchestration"},
+            mutation_context={"trigger": trigger, "verified_sha": verified_sha},
+        )
+        if not gate_decision.approved:
+            return {
+                "status": "blocked",
+                "simulation": False,
+                "operation": "proposal_submit",
+                "proposal_id": proposal_id,
+                "failure": self._failure(
+                    "governance_gate_rejected",
+                    message="Proposal submission rejected by GovernanceGate.",
+                    details={
+                        "reason_codes": list(gate_decision.reason_codes),
+                        "failed_rules": list(gate_decision.failed_rules),
+                        "decision": gate_decision.decision,
+                    },
+                ),
+            }
+
+        lifecycle_ctx = MutationLifecycleContext(
+            mutation_id=proposal_id,
+            agent_id="grok-proposal-agent",
+            epoch_id=f"trigger:{proposal_id}",
+            trust_mode="dev",
+            signature="cryovant-dev-proposal",
+        )
+        try:
+            lifecycle_transition("proposed", "staged", lifecycle_ctx)
+        except LifecycleTransitionError as exc:
+            return {
+                "status": "blocked",
+                "simulation": False,
+                "operation": "proposal_submit",
+                "proposal_id": proposal_id,
+                "failure": self._failure(
+                    "proposal_lifecycle_transition_blocked",
+                    message="Proposal could not enter staged state.",
+                    details={"error": str(exc), "from_state": "proposed", "to_state": "staged"},
+                ),
+            }
+
+        return {
+            "status": "executed",
+            "simulation": False,
+            "operation": "proposal_submit",
+            "proposal_id": proposal_id,
+            "proposal_state": "staged",
+            "gate_decision_id": gate_decision.decision_id,
+        }
 
     def merge(
         self,
@@ -119,87 +193,37 @@ class GitMutationAdapter:
         simulation: bool,
         verified_sha: str,
         merge_target_sha: str,
+        trigger: str,
     ) -> dict[str, Any]:
+        proposal_id = self._proposal_id(trigger=trigger, verified_sha=verified_sha)
         if simulation:
-            return {"status": "skipped", "simulation": True, "operation": "git_merge"}
-        normalized_verified_sha = self._resolve_commit(verified_sha)
-        normalized_merge_target_sha = self._resolve_commit(merge_target_sha)
-        if normalized_verified_sha != normalized_merge_target_sha:
-            raise ValueError("merge_target_mismatch_verified_sha")
-
-        pre_merge_head_sha = self._git_stdout("git", "rev-parse", "HEAD")
-        self._run_git_mutation(
-            "git_merge",
-            ["git", "merge", "--no-ff", "--no-edit", normalized_merge_target_sha],
-        )
-        merge_commit_sha = self._git_stdout("git", "rev-parse", "HEAD")
+            return {
+                "status": "skipped",
+                "simulation": True,
+                "operation": "proposal_promote",
+                "proposal_id": proposal_id,
+            }
+        if str(verified_sha).strip().lower() != str(merge_target_sha).strip().lower():
+            return {
+                "status": "blocked",
+                "simulation": False,
+                "operation": "proposal_promote",
+                "proposal_id": proposal_id,
+                "failure": self._failure(
+                    "merge_target_mismatch_verified_sha",
+                    message="Verified SHA does not match merge target SHA.",
+                    details={"verified_sha": verified_sha, "merge_target_sha": merge_target_sha},
+                ),
+            }
         return {
             "status": "executed",
             "simulation": False,
-            "operation": "git_merge",
-            "verified_sha": normalized_verified_sha,
-            "merge_target_sha": normalized_merge_target_sha,
-            "pre_merge_head_sha": pre_merge_head_sha,
-            "merge_commit_sha": merge_commit_sha,
+            "operation": "proposal_promote",
+            "proposal_id": proposal_id,
+            "proposal_state": "approved_for_ci",
+            "branch_mutation": False,
+            "pr_mutation": False,
         }
-
-    def _resolve_commit(self, revision: str) -> str:
-        normalized_revision = str(revision).strip()
-        if not normalized_revision:
-            raise ValueError("missing_revision")
-        return self._git_stdout("git", "rev-parse", "--verify", normalized_revision).lower()
-
-    def _git_stdout(self, *args: str) -> str:
-        try:
-            completed = subprocess.run(
-                list(args),
-                cwd=self.repo_root,
-                check=True,
-                capture_output=True,
-                text=True,
-                timeout=GIT_READ_TIMEOUT_S,
-            )
-        except subprocess.TimeoutExpired as exc:
-            raise RuntimeError(self._timeout_error("git_read", exc)) from exc
-        return completed.stdout.strip()
-
-    def _run_git_mutation(self, operation: str, args: list[str]) -> None:
-        try:
-            subprocess.run(
-                args,
-                cwd=self.repo_root,
-                check=True,
-                capture_output=True,
-                text=True,
-                timeout=GIT_MUTATION_TIMEOUT_S,
-            )
-        except subprocess.TimeoutExpired as exc:
-            raise RuntimeError(self._timeout_error(operation, exc)) from exc
-
-    @staticmethod
-    def _timeout_error(operation: str, exc: subprocess.TimeoutExpired) -> str:
-        context = GitMutationAdapter._format_stream_context(exc.stdout, exc.stderr)
-        if context:
-            return f"git_command_timeout:{operation}:{context}"
-        return f"git_command_timeout:{operation}"
-
-    @staticmethod
-    def _format_stream_context(stdout: str | bytes | None, stderr: str | bytes | None) -> str:
-        def _normalize(value: str | bytes | None) -> str:
-            if value is None:
-                return ""
-            if isinstance(value, bytes):
-                return value.decode("utf-8", errors="replace")
-            return value
-
-        fragments: list[str] = []
-        stdout_text = _normalize(stdout).strip()
-        stderr_text = _normalize(stderr).strip()
-        if stdout_text:
-            fragments.append(f"stdout={stdout_text[:GIT_ERROR_OUTPUT_MAX_CHARS]}")
-        if stderr_text:
-            fragments.append(f"stderr={stderr_text[:GIT_ERROR_OUTPUT_MAX_CHARS]}")
-        return " | ".join(fragments)
 
 
 class AdaadTriggerOrchestrator:
@@ -211,12 +235,12 @@ class AdaadTriggerOrchestrator:
         repo_root: Path,
         gate_runner: Callable[[str], GateResult] | None = None,
         ledger_writer: VirtualLedgerWriter | None = None,
-        git_mutation_adapter: GitMutationAdapter | None = None,
+        proposal_adapter: GovernanceProposalAdapter | None = None,
     ) -> None:
         self.repo_root = repo_root
         self._gate_runner = gate_runner or self._default_gate_runner
         self._ledger = ledger_writer or VirtualLedgerWriter()
-        self._git = git_mutation_adapter or GitMutationAdapter(repo_root)
+        self._proposal_adapter = proposal_adapter or GovernanceProposalAdapter(repo_root)
 
     @staticmethod
     def _default_gate_runner(gate_name: str) -> GateResult:
@@ -377,29 +401,27 @@ class AdaadTriggerOrchestrator:
             "status": "skipped",
             "reason": "blocked",
             "simulation": request.simulation,
-            "operation": "git_add",
+            "operation": "proposal_submit",
         }
         merge_result = {
             "status": "skipped",
             "reason": "blocked",
             "simulation": request.simulation,
-            "operation": "git_merge",
+            "operation": "proposal_promote",
         }
         attestation_result: dict[str, Any] | None = None
         attestation_attempted = False
 
         if status == "ready":
-            try:
-                stage_result = self._git.stage(simulation=request.simulation)
-            except RuntimeError as exc:
-                blocked_reason = str(exc)
+            stage_result = self._proposal_adapter.stage(
+                simulation=request.simulation,
+                trigger=request.principal,
+                verified_sha=verified_sha,
+            )
+            if stage_result.get("status") == "blocked":
+                failure = stage_result.get("failure") or {}
+                blocked_reason = str(failure.get("code") or "proposal_submission_blocked")
                 status = "blocked"
-                stage_result = {
-                    "status": "blocked",
-                    "simulation": request.simulation,
-                    "operation": "git_add",
-                    "detail": str(exc),
-                }
 
         if request.merge_authority and status == "ready":
             attestation_attempted = True
@@ -415,32 +437,20 @@ class AdaadTriggerOrchestrator:
                 merge_result = {
                     "status": "blocked",
                     "simulation": request.simulation,
-                    "operation": "git_merge",
+                    "operation": "proposal_promote",
                     "detail": str(exc),
                 }
             else:
-                try:
-                    merge_result = self._git.merge(
-                        simulation=request.simulation,
-                        verified_sha=verified_sha,
-                        merge_target_sha=merge_target_sha,
-                    )
-                except RuntimeError as exc:
-                    blocked_reason = str(exc)
+                merge_result = self._proposal_adapter.merge(
+                    simulation=request.simulation,
+                    verified_sha=verified_sha,
+                    merge_target_sha=merge_target_sha,
+                    trigger=request.principal,
+                )
+                if merge_result.get("status") == "blocked":
+                    failure = merge_result.get("failure") or {}
+                    blocked_reason = str(failure.get("code") or "proposal_promotion_blocked")
                     status = "blocked"
-                    merge_result = {
-                        "status": "blocked",
-                        "simulation": request.simulation,
-                        "operation": "git_merge",
-                        "detail": str(exc),
-                    }
-                    if stage_result.get("status") == "executed":
-                        stage_result = {
-                            "status": "blocked",
-                            "simulation": request.simulation,
-                            "operation": "git_add",
-                            "detail": f"partial_mutation_blocked:{exc}",
-                        }
 
         output_lines = [
             "[ADAAD ORIENT]",
@@ -450,7 +460,7 @@ class AdaadTriggerOrchestrator:
             f"Scenario: {scenario}",
             f"Status: {status}",
             f"Decision: {'allow' if status == 'ready' else 'deny'}",
-            f"Repository mutation: {'mutated' if status == 'ready' and not request.simulation else 'not_mutated'}",
+            "Repository mutation: not_mutated",
         ]
 
         for name in gate_names:
@@ -505,28 +515,20 @@ class AdaadTriggerOrchestrator:
             for name in gate_names
         }
         all_required_gates_passed = scenario_pass and gate_pass and replay_gate_pass
-        allow_git_mutations = all_required_gates_passed and blocked_reason is None
-        mutation_kind = "simulated" if request.simulation else ("mutated" if allow_git_mutations else "blocked")
+        allow_proposal_submission = all_required_gates_passed and blocked_reason is None
+        allow_git_mutations = False
+        mutation_kind = "simulated" if request.simulation else ("proposal_flow" if allow_proposal_submission else "blocked")
         return {
-            "status": "ready" if allow_git_mutations else "blocked",
+            "status": "ready" if allow_proposal_submission else "blocked",
             "blocked_reason": blocked_reason,
             "all_required_gates_passed": all_required_gates_passed,
             "allow_git_mutations": allow_git_mutations,
+            "allow_proposal_submission": allow_proposal_submission,
             "evaluated": True,
             "evaluated_gates": evaluated_gates,
             "mutation_kind": mutation_kind,
-            "mutated_repository_state": allow_git_mutations and not request.simulation,
+            "mutated_repository_state": False,
         }
-
-    def _execute_git_mutations(self, *, request: TriggerRequest, decision: Mapping[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
-        if not bool(decision.get("allow_git_mutations", False)):
-            return (
-                {"status": "skipped", "reason": "blocked", "simulation": request.simulation, "operation": "git_add"},
-                {"status": "skipped", "reason": "blocked", "simulation": request.simulation, "operation": "git_merge"},
-            )
-        stage_result = self._git.stage(simulation=request.simulation)
-        merge_result = self._git.merge(simulation=request.simulation, verified_sha="", merge_target_sha="")
-        return stage_result, merge_result
 
     @staticmethod
     def _replay_merge_gate_passes(*, request: TriggerRequest, replay_verification: Mapping[str, Any]) -> bool:
@@ -602,6 +604,10 @@ class AdaadTriggerOrchestrator:
         }
 
 
+# Backwards-compatible alias while request handlers migrate away from direct git semantics.
+GitMutationAdapter = GovernanceProposalAdapter
+
+
 def run_trigger(
     raw_command: str,
     *,
@@ -618,6 +624,7 @@ __all__ = [
     "AttestationWriteError",
     "GateResult",
     "GitMutationAdapter",
+    "GovernanceProposalAdapter",
     "LedgerSchemaError",
     "TriggerRequest",
     "VirtualLedgerWriter",
