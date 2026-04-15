@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.77.1 RELEASED \u00b7 post-DORK-v2.2 patch",
+  "active_phase": "v9.77.1 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -304,7 +304,7 @@
     "hard_class_count": 231
   },
   "current_phase": 144,
-  "current_version": "9.77.0",
+  "current_version": "9.77.1",
   "hard_class_count": 231,
   "hard_class_invariant_count": 241,
   "hard_class_invariants_cumulative": 226,
@@ -330,10 +330,10 @@
   ],
   "last_innovation": "INNOV-48",
   "last_innovation_name": "Live Knowledge Sync Engine (LKSE)",
-  "last_invocation": "2026-04-14",
+  "last_invocation": "2026-04-15",
   "last_phase_completed": 144,
   "last_phase_completed_label": "Phase 141 \u00b7 INNOV-47 Live Knowledge Sync Engine (LKSE)",
-  "last_sync_sha": "48d9384e",
+  "last_sync_sha": "0c1af9c2",
   "last_updated": "2026-04-11T12:38:12.268044+00:00",
   "next_phase": 142,
   "next_pr": "feat/phase142-css",
@@ -611,7 +611,7 @@
     141
   ],
   "schema_version": "1.5.0",
-  "software_version": "9.77.0",
+  "software_version": "9.77.1",
   "tife_active": true,
   "value_checkpoints_reached": [
     "phase0-track-a-hardening",
@@ -907,8 +907,8 @@
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
   ],
-  "last_completed_phase": "Phase 144 \u00b7 INNOV-50 Retrieval-Augmented Governance Synthesis (RAGS)",
-  "last_agent_state_sync_digest": "gsync-7862fb5e90d36f6a",
+  "last_completed_phase": "Phase 14 \u00b7 Patch \u00b7 DORK v2.2 Renderer Performance Hardening",
+  "last_agent_state_sync_digest": "gsync-6da91658dd668ff6",
   "invariant_count": 241,
   "innovation_count": 48,
   "innovations_shipped": 50,
