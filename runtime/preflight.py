@@ -37,6 +37,7 @@ _CONTENT_KEYS = ("content", "source", "code", "value")
 
 _MUTATION_PROPOSAL_SCHEMA_PATH = ROOT_DIR / "schemas" / "llm_mutation_proposal.v1.json"
 _RUNTIME_PROFILE_PATH = ROOT_DIR / "governance_runtime_profile.lock.json"
+_RUNTIME_PROFILE_SCHEMA_PATH = ROOT_DIR / "schemas" / "governance_runtime_profile.lock.v1.json"
 
 
 _STRICT_GOVERNANCE_MODES = frozenset({"strict", "audit"})
@@ -118,6 +119,18 @@ def validate_boot_runtime_profile(*, replay_mode: str = "off", recovery_tier: st
     except FileNotFoundError:
         return {"ok": False, "reason": "missing_runtime_profile_lock", "checks": checks}
 
+    migration = migrate_runtime_profile_lock(profile)
+    profile = migration["profile"]
+    checks["profile_migration"] = migration["migration"]
+    try:
+        profile_schema = json.loads(_RUNTIME_PROFILE_SCHEMA_PATH.read_text(encoding="utf-8"))
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {"ok": False, "reason": "runtime_profile_schema_unavailable", "checks": checks}
+    schema_errors = _validate_against_schema(profile_schema, profile)
+    if schema_errors:
+        checks["runtime_profile_schema_errors"] = schema_errors
+        return {"ok": False, "reason": "runtime_profile_schema_invalid", "checks": checks}
+
     dependency_lock = profile.get("dependency_lock")
     if not isinstance(dependency_lock, Mapping):
         return {"ok": False, "reason": "runtime_profile_missing_dependency_lock", "checks": checks}
@@ -165,7 +178,38 @@ def validate_boot_runtime_profile(*, replay_mode: str = "off", recovery_tier: st
     if not network_check.get("ok"):
         return {"ok": False, "reason": network_check.get("reason", "network_surface_violation"), "checks": checks}
 
+    agents_block = profile.get("agents", {})
+    grok_integrator = agents_block.get("grok-integrator") if isinstance(agents_block, Mapping) else None
+    checks["agents"] = {
+        "grok_integrator_present": isinstance(grok_integrator, Mapping),
+        "grok_integrator_enabled": bool(grok_integrator.get("enabled")) if isinstance(grok_integrator, Mapping) else False,
+    }
+
     return {"ok": True, "reason": "ok", "checks": checks}
+
+
+def migrate_runtime_profile_lock(profile: Mapping[str, Any]) -> Dict[str, Any]:
+    """Apply deterministic in-memory migration for new runtime profile sections."""
+    migrated = dict(profile)
+    migration: list[str] = []
+
+    agents = migrated.get("agents")
+    if not isinstance(agents, Mapping):
+        agents = {}
+        migration.append("added_agents_section")
+    else:
+        agents = dict(agents)
+    if "grok-integrator" not in agents:
+        agents["grok-integrator"] = {
+            "enabled": False,
+            "provider": "xai",
+            "profile": "governance-observer",
+            "metadata": {"migration": "schema-aware-default"},
+        }
+        migration.append("added_agents.grok-integrator")
+
+    migrated["agents"] = agents
+    return {"profile": migrated, "migration": migration}
 
 
 def _is_schema_type(value: Any, expected: str) -> bool:
@@ -184,11 +228,49 @@ def _is_schema_type(value: Any, expected: str) -> bool:
     return True
 
 
-def _validate_against_schema(schema: Dict[str, Any], payload: Any, path: str = "$") -> list[str]:
+def _resolve_schema_ref(schema_root: Dict[str, Any], ref: str) -> Dict[str, Any] | None:
+    if not ref.startswith("#/"):
+        return None
+    node: Any = schema_root
+    for part in ref[2:].split("/"):
+        if isinstance(node, dict) and part in node:
+            node = node[part]
+        else:
+            return None
+    return node if isinstance(node, dict) else None
+
+
+def _validate_against_schema(schema: Dict[str, Any], payload: Any, path: str = "$", schema_root: Dict[str, Any] | None = None) -> list[str]:
+    if schema_root is None:
+        schema_root = schema
     errors: list[str] = []
+
+    schema_ref = schema.get("$ref")
+    if isinstance(schema_ref, str):
+        resolved = _resolve_schema_ref(schema_root, schema_ref)
+        if resolved is None:
+            return [f"{path}:invalid_ref:{schema_ref}"]
+        return _validate_against_schema(resolved, payload, path, schema_root=schema_root)
+
     expected_type = schema.get("type")
-    if isinstance(expected_type, str) and not _is_schema_type(payload, expected_type):
+    if isinstance(expected_type, list):
+        if not any(isinstance(t, str) and _is_schema_type(payload, t) for t in expected_type):
+            return [f"{path}:expected_one_of_{'_'.join(str(x) for x in expected_type)}"]
+    elif isinstance(expected_type, str) and not _is_schema_type(payload, expected_type):
         return [f"{path}:expected_{expected_type}"]
+
+    if "const" in schema and payload != schema["const"]:
+        errors.append(f"{path}:const_mismatch")
+
+    if isinstance(payload, str):
+        min_length = schema.get("minLength")
+        if isinstance(min_length, int) and len(payload) < min_length:
+            errors.append(f"{path}:min_length")
+        pattern = schema.get("pattern")
+        if isinstance(pattern, str):
+            import re
+            if re.fullmatch(pattern, payload) is None:
+                errors.append(f"{path}:pattern_mismatch")
 
     if isinstance(payload, dict):
         required = schema.get("required") if isinstance(schema.get("required"), list) else []
@@ -199,14 +281,16 @@ def _validate_against_schema(schema: Dict[str, Any], payload: Any, path: str = "
         properties = schema.get("properties") if isinstance(schema.get("properties"), dict) else {}
         for key, value in payload.items():
             if key in properties and isinstance(properties[key], dict):
-                errors.extend(_validate_against_schema(properties[key], value, f"{path}.{key}"))
+                errors.extend(_validate_against_schema(properties[key], value, f"{path}.{key}", schema_root=schema_root))
+            elif isinstance(schema.get("additionalProperties"), dict):
+                errors.extend(_validate_against_schema(schema["additionalProperties"], value, f"{path}.{key}", schema_root=schema_root))
             elif schema.get("additionalProperties") is False:
                 errors.append(f"{path}.{key}:additional_property")
 
     if isinstance(payload, list) and isinstance(schema.get("items"), dict):
         item_schema = schema["items"]
         for index, item in enumerate(payload):
-            errors.extend(_validate_against_schema(item_schema, item, f"{path}[{index}]"))
+            errors.extend(_validate_against_schema(item_schema, item, f"{path}[{index}]", schema_root=schema_root))
 
     return errors
 

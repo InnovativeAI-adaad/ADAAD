@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://adaad.local/schemas/governance_runtime_profile.lock.v1.json",
+  "title": "Governance Runtime Profile Lock",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "dependency_lock",
+    "runtime_manifest"
+  ],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "const": 1
+    },
+    "dependency_lock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "runtime_manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "governance_modes",
+        "deterministic_provider_required",
+        "mutable_filesystem",
+        "network"
+      ],
+      "properties": {
+        "governance_modes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "deterministic_provider_required": {
+          "type": "boolean"
+        },
+        "mutable_filesystem": {
+          "$ref": "#/$defs/surfaceContract"
+        },
+        "network": {
+          "$ref": "#/$defs/surfaceContract"
+        }
+      }
+    },
+    "agents": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "grok-integrator": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled"
+          ],
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "provider": {
+              "type": "string"
+            },
+            "profile": {
+              "type": "string"
+            },
+            "metadata": {
+              "type": "object",
+              "additionalProperties": {
+                "type": [
+                  "string",
+                  "number",
+                  "integer",
+                  "boolean",
+                  "null"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "surfaceContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "disable_env",
+        "allowlist_env",
+        "allowlist"
+      ],
+      "properties": {
+        "disable_env": {
+          "type": "string",
+          "minLength": 1
+        },
+        "allowlist_env": {
+          "type": "string",
+          "minLength": 1
+        },
+        "allowlist": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

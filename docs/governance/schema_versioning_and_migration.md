@@ -2,6 +2,7 @@
 
 ## Scope
 This policy governs JSON schemas under `schemas/` that define governance artifacts.
+This includes lock-style governance profiles such as `governance_runtime_profile.lock.json`.
 
 ## Dialect and `$id` conventions
 - **Single dialect**: all governance schemas MUST use JSON Schema draft 2020-12:
@@ -22,6 +23,10 @@ This policy governs JSON schemas under `schemas/` that define governance artifac
   - Deterministic migration logic (no network calls, no time-dependent defaults).
   - Validation coverage in tests for both source and target schemas where applicable.
 - Runtime validators MUST continue fail-closed behavior for unknown or malformed payloads.
+- For additive top-level lock-profile keys (example: `agents`), migration must be schema-aware and deterministic:
+  - preflight may materialize defaults in-memory for legacy payloads,
+  - migration must not mutate the on-disk lock file as a side effect,
+  - migrated payload must still pass the governing schema before use.
 
 ## Validation gate
 - All governance schemas are validated through a single helper path:

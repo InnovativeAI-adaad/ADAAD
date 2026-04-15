@@ -40,6 +40,7 @@ GOVERNANCE_SCHEMA_FILES: tuple[str, ...] = (
     "schemas/federation_handshake_request.v1.json",
     "schemas/federation_handshake_response.v1.json",
     "schemas/federation_transport_contract.v1.json",
+    "schemas/governance_runtime_profile.lock.v1.json",
 )
 
 _CANONICAL_DIALECT = "https://json-schema.org/draft/2020-12/schema"

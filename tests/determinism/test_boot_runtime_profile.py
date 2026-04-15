@@ -66,3 +66,44 @@ def test_boot_profile_passes_with_deterministic_provider_and_disabled_surfaces(m
     assert result["checks"]["deterministic_provider"]["ok"] is True
     assert result["checks"]["mutable_filesystem"]["status"] == "disabled"
     assert result["checks"]["network"]["status"] == "disabled"
+
+
+def test_boot_profile_backward_compatible_when_agents_section_missing(monkeypatch) -> None:
+    profile_path = ROOT_DIR / "governance_runtime_profile.lock.json"
+    original = profile_path.read_text(encoding="utf-8")
+    profile = json.loads(original)
+    profile.pop("agents", None)
+    try:
+        _write_profile(profile)
+        _patch_fingerprint_ok(monkeypatch)
+        monkeypatch.setenv("ADAAD_FORCE_DETERMINISTIC_PROVIDER", "1")
+        monkeypatch.setenv("ADAAD_DISABLE_MUTABLE_FS", "1")
+        monkeypatch.setenv("ADAAD_DISABLE_NETWORK", "1")
+
+        result = validate_boot_runtime_profile(replay_mode="strict")
+
+        assert result["ok"] is True
+        assert "added_agents_section" in result["checks"]["profile_migration"]
+        assert "added_agents.grok-integrator" in result["checks"]["profile_migration"]
+    finally:
+        profile_path.write_text(original, encoding="utf-8")
+
+
+def test_boot_profile_fails_closed_on_invalid_agents_section(monkeypatch) -> None:
+    profile_path = ROOT_DIR / "governance_runtime_profile.lock.json"
+    original = profile_path.read_text(encoding="utf-8")
+    profile = json.loads(original)
+    profile["agents"] = {"grok-integrator": {"enabled": "false"}}
+    try:
+        _write_profile(profile)
+        _patch_fingerprint_ok(monkeypatch)
+        monkeypatch.setenv("ADAAD_FORCE_DETERMINISTIC_PROVIDER", "1")
+        monkeypatch.setenv("ADAAD_DISABLE_MUTABLE_FS", "1")
+        monkeypatch.setenv("ADAAD_DISABLE_NETWORK", "1")
+
+        result = validate_boot_runtime_profile(replay_mode="strict")
+
+        assert result["ok"] is False
+        assert result["reason"] == "runtime_profile_schema_invalid"
+    finally:
+        profile_path.write_text(original, encoding="utf-8")
