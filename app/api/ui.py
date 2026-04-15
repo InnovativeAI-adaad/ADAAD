@@ -23,6 +23,11 @@ from app.api.schemas.dork_intents import (
     DorkProposalExecuteRequest,
     DorkProposalExecuteResponse,
 )
+from runtime.governance.dork_proposal_adapter import (
+    DorkProposalPreflightError,
+    ProposalValidationError,
+    execute_dork_proposal,
+)
 from app.orchestration.adaad_trigger import GovernanceProposalAdapter
 from runtime.governance.dork_proposal_adapter import ProposalValidationError, execute_dork_proposal
 from security.ledger import journal
@@ -126,6 +131,8 @@ def execute_dork_proposal_route(
             trust_mode=body.trust_mode,
             actor=body.actor,
         )
+    except DorkProposalPreflightError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=exc.code) from exc
     except ProposalValidationError as exc:
         raise HTTPException(status_code=exc.status_code, detail=exc.code) from exc
     except PermissionError as exc:
