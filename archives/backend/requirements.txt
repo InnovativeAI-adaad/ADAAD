@@ -1,4 +1,4 @@
 # Archive mirror for production baseline pins (fastapi/uvicorn/anthropic).
-fastapi==0.135.3
+fastapi==0.136.0
 uvicorn==0.44.0
-anthropic==0.94.0
+anthropic==0.96.0
