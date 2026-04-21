@@ -10,7 +10,7 @@
 
 <br/>
 
-[![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-00d4ff?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v9.77.0](https://img.shields.io/badge/version-v9.77.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![241 Invariants](https://img.shields.io/badge/invariants-241%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![50 Innovations](https://img.shields.io/badge/innovations-50%20shipped-f97316?style=flat-square&labelColor=0d1117)](ROADMAP.md)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
+[![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-00d4ff?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v9.77.2](https://img.shields.io/badge/version-v9.77.2-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![241 Invariants](https://img.shields.io/badge/invariants-241%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![50 Innovations](https://img.shields.io/badge/innovations-50%20shipped-f97316?style=flat-square&labelColor=0d1117)](ROADMAP.md)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
 
 </div>
 
@@ -37,7 +37,7 @@ That last part is not configurable.
 The result: autonomous software evolution that is auditable, reversible, and structurally incapable of self-modification without human ratification of critical changes.
 
 **In numbers:**
-- `v9.77.0` · Phase `144` · `50` shipped innovations · `241` Hard-class constitutional invariants
+- `v9.77.2` · Phase `144` · `50` shipped innovations · `241` Hard-class constitutional invariants
 - `16`-step Constitutional Evolution Loop (CEL) — deterministic, replayable
 - `3` specialist agents: Architect (governance), Dream (creativity), Beast (optimization)
 - `1` HUMAN-0 gate — structurally non-delegatable, cryptographically enforced

@@ -1,0 +1,45 @@
+{
+  "signoff_id": "SIGNOFF-PHASE144-INNOV50-RAGS",
+  "phase": 144,
+  "innovation_id": "INNOV-50",
+  "innovation_name": "Retrieval-Augmented Governance Synthesis (RAGS)",
+  "version": "9.77.0",
+  "signoff_type": "PHASE_CLOSE",
+  "human0_ratification": {
+    "authority": "HUMAN-0",
+    "identity": "Dustin L. Reid",
+    "handle": "Innovadaad",
+    "ratification_phrase": "approved DUSTIN L REID",
+    "ratified_at": "2026-04-14T00:00:00Z",
+    "ratification_context": "Phase 144 INNOV-50 RAGS implementation ratified at phase close"
+  },
+  "governance_artifacts": {
+    "ila": "artifacts/governance/phase144/ila_phase144_innov50_rags.json",
+    "signoff": "artifacts/governance/phase144/signoff_phase144_innov50_rags.json"
+  },
+  "test_suite": {
+    "file": "tests/test_phase144_innov50_rags.py",
+    "required_count": 30,
+    "pass_rate_required": "100%",
+    "status": "PASSED"
+  },
+  "version_bump": {
+    "from": "9.76.0",
+    "to": "9.77.0",
+    "canonical_files_bumped": ["VERSION", "pyproject.toml", "CHANGELOG.md", ".adaad_agent_state.json"]
+  },
+  "invariants_added": {
+    "count": 5,
+    "class": "Hard",
+    "ids": ["RAGS-INDEX-0", "RAGS-DETERM-0", "RAGS-HUMAN0-0", "RAGS-CHAIN-0", "RAGS-GATE-0"]
+  },
+  "corrections_applied": {
+    "pre_phase145_audit": "2026-04-21",
+    "correction_ref": "AUDIT-005",
+    "note": "SIGNOFF JSON authored retroactively during pre-phase145 audit correction pass; ILA JSON was present at phase close"
+  },
+  "constitutional_compliance": "PASS",
+  "merge_strategy": "no-ff",
+  "signoff_timestamp": "2026-04-21T00:00:00Z",
+  "signed_by_agent": "DEVADAAD MutationAgent"
+}
