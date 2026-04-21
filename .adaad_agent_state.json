@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.78.0 RELEASED \u00b7 Phase 145 \u00b7 INNOV-51 DPM",
+  "active_phase": "v9.78.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -355,7 +355,7 @@
   "last_invocation": "2026-04-21",
   "last_phase_completed": 144,
   "last_phase_completed_label": "Phase 141 \u00b7 INNOV-47 Live Knowledge Sync Engine (LKSE)",
-  "last_sync_sha": "e7d0dc9c",
+  "last_sync_sha": "76726de9",
   "last_updated": "2026-04-11T12:38:12.268044+00:00",
   "next_phase": 142,
   "next_pr": "feat/phase142-css",
@@ -633,7 +633,7 @@
     141
   ],
   "schema_version": "1.5.0",
-  "software_version": "9.77.2",
+  "software_version": "9.78.0",
   "tife_active": true,
   "value_checkpoints_reached": [
     "phase0-track-a-hardening",
@@ -929,8 +929,8 @@
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
   ],
-  "last_completed_phase": "145",
-  "last_agent_state_sync_digest": "gsync-07568e99a9e4f4df",
+  "last_completed_phase": "Phase 21 \u00b7 Phase 145 \u00b7 INNOV-51 \u00b7 DORK Persistent Memory (DPM)",
+  "last_agent_state_sync_digest": "gsync-0eaeae55cdcfedd9",
   "invariant_count": 241,
   "innovation_count": 48,
   "innovations_shipped": 50,
