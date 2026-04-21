@@ -110,7 +110,7 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 141 | INNOV-47 LKSE — Live Knowledge Sync Engine | v9.74.0 | P0 | ✅ shipped |
 | 142 | INNOV-48 CSS — Contextual Semantic Search | v9.75.0 | P0 | ✅ shipped |
 | 143 | INNOV-49 CMU — Constitutional Model Upgrade | v9.76.0 | P0 | ✅ shipped |
-| GA | v1.1-GA Release | v1.1.0-GA | P0 | 🟡 PyPI publication pending · all ceremonies complete |
+| GA | v1.1-GA Release | v1.1.0-GA | P0 | ✅ Published · pypi.org/project/adaad/9.78.0 · 2026-04-21 |
 
 ---
 | 132 | INNOV-41 DORK Living Fleet | v9.64.0 | P1 | ✅ shipped |
