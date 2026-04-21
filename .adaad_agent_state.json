@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.77.2 RELEASED \u00b7 pre-phase145 audit correction",
+  "active_phase": "v9.78.0 RELEASED \u00b7 Phase 145 \u00b7 INNOV-51 DPM",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -315,14 +315,18 @@
     "phase144-innov50-rags-implemented",
     "v9.77.0-released",
     "v9.77.1-released",
-    "v9.77.2-released"
+    "v9.77.2-released",
+    "phase145-plan-authored",
+    "phase145-human0-ratified",
+    "phase145-innov51-dpm-implemented",
+    "v9.78.0-released"
   ],
   "constitutional_invariants": {
     "cumulative": 231,
     "hard_class_count": 231
   },
-  "current_phase": 144,
-  "current_version": "9.77.2",
+  "current_phase": "145",
+  "current_version": "9.78.0",
   "hard_class_count": 231,
   "hard_class_invariant_count": 241,
   "hard_class_invariants_cumulative": 226,
@@ -925,14 +929,14 @@
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
   ],
-  "last_completed_phase": "144",
+  "last_completed_phase": "145",
   "last_agent_state_sync_digest": "gsync-07568e99a9e4f4df",
   "invariant_count": 241,
   "innovation_count": 48,
   "innovations_shipped": 50,
   "open_findings_count": 0,
-  "last_innovation_id": "INNOV-50",
-  "total_innovations_shipped": 50,
+  "last_innovation_id": "INNOV-51",
+  "total_innovations_shipped": 51,
   "ga_blocker_count": 3,
   "milestone": "v1.1-GA"
 }

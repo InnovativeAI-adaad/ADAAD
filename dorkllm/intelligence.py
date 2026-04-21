@@ -23,6 +23,14 @@ except ImportError:
     state_mod = None
     retriever = None
 
+# DPM-INJECT-0: Import is always attempted; failures degrade gracefully.
+try:
+    import dorkllm.knowledge_crystallizer as _dpm
+    _DPM_AVAILABLE = True
+except Exception:  # noqa: BLE001
+    _dpm = None  # type: ignore[assignment]
+    _DPM_AVAILABLE = False
+
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "dork")
 TRACE_LOG_PATH = "logs/dork_llm_trace.jsonl"
@@ -326,6 +334,14 @@ def build_system_prompt(query: str = "") -> str:
     hints_str = ", ".join(
         f"{h['category']}({h['score']:.3f})" for h in preflight.get("hints", [])
     ) or "—"
+    # DPM-INJECT-0: Inject persistent memory block. Fail-closed — never raises.
+    dpm_block = ""
+    if _DPM_AVAILABLE:
+        try:
+            dpm_block = _dpm.inject_memory_block(query)
+        except Exception:  # noqa: BLE001
+            dpm_block = ""
+
     base = f"""You are DORK, the AI assistant for the ADAAD autonomous governance engine.
 You are embedded in the Whale.Dic developer console of Innovative AI LLC.
 Governor: HUMAN-0 (Dustin L. Reid). You speak with precision, dry wit, and zero tolerance for hallucination.
@@ -336,7 +352,7 @@ Top taxonomy hints: {hints_str}
 {opt_002_compress_prompt(context_block)}
 
 {state_block}
-
+{(chr(10) + dpm_block) if dpm_block else ""}
 Constitutional mandate: Never fabricate ledger hashes, governance decisions, or invariant numbers.
 If you do not know, say so. Cite sources when you can."""
     return base
