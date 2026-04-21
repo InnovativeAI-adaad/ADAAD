@@ -1,0 +1,66 @@
+{
+  "ila_id": "ILA-PHASE145-INNOV51-DPM",
+  "phase": 145,
+  "innovation_id": "INNOV-51",
+  "innovation_name": "DORK Persistent Memory (DPM)",
+  "version_target": "9.78.0",
+  "authored_by": "DEVADAAD MutationAgent",
+  "authored_at": "2026-04-21T00:00:00Z",
+  "human0_ratification": {
+    "authority": "HUMAN-0",
+    "identity": "Dustin L. Reid",
+    "handle": "Innovadaad",
+    "ratification_phrase": "devadaad",
+    "ratified_at": "2026-04-21T00:00:00Z"
+  },
+  "architectural_mandate": "DPM features must be architecturally permanent and session-agnostic. All implementations must compound in value with system age and data volume. Task-scoped or milestone-tied features are constitutionally prohibited.",
+  "modules_shipped": [
+    "dorkllm/memory_engine.py",
+    "dorkllm/pattern_detector.py",
+    "dorkllm/knowledge_crystallizer.py"
+  ],
+  "modules_patched": [
+    "dorkllm/intelligence.py"
+  ],
+  "invariants_added": [
+    {
+      "id": "DPM-CHAIN-0",
+      "class": "Hard",
+      "description": "All DPM ledger entries must carry a valid HMAC-SHA256 chain. Any chain break is fatal and must be reported immediately. No entry may be written without a valid prev_hash link."
+    },
+    {
+      "id": "DPM-INJECT-0",
+      "class": "Hard",
+      "description": "inject_memory_block() in knowledge_crystallizer must never propagate exceptions to callers. All errors are caught, logged to stderr, and return an empty string. The system prompt must never be broken by DPM failures."
+    },
+    {
+      "id": "DPM-DETERM-0",
+      "class": "Hard",
+      "description": "Memory retrieval must be deterministic. Identical query strings must always produce identical ordered result sets. No randomness is permitted in any scoring or ranking path."
+    },
+    {
+      "id": "DPM-HUMAN0-0",
+      "class": "Hard",
+      "description": "Memory eviction requires HUMAN-0 authorisation. An eviction without a non-empty human0_authorisation phrase must raise PermissionError and must not write to the eviction ledger."
+    },
+    {
+      "id": "DPM-GATE-0",
+      "class": "Hard",
+      "description": "DPM is constitutionally permanent. The DPM_DISABLE environment flag must be detected, logged as a constitutional violation, and silently ignored. DPM must never be disabled at runtime."
+    }
+  ],
+  "invariant_count_before": 241,
+  "invariant_count_after": 246,
+  "test_suite": {
+    "file": "tests/innovations/test_phase145_dpm.py",
+    "test_count": 30,
+    "pass_rate": "100%",
+    "result": "30/30 PASSED"
+  },
+  "ledger_files_introduced": [
+    "data/dork/dpm_memory.jsonl",
+    "data/dork/dpm_eviction.jsonl"
+  ],
+  "constitutional_compliance": "PASS",
+  "dork_mandate": "All DPM features are permanently valuable, session-agnostic, and compound in value with data volume and system age. This innovation is architecturally permanent."
+}

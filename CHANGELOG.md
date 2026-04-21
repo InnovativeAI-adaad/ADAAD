@@ -1,3 +1,38 @@
+## [9.78.0] — 2026-04-21 · Phase 145 · INNOV-51 · DORK Persistent Memory (DPM)
+
+### 5 new Hard-class invariants · 246 Hard-class total · 51 innovations shipped
+
+**DORK Persistent Memory (DPM)** — session-agnostic, permanently valuable memory layer
+that compounds in value with system age and data volume.
+
+**New modules:**
+- `dorkllm/memory_engine.py` — HMAC-SHA256-chained append-only JSONL ledger; confidence
+  gating (≥ 0.6); deterministic retrieval scoring; HUMAN-0-gated eviction; chain-integrity
+  verification (DPM-CHAIN-0).
+- `dorkllm/pattern_detector.py` — Deterministic 5-category keyword scorer (governance,
+  architecture, tooling, identity, error). Identical inputs always produce identical
+  pattern rankings (DPM-DETERM-0).
+- `dorkllm/knowledge_crystallizer.py` — Orchestration layer. Enforces DPM-GATE-0
+  (permanent activation; DPM_DISABLE flag constitutionally rejected). Exposes
+  `crystallize()` and `inject_memory_block()` to the intelligence layer.
+
+**`dorkllm/intelligence.py` patch:**
+- `build_system_prompt()` injects `### DORK PERSISTENT MEMORY` block via
+  `knowledge_crystallizer.inject_memory_block()`. Fail-closed: exceptions caught,
+  prompt never broken (DPM-INJECT-0).
+
+**New Hard-class invariants (5):**
+- `DPM-CHAIN-0` — All DPM entries must carry a valid HMAC chain; any break is fatal
+- `DPM-INJECT-0` — `inject_memory_block()` must never propagate exceptions
+- `DPM-DETERM-0` — Memory retrieval deterministic for identical query vectors
+- `DPM-HUMAN0-0` — Memory eviction requires HUMAN-0 authorisation phrase
+- `DPM-GATE-0` — DPM constitutionally permanent; runtime disabling is a violation
+
+**Test suite:** 30/30 · `tests/innovations/test_phase145_dpm.py`
+**HUMAN-0 ratification:** Dustin L. Reid · 2026-04-21
+
+---
+
 ## [9.77.2] — 2026-04-15 · Patch · Runtime Profile Schema + grok-integrator metadata
 
 - Added canonical runtime profile lock schema: `schemas/governance_runtime_profile.lock.v1.json`.
