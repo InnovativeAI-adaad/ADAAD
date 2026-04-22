@@ -1,0 +1,34 @@
+{
+  "schema": "SIGNOFF-v2",
+  "document_id": "SIGNOFF-151-2026-04-22-001",
+  "innovation_id": "INNOV-57",
+  "innovation_name": "Governed Rollback (GRB)",
+  "phase": 151,
+  "version": "9.84.0",
+  "date": "2026-04-22",
+  "human0_governor": "Dustin L. Reid",
+  "human0_handle": "HUMAN-0",
+  "ratification_phrase": "approved DUSTIN L REID",
+  "governance_artifacts": {
+    "ila": "artifacts/governance/phase151/ILA-151-2026-04-22-001.json",
+    "signoff": "artifacts/governance/phase151/signoff_phase151_innov57_grb.json"
+  },
+  "test_attestation": {
+    "file": "tests/innovations/test_phase151_grb.py",
+    "result": "30/30 PASS",
+    "run_date": "2026-04-22"
+  },
+  "invariants_added": {
+    "count": 5,
+    "class": "Hard",
+    "ids": ["GRB-PREFLIGHT-0", "GRB-LEDGER-0", "GRB-ATOMIC-0", "GRB-DETERM-0", "GRB-HUMAN0-0"]
+  },
+  "cumulative_hard_class_invariants": 273,
+  "innovations_total": 57,
+  "merge_gate_status": "PENDING_HUMAN0_GPG_TAG",
+  "successor_phase": "Phase 152 — INNOV-58 Autonomy Scope Controls",
+  "open_findings": [
+    "FINDING-66-004: Ed25519 key ceremony (ADAADell — GA blocker)",
+    "FINDING-66-003: patent provisional Track B"
+  ]
+}

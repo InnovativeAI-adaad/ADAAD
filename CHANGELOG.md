@@ -34,6 +34,21 @@ after any constitutional cascade failure.
 
 ---
 
+## [9.84.0] — Phase 151 · INNOV-57 · Governed Rollback (GRB) · 2026-04-22
+
+### Added
+- `dorkllm/governed_rollback.py` — GovernedRollbackEngine: safety-gated rollback using lineage ledger as source of truth
+- `runtime/innovations30/governed_rollback.py` — INNOV-57 registry wrapper
+- `tests/innovations/test_phase151_grb.py` — 30/30 acceptance suite
+- `artifacts/governance/phase151/` — ILA + signoff governance artifacts
+
+### Hard-class invariants (+5 → 273 total)
+- GRB-PREFLIGHT-0: rollback rejected if target state violates active Hard-class invariants
+- GRB-LEDGER-0: ROLLBACK_EVENT written to ledger before any state mutation
+- GRB-ATOMIC-0: rollback is all-or-nothing; ledger-first, partial writes impossible
+- GRB-DETERM-0: rollback outcome deterministic on (src, target, invariant_set); timestamps excluded
+- GRB-HUMAN0-0: rollback requires non-empty operator identity; empty/None rejected
+
 ## [9.82.0] — 2026-04-22 · Phase 149 · INNOV-55 · Mutation Explainability Engine (MXE)
 
 ### 5 new Hard-class invariants · 263 Hard-class total · 55 innovations shipped

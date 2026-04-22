@@ -335,9 +335,9 @@
     "cumulative": 253,
     "hard_class_count": 253
   },
-  "current_phase": 150,
+  "current_phase": 151,
   "current_version": "9.83.0",
-  "hard_class_count": 268,
+  "hard_class_count": 273,
   "hard_class_invariant_count": 263,
   "hard_class_invariants_cumulative": 263,
   "human0_signoffs": [
@@ -934,16 +934,16 @@
     "phase124-world-first-governed-kernel-extraction",
     "v9.57.0-released"
   ],
-  "version": "9.83.0",
+  "version": "9.84.0",
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
   ],
-  "last_completed_phase": "Phase 22 \u00b7 Phase 150 \u00b7 INNOV-56 \u00b7 Governance Circuit Breaker (GCB)",
+  "last_completed_phase": "Phase 151 \u00b7 INNOV-57 \u00b7 Governed Rollback (GRB)",
   "last_agent_state_sync_digest": "gsync-3ef101503856517b",
   "invariant_count": 263,
   "innovation_count": 55,
-  "innovations_shipped": 56,
+  "innovations_shipped": 57,
   "open_findings_count": 0,
   "last_innovation_id": "INNOV-56",
   "total_innovations_shipped": 55,

@@ -1,132 +1,146 @@
 {
-    "_comment": "Machine-readable invariant registry \u2014 single source of truth for all Hard-class invariant counts. All badges, docs, and CI gates derive from this file. Do not edit manually; update via phase sign-off process.",
-    "version": "9.83.0",
-    "phase": 150,
-    "updated": "2026-04-22",
-    "cumulative_hard_class_invariants": 268,
-    "innovations_shipped": 56,
-    "phases_complete": 150,
-    "authoritative_source": "artifacts/governance/phase150/ILA-150-2026-04-22-001.json",
-    "phase_invariant_log": [
-        {
-            "phase": 140,
-            "cumulative": 221,
-            "added": [
-                "HAPG-IDENTITY-0",
-                "HAPG-EXPIRY-0",
-                "REPLAY-ALGO-0",
-                "TEST-ATTEST-0",
-                "GRRP-KEY-0"
-            ]
-        },
-        {
-            "phase": 141,
-            "cumulative": 226,
-            "added": [
-                "LKSE-SYNC-0",
-                "LKSE-DETERM-0",
-                "LKSE-CHAIN-0",
-                "LKSE-GATE-0",
-                "LKSE-HUMAN0-0"
-            ]
-        },
-        {
-            "phase": 142,
-            "cumulative": 231,
-            "added": [
-                "CSS-DETERM-0",
-                "CSS-FALLBACK-0",
-                "CSS-DIM-0",
-                "CSS-COSINE-0",
-                "CSS-PYDROID-0"
-            ]
-        },
-        {
-            "phase": 143,
-            "cumulative": 236,
-            "added": [
-                "CMU-CTX-0",
-                "CMU-TEMP-0",
-                "CMU-BENCH-0",
-                "CMU-DETERM-0",
-                "CMU-HUMAN0-0"
-            ]
-        },
-        {
-            "phase": 144,
-            "cumulative": 241,
-            "added": [
-                "RAGS-GROUND-0",
-                "RAGS-CTX-0",
-                "RAGS-DETERM-0",
-                "RAGS-CHAIN-0",
-                "RAGS-GATE-0"
-            ]
-        },
-        {
-            "phase": 145,
-            "cumulative": 246,
-            "added": [
-                "DPM-CHAIN-0",
-                "DPM-INJECT-0",
-                "DPM-DETERM-0",
-                "DPM-HUMAN0-0",
-                "DPM-GATE-0"
-            ]
-        },
-        {
-            "phase": 146,
-            "cumulative": 251,
-            "added": [
-                "DQR-ROUTE-0",
-                "DQR-CHAIN-0",
-                "DQR-DETERM-0",
-                "DQR-FALLBACK-0",
-                "DQR-AUTH-0"
-            ]
-        },
-        {
-            "phase": 147,
-            "cumulative": 253,
-            "added": [
-                "INTENT-SCHEMA-0",
-                "INTENT-DRYRUN-0"
-            ]
-        },
-        {
-            "phase": 148,
-            "cumulative": 258,
-            "added": [
-                "LEF-DETERM-0",
-                "LEF-CHAIN-0",
-                "CEL-FEED-0",
-                "LEF-NOWRITE-0",
-                "CEL-FEED-COMPLETE-0"
-            ]
-        },
-        {
-            "phase": 149,
-            "cumulative": 263,
-            "added": [
-                "MXE-DETERM-0",
-                "MXE-CHAIN-0",
-                "MXE-IMMUT-0",
-                "MXE-SCOPE-0",
-                "MXE-AUDIT-0"
-            ]
-        },
-        {
-            "phase": 150,
-            "cumulative": 268,
-            "added": [
-                "GCB-CHAIN-0",
-                "GCB-FAILCLOSE-0",
-                "GCB-READONLY-0",
-                "GCB-DETERM-0",
-                "GCB-HUMAN0-0"
-            ]
-        }
-    ],
-    "ci_check": "scripts/check_invariant_count.py",
-    "badge_template": "invariants-{count}%20Hard--class"
+  "_comment": "Machine-readable invariant registry \u2014 single source of truth for all Hard-class invariant counts. All badges, docs, and CI gates derive from this file. Do not edit manually; update via phase sign-off process.",
+  "version": "9.83.0",
+  "phase": 151,
+  "updated": "2026-04-22",
+  "cumulative_hard_class_invariants": 273,
+  "innovations_shipped": 57,
+  "phases_complete": 151,
+  "authoritative_source": "artifacts/governance/phase150/ILA-150-2026-04-22-001.json",
+  "phase_invariant_log": [
+    {
+      "phase": 140,
+      "cumulative": 221,
+      "added": [
+        "HAPG-IDENTITY-0",
+        "HAPG-EXPIRY-0",
+        "REPLAY-ALGO-0",
+        "TEST-ATTEST-0",
+        "GRRP-KEY-0"
+      ]
+    },
+    {
+      "phase": 141,
+      "cumulative": 226,
+      "added": [
+        "LKSE-SYNC-0",
+        "LKSE-DETERM-0",
+        "LKSE-CHAIN-0",
+        "LKSE-GATE-0",
+        "LKSE-HUMAN0-0"
+      ]
+    },
+    {
+      "phase": 142,
+      "cumulative": 231,
+      "added": [
+        "CSS-DETERM-0",
+        "CSS-FALLBACK-0",
+        "CSS-DIM-0",
+        "CSS-COSINE-0",
+        "CSS-PYDROID-0"
+      ]
+    },
+    {
+      "phase": 143,
+      "cumulative": 236,
+      "added": [
+        "CMU-CTX-0",
+        "CMU-TEMP-0",
+        "CMU-BENCH-0",
+        "CMU-DETERM-0",
+        "CMU-HUMAN0-0"
+      ]
+    },
+    {
+      "phase": 144,
+      "cumulative": 241,
+      "added": [
+        "RAGS-GROUND-0",
+        "RAGS-CTX-0",
+        "RAGS-DETERM-0",
+        "RAGS-CHAIN-0",
+        "RAGS-GATE-0"
+      ]
+    },
+    {
+      "phase": 145,
+      "cumulative": 246,
+      "added": [
+        "DPM-CHAIN-0",
+        "DPM-INJECT-0",
+        "DPM-DETERM-0",
+        "DPM-HUMAN0-0",
+        "DPM-GATE-0"
+      ]
+    },
+    {
+      "phase": 146,
+      "cumulative": 251,
+      "added": [
+        "DQR-ROUTE-0",
+        "DQR-CHAIN-0",
+        "DQR-DETERM-0",
+        "DQR-FALLBACK-0",
+        "DQR-AUTH-0"
+      ]
+    },
+    {
+      "phase": 147,
+      "cumulative": 253,
+      "added": [
+        "INTENT-SCHEMA-0",
+        "INTENT-DRYRUN-0"
+      ]
+    },
+    {
+      "phase": 148,
+      "cumulative": 258,
+      "added": [
+        "LEF-DETERM-0",
+        "LEF-CHAIN-0",
+        "CEL-FEED-0",
+        "LEF-NOWRITE-0",
+        "CEL-FEED-COMPLETE-0"
+      ]
+    },
+    {
+      "phase": 149,
+      "cumulative": 263,
+      "added": [
+        "MXE-DETERM-0",
+        "MXE-CHAIN-0",
+        "MXE-IMMUT-0",
+        "MXE-SCOPE-0",
+        "MXE-AUDIT-0"
+      ]
+    },
+    {
+      "phase": 150,
+      "cumulative": 268,
+      "added": [
+        "GCB-CHAIN-0",
+        "GCB-FAILCLOSE-0",
+        "GCB-READONLY-0",
+        "GCB-DETERM-0",
+        "GCB-HUMAN0-0"
+      ]
+    },
+    {
+      "phase": 151,
+      "version": "9.84.0",
+      "innovation": "INNOV-57",
+      "innovation_name": "Governed Rollback (GRB)",
+      "invariants_added": 5,
+      "ids": [
+        "GRB-PREFLIGHT-0",
+        "GRB-LEDGER-0",
+        "GRB-ATOMIC-0",
+        "GRB-DETERM-0",
+        "GRB-HUMAN0-0"
+      ]
+    }
+  ],
+  "ci_check": "scripts/check_invariant_count.py",
+  "badge_template": "invariants-{count}%20Hard--class"
 }
