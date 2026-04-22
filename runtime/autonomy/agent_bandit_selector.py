@@ -39,11 +39,12 @@ Constitutional invariants:
 
 Determinism:
     - UCB1 mode is fully deterministic given identical arm state.
-    - Thompson mode requires a seeded rng (epoch_id-derived) for determinism:
-        import random, hashlib
-        seed = int(hashlib.sha256(epoch_id.encode()).hexdigest(), 16) % (2**31)
-        rng  = random.Random(seed)
-        selector = AgentBanditSelector(strategy="thompson", rng=rng)
+    - Thompson mode contract:
+        - If constructor rng is NOT supplied, recommend() derives a per-call RNG
+          from epoch_id, producing reproducible output for identical epoch_id +
+          identical arm state.
+        - If constructor rng IS supplied, recommend() uses that injected RNG
+          directly (caller-controlled deterministic stream).
 
 Android/Pydroid3 compatibility:
     - Pure Python stdlib only.
@@ -193,7 +194,7 @@ class AgentBanditSelector:
         self._strategy     = strategy
         self._c            = exploration_c
         self._state_path   = Path(state_path)
-        self._rng          = rng or random.Random()
+        self._rng          = rng
         self._arms: Dict[str, ArmRewardState] = {
             a: ArmRewardState(agent=a) for a in agents
         }
@@ -215,9 +216,11 @@ class AgentBanditSelector:
     def recommend(self, *, epoch_id: str) -> BanditAgentRecommendation:
         """Return the recommended agent persona for the next epoch.
 
-        Seeded rng for Thompson determinism:
-            seed = int(hashlib.sha256(epoch_id.encode()).hexdigest(), 16) % (2**31)
-            selector._rng = random.Random(seed)
+        Thompson RNG behavior:
+            - If selector was created with rng=..., that RNG is used.
+            - Otherwise RNG is derived from epoch_id:
+                seed = int(hashlib.sha256(epoch_id.encode()).hexdigest(), 16) % (2**31)
+                epoch_rng = random.Random(seed)
 
         Returns BanditAgentRecommendation with is_active=False when below
         MIN_PULLS_FOR_ACTIVATION — callers should fall back to landscape heuristic.
@@ -239,9 +242,12 @@ class AgentBanditSelector:
             confidence = 1.0 if math.isinf(raw_confidence) else min(1.0, max(0.0, raw_confidence))
 
         else:  # thompson
-            # Seed rng from epoch_id for determinism when strategy=thompson
-            seed = int(hashlib.sha256(epoch_id.encode()).hexdigest(), 16) % (2 ** 31)
-            epoch_rng = random.Random(seed)
+            # Contract: caller-injected RNG takes precedence. Fallback derives
+            # per-call RNG from epoch_id for deterministic replayability.
+            epoch_rng = self._rng
+            if epoch_rng is None:
+                seed = int(hashlib.sha256(epoch_id.encode()).hexdigest(), 16) % (2 ** 31)
+                epoch_rng = random.Random(seed)
             samples = {
                 agent: arm.thompson_sample(epoch_rng)
                 for agent, arm in self._arms.items()

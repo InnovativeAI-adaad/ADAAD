@@ -99,6 +99,8 @@ Divergence is detected by contract-level hash and schema validation against the 
 
 `runtime.evolution.population_manager.PopulationManager` default RNG initialization now follows the same deterministic seed path by deriving its default PRNG seed from `ADAAD_DETERMINISTIC_SEED` and falling back to `"adaad"` when unset/blank. Caller-injected `rng` instances and `set_seed()` remain supported for compatibility.
 
+`runtime.autonomy.agent_bandit_selector.AgentBanditSelector` Thompson-mode RNG contract is deterministic by default: when no constructor `rng` is provided, `recommend(epoch_id=...)` derives a per-call RNG from `epoch_id` and produces reproducible recommendations for identical arm state + epoch. If constructor `rng` is supplied, that injected RNG is used directly (caller-owned stream).
+
 Event envelope validation now requires:
 
 - `event_id` to match 32 lowercase hex chars (`^[0-9a-f]{32}$`).
