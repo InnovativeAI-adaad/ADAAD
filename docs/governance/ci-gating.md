@@ -36,6 +36,10 @@ These jobs run for every CI execution:
 - `determinism-lint`: deterministic-behavior lint checks
 - `confidence-fast`: fast confidence tests (`tests/determinism` + recovery tier manager test)
 
+### Local preflight parity notes
+
+To reproduce Tier 0 deterministically in local environments, run commands with `PYTHONPATH=.` and install test dependencies before invoking `pytest` (for example, `fastapi` is required by `tests/conftest.py`). This keeps local preflight behavior aligned with CI job environments and avoids false-negative gate failures caused only by missing local packages.
+
 ## Escalated gated suites
 
 ## Lane → workflow → required-check source-of-truth

@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Deterministic AST snapshot helpers for beast-mode cycle routing."""
 """Deterministic AST snapshot helpers for Beast-mode routing."""
 
 from __future__ import annotations

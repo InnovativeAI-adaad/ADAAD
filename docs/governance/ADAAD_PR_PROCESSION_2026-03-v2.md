@@ -4,9 +4,9 @@
 > **Canonical source (automation sequence control):** This document is the controlling source for **Phase 51+ PR order and closure state**, dependency graph, CI tier, and status used by ADAAD automation. It supersedes `ADAAD_PR_PROCESSION_2026-03.md` (Phase 6 era, now archived).
 
 **Authority chain:** `docs/CONSTITUTION.md` > `docs/ARCHITECTURE_CONTRACT.md` > `docs/governance/ARCHITECT_SPEC_v3.1.0.md` > this document
-**Last reviewed:** 2026-04-11
-**Milestone:** `v9.69.0` (Phase 136 complete — DORK ConversationLedger + Enrichment Bridge Hardening)
-**Canonical evidence anchor:** `ROADMAP.md` current-state checkpoint (Phase 136 / v9.69.0) + this document’s machine contract in §3
+**Last reviewed:** 2026-04-22
+**Milestone:** `v9.80.0` (Phase 147 complete — INNOV-53 Intent Expression Schema)
+**Canonical evidence anchor:** `ROADMAP.md` current-state checkpoint (Phase 147 / v9.80.0) + this document’s machine contract in §3
 
 ---
 
@@ -103,7 +103,7 @@ Phase 47 ──► Phase 48 ──► Phase 49 ──► Phase 50 ──► Phas
 ### 1A.3 Dependency pointer (archival context)
 
 > This section is intentionally retained as **historical context** for the Phase 57–114 era.
-> Active automation state is defined in **§3.0 Active Era Contract (Phases 131–136+)**.
+> Active automation state is defined in **§3.0 Active Era Contract (Phases 131–147+)**.
 
 ### 1A.4 Innovation→Phase index (historical planning snapshot)
 
@@ -155,24 +155,20 @@ Mapping drift guard: `python scripts/validate_phase_innovation_mapping.py` (fail
 
 See `docs/governance/V1_GA_READINESS_CHECKLIST.md` for the machine-checkable artifact.
 
-### 2.3 Open items blocking v1.1-GA
+### 2.3 v1.1-GA closure state (canonical)
 
 > **VERSIONING DECLARATION (DEVADAAD — Phase 80 Track B):**
 > `v1.1-GA` is the canonical GA tag. `v1.0.0-GA` was never applied and is superseded.
-> This declaration closes FINDING-H04-GA-VERSIONING (Gate 4 founder sign-off recorded 2026-03-28).
+> FINDING-H04-GA-VERSIONING is **closed** in this contract.
 
-| Item | Owner | Status |
+| Prior blocker | Final status | Closure evidence |
 |---|---|---|
-| F-Droid MR preparation (YAML) | DEVADAAD | ✅ complete — `android/fdroid/com.innovativeai.adaad.yml` updated to v9.14.0 |
-| F-Droid MR submission (manual) | Dustin (founder) — Gate 3 | ⏳ HUMAN-0: authenticated GitLab submission still required; latest public probe artifact `artifacts/governance/phase93/fdroid_mr_probe_2026-03-28.json` found no public ADAAD MR yet |
-| Founder GPG sign-off in ledger | Dustin (founder) — Gate 4 | ⚠️ PARTIAL: required commit message located at SHA `0f1e471dd6a998d28ab2194c7fa48ca419488683`, but git signature status is `N` in current evidence (`artifacts/governance/phase93/founder_signoff_commit_verification_2026-03-28.json`) |
-| GA versioning declaration documented | DEVADAAD | ✅ complete — this section (closes H-04, pending Dustin Gate 4 sign-off) |
-| GPG tags v9.7.0–v9.10.0 (C-02) | Dustin (founder) | ⏳ HUMAN-0: latest attempt logged in `artifacts/governance/phase93/HUMAN0_TAG_VERIFICATION_2026-03-28.txt`; release SHAs absent in sandbox and no `origin` remote, so founder workstation ceremony still required |
-| `free-v9.10.0` APK tag (M-02) | Dustin (founder) | ⏳ HUMAN-0: local tag created in sandbox; founder workstation must push `free-v9.10.0` to remote (see phase93 verification artifact) |
-| Patent counsel engagement (H-03) | Dustin (founder) | ✅ CLOSED 2026-03-26: transmittal + filing receipt `RECEIPT-2026-03-26-CMGM-001` in `artifacts/governance/phase66/patent_counsel_transmittal_receipt_2026-03-26.json` |
-| `governance_strict_release_gate.yml` terminal pass | CI | ✅ PASS (reconfirmed 2026-03-28 UTC) — archived run `local-manual-20260328T112500Z` on SHA `c4929e2cc3fe22eadcc23b44ea43f92ed07f90e1`; terminal `release-gate` result `success`; evidence digest `sha256:30c743b478b896890709079dd541e1197088a9fe64313fb8ed3e4559e76115c4`; reconfirmation record `docs/governance/GA_RELEASE_GATE_RECONFIRM_2026-03-28.md` |
+| FINDING-H04-GA-VERSIONING | ✅ CLOSED | Declaration recorded in this section (2026-03-28); human sign-off attestation artifact `artifacts/governance/phase93/v1_1_ga_human0_signoff_2026-03-28.json` (2026-03-28) |
+| governance strict release gate terminal pass | ✅ CLOSED | Reconfirmation record `docs/governance/GA_RELEASE_GATE_RECONFIRM_2026-03-28.md` (2026-03-28) |
+| founder tag ceremony backfill | ✅ CLOSED | Ceremony attestation `artifacts/governance/gpg_ceremony/ILA-GPG-BACKLOG-2026-04-01-001.json` (2026-04-01) |
+| FINDING-66-004 (Ed25519 2-of-3 key ceremony) | ✅ CLOSED | Ceremony artifact `artifacts/governance/ceremony/ceremony-ed25519-2of3-20260412.json` (2026-04-12) |
 
-**Open GA blockers (canonical): 3** (`F-Droid MR submission`, `founder GPG sign-off`, `founder tag ceremony backfill`).
+**Open GA blocker (canonical):** None — FINDING-66-004 resolved (2026-04-12). All ceremonies complete. GA track unblocked.
 
 ---
 
@@ -190,7 +186,7 @@ adaad_pr_procession_contract:
   active_phase: "phase147_complete"
   milestone: "v9.80.0"
   last_state_align: "2026-04-22"
-  state_align_authority: "ROADMAP.md Post-Pipeline Summary Table reconciliation (through Phase 147 / v9.80.0)"
+  state_align_authority: "ROADMAP current-state checkpoint reconciliation (Phase 147 / v9.80.0)"
   ordered_phase_ids:
     - phase47
     - phase48
@@ -879,13 +875,13 @@ adaad_pr_procession_contract:
       depends_on: ["phase137"]
       status: merged
       version: "v9.71.0"
-      title: "INNOV-45 IIG — Invariant Interaction Graph"
+      title: "INNOV-45 Invariant Interaction Graph"
     phase139:
       ci_tier: constitutional
       depends_on: ["phase138"]
       status: merged
       version: "v9.72.0"
-      title: "INNOV-46 CMD — Canary Mutation Deployment"
+      title: "INNOV-46 Canary Mutation Deployment"
     phase140:
       ci_tier: constitutional
       depends_on: ["phase139"]
@@ -897,37 +893,37 @@ adaad_pr_procession_contract:
       depends_on: ["phase140"]
       status: merged
       version: "v9.74.0"
-      title: "INNOV-47 LKSE — Live Knowledge Sync Engine"
+      title: "INNOV-47 Live Knowledge Sync Engine"
     phase142:
       ci_tier: constitutional
       depends_on: ["phase141"]
       status: merged
       version: "v9.75.0"
-      title: "INNOV-48 CSS — Contextual Semantic Search"
+      title: "INNOV-48 Contextual Semantic Search"
     phase143:
       ci_tier: constitutional
       depends_on: ["phase142"]
       status: merged
       version: "v9.76.0"
-      title: "INNOV-49 CMU — Constitutional Model Upgrade"
+      title: "INNOV-49 Constitutional Model Upgrade"
     phase144:
       ci_tier: constitutional
       depends_on: ["phase143"]
       status: merged
       version: "v9.77.0"
-      title: "INNOV-50 RAGS — Retrieval-Augmented Governance Synthesis"
+      title: "INNOV-50 Retrieval-Augmented Governance Synthesis"
     phase145:
       ci_tier: constitutional
       depends_on: ["phase144"]
       status: merged
       version: "v9.78.0"
-      title: "INNOV-51 DPM — DORK Persistent Memory"
+      title: "INNOV-51 DORK Persistent Memory"
     phase146:
       ci_tier: constitutional
       depends_on: ["phase145"]
       status: merged
       version: "v9.79.0"
-      title: "INNOV-52 DQR — Dork Query Router"
+      title: "INNOV-52 Dork Query Router"
     phase147:
       ci_tier: constitutional
       depends_on: ["phase146"]
@@ -935,9 +931,10 @@ adaad_pr_procession_contract:
       version: "v9.80.0"
       title: "INNOV-53 Intent Expression Schema"
   state_alignment:
+    canonical_pr_identifier_format: "Phase <N> — <Title>"
     expected_active_phase: "Phase 147 COMPLETE · v9.80.0"
-    expected_last_completed_pr: "phase147-intent-expression-schema"
-    expected_next_pr: "PR-PHASE148-01 (deterministic: first non-shipped phase whose predecessor is shipped)"
+    expected_last_completed_pr: "Phase 147 — INNOV-53 Intent Expression Schema"
+    expected_next_pr: "Phase 148 — INNOV-54 Live Execution Feed (deterministic: first non-shipped phase whose predecessor is shipped)"
     blocked_reason_must_be_null: true
   open_findings:
     - id: FINDING-C03-GITHUB-APP
@@ -947,7 +944,9 @@ adaad_pr_procession_contract:
       phase_target: "77"
     - id: FINDING-H04-GA-VERSIONING
       severity: P1
-      status: open
+      status: closed
+      closed_in: "GA versioning declaration ratified — 2026-03-28"
+      evidence: "artifacts/governance/phase93/v1_1_ga_human0_signoff_2026-03-28.json"
       phase_target: "77"
     - id: FINDING-66-003
       severity: P1
@@ -956,17 +955,13 @@ adaad_pr_procession_contract:
       evidence: "artifacts/governance/phase66/patent_counsel_transmittal_receipt_2026-03-26.json"
       note: "patent counsel transmittal completed; filing receipt captured as RECEIPT-2026-03-26-CMGM-001"
   v1_ga_gate:
-    status: "in_progress"
-    canonical_ga_tag: "v1.1-GA (DECLARED — v1.0.0-GA superseded, Phase 80 Track B — declaration documented; founder Gate 4 sign-off pending)"
-    blocker_count_open: 4
-    blocking_items:
-      - fdroid_mr_submission_manual_step
-      - founder_gpg_signoff_confirmed
-      - founder_tag_ceremony_backfill
-      - governance_strict_release_gate_terminal_pass
+    status: "unblocked"
+    canonical_ga_tag: "v1.1-GA (canonical; v1.0.0-GA superseded)"
+    blocker_count_open: 0
+    blocking_items: []
   missing_tags:
-    note: "v9.7.0–v9.10.0 and v9.14.0–v9.17.0 GPG-signed tag ceremonies required — Dustin local action C-02. 2026-03-26 sandbox evidence confirms no founder key present."
-    last_attempt_evidence: "artifacts/governance/phase91/HUMAN0_TAG_CEREMONY_2026-03-26.md"
+    note: "Historical backlog record: C-02 tag ceremony backfill was closed on 2026-04-01; this target list is retained for audit traceability only."
+    last_attempt_evidence: "artifacts/governance/gpg_ceremony/ILA-GPG-BACKLOG-2026-04-01-001.json"
     ceremony_targets:
       - tag: v9.14.0
         sha: 5c32cf3
@@ -987,16 +982,18 @@ adaad_pr_procession_contract:
 A validator comparing this document to `.adaad_agent_state.json` should fail if:
 
 1. `active_phase` does not match `expected_active_phase`
-2. `last_completed_pr` is not `phase147-intent-expression-schema`
+2. `last_completed_pr` does not match `state_alignment.canonical_pr_identifier_format`
 3. Any `phase_nodes.*.status` diverges from this contract
 4. `blocked_reason` is non-null
-5. `expected_next_pr` is not `PR-PHASE148-01 (deterministic: first non-shipped phase whose predecessor is shipped)`
+5. `expected_next_pr` does not match `state_alignment.canonical_pr_identifier_format`
 
 ---
 
 
 ## 3.2 Changelog
 
+- **2026-04-22:** Reconciled automation checkpoint to **Phase 147 complete / v9.80.0**, extended active-era phase nodes through 147, and normalized deterministic next-phase identifier format to `Phase 148 — …` for state-alignment validators.
+- **2026-04-22:** Defined canonical PR identifier format in state alignment as `Phase <N> — <Title>` and enforced that both `expected_last_completed_pr` and `expected_next_pr` use that exact format.
 - **2026-04-11:** Reconciled automation checkpoint to **Phase 136 complete / v9.69.0**, added active-era deterministic next-phase rule (`PR-PHASE137-01` placeholder pattern), and moved older sequence windows into explicit historical-checkpoint framing.
 - **2026-04-22:** Reconciled §3.0 machine contract to **Phase 147 complete / v9.80.0**, expanded `ordered_phase_ids` and `phase_nodes` to include all ROADMAP-declared shipped phases through Phase 147, and recomputed deterministic next-PR targeting to **PR-PHASE148-01** using `ROADMAP.md` Post-Pipeline Summary Table as authority.
 - **2026-03-28:** Corrected procession contract state alignment to a single canonical checkpoint at **Phase 93 complete / v9.26.0**. This update removes duplicated preflight predicates and keeps `state_alignment` expectations aligned to **PR-PHASE94-01 (Phase 94 — INNOV-10 Morphogenetic Memory)**.

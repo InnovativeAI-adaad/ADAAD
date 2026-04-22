@@ -223,6 +223,33 @@ def test_t11_a_08_thompson_sampling_selects_high_reward_arm(tmp_path: Path):
     assert counts["architect"] >= 150, f"Thompson did not prefer architect: {counts}"
 
 
+def test_t11_a_08b_thompson_same_epoch_reproducible_without_injected_rng(tmp_path: Path):
+    """T11-A-08b: Without rng injection, identical epoch_id yields identical recommendations."""
+    sel = _fresh_selector(strategy="thompson", tmp_path=tmp_path)
+    _feed_rewards(sel, "architect", [0.80, 0.85, 0.90, 0.88])
+    _feed_rewards(sel, "dream",     [0.30, 0.35, 0.25, 0.20])
+    _feed_rewards(sel, "beast",     [0.40, 0.45, 0.35, 0.30])
+
+    rec1 = sel.recommend(epoch_id="epoch-stable-001")
+    rec2 = sel.recommend(epoch_id="epoch-stable-001")
+
+    assert rec1.agent == rec2.agent
+    assert rec1.confidence == rec2.confidence
+
+
+def test_t11_a_08c_thompson_tie_break_is_alphabetical(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    """T11-A-08c: Thompson tie-break is deterministic alphabetical when samples are equal."""
+    sel = _fresh_selector(strategy="thompson", tmp_path=tmp_path)
+    _feed_rewards(sel, "architect", [0.5])
+    _feed_rewards(sel, "dream", [0.5])
+    _feed_rewards(sel, "beast", [0.5])
+
+    monkeypatch.setattr(ArmRewardState, "thompson_sample", lambda self, rng: 0.5)
+    rec = sel.recommend(epoch_id="epoch-tie")
+
+    assert rec.agent == "architect"
+
+
 # ---------------------------------------------------------------------------
 # T11-A-09: BanditAgentRecommendation fields
 # ---------------------------------------------------------------------------

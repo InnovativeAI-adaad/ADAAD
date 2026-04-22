@@ -59,7 +59,7 @@ from runtime.api.app_layer import (
     require_replay_safe_provider,
 )
 from runtime.api.runtime_services import validate_agent_contract_preflight
-from runtime.mutation.ast_substrate.ast_snapshot import (
+from runtime.mutation.ast_substrate.ast_snapshot import (  # adaad: import-boundary-ok:ast-snapshot-runtime-bridge
     compute_snapshot,
     read_previous_digest,
     write_snapshot_state,

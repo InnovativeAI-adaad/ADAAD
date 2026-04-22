@@ -1,4 +1,60 @@
-## [9.79.0] — 2026-04-21 · Phase 146 · INNOV-52 · Dork Query Router (DQR)
+## [9.82.0] — 2026-04-22 · Phase 149 · INNOV-55 · Mutation Explainability Engine (MXE)
+
+### 5 new Hard-class invariants · 263 Hard-class total · 55 innovations shipped
+
+**Mutation Explainability Engine (MXE)** — generates, persists, and retrieves
+deterministic, HMAC-chain-linked constitutional explanations for every mutation
+verdict (ACCEPT / REJECT / BLOCK).  Every verdict produces an immutable
+explanation record before the call returns (MXE-AUDIT-0).  Explanations are
+scoped exclusively to the mutation proposal pipeline and never read CEL internal
+state (MXE-SCOPE-0).  The engine is idempotent: a second `explain()` call for
+the same `mutation_id` returns the stored record unchanged (MXE-IMMUT-0).
+
+**Files shipped**
+- `runtime/mcp/mutation_explainability.py` — `MutationExplanation`, `MXEChainState`, `MXEExplainer`
+- `runtime/innovations30/mutation_explainability.py` — INNOV-55 registry wrapper
+- `runtime/mcp/server.py` — 5 MXE routes: POST /mutation/explain, GET /mutation/explanations/{id}, GET /mutation/explanations, GET /mutation/explanations/chain, GET /mutation/explanations/health
+- `ui/whaledic.html` — Explainability panel with verdict inspector + chain verifier
+- `tests/innovations/test_phase149_mxe.py` — 30/30 acceptance tests
+
+**Invariants**
+- `MXE-DETERM-0` — canonical dict always sorted; confidence rounded to 6dp
+- `MXE-CHAIN-0` — HMAC-SHA256 links every explanation to its predecessor
+- `MXE-IMMUT-0` — explanations append-only; idempotent on duplicate mutation_id
+- `MXE-SCOPE-0` — explainer restricted to mutation proposal verdicts only
+- `MXE-AUDIT-0` — every verdict MUST persist an explanation before returning
+
+---
+
+## [9.81.0] — 2026-04-22 · Phase 148 · INNOV-54 · Live Execution Feed (LEF)
+
+### 5 new Hard-class invariants · 258 Hard-class total · 54 innovations shipped
+
+**Live Execution Feed (LEF)** — real-time Server-Sent Events stream that exposes every
+CEL step as a passive, HMAC-chain-linked event.  Subscribers are read-only observers;
+zero CEL state mutation is permitted (CEL-FEED-0).  The SSE generator drains a queue
+exclusively — no ledger writes occur inside `event_stream()` (LEF-NOWRITE-0).  Every
+`CELStepEvent` serialises to a deterministic canonical dict (LEF-DETERM-0) and is
+cryptographically linked to its predecessor (LEF-CHAIN-0).  Cycles that exit without
+COMPLETE or BLOCKED raise `LEFFeedIncomplete` immediately (CEL-FEED-COMPLETE-0).
+
+**Files shipped**
+- `dorkllm/cel_feed.py` — `CELStepEvent`, `LEFChainState`, `CELFeedEngine`
+- `runtime/innovations30/live_execution_feed.py` — INNOV-54 registry wrapper
+- `runtime/mcp/server.py` — `GET /events/cel-feed`, `/health`, `/chain` routes
+- `ui/whaledic.html` — Live Execution Feed panel with SSE console + chain inspector
+- `tests/innovations/test_phase148_lef.py` — 30/30 acceptance tests
+
+**Invariants**
+- `LEF-DETERM-0` — canonical dict always sorted; no floats, no set ordering
+- `LEF-CHAIN-0` — HMAC-SHA256 links every event to its predecessor
+- `CEL-FEED-0` — subscribe/unsubscribe never mutate CEL execution state
+- `LEF-NOWRITE-0` — `event_stream()` is read/drain only; zero ledger writes
+- `CEL-FEED-COMPLETE-0` — cycle must exit with COMPLETE or BLOCKED
+
+---
+
+## [9.80.0] — 2026-04-21 · Phase 147 · INNOV-53 · Dork Query Router (DQR)
 
 ### 5 new Hard-class invariants · 251 Hard-class total · 52 innovations shipped
 

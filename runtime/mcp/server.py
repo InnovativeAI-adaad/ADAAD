@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any, Dict
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 
 from runtime.mcp.candidate_ranker import rank_candidates
 from runtime.governance.foundation.determinism import RuntimeDeterminismProvider, default_provider, require_replay_safe_provider
@@ -25,12 +25,16 @@ from runtime.mcp.tools_registry import tools_list_response
 from runtime.mcp import evolution_pipeline_tools
 from security import cryovant
 from security.unified_auth import require_action
+from runtime.innovations30.live_execution_feed import get_feed_engine, probe as lef_probe
+from runtime.innovations30.mutation_explainability import get_explainer as mxe_explainer, probe as mxe_probe
 
 LOG = logging.getLogger(__name__)
 
 
 def _authorize_request(request: Request) -> None:
     if request.url.path == "/health":
+        return
+    if request.url.path.startswith("/events/cel-feed"):
         return
     action = "read" if request.method.upper() in {"GET", "HEAD", "OPTIONS"} else "write"
     try:
@@ -156,6 +160,89 @@ def create_app(
     @app.get("/evolution/telemetry-health")
     async def evo_telemetry_health() -> Dict[str, Any]:
         return evolution_pipeline_tools.telemetry_health()
+
+    # ------------------------------------------------------------------
+    # Phase 148 / INNOV-54 — Live Execution Feed (LEF) SSE routes
+    # LEF-NOWRITE-0: event_stream() drains only; no ledger writes here.
+    # CEL-FEED-0:    subscribers are passive observers.
+    # ------------------------------------------------------------------
+
+    @app.get("/events/cel-feed")
+    async def cel_feed_stream(phase: int = 148) -> StreamingResponse:
+        """SSE endpoint: stream CEL step events for *phase* in real time."""
+        engine = get_feed_engine(phase)
+        q = await engine.subscribe()
+
+        async def _generate():
+            async for chunk in engine.event_stream(q):
+                yield chunk
+
+        return StreamingResponse(
+            _generate(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "X-Accel-Buffering": "no",
+                "Connection": "keep-alive",
+            },
+        )
+
+    @app.get("/events/cel-feed/health")
+    async def cel_feed_health(phase: int = 148) -> Dict[str, Any]:
+        """INNOV-COMPLETE-0 health probe for the LEF engine."""
+        return lef_probe()
+
+    @app.get("/events/cel-feed/chain")
+    async def cel_feed_chain(phase: int = 148) -> Dict[str, Any]:
+        """LEF-CHAIN-0 full ledger chain verification for *phase*."""
+        engine = get_feed_engine(phase)
+        return engine.verify_ledger_chain()
+
+    # ------------------------------------------------------------------
+    # Phase 149 / INNOV-55 — Mutation Explainability Engine (MXE) routes
+    # MXE-SCOPE-0: only mutation proposal verdicts; no CEL state access.
+    # MXE-AUDIT-0: every verdict persists an explanation before returning.
+    # ------------------------------------------------------------------
+
+    @app.post("/mutation/explain")
+    async def mutation_explain(payload: Dict[str, Any]) -> Dict[str, Any]:
+        """Generate and persist a constitutional explanation for a mutation verdict."""
+        mutation_id = payload.get("mutation_id", "")
+        verdict = payload.get("verdict", "")
+        gate_report = payload.get("gate_report", {})
+        confidence = float(payload.get("confidence", 1.0))
+        if not mutation_id:
+            raise HTTPException(status_code=422, detail="mutation_id required")
+        if verdict not in {"ACCEPT", "REJECT", "BLOCK"}:
+            raise HTTPException(status_code=422, detail="verdict must be ACCEPT|REJECT|BLOCK")
+        expl = mxe_explainer().explain(
+            mutation_id, verdict, gate_report=gate_report, confidence=confidence
+        )
+        return {"ok": True, "explanation": expl.to_dict()}
+
+    @app.get("/mutation/explanations/{mutation_id}")
+    async def mutation_explanation_get(mutation_id: str) -> Dict[str, Any]:
+        """Retrieve stored explanation by mutation_id — MXE-IMMUT-0."""
+        expl = mxe_explainer().get(mutation_id)
+        if expl is None:
+            raise HTTPException(status_code=404, detail="explanation_not_found")
+        return {"ok": True, "explanation": expl.to_dict()}
+
+    @app.get("/mutation/explanations")
+    async def mutation_explanations_list(limit: int = 50) -> Dict[str, Any]:
+        """List recent explanations — MXE-DETERM-0 sorted by timestamp desc."""
+        records = mxe_explainer().list_explanations(limit=limit)
+        return {"ok": True, "count": len(records), "explanations": records}
+
+    @app.get("/mutation/explanations/chain")
+    async def mutation_explanations_chain() -> Dict[str, Any]:
+        """MXE-CHAIN-0 full ledger chain verification."""
+        return mxe_explainer().verify_chain()
+
+    @app.get("/mutation/explanations/health")
+    async def mutation_explanations_health() -> Dict[str, Any]:
+        """INNOV-COMPLETE-0 health probe for MXE engine."""
+        return mxe_probe()
 
 
     return app

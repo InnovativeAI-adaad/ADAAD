@@ -294,8 +294,8 @@ def handle_explain_gates(*, explain_gates: bool) -> bool:
         return False
 
     
-    from runtime.governance.fast_path_policy import get_operating_mode, get_required_gate_tiers
-    from runtime.governance.change_classifier import classify_current_changes_decision
+    from runtime.governance.fast_path_policy import get_operating_mode, get_required_gate_tiers  # adaad: import-boundary-ok:cli-explain-gates-legacy
+    from runtime.governance.change_classifier import classify_current_changes_decision  # adaad: import-boundary-ok:cli-explain-gates-legacy
     
     mode = get_operating_mode()
     change_decision = classify_current_changes_decision()

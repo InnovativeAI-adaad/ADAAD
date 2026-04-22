@@ -275,14 +275,14 @@ def _gate_chain(payload: dict[str, Any]) -> bool:
 def _make_generic_gate(invariant_id: str) -> GateFn:
     """Returns a gate that verifies the invariant is registered and probes it."""
     def _gate(payload: dict[str, Any]) -> bool:
-        # A registered invariant that has a module path should be importable
+        # A registered invariant with an explicit module path should resolve
+        # without executing dynamic import side effects.
         module_path = payload.get("module_path")
-        if module_path:
+        if isinstance(module_path, str) and module_path:
             try:
                 import importlib
-                importlib.import_module(module_path)
-                return True
-            except ImportError:
+                return importlib.util.find_spec(module_path) is not None
+            except (ImportError, ValueError):
                 return False
         # Structural presence check
         return invariant_id in payload.get("known_invariants", [invariant_id])

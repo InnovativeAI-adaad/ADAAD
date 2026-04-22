@@ -301,6 +301,14 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h10M2 7h7M2 10h5"/><path d="M10 8l3 2-3 2"/></svg>
     <span class="sb-label">Intent</span><span class="sb-bdg" id="sb-intent" style="background:var(--purple);color:#fff">53</span>
   </div>
+  <div class="sb-item" data-v="lef">
+    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M7 4v3"/><path d="M4.5 10.5l2.5-3.5 2.5 1.5"/><circle cx="7" cy="7" r="1" fill="currentColor"/></svg>
+    <span class="sb-label">Live Feed</span><span class="sb-bdg w" id="sb-lef">SSE</span>
+  </div>
+  <div class="sb-item" data-v="mxe">
+    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 2l1.5 3h3l-2.5 2 1 3L7 8.5 4 10l1-3L2.5 5h3z"/></svg>
+    <span class="sb-label">Explainability</span><span class="sb-bdg" id="sb-mxe" style="background:var(--purple-dim);color:var(--purple);border-color:rgba(155,124,255,0.2)">MXE</span>
+  </div>
   <div class="sb-div"></div>
   <div class="sb-sect">Runtime</div>
   <div class="rt-block">
@@ -473,6 +481,150 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   <div class="cs" style="margin-top:12px">
     <div class="cs-title">Dispatch Log <span style="font-family:var(--font-mono);font-size:9px;color:var(--text3);font-weight:400">in-memory · INTENT-DRYRUN-0</span></div>
     <div id="intent-log" style="font-family:var(--font-mono);font-size:10px;color:var(--text3);line-height:1.8">No dispatches yet.</div>
+  </div>
+</div>
+
+<!-- ── LIVE EXECUTION FEED PANEL · Phase 148 · INNOV-54 ─────────── -->
+<div id="v-lef" style="display:none">
+  <div class="cs">
+    <div class="cs-title">
+      Live Execution Feed
+      <span style="font-family:var(--font-mono);font-size:9px;color:var(--text3);font-weight:400">INNOV-54 · LEF-CHAIN-0 · CEL-FEED-0</span>
+      <div style="display:flex;gap:6px;align-items:center">
+        <span id="lef-status-dot" class="dot dot-a" style="width:7px;height:7px"></span>
+        <span id="lef-status-lbl" style="font-family:var(--font-mono);font-size:10px;color:var(--text3)">disconnected</span>
+        <button class="btn-sm" id="lef-connect-btn" onclick="lefConnect()" style="margin-left:4px">Connect</button>
+        <button class="btn-sm" id="lef-disconnect-btn" onclick="lefDisconnect()" style="display:none">Disconnect</button>
+      </div>
+    </div>
+
+    <!-- Chain integrity bar -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">
+      <div class="sc">
+        <div style="font-family:var(--font-mono);font-size:8px;color:var(--text3);margin-bottom:4px">EVENTS RECEIVED</div>
+        <div id="lef-evt-count" style="font-family:var(--font-ui);font-size:22px;font-weight:800;color:var(--whale)">0</div>
+      </div>
+      <div class="sc">
+        <div style="font-family:var(--font-mono);font-size:8px;color:var(--text3);margin-bottom:4px">CURRENT PHASE</div>
+        <div id="lef-phase" style="font-family:var(--font-ui);font-size:22px;font-weight:800;color:var(--green)">148</div>
+      </div>
+      <div class="sc">
+        <div style="font-family:var(--font-mono);font-size:8px;color:var(--text3);margin-bottom:4px">CHAIN VALID</div>
+        <div id="lef-chain-ok" style="font-family:var(--font-ui);font-size:22px;font-weight:800;color:var(--green)">—</div>
+      </div>
+      <div class="sc">
+        <div style="font-family:var(--font-mono);font-size:8px;color:var(--text3);margin-bottom:4px">LAST STATUS</div>
+        <div id="lef-last-status" style="font-family:var(--font-ui);font-size:14px;font-weight:700;color:var(--amber);padding-top:4px">—</div>
+      </div>
+    </div>
+
+    <!-- SSE event stream log -->
+    <div style="margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-family:var(--font-ui);font-size:10px;font-weight:700;color:var(--text2);letter-spacing:0.5px;text-transform:uppercase">Event Stream</div>
+      <button class="btn-sm" onclick="lefClearLog()">Clear</button>
+    </div>
+    <div id="lef-stream" style="font-family:var(--font-mono);font-size:10px;height:280px;overflow-y:auto;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-lg);padding:10px;line-height:2">
+      <span style="color:var(--text3)">Stream idle — click Connect to subscribe to /events/cel-feed</span>
+    </div>
+
+    <!-- HMAC tail inspector -->
+    <div style="margin-top:12px">
+      <div style="font-family:var(--font-ui);font-size:10px;font-weight:700;color:var(--text2);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:6px">HMAC Chain Tail</div>
+      <div id="lef-hmac-tail" style="font-family:var(--font-mono);font-size:9px;color:var(--text3);word-break:break-all;background:var(--bg3);border:1px solid var(--border);padding:6px 10px;border-radius:var(--r)">—</div>
+    </div>
+
+    <!-- Chain verify -->
+    <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+      <button class="btn-sm" onclick="lefVerifyChain()">Verify Chain (/chain)</button>
+      <button class="btn-sm" onclick="lefHealthCheck()">Health Check (/health)</button>
+      <div id="lef-chain-result" style="font-family:var(--font-mono);font-size:10px;color:var(--text3)"></div>
+    </div>
+
+    <!-- Invariant badges -->
+    <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:6px">
+      <span style="font-family:var(--font-ui);font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);align-self:center">Invariants:</span>
+      <span class="tag tag-g" style="font-family:var(--font-mono);font-size:9px">LEF-DETERM-0</span>
+      <span class="tag tag-g" style="font-family:var(--font-mono);font-size:9px">LEF-CHAIN-0</span>
+      <span class="tag tag-g" style="font-family:var(--font-mono);font-size:9px">CEL-FEED-0</span>
+      <span class="tag tag-g" style="font-family:var(--font-mono);font-size:9px">LEF-NOWRITE-0</span>
+      <span class="tag tag-g" style="font-family:var(--font-mono);font-size:9px">CEL-FEED-COMPLETE-0</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── MUTATION EXPLAINABILITY PANEL · Phase 149 · INNOV-55 ─────── -->
+<div id="v-mxe" style="display:none">
+  <div class="cs">
+    <div class="cs-title">
+      Mutation Explainability
+      <span style="font-family:var(--font-mono);font-size:9px;color:var(--text3);font-weight:400">INNOV-55 · MXE-CHAIN-0 · MXE-AUDIT-0</span>
+    </div>
+
+    <!-- Stats bar -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">
+      <div class="sc">
+        <div style="font-family:var(--font-mono);font-size:8px;color:var(--text3);margin-bottom:4px">EXPLANATIONS</div>
+        <div id="mxe-count" style="font-family:var(--font-ui);font-size:22px;font-weight:800;color:var(--purple)">0</div>
+      </div>
+      <div class="sc">
+        <div style="font-family:var(--font-mono);font-size:8px;color:var(--text3);margin-bottom:4px">CHAIN VALID</div>
+        <div id="mxe-chain-ok" style="font-family:var(--font-ui);font-size:22px;font-weight:800;color:var(--text3)">—</div>
+      </div>
+      <div class="sc">
+        <div style="font-family:var(--font-mono);font-size:8px;color:var(--text3);margin-bottom:4px">LAST VERDICT</div>
+        <div id="mxe-last-verdict" style="font-family:var(--font-ui);font-size:14px;font-weight:700;color:var(--text3);padding-top:4px">—</div>
+      </div>
+    </div>
+
+    <!-- Explain form -->
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-lg);padding:12px;margin-bottom:14px">
+      <div style="font-family:var(--font-ui);font-size:10px;font-weight:700;color:var(--text2);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:8px">Generate Explanation</div>
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <input id="mxe-mid" placeholder="mutation_id" style="flex:1;background:var(--bg4);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:var(--font-mono);font-size:10px;padding:5px 8px;outline:none"/>
+        <select id="mxe-verdict" style="background:var(--bg4);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:var(--font-mono);font-size:10px;padding:5px 8px;outline:none">
+          <option value="ACCEPT">ACCEPT</option>
+          <option value="REJECT">REJECT</option>
+          <option value="BLOCK">BLOCK</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn-sm" onclick="mxeGenerate()">Explain</button>
+        <button class="btn-sm" onclick="mxeLoadAll()">Load All</button>
+        <button class="btn-sm" onclick="mxeVerifyChain()">Verify Chain</button>
+        <div id="mxe-status" style="font-family:var(--font-mono);font-size:10px;color:var(--text3)"></div>
+      </div>
+    </div>
+
+    <!-- Explanation viewer -->
+    <div id="mxe-viewer" style="display:none;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-lg);padding:12px;margin-bottom:14px">
+      <div style="font-family:var(--font-ui);font-size:10px;font-weight:700;color:var(--text2);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:8px">Active Explanation</div>
+      <div id="mxe-verdict-banner" style="font-size:18px;font-weight:800;font-family:var(--font-ui);margin-bottom:8px"></div>
+      <div id="mxe-summary" style="font-family:var(--font-mono);font-size:10px;color:var(--text2);margin-bottom:10px;line-height:1.7"></div>
+
+      <div style="font-family:var(--font-ui);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text3);margin-bottom:5px">Invariant Findings</div>
+      <div id="mxe-findings" style="font-family:var(--font-mono);font-size:10px;line-height:2"></div>
+
+      <div style="font-family:var(--font-ui);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text3);margin:10px 0 5px">Reasoning Chain</div>
+      <div id="mxe-steps" style="font-family:var(--font-mono);font-size:10px;line-height:2"></div>
+
+      <div style="margin-top:10px">
+        <div style="font-family:var(--font-ui);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text3);margin-bottom:4px">HMAC Tail</div>
+        <div id="mxe-hmac" style="font-family:var(--font-mono);font-size:9px;color:var(--text3);word-break:break-all"></div>
+      </div>
+    </div>
+
+    <!-- Recent explanations list -->
+    <div id="mxe-list" style="display:flex;flex-direction:column;gap:4px"></div>
+
+    <!-- Invariant badges -->
+    <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:6px">
+      <span style="font-family:var(--font-ui);font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);align-self:center">Invariants:</span>
+      <span class="tag tag-g" style="font-family:var(--font-mono);font-size:9px">MXE-DETERM-0</span>
+      <span class="tag tag-g" style="font-family:var(--font-mono);font-size:9px">MXE-CHAIN-0</span>
+      <span class="tag tag-g" style="font-family:var(--font-mono);font-size:9px">MXE-IMMUT-0</span>
+      <span class="tag tag-g" style="font-family:var(--font-mono);font-size:9px">MXE-SCOPE-0</span>
+      <span class="tag tag-g" style="font-family:var(--font-mono);font-size:9px">MXE-AUDIT-0</span>
+    </div>
   </div>
 </div>
 
@@ -1088,6 +1240,217 @@ function intentPreview() {
 
   bus('intent_preview', action + ' · ' + scope + ' · ' + (blockReason ? 'BLOCKED' : 'OK'));
 }
+
+// ── LIVE EXECUTION FEED · Phase 148 · INNOV-54 ─────────────────────
+let _lefEvtSource = null;
+let _lefEvtCount = 0;
+let _lefLastHmac = '';
+const _lefStatusColors = {COMPLETE:'var(--green)',BLOCKED:'var(--amber)',RUNNING:'var(--whale)',ERROR:'var(--red)'};
+
+function lefLog(msg, color){
+  const el = document.getElementById('lef-stream');
+  const line = document.createElement('div');
+  line.style.cssText = 'border-bottom:1px solid var(--border);padding:2px 0;color:' + (color||'var(--text2)');
+  line.textContent = new Date().toISOString().slice(11,23) + ' › ' + msg;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
+function lefConnect(){
+  if(_lefEvtSource){lefEvtSource.close();}
+  const phase = 148;
+  const url = '/events/cel-feed?phase=' + phase;
+  _lefEvtSource = new EventSource(url);
+  _lefEvtCount = 0;
+  document.getElementById('lef-stream').innerHTML = '';
+  lefSetStatus('connecting','var(--amber)');
+  lefLog('Connecting to ' + url + ' …','var(--text3)');
+
+  _lefEvtSource.onopen = () => {
+    lefSetStatus('connected','var(--green)');
+    document.getElementById('lef-connect-btn').style.display='none';
+    document.getElementById('lef-disconnect-btn').style.display='';
+    lefLog('SSE connection established — CEL-FEED-0 passive observer active','var(--green)');
+    bus('lef_connect','SSE connected · phase ' + phase);
+  };
+
+  _lefEvtSource.onmessage = (e) => {
+    try {
+      const evt = JSON.parse(e.data);
+      _lefEvtCount++;
+      document.getElementById('lef-evt-count').textContent = _lefEvtCount;
+      document.getElementById('lef-phase').textContent = evt.phase || phase;
+      const statusColor = _lefStatusColors[evt.status] || 'var(--text)';
+      document.getElementById('lef-last-status').style.color = statusColor;
+      document.getElementById('lef-last-status').textContent = evt.status || '—';
+      if(evt.event_hmac){
+        _lefLastHmac = evt.event_hmac;
+        document.getElementById('lef-hmac-tail').textContent = evt.event_hmac;
+      }
+      // LEF-CHAIN-0 visual check
+      const chainOk = document.getElementById('lef-chain-ok');
+      chainOk.textContent = '✓';
+      chainOk.style.color = 'var(--green)';
+      const row = '[Step ' + (evt.step||'?') + '] ' + (evt.agent||'?') + ' › ' + (evt.description||'') + ' [' + (evt.status||'?') + ']';
+      lefLog(row, statusColor);
+    } catch(err){
+      lefLog('parse error: ' + err.message,'var(--red)');
+    }
+  };
+
+  _lefEvtSource.onerror = () => {
+    lefSetStatus('error','var(--red)');
+    lefLog('SSE connection error or server closed stream','var(--red)');
+    document.getElementById('lef-connect-btn').style.display='';
+    document.getElementById('lef-disconnect-btn').style.display='none';
+    bus('lef_error','SSE error · check /events/cel-feed/health');
+  };
+}
+
+function lefDisconnect(){
+  if(_lefEvtSource){_lefEvtSource.close();_lefEvtSource=null;}
+  lefSetStatus('disconnected','var(--amber)');
+  lefLog('Manually disconnected','var(--text3)');
+  document.getElementById('lef-connect-btn').style.display='';
+  document.getElementById('lef-disconnect-btn').style.display='none';
+}
+
+function lefSetStatus(lbl, color){
+  const dot = document.getElementById('lef-status-dot');
+  const txt = document.getElementById('lef-status-lbl');
+  dot.style.background = color;
+  dot.style.boxShadow = '0 0 5px ' + color;
+  txt.textContent = lbl;
+}
+
+function lefClearLog(){
+  document.getElementById('lef-stream').innerHTML='';
+  _lefEvtCount = 0;
+  document.getElementById('lef-evt-count').textContent='0';
+}
+
+async function lefVerifyChain(){
+  const res = document.getElementById('lef-chain-result');
+  res.textContent = 'Verifying…';
+  try {
+    const r = await fetch('/events/cel-feed/chain?phase=148');
+    const d = await r.json();
+    res.textContent = d.ok ? '✓ chain valid · ' + d.events + ' events' : '✗ ' + (d.errors||[]).join(', ');
+    res.style.color = d.ok ? 'var(--green)' : 'var(--red)';
+  } catch(e){
+    res.textContent = 'error: ' + e.message;
+    res.style.color = 'var(--red)';
+  }
+}
+
+async function lefHealthCheck(){
+  const res = document.getElementById('lef-chain-result');
+  res.textContent = 'Probing…';
+  try {
+    const r = await fetch('/events/cel-feed/health?phase=148');
+    const d = await r.json();
+    res.textContent = d.ok ? '✓ healthy · events=' + d.events_published + ' subs=' + d.subscribers : '✗ ' + JSON.stringify(d);
+    res.style.color = d.ok ? 'var(--green)' : 'var(--amber)';
+  } catch(e){
+    res.textContent = 'error: ' + e.message;
+    res.style.color = 'var(--red)';
+  }
+}
+
+// ── MUTATION EXPLAINABILITY ENGINE · Phase 149 · INNOV-55 ──────────
+const _mxeVerdictColors = {ACCEPT:'var(--green)',REJECT:'var(--amber)',BLOCK:'var(--red)'};
+
+function mxeShowExplanation(d){
+  const vc = _mxeVerdictColors[d.verdict] || 'var(--text)';
+  document.getElementById('mxe-verdict-banner').textContent = d.verdict;
+  document.getElementById('mxe-verdict-banner').style.color = vc;
+  document.getElementById('mxe-summary').textContent = d.summary;
+  document.getElementById('mxe-last-verdict').textContent = d.verdict;
+  document.getElementById('mxe-last-verdict').style.color = vc;
+  // Findings
+  const fl = document.getElementById('mxe-findings');
+  if(d.invariant_findings && d.invariant_findings.length){
+    fl.innerHTML = d.invariant_findings.map(f=>{
+      const ic = f.fired ? 'var(--red)' : 'var(--green)';
+      return '<div style="color:'+ic+';">'+(f.fired?'✗':'✓')+' ['+esc(f.tier)+'] '+esc(f.invariant_id)+' — '+esc(f.description)+'</div>';
+    }).join('');
+  } else {
+    fl.innerHTML = '<span style="color:var(--text3)">No invariant findings recorded.</span>';
+  }
+  // Reasoning chain
+  const sc = document.getElementById('mxe-steps');
+  if(d.reasoning_chain && d.reasoning_chain.length){
+    sc.innerHTML = d.reasoning_chain.map(s=>{
+      const oc = s.outcome==='PASS'?'var(--green)':'var(--red)';
+      return '<div>['+s.order+'] <span style="color:'+oc+'">'+esc(s.outcome)+'</span> '+esc(s.gate)+' — '+esc(s.rationale)+'</div>';
+    }).join('');
+  } else {
+    sc.innerHTML = '<span style="color:var(--text3)">No reasoning steps recorded.</span>';
+  }
+  document.getElementById('mxe-hmac').textContent = d.explanation_hmac || '—';
+  document.getElementById('mxe-viewer').style.display = '';
+}
+
+async function mxeGenerate(){
+  const mid = document.getElementById('mxe-mid').value.trim();
+  const verdict = document.getElementById('mxe-verdict').value;
+  const st = document.getElementById('mxe-status');
+  if(!mid){ st.textContent='mutation_id required'; st.style.color='var(--red)'; return; }
+  st.textContent = 'Generating…'; st.style.color='var(--text3)';
+  try {
+    const r = await fetch('/mutation/explain', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({mutation_id: mid, verdict, gate_report:{}, confidence:1.0})
+    });
+    const d = await r.json();
+    if(d.ok){
+      st.textContent='✓ explanation generated'; st.style.color='var(--green)';
+      mxeShowExplanation(d.explanation);
+      document.getElementById('mxe-count').textContent = parseInt(document.getElementById('mxe-count').textContent||'0')+1;
+      bus('mxe_explain', mid + ' → ' + verdict);
+    } else {
+      st.textContent='error: '+JSON.stringify(d); st.style.color='var(--red)';
+    }
+  } catch(e){ st.textContent='error: '+e.message; st.style.color='var(--red)'; }
+}
+
+async function mxeLoadAll(){
+  const st = document.getElementById('mxe-status');
+  st.textContent='Loading…'; st.style.color='var(--text3)';
+  try {
+    const r = await fetch('/mutation/explanations?limit=20');
+    const d = await r.json();
+    document.getElementById('mxe-count').textContent = d.count || 0;
+    const list = document.getElementById('mxe-list');
+    if(d.explanations && d.explanations.length){
+      list.innerHTML = d.explanations.map(e=>{
+        const vc = _mxeVerdictColors[e.verdict]||'var(--text)';
+        return '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:6px 10px;cursor:pointer;font-family:var(--font-mono);font-size:10px" onclick=\'mxeShowExplanation('+JSON.stringify(e).replace(/'/g,"\\'")+')\'>'
+          +'<span style="color:'+vc+';font-weight:700">'+esc(e.verdict)+'</span> '
+          +'<span style="color:var(--text2)">'+esc(e.mutation_id)+'</span> '
+          +'<span style="color:var(--text3);font-size:9px">'+esc(e.timestamp_iso.slice(0,19))+'</span>'
+          +'</div>';
+      }).join('');
+      if(d.explanations.length) mxeShowExplanation(d.explanations[0]);
+    } else { list.innerHTML='<span style="color:var(--text3);font-size:10px">No explanations yet.</span>'; }
+    st.textContent='✓ loaded '+d.count+' explanations'; st.style.color='var(--green)';
+  } catch(e){ st.textContent='error: '+e.message; st.style.color='var(--red)'; }
+}
+
+async function mxeVerifyChain(){
+  const st = document.getElementById('mxe-status');
+  st.textContent='Verifying chain…'; st.style.color='var(--text3)';
+  try {
+    const r = await fetch('/mutation/explanations/chain');
+    const d = await r.json();
+    document.getElementById('mxe-chain-ok').textContent = d.ok ? '✓' : '✗';
+    document.getElementById('mxe-chain-ok').style.color = d.ok ? 'var(--green)' : 'var(--red)';
+    st.textContent = d.ok ? '✓ chain valid · '+d.explanations+' records' : '✗ '+JSON.stringify(d.errors);
+    st.style.color = d.ok ? 'var(--green)' : 'var(--red)';
+  } catch(e){ st.textContent='error: '+e.message; st.style.color='var(--red)'; }
+}
+
 
 </script>
 <script src="shared/dork_launcher.js"></script>

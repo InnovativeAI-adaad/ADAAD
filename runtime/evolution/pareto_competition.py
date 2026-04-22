@@ -66,7 +66,7 @@ class ParetoCompetitionResult:
     scalar_ranking:    Advisory scalar ranking within frontier (PARETO-0).
     pareto_result:     Full ParetoFrontierResult for audit purposes.
     ledger_entry:      Raw dict written to LineageLedgerV2.
-    gate_verdict:      Overall verdict: 'pass' | 'fail' | 'deferred'.
+    gate_verdict:      Overall verdict: 'pass' | 'fail'.
     epoch_digest:      SHA-256 of canonical epoch inputs.
     """
 
@@ -206,11 +206,24 @@ class ParetoCompetitionOrchestrator:
             verdict = self._gate_fn(cid, meta_map.get(cid, {}))
             if verdict == "pass":
                 passed.append(cid)
-            else:
+            elif verdict == "fail":
                 failed.append(cid)
+            else:
+                raise ValueError(
+                    "PARETO-GOV-0: unsupported gate verdict "
+                    f"{verdict!r} for ParetoCompetitionOrchestrator; "
+                    "expected 'pass' or 'fail'."
+                )
             log.debug("PARETO: gate verdict for %s: %s", cid, verdict)
 
-        overall_verdict = "pass" if passed else ("fail" if not passed else "deferred")
+        if passed:
+            overall_verdict = "pass"
+        elif failed:
+            overall_verdict = "fail"
+        else:
+            raise RuntimeError(
+                "PARETO-NONDEG-0: frontier evaluation produced no gate outcomes."
+            )
 
         # ── Step 4: Advisory scalar ranking within frontier (PARETO-0) ──────
         scalar_ranking = self._pareto.rank_frontier(pareto_result, vectors)

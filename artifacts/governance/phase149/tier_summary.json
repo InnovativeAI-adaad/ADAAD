@@ -1,0 +1,19 @@
+{
+  "phase": 149,
+  "innovation": "INNOV-55",
+  "version": "9.82.0",
+  "date": "2026-04-22",
+  "invariant_tiers": {
+    "Hard": [
+      {"id": "MXE-DETERM-0", "description": "Canonical dict always sorted; confidence rounded 6dp; no float ambiguity.", "enforcement": "fail-closed", "module": "runtime/mcp/mutation_explainability.py"},
+      {"id": "MXE-CHAIN-0",  "description": "HMAC-SHA256 links each explanation to its predecessor; broken chain raises immediately.", "enforcement": "fail-closed", "module": "runtime/mcp/mutation_explainability.py"},
+      {"id": "MXE-IMMUT-0",  "description": "Explanations are append-only; second explain() for same mutation_id is idempotent.", "enforcement": "fail-closed", "module": "runtime/mcp/mutation_explainability.py"},
+      {"id": "MXE-SCOPE-0",  "description": "Explainer restricted to mutation proposal verdicts; never reads CEL or agent memory.", "enforcement": "fail-closed", "module": "runtime/mcp/mutation_explainability.py"},
+      {"id": "MXE-AUDIT-0",  "description": "Every mutation verdict MUST produce a persisted explanation before the call returns.", "enforcement": "fail-closed", "module": "runtime/mcp/mutation_explainability.py"}
+    ],
+    "Soft": []
+  },
+  "total_hard": 5,
+  "total_soft": 0,
+  "cumulative_hard": 263
+}
