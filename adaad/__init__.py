@@ -6,7 +6,7 @@ from __future__ import annotations
 import importlib
 from types import ModuleType
 
-__version__ = "9.81.0"
+__version__ = "9.82.0"
 __all__ = ["core", "orchestrator"]
 
 
