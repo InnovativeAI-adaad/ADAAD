@@ -13,8 +13,8 @@ from runtime.api.governance_events import (
     build_merge_attestation_event,
     build_merge_attestation_payload,
 )
-from runtime.governance.gate import GovernanceGate
-from runtime.mutation_lifecycle import (
+from runtime.governance.gate import GovernanceGate  # adaad: import-boundary-ok:governance-trigger-legacy-bridge
+from runtime.mutation_lifecycle import (  # adaad: import-boundary-ok:mutation-lifecycle-legacy-bridge
     LifecycleTransitionError,
     MutationLifecycleContext,
     transition as lifecycle_transition,

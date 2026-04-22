@@ -23,7 +23,7 @@ async def ws_events(
     websocket: WebSocket,
     context: RuntimeContext = Depends(get_runtime_context),
 ) -> None:
-    from runtime.innovations_bus import get_bus
+    from runtime.innovations_bus import get_bus  # adaad: import-boundary-ok:event-bus-runtime-subscription
 
     relay_policy = websocket.query_params.get("relay_policy", "drop_oldest")
     if relay_policy not in {"drop_oldest", "coalesce_latest"}:

@@ -23,13 +23,13 @@ from app.api.schemas.dork_intents import (
     DorkProposalExecuteRequest,
     DorkProposalExecuteResponse,
 )
-from runtime.governance.dork_proposal_adapter import (
+from runtime.governance.dork_proposal_adapter import (  # adaad: import-boundary-ok:dork-proposal-legacy-adapter
     DorkProposalPreflightError,
     ProposalValidationError,
     execute_dork_proposal,
 )
 from app.orchestration.adaad_trigger import GovernanceProposalAdapter
-from runtime.governance.dork_proposal_adapter import ProposalValidationError, execute_dork_proposal
+from runtime.governance.dork_proposal_adapter import ProposalValidationError, execute_dork_proposal  # adaad: import-boundary-ok:dork-proposal-legacy-adapter
 from security.ledger import journal
 from security.ledger.append import append_entry
 
