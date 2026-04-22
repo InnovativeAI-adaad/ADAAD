@@ -1,3 +1,31 @@
+## [9.82.0] — 2026-04-22 · Phase 149 · INNOV-55 · Mutation Explainability Engine (MXE)
+
+### 5 new Hard-class invariants · 263 Hard-class total · 55 innovations shipped
+
+**Mutation Explainability Engine (MXE)** — generates, persists, and retrieves
+deterministic, HMAC-chain-linked constitutional explanations for every mutation
+verdict (ACCEPT / REJECT / BLOCK).  Every verdict produces an immutable
+explanation record before the call returns (MXE-AUDIT-0).  Explanations are
+scoped exclusively to the mutation proposal pipeline and never read CEL internal
+state (MXE-SCOPE-0).  The engine is idempotent: a second `explain()` call for
+the same `mutation_id` returns the stored record unchanged (MXE-IMMUT-0).
+
+**Files shipped**
+- `runtime/mcp/mutation_explainability.py` — `MutationExplanation`, `MXEChainState`, `MXEExplainer`
+- `runtime/innovations30/mutation_explainability.py` — INNOV-55 registry wrapper
+- `runtime/mcp/server.py` — 5 MXE routes: POST /mutation/explain, GET /mutation/explanations/{id}, GET /mutation/explanations, GET /mutation/explanations/chain, GET /mutation/explanations/health
+- `ui/whaledic.html` — Explainability panel with verdict inspector + chain verifier
+- `tests/innovations/test_phase149_mxe.py` — 30/30 acceptance tests
+
+**Invariants**
+- `MXE-DETERM-0` — canonical dict always sorted; confidence rounded to 6dp
+- `MXE-CHAIN-0` — HMAC-SHA256 links every explanation to its predecessor
+- `MXE-IMMUT-0` — explanations append-only; idempotent on duplicate mutation_id
+- `MXE-SCOPE-0` — explainer restricted to mutation proposal verdicts only
+- `MXE-AUDIT-0` — every verdict MUST persist an explanation before returning
+
+---
+
 ## [9.81.0] — 2026-04-22 · Phase 148 · INNOV-54 · Live Execution Feed (LEF)
 
 ### 5 new Hard-class invariants · 258 Hard-class total · 54 innovations shipped

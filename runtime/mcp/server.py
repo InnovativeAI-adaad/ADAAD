@@ -26,6 +26,7 @@ from runtime.mcp import evolution_pipeline_tools
 from security import cryovant
 from security.unified_auth import require_action
 from runtime.innovations30.live_execution_feed import get_feed_engine, probe as lef_probe
+from runtime.innovations30.mutation_explainability import get_explainer as mxe_explainer, probe as mxe_probe
 
 LOG = logging.getLogger(__name__)
 
@@ -196,6 +197,52 @@ def create_app(
         """LEF-CHAIN-0 full ledger chain verification for *phase*."""
         engine = get_feed_engine(phase)
         return engine.verify_ledger_chain()
+
+    # ------------------------------------------------------------------
+    # Phase 149 / INNOV-55 — Mutation Explainability Engine (MXE) routes
+    # MXE-SCOPE-0: only mutation proposal verdicts; no CEL state access.
+    # MXE-AUDIT-0: every verdict persists an explanation before returning.
+    # ------------------------------------------------------------------
+
+    @app.post("/mutation/explain")
+    async def mutation_explain(payload: Dict[str, Any]) -> Dict[str, Any]:
+        """Generate and persist a constitutional explanation for a mutation verdict."""
+        mutation_id = payload.get("mutation_id", "")
+        verdict = payload.get("verdict", "")
+        gate_report = payload.get("gate_report", {})
+        confidence = float(payload.get("confidence", 1.0))
+        if not mutation_id:
+            raise HTTPException(status_code=422, detail="mutation_id required")
+        if verdict not in {"ACCEPT", "REJECT", "BLOCK"}:
+            raise HTTPException(status_code=422, detail="verdict must be ACCEPT|REJECT|BLOCK")
+        expl = mxe_explainer().explain(
+            mutation_id, verdict, gate_report=gate_report, confidence=confidence
+        )
+        return {"ok": True, "explanation": expl.to_dict()}
+
+    @app.get("/mutation/explanations/{mutation_id}")
+    async def mutation_explanation_get(mutation_id: str) -> Dict[str, Any]:
+        """Retrieve stored explanation by mutation_id — MXE-IMMUT-0."""
+        expl = mxe_explainer().get(mutation_id)
+        if expl is None:
+            raise HTTPException(status_code=404, detail="explanation_not_found")
+        return {"ok": True, "explanation": expl.to_dict()}
+
+    @app.get("/mutation/explanations")
+    async def mutation_explanations_list(limit: int = 50) -> Dict[str, Any]:
+        """List recent explanations — MXE-DETERM-0 sorted by timestamp desc."""
+        records = mxe_explainer().list_explanations(limit=limit)
+        return {"ok": True, "count": len(records), "explanations": records}
+
+    @app.get("/mutation/explanations/chain")
+    async def mutation_explanations_chain() -> Dict[str, Any]:
+        """MXE-CHAIN-0 full ledger chain verification."""
+        return mxe_explainer().verify_chain()
+
+    @app.get("/mutation/explanations/health")
+    async def mutation_explanations_health() -> Dict[str, Any]:
+        """INNOV-COMPLETE-0 health probe for MXE engine."""
+        return mxe_probe()
 
 
     return app

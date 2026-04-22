@@ -1,0 +1,16 @@
+{
+  "ila_id": "ILA-149-20260422-001",
+  "phase": 149,
+  "innovation": "INNOV-55",
+  "name": "Mutation Explainability Engine (MXE)",
+  "version": "9.82.0",
+  "date": "2026-04-22",
+  "attested_by": "MutationAgent",
+  "ratified_by": "HUMAN-0 · Dustin L. Reid",
+  "attestation": "All 30 acceptance tests pass. 5 Hard-class invariants active and fail-closed. MXEExplainer generates, chains, and persists constitutional explanations for every mutation verdict. MXE-AUDIT-0 guarantees persistence before return. MXE-IMMUT-0 enforces idempotency. MXE-SCOPE-0 restricts to mutation proposals only. Whaledic Explainability panel ships with verdict inspector, invariant findings view, reasoning chain, and chain verifier.",
+  "test_result": "30/30 PASS",
+  "invariants": ["MXE-DETERM-0","MXE-CHAIN-0","MXE-IMMUT-0","MXE-SCOPE-0","MXE-AUDIT-0"],
+  "endpoints": ["POST /mutation/explain","GET /mutation/explanations/{mutation_id}","GET /mutation/explanations","GET /mutation/explanations/chain","GET /mutation/explanations/health"],
+  "stake": "STAKE-0",
+  "sign_off": "HUMAN-0: Approved. All signed: Dustin L. Reid"
+}
