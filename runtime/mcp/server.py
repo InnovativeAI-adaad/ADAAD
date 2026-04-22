@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any, Dict
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 
 from runtime.mcp.candidate_ranker import rank_candidates
 from runtime.governance.foundation.determinism import RuntimeDeterminismProvider, default_provider, require_replay_safe_provider
@@ -25,12 +25,15 @@ from runtime.mcp.tools_registry import tools_list_response
 from runtime.mcp import evolution_pipeline_tools
 from security import cryovant
 from security.unified_auth import require_action
+from runtime.innovations30.live_execution_feed import get_feed_engine, probe as lef_probe
 
 LOG = logging.getLogger(__name__)
 
 
 def _authorize_request(request: Request) -> None:
     if request.url.path == "/health":
+        return
+    if request.url.path.startswith("/events/cel-feed"):
         return
     action = "read" if request.method.upper() in {"GET", "HEAD", "OPTIONS"} else "write"
     try:
@@ -156,6 +159,43 @@ def create_app(
     @app.get("/evolution/telemetry-health")
     async def evo_telemetry_health() -> Dict[str, Any]:
         return evolution_pipeline_tools.telemetry_health()
+
+    # ------------------------------------------------------------------
+    # Phase 148 / INNOV-54 — Live Execution Feed (LEF) SSE routes
+    # LEF-NOWRITE-0: event_stream() drains only; no ledger writes here.
+    # CEL-FEED-0:    subscribers are passive observers.
+    # ------------------------------------------------------------------
+
+    @app.get("/events/cel-feed")
+    async def cel_feed_stream(phase: int = 148) -> StreamingResponse:
+        """SSE endpoint: stream CEL step events for *phase* in real time."""
+        engine = get_feed_engine(phase)
+        q = await engine.subscribe()
+
+        async def _generate():
+            async for chunk in engine.event_stream(q):
+                yield chunk
+
+        return StreamingResponse(
+            _generate(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "X-Accel-Buffering": "no",
+                "Connection": "keep-alive",
+            },
+        )
+
+    @app.get("/events/cel-feed/health")
+    async def cel_feed_health(phase: int = 148) -> Dict[str, Any]:
+        """INNOV-COMPLETE-0 health probe for the LEF engine."""
+        return lef_probe()
+
+    @app.get("/events/cel-feed/chain")
+    async def cel_feed_chain(phase: int = 148) -> Dict[str, Any]:
+        """LEF-CHAIN-0 full ledger chain verification for *phase*."""
+        engine = get_feed_engine(phase)
+        return engine.verify_ledger_chain()
 
 
     return app
