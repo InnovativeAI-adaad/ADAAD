@@ -111,6 +111,9 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 142 | INNOV-48 CSS — Contextual Semantic Search | v9.75.0 | P0 | ✅ shipped |
 | 143 | INNOV-49 CMU — Constitutional Model Upgrade | v9.76.0 | P0 | ✅ shipped |
 | GA | v1.1-GA Release | v1.1.0-GA | P0 | ✅ Published · pypi.org/project/adaad/9.78.0 · 2026-04-21 |
+| 144 | INNOV-50 RAGS — Retrieval-Augmented Governance Synthesis | v9.77.0 | P0 | ✅ shipped |
+| 145 | INNOV-51 DPM — DORK Persistent Memory | v9.78.0 | P0 | ✅ shipped |
+| 146 | INNOV-52 DQR — Dork Query Router | v9.79.0 | P0 | ✅ shipped |
 
 ---
 | 132 | INNOV-41 DORK Living Fleet | v9.64.0 | P1 | ✅ shipped |

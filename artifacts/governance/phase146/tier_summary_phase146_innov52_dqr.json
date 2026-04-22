@@ -1,0 +1,28 @@
+{
+  "tier_summary_id": "TIER-PHASE146-INNOV52-DQR",
+  "phase": 146,
+  "innovation_id": "INNOV-52",
+  "version": "9.79.0",
+  "generated_at": "2026-04-21T00:00:00Z",
+  "invariant_tier_breakdown": {
+    "Hard": {
+      "added_this_phase": 5,
+      "ids": ["DQR-ROUTE-0", "DQR-CHAIN-0", "DQR-DETERM-0", "DQR-FALLBACK-0", "DQR-AUTH-0"],
+      "cumulative_total": 251
+    },
+    "Soft": {
+      "added_this_phase": 0,
+      "cumulative_total": 0
+    }
+  },
+  "mutation_pipeline_gates_passed": 9,
+  "constitutional_evolution_loop": "PASS",
+  "ga_blockers": 0,
+  "dork_integration_status": {
+    "DPM_INNOV51": "active",
+    "RAGS_INNOV50": "active",
+    "DQR_INNOV52": "active",
+    "routing_priority": "DPM > RAGS > passthrough"
+  },
+  "phase_verdict": "APPROVED"
+}
