@@ -290,22 +290,22 @@ class TestCertifierHealthSignal:
 
     def test_t33_s_01_no_reader_defaults_to_1(self):
         agg = _minimal_agg()
-        assert agg._collect_certifier_health() == 1.0
+        assert agg._collect_certifier_health("test-epoch") == 1.0
 
     def test_t33_s_02_empty_history_defaults_to_1(self, tmp_path):
         reader = CertifierScanReader(tmp_path / "empty.jsonl")
         agg = _minimal_agg(certifier_scan_reader=reader)
-        assert agg._collect_certifier_health() == pytest.approx(1.0)
+        assert agg._collect_certifier_health("test-epoch") == pytest.approx(1.0)
 
     def test_t33_s_03_full_rejection_gives_0(self, tmp_path):
         reader = _make_reader_with_scans(tmp_path, [_rejected_scan(), _rejected_scan()])
         agg = _minimal_agg(certifier_scan_reader=reader)
-        assert agg._collect_certifier_health() == pytest.approx(0.0)
+        assert agg._collect_certifier_health("test-epoch") == pytest.approx(0.0)
 
     def test_t33_s_04_half_rejection_gives_half(self, tmp_path):
         reader = _make_reader_with_scans(tmp_path, [_certified_scan(), _rejected_scan()])
         agg = _minimal_agg(certifier_scan_reader=reader)
-        assert agg._collect_certifier_health() == pytest.approx(0.5)
+        assert agg._collect_certifier_health("test-epoch") == pytest.approx(0.5)
 
     def test_t33_s_05_exception_swallowed_returns_1(self):
         class BrokenReader:
@@ -313,7 +313,7 @@ class TestCertifierHealthSignal:
                 raise RuntimeError("boom")
 
         agg = _minimal_agg(certifier_scan_reader=BrokenReader())
-        assert agg._collect_certifier_health() == 1.0
+        assert agg._collect_certifier_health("test-epoch") == 1.0
 
     def test_t33_s_06_signal_in_breakdown(self, tmp_path):
         reader = _make_reader_with_scans(tmp_path, [_certified_scan()])
@@ -361,9 +361,9 @@ class TestCertifierHealthSignal:
         # Clear between runs
         (tmp_path / "det").mkdir(exist_ok=True)
         (tmp_path / "det" / "certifier.jsonl").unlink(missing_ok=True)
-        score_a = make()._collect_certifier_health()
+        score_a = make()._collect_certifier_health("test-epoch")
         (tmp_path / "det" / "certifier.jsonl").unlink(missing_ok=True)
-        score_b = make()._collect_certifier_health()
+        score_b = make()._collect_certifier_health("test-epoch")
         assert score_a == score_b
 
     def test_t33_s_14_full_rejection_reduces_h(self, tmp_path):

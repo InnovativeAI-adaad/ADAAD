@@ -63,7 +63,7 @@ def test_T78_CACHE_01_cache_populated_after_first_append(tmp_path: Path) -> None
         journal.append_tx("test", {"i": 1}, tx_id="TX-1")
 
         assert cache_key in _VERIFIED_TAIL_CACHE, "cache must be populated after first append"
-        tail_hash, offset = _VERIFIED_TAIL_CACHE[cache_key]
+        tail_hash, offset, *_ = _VERIFIED_TAIL_CACHE[cache_key]
         assert len(tail_hash) == 64, "tail hash must be a sha256 hex digest"
         assert offset > 0, "offset must be positive"
     finally:
@@ -193,7 +193,7 @@ def test_T78_CACHE_05_integrity_passes_after_warm_appends(tmp_path: Path) -> Non
 
         # Tail hash from integrity scan must match what the cache holds.
         _, new_offset = journal._validated_last_hash()
-        cache_hash, cache_offset = _VERIFIED_TAIL_CACHE[str(journal.JOURNAL_PATH)]
+        cache_hash, cache_offset, *_ = _VERIFIED_TAIL_CACHE[str(journal.JOURNAL_PATH)]
         # After verify_journal_integrity the tail state is written; allow offset
         # to equal the cache offset (no new appends happened).
         assert cache_offset == new_offset, (

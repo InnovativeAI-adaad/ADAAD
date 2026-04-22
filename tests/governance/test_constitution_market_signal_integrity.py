@@ -31,7 +31,7 @@ from runtime.constitution import CONSTITUTION_VERSION
 
 class TestConstitutionVersion:
     def test_constitution_version_is_0_7_0(self):
-        assert CONSTITUTION_VERSION == "0.9.0"
+        assert CONSTITUTION_VERSION == "1.0.0"
 
 
 # ---------------------------------------------------------------------------
@@ -75,7 +75,7 @@ class TestConstitutionYamlRule:
 
     def test_constitution_yaml_version_is_0_7_0(self):
         doc = self._load_yaml()
-        assert doc["version"] == "0.9.0"
+        assert doc["version"] == "1.0.0"
 
 
 # ---------------------------------------------------------------------------

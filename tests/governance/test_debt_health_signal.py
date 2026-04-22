@@ -82,7 +82,7 @@ def _minimal_aggregator(**extra) -> GovernanceHealthAggregator:
 
 def _collect_debt(aggregator: GovernanceHealthAggregator) -> float:
     """Call the private collector directly for unit-level testing."""
-    return aggregator._collect_debt_health()
+    return aggregator._collect_debt_health("test-epoch")
 
 
 # ---------------------------------------------------------------------------

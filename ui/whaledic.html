@@ -309,6 +309,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 2l1.5 3h3l-2.5 2 1 3L7 8.5 4 10l1-3L2.5 5h3z"/></svg>
     <span class="sb-label">Explainability</span><span class="sb-bdg" id="sb-mxe" style="background:var(--purple-dim);color:var(--purple);border-color:rgba(155,124,255,0.2)">MXE</span>
   </div>
+  <div class="sb-item" data-v="gcb">
+    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M5 7h4M7 5v4"/><circle cx="7" cy="7" r="1.5" fill="currentColor" stroke="none"/></svg>
+    <span class="sb-label">Circuit Breaker</span><span class="sb-bdg" id="sb-gcb" style="background:rgba(255,80,80,0.1);color:#ff5050;border-color:rgba(255,80,80,0.2)">GCB</span>
+  </div>
   <div class="sb-div"></div>
   <div class="sb-sect">Runtime</div>
   <div class="rt-block">
@@ -628,7 +632,93 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   </div>
 </div>
 
-<!-- ── DORK PANEL ──────────────────────────────────────────────────── -->
+<!-- ── GCB PANEL ── Phase 150 · INNOV-56 · Governance Circuit Breaker ── -->
+<div id="v-gcb" style="display:none">
+  <div class="pane-hdr">
+    Governance Circuit Breaker
+    <span style="font-family:var(--font-mono);font-size:9px;color:var(--text3);font-weight:400">INNOV-56 · GCB-FAILCLOSE-0 · GCB-CHAIN-0</span>
+  </div>
+
+  <!-- Circuit state hero -->
+  <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;margin-bottom:14px">
+    <div style="display:flex;gap:16px;align-items:center;margin-bottom:14px">
+      <div style="text-align:center">
+        <div style="font-family:var(--font-ui);font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:4px">Circuit State</div>
+        <div id="gcb-state-badge" style="font-family:var(--font-ui);font-size:18px;font-weight:900;padding:6px 16px;border-radius:6px;background:rgba(0,220,120,0.12);color:#00dc78;border:1px solid rgba(0,220,120,0.25)">CLOSED</div>
+      </div>
+      <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="background:var(--bg4);border:1px solid var(--border);border-radius:6px;padding:8px;text-align:center">
+          <div style="font-family:var(--font-ui);font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:2px">Total Violations</div>
+          <div id="gcb-total-viol" style="font-family:var(--font-ui);font-size:20px;font-weight:800;color:var(--text)">0</div>
+        </div>
+        <div style="background:var(--bg4);border:1px solid var(--border);border-radius:6px;padding:8px;text-align:center">
+          <div style="font-family:var(--font-ui);font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:2px">Trip Count</div>
+          <div id="gcb-trips" style="font-family:var(--font-ui);font-size:20px;font-weight:800;color:var(--text)">0</div>
+        </div>
+        <div style="background:var(--bg4);border:1px solid var(--border);border-radius:6px;padding:8px;text-align:center">
+          <div style="font-family:var(--font-ui);font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:2px">Window NS</div>
+          <div id="gcb-window-ns" style="font-family:var(--font-ui);font-size:20px;font-weight:800;color:var(--text)">0</div>
+        </div>
+        <div style="background:var(--bg4);border:1px solid var(--border);border-radius:6px;padding:8px;text-align:center">
+          <div style="font-family:var(--font-ui);font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:2px">Chain Hash</div>
+          <div id="gcb-chain-hash" style="font-family:var(--font-mono);font-size:9px;font-weight:700;color:var(--text3);word-break:break-all">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Window namespace breakdown -->
+    <div style="margin-bottom:12px">
+      <div style="font-family:var(--font-ui);font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:6px">Violation Window · Namespace Counts</div>
+      <div id="gcb-ns-counts" style="display:flex;flex-wrap:wrap;gap:6px;min-height:24px">
+        <span style="font-family:var(--font-mono);font-size:10px;color:var(--text3)">— empty window —</span>
+      </div>
+    </div>
+
+    <button onclick="gcbRefresh()" style="width:100%;padding:7px;background:var(--bg4);border:1px solid var(--border);border-radius:6px;color:var(--text2);font-family:var(--font-ui);font-size:11px;font-weight:600;cursor:pointer">↻ Refresh Status</button>
+  </div>
+
+  <!-- Inject violation -->
+  <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-lg);padding:12px;margin-bottom:14px">
+    <div style="font-family:var(--font-ui);font-size:11px;font-weight:700;color:var(--text2);margin-bottom:10px">Inject Violation Signal</div>
+    <div style="display:flex;gap:6px;margin-bottom:8px">
+      <input id="gcb-ns-input" placeholder="namespace (e.g. MXE)" style="flex:1;background:var(--bg4);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:var(--font-mono);font-size:10px;padding:5px 8px;outline:none"/>
+      <input id="gcb-vid-input" placeholder="violation_id (e.g. MXE-AUDIT-0)" style="flex:2;background:var(--bg4);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:var(--font-mono);font-size:10px;padding:5px 8px;outline:none"/>
+    </div>
+    <button onclick="gcbInjectViolation()" style="width:100%;padding:7px;background:rgba(255,80,80,0.1);border:1px solid rgba(255,80,80,0.3);border-radius:6px;color:#ff5050;font-family:var(--font-ui);font-size:11px;font-weight:700;cursor:pointer">⚡ Inject Violation</button>
+    <div id="gcb-inject-status" style="margin-top:8px;font-family:var(--font-mono);font-size:10px;color:var(--text3)"></div>
+  </div>
+
+  <!-- HUMAN-0 reset -->
+  <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-lg);padding:12px;margin-bottom:14px">
+    <div style="font-family:var(--font-ui);font-size:11px;font-weight:700;color:var(--text2);margin-bottom:10px">HUMAN-0 Circuit Reset · GCB-HUMAN0-0</div>
+    <div style="display:flex;gap:6px;margin-bottom:8px">
+      <input id="gcb-token-input" type="password" placeholder="HUMAN-0 token" style="flex:1;background:var(--bg4);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:var(--font-mono);font-size:10px;padding:5px 8px;outline:none"/>
+      <button onclick="gcbResetCircuit()" style="padding:5px 14px;background:rgba(0,220,120,0.1);border:1px solid rgba(0,220,120,0.3);border-radius:4px;color:#00dc78;font-family:var(--font-ui);font-size:11px;font-weight:700;cursor:pointer">Reset</button>
+    </div>
+    <div id="gcb-reset-status" style="font-family:var(--font-mono);font-size:10px;color:var(--text3)"></div>
+  </div>
+
+  <!-- Chain verifier -->
+  <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-lg);padding:12px;margin-bottom:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div style="font-family:var(--font-ui);font-size:11px;font-weight:700;color:var(--text2)">Ledger Chain · GCB-CHAIN-0</div>
+      <button onclick="gcbVerifyChain()" style="padding:4px 10px;background:var(--bg4);border:1px solid var(--border);border-radius:4px;color:var(--text2);font-family:var(--font-ui);font-size:10px;font-weight:600;cursor:pointer">Verify</button>
+    </div>
+    <div id="gcb-chain-result" style="font-family:var(--font-mono);font-size:10px;color:var(--text3);line-height:1.8">— not yet verified —</div>
+  </div>
+
+  <!-- Invariants -->
+  <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-lg);padding:12px">
+    <div style="font-family:var(--font-ui);font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px">Phase 150 Hard-class Invariants</div>
+    <div style="display:flex;flex-wrap:wrap;gap:5px">
+      <span class="tag tag-g" style="font-family:var(--font-mono);font-size:9px">GCB-CHAIN-0</span>
+      <span class="tag tag-g" style="font-family:var(--font-mono);font-size:9px">GCB-FAILCLOSE-0</span>
+      <span class="tag tag-g" style="font-family:var(--font-mono);font-size:9px">GCB-READONLY-0</span>
+      <span class="tag tag-g" style="font-family:var(--font-mono);font-size:9px">GCB-DETERM-0</span>
+      <span class="tag tag-g" style="font-family:var(--font-mono);font-size:9px">GCB-HUMAN0-0</span>
+    </div>
+  </div>
+</div>
 <aside class="dork-pane">
   <div class="dork-hdr">
     <div class="dork-hdr-top">
@@ -1450,6 +1540,132 @@ async function mxeVerifyChain(){
     st.style.color = d.ok ? 'var(--green)' : 'var(--red)';
   } catch(e){ st.textContent='error: '+e.message; st.style.color='var(--red)'; }
 }
+
+/* ── GCB · Phase 150 · INNOV-56 · Governance Circuit Breaker ───────── */
+const GCB_BASE = (()=>{
+  const p = window.MCP_BASE || 'http://localhost:8091';
+  return p.replace(/\/$/, '');
+})();
+
+function gcbStateBadge(state){
+  const el = document.getElementById('gcb-state-badge');
+  if(!el) return;
+  if(state === 'OPEN'){
+    el.textContent = 'OPEN';
+    el.style.background = 'rgba(255,80,80,0.15)';
+    el.style.color = '#ff5050';
+    el.style.borderColor = 'rgba(255,80,80,0.35)';
+  } else {
+    el.textContent = 'CLOSED';
+    el.style.background = 'rgba(0,220,120,0.12)';
+    el.style.color = '#00dc78';
+    el.style.borderColor = 'rgba(0,220,120,0.25)';
+  }
+}
+
+function gcbRenderNsCounts(counts){
+  const el = document.getElementById('gcb-ns-counts');
+  if(!el) return;
+  const entries = Object.entries(counts);
+  if(!entries.length){
+    el.innerHTML = '<span style="font-family:var(--font-mono);font-size:10px;color:var(--text3)">— empty window —</span>';
+    return;
+  }
+  el.innerHTML = entries.map(([ns,cnt])=>`
+    <span style="font-family:var(--font-mono);font-size:10px;background:var(--bg4);border:1px solid var(--border);border-radius:4px;padding:2px 8px;color:var(--text2)">
+      ${ns} <strong style="color:var(--text)">${cnt}</strong>
+    </span>`).join('');
+}
+
+async function gcbRefresh(){
+  try{
+    const r = await fetch(GCB_BASE+'/circuit/status');
+    const d = await r.json();
+    gcbStateBadge(d.circuit_state);
+    const sbEl = document.getElementById('sb-gcb');
+    if(sbEl) sbEl.textContent = d.circuit_state === 'OPEN' ? '⚠ OPEN' : 'GCB';
+    const setTxt = (id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
+    setTxt('gcb-total-viol', d.total_violations ?? 0);
+    setTxt('gcb-trips', d.trip_count ?? 0);
+    setTxt('gcb-window-ns', d.window_distinct_namespaces ?? 0);
+    const hashEl = document.getElementById('gcb-chain-hash');
+    if(hashEl) hashEl.textContent = (d.chain_last_hash||'—').slice(0,16)+'…';
+    gcbRenderNsCounts(d.window_namespace_counts || {});
+  } catch(e){ console.warn('GCB refresh failed:', e); }
+}
+
+async function gcbInjectViolation(){
+  const ns = (document.getElementById('gcb-ns-input')?.value || '').trim();
+  const vid = (document.getElementById('gcb-vid-input')?.value || '').trim();
+  const st = document.getElementById('gcb-inject-status');
+  if(!ns || !vid){ if(st) { st.textContent='⚠ namespace and violation_id required'; st.style.color='var(--red)'; } return; }
+  try{
+    const r = await fetch(GCB_BASE+'/circuit/violation',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({namespace:ns, violation_id:vid})
+    });
+    const d = await r.json();
+    if(st){
+      if(d.circuit_tripped){
+        st.textContent = `⚡ CIRCUIT TRIPPED → OPEN  (${ns} · ${vid})`;
+        st.style.color = '#ff5050';
+      } else {
+        st.textContent = `✓ recorded · state: ${d.circuit_state} (${ns} · ${vid})`;
+        st.style.color = 'var(--green)';
+      }
+    }
+    await gcbRefresh();
+  } catch(e){
+    if(st){ st.textContent='error: '+e.message; st.style.color='var(--red)'; }
+  }
+}
+
+async function gcbResetCircuit(){
+  const token = (document.getElementById('gcb-token-input')?.value || '').trim();
+  const st = document.getElementById('gcb-reset-status');
+  if(!token){ if(st){ st.textContent='⚠ HUMAN-0 token required'; st.style.color='var(--red)'; } return; }
+  try{
+    const r = await fetch(GCB_BASE+'/circuit/reset',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({human0_token:token})
+    });
+    const d = await r.json();
+    if(st){
+      if(d.reset){
+        st.textContent = '✓ circuit reset → CLOSED';
+        st.style.color = 'var(--green)';
+      } else {
+        st.textContent = '✗ auth failed — circuit remains OPEN';
+        st.style.color = 'var(--red)';
+      }
+    }
+    await gcbRefresh();
+  } catch(e){
+    if(st){ st.textContent='error: '+e.message; st.style.color='var(--red)'; }
+  }
+}
+
+async function gcbVerifyChain(){
+  const el = document.getElementById('gcb-chain-result');
+  try{
+    const r = await fetch(GCB_BASE+'/circuit/chain');
+    const d = await r.json();
+    if(el){
+      el.textContent = d.verified
+        ? `✓ GCB-CHAIN-0 intact · ${d.events} events verified`
+        : `✗ chain violation: ${JSON.stringify(d)}`;
+      el.style.color = d.verified ? 'var(--green)' : 'var(--red)';
+    }
+  } catch(e){
+    if(el){ el.textContent='error: '+e.message; el.style.color='var(--red)'; }
+  }
+}
+
+/* Auto-refresh GCB status when panel is active */
+setInterval(()=>{
+  const panel = document.getElementById('v-gcb');
+  if(panel && panel.style.display !== 'none') gcbRefresh();
+}, 8000);
 
 
 </script>

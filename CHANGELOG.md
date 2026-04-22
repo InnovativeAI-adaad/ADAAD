@@ -1,3 +1,39 @@
+## [9.83.0] — 2026-04-22 · Phase 150 · INNOV-56 · Governance Circuit Breaker (GCB)
+
+### 5 new Hard-class invariants · 268 Hard-class total · 56 innovations shipped
+
+**Governance Circuit Breaker (GCB)** — fail-closed constitutional safety layer that
+monitors invariant violation signals, detects cascade failure patterns deterministically,
+and trips to OPEN state to block all mutations when thresholds are breached.
+Circuit reset from OPEN requires HUMAN-0 cryptographic authorisation.
+
+**Files shipped**
+- `dorkllm/circuit_breaker.py` — `CircuitEvent`, `GCBChainState`, `ViolationWindow`, `CircuitBreakerEngine`
+- `runtime/innovations30/governance_circuit_breaker.py` — INNOV-56 registry wrapper
+- `runtime/mcp/server.py` — 5 GCB routes: POST /circuit/violation, GET /circuit/status, GET /circuit/health, GET /circuit/chain, POST /circuit/reset
+- `ui/whaledic.html` — Circuit Breaker panel: state hero, violation injector, HUMAN-0 reset, chain verifier
+- `tests/innovations/test_phase150_gcb.py` — 30/30 acceptance tests
+
+**Invariants**
+- `GCB-CHAIN-0` — HMAC-SHA256 links every circuit event to its predecessor; any break is fatal
+- `GCB-FAILCLOSE-0` — OPEN circuit blocks all mutations; assert_circuit_closed() never silently passes
+- `GCB-READONLY-0` — GCB never mutates CEL, LEF, or mutation pipeline state
+- `GCB-DETERM-0` — Cascade detection deterministic; timestamps excluded from algorithm
+- `GCB-HUMAN0-0` — Circuit reset requires constant-time HUMAN-0 token verification
+
+**World-first claim (INNOV-56 #13)**
+First constitutionally governed, fail-closed circuit breaker integrated into an autonomous
+AI mutation pipeline — trips deterministically on invariant cascade detection and requires
+HUMAN-0 cryptographic authorisation to restore, ensuring human oversight is mandatory
+after any constitutional cascade failure.
+
+**Failure modes covered:** `GCBChainViolation`, `GCBOpenViolation`, `GCBMutationViolation`,
+`GCBDeterminismViolation`, `GCBAuthViolation`
+
+**Tests:** `tests/innovations/test_phase150_gcb.py` — GCB01..GCB30 (30/30 PASS)
+
+---
+
 ## [9.82.0] — 2026-04-22 · Phase 149 · INNOV-55 · Mutation Explainability Engine (MXE)
 
 ### 5 new Hard-class invariants · 263 Hard-class total · 55 innovations shipped

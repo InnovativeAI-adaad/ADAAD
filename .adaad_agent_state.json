@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "Phase 149 COMPLETE \u00b7 v9.82.0",
+  "active_phase": "Phase 150 COMPLETE \u00b7 v9.83.0",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -323,15 +323,21 @@
     "phase147-plan-authored",
     "phase147-human0-ratified",
     "phase147-innov53-intent-schema-implemented",
-    "v9.80.0-released"
+    "v9.80.0-released",
+    "phase148-lef-implemented",
+    "phase148-complete",
+    "phase149-mxe-implemented",
+    "phase149-complete",
+    "phase150-gcb-implemented",
+    "phase150-complete"
   ],
   "constitutional_invariants": {
     "cumulative": 253,
     "hard_class_count": 253
   },
-  "current_phase": 149,
-  "current_version": "9.82.0",
-  "hard_class_count": 263,
+  "current_phase": 150,
+  "current_version": "9.83.0",
+  "hard_class_count": 268,
   "hard_class_invariant_count": 263,
   "hard_class_invariants_cumulative": 263,
   "human0_signoffs": [
@@ -928,18 +934,18 @@
     "phase124-world-first-governed-kernel-extraction",
     "v9.57.0-released"
   ],
-  "version": "9.82.0",
+  "version": "9.83.0",
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
   ],
-  "last_completed_phase": "Phase 22 \u00b7 Phase 147 \u00b7 INNOV-53 \u00b7 Intent Expression Schema",
+  "last_completed_phase": "Phase 150 \u00b7 INNOV-56 \u00b7 Governance Circuit Breaker (GCB)",
   "last_agent_state_sync_digest": "gsync-41e1d2e9dae6f0e0",
   "invariant_count": 263,
   "innovation_count": 55,
-  "innovations_shipped": 55,
+  "innovations_shipped": 56,
   "open_findings_count": 0,
-  "last_innovation_id": "INNOV-55",
+  "last_innovation_id": "INNOV-56",
   "total_innovations_shipped": 55,
   "ga_blocker_count": 0,
   "milestone": "v1.1-GA",
@@ -950,5 +956,192 @@
     "tier_1": "pass",
     "tier_2": "pass",
     "tier_3": "pass"
-  }
+  },
+  "hard_class_invariants": [
+    {
+      "id": "CMU-CTX-0",
+      "class": "Hard",
+      "phase": 143
+    },
+    {
+      "id": "CMU-TEMP-0",
+      "class": "Hard",
+      "phase": 143
+    },
+    {
+      "id": "CMU-BENCH-0",
+      "class": "Hard",
+      "phase": 143
+    },
+    {
+      "id": "CMU-DETERM-0",
+      "class": "Hard",
+      "phase": 143
+    },
+    {
+      "id": "CMU-HUMAN0-0",
+      "class": "Hard",
+      "phase": 143
+    },
+    {
+      "id": "RAGS-GROUND-0",
+      "class": "Hard",
+      "phase": 144
+    },
+    {
+      "id": "RAGS-CTX-0",
+      "class": "Hard",
+      "phase": 144
+    },
+    {
+      "id": "RAGS-DETERM-0",
+      "class": "Hard",
+      "phase": 144
+    },
+    {
+      "id": "RAGS-CHAIN-0",
+      "class": "Hard",
+      "phase": 144
+    },
+    {
+      "id": "RAGS-GATE-0",
+      "class": "Hard",
+      "phase": 144
+    },
+    {
+      "id": "DPM-CHAIN-0",
+      "class": "Hard",
+      "phase": 145
+    },
+    {
+      "id": "DPM-INJECT-0",
+      "class": "Hard",
+      "phase": 145
+    },
+    {
+      "id": "DPM-DETERM-0",
+      "class": "Hard",
+      "phase": 145
+    },
+    {
+      "id": "DPM-HUMAN0-0",
+      "class": "Hard",
+      "phase": 145
+    },
+    {
+      "id": "DPM-GATE-0",
+      "class": "Hard",
+      "phase": 145
+    },
+    {
+      "id": "DQR-ROUTE-0",
+      "class": "Hard",
+      "phase": 146
+    },
+    {
+      "id": "DQR-CHAIN-0",
+      "class": "Hard",
+      "phase": 146
+    },
+    {
+      "id": "DQR-DETERM-0",
+      "class": "Hard",
+      "phase": 146
+    },
+    {
+      "id": "DQR-FALLBACK-0",
+      "class": "Hard",
+      "phase": 146
+    },
+    {
+      "id": "DQR-AUTH-0",
+      "class": "Hard",
+      "phase": 146
+    },
+    {
+      "id": "INTENT-SCHEMA-0",
+      "class": "Hard",
+      "phase": 147
+    },
+    {
+      "id": "INTENT-DRYRUN-0",
+      "class": "Hard",
+      "phase": 147
+    },
+    {
+      "id": "LEF-DETERM-0",
+      "class": "Hard",
+      "phase": 148
+    },
+    {
+      "id": "LEF-CHAIN-0",
+      "class": "Hard",
+      "phase": 148
+    },
+    {
+      "id": "CEL-FEED-0",
+      "class": "Hard",
+      "phase": 148
+    },
+    {
+      "id": "LEF-NOWRITE-0",
+      "class": "Hard",
+      "phase": 148
+    },
+    {
+      "id": "CEL-FEED-COMPLETE-0",
+      "class": "Hard",
+      "phase": 148
+    },
+    {
+      "id": "MXE-DETERM-0",
+      "class": "Hard",
+      "phase": 149
+    },
+    {
+      "id": "MXE-CHAIN-0",
+      "class": "Hard",
+      "phase": 149
+    },
+    {
+      "id": "MXE-IMMUT-0",
+      "class": "Hard",
+      "phase": 149
+    },
+    {
+      "id": "MXE-SCOPE-0",
+      "class": "Hard",
+      "phase": 149
+    },
+    {
+      "id": "MXE-AUDIT-0",
+      "class": "Hard",
+      "phase": 149
+    },
+    {
+      "id": "GCB-CHAIN-0",
+      "class": "Hard",
+      "phase": 150
+    },
+    {
+      "id": "GCB-FAILCLOSE-0",
+      "class": "Hard",
+      "phase": 150
+    },
+    {
+      "id": "GCB-READONLY-0",
+      "class": "Hard",
+      "phase": 150
+    },
+    {
+      "id": "GCB-DETERM-0",
+      "class": "Hard",
+      "phase": 150
+    },
+    {
+      "id": "GCB-HUMAN0-0",
+      "class": "Hard",
+      "phase": 150
+    }
+  ]
 }

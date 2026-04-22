@@ -27,6 +27,7 @@ from security import cryovant
 from security.unified_auth import require_action
 from runtime.innovations30.live_execution_feed import get_feed_engine, probe as lef_probe
 from runtime.innovations30.mutation_explainability import get_explainer as mxe_explainer, probe as mxe_probe
+from runtime.innovations30.governance_circuit_breaker import CircuitBreakerEngine as _GCBEngine, GCBAuthViolation, GCBOpenViolation
 
 LOG = logging.getLogger(__name__)
 
@@ -243,6 +244,60 @@ def create_app(
     async def mutation_explanations_health() -> Dict[str, Any]:
         """INNOV-COMPLETE-0 health probe for MXE engine."""
         return mxe_probe()
+
+    # ------------------------------------------------------------------
+    # GCB routes — Phase 150 / INNOV-56 · Governance Circuit Breaker
+    # ------------------------------------------------------------------
+
+    _gcb_engine: _GCBEngine = _GCBEngine()
+
+    @app.post("/circuit/violation")
+    async def circuit_record_violation(request: Request) -> Dict[str, Any]:
+        """GCB-FAILCLOSE-0 + GCB-READONLY-0: record an invariant violation signal.
+
+        Body JSON: {"namespace": str, "violation_id": str}
+        Returns whether the circuit was tripped by this event.
+        """
+        body = await request.json()
+        namespace = str(body.get("namespace", "UNKNOWN"))
+        violation_id = str(body.get("violation_id", ""))
+        tripped = _gcb_engine.record_violation(namespace, violation_id)
+        return {
+            "recorded": True,
+            "namespace": namespace,
+            "violation_id": violation_id,
+            "circuit_tripped": tripped,
+            "circuit_state": _gcb_engine.state,
+        }
+
+    @app.get("/circuit/status")
+    async def circuit_status() -> Dict[str, Any]:
+        """Read-only circuit status snapshot (GCB-READONLY-0)."""
+        return _gcb_engine.get_status()
+
+    @app.get("/circuit/health")
+    async def circuit_health() -> Dict[str, Any]:
+        """INNOV-COMPLETE-0 health probe for GCB engine."""
+        return _gcb_engine.health_check()
+
+    @app.get("/circuit/chain")
+    async def circuit_chain_verify() -> Dict[str, Any]:
+        """GCB-CHAIN-0 full ledger verification."""
+        return _gcb_engine.verify_ledger_chain()
+
+    @app.post("/circuit/reset")
+    async def circuit_reset(request: Request) -> Dict[str, Any]:
+        """GCB-HUMAN0-0: reset OPEN circuit. Requires HUMAN-0 token.
+
+        Body JSON: {"human0_token": str}
+        """
+        body = await request.json()
+        token = str(body.get("human0_token", ""))
+        try:
+            _gcb_engine.reset_circuit(token)
+            return {"reset": True, "circuit_state": _gcb_engine.state}
+        except GCBAuthViolation as exc:
+            return {"reset": False, "error": str(exc), "circuit_state": _gcb_engine.state}
 
 
     return app

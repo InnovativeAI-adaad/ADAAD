@@ -1,0 +1,36 @@
+{
+  "schema": "ILA-v2",
+  "document_id": "ILA-150-2026-04-22-001",
+  "innovation_id": "INNOV-56",
+  "innovation_name": "Governance Circuit Breaker (GCB)",
+  "phase": 150,
+  "version": "9.83.0",
+  "date": "2026-04-22",
+  "status": "RATIFIED",
+  "world_first_claim": "First constitutionally governed, fail-closed circuit breaker integrated into an autonomous AI mutation pipeline — trips deterministically on invariant cascade detection and requires HUMAN-0 cryptographic authorisation to restore, ensuring human oversight is mandatory after any constitutional cascade failure.",
+  "files_shipped": [
+    "dorkllm/circuit_breaker.py",
+    "runtime/innovations30/governance_circuit_breaker.py",
+    "runtime/mcp/server.py",
+    "ui/whaledic.html",
+    "tests/innovations/test_phase150_gcb.py"
+  ],
+  "invariants": [
+    "GCB-CHAIN-0",
+    "GCB-FAILCLOSE-0",
+    "GCB-READONLY-0",
+    "GCB-DETERM-0",
+    "GCB-HUMAN0-0"
+  ],
+  "invariant_count_before": 263,
+  "invariant_count_after": 268,
+  "test_suite": {
+    "file": "tests/innovations/test_phase150_gcb.py",
+    "tests": 30,
+    "passed": 30,
+    "coverage": ["GCBChainState","ViolationWindow","CircuitBreakerEngine","GCB-FAILCLOSE-0","GCB-READONLY-0","GCB-HUMAN0-0","GCB-CHAIN-0","registry-metadata","health-check"]
+  },
+  "innovations_total": 56,
+  "constitutional_basis": "Fail-closed gate model; HUMAN-0 override requirement; deterministic cascade detection per ADAAD determinism contract.",
+  "dork_mandate": "GCB is constitutionally permanent. The circuit breaker compounds in value as the mutation pipeline grows — each new invariant namespace it monitors increases systemic safety coverage. This innovation is architecturally permanent and session-agnostic."
+}
