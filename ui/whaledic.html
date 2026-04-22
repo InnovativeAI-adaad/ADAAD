@@ -297,6 +297,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M7 4v3l2 1"/></svg>
     <span class="sb-label">Replay</span><span class="sb-bdg g" id="sb-rep">&mdash;</span>
   </div>
+  <div class="sb-item" data-v="intent">
+    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h10M2 7h7M2 10h5"/><path d="M10 8l3 2-3 2"/></svg>
+    <span class="sb-label">Intent</span><span class="sb-bdg" id="sb-intent" style="background:var(--purple);color:#fff">53</span>
+  </div>
   <div class="sb-div"></div>
   <div class="sb-sect">Runtime</div>
   <div class="rt-block">
@@ -362,6 +366,115 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     </div>
   </div>
 </main>
+
+<!-- ── INTENT PANEL · Phase 147 · INNOV-53 ─────────────────────── -->
+<div id="v-intent" style="display:none">
+  <div class="cs">
+    <div class="cs-title">Intent Expression <span style="font-family:var(--font-mono);font-size:9px;color:var(--text3);font-weight:400">INNOV-53 · INTENT-SCHEMA-0 · INTENT-DRYRUN-0</span></div>
+
+    <!-- Query input -->
+    <div style="display:flex;gap:8px;margin-bottom:12px;align-items:flex-start">
+      <textarea id="intent-query" rows="2"
+        style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--text1);font-family:var(--font-mono);font-size:11px;padding:6px 8px;resize:vertical;outline:none"
+        placeholder="Describe what you want ADAAD to do… e.g. 'propose improvement to dorkllm query routing'"></textarea>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <button class="btn-sm" onclick="intentPreview()" style="background:rgba(168,85,247,.15);border-color:var(--purple);color:var(--purple);white-space:nowrap">&#128269; Preview</button>
+        <button class="btn-sm" onclick="intentClear()" style="white-space:nowrap">&#10005; Clear</button>
+      </div>
+    </div>
+
+    <!-- Scope + options row -->
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
+      <div style="display:flex;align-items:center;gap:4px">
+        <span style="font-size:10px;color:var(--text3);font-family:var(--font-ui);text-transform:uppercase;letter-spacing:.5px">Scope</span>
+        <input id="intent-scope" type="text" value="dorkllm/"
+          style="background:var(--bg3);border:1px solid var(--border);border-radius:3px;color:var(--text2);font-family:var(--font-mono);font-size:10px;padding:3px 6px;width:140px;outline:none" />
+      </div>
+      <div style="display:flex;align-items:center;gap:4px">
+        <span style="font-size:10px;color:var(--text3);font-family:var(--font-ui);text-transform:uppercase;letter-spacing:.5px">Action</span>
+        <select id="intent-action"
+          style="background:var(--bg3);border:1px solid var(--border);border-radius:3px;color:var(--text2);font-family:var(--font-mono);font-size:10px;padding:3px 5px;outline:none">
+          <option value="query">query</option>
+          <option value="ground_ask">ground_ask</option>
+          <option value="explain">explain</option>
+          <option value="preview_diff">preview_diff</option>
+          <option value="propose_mutation">propose_mutation</option>
+          <option value="rollback_preview">rollback_preview</option>
+        </select>
+      </div>
+      <label style="display:flex;align-items:center;gap:4px;cursor:pointer">
+        <input type="checkbox" id="intent-dryrun" checked
+          style="accent-color:var(--purple)" />
+        <span style="font-size:10px;color:var(--text3);font-family:var(--font-ui)">dry-run</span>
+      </label>
+      <div style="display:flex;align-items:center;gap:4px">
+        <span style="font-size:10px;color:var(--text3);font-family:var(--font-ui);text-transform:uppercase;letter-spacing:.5px">Confidence floor</span>
+        <input id="intent-confidence" type="number" value="0.75" min="0.5" max="1.0" step="0.05"
+          style="background:var(--bg3);border:1px solid var(--border);border-radius:3px;color:var(--text2);font-family:var(--font-mono);font-size:10px;padding:3px 6px;width:58px;outline:none" />
+      </div>
+    </div>
+
+    <!-- Preview chips -->
+    <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px">
+      <span class="chip" onclick="intentFill('show me the current governance gate status')">gate status</span>
+      <span class="chip" onclick="intentFill('propose improvement to dork query routing')">propose mutation</span>
+      <span class="chip" onclick="intentFill('explain the RAGS grounding pipeline')">explain RAGS</span>
+      <span class="chip" onclick="intentFill('rollback preview to phase 144')">rollback preview</span>
+      <span class="chip" onclick="intentFill('grounded ask: what invariants cover replay?')">grounded ask</span>
+    </div>
+
+    <!-- Result panel -->
+    <div id="intent-result" style="display:none">
+      <div style="height:1px;background:var(--border);margin-bottom:12px"></div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+        <span id="intent-status-badge" style="font-family:var(--font-mono);font-size:10px;padding:2px 8px;border-radius:3px;border:1px solid var(--border)">—</span>
+        <span id="intent-id-lbl" style="font-size:10px;color:var(--text3);font-family:var(--font-mono)"></span>
+        <span id="intent-approvable-lbl" style="font-size:10px;font-family:var(--font-mono)"></span>
+      </div>
+
+      <!-- Diff preview table -->
+      <div id="intent-changes-wrap" style="display:none;margin-bottom:10px">
+        <div style="font-size:9px;color:var(--text3);font-family:var(--font-ui);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Proposed Changes</div>
+        <table class="ltable"><thead><tr><th>Path</th><th>Type</th><th>+Lines</th><th>−Lines</th><th>Summary</th></tr></thead>
+        <tbody id="intent-changes-tbody"></tbody></table>
+      </div>
+
+      <!-- Invariants exercised -->
+      <div id="intent-invariants-wrap" style="display:none;margin-bottom:10px">
+        <div style="font-size:9px;color:var(--text3);font-family:var(--font-ui);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Invariants Exercised</div>
+        <div id="intent-invariants-list" style="display:flex;flex-wrap:wrap;gap:4px"></div>
+      </div>
+
+      <!-- Confidence + gate -->
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:6px 10px;min-width:80px">
+          <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-family:var(--font-ui)">Confidence</div>
+          <div id="intent-conf-val" style="font-family:var(--font-mono);font-size:16px;color:var(--whale);margin-top:2px">—</div>
+        </div>
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:6px 10px;min-width:80px">
+          <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-family:var(--font-ui)">Est. Tests</div>
+          <div id="intent-tests-val" style="font-family:var(--font-mono);font-size:16px;color:var(--text1);margin-top:2px">—</div>
+        </div>
+        <div id="intent-gate-card" style="display:none;background:rgba(168,85,247,.1);border:1px solid var(--purple);border-radius:4px;padding:6px 10px">
+          <div style="font-size:9px;color:var(--purple);text-transform:uppercase;letter-spacing:.5px;font-family:var(--font-ui)">Gate Required</div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--purple);margin-top:2px">HUMAN-0 Track B</div>
+        </div>
+      </div>
+
+      <!-- Blocking reason -->
+      <div id="intent-block-wrap" style="display:none;margin-top:10px">
+        <div style="background:rgba(255,68,102,.08);border:1px solid rgba(255,68,102,.3);border-radius:4px;padding:8px 10px;font-family:var(--font-mono);font-size:10px;color:#ff6688" id="intent-block-msg"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Dispatch log -->
+  <div class="cs" style="margin-top:12px">
+    <div class="cs-title">Dispatch Log <span style="font-family:var(--font-mono);font-size:9px;color:var(--text3);font-weight:400">in-memory · INTENT-DRYRUN-0</span></div>
+    <div id="intent-log" style="font-family:var(--font-mono);font-size:10px;color:var(--text3);line-height:1.8">No dispatches yet.</div>
+  </div>
+</div>
 
 <!-- ── DORK PANEL ──────────────────────────────────────────────────── -->
 <aside class="dork-pane">
@@ -853,6 +966,129 @@ dorkRuntime.subscribeEvents((evt)=>{
 loadCfg();
 (()=>{const lb={groq:'groq',ollama:'ollama',dorkengine:'engine'};document.getElementById('prov-btn').textContent='\u2699 '+(lb[llmCfg.provider]||'groq');document.getElementById('intro-badge').textContent=lb[llmCfg.provider]||'groq';if(!llmCfg.groqKey&&llmCfg.provider==='groq'){setTimeout(()=>{document.getElementById('w-llm').style.display='block';},1500);}const seed=dorkRuntime.getDeepLinkSeed&&dorkRuntime.getDeepLinkSeed();if(seed){document.getElementById('dinp').value=seed;sendDork();}})();
 restoreConv();renderDebt();refreshAll();startSSE();setInterval(refreshAll,30000);
+// ── Intent Panel · Phase 147 · INNOV-53 ──────────────────────────────────────
+const _intentLog = [];
+
+function intentFill(text) {
+  const q = document.getElementById('intent-query');
+  if (q) { q.value = text; q.focus(); }
+}
+
+function intentClear() {
+  ['intent-query','intent-scope'].forEach(id => { const e = document.getElementById(id); if(e) e.value = id === 'intent-scope' ? 'dorkllm/' : ''; });
+  document.getElementById('intent-result').style.display = 'none';
+  document.getElementById('intent-log').textContent = 'No dispatches yet.';
+  _intentLog.length = 0;
+}
+
+function intentPreview() {
+  const query  = (document.getElementById('intent-query').value || '').trim();
+  const scope  = (document.getElementById('intent-scope').value || 'dorkllm/').trim();
+  const action = document.getElementById('intent-action').value;
+  const dryRun = document.getElementById('intent-dryrun').checked;
+  const conf   = parseFloat(document.getElementById('intent-confidence').value) || 0.75;
+
+  if (!query) { bus('intent','no query text'); return; }
+
+  // INTENT-SCHEMA-0: validate before any action
+  const lockedPaths = ['governance/','artifacts/governance/','security/','.adaad_agent_state.json','VERSION','pyproject.toml'];
+  const mutatingActions = ['propose_mutation'];
+  const readOnlyActions = ['query','explain','preview_diff','rollback_preview'];
+
+  let blockReason = '';
+  if (conf < 0.5) blockReason = 'confidence_floor ' + conf + ' below minimum 0.5';
+  if (!blockReason && mutatingActions.includes(action)) {
+    for (const lp of lockedPaths) {
+      if (scope.startsWith(lp) || scope === lp.replace(/\/$/, '')) {
+        blockReason = 'INTENT-SCHEMA-0: path '' + scope + '' is constitutionally locked (' + lp + '). Use QUERY or EXPLAIN.';
+        break;
+      }
+    }
+  }
+
+  // INTENT-DRYRUN-0: dry_run preview never mutates
+  const intentId = 'INTENT-' + new Date().toISOString().replace(/[-:.TZ]/g,'').slice(0,15) + '-' + Math.random().toString(36).slice(2,8);
+
+  // Compute preview
+  const confidenceMap = {query:0.95,explain:0.92,ground_ask:0.93,preview_diff:0.88,propose_mutation:0.82,rollback_preview:0.85};
+  const confidence = blockReason ? 0.0 : (confidenceMap[action] || 0.8);
+  const requiresH0 = action === 'propose_mutation';
+  const testMap = {query:4,explain:3,ground_ask:5,preview_diff:4,propose_mutation:6,rollback_preview:5};
+  const estTests = testMap[action] || 3;
+
+  const invariants = ['INTENT-SCHEMA-0','INTENT-DRYRUN-0'];
+  if (scope.includes('rags') || scope.includes('grounded')) invariants.push('RAGS-CSS-0','RAGS-GROUND-0');
+  if (scope.includes('governance')) invariants.push('GOV-SOLE-0','AUDIT-0');
+  if (action === 'propose_mutation') invariants.push('CEL-ORDER-0','GOV-SOLE-0');
+  if (action === 'rollback_preview') invariants.push('REPLAY-0','ROLLBACK-PREFLIGHT-0');
+  const uniqueInvariants = [...new Set(invariants)].sort();
+
+  const changes = [];
+  if (action === 'propose_mutation') changes.push({path:scope, type:'modified', add:10, rem:3, summary:'Proposed mutation in ' + scope});
+  if (action === 'preview_diff')     changes.push({path:scope, type:'modified', add:0,  rem:0, summary:'Diff preview — no mutation applied'});
+  if (action === 'rollback_preview') changes.push({path:scope, type:'modified', add:0,  rem:0, summary:'Rollback preview — reconstructed from lineage ledger'});
+
+  const isApprovable = !blockReason && confidence >= 0.75;
+  const previewHash = btoa(intentId + action + scope).replace(/[^a-z0-9]/gi,'').slice(0,16);
+
+  // Render result
+  const res = document.getElementById('intent-result');
+  res.style.display = '';
+
+  const badge = document.getElementById('intent-status-badge');
+  badge.textContent = blockReason ? 'REJECTED' : (dryRun ? 'PREVIEWED' : 'APPROVED');
+  badge.style.background = blockReason ? 'rgba(255,68,102,.15)' : (dryRun ? 'rgba(168,85,247,.15)' : 'rgba(0,255,136,.15)');
+  badge.style.borderColor = blockReason ? 'rgba(255,68,102,.4)' : (dryRun ? 'var(--purple)' : 'var(--green)');
+  badge.style.color       = blockReason ? '#ff6688' : (dryRun ? 'var(--purple)' : 'var(--green)');
+
+  document.getElementById('intent-id-lbl').textContent = intentId;
+  const al = document.getElementById('intent-approvable-lbl');
+  al.textContent = isApprovable ? '✓ approvable' : '✗ not approvable';
+  al.style.color = isApprovable ? 'var(--green)' : '#ff6688';
+
+  document.getElementById('intent-conf-val').textContent = confidence.toFixed(2);
+  document.getElementById('intent-conf-val').style.color = confidence >= 0.75 ? 'var(--whale)' : '#ff6688';
+  document.getElementById('intent-tests-val').textContent = estTests;
+
+  // Changes table
+  const cw = document.getElementById('intent-changes-wrap');
+  const cb = document.getElementById('intent-changes-tbody');
+  if (changes.length) {
+    cw.style.display = '';
+    cb.innerHTML = changes.map(c =>
+      '<tr><td>' + c.path + '</td><td><span class="tag tag-w">' + c.type + '</span></td><td style="color:var(--green)">+' + c.add + '</td><td style="color:#ff6688">-' + c.rem + '</td><td>' + c.summary + '</td></tr>'
+    ).join('');
+  } else { cw.style.display = 'none'; }
+
+  // Invariants
+  const iw = document.getElementById('intent-invariants-wrap');
+  const il = document.getElementById('intent-invariants-list');
+  iw.style.display = '';
+  il.innerHTML = uniqueInvariants.map(inv =>
+    '<span class="tag tag-w" style="font-size:9px;padding:2px 6px">' + inv + '</span>'
+  ).join('');
+
+  // Gate card
+  document.getElementById('intent-gate-card').style.display = requiresH0 ? '' : 'none';
+
+  // Block reason
+  const bw = document.getElementById('intent-block-wrap');
+  const bm = document.getElementById('intent-block-msg');
+  if (blockReason) { bw.style.display = ''; bm.textContent = blockReason; }
+  else { bw.style.display = 'none'; }
+
+  // INTENT-DRYRUN-0: log to in-memory only
+  const logEntry = { type: dryRun ? 'preview' : 'dispatch', intentId, action, scope, previewHash, ts: new Date().toISOString() };
+  _intentLog.unshift(logEntry);
+  const logEl = document.getElementById('intent-log');
+  logEl.innerHTML = _intentLog.slice(0,10).map(e =>
+    '<div style="color:var(--text2)">[' + e.ts.slice(11,19) + '] <span style="color:var(--purple)">' + e.type + '</span> ' +
+    e.action + ' · ' + e.scope + ' · <span style="color:var(--text3)">' + e.previewHash + '</span></div>'
+  ).join('');
+
+  bus('intent_preview', action + ' · ' + scope + ' · ' + (blockReason ? 'BLOCKED' : 'OK'));
+}
+
 </script>
 <script src="shared/dork_launcher.js"></script>
 </body>
