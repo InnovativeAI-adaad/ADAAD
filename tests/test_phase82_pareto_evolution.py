@@ -67,6 +67,10 @@ def _always_fail(cid: str, meta: Dict) -> str:
     return "fail"
 
 
+def _always_deferred(cid: str, meta: Dict) -> str:
+    return "deferred"
+
+
 def _make_ledger(tmp: pathlib.Path) -> LineageLedgerV2:
     return LineageLedgerV2(ledger_path=tmp / "ledger.jsonl")
 
@@ -327,6 +331,19 @@ def test_T82_PARETO_22_all_fail_gate_writes_ledger_then_raises():
             orch.run_epoch([_candidate("a"), _candidate("b")])
         events = [json.loads(l) for l in ledger.ledger_path.read_text().strip().splitlines()]
         assert any(e["type"] == "ParetoCompetitionEpochEvent" for e in events)
+        pareto_events = [e for e in events if e["type"] == "ParetoCompetitionEpochEvent"]
+        assert pareto_events[-1]["payload"]["gate_verdict"] == "fail"
+
+
+def test_T82_PARETO_22A_deferred_gate_verdict_is_rejected():
+    """T82-PARETO-22A: deferred verdict is unsupported in Pareto run_epoch flow."""
+    with tempfile.TemporaryDirectory() as td:
+        orch = ParetoCompetitionOrchestrator(
+            ledger=_make_ledger(pathlib.Path(td)), gate_fn=_always_deferred,
+            epoch_id_factory=lambda: "ep-deferred",
+        )
+        with pytest.raises(ValueError, match="unsupported gate verdict"):
+            orch.run_epoch([_candidate("a"), _candidate("b")])
 
 
 def test_T82_PARETO_23_gate_called_for_all_frontier_candidates():
