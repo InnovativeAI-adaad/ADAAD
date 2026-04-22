@@ -4,7 +4,7 @@
 
 ---
 
-## Current State — v9.80.0 · Phase 147 · INNOV-53 Intent Expression Schema
+## Current State — v9.84.0 · Phase 151 · INNOV-57 Governed Rollback (GRB)
 
 **Status:** 53 innovations shipped (INNOV-01 through INNOV-53). Phase 147 complete. v9.80.0 released. 53/53 Grade-A modules hardened.
 **Automation pointer:** Machine phase progression consumes `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` §3.0 “Active Era Contract (Phases 131–136+)”, which governs the current stream through Phase 147.

@@ -1,0 +1,28 @@
+{
+  "schema": "ILA-v2",
+  "document_id": "ILA-151-2026-04-22-001",
+  "innovation_id": "INNOV-57",
+  "innovation_name": "Governed Rollback (GRB)",
+  "phase": 151,
+  "version": "9.84.0",
+  "date": "2026-04-22",
+  "authored_by": "DEVADAAD",
+  "ratified_by": "HUMAN-0/Dustin L. Reid",
+  "summary": "Safety-gated rollback engine using lineage ledger as source of truth. GovernanceGate preflight validates target state against all active Hard-class invariants. ROLLBACK_EVENT written to ledger before any state mutation (GRB-ATOMIC-0). Deterministic digest chain excludes timestamps (GRB-DETERM-0).",
+  "primary_module": "dorkllm/governed_rollback.py",
+  "registry_wrapper": "runtime/innovations30/governed_rollback.py",
+  "test_file": "tests/innovations/test_phase151_grb.py",
+  "test_result": "30/30 PASS",
+  "hard_class_invariants": [
+    "GRB-PREFLIGHT-0",
+    "GRB-LEDGER-0",
+    "GRB-ATOMIC-0",
+    "GRB-DETERM-0",
+    "GRB-HUMAN0-0"
+  ],
+  "invariants_added": 5,
+  "cumulative_hard_class_invariants": 273,
+  "innovations_total": 57,
+  "predecessor_phase": 150,
+  "predecessor_version": "9.83.0"
+}
