@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "Phase 147 COMPLETE \u00b7 v9.80.0",
+  "active_phase": "v9.81.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -330,7 +330,7 @@
     "hard_class_count": 253
   },
   "current_phase": 148,
-  "current_version": "9.80.0",
+  "current_version": "9.81.0",
   "hard_class_count": 253,
   "hard_class_invariant_count": 253,
   "hard_class_invariants_cumulative": 253,
@@ -359,7 +359,7 @@
   "last_invocation": "2026-04-22",
   "last_phase_completed": 147,
   "last_phase_completed_label": "Phase 147 \u00b7 INNOV-53 \u00b7 Intent Expression Schema",
-  "last_sync_sha": "c8d067b6",
+  "last_sync_sha": "d3eaed48",
   "last_updated": "2026-04-22T00:00:00Z",
   "next_phase": 148,
   "next_pr": "Phase 148 \u2014 INNOV-54 Live Execution Feed (deterministic: first non-shipped phase whose predecessor is shipped)",
@@ -637,7 +637,7 @@
     141
   ],
   "schema_version": "1.5.0",
-  "software_version": "9.80.0",
+  "software_version": "9.81.0",
   "tife_active": true,
   "value_checkpoints_reached": [
     "phase0-track-a-hardening",
@@ -933,8 +933,8 @@
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
   ],
-  "last_completed_phase": "Phase 22 \u00b7 Phase 147 \u00b7 INNOV-53 \u00b7 Intent Expression Schema",
-  "last_agent_state_sync_digest": "gsync-41e1d2e9dae6f0e0",
+  "last_completed_phase": "Phase 22 \u00b7 Phase 148 \u00b7 INNOV-54 \u00b7 Live Execution Feed (LEF)",
+  "last_agent_state_sync_digest": "gsync-42797d540432905e",
   "invariant_count": 258,
   "innovation_count": 53,
   "innovations_shipped": 54,
