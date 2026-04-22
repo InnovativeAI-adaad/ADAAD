@@ -63,7 +63,7 @@
 | INNOV-49 · CMU | model_validator.py | 143 | v9.76.0 | CMU-CTX-0, CMU-TEMP-0, CMU-BENCH-0, CMU-DETERM-0, CMU-HUMAN0-0 |
 | INNOV-50 · RAGS | grounded_responder.py | 144 | v9.77.0 | RAGS-GROUND-0, RAGS-CTX-0, RAGS-DETERM-0, RAGS-CHAIN-0, RAGS-GATE-0 |
 
-**Open GA blocker:** None — FINDING-66-004 resolved (2026-04-12). All ceremonies complete. GA track unblocked. DORK Intelligence Trilogy complete (INNOV-47–50).  
+**Open GA blocker (canonical):** None — FINDING-66-004 resolved (2026-04-12). All ceremonies complete. GA track unblocked.  
 **Strategic plan:** `docs/governance/POST_PIPELINE_STRATEGIC_PLAN.md`
 
 ---

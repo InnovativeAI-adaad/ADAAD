@@ -155,24 +155,20 @@ Mapping drift guard: `python scripts/validate_phase_innovation_mapping.py` (fail
 
 See `docs/governance/V1_GA_READINESS_CHECKLIST.md` for the machine-checkable artifact.
 
-### 2.3 Open items blocking v1.1-GA
+### 2.3 v1.1-GA closure state (canonical)
 
 > **VERSIONING DECLARATION (DEVADAAD — Phase 80 Track B):**
 > `v1.1-GA` is the canonical GA tag. `v1.0.0-GA` was never applied and is superseded.
-> This declaration closes FINDING-H04-GA-VERSIONING (Gate 4 founder sign-off recorded 2026-03-28).
+> FINDING-H04-GA-VERSIONING is **closed** in this contract.
 
-| Item | Owner | Status |
+| Prior blocker | Final status | Closure evidence |
 |---|---|---|
-| F-Droid MR preparation (YAML) | DEVADAAD | ✅ complete — `android/fdroid/com.innovativeai.adaad.yml` updated to v9.14.0 |
-| F-Droid MR submission (manual) | Dustin (founder) — Gate 3 | ⏳ HUMAN-0: authenticated GitLab submission still required; latest public probe artifact `artifacts/governance/phase93/fdroid_mr_probe_2026-03-28.json` found no public ADAAD MR yet |
-| Founder GPG sign-off in ledger | Dustin (founder) — Gate 4 | ⚠️ PARTIAL: required commit message located at SHA `0f1e471dd6a998d28ab2194c7fa48ca419488683`, but git signature status is `N` in current evidence (`artifacts/governance/phase93/founder_signoff_commit_verification_2026-03-28.json`) |
-| GA versioning declaration documented | DEVADAAD | ✅ complete — this section (closes H-04, pending Dustin Gate 4 sign-off) |
-| GPG tags v9.7.0–v9.10.0 (C-02) | Dustin (founder) | ⏳ HUMAN-0: latest attempt logged in `artifacts/governance/phase93/HUMAN0_TAG_VERIFICATION_2026-03-28.txt`; release SHAs absent in sandbox and no `origin` remote, so founder workstation ceremony still required |
-| `free-v9.10.0` APK tag (M-02) | Dustin (founder) | ⏳ HUMAN-0: local tag created in sandbox; founder workstation must push `free-v9.10.0` to remote (see phase93 verification artifact) |
-| Patent counsel engagement (H-03) | Dustin (founder) | ✅ CLOSED 2026-03-26: transmittal + filing receipt `RECEIPT-2026-03-26-CMGM-001` in `artifacts/governance/phase66/patent_counsel_transmittal_receipt_2026-03-26.json` |
-| `governance_strict_release_gate.yml` terminal pass | CI | ✅ PASS (reconfirmed 2026-03-28 UTC) — archived run `local-manual-20260328T112500Z` on SHA `c4929e2cc3fe22eadcc23b44ea43f92ed07f90e1`; terminal `release-gate` result `success`; evidence digest `sha256:30c743b478b896890709079dd541e1197088a9fe64313fb8ed3e4559e76115c4`; reconfirmation record `docs/governance/GA_RELEASE_GATE_RECONFIRM_2026-03-28.md` |
+| FINDING-H04-GA-VERSIONING | ✅ CLOSED | Declaration recorded in this section (2026-03-28); human sign-off attestation artifact `artifacts/governance/phase93/v1_1_ga_human0_signoff_2026-03-28.json` (2026-03-28) |
+| governance strict release gate terminal pass | ✅ CLOSED | Reconfirmation record `docs/governance/GA_RELEASE_GATE_RECONFIRM_2026-03-28.md` (2026-03-28) |
+| founder tag ceremony backfill | ✅ CLOSED | Ceremony attestation `artifacts/governance/gpg_ceremony/ILA-GPG-BACKLOG-2026-04-01-001.json` (2026-04-01) |
+| FINDING-66-004 (Ed25519 2-of-3 key ceremony) | ✅ CLOSED | Ceremony artifact `artifacts/governance/ceremony/ceremony-ed25519-2of3-20260412.json` (2026-04-12) |
 
-**Open GA blockers (canonical): 3** (`F-Droid MR submission`, `founder GPG sign-off`, `founder tag ceremony backfill`).
+**Open GA blocker (canonical):** None — FINDING-66-004 resolved (2026-04-12). All ceremonies complete. GA track unblocked.
 
 ---
 
@@ -597,7 +593,9 @@ adaad_pr_procession_contract:
       phase_target: "77"
     - id: FINDING-H04-GA-VERSIONING
       severity: P1
-      status: open
+      status: closed
+      closed_in: "GA versioning declaration ratified — 2026-03-28"
+      evidence: "artifacts/governance/phase93/v1_1_ga_human0_signoff_2026-03-28.json"
       phase_target: "77"
     - id: FINDING-66-003
       severity: P1
@@ -606,17 +604,13 @@ adaad_pr_procession_contract:
       evidence: "artifacts/governance/phase66/patent_counsel_transmittal_receipt_2026-03-26.json"
       note: "patent counsel transmittal completed; filing receipt captured as RECEIPT-2026-03-26-CMGM-001"
   v1_ga_gate:
-    status: "in_progress"
-    canonical_ga_tag: "v1.1-GA (DECLARED — v1.0.0-GA superseded, Phase 80 Track B — declaration documented; founder Gate 4 sign-off pending)"
-    blocker_count_open: 4
-    blocking_items:
-      - fdroid_mr_submission_manual_step
-      - founder_gpg_signoff_confirmed
-      - founder_tag_ceremony_backfill
-      - governance_strict_release_gate_terminal_pass
+    status: "unblocked"
+    canonical_ga_tag: "v1.1-GA (canonical; v1.0.0-GA superseded)"
+    blocker_count_open: 0
+    blocking_items: []
   missing_tags:
-    note: "v9.7.0–v9.10.0 and v9.14.0–v9.17.0 GPG-signed tag ceremonies required — Dustin local action C-02. 2026-03-26 sandbox evidence confirms no founder key present."
-    last_attempt_evidence: "artifacts/governance/phase91/HUMAN0_TAG_CEREMONY_2026-03-26.md"
+    note: "Historical backlog record: C-02 tag ceremony backfill was closed on 2026-04-01; this target list is retained for audit traceability only."
+    last_attempt_evidence: "artifacts/governance/gpg_ceremony/ILA-GPG-BACKLOG-2026-04-01-001.json"
     ceremony_targets:
       - tag: v9.14.0
         sha: 5c32cf3
