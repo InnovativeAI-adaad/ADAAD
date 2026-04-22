@@ -10,7 +10,7 @@
 
 <br/>
 
-[![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-00d4ff?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v9.79.0](https://img.shields.io/badge/version-v9.79.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![251 Invariants](https://img.shields.io/badge/invariants-251%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![52 Innovations](https://img.shields.io/badge/innovations-52%20shipped-f97316?style=flat-square&labelColor=0d1117)](ROADMAP.md)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
+[![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-00d4ff?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v9.83.0](https://img.shields.io/badge/version-v9.83.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![268 Invariants](https://img.shields.io/badge/invariants-268%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![56 Innovations](https://img.shields.io/badge/innovations-56%20shipped-f97316?style=flat-square&labelColor=0d1117)](ROADMAP.md)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
 
 </div>
 
@@ -47,9 +47,9 @@ ADAAD is not an agent framework. Not an LLM wrapper. Not a dev tool. It is a **g
 
 | Metric | Value |
 |:-------|:------|
-| Current version | `v9.79.0` · Phase `146` |
-| Hard-class constitutional invariants | **251** — cryptographically enforced |
-| Shipped innovations | **52** — INNOV-01 through INNOV-52 |
+| Current version | `v9.83.0` · Phase `150` |
+| Hard-class constitutional invariants | **268** — cryptographically enforced |
+| Shipped innovations | **56** — INNOV-01 through INNOV-56 |
 | Constitutional Evolution Loop | **16 steps** — deterministic, replayable |
 | Specialist agents | **3** — Architect · Dream · Beast |
 | HUMAN-0 gate | **1** — structurally non-delegatable |
@@ -108,7 +108,7 @@ pip install adaad
 ├──────────────┼──────────────────────────────────────────┼──────────────────────────┤
 │  Architect   │  Governance, structure, invariant check  │  Conservative. Blocks    │
 │  (blue)      │  Scores every mutation for compliance    │  anything that breaks    │
-│              │  against all 251 Hard-class invariants   │  constitutional integrity │
+│              │  against all 268 Hard-class invariants   │  constitutional integrity │
 ├──────────────┼──────────────────────────────────────────┼──────────────────────────┤
 │  Dream       │  Creativity, ideation, novelty           │  Bold. Proposes novelty. │
 │  (violet)    │  Explores mutation possibility space     │  Checked by every other  │
@@ -140,7 +140,7 @@ None of the three can approve their own proposals. The AFRT is structurally proh
   [5]  Beast performance scoring       [13] HUMAN-0 gate (Tier-0 changes only)
   [6]  AFRT adversarial red-team       [14] GPG-signed ledger entry
   [7]  Fitness surface evaluation      [15] Hash-chained CEPD proof
-  [8]  251-invariant constitutional    [16] Annotated tag + release evidence
+  [8]  268-invariant constitutional    [16] Annotated tag + release evidence
        scoring
 ```
 
@@ -280,7 +280,7 @@ All claims are independently verifiable. See [docs/VERIFIABLE_CLAIMS.md](docs/VE
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 
-## Shipped capabilities — 52 innovations
+## Shipped capabilities — 56 innovations
 
 <details>
 <summary><strong>INNOV-01 through INNOV-20</strong> — Core governance primitives</summary>
@@ -365,7 +365,7 @@ All claims are independently verifiable. See [docs/VERIFIABLE_CLAIMS.md](docs/VE
 adaad/
 ├── adaad/core/              # Governance-critical primitives (adaad-core PyPI package)
 ├── runtime/evolution/       # 16-step CEL implementation
-├── runtime/innovations30/   # 52 innovation registry wrappers
+├── runtime/innovations30/   # 56 innovation registry wrappers
 ├── dorkllm/                 # DORK intelligence stack
 │   ├── query_router.py      #   DQR — constitutional query router     (INNOV-52)
 │   ├── memory_engine.py     #   DPM — session-agnostic memory         (INNOV-51)

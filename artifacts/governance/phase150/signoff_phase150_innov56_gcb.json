@@ -1,0 +1,35 @@
+{
+  "schema": "SIGNOFF-v2",
+  "document_id": "SIGNOFF-150-2026-04-22-001",
+  "innovation_id": "INNOV-56",
+  "innovation_name": "Governance Circuit Breaker (GCB)",
+  "phase": 150,
+  "version": "9.83.0",
+  "date": "2026-04-22",
+  "human0_governor": "Dustin L. Reid",
+  "human0_handle": "HUMAN-0",
+  "ratification_phrase": "approved DUSTIN L REID",
+  "governance_artifacts": {
+    "ila": "artifacts/governance/phase150/ILA-150-2026-04-22-001.json",
+    "signoff": "artifacts/governance/phase150/signoff_phase150_innov56_gcb.json"
+  },
+  "test_attestation": {
+    "file": "tests/innovations/test_phase150_gcb.py",
+    "result": "30/30 PASS",
+    "run_date": "2026-04-22"
+  },
+  "invariants_added": {
+    "count": 5,
+    "class": "Hard",
+    "ids": ["GCB-CHAIN-0","GCB-FAILCLOSE-0","GCB-READONLY-0","GCB-DETERM-0","GCB-HUMAN0-0"]
+  },
+  "cumulative_hard_class_invariants": 268,
+  "innovations_total": 56,
+  "merge_gate_status": "PENDING_HUMAN0_GPG_TAG",
+  "ga_gate_sequence": ["H-04 docs","F-Droid push","GPG sign-off + v1.1-GA tag"],
+  "open_findings": [
+    "FINDING-66-004: Ed25519 key ceremony (ADAADell — GA blocker)",
+    "FINDING-126-NEW-001: ghost tag v9.59.0 remediation",
+    "FINDING-66-003: patent provisional Track B"
+  ]
+}

@@ -1,12 +1,12 @@
 {
     "_comment": "Machine-readable invariant registry \u2014 single source of truth for all Hard-class invariant counts. All badges, docs, and CI gates derive from this file. Do not edit manually; update via phase sign-off process.",
-    "version": "9.82.0",
-    "phase": 149,
+    "version": "9.83.0",
+    "phase": 150,
     "updated": "2026-04-22",
-    "cumulative_hard_class_invariants": 263,
-    "innovations_shipped": 55,
-    "phases_complete": 149,
-    "authoritative_source": "artifacts/governance/phase149/ILA-149-2026-04-22-001.json",
+    "cumulative_hard_class_invariants": 268,
+    "innovations_shipped": 56,
+    "phases_complete": 150,
+    "authoritative_source": "artifacts/governance/phase150/ILA-150-2026-04-22-001.json",
     "phase_invariant_log": [
         {
             "phase": 140,
@@ -113,6 +113,17 @@
                 "MXE-IMMUT-0",
                 "MXE-SCOPE-0",
                 "MXE-AUDIT-0"
+            ]
+        },
+        {
+            "phase": 150,
+            "cumulative": 268,
+            "added": [
+                "GCB-CHAIN-0",
+                "GCB-FAILCLOSE-0",
+                "GCB-READONLY-0",
+                "GCB-DETERM-0",
+                "GCB-HUMAN0-0"
             ]
         }
     ],
