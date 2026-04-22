@@ -210,6 +210,30 @@ def test_t126_rteam_09_gate_fired_outcome_on_success(tmp_path):
 
 
 @pytest.mark.phase126
+def test_t126_rteam_09b_generic_gate_module_spec_resolves_without_dynamic_import(tmp_path):
+    """Generic gate accepts known module paths via importlib spec resolution."""
+    a = _attacker(tmp_path)
+    record = a.probe_invariant(
+        "CST-0",
+        payload={"module_path": "runtime.evolution.runtime"},
+    )
+    assert record.outcome == OUTCOME_GATE_FIRED
+    assert record.gate_fired is True
+
+
+@pytest.mark.phase126
+def test_t126_rteam_09c_generic_gate_module_spec_missing_fails_closed(tmp_path):
+    """Generic gate fail-closes when module spec cannot be resolved."""
+    a = _attacker(tmp_path)
+    record = a.probe_invariant(
+        "CST-0",
+        payload={"module_path": "runtime.nonexistent.module_path"},
+    )
+    assert record.outcome == OUTCOME_GATE_MISSED
+    assert record.gate_fired is False
+
+
+@pytest.mark.phase126
 def test_t126_rteam_10_campaign_report_no_breach(tmp_path):
     """T126-RTEAM-10: Campaign with all gates firing returns a report without breach."""
     a = _attacker(tmp_path)

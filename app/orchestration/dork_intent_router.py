@@ -42,7 +42,7 @@ def _get_fleet():
     """Return the module-level DORKLivingFleet singleton (DORK-FLEET-0)."""
     global _fleet_singleton
     if _fleet_singleton is None:
-        from runtime.innovations30.dork_living_fleet import DORKLivingFleet
+        from runtime.innovations30.dork_living_fleet import DORKLivingFleet  # adaad: import-boundary-ok:dork-fleet-singleton-runtime
         _fleet_singleton = DORKLivingFleet()
     return _fleet_singleton
 

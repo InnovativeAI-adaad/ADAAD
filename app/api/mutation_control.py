@@ -22,7 +22,7 @@ async def get_pending_approvals(
     auth_ctx: dict[str, Any] = Depends(require_audit_scope),
 ) -> dict[str, Any]:
     _ = auth_ctx
-    from runtime.governance.human_approval_gate import HumanApprovalGate
+    from runtime.governance.human_approval_gate import HumanApprovalGate  # adaad: import-boundary-ok:legacy-runtime-gate-adapter
 
     gate = HumanApprovalGate()
     return {"ok": True, "pending": gate.pending_queue()}
@@ -65,7 +65,7 @@ async def decide_approval(
     auth_ctx: dict[str, Any] = Depends(require_audit_scope),
 ) -> dict[str, Any]:
     _ = auth_ctx
-    from runtime.governance.human_approval_gate import HumanApprovalGate
+    from runtime.governance.human_approval_gate import HumanApprovalGate  # adaad: import-boundary-ok:legacy-runtime-gate-adapter
 
     gate = HumanApprovalGate()
     try:

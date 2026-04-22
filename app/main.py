@@ -190,8 +190,8 @@ class Orchestrator:
         self.evolution_runtime.set_replay_mode(self.replay_mode)
 
         # Phase 107 Streamlining
-        from runtime.governance.fast_path_policy import OperatingMode, get_operating_mode
-        from runtime.governance.change_classifier import classify_current_changes_decision
+        from runtime.governance.fast_path_policy import OperatingMode, get_operating_mode  # adaad: import-boundary-ok:phase107-fast-path-compat
+        from runtime.governance.change_classifier import classify_current_changes_decision  # adaad: import-boundary-ok:phase107-fast-path-compat
         self.operating_mode = get_operating_mode()
         if self.fast_mode:
             self.operating_mode = OperatingMode.DEV_FAST
