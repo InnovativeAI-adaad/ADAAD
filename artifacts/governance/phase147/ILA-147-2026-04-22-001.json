@@ -1,0 +1,27 @@
+{
+  "ila_id": "ILA-147-2026-04-22-001",
+  "phase": 147,
+  "innovation": "INNOV-53",
+  "title": "Intent Expression Schema — Implementation Ledger Attestation",
+  "version": "9.80.0",
+  "date": "2026-04-22",
+  "agent": "DEVADAAD",
+  "track": "A",
+  "invariants_registered": ["INTENT-SCHEMA-0", "INTENT-DRYRUN-0"],
+  "invariant_total_post": 253,
+  "tests_passed": 30,
+  "tests_total": 30,
+  "files_changed": [
+    "dorkllm/intent_schema.py",
+    "dorkllm/ask_dispatcher.py",
+    "ui/whaledic.html",
+    "tests/test_phase147_innov53_intent_schema.py",
+    "VERSION",
+    "pyproject.toml",
+    ".adaad_agent_state.json",
+    "governance/report_version.json",
+    "CHANGELOG.md",
+    "ROADMAP.md"
+  ],
+  "ratification_pending": "HUMAN-0"
+}

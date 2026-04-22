@@ -1269,6 +1269,39 @@ Auto-refresh every 10 s. INNOV-18 · Phase 103.
 
 # CHANGELOG
 
+## [9.80.0] — 2026-04-22 · Phase 147 · INNOV-53 · Intent Expression Schema
+
+### 2 new Hard-class invariants · 253 Hard-class total · 53 innovations shipped
+
+#### INNOV-53: Intent Expression Schema
+
+Typed intent manifest binding user-expressed requests to constitutionally governed,
+CEL-safe operations. Every autonomous action originating from user input now carries
+a validated `IntentRecord` before any mutation is permitted to fire.
+
+**New Hard-class invariants:**
+- `INTENT-SCHEMA-0` — every autonomous action from user input MUST carry a validated
+  `IntentRecord`; unvalidated actions are constitutionally prohibited
+- `INTENT-DRYRUN-0` — `dry_run=True` MUST never produce a ledger write, file mutation,
+  or GovernanceGate evaluation; violation is a constitutional breach
+
+**Files shipped:**
+- `dorkllm/intent_schema.py` — `IntentRecord`, `DiffPreview`, `IntentAction`, `RequestorRole`,
+  scope lock enforcement, `validate_intent()`
+- `dorkllm/ask_dispatcher.py` — `AskDispatcher.preview_intent()`, `dispatch_intent()`,
+  `parse_query()` with NL→action inference and scope detection
+- `ui/whaledic.html` — Intent panel with query input, action selector, dry-run toggle,
+  confidence floor control, diff preview table, invariant badges, dispatch log
+- `tests/test_phase147_innov53_intent_schema.py` — **30/30 tests passing**
+
+**Scope locks enforced:** `governance/`, `artifacts/governance/`, `security/`,
+`.adaad_agent_state.json`, `VERSION`, `pyproject.toml` — mutating actions on these
+paths raise `IntentScopeRejection` at construction time.
+
+**ILA attestation:** `ILA-147-2026-04-22-001`
+
+---
+
 ## [9.35.0] — 2026-04-01 — Phase 102 · INNOV-17 Agent Post-Mortem Interviews (APM)
 
 **Branch:** `feature/phase102-apm-impl`

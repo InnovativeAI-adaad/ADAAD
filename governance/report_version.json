@@ -1,11 +1,11 @@
 {
   "last_sync_date": "2026-04-22",
-  "last_sync_sha": "7534123c",
-  "report_version": "9.79.0",
+  "last_sync_sha": "8eced1db",
+  "report_version": "9.80.0",
   "version_source": "governance/report_version.json",
-  "version": "9.79.0",
-  "phase": 146,
-  "date": "2026-04-21",
-  "innovation": "Phase-146-INNOV-52-DQR",
-  "updated": "2026-04-22T01:22:39.650294+00:00"
+  "version": "9.80.0",
+  "phase": 147,
+  "date": "2026-04-22",
+  "innovation": "Phase-147-INNOV-53-IntentSchema",
+  "updated": "2026-04-22T10:28:16.973545+00:00"
 }
