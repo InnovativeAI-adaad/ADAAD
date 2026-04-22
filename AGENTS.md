@@ -133,7 +133,7 @@ Merge status:    NOT EXECUTED — no branch mutation occurred
 
 ```
 [DEVADAAD MERGED]
-PR:                  <PR-ID> — <title>
+PR:                  <Phase N — title>
 Merge SHA:           <sha>
 Tier 0:              PASS (5/5)
 Tier 1 tests:        <N> passed, 0 failed, 0 skipped
@@ -299,7 +299,7 @@ Run the complete gate stack sequentially. Any failure → full stop.
 **Under `ADAAD`:** Stage for human review.
 ```
 [ADAAD COMPLETE]
-PR staged:            <PR-ID> — <title>
+PR staged:            <Phase N — title>
 Lane:                 <lane>
 Milestone:            <milestone>
 CI tier:              <tier>
