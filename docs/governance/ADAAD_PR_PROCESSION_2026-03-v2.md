@@ -178,7 +178,7 @@ See `docs/governance/V1_GA_READINESS_CHECKLIST.md` for the machine-checkable art
 
 ## 3) Automation Contract Block (Machine-checkable)
 
-### 3.0 Active Era Contract (Phases 131–136+)
+### 3.0 Active Era Contract (Phases 131–147+)
 
 This subsection is the canonical machine-consumed checkpoint for phase progression. Historical tables above and below are informative only.
 
@@ -187,10 +187,10 @@ adaad_pr_procession_contract:
   schema_version: "2.1"
   source_of_truth: "docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md"
   supersedes: "docs/governance/ADAAD_PR_PROCESSION_2026-03.md"
-  active_phase: "phase136_complete"
-  milestone: "v9.69.0"
-  last_state_align: "2026-04-11"
-  state_align_authority: "ROADMAP current-state checkpoint reconciliation (Phase 136 / v9.69.0)"
+  active_phase: "phase147_complete"
+  milestone: "v9.80.0"
+  last_state_align: "2026-04-22"
+  state_align_authority: "ROADMAP.md Post-Pipeline Summary Table reconciliation (through Phase 147 / v9.80.0)"
   ordered_phase_ids:
     - phase47
     - phase48
@@ -231,12 +231,62 @@ adaad_pr_procession_contract:
     - phase88
     - phase89
     - phase90
+    - phase91
+    - phase92
+    - phase93
+    - phase94
+    - phase96
+    - phase97
+    - phase98
+    - phase99
+    - phase100
+    - phase101
+    - phase102
+    - phase103
+    - phase104
+    - phase105
+    - phase106
+    - phase107
+    - phase108
+    - phase109
+    - phase110
+    - phase111
+    - phase112
+    - phase113
+    - phase114
+    - phase115
+    - phase116
+    - phase117
+    - phase118
+    - phase119
+    - phase120
+    - phase121
+    - phase122
+    - phase123
+    - phase124
+    - phase125
+    - phase126
+    - phase127
+    - phase128
+    - phase129
+    - phase130
     - phase131
     - phase132
     - phase133
     - phase134
     - phase135
     - phase136
+    - phase137
+    - phase138
+    - phase139
+    - phase140
+    - phase141
+    - phase142
+    - phase143
+    - phase144
+    - phase145
+    - phase146
+    - phase147
   phase_nodes:
     phase47:
       ci_tier: standard
@@ -548,6 +598,240 @@ adaad_pr_procession_contract:
       status: merged
       version: "v9.24.0"
       title: "INNOV-06 Cryptographic Evolution Proof DAG"
+    phase91:
+      ci_tier: constitutional
+      depends_on: ["phase90"]
+      status: merged
+      version: "v9.24.0"
+      title: "INNOV-07 LSME"
+    phase92:
+      ci_tier: constitutional
+      depends_on: ["phase91"]
+      status: merged
+      version: "v9.25.0"
+      title: "INNOV-08 AFRT"
+    phase93:
+      ci_tier: constitutional
+      depends_on: ["phase92"]
+      status: merged
+      version: "v9.26.0"
+      title: "INNOV-09 AFIT"
+    phase94:
+      ci_tier: constitutional
+      depends_on: ["phase93"]
+      status: merged
+      version: "v9.27.0"
+      title: "INNOV-10 MMEM"
+    phase96:
+      ci_tier: constitutional
+      depends_on: ["phase94"]
+      status: merged
+      version: "v9.29.0"
+      title: "INNOV-11 DSTE"
+    phase97:
+      ci_tier: constitutional
+      depends_on: ["phase96"]
+      status: merged
+      version: "v9.30.0"
+      title: "INNOV-12 MGV"
+    phase98:
+      ci_tier: constitutional
+      depends_on: ["phase97"]
+      status: merged
+      version: "v9.31.0"
+      title: "INNOV-13 IMT"
+    phase99:
+      ci_tier: constitutional
+      depends_on: ["phase98"]
+      status: merged
+      version: "v9.32.0"
+      title: "INNOV-14 CEB"
+    phase100:
+      ci_tier: constitutional
+      depends_on: ["phase99"]
+      status: merged
+      version: "v9.33.0"
+      title: "INNOV-15 CTD"
+    phase101:
+      ci_tier: constitutional
+      depends_on: ["phase100"]
+      status: merged
+      version: "v9.34.0"
+      title: "INNOV-16 ERS"
+    phase102:
+      ci_tier: constitutional
+      depends_on: ["phase101"]
+      status: merged
+      version: "v9.35.0"
+      title: "INNOV-17 APM"
+    phase103:
+      ci_tier: constitutional
+      depends_on: ["phase102"]
+      status: merged
+      version: "v9.36.0"
+      title: "INNOV-18 GJR"
+    phase104:
+      ci_tier: constitutional
+      depends_on: ["phase103"]
+      status: merged
+      version: "v9.37.0"
+      title: "INNOV-19 RST"
+    phase105:
+      ci_tier: constitutional
+      depends_on: ["phase104"]
+      status: merged
+      version: "v9.38.0"
+      title: "INNOV-20 BRM"
+    phase106:
+      ci_tier: constitutional
+      depends_on: ["phase105"]
+      status: merged
+      version: "v9.39.0"
+      title: "INNOV-21 GBP"
+    phase107:
+      ci_tier: constitutional
+      depends_on: ["phase106"]
+      status: merged
+      version: "v9.40.0"
+      title: "INNOV-22 MCF"
+    phase108:
+      ci_tier: constitutional
+      depends_on: ["phase107"]
+      status: merged
+      version: "v9.41.0"
+      title: "INNOV-23 CES"
+    phase109:
+      ci_tier: constitutional
+      depends_on: ["phase108"]
+      status: merged
+      version: "v9.42.0"
+      title: "INNOV-24 SVP"
+    phase110:
+      ci_tier: constitutional
+      depends_on: ["phase109"]
+      status: merged
+      version: "v9.43.0"
+      title: "INNOV-25 HAF"
+    phase111:
+      ci_tier: constitutional
+      depends_on: ["phase110"]
+      status: merged
+      version: "v9.44.0"
+      title: "INNOV-26 GDA"
+    phase112:
+      ci_tier: constitutional
+      depends_on: ["phase111"]
+      status: merged
+      version: "v9.45.0"
+      title: "INNOV-27 RCI"
+    phase113:
+      ci_tier: constitutional
+      depends_on: ["phase112"]
+      status: merged
+      version: "v9.46.0"
+      title: "INNOV-28 IPV"
+    phase114:
+      ci_tier: constitutional
+      depends_on: ["phase113"]
+      status: merged
+      version: "v9.47.0"
+      title: "INNOV-29 CED"
+    phase115:
+      ci_tier: constitutional
+      depends_on: ["phase114"]
+      status: merged
+      version: "v9.48.0"
+      title: "INNOV-30 MIRROR"
+    phase116:
+      ci_tier: constitutional
+      depends_on: ["phase115"]
+      status: merged
+      version: "v9.49.0"
+      title: "INNOV-31 IDE"
+    phase117:
+      ci_tier: constitutional
+      depends_on: ["phase116"]
+      status: merged
+      version: "v9.50.0"
+      title: "INNOV-32 CRTV"
+    phase118:
+      ci_tier: constitutional
+      depends_on: ["phase117"]
+      status: merged
+      version: "v9.51.0"
+      title: "INNOV-33 KBEP"
+    phase119:
+      ci_tier: constitutional
+      depends_on: ["phase118"]
+      status: merged
+      version: "v9.52.0"
+      title: "INNOV-34 FGCON"
+    phase120:
+      ci_tier: constitutional
+      depends_on: ["phase119"]
+      status: merged
+      version: "v9.53.0"
+      title: "INNOV-35 SPIE"
+    phase121:
+      ci_tier: constitutional
+      depends_on: ["phase120"]
+      status: merged
+      version: "v9.54.0"
+      title: "Demo Sandbox + Ledger Verifier"
+    phase122:
+      ci_tier: constitutional
+      depends_on: ["phase121"]
+      status: merged
+      version: "v9.55.0"
+      title: "README Credibility + ROADMAP Sync"
+    phase123:
+      ci_tier: constitutional
+      depends_on: ["phase122"]
+      status: merged
+      version: "v9.56.0"
+      title: "CLI Entry Point"
+    phase124:
+      ci_tier: constitutional
+      depends_on: ["phase123"]
+      status: merged
+      version: "v9.57.0"
+      title: "adaad-core Extraction"
+    phase125:
+      ci_tier: constitutional
+      depends_on: ["phase124"]
+      status: merged
+      version: "v9.58.0"
+      title: "Community Governance Infrastructure"
+    phase126:
+      ci_tier: constitutional
+      depends_on: ["phase125"]
+      status: merged
+      version: "v9.59.0"
+      title: "INNOV-36 BIRC"
+    phase127:
+      ci_tier: constitutional
+      depends_on: ["phase126"]
+      status: merged
+      version: "v9.60.0"
+      title: "INNOV-37 GRRP"
+    phase128:
+      ci_tier: constitutional
+      depends_on: ["phase127"]
+      status: merged
+      version: "v9.61.0"
+      title: "INNOV-38 ACSA"
+    phase129:
+      ci_tier: constitutional
+      depends_on: ["phase128"]
+      status: merged
+      version: "v9.62.0"
+      title: "INNOV-39 ACF"
+    phase130:
+      ci_tier: constitutional
+      depends_on: ["phase129"]
+      status: merged
+      version: "v9.63.0"
+      title: "INNOV-40 CELT"
     phase131:
       ci_tier: constitutional
       depends_on: ["phase130"]
@@ -584,10 +868,76 @@ adaad_pr_procession_contract:
       status: merged
       version: "v9.69.0"
       title: "DORK ConversationLedger + Enrichment Bridge Hardening"
+    phase137:
+      ci_tier: constitutional
+      depends_on: ["phase136"]
+      status: merged
+      version: "v9.70.0"
+      title: "INNOV-44 DORK Intelligence Hardening & Capability Expansion"
+    phase138:
+      ci_tier: constitutional
+      depends_on: ["phase137"]
+      status: merged
+      version: "v9.71.0"
+      title: "INNOV-45 IIG — Invariant Interaction Graph"
+    phase139:
+      ci_tier: constitutional
+      depends_on: ["phase138"]
+      status: merged
+      version: "v9.72.0"
+      title: "INNOV-46 CMD — Canary Mutation Deployment"
+    phase140:
+      ci_tier: constitutional
+      depends_on: ["phase139"]
+      status: merged
+      version: "v9.73.0"
+      title: "Constitutional P0 Sweep + P1 Hardening"
+    phase141:
+      ci_tier: constitutional
+      depends_on: ["phase140"]
+      status: merged
+      version: "v9.74.0"
+      title: "INNOV-47 LKSE — Live Knowledge Sync Engine"
+    phase142:
+      ci_tier: constitutional
+      depends_on: ["phase141"]
+      status: merged
+      version: "v9.75.0"
+      title: "INNOV-48 CSS — Contextual Semantic Search"
+    phase143:
+      ci_tier: constitutional
+      depends_on: ["phase142"]
+      status: merged
+      version: "v9.76.0"
+      title: "INNOV-49 CMU — Constitutional Model Upgrade"
+    phase144:
+      ci_tier: constitutional
+      depends_on: ["phase143"]
+      status: merged
+      version: "v9.77.0"
+      title: "INNOV-50 RAGS — Retrieval-Augmented Governance Synthesis"
+    phase145:
+      ci_tier: constitutional
+      depends_on: ["phase144"]
+      status: merged
+      version: "v9.78.0"
+      title: "INNOV-51 DPM — DORK Persistent Memory"
+    phase146:
+      ci_tier: constitutional
+      depends_on: ["phase145"]
+      status: merged
+      version: "v9.79.0"
+      title: "INNOV-52 DQR — Dork Query Router"
+    phase147:
+      ci_tier: constitutional
+      depends_on: ["phase146"]
+      status: merged
+      version: "v9.80.0"
+      title: "INNOV-53 Intent Expression Schema"
   state_alignment:
-    expected_active_phase: "Phase 136 COMPLETE · v9.69.0"
-    expected_last_completed_pr: "phase136-dork-ledger-enrichment-bridge-hardening"
-    expected_next_pr: "PR-PHASE137-01 (deterministic: first non-shipped phase whose predecessor is shipped)"
+    expected_active_phase: "Phase 147 COMPLETE · v9.80.0"
+    expected_last_completed_pr: "phase147-intent-expression-schema"
+    expected_next_pr: "PR-PHASE148-01 (deterministic: first non-shipped phase whose predecessor is shipped)"
     blocked_reason_must_be_null: true
   open_findings:
     - id: FINDING-C03-GITHUB-APP
@@ -637,10 +987,10 @@ adaad_pr_procession_contract:
 A validator comparing this document to `.adaad_agent_state.json` should fail if:
 
 1. `active_phase` does not match `expected_active_phase`
-2. `last_completed_pr` is not `phase136-dork-ledger-enrichment-bridge-hardening`
+2. `last_completed_pr` is not `phase147-intent-expression-schema`
 3. Any `phase_nodes.*.status` diverges from this contract
 4. `blocked_reason` is non-null
-5. `expected_next_pr` is not `PR-PHASE137-01 (deterministic: first non-shipped phase whose predecessor is shipped)`
+5. `expected_next_pr` is not `PR-PHASE148-01 (deterministic: first non-shipped phase whose predecessor is shipped)`
 
 ---
 
@@ -648,6 +998,7 @@ A validator comparing this document to `.adaad_agent_state.json` should fail if:
 ## 3.2 Changelog
 
 - **2026-04-11:** Reconciled automation checkpoint to **Phase 136 complete / v9.69.0**, added active-era deterministic next-phase rule (`PR-PHASE137-01` placeholder pattern), and moved older sequence windows into explicit historical-checkpoint framing.
+- **2026-04-22:** Reconciled §3.0 machine contract to **Phase 147 complete / v9.80.0**, expanded `ordered_phase_ids` and `phase_nodes` to include all ROADMAP-declared shipped phases through Phase 147, and recomputed deterministic next-PR targeting to **PR-PHASE148-01** using `ROADMAP.md` Post-Pipeline Summary Table as authority.
 - **2026-03-28:** Corrected procession contract state alignment to a single canonical checkpoint at **Phase 93 complete / v9.26.0**. This update removes duplicated preflight predicates and keeps `state_alignment` expectations aligned to **PR-PHASE94-01 (Phase 94 — INNOV-10 Morphogenetic Memory)**.
 
 ## 3.3 Historical checkpoints (explicit archival windows)
