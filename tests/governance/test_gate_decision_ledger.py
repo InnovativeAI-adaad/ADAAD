@@ -390,30 +390,30 @@ class TestGateDecisionReader:
 class TestGateApprovalRateSignal:
 
     def test_t35_s_01_no_reader_defaults_to_1(self):
-        assert _minimal_agg()._collect_gate_approval_health() == 1.0
+        assert _minimal_agg()._collect_gate_approval_health("test-epoch") == 1.0
 
     def test_t35_s_02_empty_history_defaults_to_1(self, tmp_path):
         reader = GateDecisionReader(tmp_path / "empty.jsonl")
-        assert _minimal_agg(gate_decision_reader=reader)._collect_gate_approval_health() == pytest.approx(1.0)
+        assert _minimal_agg(gate_decision_reader=reader)._collect_gate_approval_health("test-epoch") == pytest.approx(1.0)
 
     def test_t35_s_03_all_approved_gives_1(self, tmp_path):
         reader = _make_reader_with_decisions(tmp_path, [_approved_payload(), _approved_payload("y")])
-        assert _minimal_agg(gate_decision_reader=reader)._collect_gate_approval_health() == pytest.approx(1.0)
+        assert _minimal_agg(gate_decision_reader=reader)._collect_gate_approval_health("test-epoch") == pytest.approx(1.0)
 
     def test_t35_s_04_all_denied_gives_0(self, tmp_path):
         reader = _make_reader_with_decisions(tmp_path, [_denied_payload(), _denied_payload("b")])
-        assert _minimal_agg(gate_decision_reader=reader)._collect_gate_approval_health() == pytest.approx(0.0)
+        assert _minimal_agg(gate_decision_reader=reader)._collect_gate_approval_health("test-epoch") == pytest.approx(0.0)
 
     def test_t35_s_05_half_approved_gives_half(self, tmp_path):
         reader = _make_reader_with_decisions(tmp_path, [_approved_payload(), _denied_payload()])
-        assert _minimal_agg(gate_decision_reader=reader)._collect_gate_approval_health() == pytest.approx(0.5)
+        assert _minimal_agg(gate_decision_reader=reader)._collect_gate_approval_health("test-epoch") == pytest.approx(0.5)
 
     def test_t35_s_06_exception_swallowed_returns_1(self):
         class BrokenReader:
             def approval_rate(self):
                 raise RuntimeError("boom")
 
-        assert _minimal_agg(gate_decision_reader=BrokenReader())._collect_gate_approval_health() == 1.0
+        assert _minimal_agg(gate_decision_reader=BrokenReader())._collect_gate_approval_health("test-epoch") == 1.0
 
     def test_t35_s_07_signal_in_breakdown(self, tmp_path):
         reader = _make_reader_with_decisions(tmp_path, [_approved_payload()])
@@ -477,6 +477,6 @@ class TestGateApprovalRateSignal:
             reader = _make_reader_with_decisions(
                 tmp_path, [_approved_payload(), _denied_payload()]
             )
-            return _minimal_agg(gate_decision_reader=reader)._collect_gate_approval_health()
+            return _minimal_agg(gate_decision_reader=reader)._collect_gate_approval_health("test-epoch")
 
         assert make_score() == make_score()

@@ -166,7 +166,7 @@ def test_invalid_schema_fail_close(tmp_path: Path) -> None:
         constitution.load_constitution_policy(path=invalid)
 def test_version_mismatch_fails_close(tmp_path: Path) -> None:
     mismatch = tmp_path / "constitution.yaml"
-    body = constitution.POLICY_PATH.read_text(encoding="utf-8").replace('"version": "0.9.0"', '"version": "9.9.9"', 1)
+    body = constitution.POLICY_PATH.read_text(encoding="utf-8").replace('"version": "1.0.0"', '"version": "9.9.9"', 1)
     _write_policy(mismatch, body)
     with pytest.raises(ValueError, match="version_mismatch"):
         constitution.load_constitution_policy(path=mismatch, expected_version=constitution.CONSTITUTION_VERSION)

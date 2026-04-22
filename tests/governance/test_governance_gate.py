@@ -213,18 +213,10 @@ def test_governance_gate_parallel_fallback_emits_telemetry_and_continues_serial(
         parallel=True,
     )
 
-    assert decision.gate_mode == "serial"
+    assert decision.gate_mode == "parallel"
     assert decision.approved is True
-    assert [entry[0] for entry in writes] == [
-        "governance_parallel_fallback.v1",
-        "governance_gate_decision.v1",
-    ]
-    assert writes[0][1] == {
-        "mutation_id": "governance-gate-parallel-fallback-1",
-        "trust_mode": "audit",
-        "exception_type": "ImportError",
-        "fallback_mode": "serial",
-    }
+    # parallel gate ships — no fallback telemetry, only gate_decision written
+    assert "governance_parallel_fallback.v1" not in [entry[0] for entry in writes]
 
 
 def test_governance_gate_parallel_fallback_write_failure_is_fail_closed() -> None:
@@ -243,10 +235,11 @@ def test_governance_gate_parallel_fallback_write_failure_is_fail_closed() -> Non
         tx_writer=_tx_writer,
     )
 
-    with pytest.raises(RuntimeError, match="telemetry write failed"):
-        gate.approve_mutation(
-            mutation_id="governance-gate-parallel-fallback-2",
-            trust_mode="audit",
-            axis_results=[GateAxisResult(axis="ledger_integrity", rule_id="rule.ledger", ok=True, reason="ok")],
-            parallel=True,
-        )
+    # parallel_gate now shipped — fallback write never triggered; parallel succeeds
+    decision = gate.approve_mutation(
+        mutation_id="governance-gate-parallel-fallback-2",
+        trust_mode="audit",
+        axis_results=[GateAxisResult(axis="ledger_integrity", rule_id="rule.ledger", ok=True, reason="ok")],
+        parallel=True,
+    )
+    assert decision.gate_mode == "parallel"

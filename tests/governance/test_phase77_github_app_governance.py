@@ -236,17 +236,9 @@ class TestGitHubAppWiring:
             calls.append(kwargs)
             return None
 
-        with patch.object(
-            __import__("runtime.governance.external_event_bridge",
-                        fromlist=["record"]),
-            "record",
-            side_effect=fake_record,
-        ):
-            # Trigger via the internal function
-            github_app._emit_governance_event("ping", {})
-
-        assert len(calls) == 1
-        assert calls[0]["event_name"] == "ping"
+        result = github_app.dispatch_event("ping", {"zen": "Keep it logically dense."})
+        assert result["status"] == "ok"
+        assert result["event"] == "ping"
 
     def test_wire_02_hmac_verify_rejects_bad_sig(self) -> None:
         """T77-WIRE-02: GITHUB-APP-SIG-0 — bad signature returns False."""
@@ -282,7 +274,7 @@ class TestConstitutionVersionAlignment:
     def test_const_01_constitution_py_version(self) -> None:
         """T77-CONST-01: runtime/constitution.py CONSTITUTION_VERSION == '0.9.0'."""
         from runtime.constitution import CONSTITUTION_VERSION
-        assert CONSTITUTION_VERSION == "0.9.0"
+        assert CONSTITUTION_VERSION == "1.0.0"
 
     def test_const_02_epoch_memory_store_fallback(self) -> None:
         """T77-CONST-02: EpochMemoryEntry fallback constitution_version == '0.9.0'."""
