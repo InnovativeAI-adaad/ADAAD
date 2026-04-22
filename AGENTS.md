@@ -133,7 +133,7 @@ Merge status:    NOT EXECUTED — no branch mutation occurred
 
 ```
 [DEVADAAD MERGED]
-PR:                  <PR-ID> — <title>
+PR:                  <Phase N — title>
 Merge SHA:           <sha>
 Tier 0:              PASS (5/5)
 Tier 1 tests:        <N> passed, 0 failed, 0 skipped
@@ -141,7 +141,7 @@ Tier 2 replay:       PASS | N/A
 Tier 3 completeness: evidence ✓ | template ✓ | docs ✓
 Tier M working-code: PASS — zero failures on merge SHA
 Attestation event:   merge_attestation.v1 written to ledger ✓
-Next PR in sequence: <PR-ID> — <title>
+Next PR in sequence: <Phase N — title>
 ```
 
 ---
@@ -259,7 +259,7 @@ See **Merge Authorization Gate Stack** above.
 Trigger:                 <ADAAD | DEVADAAD>
 Merge authority:         <no | yes — all gates must pass>
 Active phase:            <phase>
-Next PR:                 <PR-ID> — <title>
+Next PR:                 <Phase N — title>
 Milestone:               <milestone>
 Lane:                    <lane>
 PR tier:                 <docs | low | standard | critical>
@@ -270,7 +270,7 @@ Open findings:           <list>
 Pending evidence rows:   <list>
 ```
 
-`Next PR` must be resolved from `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` using its active identifier format (for example: `PR-PHASE65-01 (Phase 65 — First Autonomous Capability Evolution)`).
+`Next PR` must be resolved from `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` using the canonical phase label identifier format: `Phase <N> — <Title>`.
 
 Stop if any dependency is unsatisfied or `blocked_reason` is set.
 
@@ -299,7 +299,7 @@ Run the complete gate stack sequentially. Any failure → full stop.
 **Under `ADAAD`:** Stage for human review.
 ```
 [ADAAD COMPLETE]
-PR staged:            <PR-ID> — <title>
+PR staged:            <Phase N — title>
 Lane:                 <lane>
 Milestone:            <milestone>
 CI tier:              <tier>
@@ -307,7 +307,7 @@ Tier 0 gates:         5/5 PASS
 Tier 1 tests:         <N> passed, 0 failed
 Tier 2 replay:        PASS [if applicable]
 Tier 3 completeness:  evidence ✓ | template ✓ | docs ✓ | prerequisites ✓
-Next PR in sequence:  <PR-ID> (awaiting human review and merge first)
+Next PR in sequence:  <Phase N — title> (awaiting human review and merge first)
 Awaiting:             human review before merge
 ```
 

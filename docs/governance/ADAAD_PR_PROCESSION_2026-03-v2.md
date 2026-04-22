@@ -658,8 +658,9 @@ adaad_pr_procession_contract:
       version: "v9.80.0"
       title: "INNOV-53 Intent Expression Schema"
   state_alignment:
+    canonical_pr_identifier_format: "Phase <N> — <Title>"
     expected_active_phase: "Phase 147 COMPLETE · v9.80.0"
-    expected_last_completed_pr: "phase147-intent-expression-schema"
+    expected_last_completed_pr: "Phase 147 — INNOV-53 Intent Expression Schema"
     expected_next_pr: "Phase 148 — INNOV-54 Live Execution Feed (deterministic: first non-shipped phase whose predecessor is shipped)"
     blocked_reason_must_be_null: true
   open_findings:
@@ -708,10 +709,10 @@ adaad_pr_procession_contract:
 A validator comparing this document to `.adaad_agent_state.json` should fail if:
 
 1. `active_phase` does not match `expected_active_phase`
-2. `last_completed_pr` is not `phase147-intent-expression-schema`
+2. `last_completed_pr` does not match `state_alignment.canonical_pr_identifier_format`
 3. Any `phase_nodes.*.status` diverges from this contract
 4. `blocked_reason` is non-null
-5. `expected_next_pr` is not `Phase 148 — INNOV-54 Live Execution Feed (deterministic: first non-shipped phase whose predecessor is shipped)`
+5. `expected_next_pr` does not match `state_alignment.canonical_pr_identifier_format`
 
 ---
 
@@ -719,6 +720,7 @@ A validator comparing this document to `.adaad_agent_state.json` should fail if:
 ## 3.2 Changelog
 
 - **2026-04-22:** Reconciled automation checkpoint to **Phase 147 complete / v9.80.0**, extended active-era phase nodes through 147, and normalized deterministic next-phase identifier format to `Phase 148 — …` for state-alignment validators.
+- **2026-04-22:** Defined canonical PR identifier format in state alignment as `Phase <N> — <Title>` and enforced that both `expected_last_completed_pr` and `expected_next_pr` use that exact format.
 - **2026-04-11:** Reconciled automation checkpoint to **Phase 136 complete / v9.69.0**, added active-era deterministic next-phase rule (`PR-PHASE137-01` placeholder pattern), and moved older sequence windows into explicit historical-checkpoint framing.
 - **2026-03-28:** Corrected procession contract state alignment to a single canonical checkpoint at **Phase 93 complete / v9.26.0**. This update removes duplicated preflight predicates and keeps `state_alignment` expectations aligned to **PR-PHASE94-01 (Phase 94 — INNOV-10 Morphogenetic Memory)**.
 
