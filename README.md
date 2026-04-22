@@ -10,7 +10,7 @@
 
 <br/>
 
-[![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-00d4ff?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v9.78.0](https://img.shields.io/badge/version-v9.78.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![246 Invariants](https://img.shields.io/badge/invariants-246%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![50 Innovations](https://img.shields.io/badge/innovations-51%20shipped-f97316?style=flat-square&labelColor=0d1117)](ROADMAP.md)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
+[![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-00d4ff?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v9.79.0](https://img.shields.io/badge/version-v9.79.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![251 Invariants](https://img.shields.io/badge/invariants-251%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![52 Innovations](https://img.shields.io/badge/innovations-52%20shipped-f97316?style=flat-square&labelColor=0d1117)](ROADMAP.md)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
 
 </div>
 
@@ -20,70 +20,140 @@
 
 ## The only AI system that governs its own evolution — and can prove it.
 
-**ADAAD is not a tool you configure and forget. It is a constitutionally governed autonomous engine that proposes, challenges, shadow-executes, and cryptographically seals every change to itself — before a single line of production code moves.**
-
-Every mutation flows through a **16-step Constitutional Evolution Loop**. Every approval is scored against **241 Hard-class invariants**. Every decision is sealed in a **hash-chained cryptographic proof DAG**. Your GPG key is the only key that unlocks critical changes.
-
-That last part is not configurable.
+**Every mutation flows through a 16-step Constitutional Evolution Loop. Every decision is sealed in a hash-chained cryptographic proof. Your GPG key is the only key that unlocks critical changes. That last part is not configurable.**
 
 </div>
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 
-## What is ADAAD?
+## What ADAAD is not
 
-**ADAAD** (Autonomous Development & Adaptive Architecture Daemon) is an open-source, constitutionally governed AI evolution engine built by [InnovativeAI LLC](https://adaad.pro). It runs three specialist AI agents — **Architect**, **Dream**, and **Beast** — inside a cryptographically enforced governance loop. The system proposes its own improvements, red-teams them adversarially, shadow-executes them against live traffic, and only promotes changes that survive every constitutional gate.
+ADAAD is **not** an agent framework, not an LLM wrapper, not a dev tool, and not an automation pipeline.
 
-The result: autonomous software evolution that is auditable, reversible, and structurally incapable of self-modification without human ratification of critical changes.
-
-**In numbers:**
-- `v9.78.0` · Phase `144` · `50` shipped innovations · `241` Hard-class constitutional invariants
-- `16`-step Constitutional Evolution Loop (CEL) — deterministic, replayable
-- `3` specialist agents: Architect (governance), Dream (creativity), Beast (optimization)
-- `1` HUMAN-0 gate — structurally non-delegatable, cryptographically enforced
+It is a **governance engine** that happens to evolve software. The distinction matters: every other system bolts governance on. ADAAD builds it in — constitutionally, cryptographically, structurally.
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 
-## Why it matters
+## Why ADAAD exists
 
-AI systems that self-modify without constraint are a liability. AI systems that never self-improve are stagnant. ADAAD is the answer to both.
+Four problems that no other system solves simultaneously:
 
-The core insight: **autonomous evolution is safe only when every mutation is constitutionally governed, adversarially challenged, and cryptographically evidenced.** ADAAD operationalizes that insight end-to-end, in production, with verifiable proof.
+| Problem | Why it matters |
+|:--------|:---------------|
+| AI systems self-modify without constraint | Unauditable, irreversible, dangerous |
+| AI systems stagnate without self-improvement | Brittle, expensive to maintain |
+| Governance is bolted on, not built in | Bypassable, inconsistent, theatrical |
+| No system provides cryptographic proof of its own evolution | Claims without evidence |
 
-This is not a research prototype. It is a running system with 50 shipped innovations, a public ledger, and replay instructions for every claim.
-
-![Section Divider](docs/assets/readme/inline-divider.svg)
-
-## 🌍 World's firsts — verified, replayable, publicly auditable
-
-These are shipped milestones with hash-chained ledger entries, not design goals.
-
-| # | Claim | Evidence |
-|:---:|:---|:---:|
-| **1** | First constitutionally governed autonomous codebase to self-evolve in production | [→ Phase 65](CHANGELOG.md) |
-| **2** | First 16-gate Constitutional Evolution Loop with cryptographic proof per mutation | [→ CEL](#the-pipeline) |
-| **3** | First non-bypassable GovernanceGate as a constitutional primitive (`GOV-SOLE-0`) | [→ Architecture](#architecture) |
-| **4** | First adversarial red-team agent structurally incapable of approving its own challenges (`AFRT-0`) | [→ INNOV-08](ROADMAP.md) |
-| **5** | First hash-chained identity self-model consulted before every mutation proposal (`MMEM-0`) | [→ INNOV-10](ROADMAP.md) |
-| **6** | First constitutional jury requiring 2-of-3 multi-agent verdict for high-stakes mutations (`CJS-0`) | [→ INNOV-14](ROADMAP.md) |
-| **7** | First AI system with a meta-governance entropy budget governing its own constitutional change velocity (`CEB-0`) | [→ INNOV-26](ROADMAP.md) |
-| **8** | First autonomous governance kernel extractable as a standalone semver-managed package (`adaad-core`) | [→ Phase 124](CHANGELOG.md) |
-| **8b** | First constitutionally governed community amendment pipeline — structurally incapable of autonomous constitutional change (`COMMUNITY-HUMAN0-0`) | [→ Phase 125](CHANGELOG.md) |
-| **9** | First governed AI system with `SELF-AWARE-0`: no mutation may reduce self-monitoring observability | [→ INNOV-28](ROADMAP.md) |
-| **10** | First AI to pass its own constitutional self-recognition test before promotion (`mirror_test.py`) | [→ INNOV-30](ROADMAP.md) |
-| **11** | First governed AI codebase designed to run fully locally on a $200 Android phone | [→ Android](#platform-support) |
-| **12** | First autonomous system with deterministic audit sandbox for one-command third-party verification | [→ INNOV-36](ROADMAP.md) |
-| **13** | First constitutionally governed Red-Team Response Engine with HUMAN-0-gated amendment routing (`GRRP`) | [→ INNOV-37](ROADMAP.md) |
-| **14** | First adversarially-driven constitutional self-amendment engine with cryptographic provenance (`ACSA`) | [→ INNOV-38](ROADMAP.md) |
-| **15** | First governed agent coalition formation system with proportional stake redistribution (`ACF`) | [→ INNOV-39](ROADMAP.md) |
-| **16** | First AI system with a Self-Proposing Innovation Engine: system proposes its own next capabilities, HUMAN-0 ratifies (`SPIE`) | [→ INNOV-35](ROADMAP.md) |
-| **17** | First Retrieval-Augmented Governance Synthesis layer grounding agent responses in constitutional precedent (`RAGS`) | [→ INNOV-50](ROADMAP.md) |
-
-All claims are independently verifiable. See [docs/VERIFIABLE_CLAIMS.md](docs/VERIFIABLE_CLAIMS.md) for replay instructions.
+**ADAAD solves all four** — in production, with a public ledger and replay instructions for every claim.
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 
-## The pipeline
+## In numbers
+
+| Metric | Value |
+|:-------|:------|
+| Current version | `v9.79.0` · Phase `146` |
+| Hard-class constitutional invariants | **251** |
+| Shipped innovations | **52** |
+| Constitutional Evolution Loop | **16 steps** — deterministic, replayable |
+| Specialist agents | **3** — Architect · Dream · Beast |
+| HUMAN-0 gate | **1** — structurally non-delegatable |
+| Append-only ledger entries | **48,000+** |
+
+![Section Divider](docs/assets/readme/inline-divider.svg)
+
+## Who is ADAAD for?
+
+| Audience | Why ADAAD |
+|:---------|:----------|
+| **AI safety researchers** | The first cryptographically evidenced autonomous governance loop in production |
+| **Autonomous systems engineers** | Reference architecture for constitutional self-modification |
+| **Governance architects** | 251 Hard-class invariants mapped to real operational guarantees |
+| **Indie devs on Android** | Full governed runtime on a $200 phone — TERMUX_SETUP.md |
+| **Constitutional AI contributors** | Open, governed amendment pipeline — all contributions traverse the CEL |
+
+![Section Divider](docs/assets/readme/inline-divider.svg)
+
+## <a id="quickstart"></a>Quickstart
+
+```bash
+git clone https://github.com/InnovativeAI-adaad/ADAAD.git
+cd ADAAD
+python onboard.py
+```
+
+`onboard.py` handles environment setup, schema validation, and a governed dry-run.
+
+**What success looks like:**
+
+```
+  ✔ Python 3.12.x
+  ✔ Virtual environment created (.venv)
+  ✔ Dependencies installed
+  ✔ Governance schemas valid
+  ✔ Dry-run complete  (fail-closed behaviour confirmed)
+
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ADAAD is ready.
+
+  Run the dashboard       python server.py
+  Run an epoch            adaad demo
+  Inspect the ledger      adaad inspect-ledger data/evolution_ledger.jsonl
+  Propose a mutation      adaad propose "upgrade system x"
+  Strict replay           python -m app.main --replay strict --verbose
+  Verify the audit box    docker compose up das-demo
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+**Install from PyPI:**
+
+```bash
+pip install adaad
+```
+
+**Android / Termux:** Full governed runtime on a $200 phone. See [`TERMUX_SETUP.md`](TERMUX_SETUP.md).
+
+![Section Divider](docs/assets/readme/inline-divider.svg)
+
+## Component map
+
+| Component | Purpose | Where it lives |
+|:----------|:--------|:---------------|
+| **ADAAD** | Full autonomous evolution engine — 16-step CEL, 3 agents, governance loop | repo root |
+| **adaad-core** | Governance-critical primitives, extractable as a standalone PyPI package | `adaad/core/` |
+| **DORK** | Governance intelligence layer — natural language interface to the constitutional ledger | `dorkllm/` · `ui/dork.html` |
+
+These are not interchangeable. `adaad-core` can be embedded in any Python project. DORK can be queried standalone. The full ADAAD engine requires both.
+
+![Section Divider](docs/assets/readme/inline-divider.svg)
+
+## The three agents
+
+```
+┌──────────────┬──────────────────────────────────────────┬──────────────────────────┐
+│    Agent     │               Role                       │       Disposition        │
+├──────────────┼──────────────────────────────────────────┼──────────────────────────┤
+│  Architect   │  Governance, structure, invariant check  │  Conservative. Blocks    │
+│  (blue)      │  Scores every mutation for compliance    │  anything that breaks    │
+│              │  with all 251 Hard-class invariants      │  constitutional integrity │
+├──────────────┼──────────────────────────────────────────┼──────────────────────────┤
+│  Dream       │  Creativity, ideation, novelty           │  Bold. Proposes novelty. │
+│  (violet)    │  Explores the mutation possibility space │  Checked by every other  │
+│              │  inside constitutional guardrails        │  layer before it ships   │
+├──────────────┼──────────────────────────────────────────┼──────────────────────────┤
+│  Beast       │  Performance, resource fitness           │  Relentless. Maximizes   │
+│  (orange)    │  Benchmark scoring, optimization         │  fitness within          │
+│              │  Hardware-adaptive evaluation            │  constitutional bounds   │
+└──────────────┴──────────────────────────────────────────┴──────────────────────────┘
+```
+
+None of the three can approve their own proposals. The AFRT is structurally prohibited from approving challenges it authored — constitutional invariant `AFRT-0`.
+
+![Section Divider](docs/assets/readme/inline-divider.svg)
+
+<details>
+<summary><strong>Constitutional Evolution Loop — 16 Steps (expand)</strong></summary>
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -98,27 +168,99 @@ All claims are independently verifiable. See [docs/VERIFIABLE_CLAIMS.md](docs/VE
   [5]  Beast performance scoring       [13] HUMAN-0 gate (Tier-0 changes only)
   [6]  AFRT adversarial red-team       [14] GPG-signed ledger entry
   [7]  Fitness surface evaluation      [15] Hash-chained CEPD proof
-  [8]  241-invariant constitutional    [16] Annotated tag + release evidence
+  [8]  251-invariant constitutional    [16] Annotated tag + release evidence
        scoring
 ```
 
-Every step is deterministic. Every step produces a ledger record. Every ledger record is hash-chained to its predecessor. The entire pipeline can be replayed from any point in history with `python -m app.main --replay strict --verbose`.
+Every step is deterministic. Every step produces a ledger record. Every ledger record is hash-chained to its predecessor. The entire pipeline is replayable from any point in history:
+
+```bash
+python -m app.main --replay strict --verbose
+```
+
+</details>
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 
-## The three agents
+## Security guarantees
 
-| Agent | Accent | Role | Disposition |
-|:------|:-------|:-----|:------------|
-| **Architect** | ![#3b82f6](https://img.shields.io/badge/-%233b82f6-3b82f6?style=flat-square) | Structural reasoning, governance compliance, invariant enforcement | Conservative. Blocks anything that compromises constitutional integrity. |
-| **Dream** | ![#8b5cf6](https://img.shields.io/badge/-%238b5cf6-8b5cf6?style=flat-square) | Creativity, mutation ideation, exploration of the possibility space | Bold. Proposes novelty. Checked by every other layer. |
-| **Beast** | ![#f97316](https://img.shields.io/badge/-%23f97316-f97316?style=flat-square) | Performance optimization, resource efficiency, benchmark scoring | Relentless. Maximizes fitness within constitutional bounds. |
+These are structural guarantees — not policies, not configuration, not best practices. They are constitutionally enforced and cryptographically evidenced.
 
-None of the three can approve their own proposals. The AFRT is structurally prohibited from approving challenges it authored — constitutional invariant `AFRT-0`.
+| Guarantee | Invariant | What it prevents |
+|:----------|:----------|:-----------------|
+| No mutation bypasses governance | `GOV-SOLE-0` | GovernanceGate bypass |
+| No agent approves its own proposal | `AFRT-0` | Adversarial self-approval |
+| No constitutional change without HUMAN-0 | `COMMUNITY-HUMAN0-0` | Autonomous self-amendment |
+| No mutation reduces observability | `SELF-AWARE-0` | Blind spots in the governed loop |
+| No unpinned Docker images in production | `DAS-DOCKER-0` | Supply chain drift |
+| No innovation auto-approved without ratification | `SPIE-HUMAN0-0` | Unapproved capability injection |
+| No persistent memory disabled at runtime | `DPM-GATE-0` | Silent memory layer bypass |
+| No query bypasses the routing ledger | `DQR-ROUTE-0` | Unlogged subsystem access |
+| No route override without constant-time auth | `DQR-AUTH-0` | Timing-attack policy manipulation |
+
+Every invariant violation raises a typed exception, terminates the operation, and generates a ledger entry. There is no silent failure path.
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 
-## Shipped capabilities — 50 innovations
+## 🌍 World's firsts — verified, replayable, publicly auditable
+
+<details>
+<summary><strong>Governance primitives</strong></summary>
+
+| # | Claim | Evidence |
+|:---:|:---|:---:|
+| **1** | First constitutionally governed autonomous codebase to self-evolve in production | [→ Phase 65](CHANGELOG.md) |
+| **2** | First 16-gate Constitutional Evolution Loop with cryptographic proof per mutation | [→ CEL](#the-pipeline) |
+| **3** | First non-bypassable GovernanceGate as a constitutional primitive (`GOV-SOLE-0`) | [→ Architecture](#architecture) |
+| **7** | First AI system with a meta-governance entropy budget governing its own constitutional change velocity (`CEB-0`) | [→ INNOV-26](ROADMAP.md) |
+| **8** | First autonomous governance kernel extractable as a standalone semver-managed package (`adaad-core`) | [→ Phase 124](CHANGELOG.md) |
+| **8b** | First constitutionally governed community amendment pipeline — structurally incapable of autonomous constitutional change | [→ Phase 125](CHANGELOG.md) |
+
+</details>
+
+<details>
+<summary><strong>Adversarial safety</strong></summary>
+
+| # | Claim | Evidence |
+|:---:|:---|:---:|
+| **4** | First adversarial red-team agent structurally incapable of approving its own challenges (`AFRT-0`) | [→ INNOV-08](ROADMAP.md) |
+| **12** | First autonomous system with deterministic audit sandbox for one-command third-party verification | [→ INNOV-36](ROADMAP.md) |
+| **13** | First constitutionally governed Red-Team Response Engine with HUMAN-0-gated amendment routing (`GRRP`) | [→ INNOV-37](ROADMAP.md) |
+| **14** | First adversarially-driven constitutional self-amendment engine with cryptographic provenance (`ACSA`) | [→ INNOV-38](ROADMAP.md) |
+
+</details>
+
+<details>
+<summary><strong>Constitutional self-awareness</strong></summary>
+
+| # | Claim | Evidence |
+|:---:|:---|:---:|
+| **5** | First hash-chained identity self-model consulted before every mutation proposal (`MMEM-0`) | [→ INNOV-10](ROADMAP.md) |
+| **6** | First constitutional jury requiring 2-of-3 multi-agent verdict for high-stakes mutations (`CJS-0`) | [→ INNOV-14](ROADMAP.md) |
+| **9** | First governed AI system with `SELF-AWARE-0`: no mutation may reduce self-monitoring observability | [→ INNOV-28](ROADMAP.md) |
+| **10** | First AI to pass its own constitutional self-recognition test before promotion (`mirror_test.py`) | [→ INNOV-30](ROADMAP.md) |
+| **16** | First AI system with a Self-Proposing Innovation Engine: system proposes its own next capabilities, HUMAN-0 ratifies | [→ INNOV-35](ROADMAP.md) |
+
+</details>
+
+<details>
+<summary><strong>Evolution, memory & replayability</strong></summary>
+
+| # | Claim | Evidence |
+|:---:|:---|:---:|
+| **11** | First governed AI codebase designed to run fully locally on a $200 Android phone | [→ Android](#platform-support) |
+| **15** | First governed agent coalition formation system with proportional stake redistribution (`ACF`) | [→ INNOV-39](ROADMAP.md) |
+| **17** | First Retrieval-Augmented Governance Synthesis layer grounding agent responses in constitutional precedent (`RAGS`) | [→ INNOV-50](ROADMAP.md) |
+| **18** | First session-agnostic, HMAC-chained persistent memory layer for an autonomous governance agent (`DPM`) | [→ INNOV-51](ROADMAP.md) |
+| **19** | First constitutionally governed query router with priority-dispatch, fallback-safe invariant enforcement, and HUMAN-0-gated policy override (`DQR`) | [→ INNOV-52](ROADMAP.md) |
+
+</details>
+
+All claims are independently verifiable. See [docs/VERIFIABLE_CLAIMS.md](docs/VERIFIABLE_CLAIMS.md) for replay instructions.
+
+![Section Divider](docs/assets/readme/inline-divider.svg)
+
+## Shipped capabilities — 52 innovations
 
 <details>
 <summary><strong>INNOV-01 through INNOV-20</strong> — Core governance primitives</summary>
@@ -176,8 +318,8 @@ None of the three can approve their own proposals. The AFRT is structurally proh
 
 </details>
 
-<details>
-<summary><strong>INNOV-41 through INNOV-50</strong> — DORK Intelligence Trilogy</summary>
+<details open>
+<summary><strong>INNOV-41 through INNOV-52</strong> — DORK Intelligence Stack (complete)</summary>
 
 | Innovation | Module | What it does |
 |:---|:---|:---|
@@ -187,9 +329,46 @@ None of the three can approve their own proposals. The AFRT is structurally proh
 | **INNOV-47 · LKSE** | `sync_dork_corpus.py` | DORK corpus stays current with the full governance history |
 | **INNOV-48 · CSS** | `embedder.py` | Vector-space semantic search over the entire constitutional corpus |
 | **INNOV-49 · CMU** | `model_validator.py` | Governed LLM backend rotation with constitutional benchmark gate |
-| **INNOV-50 · RAGS** | `grounded_responder.py` | DORK responses grounded in retrieved constitutional precedent |
+| **INNOV-50 · RAGS** | `grounded_responder.py` | DORK responses grounded in retrieved constitutional precedent (RAGS-GROUND-0) |
+| **INNOV-51 · DPM** | `memory_engine.py` | Session-agnostic persistent memory; HMAC-chained ledger; confidence-gated retrieval (DPM-CHAIN-0) |
+| **INNOV-52 · DQR** | `query_router.py` | Constitutional priority-dispatch: DPM → RAGS → passthrough; HUMAN-0-gated override (DQR-ROUTE-0) |
+
+**DORK Intelligence Stack: COMPLETE** — query routing (DQR) + grounded responses (RAGS) + persistent memory (DPM) form a fully governed, HMAC-chained, session-agnostic intelligence layer.
 
 </details>
+
+![Section Divider](docs/assets/readme/inline-divider.svg)
+
+## DORK — Governance Intelligence Layer
+
+**DORK** (Developer Operator Runtime Kernel) is not a chatbot. It is the institutional memory and governance brain of ADAAD — the interface through which operators query, audit, and interrogate the entire constitutional history in natural language.
+
+As of Phase 146, DORK operates with a fully governed three-layer intelligence stack:
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                    DORK Intelligence Stack                           │
+├─────────────────────────────────────────────────────────────────────┤
+│  DQR · Query Router (INNOV-52)                                      │
+│    Every query → logged RouteDecision → priority dispatch           │
+│    DPM score ≥ 0.35 → DPM  |  RAGS score ≥ 0.25 → RAGS           │
+│    All others → passthrough  |  HUMAN-0 override gate              │
+├────────────────────┬────────────────────────────────────────────────┤
+│  DPM · Persistent  │  RAGS · Grounded Response (INNOV-50)          │
+│  Memory (INNOV-51) │    Constitutional corpus retrieval             │
+│  Session-agnostic  │    Cosine-scored citation chains               │
+│  HMAC-chained      │    Zero-grounding gate (RAGS-GATE-0)          │
+│  confidence-gated  │    Hash-chained grounding ledger               │
+└────────────────────┴────────────────────────────────────────────────┘
+```
+
+Ask DORK why a mutation was blocked two months ago. Ask it which invariants are under the most pressure. Ask it to explain a governance decision in plain English. It answers with citations from the ledger.
+
+**Interface:** `ui/dork.html` — [aponi.adaad.pro](https://aponi.adaad.pro) or locally via `python server.py`  
+**Streaming endpoint:** `POST /api/dork/stream`  
+**Default model:** `claude-sonnet-4-6`
+
+See [DORK.md](DORK.md) for full documentation.
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 
@@ -197,82 +376,30 @@ None of the three can approve their own proposals. The AFRT is structurally proh
 
 ```
 adaad/
-├── adaad/core/              # Governance-critical primitives (adaad-core package)
+├── adaad/core/              # Governance-critical primitives (adaad-core PyPI package)
 ├── runtime/evolution/       # 16-step CEL implementation
+├── runtime/innovations30/   # 52 innovation registry wrappers
+├── dorkllm/                 # DORK intelligence stack
+│   ├── query_router.py      #   DQR — constitutional query router     (INNOV-52)
+│   ├── memory_engine.py     #   DPM — session-agnostic memory         (INNOV-51)
+│   ├── grounded_responder.py#   RAGS — corpus-grounded responses      (INNOV-50)
+│   ├── embedder.py          #   CSS — semantic search                 (INNOV-48)
+│   └── knowledge_crystallizer.py  # DPM orchestration layer
 ├── security/ledger/         # Tamper-evident hash-chained evolution ledger
 ├── app/main.py              # Full autonomous loop orchestrator
-├── ui/dork.html             # DORK governance intelligence interface
-├── server.py                # API server  (POST /api/dork/stream)
-├── scripts/adaad            # POSIX CLI shim
-├── ops/nginx/               # Subdomain configuration (adaad.pro)
-├── artifacts/governance/    # Per-phase ILA and GPG attestation artifacts
+├── ui/dork.html             # DORK governance intelligence dashboard
+├── server.py                # API server (POST /api/dork/stream)
+├── artifacts/governance/    # Per-phase ILA, sign-off, and tier-summary artifacts
 └── docs/                    # Full documentation corpus
 ```
 
-| Layer | Module | Responsibility |
-|:------|:-------|:---------------|
-| Interface | `adaad.__main__.py` | Command routing, argument parsing, sandbox enforcement |
-| Interface | `ui/dork.html` | DORK governance intelligence dashboard |
-| Runtime | `app/main.py` | Full autonomous loop orchestrator |
-| Core | `adaad/core/` | Governance-critical primitives — the `adaad-core` package |
-| Evolution | `runtime/evolution/` | 16-step CEL implementation |
-| Ledger | `security/ledger/` | Tamper-evident hash-chained records |
-| Governance | `docs/CONSTITUTION.md` | The constitutional document — 241 Hard-class invariants |
-
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 
-## DORK — Governance Intelligence Layer
+## Governance model
 
-**DORK** (Developer Operator Runtime Kernel) is the institutional intelligence of ADAAD. It is not a chatbot. It is the governance brain that operators use to query, audit, and interrogate the system's entire constitutional history in natural language.
+ADAAD governs itself through its own [Constitution](docs/CONSTITUTION.md) — a versioned, GPG-signed document tracked in the Constitution Version Registry (INNOV-43 · CVR). Every constitutional amendment traverses the same CEL as every mutation.
 
-DORK grounds every response in retrieved constitutional precedent via **INNOV-50 · RAGS**. Ask it why a mutation was blocked two months ago. Ask it which invariants are under the most pressure. Ask it to explain a governance decision in plain English. It answers with citations from the ledger.
-
-**Interface:** `ui/dork.html` — available at [aponi.adaad.pro](https://aponi.adaad.pro) or locally via `python server.py`  
-**Default model:** `claude-sonnet-4-6`  
-**Streaming endpoint:** `POST /api/dork/stream`
-
-See [DORK.md](DORK.md) for full documentation.
-
-![Section Divider](docs/assets/readme/inline-divider.svg)
-
-## <a id="quickstart"></a>Quickstart
-
-```bash
-git clone https://github.com/InnovativeAI-adaad/ADAAD.git
-cd ADAAD
-python onboard.py
-```
-
-`onboard.py` handles environment setup, schema validation, and a governed dry-run. Re-run it any time.
-
-**What success looks like:**
-
-```
-  ✔ Python 3.12.x
-  ✔ Virtual environment created (.venv)
-  ✔ Dependencies installed
-  ✔ Governance schemas valid
-  ✔ Dry-run complete  (fail-closed behaviour confirmed)
-
-  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  ADAAD is ready.
-
-  Run the dashboard       python server.py
-  Run an epoch            adaad demo
-  Inspect the ledger      adaad inspect-ledger data/evolution_ledger.jsonl
-  Propose a mutation      adaad propose "upgrade system x"
-  Strict replay           python -m app.main --replay strict --verbose
-  Verify the audit box    docker compose up das-demo
-  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-```
-
-**Install from PyPI:**
-
-```bash
-pip install adaad
-```
-
-**Android / Termux:** Full governed runtime on a $200 phone. See [`TERMUX_SETUP.md`](TERMUX_SETUP.md).
+**HUMAN-0** (Dustin L. Reid, InnovativeAI LLC) holds exclusive authority over GPG signing, Tier-0 ratification, and patent counsel engagement. This role cannot be delegated. It cannot be automated. It is a constitutional primitive.
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 
@@ -285,25 +412,6 @@ pip install adaad
 | Windows | ✅ Supported | PowerShell `.venv\Scripts\Activate.ps1` |
 | Android (Termux) | ✅ Supported | Full runtime — see [`TERMUX_SETUP.md`](TERMUX_SETUP.md) |
 | Docker | ✅ Supported | Pinned digest required — `:latest` prohibited by `DAS-DOCKER-0` |
-
-![Section Divider](docs/assets/readme/inline-divider.svg)
-
-## Governance model
-
-ADAAD governs itself through its own [Constitution](docs/CONSTITUTION.md) — a versioned, GPG-signed document tracked in the Constitution Version Registry (INNOV-43 · CVR). Every constitutional amendment is itself governed by the CEL.
-
-**Structural invariants that cannot be bypassed:**
-
-| Invariant | What it prevents |
-|:----------|:-----------------|
-| `GOV-SOLE-0` | Bypassing the GovernanceGate |
-| `AFRT-0` | The red-team agent approving its own challenges |
-| `COMMUNITY-HUMAN0-0` | Autonomous constitutional amendment without HUMAN-0 sign-off |
-| `SELF-AWARE-0` | Mutations that reduce the system's own observability |
-| `DAS-DOCKER-0` | Unpinned Docker image tags in production |
-| `SPIE-HUMAN0-0` | Innovation proposals auto-approved without HUMAN-0 ratification |
-
-**HUMAN-0** (Dustin L. Reid, InnovativeAI LLC) holds exclusive authority over GPG signing, Tier-0 ratification, and patent counsel engagement. This role cannot be delegated. It cannot be automated. It is a constitutional primitive.
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 
@@ -323,9 +431,17 @@ One command. No configuration. No trust required.
 
 ## Intellectual property
 
-ADAAD's core mechanisms — the Constitutional Evolution Loop, Cryptographic Evolution Proof DAG, Live Shadow Mutation Execution, Adversarial Fitness Red Team, Self-Proposing Innovation Engine, and Retrieval-Augmented Governance Synthesis — are novel, patent-pending inventions of InnovativeAI LLC.
+ADAAD's core mechanisms — the Constitutional Evolution Loop, Cryptographic Evolution Proof DAG, Live Shadow Mutation Execution, Adversarial Fitness Red Team, Self-Proposing Innovation Engine, Retrieval-Augmented Governance Synthesis, DORK Persistent Memory, and Dork Query Router — are novel, patent-pending inventions of InnovativeAI LLC.
 
 The codebase is open source (Apache 2.0). The underlying governance architecture constitutes proprietary IP. See [BRAND_LICENSE.md](BRAND_LICENSE.md) and [TRADEMARKS.md](TRADEMARKS.md).
+
+![Section Divider](docs/assets/readme/inline-divider.svg)
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). All contributions traverse the CEL — your pull request does not bypass the pipeline.
+
+Community constitutional amendment proposals go through the governed pipeline established in Phase 125. See [CONSTITUTION_PROPOSALS.md](CONSTITUTION_PROPOSALS.md).
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 
@@ -344,17 +460,14 @@ The codebase is open source (Apache 2.0). The underlying governance architecture
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md). All contributions traverse the CEL — your pull request does not bypass the pipeline.
-
-Community constitutional amendment proposals go through the governed pipeline established in Phase 125. See [CONSTITUTION_PROPOSALS.md](CONSTITUTION_PROPOSALS.md).
-
-![Section Divider](docs/assets/readme/inline-divider.svg)
-
 <div align="center">
 
 **Built by [InnovativeAI LLC](https://adaad.pro) · Apache 2.0 · [adaad.pro](https://adaad.pro)**
+
+---
+
+*ADAAD is built on a simple belief:*  
+*AI should evolve — but only under a constitution, with evidence, and with a human at the center.*
 
 *The global standard for trustable autonomous AI. Governed, proven, running.*
 
