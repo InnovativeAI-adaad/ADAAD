@@ -4,10 +4,10 @@
 
 ---
 
-## Current State — v9.79.0 · Phase 146 · INNOV-52 Dork Query Router (DQR)
+## Current State — v9.80.0 · Phase 147 · INNOV-53 Intent Expression Schema
 
-**Status:** 52 innovations shipped (INNOV-01 through INNOV-52). Phase 146 complete. v9.79.0 released. 52/52 Grade-A modules hardened.
-**Automation pointer:** Machine phase progression consumes `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` §3.0 “Active Era Contract (Phases 131–136+)”.
+**Status:** 53 innovations shipped (INNOV-01 through INNOV-53). Phase 147 complete. v9.80.0 released. 53/53 Grade-A modules hardened.
+**Automation pointer:** Machine phase progression consumes `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` §3.0 “Active Era Contract (Phases 131–136+)”, which governs the current stream through Phase 147.
 **Hard-class invariants:** 251 (cumulative, enforced)
 **Constitutional Evolution Loop:** 16-step CEL, deterministic replay, wired
 **Self-Proposing Innovation Engine (SPIE):** active — system proposes its own next innovations; HUMAN-0 ratifies
@@ -103,6 +103,11 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 129 | INNOV-39 ACF — Agent Coalition Formation | v9.62.0 | P1 | ✅ shipped |
 | 130 | INNOV-40 CELT — Cross-Epoch Agent Learning Transfer | v9.63.0 | P1 | ✅ shipped |
 | 131 | DORK Genesis & Data Integrity | v9.64.0 | P0 | ✅ shipped |
+| 132 | INNOV-41 DORK Living Fleet | v9.64.0 | P1 | ✅ shipped |
+| 133 | INNOV-42 DORK Fleet Server Bridge (DFSB) | v9.65.0 | P1 | ✅ shipped |
+| 134 | REF-001–004 DFSB Post-Ship Remediation | v9.66.0 | P1 | ✅ shipped |
+| 135 | INNOV-43 Constitution Versioning and Rollback (CVR) | v9.67.0 | P1 | ✅ shipped |
+| 136 | Phase 136 DORK ConversationLedger + Enrichment Bridge Hardening | v9.69.0 | P1 | ✅ shipped |
 | 137 | INNOV-44 DORK Intelligence Hardening & Capability Expansion | v9.70.0 | P0 | ✅ shipped |
 | 138 | INNOV-45 IIG — Invariant Interaction Graph | v9.71.0 | P0 | ✅ shipped |
 | 139 | INNOV-46 CMD — Canary Mutation Deployment | v9.72.0 | P0 | ✅ shipped |
@@ -115,13 +120,6 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 145 | INNOV-51 DPM — DORK Persistent Memory | v9.78.0 | P0 | ✅ shipped |
 | 146 | INNOV-52 DQR — Dork Query Router | v9.79.0 | P0 | ✅ shipped |
 | 147 | INNOV-53 Intent Expression Schema | v9.80.0 | P0 | ✅ shipped |
-
----
-| 132 | INNOV-41 DORK Living Fleet | v9.64.0 | P1 | ✅ shipped |
-| 133 | INNOV-42 DORK Fleet Server Bridge (DFSB) | v9.65.0 | P1 | ✅ shipped |
-| 134 | REF-001–004 DFSB Post-Ship Remediation | v9.66.0 | P1 | ✅ shipped |
-| 135 | INNOV-43 Constitution Versioning and Rollback (CVR) | v9.67.0 | P1 | ✅ shipped |
-| 136 | Phase 136 DORK ConversationLedger + Enrichment Bridge Hardening | v9.69.0 | P1 | ✅ shipped |
 
 
 ## Phase 140 — Constitutional P0 Sweep + P1 Hardening (v9.73.0) ✅
