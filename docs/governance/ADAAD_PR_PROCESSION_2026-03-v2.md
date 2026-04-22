@@ -4,9 +4,9 @@
 > **Canonical source (automation sequence control):** This document is the controlling source for **Phase 51+ PR order and closure state**, dependency graph, CI tier, and status used by ADAAD automation. It supersedes `ADAAD_PR_PROCESSION_2026-03.md` (Phase 6 era, now archived).
 
 **Authority chain:** `docs/CONSTITUTION.md` > `docs/ARCHITECTURE_CONTRACT.md` > `docs/governance/ARCHITECT_SPEC_v3.1.0.md` > this document
-**Last reviewed:** 2026-04-11
-**Milestone:** `v9.69.0` (Phase 136 complete — DORK ConversationLedger + Enrichment Bridge Hardening)
-**Canonical evidence anchor:** `ROADMAP.md` current-state checkpoint (Phase 136 / v9.69.0) + this document’s machine contract in §3
+**Last reviewed:** 2026-04-22
+**Milestone:** `v9.80.0` (Phase 147 complete — INNOV-53 Intent Expression Schema)
+**Canonical evidence anchor:** `ROADMAP.md` current-state checkpoint (Phase 147 / v9.80.0) + this document’s machine contract in §3
 
 ---
 
@@ -103,7 +103,7 @@ Phase 47 ──► Phase 48 ──► Phase 49 ──► Phase 50 ──► Phas
 ### 1A.3 Dependency pointer (archival context)
 
 > This section is intentionally retained as **historical context** for the Phase 57–114 era.
-> Active automation state is defined in **§3.0 Active Era Contract (Phases 131–136+)**.
+> Active automation state is defined in **§3.0 Active Era Contract (Phases 131–147+)**.
 
 ### 1A.4 Innovation→Phase index (historical planning snapshot)
 
@@ -174,7 +174,7 @@ See `docs/governance/V1_GA_READINESS_CHECKLIST.md` for the machine-checkable art
 
 ## 3) Automation Contract Block (Machine-checkable)
 
-### 3.0 Active Era Contract (Phases 131–136+)
+### 3.0 Active Era Contract (Phases 131–147+)
 
 This subsection is the canonical machine-consumed checkpoint for phase progression. Historical tables above and below are informative only.
 
@@ -183,10 +183,10 @@ adaad_pr_procession_contract:
   schema_version: "2.1"
   source_of_truth: "docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md"
   supersedes: "docs/governance/ADAAD_PR_PROCESSION_2026-03.md"
-  active_phase: "phase136_complete"
-  milestone: "v9.69.0"
-  last_state_align: "2026-04-11"
-  state_align_authority: "ROADMAP current-state checkpoint reconciliation (Phase 136 / v9.69.0)"
+  active_phase: "phase147_complete"
+  milestone: "v9.80.0"
+  last_state_align: "2026-04-22"
+  state_align_authority: "ROADMAP current-state checkpoint reconciliation (Phase 147 / v9.80.0)"
   ordered_phase_ids:
     - phase47
     - phase48
@@ -233,6 +233,17 @@ adaad_pr_procession_contract:
     - phase134
     - phase135
     - phase136
+    - phase137
+    - phase138
+    - phase139
+    - phase140
+    - phase141
+    - phase142
+    - phase143
+    - phase144
+    - phase145
+    - phase146
+    - phase147
   phase_nodes:
     phase47:
       ci_tier: standard
@@ -580,10 +591,76 @@ adaad_pr_procession_contract:
       status: merged
       version: "v9.69.0"
       title: "DORK ConversationLedger + Enrichment Bridge Hardening"
+    phase137:
+      ci_tier: constitutional
+      depends_on: ["phase136"]
+      status: merged
+      version: "v9.70.0"
+      title: "INNOV-44 DORK Intelligence Hardening & Capability Expansion"
+    phase138:
+      ci_tier: constitutional
+      depends_on: ["phase137"]
+      status: merged
+      version: "v9.71.0"
+      title: "INNOV-45 Invariant Interaction Graph"
+    phase139:
+      ci_tier: constitutional
+      depends_on: ["phase138"]
+      status: merged
+      version: "v9.72.0"
+      title: "INNOV-46 Canary Mutation Deployment"
+    phase140:
+      ci_tier: constitutional
+      depends_on: ["phase139"]
+      status: merged
+      version: "v9.73.0"
+      title: "Constitutional P0 Sweep + P1 Hardening"
+    phase141:
+      ci_tier: constitutional
+      depends_on: ["phase140"]
+      status: merged
+      version: "v9.74.0"
+      title: "INNOV-47 Live Knowledge Sync Engine"
+    phase142:
+      ci_tier: constitutional
+      depends_on: ["phase141"]
+      status: merged
+      version: "v9.75.0"
+      title: "INNOV-48 Contextual Semantic Search"
+    phase143:
+      ci_tier: constitutional
+      depends_on: ["phase142"]
+      status: merged
+      version: "v9.76.0"
+      title: "INNOV-49 Constitutional Model Upgrade"
+    phase144:
+      ci_tier: constitutional
+      depends_on: ["phase143"]
+      status: merged
+      version: "v9.77.0"
+      title: "INNOV-50 Retrieval-Augmented Governance Synthesis"
+    phase145:
+      ci_tier: constitutional
+      depends_on: ["phase144"]
+      status: merged
+      version: "v9.78.0"
+      title: "INNOV-51 DORK Persistent Memory"
+    phase146:
+      ci_tier: constitutional
+      depends_on: ["phase145"]
+      status: merged
+      version: "v9.79.0"
+      title: "INNOV-52 Dork Query Router"
+    phase147:
+      ci_tier: constitutional
+      depends_on: ["phase146"]
+      status: merged
+      version: "v9.80.0"
+      title: "INNOV-53 Intent Expression Schema"
   state_alignment:
-    expected_active_phase: "Phase 136 COMPLETE · v9.69.0"
-    expected_last_completed_pr: "phase136-dork-ledger-enrichment-bridge-hardening"
-    expected_next_pr: "PR-PHASE137-01 (deterministic: first non-shipped phase whose predecessor is shipped)"
+    expected_active_phase: "Phase 147 COMPLETE · v9.80.0"
+    expected_last_completed_pr: "phase147-intent-expression-schema"
+    expected_next_pr: "Phase 148 — INNOV-54 Live Execution Feed (deterministic: first non-shipped phase whose predecessor is shipped)"
     blocked_reason_must_be_null: true
   open_findings:
     - id: FINDING-C03-GITHUB-APP
@@ -631,16 +708,17 @@ adaad_pr_procession_contract:
 A validator comparing this document to `.adaad_agent_state.json` should fail if:
 
 1. `active_phase` does not match `expected_active_phase`
-2. `last_completed_pr` is not `phase136-dork-ledger-enrichment-bridge-hardening`
+2. `last_completed_pr` is not `phase147-intent-expression-schema`
 3. Any `phase_nodes.*.status` diverges from this contract
 4. `blocked_reason` is non-null
-5. `expected_next_pr` is not `PR-PHASE137-01 (deterministic: first non-shipped phase whose predecessor is shipped)`
+5. `expected_next_pr` is not `Phase 148 — INNOV-54 Live Execution Feed (deterministic: first non-shipped phase whose predecessor is shipped)`
 
 ---
 
 
 ## 3.2 Changelog
 
+- **2026-04-22:** Reconciled automation checkpoint to **Phase 147 complete / v9.80.0**, extended active-era phase nodes through 147, and normalized deterministic next-phase identifier format to `Phase 148 — …` for state-alignment validators.
 - **2026-04-11:** Reconciled automation checkpoint to **Phase 136 complete / v9.69.0**, added active-era deterministic next-phase rule (`PR-PHASE137-01` placeholder pattern), and moved older sequence windows into explicit historical-checkpoint framing.
 - **2026-03-28:** Corrected procession contract state alignment to a single canonical checkpoint at **Phase 93 complete / v9.26.0**. This update removes duplicated preflight predicates and keeps `state_alignment` expectations aligned to **PR-PHASE94-01 (Phase 94 — INNOV-10 Morphogenetic Memory)**.
 
