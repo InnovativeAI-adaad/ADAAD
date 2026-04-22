@@ -329,7 +329,7 @@
     "cumulative": 253,
     "hard_class_count": 253
   },
-  "current_phase": 147,
+  "current_phase": 148,
   "current_version": "9.80.0",
   "hard_class_count": 253,
   "hard_class_invariant_count": 253,
@@ -928,16 +928,16 @@
     "phase124-world-first-governed-kernel-extraction",
     "v9.57.0-released"
   ],
-  "version": "9.80.0",
+  "version": "9.81.0",
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
   ],
   "last_completed_phase": "Phase 22 \u00b7 Phase 147 \u00b7 INNOV-53 \u00b7 Intent Expression Schema",
   "last_agent_state_sync_digest": "gsync-41e1d2e9dae6f0e0",
-  "invariant_count": 253,
+  "invariant_count": 258,
   "innovation_count": 53,
-  "innovations_shipped": 53,
+  "innovations_shipped": 54,
   "open_findings_count": 0,
   "last_innovation_id": "INNOV-53",
   "total_innovations_shipped": 53,

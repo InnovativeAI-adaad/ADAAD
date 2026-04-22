@@ -1,0 +1,44 @@
+{
+  "phase": 148,
+  "innovation": "INNOV-54",
+  "version": "9.81.0",
+  "date": "2026-04-22",
+  "invariant_tiers": {
+    "Hard": [
+      {
+        "id": "LEF-DETERM-0",
+        "description": "Every CELStepEvent serialises to a deterministic canonical dict; keys sorted, no float values, timestamps are ISO-8601 strings.",
+        "enforcement": "fail-closed",
+        "module": "dorkllm/cel_feed.py"
+      },
+      {
+        "id": "LEF-CHAIN-0",
+        "description": "HMAC-SHA256 links each event to its predecessor; broken chains raise LEFChainViolation immediately.",
+        "enforcement": "fail-closed",
+        "module": "dorkllm/cel_feed.py"
+      },
+      {
+        "id": "CEL-FEED-0",
+        "description": "subscribe/unsubscribe are passive observer operations only; they never mutate CEL execution state.",
+        "enforcement": "fail-closed",
+        "module": "dorkllm/cel_feed.py"
+      },
+      {
+        "id": "LEF-NOWRITE-0",
+        "description": "event_stream() is read/drain only; zero ledger writes occur inside the SSE generator.",
+        "enforcement": "fail-closed",
+        "module": "dorkllm/cel_feed.py"
+      },
+      {
+        "id": "CEL-FEED-COMPLETE-0",
+        "description": "A cycle that exits without COMPLETE or BLOCKED raises LEFFeedIncomplete immediately.",
+        "enforcement": "fail-closed",
+        "module": "dorkllm/cel_feed.py"
+      }
+    ],
+    "Soft": []
+  },
+  "total_hard": 5,
+  "total_soft": 0,
+  "cumulative_hard": 258
+}
