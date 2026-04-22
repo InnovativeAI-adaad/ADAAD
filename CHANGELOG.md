@@ -1,3 +1,32 @@
+## [9.79.0] — 2026-04-21 · Phase 146 · INNOV-52 · Dork Query Router (DQR)
+
+### 5 new Hard-class invariants · 251 Hard-class total · 52 innovations shipped
+
+**Dork Query Router (DQR)** — constitutional priority-dispatch layer that routes every
+incoming DORK query to the highest-fidelity subsystem available: DPM → RAGS → passthrough.
+
+**New modules:**
+- `dorkllm/query_router.py` — HMAC-SHA256-chained append-only JSONL routing ledger;
+  `RouteDecision` chain-linked dataclass; deterministic `_score_dpm()` + `_score_rags()`
+  keyword scorers (DQR-DETERM-0); priority dispatch `route_query()` — DPM → RAGS →
+  passthrough (DQR-ROUTE-0, DQR-FALLBACK-0); `override_policy()` with constant-time
+  `hmac.compare_digest` HUMAN-0 auth gate (DQR-AUTH-0); `verify_chain()` + `ledger_stats()`.
+- `runtime/innovations30/dork_query_router.py` — Innovation registry wrapper; exposes
+  full DQR public API and constitutional metadata to GovernanceGateV2.
+
+**New Hard-class invariants (5):**
+- `DQR-ROUTE-0` — Every query MUST produce a logged RouteDecision before dispatch
+- `DQR-CHAIN-0` — DQR ledger HMAC chain integrity; any break is fatal
+- `DQR-DETERM-0` — Scoring functions deterministic: identical inputs → identical scores
+- `DQR-FALLBACK-0` — route_query() MUST NEVER propagate an unhandled exception
+- `DQR-AUTH-0` — override_policy() requires constant-time HUMAN-0 token verification
+
+**Test suite:** 30/30 · `tests/innovations/test_phase146_dqr.py`
+**HUMAN-0 ratification:** Dustin L. Reid · 2026-04-21
+
+---
+
+
 ## [9.78.0] — 2026-04-21 · Phase 145 · INNOV-51 · DORK Persistent Memory (DPM)
 
 ### 5 new Hard-class invariants · 246 Hard-class total · 51 innovations shipped

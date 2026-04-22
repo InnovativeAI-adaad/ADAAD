@@ -1,0 +1,63 @@
+{
+  "ila_id": "ILA-PHASE146-INNOV52-DQR",
+  "phase": 146,
+  "innovation_id": "INNOV-52",
+  "innovation_name": "Dork Query Router (DQR)",
+  "version_target": "9.79.0",
+  "authored_by": "DEVADAAD MutationAgent",
+  "authored_at": "2026-04-21T00:00:00Z",
+  "human0_ratification": {
+    "authority": "HUMAN-0",
+    "identity": "Dustin L. Reid",
+    "handle": "Innovadaad",
+    "ratification_phrase": "devadaad",
+    "ratified_at": "2026-04-21T00:00:00Z"
+  },
+  "architectural_mandate": "All incoming DORK queries MUST be dispatched through the DQR routing layer. No subsystem (DPM, RAGS, passthrough) may be invoked directly without a logged RouteDecision. The DQR ledger is append-only and HMAC-chained; no entry may be deleted. Route override requires HUMAN-0 constant-time authentication.",
+  "modules_shipped": [
+    "dorkllm/query_router.py",
+    "runtime/innovations30/dork_query_router.py"
+  ],
+  "modules_patched": [],
+  "invariants_added": [
+    {
+      "id": "DQR-ROUTE-0",
+      "class": "Hard",
+      "description": "Every routed query MUST produce a RouteDecision appended to the DQR ledger before any downstream subsystem (DPM, RAGS, passthrough) is invoked. No query bypasses this gate."
+    },
+    {
+      "id": "DQR-CHAIN-0",
+      "class": "Hard",
+      "description": "DQR ledger entries are HMAC-SHA256 hash-chained (prev_hash → entry_hash). Any chain break is a constitutional violation; the write is rejected and DQRChainViolation is raised."
+    },
+    {
+      "id": "DQR-DETERM-0",
+      "class": "Hard",
+      "description": "Scoring functions _score_dpm() and _score_rags() must be deterministic: identical query strings always produce identical float scores. No randomness, timestamps, or side effects are permitted in scorer code paths."
+    },
+    {
+      "id": "DQR-FALLBACK-0",
+      "class": "Hard",
+      "description": "route_query() MUST NEVER propagate an unhandled exception to its caller. All internal failures must result in a passthrough RouteDecision logged to the ledger. The outer try/except is constitutionally required."
+    },
+    {
+      "id": "DQR-AUTH-0",
+      "class": "Hard",
+      "description": "override_policy() requires HUMAN-0 authorisation verified via constant-time hmac.compare_digest. Plaintext comparison of tokens is constitutionally prohibited. Invalid tokens raise DQRAuthViolation."
+    }
+  ],
+  "invariant_count_before": 246,
+  "invariant_count_after": 251,
+  "test_suite": {
+    "file": "tests/innovations/test_phase146_dqr.py",
+    "test_count": 30,
+    "pass_rate": "100%",
+    "result": "30/30 PASSED"
+  },
+  "ledger_files_introduced": [
+    "data/dork/dqr_routing_ledger.jsonl"
+  ],
+  "route_priority_order": ["dpm", "rags", "passthrough"],
+  "constitutional_compliance": "PASS",
+  "dork_mandate": "DQR is the constitutionally mandated dispatch layer for the DORK intelligence stack. It routes queries to the highest-fidelity subsystem available and ensures all routing decisions are permanently recorded and verifiable."
+}
