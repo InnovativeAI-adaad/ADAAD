@@ -141,7 +141,7 @@ Tier 2 replay:       PASS | N/A
 Tier 3 completeness: evidence ✓ | template ✓ | docs ✓
 Tier M working-code: PASS — zero failures on merge SHA
 Attestation event:   merge_attestation.v1 written to ledger ✓
-Next PR in sequence: <PR-ID> — <title>
+Following PR token:   <from state_alignment.expected_next_pr>
 ```
 
 ---
@@ -259,7 +259,7 @@ See **Merge Authorization Gate Stack** above.
 Trigger:                 <ADAAD | DEVADAAD>
 Merge authority:         <no | yes — all gates must pass>
 Active phase:            <phase>
-Next PR:                 <PR-ID> — <title>
+Next PR token:           <from state_alignment.expected_next_pr>
 Milestone:               <milestone>
 Lane:                    <lane>
 PR tier:                 <docs | low | standard | critical>
@@ -270,7 +270,7 @@ Open findings:           <list>
 Pending evidence rows:   <list>
 ```
 
-`Next PR` must be resolved from `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` using its active identifier format (for example: `PR-PHASE65-01 (Phase 65 — First Autonomous Capability Evolution)`).
+`Next PR token` must be resolved from `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` using `state_alignment.expected_next_pr` exactly.
 
 Stop if any dependency is unsatisfied or `blocked_reason` is set.
 
@@ -307,16 +307,29 @@ Tier 0 gates:         5/5 PASS
 Tier 1 tests:         <N> passed, 0 failed
 Tier 2 replay:        PASS [if applicable]
 Tier 3 completeness:  evidence ✓ | template ✓ | docs ✓ | prerequisites ✓
-Next PR in sequence:  <PR-ID> (awaiting human review and merge first)
+Following PR token:    <from state_alignment.expected_next_pr> (awaiting human review and merge first)
 Awaiting:             human review before merge
 ```
 
-`Next PR in sequence` is sourced from the v2 procession contract (`docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md`, `state_alignment.expected_next_pr`) and must preserve the same identifier format.
+`Following PR token` is sourced from the v2 procession contract (`docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md`, `state_alignment.expected_next_pr`) and must match that value exactly.
 
 **Under `DEVADAAD`:** Run Tier M. If all gates pass → write attestation → merge.
 ```
 [DEVADAAD MERGED]  (see format above)
 ```
+
+---
+
+
+## Active State Alignment (Authoritative)
+
+Source: `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` → `state_alignment`
+
+- `expected_active_phase`: `Phase 147 COMPLETE · v9.80.0`
+- `expected_last_completed_pr`: `phase147-intent-expression-schema`
+- `expected_next_pr`: `Phase 148 — INNOV-54 Live Execution Feed (deterministic: first non-shipped phase whose predecessor is shipped)`
+
+> This is the single authoritative next-PR statement in this document.
 
 ---
 
@@ -353,10 +366,11 @@ Awaiting:             human review before merge
 | PR-PHASE5-06 | Federated evidence bundle release gate extension | ✅ Merged |
 | PR-PHASE5-07 | Federation Determinism CI + HMAC key rotation runbook | ✅ Merged |
 
-### Active Constitutional Sequence · Phase 57–65 (`v8.0.0` → `v9.0.0`)
+### Historical Constitutional Sequence · Phase 57–65 (`v8.0.0` → `v9.0.0`)
 
 > **Canonical spec:** `docs/governance/ARCHITECT_SPEC_v3.1.0.md`
-> **Canonical PR sequence (active automation source):** `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md`
+> **Historical note:** This section is retained for audit context only; it is not active sequencing guidance.
+> **Active automation source:** `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` (`state_alignment` values are authoritative).
 > **Supersession:** This sequence control supersedes `ADAAD_PR_PROCESSION_2026-03.md` (Phase 6 era, now archived).
 
 | Phase | Version | Depends on | Status |
@@ -369,7 +383,7 @@ Awaiting:             human review before merge
 | 62 | v8.5.0 | Phase 61 | shipped |
 | 63 | v8.6.0 | Phase 62 | shipped |
 | 64 | v8.7.0 | Phase 63 | shipped |
-| 65 | v9.0.0 | Phase 64 | next |
+| 65 | v9.0.0 | Phase 64 | shipped |
 
 **Key invariants governing amendment/governance PRs:**
 - `INVARIANT PHASE6-AUTH-0` — `authority_level` immutable on amendment proposals
