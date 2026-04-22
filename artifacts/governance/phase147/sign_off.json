@@ -1,0 +1,14 @@
+{
+  "phase": 147,
+  "innovation": "INNOV-53",
+  "title": "Intent Expression Schema",
+  "version": "9.80.0",
+  "sign_off": "HUMAN-0: Approved. All signed: Dustin L. Reid",
+  "authority": "HUMAN-0",
+  "governor": "Dustin L. Reid",
+  "date": "2026-04-22",
+  "tests": "30/30 PASSED",
+  "invariants_added": ["INTENT-SCHEMA-0", "INTENT-DRYRUN-0"],
+  "invariant_total": 253,
+  "status": "RATIFIED"
+}
