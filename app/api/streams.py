@@ -16,6 +16,10 @@ from app.api.dependencies import get_runtime_context
 from app.services.runtime_context import RuntimeContext
 
 router = APIRouter()
+_DEFAULT_DORK_MODEL = "claude-sonnet-4-6"
+_DORK_STREAM_MAX_TOKENS = 4096
+_DORK_UPSTREAM_ERROR_BODY_LIMIT = 4096
+_DORK_PROXY_TIMEOUT = httpx.Timeout(connect=10.0, read=125.0, write=30.0, pool=10.0)
 
 
 @router.websocket("/ws/events")
@@ -207,26 +211,70 @@ async def dork_stream_proxy(request: Request):
         raise HTTPException(status_code=503, detail="server_api_key_not_configured")
 
     body = await request.json()
+    if not isinstance(body, dict):
+        raise HTTPException(status_code=422, detail="invalid_payload")
+
+    messages = body.get("messages", [])
+    if not isinstance(messages, list):
+        raise HTTPException(status_code=422, detail="messages_must_be_list")
+
+    requested_model = str(body.get("model", _DEFAULT_DORK_MODEL))
+    allowlist_raw = os.environ.get("DORK_STREAM_MODEL_ALLOWLIST", "").strip()
+    if allowlist_raw:
+        allowlist = {value.strip() for value in allowlist_raw.split(",") if value.strip()}
+        if requested_model not in allowlist:
+            raise HTTPException(status_code=422, detail="unsupported_model")
+
+    max_tokens_raw = body.get("max_tokens", _DORK_STREAM_MAX_TOKENS)
+    try:
+        requested_max_tokens = int(max_tokens_raw)
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=422, detail="max_tokens_must_be_int") from None
+    max_tokens = max(1, min(requested_max_tokens, _DORK_STREAM_MAX_TOKENS))
+
+    # Explicit no-retry policy prevents hidden partial-stream behavior after connection failures.
+    transport = httpx.AsyncHTTPTransport(retries=0)
+    client = httpx.AsyncClient(timeout=_DORK_PROXY_TIMEOUT, transport=transport)
+    stream_ctx = client.stream(
+        "POST",
+        "https://api.anthropic.com/v1/messages",
+        headers={
+            "x-api-key": api_key,
+            "anthropic-version": "2023-06-01",
+            "content-type": "application/json",
+        },
+        json={
+            "model": requested_model,
+            "max_tokens": max_tokens,
+            "stream": True,
+            "system": body.get("system", ""),
+            "messages": messages,
+        },
+    )
+    resp = await stream_ctx.__aenter__()
+
+    if resp.status_code < 200 or resp.status_code >= 300:
+        upstream_body = await resp.aread()
+        await stream_ctx.__aexit__(None, None, None)
+        await client.aclose()
+        message = upstream_body[:_DORK_UPSTREAM_ERROR_BODY_LIMIT].decode("utf-8", errors="replace").strip()
+        raise HTTPException(
+            status_code=502,
+            detail={
+                "error": {
+                    "type": "upstream_error",
+                    "upstream_status": resp.status_code,
+                    "message": message or "upstream_request_failed",
+                }
+            },
+        )
 
     async def _gen():
-        async with httpx.AsyncClient(timeout=120) as client:
-            async with client.stream(
-                "POST",
-                "https://api.anthropic.com/v1/messages",
-                headers={
-                    "x-api-key": api_key,
-                    "anthropic-version": "2023-06-01",
-                    "content-type": "application/json",
-                },
-                json={
-                    "model": body.get("model", "claude-sonnet-4-6"),
-                    "max_tokens": body.get("max_tokens", 4096),
-                    "stream": True,
-                    "system": body.get("system", ""),
-                    "messages": body.get("messages", []),
-                },
-            ) as resp:
-                async for chunk in resp.aiter_bytes():
-                    yield chunk
+        try:
+            async for chunk in resp.aiter_bytes():
+                yield chunk
+        finally:
+            await stream_ctx.__aexit__(None, None, None)
+            await client.aclose()
 
     return StreamingResponse(_gen(), media_type="text/event-stream")
