@@ -220,15 +220,25 @@ https://raw.githubusercontent.com/InnovativeAI-adaad/ADAAD/main/android/obtainiu
 ### Pre-launch (complete before tagging)
 
 - [ ] GitHub Secrets added (`ADAAD_KEYSTORE_BASE64`, `ADAAD_STORE_PASSWORD`,
-      `ADAAD_KEY_ALIAS`, `ADAAD_KEY_PASSWORD`)
-- [ ] GitHub Pages enabled (Settings → Pages → Source: GitHub Actions)
-- [ ] `android/fdroid/com.innovativeai.adaad.yml` version matches release tag
-- [ ] `android/obtainium.json` present in repo root
-- [ ] `DISTRIBUTION.md` linked from README.md `## Distribution` section
+      `ADAAD_KEY_ALIAS`, `ADAAD_KEY_PASSWORD`) — **Blocked:** requires GitHub org/repo
+      admin access to Actions secrets. **Owner:** Release Manager. **Target date:** 2026-05-01.
+- [ ] GitHub Pages enabled (Settings → Pages → Source: GitHub Actions) — **Blocked:**
+      requires repository admin toggle in GitHub Settings. **Owner:** Release Manager.
+      **Target date:** 2026-05-01.
+- [ ] `android/fdroid/com.innovativeai.adaad.yml` version matches release tag — **Deferred:**
+      update at cut-time only (currently `CurrentVersion: '9.14.0'`, while next free tag is
+      not finalized in this doc context). **Owner:** Android Release Engineer.
+      **Target date:** at release-tag creation.
+- [x] `android/obtainium.json` present in repo root
+- [x] `DISTRIBUTION.md` linked from README.md `## Distribution` section
 - [ ] Privacy policy published at `innovativeai.dev/adaad/privacy` (or update
-      `android/fdroid/com.innovativeai.adaad.yml` with actual URL)
-- [ ] Test APK installed on physical Android device (API 26+)
-- [ ] Governance gate CI passing on main branch
+      `android/fdroid/com.innovativeai.adaad.yml` with actual URL) — **Blocked:** external
+      web publication verification is required. **Owner:** Legal/Comms. **Target date:** 2026-05-01.
+- [ ] Test APK installed on physical Android device (API 26+) — **Blocked:** requires
+      physical device QA signoff evidence outside repository. **Owner:** Android QA.
+      **Target date:** 2026-05-02.
+- [ ] Governance gate CI passing on main branch — **Blocked:** requires GitHub Actions
+      run verification on `main`. **Owner:** CI Maintainer. **Target date:** 2026-04-30.
 
 ### Launch command
 
@@ -240,11 +250,18 @@ git push origin free-v3.1.0
 
 ### Day 0 announcement checklist
 
-- [ ] GitHub Release published with install instructions
-- [ ] README badge updated: `![Free Download](https://img.shields.io/github/v/release/InnovativeAI-adaad/ADAAD?label=APK&color=00d4ff)`
-- [ ] Obtainium import link shared in README and release notes
-- [ ] F-Droid official MR opened (starts the ~1–4 week review clock)
-- [ ] Self-hosted F-Droid repo deployed (if immediate F-Droid distribution needed)
+- [ ] GitHub Release published with install instructions — **Deferred:** executes only after
+      release tag push. **Owner:** Android Release Engineer. **Target date:** next free tag day.
+- [x] README badge updated: `![Free Download](https://img.shields.io/github/v/release/InnovativeAI-adaad/ADAAD?label=APK&color=00d4ff)`
+- [ ] Obtainium import link shared in README and release notes — **Deferred:** README link is
+      present; release notes sharing occurs at publish time. **Owner:** Release Manager.
+      **Target date:** next free tag day.
+- [ ] F-Droid official MR opened (starts the ~1–4 week review clock) — **Blocked:** requires
+      fdroiddata fork + GitLab MR from distribution operator account. **Owner:** F-Droid Maintainer.
+      **Target date:** 2026-05-05.
+- [ ] Self-hosted F-Droid repo deployed (if immediate F-Droid distribution needed) — **Deferred:**
+      optional path; only required if official F-Droid lead time is unacceptable. **Owner:** Release
+      Manager. **Target date:** decision by 2026-05-05.
 
 ---
 
@@ -296,4 +313,3 @@ Use the QR registry as the source of truth:
    - `utm_campaign=install_tracks_2026q2`
 3. **Redirect exception**: if a destination cannot safely carry UTM params, use a managed redirect endpoint under an approved redirect prefix in the registry.
 4. **Validation gate**: every active registry row must pass validator checks before release/promo publishing.
-
