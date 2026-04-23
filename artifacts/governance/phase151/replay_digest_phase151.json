@@ -1,0 +1,26 @@
+{
+  "schema": "REPLAY-DIGEST-v1",
+  "document_id": "REPLAY-151-2026-04-22-001",
+  "phase": 151,
+  "version": "9.84.0",
+  "innovation_id": "INNOV-57",
+  "innovation_name": "Governed Rollback (GRB)",
+  "date": "2026-04-22",
+  "authored_by": "DEVADAAD",
+  "digest_algorithm": "SHA-256",
+  "digest_inputs": [
+    "artifacts/governance/phase151/ILA-151-2026-04-22-001.json",
+    "artifacts/governance/phase151/signoff_phase151_innov57_grb.json"
+  ],
+  "digest_note": "Computed over deterministic JSON serialization (sort_keys=True, no whitespace) of ILA + signoff documents concatenated as {ila, signoff} object. Timestamps excluded per GRB-DETERM-0.",
+  "sha256": "2570d697d596f4e8fb0aea5d94d5c0134b9cd79142bb75254e82b964e6ee5c45",
+  "git_lineage": {
+    "feature_commit": "7e9203dd",
+    "merge_commit": "5c368d0e",
+    "main_head": "f6ff0fd8",
+    "branch": "main"
+  },
+  "replay_instructions": "To verify: load both digest_inputs as JSON, serialize as json.dumps({'ila': ila_doc, 'signoff': signoff_doc}, sort_keys=True, separators=(',',':')), compute sha256 of UTF-8 encoded result. Must match sha256 field.",
+  "verification_status": "SELF-VERIFIED",
+  "merge_gate_status": "PENDING_HUMAN0_GPG_TAG"
+}

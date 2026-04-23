@@ -1,0 +1,50 @@
+{
+  "schema": "TIER-SUMMARY-v1",
+  "document_id": "TIER-151-2026-04-22-001",
+  "phase": 151,
+  "version": "9.84.0",
+  "innovation_id": "INNOV-57",
+  "innovation_name": "Governed Rollback (GRB)",
+  "date": "2026-04-22",
+  "authored_by": "DEVADAAD",
+  "tier_classification": {
+    "overall": "Tier-1-Hard",
+    "rationale": "All five invariants are Hard-class; rollback operations mutate live system state and touch the lineage ledger. GovernanceGate preflight enforces invariant compliance before any state change can proceed."
+  },
+  "invariants": [
+    {
+      "id": "GRB-PREFLIGHT-0",
+      "class": "Hard",
+      "description": "Every rollback operation MUST pass GovernanceGate preflight validation against all active Hard-class invariants before execution."
+    },
+    {
+      "id": "GRB-LEDGER-0",
+      "class": "Hard",
+      "description": "A ROLLBACK_EVENT entry MUST be written to the lineage ledger prior to any state mutation."
+    },
+    {
+      "id": "GRB-ATOMIC-0",
+      "class": "Hard",
+      "description": "Rollback execution is atomic: partial rollbacks are constitutionally prohibited. Either the full target state is restored or no state changes occur."
+    },
+    {
+      "id": "GRB-DETERM-0",
+      "class": "Hard",
+      "description": "Rollback digest computation MUST exclude timestamps and non-deterministic fields. Given identical inputs the digest MUST be reproducible."
+    },
+    {
+      "id": "GRB-HUMAN0-0",
+      "class": "Hard",
+      "description": "Rollback to any state predating the current HUMAN-0 governance epoch requires explicit HUMAN-0 ratification. Autonomous rollback is limited to the current epoch."
+    }
+  ],
+  "cumulative_hard_class_invariants": 273,
+  "innovations_total": 57,
+  "test_attestation": {
+    "file": "tests/innovations/test_phase151_grb.py",
+    "result": "30/30 PASS",
+    "run_date": "2026-04-22"
+  },
+  "merge_gate_status": "PENDING_HUMAN0_GPG_TAG",
+  "successor_phase": "Phase 152 — INNOV-58 Autonomy Scope Controls"
+}

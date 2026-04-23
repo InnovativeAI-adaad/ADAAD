@@ -1,6 +1,6 @@
 {
   "_comment": "Machine-readable invariant registry \u2014 single source of truth for all Hard-class invariant counts. All badges, docs, and CI gates derive from this file. Do not edit manually; update via phase sign-off process.",
-  "version": "9.83.0",
+  "version": "9.84.0",
   "phase": 151,
   "updated": "2026-04-22",
   "cumulative_hard_class_invariants": 273,
