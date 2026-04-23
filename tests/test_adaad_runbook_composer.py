@@ -90,10 +90,10 @@ def test_compose_runbook_detects_replay_incident(repo_fixture: Path) -> None:
 
 
 def test_export_runbook_artifacts_writes_markdown_and_json(repo_fixture: Path) -> None:
+    report = build_status_report(repo_root=repo_fixture, trigger_mode="ADAAD")
+    runbook = compose_runbook(report=report, verbosity_mode="compact")
     artifacts = export_runbook_artifacts(
-        repo_root=repo_fixture,
-        trigger_mode="ADAAD",
-        verbosity_mode="compact",
+        runbook=runbook,
         output_dir=repo_fixture / "security/adaad_runbooks",
     )
 

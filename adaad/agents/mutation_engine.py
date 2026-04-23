@@ -9,6 +9,7 @@ Lightweight mutation strategy selector using UCB1-style scoring.
 import json
 import math
 import os
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
@@ -19,6 +20,13 @@ from runtime.api.app_layer import ROOT_DIR, metrics, summarize_preflight_rejecti
 EMA_ALPHA = float(os.getenv("ADAAD_MUTATION_EMA_ALPHA", "0.3"))
 LOW_IMPACT_THRESHOLD = float(os.getenv("ADAAD_MUTATION_LOW_IMPACT_THRESHOLD", "0.3"))
 SKILL_WEIGHT_COEF = float(os.getenv("ADAAD_MUTATION_SKILL_WEIGHT_COEF", "0.6"))
+PATTERN_SCORE_COEF = float(os.getenv("ADAAD_MUTATION_PATTERN_SCORE_COEF", "0.8"))
+PATTERN_CONFIDENCE_MIN = float(os.getenv("ADAAD_MUTATION_PATTERN_CONFIDENCE_MIN", "0.25"))
+PATTERN_DECAY_HALFLIFE_DAYS = float(os.getenv("ADAAD_MUTATION_PATTERN_DECAY_HALFLIFE_DAYS", "14"))
+PATTERN_MIN_SAMPLE_SIZE = int(os.getenv("ADAAD_MUTATION_PATTERN_MIN_SAMPLE_SIZE", "3"))
+PATTERN_ACCEPTANCE_SCORE = float(os.getenv("ADAAD_MUTATION_PATTERN_ACCEPTANCE_SCORE", "0.6"))
+PATTERN_PRIOR = float(os.getenv("ADAAD_MUTATION_PATTERN_PRIOR", "0.5"))
+TREND_WEIGHT_COEF = float(os.getenv("ADAAD_MUTATION_TREND_WEIGHT_COEF", "0.8"))
 
 
 class MutationEngine:
@@ -29,6 +37,7 @@ class MutationEngine:
     def __init__(self, metrics_path: Path, state_path: Path | None = None) -> None:
         self.metrics_path = metrics_path
         self.state_path = state_path or (ROOT_DIR / "data" / "mutation_engine_state.json")
+        self.patterns_path = ROOT_DIR / "runtime" / "patterns.json"
 
     def _load_state(self) -> Dict[str, Any]:
         if not self.state_path.exists():
@@ -46,9 +55,113 @@ class MutationEngine:
         stats = state.setdefault("stats", {})
         entry = stats.setdefault(
             strategy_id,
-            {"n": 0.0, "reward": 0.0, "fail": 0.0, "ema": None, "low_impact": 0.0, "skill_weight": None},
+            {
+                "n": 0.0,
+                "reward": 0.0,
+                "fail": 0.0,
+                "ema": None,
+                "low_impact": 0.0,
+                "skill_weight": None,
+                "scores": [],
+            },
         )
         return entry
+
+    @staticmethod
+    def _parse_iso8601(value: Any) -> datetime | None:
+        if not isinstance(value, str) or not value.strip():
+            return None
+        normalized = value.strip().replace("Z", "+00:00")
+        try:
+            parsed = datetime.fromisoformat(normalized)
+        except ValueError:
+            return None
+        if parsed.tzinfo is None:
+            return parsed.replace(tzinfo=timezone.utc)
+        return parsed.astimezone(timezone.utc)
+
+    def _load_pattern_store(self) -> Dict[str, Any]:
+        if not self.patterns_path.exists():
+            return {"schema_version": "1.0", "patterns": []}
+        try:
+            data = json.loads(self.patterns_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            return {"schema_version": "1.0", "patterns": []}
+        if not isinstance(data, dict):
+            return {"schema_version": "1.0", "patterns": []}
+        data.setdefault("schema_version", "1.0")
+        if not isinstance(data.get("patterns"), list):
+            data["patterns"] = []
+        return data
+
+    def _persist_pattern_store(self, store: Dict[str, Any]) -> None:
+        self.patterns_path.parent.mkdir(parents=True, exist_ok=True)
+        self.patterns_path.write_text(json.dumps(store, sort_keys=True, indent=2), encoding="utf-8")
+
+    def _resolve_pattern_context(self, payload: Dict[str, Any]) -> str:
+        context = payload.get("context")
+        if isinstance(context, str) and context.strip():
+            return context.strip()
+        return "global"
+
+    def _record_pattern_update(
+        self,
+        *,
+        strategy_id: str,
+        context: str,
+        accepted: bool,
+        score: float,
+        evaluated_at: str,
+    ) -> None:
+        store = self._load_pattern_store()
+        patterns = store.setdefault("patterns", [])
+        match = next(
+            (
+                entry
+                for entry in patterns
+                if isinstance(entry, dict)
+                and entry.get("pattern_id") == strategy_id
+                and entry.get("context") == context
+            ),
+            None,
+        )
+        if match is None:
+            match = {
+                "pattern_id": strategy_id,
+                "context": context,
+                "success_rate": PATTERN_PRIOR,
+                "sample_size": 0,
+                "last_used_at": evaluated_at,
+            }
+            patterns.append(match)
+
+        sample_size = int(match.get("sample_size", 0) or 0)
+        current_rate = float(match.get("success_rate", PATTERN_PRIOR) or PATTERN_PRIOR)
+        score_signal = max(0.0, min(1.0, score))
+        outcome = score_signal if accepted else 0.0
+        updated_size = sample_size + 1
+        updated_rate = ((current_rate * sample_size) + outcome) / max(updated_size, 1)
+        match["success_rate"] = round(max(0.0, min(1.0, updated_rate)), 6)
+        match["sample_size"] = updated_size
+        match["last_used_at"] = evaluated_at
+        self._persist_pattern_store(store)
+        metrics.log(
+            event_type="pattern_update_emitted",
+            payload={
+                "pattern_id": strategy_id,
+                "context": context,
+                "accepted": accepted,
+                "acceptance_criteria": f"mutation_score >= {PATTERN_ACCEPTANCE_SCORE:.2f}",
+                "sample_size": updated_size,
+                "success_rate": match["success_rate"],
+            },
+            level="INFO",
+        )
+    def _score_trend(scores: List[float], window: int = 5) -> float:
+        if len(scores) < 2:
+            return 0.0
+        tail = [float(score) for score in scores[-max(2, window) :]]
+        return (tail[-1] - tail[0]) / max(1, len(tail) - 1)
 
     def _update_state_from_metrics(self, state: Dict[str, Any]) -> Dict[str, Any]:
         if not self.metrics_path.exists():
@@ -93,14 +206,40 @@ class MutationEngine:
                 score = float(payload.get("score", 0.0))
                 entry["n"] += 1.0
                 entry["reward"] += score
+                history = entry.get("scores", [])
+                if not isinstance(history, list):
+                    history = []
+                history.append(score)
+                entry["scores"] = history[-100:]
                 if entry["ema"] is None:
                     entry["ema"] = score
                 else:
                     entry["ema"] = (EMA_ALPHA * score) + ((1 - EMA_ALPHA) * float(entry["ema"]))
                 if score < LOW_IMPACT_THRESHOLD:
                     entry["low_impact"] += 1.0
+                accepted = score >= PATTERN_ACCEPTANCE_SCORE
+                evaluated_at = str(record.get("timestamp") or record.get("ts") or "")
+                if not evaluated_at:
+                    evaluated_at = datetime.now(timezone.utc).isoformat()
+                self._record_pattern_update(
+                    strategy_id=sid,
+                    context=self._resolve_pattern_context(payload),
+                    accepted=accepted,
+                    score=score,
+                    evaluated_at=evaluated_at,
+                )
             if event == "mutation_failed":
                 entry["fail"] += 1.0
+                evaluated_at = str(record.get("timestamp") or record.get("ts") or "")
+                if not evaluated_at:
+                    evaluated_at = datetime.now(timezone.utc).isoformat()
+                self._record_pattern_update(
+                    strategy_id=sid,
+                    context=self._resolve_pattern_context(payload),
+                    accepted=False,
+                    score=0.0,
+                    evaluated_at=evaluated_at,
+                )
             if event == "skill_feedback":
                 score = float(payload.get("score", 0.0))
                 if entry["skill_weight"] is None:
@@ -134,6 +273,30 @@ class MutationEngine:
             return float("inf")
         avg = stats["reward"] / n
         return avg + math.sqrt(2 * math.log(max(total, 1.0)) / n)
+
+    def _pattern_signal(self, strategy_id: str, context: str = "global") -> Tuple[float, float]:
+        store = self._load_pattern_store()
+        now_utc = datetime.now(timezone.utc)
+        for entry in store.get("patterns", []) or []:
+            if not isinstance(entry, dict):
+                continue
+            if entry.get("pattern_id") != strategy_id or entry.get("context") != context:
+                continue
+            sample_size = int(entry.get("sample_size", 0) or 0)
+            if sample_size <= 0:
+                return 0.0, 0.0
+            success_rate = float(entry.get("success_rate", PATTERN_PRIOR) or PATTERN_PRIOR)
+            last_used = self._parse_iso8601(entry.get("last_used_at"))
+            age_days = 0.0
+            if last_used is not None:
+                age_days = max(0.0, (now_utc - last_used).total_seconds() / 86400.0)
+            decay = math.pow(0.5, age_days / max(PATTERN_DECAY_HALFLIFE_DAYS, 0.1))
+            effective_samples = float(sample_size) * decay
+            confidence = max(0.0, min(1.0, effective_samples / max(float(PATTERN_MIN_SAMPLE_SIZE), 1.0)))
+            decayed_rate = PATTERN_PRIOR + ((success_rate - PATTERN_PRIOR) * decay)
+            delta = decayed_rate - PATTERN_PRIOR
+            return delta, confidence
+        return 0.0, 0.0
 
     def _extract_op_paths(self, request: MutationRequest) -> List[str]:
         paths: List[str] = []
@@ -272,6 +435,11 @@ class MutationEngine:
                 skill_weight = DEFAULT_REGISTRY.get_skill_weight(sid)
             if skill_weight is not None:
                 s += float(skill_weight) * SKILL_WEIGHT_COEF
+            pattern_delta, pattern_confidence = self._pattern_signal(sid, context="global")
+            if pattern_confidence >= PATTERN_CONFIDENCE_MIN:
+                s += pattern_delta * pattern_confidence * PATTERN_SCORE_COEF
+            score_trend = self._score_trend(stats.get("scores", []))
+            s += score_trend * TREND_WEIGHT_COEF
             low_impact = stats.get("low_impact", 0.0)
             if attempts:
                 s -= (low_impact / attempts) * 0.4
