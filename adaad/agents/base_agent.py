@@ -22,12 +22,18 @@ import json
 import shutil
 import time
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Mapping, Optional, Tuple
 
 from adaad.agents.discovery import iter_agent_dirs, resolve_agent_id, resolve_agent_module_entrypoint
 from runtime.api.app_layer import metrics
 
 REQUIRED_FILES = ("meta.json", "dna.json", "certificate.json")
+ROLE_PRESETS: Dict[str, Dict[str, float]] = {
+    "builder": {"build": 1.0, "optimize": 0.45, "test": 0.55, "market": 0.15},
+    "optimizer": {"build": 0.45, "optimize": 1.0, "test": 0.4, "market": 0.2},
+    "tester": {"build": 0.4, "optimize": 0.35, "test": 1.0, "market": 0.25},
+    "marketer": {"build": 0.25, "optimize": 0.25, "test": 0.3, "market": 1.0},
+}
 _FUNCTION_SIGNATURES = {
     "info": {"params": [], "return": "dict"},
     "run": {"params": ["input"], "defaults": {"input": None}, "return": "dict"},
@@ -40,6 +46,23 @@ class BaseAgent(ABC):
     """
     Minimal interface for agents participating in mutation cycles.
     """
+
+    def __init__(
+        self,
+        *,
+        role: str = "builder",
+        skill_vector: Optional[Mapping[str, float]] = None,
+        score_history: Optional[List[float]] = None,
+        lineage_id: Optional[str] = None,
+        survival_rank: float = 0.0,
+        memory_ref: Optional[str] = None,
+    ) -> None:
+        self.role = role if role in ROLE_PRESETS else "builder"
+        self.skill_vector = dict(skill_vector or ROLE_PRESETS[self.role])
+        self.score_history = [float(score) for score in (score_history or [])]
+        self.lineage_id = lineage_id or self.__class__.__name__.lower()
+        self.survival_rank = float(survival_rank)
+        self.memory_ref = memory_ref
 
     @abstractmethod
     def info(self) -> Dict:
@@ -56,6 +79,33 @@ class BaseAgent(ABC):
     @abstractmethod
     def score(self, output: Dict) -> float:
         """Score an output payload for downstream selection logic."""
+
+    def compatibility_score(self, task_profile: Mapping[str, float]) -> float:
+        score = 0.0
+        for key, weight in task_profile.items():
+            score += float(self.skill_vector.get(key, 0.0)) * float(weight)
+        return round(score, 6)
+
+    def update_score_history(self, value: float, window: int = 50) -> None:
+        self.score_history.append(float(value))
+        if window > 0 and len(self.score_history) > window:
+            self.score_history = self.score_history[-window:]
+
+    def score_trend(self, window: int = 5) -> float:
+        if len(self.score_history) < 2:
+            return 0.0
+        history = self.score_history[-max(2, window) :]
+        return (history[-1] - history[0]) / max(1, len(history) - 1)
+
+
+def assign_task_by_role(
+    agents: List[BaseAgent],
+    task_profile: Mapping[str, float],
+) -> Optional[BaseAgent]:
+    """Return the agent with the strongest role-compatibility score."""
+    if not agents:
+        return None
+    return max(agents, key=lambda agent: (agent.compatibility_score(task_profile), agent.score_trend(), agent.role))
 
 
 def validate_agent_home(agent_path: Path) -> Tuple[bool, List[str]]:
@@ -170,7 +220,6 @@ def validate_agent_entrypoint(agent_path: Path) -> Tuple[bool, List[str]]:
         errors.extend(_validate_function_signature(functions[required_name], required_name))
 
     return (len(errors) == 0), errors
-
 
 
 
