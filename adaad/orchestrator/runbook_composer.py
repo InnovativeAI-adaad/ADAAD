@@ -8,7 +8,10 @@ from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
-from adaad.orchestrator.status import AdaadStatusReport, build_status_report
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from adaad.orchestrator.status import AdaadStatusReport
 
 
 @dataclass(frozen=True)
@@ -81,7 +84,7 @@ def _step(
     )
 
 
-def compose_runbook(*, report: AdaadStatusReport, verbosity_mode: str) -> RunbookDocument:
+def compose_runbook(*, report: "AdaadStatusReport", verbosity_mode: str) -> RunbookDocument:
     normalized = verbosity_mode.strip().lower()
     if normalized not in _VALID_VERBOSITY:
         raise ValueError(f"invalid_verbosity_mode:{verbosity_mode}")
@@ -266,13 +269,9 @@ def render_runbook_markdown(runbook: RunbookDocument) -> str:
 
 def export_runbook_artifacts(
     *,
-    repo_root: Path,
-    trigger_mode: str,
-    verbosity_mode: str,
+    runbook: RunbookDocument,
     output_dir: Path,
 ) -> RunbookArtifacts:
-    report = build_status_report(repo_root=repo_root, trigger_mode=trigger_mode)
-    runbook = compose_runbook(report=report, verbosity_mode=verbosity_mode)
     output_dir.mkdir(parents=True, exist_ok=True)
 
     stamp = runbook.generated_at_utc.replace(":", "-").replace("+00:00", "Z")
