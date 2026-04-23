@@ -56,17 +56,18 @@ def registry_entry() -> Dict[str, Any]:
     }
 
 
-def probe() -> Dict[str, Any]:
+def probe(phase: int = INNOV_PHASE) -> Dict[str, Any]:
     """INNOV-COMPLETE-0 health probe used by FitnessEngineV2."""
     try:
-        # Attempt to retrieve the active engine for the current phase; if none
+        # Attempt to retrieve the active engine for the requested phase; if none
         # exists yet (server cold-start) treat as healthy with zero events.
-        engine = get_engine(INNOV_PHASE)
+        engine = get_engine(phase)
         result = engine.health_check()
         result["innov_id"] = INNOV_ID
+        result["phase"] = phase
         return result
     except Exception as exc:  # noqa: BLE001
-        return {"ok": False, "innov_id": INNOV_ID, "error": str(exc)}
+        return {"ok": False, "innov_id": INNOV_ID, "phase": phase, "error": str(exc)}
 
 
 def get_feed_engine(phase: int, *, ledger_path: Optional[Path] = None) -> CELFeedEngine:

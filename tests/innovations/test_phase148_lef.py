@@ -404,3 +404,24 @@ def test_lef30_make_event_convenience_factory():
     assert len(evt.event_hmac) == 64
     d = evt._canonical_dict()
     assert list(d.keys()) == sorted(d.keys())
+
+
+@pytest.mark.T148
+def test_lef31_probe_uses_requested_phase(monkeypatch: pytest.MonkeyPatch):
+    """INNOV-54: probe() resolves engine using the requested phase."""
+    requested_phase = 2148
+    captured: dict[str, int] = {}
+
+    class _FakeEngine:
+        def health_check(self):
+            return {"ok": True, "events_published": 0, "chain_tail": ""}
+
+    def _fake_get_engine(phase: int):
+        captured["phase"] = phase
+        return _FakeEngine()
+
+    monkeypatch.setattr("runtime.innovations30.live_execution_feed.get_engine", _fake_get_engine)
+    result = probe(requested_phase)
+    assert captured["phase"] == requested_phase
+    assert result["ok"] is True
+    assert result["phase"] == requested_phase
