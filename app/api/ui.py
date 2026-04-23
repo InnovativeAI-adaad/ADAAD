@@ -12,7 +12,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.api.dependencies import require_audit_scope
-from app.api.schemas.dork_intents import (
+from adaad.api.schemas.dork_intents import (
     DorkConsoleRouteError,
     DorkConsoleRouteRequest,
     DorkConsoleRouteResponse,
@@ -28,7 +28,7 @@ from runtime.governance.dork_proposal_adapter import (  # adaad: import-boundary
     ProposalValidationError,
     execute_dork_proposal,
 )
-from app.orchestration.adaad_trigger import GovernanceProposalAdapter
+from adaad.orchestrator.adaad_trigger import GovernanceProposalAdapter
 from runtime.governance.dork_proposal_adapter import ProposalValidationError, execute_dork_proposal  # adaad: import-boundary-ok:dork-proposal-legacy-adapter
 from security.ledger import journal
 from security.ledger.append import append_entry
@@ -51,7 +51,7 @@ def route_dork_intent(
 
 
 def _execute_dork_bundle(body: DorkIntentRouteRequest) -> DorkIntentBundle:
-    from app.orchestration.dork_intent_router import DorkIntentExecutor, DorkIntentRouter
+    from adaad.orchestrator.dork_intent_router import DorkIntentExecutor, DorkIntentRouter
 
     decision = DorkIntentRouter().route(body)
     return DorkIntentExecutor().execute(request=body, decision=decision)

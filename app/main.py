@@ -36,22 +36,22 @@ from app.architect_agent import ArchitectAgent
 from app.beast_mode_loop import BeastModeLoop
 from app.dream_mode import DreamMode
 from app.mutation_executor import MutationExecutor
-from app.orchestration.boot_config import (
+from adaad.orchestrator.boot_config import (
     FacadeRuntimeState,
     build_init_state,
     dry_run_env_enabled,
     resolve_replay_mode,
     select_epoch,
 )
-from app.orchestration.cli_handlers import (
+from adaad.orchestrator.cli_handlers import (
     build_main_parser,
     handle_export_replay_proof,
     handle_replay_namespace,
     handle_runbook_composer,
     handle_status_report,
 )
-from app.orchestration.runtime_factory import build_orchestrator
-from app.orchestration.replay_preflight import execute_replay_preflight
+from adaad.orchestrator.runtime_factory import build_orchestrator
+from adaad.orchestrator.replay_preflight import execute_replay_preflight
 from runtime.api import MutationEngine, MutationRequest, agent_path_from_id, iter_agent_dirs, resolve_agent_id
 from runtime.api.app_layer import OperatingMode, classify_current_changes, get_operating_mode, get_required_gate_tiers
 from runtime.api.mutation_runtime import verify_all
@@ -1031,7 +1031,7 @@ def main() -> None:
     ):
         return
 
-    from app.orchestration.cli_handlers import handle_explain_gates
+    from adaad.orchestrator.cli_handlers import handle_explain_gates
     if handle_explain_gates(explain_gates=args.explain_gates):
         return
 

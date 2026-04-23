@@ -1,12 +1,14 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Compatibility shim; import from adaad.orchestrator.cli_handlers instead."""
+"""CLI handlers for app.main facade commands."""
 
-from app._deprecated_shim import warn_legacy_module
+from __future__ import annotations
 
-warn_legacy_module("app.orchestration.cli_handlers", "adaad.orchestrator.cli_handlers")
+import argparse
+from pathlib import Path
+from typing import Any
 
-from app import APP_ROOT
-from adaad.orchestrator.runbook_composer import compose_runbook, export_runbook_artifacts, render_runbook_summary
+from adaad import APP_ROOT
+from adaad.orchestrator.runbook_composer import export_runbook_artifacts, render_runbook_summary
 from adaad.orchestrator.status import build_status_report, render_human_table, report_as_json
 from runtime.api.app_layer import classify_current_changes, get_operating_mode, get_required_gate_tiers
 from runtime.api.runtime_services import (
@@ -277,10 +279,10 @@ def handle_status_report(*, adaad_status: bool, trigger_mode: str, status_format
 def handle_runbook_composer(*, adaad_runbook: bool, trigger_mode: str, runbook_verbosity: str, runbook_output_dir: str) -> bool:
     if not adaad_runbook:
         return False
-    report = build_status_report(repo_root=APP_ROOT.parent, trigger_mode=trigger_mode)
-    runbook = compose_runbook(report=report, verbosity_mode=runbook_verbosity)
     artifacts = export_runbook_artifacts(
-        runbook=runbook,
+        repo_root=APP_ROOT.parent,
+        trigger_mode=trigger_mode,
+        verbosity_mode=runbook_verbosity,
         output_dir=APP_ROOT.parent / str(runbook_output_dir),
     )
     print(render_runbook_summary(artifacts))

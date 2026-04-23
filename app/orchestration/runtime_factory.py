@@ -1,24 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Factory helpers for constructing runtime orchestrator instances."""
+"""Compatibility shim; import from adaad.orchestrator.runtime_factory instead."""
 
-from __future__ import annotations
+from app._deprecated_shim import warn_legacy_module
 
-from typing import TYPE_CHECKING
+warn_legacy_module("app.orchestration.runtime_factory", "adaad.orchestrator.runtime_factory")
 
-from app.orchestration.boot_config import OrchestratorInitState
-
-if TYPE_CHECKING:
-    from app.main import Orchestrator
-
-
-def build_orchestrator(init_state: OrchestratorInitState) -> "Orchestrator":
-    from app.main import Orchestrator
-
-    return Orchestrator(
-        dry_run=init_state.dry_run,
-        replay_mode=init_state.replay_mode,
-        replay_epoch=init_state.replay_epoch,
-        exit_after_boot=init_state.exit_after_boot,
-        verbose=init_state.verbose,
-        fast_mode=init_state.fast_mode,
-    )
+from adaad.orchestrator.runtime_factory import *  # noqa: F401,F403

@@ -43,6 +43,9 @@ DEPRECATED_IMPORT_VIOLATION_MESSAGE = "deprecated import path used; migrate to c
 
 DEPRECATED_IMPORT_PATHS: tuple[tuple[str, str], ...] = (
     ("app.root", "adaad.core.root"),
+    ("app.orchestration", "adaad.orchestrator"),
+    ("app.api.governance", "adaad.api.governance"),
+    ("app.api.schemas", "adaad.api.schemas"),
 )
 
 LAYER_IMPORT_BOUNDARIES: tuple[tuple[str, tuple[str, ...]], ...] = (
@@ -330,7 +333,13 @@ def _iter_agent_namespace_drift_issues(path: Path, tree: ast.AST) -> Iterable[Li
 
 def _iter_deprecated_import_issues(path: Path, tree: ast.AST) -> Iterable[LintIssue]:
     rel = _relative_path(path)
-    if rel.startswith("app/agents/") or rel == "app/root.py":
+    if (
+        rel.startswith("app/agents/")
+        or rel.startswith("app/orchestration/")
+        or rel == "app/root.py"
+        or rel == "app/api/governance.py"
+        or rel.startswith("app/api/schemas/")
+    ):
         return
 
     deprecated_prefixes = tuple(prefix for prefix, _ in DEPRECATED_IMPORT_PATHS)
