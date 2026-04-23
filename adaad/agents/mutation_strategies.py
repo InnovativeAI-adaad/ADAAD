@@ -8,8 +8,10 @@ Concrete mutation strategies that generate actionable ops.
 
 
 import json
+import math
 import os
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Mapping, Tuple
 
@@ -253,6 +255,8 @@ class StrategyRegistry:
         self,
         agent_dir: Path,
         skill_weights: Mapping[str, float] | None = None,
+        pattern_scores: Mapping[str, float] | None = None,
+        confidence_threshold: float = 0.35,
     ) -> Tuple[str, List[Dict[str, Any]]]:
         dna = analyze_dna(agent_dir)
         candidates: List[Tuple[float, MutationStrategy]] = []
@@ -260,6 +264,10 @@ class StrategyRegistry:
             weight = strategy.skill_weight
             if skill_weights and strategy.name in skill_weights:
                 weight = skill_weights[strategy.name]
+            if pattern_scores and strategy.name in pattern_scores:
+                confidence = _pattern_confidence(pattern_scores[strategy.name])
+                if confidence >= confidence_threshold:
+                    weight += pattern_scores[strategy.name]
             candidates.append((weight, strategy))
 
         for _, strategy in sorted(candidates, key=lambda item: item[0], reverse=True):
@@ -308,6 +316,63 @@ DEFAULT_REGISTRY = StrategyRegistry(
 )
 
 
+def _parse_iso8601(value: Any) -> datetime | None:
+    if not isinstance(value, str) or not value.strip():
+        return None
+    normalized = value.strip().replace("Z", "+00:00")
+    try:
+        parsed = datetime.fromisoformat(normalized)
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
+
+
+def _pattern_confidence(score_delta: float) -> float:
+    bounded = max(0.0, min(1.0, abs(score_delta) / 0.5))
+    return round(bounded, 6)
+
+
+def load_pattern_scores(
+    patterns_path: Path,
+    *,
+    context: str = "global",
+    min_sample_size: int = 3,
+    decay_half_life_days: float = 14.0,
+) -> Dict[str, float]:
+    if not patterns_path.exists():
+        return {}
+    try:
+        data = json.loads(patterns_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return {}
+
+    now_utc = datetime.now(timezone.utc)
+    patterns = data.get("patterns", []) or []
+    scores: Dict[str, float] = {}
+    for entry in patterns:
+        if not isinstance(entry, dict):
+            continue
+        pattern_id = str(entry.get("pattern_id", "")).strip()
+        pattern_context = str(entry.get("context", "")).strip() or "global"
+        if not pattern_id or pattern_context != context:
+            continue
+        sample_size = int(entry.get("sample_size", 0) or 0)
+        if sample_size < min_sample_size:
+            continue
+        success_rate = float(entry.get("success_rate", 0.5) or 0.5)
+        success_rate = max(0.0, min(1.0, success_rate))
+        last_used = _parse_iso8601(entry.get("last_used_at"))
+        if last_used is None:
+            continue
+        age_days = max(0.0, (now_utc - last_used).total_seconds() / 86400.0)
+        decay = math.pow(0.5, age_days / max(decay_half_life_days, 0.1))
+        calibrated = 0.5 + ((success_rate - 0.5) * decay)
+        scores[pattern_id] = round(calibrated - 0.5, 6)
+    return scores
+
+
 def load_skill_weights(state_path: Path) -> Dict[str, float]:
     if not state_path.exists():
         return {}
@@ -326,9 +391,19 @@ def load_skill_weights(state_path: Path) -> Dict[str, float]:
     return weights
 
 
-def select_strategy(agent_dir: Path, skill_weights: Mapping[str, float] | None = None) -> Tuple[str, List[Dict[str, Any]]]:
+def select_strategy(
+    agent_dir: Path,
+    skill_weights: Mapping[str, float] | None = None,
+    pattern_scores: Mapping[str, float] | None = None,
+    confidence_threshold: float = 0.35,
+) -> Tuple[str, List[Dict[str, Any]]]:
     """Pick a mutation strategy and generate ops."""
-    return DEFAULT_REGISTRY.select(agent_dir, skill_weights=skill_weights)
+    return DEFAULT_REGISTRY.select(
+        agent_dir,
+        skill_weights=skill_weights,
+        pattern_scores=pattern_scores,
+        confidence_threshold=confidence_threshold,
+    )
 
 
 __all__ = [
@@ -340,6 +415,7 @@ __all__ = [
     "adapt_generated_ops",
     "adapt_generated_request_payload",
     "ai_propose_strategy",
+    "load_pattern_scores",
     "load_skill_weights",
     "select_strategy",
 ]
