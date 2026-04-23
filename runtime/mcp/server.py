@@ -191,7 +191,7 @@ def create_app(
     @app.get("/events/cel-feed/health")
     async def cel_feed_health(phase: int = 148) -> Dict[str, Any]:
         """INNOV-COMPLETE-0 health probe for the LEF engine."""
-        return lef_probe()
+        return lef_probe(phase)
 
     @app.get("/events/cel-feed/chain")
     async def cel_feed_chain(phase: int = 148) -> Dict[str, Any]:

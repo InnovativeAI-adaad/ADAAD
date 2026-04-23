@@ -166,6 +166,25 @@ def test_auth_failure_codes_for_malformed_tokens(tmp_path, monkeypatch):
     assert resp2.json()["detail"] == "invalid_jwt"
 
 
+def test_cel_feed_health_uses_requested_phase(tmp_path, monkeypatch):
+    monkeypatch.setenv("ADAAD_MCP_JWT_SECRET", "secret")
+    monkeypatch.setattr(cryovant, "KEYS_DIR", tmp_path)
+    (tmp_path / "signing-key.pem").write_text("k", encoding="utf-8")
+    client = TestClient(create_app())
+    called: dict[str, int] = {}
+
+    def _fake_probe(phase: int = 148):
+        called["phase"] = phase
+        return {"ok": True, "phase": phase}
+
+    monkeypatch.setattr("runtime.mcp.server.lef_probe", _fake_probe)
+
+    resp = client.get("/events/cel-feed/health?phase=222")
+    assert resp.status_code == 200
+    assert called["phase"] == 222
+    assert resp.json()["phase"] == 222
+
+
 def test_pre_check_failed_fallback_on_unparseable_verdicts(tmp_path, monkeypatch):
     monkeypatch.setenv("ADAAD_MCP_JWT_SECRET", "secret")
     monkeypatch.setattr(cryovant, "KEYS_DIR", tmp_path)
