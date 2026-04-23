@@ -26,7 +26,7 @@ import anyio
 from fastapi import BackgroundTasks, Body, Depends, FastAPI, Header, HTTPException, Query, Request, WebSocket
 from pydantic import BaseModel
 
-from app.api.schemas.governance import (
+from adaad.api.schemas.governance import (
     FastPathCheckpointVerifyResponse,
     FastPathEntropyGateRequest,
     FastPathEntropyGateResponse,
@@ -42,7 +42,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from app.api.nexus.mutate import router as mutate_router
-from app.api.governance import router as governance_router
+from adaad.api.governance import router as governance_router
 from app.api.audit import router as audit_router
 from app.api.ui import router as ui_router
 from app.api.simulation import router as simulation_router

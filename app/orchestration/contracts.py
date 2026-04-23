@@ -1,30 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
-from __future__ import annotations
+"""Compatibility shim; import from adaad.orchestrator.contracts instead."""
 
-from dataclasses import dataclass, field
-from typing import Any
+from app._deprecated_shim import warn_legacy_module
 
+warn_legacy_module("app.orchestration.contracts", "adaad.orchestrator.contracts")
 
-@dataclass(frozen=True)
-class StatusEnvelope:
-    """Typed subsystem response envelope for orchestrator boundaries."""
-
-    status: str
-    reason: str = ""
-    evidence_refs: tuple[str, ...] = field(default_factory=tuple)
-    payload: dict[str, Any] = field(default_factory=dict)
-
-    @property
-    def ok(self) -> bool:
-        return self.status == "ok"
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "status": self.status,
-            "reason": self.reason,
-            "evidence_refs": list(self.evidence_refs),
-            "payload": self.payload,
-        }
-
-
-__all__ = ["StatusEnvelope"]
+from adaad.orchestrator.contracts import *  # noqa: F401,F403

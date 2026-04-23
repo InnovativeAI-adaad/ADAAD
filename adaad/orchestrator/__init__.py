@@ -1,8 +1,13 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Orchestrator primitives for registry and dispatch."""
+from adaad.orchestrator.contracts import StatusEnvelope
+from adaad.orchestrator.mutation_orchestration_service import MutationOrchestrationService
 
-from adaad.orchestrator.dispatcher import Dispatcher, dispatch
-from adaad.orchestrator.registry import HandlerRegistry, clear_registry, get_tool, register_tool
-from adaad.orchestrator.bootstrap import bootstrap_tool_registry
+__all__ = ["StatusEnvelope", "MutationOrchestrationService", "DorkIntentRouter", "DorkIntentExecutor"]
 
-__all__ = ["Dispatcher", "HandlerRegistry", "dispatch", "register_tool", "get_tool", "clear_registry", "bootstrap_tool_registry"]
+
+def __getattr__(name: str):
+    if name in {"DorkIntentRouter", "DorkIntentExecutor"}:
+        from adaad.orchestrator.dork_intent_router import DorkIntentExecutor, DorkIntentRouter
+
+        return {"DorkIntentRouter": DorkIntentRouter, "DorkIntentExecutor": DorkIntentExecutor}[name]
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

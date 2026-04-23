@@ -1,13 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
-from __future__ import annotations
+"""Compatibility shim; import from adaad.api.schemas.tenancy instead."""
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from app._deprecated_shim import warn_legacy_module
 
+warn_legacy_module("app.api.schemas.tenancy", "adaad.api.schemas.tenancy")
 
-class TenantContext(BaseModel):
-    """Resolved tenant scope for one API request lifecycle."""
-
-    model_config = ConfigDict(extra="forbid", strict=True)
-
-    tenant_id: StrictStr = Field(min_length=1, max_length=128)
-    workspace_id: StrictStr = Field(min_length=1, max_length=128)
+from adaad.api.schemas.tenancy import *  # noqa: F401,F403

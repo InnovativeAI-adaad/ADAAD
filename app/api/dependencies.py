@@ -6,7 +6,7 @@ from typing import Any
 
 from fastapi import Depends, Header, HTTPException, Request
 
-from app.api.schemas.tenancy import TenantContext
+from adaad.api.schemas.tenancy import TenantContext
 from app.services.runtime_context import RuntimeContext
 
 _TENANT_ID_PATTERN = re.compile(r"^[a-zA-Z0-9._:-]+$")
