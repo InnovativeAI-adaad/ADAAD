@@ -6,11 +6,11 @@
 
 <br/>
 
-<a href="#quickstart">⚡ Quickstart</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="docs/CONSTITUTION.md">📜 Constitution</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="ROADMAP.md">🗺 Roadmap</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="docs/thesis/ADAAD_THESIS.md">📖 Thesis</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="DORK.md">🕵️ DORK</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="TRUST_CENTER.md">🏛 Trust Center</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="docs/VERIFIABLE_CLAIMS.md">✅ Verifiable Claims</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="CHANGELOG.md">📋 Changelog</a>
+<a href="#quickstart">⚡ Quickstart</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="#distribution">📦 Distribution</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="docs/CONSTITUTION.md">📜 Constitution</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="ROADMAP.md">🗺 Roadmap</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="docs/thesis/ADAAD_THESIS.md">📖 Thesis</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="DORK.md">🕵️ DORK</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="TRUST_CENTER.md">🏛 Trust Center</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="docs/VERIFIABLE_CLAIMS.md">✅ Verifiable Claims</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="CHANGELOG.md">📋 Changelog</a>
 
 <br/>
 
-[![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-00d4ff?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v9.83.0](https://img.shields.io/badge/version-v9.84.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![273 Invariants](https://img.shields.io/badge/invariants-273%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![57 Innovations](https://img.shields.io/badge/innovations-57%20shipped-f97316?style=flat-square&labelColor=0d1117)](ROADMAP.md)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
+[![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-00d4ff?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v9.83.0](https://img.shields.io/badge/version-v9.84.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![273 Invariants](https://img.shields.io/badge/invariants-273%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![57 Innovations](https://img.shields.io/badge/innovations-57%20shipped-f97316?style=flat-square&labelColor=0d1117)](ROADMAP.md)&nbsp;[![Free Download](https://img.shields.io/github/v/release/InnovativeAI-adaad/ADAAD?label=APK&color=00d4ff)](https://github.com/InnovativeAI-adaad/ADAAD/releases)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
 
 </div>
 
@@ -97,6 +97,13 @@ pip install adaad
 ```
 
 **Android / Termux:** Full governed runtime on a $200 phone. See [`TERMUX_SETUP.md`](TERMUX_SETUP.md).
+
+## <a id="distribution"></a>Distribution
+
+- **Free Android distribution playbook:** [`DISTRIBUTION.md`](DISTRIBUTION.md)
+- **Play Store submission runbook:** [`android/play-store-assets/SUBMISSION_RUNBOOK.md`](android/play-store-assets/SUBMISSION_RUNBOOK.md)
+- **Obtainium import manifest:** [`android/obtainium.json`](android/obtainium.json)
+- **Privacy policy URL:** https://innovativeai.dev/adaad/privacy
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 

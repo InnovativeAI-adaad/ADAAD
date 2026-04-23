@@ -155,19 +155,35 @@ Or trigger manually from GitHub Actions → Android Release → Run workflow
 
 ## Pre-Launch Checklist
 
-- [ ] Google Play Developer account created and verified
-- [ ] Service account JSON created and added to GitHub secrets
-- [ ] Keystore base64 and passwords added to GitHub secrets
-- [ ] Play App Signing enrolled
-- [ ] Privacy policy published at innovativeai.dev/adaad/privacy
-- [ ] App icon (512×512) created
-- [ ] Feature graphic (1024×500) created
-- [ ] Minimum 2 phone screenshots created
-- [ ] Data safety form completed in Play Console
-- [ ] Content rating questionnaire completed
-- [ ] First AAB uploaded manually to internal track
-- [ ] Internal test build passes on physical Android device
-- [ ] CI workflow tested with internal track before promoting to alpha
+- [ ] Google Play Developer account created and verified — **Blocked:** requires Play Console
+      org owner action and identity/billing verification. **Owner:** InnovativeAI Org Owner.
+      **Target date:** 2026-05-01.
+- [ ] Service account JSON created and added to GitHub secrets — **Blocked:** depends on Play
+      account + GCP project/API linkage. **Owner:** DevOps. **Target date:** 2026-05-02.
+- [ ] Keystore base64 and passwords added to GitHub secrets — **Blocked:** requires repository
+      admin privileges and controlled secret handling workflow. **Owner:** Security + DevOps.
+      **Target date:** 2026-05-02.
+- [ ] Play App Signing enrolled — **Blocked:** can only be completed inside Play Console after
+      app setup. **Owner:** Android Release Engineer. **Target date:** 2026-05-03.
+- [ ] Privacy policy published at innovativeai.dev/adaad/privacy — **Blocked:** external site
+      publication + legal approval required. **Owner:** Legal/Comms. **Target date:** 2026-05-01.
+- [ ] App icon (512×512) created — **Blocked:** design asset not tracked in repository runbook
+      evidence set. **Owner:** Design. **Target date:** 2026-04-30.
+- [ ] Feature graphic (1024×500) created — **Blocked:** design deliverable pending. **Owner:** Design.
+      **Target date:** 2026-04-30.
+- [ ] Minimum 2 phone screenshots created — **Blocked:** requires device capture from current
+      app build. **Owner:** Android QA. **Target date:** 2026-05-02.
+- [ ] Data safety form completed in Play Console — **Blocked:** Play Console gated; requires final
+      legal/product disclosures. **Owner:** Product + Legal. **Target date:** 2026-05-03.
+- [ ] Content rating questionnaire completed — **Blocked:** Play Console gated and must be completed
+      after listing content freeze. **Owner:** Product. **Target date:** 2026-05-03.
+- [ ] First AAB uploaded manually to internal track — **Blocked:** depends on all prior Play
+      setup gates. **Owner:** Android Release Engineer. **Target date:** 2026-05-04.
+- [ ] Internal test build passes on physical Android device — **Blocked:** requires device QA run
+      against uploaded internal-track build. **Owner:** Android QA. **Target date:** 2026-05-05.
+- [ ] CI workflow tested with internal track before promoting to alpha — **Blocked:** follows successful
+      internal-track upload and service-account automation setup. **Owner:** DevOps + Android Release Engineer.
+      **Target date:** 2026-05-06.
 
 ---
 
