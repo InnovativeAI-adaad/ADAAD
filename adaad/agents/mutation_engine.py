@@ -26,6 +26,7 @@ PATTERN_DECAY_HALFLIFE_DAYS = float(os.getenv("ADAAD_MUTATION_PATTERN_DECAY_HALF
 PATTERN_MIN_SAMPLE_SIZE = int(os.getenv("ADAAD_MUTATION_PATTERN_MIN_SAMPLE_SIZE", "3"))
 PATTERN_ACCEPTANCE_SCORE = float(os.getenv("ADAAD_MUTATION_PATTERN_ACCEPTANCE_SCORE", "0.6"))
 PATTERN_PRIOR = float(os.getenv("ADAAD_MUTATION_PATTERN_PRIOR", "0.5"))
+TREND_WEIGHT_COEF = float(os.getenv("ADAAD_MUTATION_TREND_WEIGHT_COEF", "0.8"))
 
 
 class MutationEngine:
@@ -54,7 +55,15 @@ class MutationEngine:
         stats = state.setdefault("stats", {})
         entry = stats.setdefault(
             strategy_id,
-            {"n": 0.0, "reward": 0.0, "fail": 0.0, "ema": None, "low_impact": 0.0, "skill_weight": None},
+            {
+                "n": 0.0,
+                "reward": 0.0,
+                "fail": 0.0,
+                "ema": None,
+                "low_impact": 0.0,
+                "skill_weight": None,
+                "scores": [],
+            },
         )
         return entry
 
@@ -148,6 +157,11 @@ class MutationEngine:
             },
             level="INFO",
         )
+    def _score_trend(scores: List[float], window: int = 5) -> float:
+        if len(scores) < 2:
+            return 0.0
+        tail = [float(score) for score in scores[-max(2, window) :]]
+        return (tail[-1] - tail[0]) / max(1, len(tail) - 1)
 
     def _update_state_from_metrics(self, state: Dict[str, Any]) -> Dict[str, Any]:
         if not self.metrics_path.exists():
@@ -192,6 +206,11 @@ class MutationEngine:
                 score = float(payload.get("score", 0.0))
                 entry["n"] += 1.0
                 entry["reward"] += score
+                history = entry.get("scores", [])
+                if not isinstance(history, list):
+                    history = []
+                history.append(score)
+                entry["scores"] = history[-100:]
                 if entry["ema"] is None:
                     entry["ema"] = score
                 else:
@@ -419,6 +438,8 @@ class MutationEngine:
             pattern_delta, pattern_confidence = self._pattern_signal(sid, context="global")
             if pattern_confidence >= PATTERN_CONFIDENCE_MIN:
                 s += pattern_delta * pattern_confidence * PATTERN_SCORE_COEF
+            score_trend = self._score_trend(stats.get("scores", []))
+            s += score_trend * TREND_WEIGHT_COEF
             low_impact = stats.get("low_impact", 0.0)
             if attempts:
                 s -= (low_impact / attempts) * 0.4
