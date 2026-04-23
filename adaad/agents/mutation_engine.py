@@ -19,6 +19,7 @@ from runtime.api.app_layer import ROOT_DIR, metrics, summarize_preflight_rejecti
 EMA_ALPHA = float(os.getenv("ADAAD_MUTATION_EMA_ALPHA", "0.3"))
 LOW_IMPACT_THRESHOLD = float(os.getenv("ADAAD_MUTATION_LOW_IMPACT_THRESHOLD", "0.3"))
 SKILL_WEIGHT_COEF = float(os.getenv("ADAAD_MUTATION_SKILL_WEIGHT_COEF", "0.6"))
+TREND_WEIGHT_COEF = float(os.getenv("ADAAD_MUTATION_TREND_WEIGHT_COEF", "0.8"))
 
 
 class MutationEngine:
@@ -46,9 +47,24 @@ class MutationEngine:
         stats = state.setdefault("stats", {})
         entry = stats.setdefault(
             strategy_id,
-            {"n": 0.0, "reward": 0.0, "fail": 0.0, "ema": None, "low_impact": 0.0, "skill_weight": None},
+            {
+                "n": 0.0,
+                "reward": 0.0,
+                "fail": 0.0,
+                "ema": None,
+                "low_impact": 0.0,
+                "skill_weight": None,
+                "scores": [],
+            },
         )
         return entry
+
+    @staticmethod
+    def _score_trend(scores: List[float], window: int = 5) -> float:
+        if len(scores) < 2:
+            return 0.0
+        tail = [float(score) for score in scores[-max(2, window) :]]
+        return (tail[-1] - tail[0]) / max(1, len(tail) - 1)
 
     def _update_state_from_metrics(self, state: Dict[str, Any]) -> Dict[str, Any]:
         if not self.metrics_path.exists():
@@ -93,6 +109,11 @@ class MutationEngine:
                 score = float(payload.get("score", 0.0))
                 entry["n"] += 1.0
                 entry["reward"] += score
+                history = entry.get("scores", [])
+                if not isinstance(history, list):
+                    history = []
+                history.append(score)
+                entry["scores"] = history[-100:]
                 if entry["ema"] is None:
                     entry["ema"] = score
                 else:
@@ -272,6 +293,8 @@ class MutationEngine:
                 skill_weight = DEFAULT_REGISTRY.get_skill_weight(sid)
             if skill_weight is not None:
                 s += float(skill_weight) * SKILL_WEIGHT_COEF
+            score_trend = self._score_trend(stats.get("scores", []))
+            s += score_trend * TREND_WEIGHT_COEF
             low_impact = stats.get("low_impact", 0.0)
             if attempts:
                 s -= (low_impact / attempts) * 0.4
