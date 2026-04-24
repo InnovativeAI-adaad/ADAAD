@@ -1,0 +1,14 @@
+{
+  "phase": 153,
+  "innovation_id": "INNOV-59",
+  "tier": "Hard",
+  "invariants": [
+    {"id": "AMT-DETERM-0", "tier": "Hard", "description": "Throttle multiplier is deterministic; identical inputs always produce identical output"},
+    {"id": "AMT-LEDGER-0", "tier": "Hard", "description": "Every compute() writes THROTTLE_EVENT to HMAC-chained ledger before returning"},
+    {"id": "AMT-FLOOR-0", "tier": "Hard", "description": "Multiplier never falls below AMT_FLOOR (0.05) without HUMAN-0 emergency override"},
+    {"id": "AMT-HUMAN0-0", "tier": "Hard", "description": "Override and weight reconfiguration require non-empty HUMAN-0 operator identity"},
+    {"id": "AMT-FEEDBACK-0", "tier": "Hard", "description": "AMT ingests only THROTTLE_EVENT and PRESSURE_SNAPSHOT ledger record types"}
+  ],
+  "total_hard_class": 283,
+  "date": "2026-04-24"
+}

@@ -1,3 +1,24 @@
+## [9.86.0] — 2026-04-24 · Phase 153 · INNOV-59 · Adaptive Mutation Throttle (AMT)
+
+### Hard-class invariants (+5 → 283 total)
+- AMT-DETERM-0: Throttle multiplier is a pure deterministic function of (pressure_snapshot, weights, floor); identical inputs always produce identical output. Timestamps and entropy excluded.
+- AMT-LEDGER-0: Every ThrottleEngine.compute() call writes a THROTTLE_EVENT to the HMAC-chained ledger before the multiplier is returned; AMTLedgerError raised on failure.
+- AMT-FLOOR-0: The throttle multiplier never falls below AMT_FLOOR (0.05) during normal operation. Only a HUMAN-0-authorised emergency override may set multiplier to 0.0.
+- AMT-HUMAN0-0: Emergency override and domain-weight reconfiguration require a non-empty HUMAN-0 operator identity; empty/None raises AMTAuthError.
+- AMT-FEEDBACK-0: AMT ingests only THROTTLE_EVENT and PRESSURE_SNAPSHOT ledger record types; any other type raises AMTScopeError.
+
+### Added
+- `dorkllm/adaptive_throttle.py` — ThrottleEngine, AMTLedger, AMTConfig, ThrottleSnapshot, ThrottleRegime; piecewise-linear pressure→multiplier control law; OPEN/CAUTION/RESTRICT/OVERRIDE regimes
+- `runtime/innovations30/adaptive_mutation_throttle.py` — INNOV-59 registry wrapper; WORLD_FIRST_CLAIM; HARD_CLASS_INVARIANTS manifest
+- `tests/innovations/test_phase153_amt.py` — 30/30 acceptance suite (AMT01–AMT30)
+- `artifacts/governance/phase153/` — ILA + sign_off + tier_summary governance artifacts
+
+### Architecture
+Closes the constitutional control loop: **CPI (sense) → AMT (govern) → GCB (last resort) → GRB (recover)**. AMT reads CPI pressure snapshots from the HMAC-chained ledger and adjusts mutation admission rate before circuit-breaker trips are necessary, providing proportional governance before binary shutdown.
+
+### World-first claim (INNOV-59 #14)
+First constitutionally governed, feedback-control mutation throttle integrated into an autonomous AI governance pipeline — continuously adapts mutation admission rate from CPI pressure readings, enforces a Hard-class constitutional floor, and requires HUMAN-0 cryptographic authorisation for full-stop overrides, closing the CPI → AMT → GCB control loop with full ledger auditability.
+
 ## [9.85.0] — 2026-04-24 · Phase 152 · INNOV-58 · Constitutional Pressure Index (CPI)
 
 ### Hard-class invariants (+5 → 278 total)

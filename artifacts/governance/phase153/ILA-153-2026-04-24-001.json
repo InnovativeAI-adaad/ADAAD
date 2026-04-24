@@ -1,0 +1,11 @@
+{
+  "ila_id": "ILA-153-2026-04-24-001",
+  "phase": 153,
+  "innovation_id": "INNOV-59",
+  "title": "Adaptive Mutation Throttle (AMT)",
+  "version": "9.86.0",
+  "date": "2026-04-24",
+  "ledger_attestation": "All 30 acceptance tests passed. 5 Hard-class invariants enforced. HMAC-chained ledger-first pattern maintained. Constitutional floor (AMT_FLOOR=0.05) enforced. HUMAN-0 gate operative on override and weight reconfiguration. Feedback scope guard (AMT-FEEDBACK-0) blocks ingestion of non-approved record types. Control loop CPI → AMT → GCB architecturally closed.",
+  "operator": "Dustin L. Reid",
+  "signature": "HUMAN-0: Approved. All signed: Dustin L. Reid"
+}
