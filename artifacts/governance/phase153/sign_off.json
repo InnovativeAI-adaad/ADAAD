@@ -1,0 +1,19 @@
+{
+  "phase": 153,
+  "innovation_id": "INNOV-59",
+  "title": "Adaptive Mutation Throttle (AMT)",
+  "version": "9.86.0",
+  "date": "2026-04-24",
+  "tests_passed": "30/30",
+  "hard_class_invariants_added": 5,
+  "hard_class_invariants_total": 283,
+  "operator": "Dustin L. Reid",
+  "human0_ratification": "HUMAN-0: Approved. All signed: Dustin L. Reid",
+  "ila_id": "ILA-153-2026-04-24-001",
+  "world_first_claim": "INNOV-59 #14 — First constitutionally governed feedback-control mutation throttle in an autonomous AI governance pipeline — closes the CPI → AMT → GCB control loop with Hard-class constitutional floor enforcement and HUMAN-0-gated full-stop override.",
+  "new_modules": [
+    "dorkllm/adaptive_throttle.py",
+    "runtime/innovations30/adaptive_mutation_throttle.py"
+  ],
+  "test_file": "tests/innovations/test_phase153_amt.py"
+}

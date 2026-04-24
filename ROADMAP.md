@@ -123,6 +123,9 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 148 | INNOV-54 LEF — Live Execution Feed | v9.81.0 | P0 | ✅ shipped |
 | 149 | INNOV-55 MXE — Mutation Explainability Engine | v9.82.0 | P0 | ✅ shipped |
 | 150 | INNOV-56 GCB — Governance Circuit Breaker | v9.83.0 | P0 | ✅ shipped |
+| 151 | INNOV-57 GRB — Governed Rollback | v9.84.0 | P0 | ✅ shipped |
+| 152 | INNOV-58 CPI — Constitutional Pressure Index | v9.85.0 | P0 | ✅ shipped |
+| 153 | INNOV-59 AMT — Adaptive Mutation Throttle | v9.86.0 | P0 | ✅ shipped |
 
 
 ## Phase 140 — Constitutional P0 Sweep + P1 Hardening (v9.73.0) ✅
