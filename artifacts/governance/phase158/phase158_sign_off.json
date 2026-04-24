@@ -1,0 +1,26 @@
+{
+    "phase": 158,
+    "innovation": "INNOV-64",
+    "code": "CSR",
+    "name": "Constitutional Self-Repair Engine",
+    "version": "9.91.0",
+    "status": "COMPLETE",
+    "tests": "30/30",
+    "new_invariants": [
+        "CSR-PROPOSE-0",
+        "CSR-DETERM-0",
+        "CSR-EMIT-0",
+        "CSR-CRITICAL-0",
+        "CSR-BOUNDED-0"
+    ],
+    "invariant_total": 274,
+    "innovations_total": 64,
+    "successor_phase": 159,
+    "convergence_criterion": "8 \u2014 Autonomous Constitutional Self-Repair Demonstrated",
+    "module": "dorkllm/self_repair.py",
+    "rest": "app/api/self_repair.py",
+    "tests_file": "tests/test_phase158_csr.py",
+    "ip_note": "Closed-loop Constitutional Self-Repair Engine that derives targeted proposals from GHI and re-emits into hash-chained CGTH ledger \u2014 novel claim for InnovativeAI LLC",
+    "author": "DEVADAAD",
+    "authority": "HUMAN-0 gate: Dustin L. Reid"
+}
