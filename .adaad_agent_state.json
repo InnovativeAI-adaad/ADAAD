@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.84.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": "Phase 154 complete \u2014 v9.87.0 RELEASED \u00b7 INNOV-60 CPAG \u00b7 288 Hard-class invariants",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -338,7 +338,7 @@
     "hard_class_count": 278
   },
   "current_phase": 154,
-  "current_version": "9.85.0",
+  "current_version": "9.87.0",
   "hard_class_count": 273,
   "hard_class_invariant_count": 263,
   "hard_class_invariants_cumulative": 263,
