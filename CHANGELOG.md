@@ -1,3 +1,53 @@
+## [9.92.0] - Phase 159 . INNOV-65 . CSI - Constitutional Strength Index
+
+**Date:** 2026-04-24  **Author:** DEVADAAD . InnovativeAI LLC
+
+### Summary
+The Constitutional Strength Index (CSI) is the single authoritative number (0-100)
+representing the overall constitutional integrity of an ADAAD instance at any moment.
+It synthesizes six orthogonal governance telemetry dimensions into one deterministic,
+cryptographically timestamped score. A CSI below 70 triggers an automatic advisory to
+HUMAN-0. The score is designed for board-level governance reporting: any CCO or general
+counsel can read it in under five seconds.
+
+Achieves DORK Supremacy Plan milestone DORK-PERM-019.
+Advances V10 Convergence Criterion 6 (Continuous Constitutional Strength Measurement).
+
+### New Module - dorkllm/constitutional_strength.py
+- ConstitutionalStrengthIndex - six-dimensional composite score engine
+- CSISnapshot - immutable result with score, band, sub_scores, snapshot_id, advisory
+- compute_csi() - module-level convenience function
+- Six sub-dimensions: invariant_compliance (0.30), pressure_headroom (0.20),
+  anomaly_resilience (0.20), agent_stability (0.15), governance_velocity (0.10),
+  repair_responsiveness (0.05)
+- Score bands: EXCELLENT>=85, HEALTHY>=70, CAUTION>=50, CRITICAL<50
+- Deterministic snapshot_id (SHA-256 of canonical sub-score payload)
+- CSI-GATE-0: HUMAN0_AUTHORISATION advisory emitted when score < 70
+
+### New API - app/api/constitutional_strength.py
+- GET /api/governance/csi              - current CSI score + full snapshot
+- GET /api/governance/csi/history      - recent CSI history from CGTH
+- GET /api/governance/csi/band         - score + band + UI color for dork.html header
+
+### New Invariants (5 Hard-class)
+- CSI-SCORE-0   : score is always int in [0, 100]
+- CSI-DETERM-0  : identical CGTH records produce identical snapshot_id
+- CSI-EMIT-0    : every compute() emits PERM_SNAPSHOT(csi) into CGTH
+- CSI-GATE-0    : score < 70 MUST emit HUMAN0_AUTHORISATION advisory
+- CSI-BAND-0    : band assignment is deterministic from score alone
+
+### Tests
+- tests/test_phase159_csi.py: 39/39 passing acceptance suite
+
+### Changed
+- VERSION: 9.91.0 -> 9.92.0
+- dorkllm/telemetry_hub.py: 'csi' registered as known CGTH emitter component
+- server.py: CSI router wired into FastAPI application
+- Total invariants: 274 -> 279
+- Total innovations: 64 -> 65
+
+
+
 ## [9.91.0] — Phase 158 · INNOV-64 · CSR — Constitutional Self-Repair Engine
 
 ### Added

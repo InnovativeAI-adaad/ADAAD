@@ -131,6 +131,7 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 156 | INNOV-62 CGAI — Constitutional Governance Anomaly Inspector | v9.89.0 | P0 | ✅ shipped |
 | 157 | INNOV-63 GHI — Governance Health Index | v9.90.0 | P0 | ✅ shipped |
 | 158 | INNOV-64 CSR — Constitutional Self-Repair Engine | v9.91.0 | P0 | ✅ shipped |
+| 159 | INNOV-65 CSI - Constitutional Strength Index | v9.92.0 | P0 | shipped |
 
 
 ## Phase 140 — Constitutional P0 Sweep + P1 Hardening (v9.73.0) ✅
