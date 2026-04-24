@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.88.0 RELEASED \u00b7 Phase 155 \u00b7 INNOV-61 CGTH",
+  "active_phase": "v9.89.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -342,7 +342,7 @@
     "hard_class_count": 278
   },
   "current_phase": 154,
-  "current_version": "9.87.0",
+  "current_version": "9.89.0",
   "hard_class_count": 273,
   "hard_class_invariant_count": 263,
   "hard_class_invariants_cumulative": 263,
@@ -377,7 +377,7 @@
   "last_invocation": "2026-04-24",
   "last_phase_completed": 149,
   "last_phase_completed_label": "Phase 149 \u00b7 INNOV-55 \u00b7 Mutation Explainability Engine",
-  "last_sync_sha": "e2adc28d",
+  "last_sync_sha": "85ee7b4e",
   "last_updated": "2026-04-22T00:00:00Z",
   "next_phase": 150,
   "next_pr": "Phase 157 \u2014 next innovation",
@@ -655,7 +655,7 @@
     141
   ],
   "schema_version": "1.5.0",
-  "software_version": "9.87.0",
+  "software_version": "9.89.0",
   "tife_active": true,
   "value_checkpoints_reached": [
     "phase0-track-a-hardening",
@@ -951,8 +951,8 @@
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
   ],
-  "last_completed_phase": "Phase 24 \u00b7 Phase 154 \u00b7 INNOV-60 \u00b7 Constitutional Pre-Admission Gate (CPAG)",
-  "last_agent_state_sync_digest": "gsync-53cb70a26d645e14",
+  "last_completed_phase": "24 \u00b7 Phase 154 \u00b7 INNOV-60 \u00b7 Constitutional Pre-Admission Gate (CPAG)",
+  "last_agent_state_sync_digest": "gsync-8636799462d092a1",
   "invariant_count": 263,
   "innovation_count": 62,
   "innovations_shipped": 58,
