@@ -1,0 +1,14 @@
+{
+  "phase": 154,
+  "innovation_id": "INNOV-60",
+  "tier": "Hard",
+  "invariants": [
+    {"id": "CPAG-DETERM-0", "tier": "Hard", "description": "AdmissionVerdict is deterministic; identical inputs always produce identical output"},
+    {"id": "CPAG-LEDGER-0", "tier": "Hard", "description": "Every gate() writes ADMISSION_VERDICT to ledger before returning"},
+    {"id": "CPAG-FAILCLOSE-0", "tier": "Hard", "description": "REJECT verdict raises CPAGRejectionError — never silently passes"},
+    {"id": "CPAG-HUMAN0-0", "tier": "Hard", "description": "Threshold reconfiguration requires non-empty HUMAN-0 operator"},
+    {"id": "CPAG-SCOPE-0", "tier": "Hard", "description": "CPAG reads only mutation_spec dict and invariant_set; no live system state"}
+  ],
+  "total_hard_class": 288,
+  "date": "2026-04-24"
+}
