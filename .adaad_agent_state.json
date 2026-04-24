@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.89.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": "v9.90.0 RELEASED \u00b7 Phase 157 INNOV-63 GHI",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -380,7 +380,7 @@
   "last_sync_sha": "85ee7b4e",
   "last_updated": "2026-04-22T00:00:00Z",
   "next_phase": 150,
-  "next_pr": "Phase 157 \u2014 next innovation",
+  "next_pr": "Phase 158 \u2014 next innovation",
   "open_findings": [
     {
       "id": "FINDING-66-001",
@@ -627,7 +627,7 @@
     }
   ],
   "pending_evidence_rows": [],
-  "phase": 156,
+  "phase": 157,
   "phase_label": "Phase 149 \u00b7 INNOV-55 \u00b7 Mutation Explainability Engine",
   "phases_completed": [
     106,
@@ -946,7 +946,7 @@
     "phase124-world-first-governed-kernel-extraction",
     "v9.57.0-released"
   ],
-  "version": "9.89.0",
+  "version": "9.90.0",
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
@@ -954,7 +954,7 @@
   "last_completed_phase": "24 \u00b7 Phase 154 \u00b7 INNOV-60 \u00b7 Constitutional Pre-Admission Gate (CPAG)",
   "last_agent_state_sync_digest": "gsync-8636799462d092a1",
   "invariant_count": 263,
-  "innovation_count": 62,
+  "innovation_count": 63,
   "innovations_shipped": 58,
   "open_findings_count": 0,
   "last_innovation_id": "INNOV-60",

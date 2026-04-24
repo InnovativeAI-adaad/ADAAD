@@ -1,0 +1,20 @@
+{
+  "phase": 157,
+  "innovation": "INNOV-63",
+  "code": "GHI",
+  "name": "Governance Health Index",
+  "version": "9.90.0",
+  "status": "COMPLETE",
+  "tests": "30/30",
+  "new_invariants": ["GHI-SCORE-0","GHI-DETERM-0","GHI-EMIT-0","GHI-SUBINDEX-0"],
+  "invariant_total": 269,
+  "innovations_total": 63,
+  "successor_phase": 158,
+  "convergence_criterion": "7 — Constitutional Coherence Measurable",
+  "module": "dorkllm/governance_health.py",
+  "rest": "app/api/governance_health.py",
+  "tests_file": "tests/test_phase157_ghi.py",
+  "ip_note": "Composite Constitutional Health Index synthesized from hash-chained multi-subsystem telemetry — novel claim for InnovativeAI LLC",
+  "author": "DEVADAAD",
+  "authority": "HUMAN-0 gate: Dustin L. Reid"
+}
