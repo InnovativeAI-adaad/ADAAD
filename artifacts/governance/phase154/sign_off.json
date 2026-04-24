@@ -1,0 +1,19 @@
+{
+  "phase": 154,
+  "innovation_id": "INNOV-60",
+  "title": "Constitutional Pre-Admission Gate (CPAG)",
+  "version": "9.87.0",
+  "date": "2026-04-24",
+  "tests_passed": "30/30",
+  "hard_class_invariants_added": 5,
+  "hard_class_invariants_total": 288,
+  "operator": "Dustin L. Reid",
+  "human0_ratification": "HUMAN-0: Approved. All signed: Dustin L. Reid",
+  "ila_id": "ILA-154-2026-04-24-001",
+  "world_first_claim": "INNOV-60 #15 — First constitutionally governed pre-admission mutation gate in an autonomous AI pipeline — evaluates mutations against the Hard-class invariant set before entry, enforces fail-closed rejection, integrates AMT throttle pressure to tighten thresholds under load, and completes the full constitutional lifecycle.",
+  "new_modules": [
+    "dorkllm/constitutional_gate.py",
+    "runtime/innovations30/constitutional_pre_admission_gate.py"
+  ],
+  "test_file": "tests/innovations/test_phase154_cpag.py"
+}

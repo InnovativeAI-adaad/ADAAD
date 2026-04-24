@@ -1,3 +1,27 @@
+## [9.87.0] — 2026-04-24 · Phase 154 · INNOV-60 · Constitutional Pre-Admission Gate (CPAG)
+
+### Hard-class invariants (+5 → 288 total)
+- CPAG-DETERM-0: AdmissionVerdict is a pure deterministic function of (mutation_spec, invariant_set, throttle_multiplier, thresholds); identical inputs always produce identical output.
+- CPAG-LEDGER-0: Every gate() call writes an ADMISSION_VERDICT to the HMAC-chained ledger before the verdict is returned; CPAGLedgerError raised on failure.
+- CPAG-FAILCLOSE-0: REJECT verdicts raise CPAGRejectionError — the gate never silently passes a rejected mutation.
+- CPAG-HUMAN0-0: Threshold reconfiguration requires a non-empty HUMAN-0 operator identity; empty/None raises CPAGAuthError.
+- CPAG-SCOPE-0: CPAG evaluates only the mutation_spec dict and invariant_set; it never reads live system state, process memory, or external APIs. Violations raise CPAGScopeError.
+
+### Added
+- `dorkllm/constitutional_gate.py` — ConstitutionalGate, CPAGLedger, CPAGConfig, AdmissionVerdict, VerdictResult (ADMIT/DEFER/REJECT), InvariantEval, ConstitutionalInvariant; AMT-integrated effective_admit_min tightening; piecewise deterministic scoring
+- `runtime/innovations30/constitutional_pre_admission_gate.py` — INNOV-60 registry wrapper; WORLD_FIRST_CLAIM; HARD_CLASS_INVARIANTS manifest
+- `tests/innovations/test_phase154_cpag.py` — 30/30 acceptance suite (CPAG01–CPAG30)
+- `artifacts/governance/phase154/` — ILA + sign_off + tier_summary governance artifacts
+
+### Architecture
+Completes the full constitutional mutation lifecycle:
+**propose → CPAG (gate) → CEL (execute) → AMT (throttle) → GCB (last resort) → GRB (recover)**
+
+Every mutation now passes constitutional fitness scoring before pipeline entry. The gate integrates with AMT: as system pressure rises, the admission bar tightens proportionally, providing graduated defence in depth.
+
+### World-first claim (INNOV-60 #15)
+First constitutionally governed pre-admission mutation gate integrated into an autonomous AI pipeline — evaluates every proposed mutation against the active Hard-class invariant set before entry, enforces fail-closed rejection with full per-invariant rationale, integrates AMT throttle pressure to tighten admission thresholds under load, and requires HUMAN-0 cryptographic authorisation for threshold reconfiguration.
+
 ## [9.86.0] — 2026-04-24 · Phase 153 · INNOV-59 · Adaptive Mutation Throttle (AMT)
 
 ### Hard-class invariants (+5 → 283 total)

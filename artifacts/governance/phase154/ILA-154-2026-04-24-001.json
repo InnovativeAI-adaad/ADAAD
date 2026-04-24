@@ -1,0 +1,11 @@
+{
+  "ila_id": "ILA-154-2026-04-24-001",
+  "phase": 154,
+  "innovation_id": "INNOV-60",
+  "title": "Constitutional Pre-Admission Gate (CPAG)",
+  "version": "9.87.0",
+  "date": "2026-04-24",
+  "ledger_attestation": "All 30 acceptance tests passed. 5 Hard-class invariants enforced. HMAC-chained ledger-first pattern maintained. Fail-closed gate raises CPAGRejectionError on REJECT — no silent pass. HUMAN-0 gate operative on threshold reconfiguration. Scope guard blocks non-dict specs. AMT throttle integration verified. Full constitutional lifecycle closed: propose → CPAG → CEL → AMT → GCB → GRB.",
+  "operator": "Dustin L. Reid",
+  "signature": "HUMAN-0: Approved. All signed: Dustin L. Reid"
+}
