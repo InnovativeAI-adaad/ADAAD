@@ -10,7 +10,7 @@
 
 <br/>
 
-[![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-00d4ff?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v9.83.0](https://img.shields.io/badge/version-v9.84.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![273 Invariants](https://img.shields.io/badge/invariants-273%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![57 Innovations](https://img.shields.io/badge/innovations-57%20shipped-f97316?style=flat-square&labelColor=0d1117)](ROADMAP.md)&nbsp;[![Free Download](https://img.shields.io/github/v/release/InnovativeAI-adaad/ADAAD?label=APK&color=00d4ff)](https://github.com/InnovativeAI-adaad/ADAAD/releases)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
+[![Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-00d4ff?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v9.85.0](https://img.shields.io/badge/version-v9.85.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![278 Invariants](https://img.shields.io/badge/invariants-278%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![58 Innovations](https://img.shields.io/badge/innovations-58%20shipped-f97316?style=flat-square&labelColor=0d1117)](ROADMAP.md)&nbsp;[![Free Download](https://img.shields.io/github/v/release/InnovativeAI-adaad/ADAAD?label=APK&color=00d4ff)](https://github.com/InnovativeAI-adaad/ADAAD/releases)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
 
 </div>
 
@@ -47,9 +47,9 @@ ADAAD is not an agent framework. Not an LLM wrapper. Not a dev tool. It is a **g
 
 | Metric | Value |
 |:-------|:------|
-| Current version | `v9.84.0` · Phase `151` |
-| Hard-class constitutional invariants | **273** — cryptographically enforced |
-| Shipped innovations | **57** — INNOV-01 through INNOV-57 |
+| Current version | `v9.85.0` · Phase `152` |
+| Hard-class constitutional invariants | **278** — cryptographically enforced |
+| Shipped innovations | **58** — INNOV-01 through INNOV-57 |
 | Constitutional Evolution Loop | **16 steps** — deterministic, replayable |
 | Specialist agents | **3** — Architect · Dream · Beast |
 | HUMAN-0 gate | **1** — structurally non-delegatable |
@@ -115,7 +115,7 @@ pip install adaad
 ├──────────────┼──────────────────────────────────────────┼──────────────────────────┤
 │  Architect   │  Governance, structure, invariant check  │  Conservative. Blocks    │
 │  (blue)      │  Scores every mutation for compliance    │  anything that breaks    │
-│              │  against all 268 Hard-class invariants   │  constitutional integrity │
+│              │  against all 278 Hard-class invariants   │  constitutional integrity │
 ├──────────────┼──────────────────────────────────────────┼──────────────────────────┤
 │  Dream       │  Creativity, ideation, novelty           │  Bold. Proposes novelty. │
 │  (violet)    │  Explores mutation possibility space     │  Checked by every other  │
@@ -147,7 +147,7 @@ None of the three can approve their own proposals. The AFRT is structurally proh
   [5]  Beast performance scoring       [13] HUMAN-0 gate (Tier-0 changes only)
   [6]  AFRT adversarial red-team       [14] GPG-signed ledger entry
   [7]  Fitness surface evaluation      [15] Hash-chained CEPD proof
-  [8]  268-invariant constitutional    [16] Annotated tag + release evidence
+  [8]  278-invariant constitutional    [16] Annotated tag + release evidence
        scoring
 ```
 

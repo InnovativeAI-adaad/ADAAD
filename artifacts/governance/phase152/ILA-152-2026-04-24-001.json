@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "ila_id": "ILA-152-2026-04-24-001",
+  "phase": 152,
+  "innov_id": "INNOV-58",
+  "innov_name": "Constitutional Pressure Index (CPI)",
+  "version": "9.85.0",
+  "date": "2026-04-24",
+  "governor": "HUMAN-0 Dustin L. Reid",
+  "ratification": "approved DUSTIN L REID",
+  "hard_class_invariants": [
+    {
+      "id": "CPI-DETERM-0",
+      "statement": "CPI score is a deterministic function of (ledger_records, window, weights); identical inputs always produce identical output."
+    },
+    {
+      "id": "CPI-LEDGER-0",
+      "statement": "Every CPIScorer invocation writes a PRESSURE_SNAPSHOT to the HMAC-chained ledger before returning; failure raises CPILedgerError."
+    },
+    {
+      "id": "CPI-ALERT-0",
+      "statement": "A PRESSURE_ALERT ledger event is emitted whenever any domain score meets or exceeds the configured threshold; emission is never suppressed."
+    },
+    {
+      "id": "CPI-SCOPE-0",
+      "statement": "CPI reads only the HMAC-chained ledger; it never reads live system state, process memory, or external data sources."
+    },
+    {
+      "id": "CPI-HUMAN0-0",
+      "statement": "Threshold configuration changes require a non-empty HUMAN-0 operator identity; empty/None operator is rejected with CPIAuthError."
+    }
+  ],
+  "invariant_delta": "+5",
+  "cumulative_invariants": 278,
+  "innovations_shipped": 58,
+  "test_result": "30/30 PASS",
+  "modules_shipped": [
+    "dorkllm/constitutional_pressure.py",
+    "runtime/innovations30/constitutional_pressure.py",
+    "tests/innovations/test_phase152_cpi.py"
+  ],
+  "state_corrections": {
+    "FINDING-AUDIT-P152-001": "constitutional_invariants.cumulative corrected 253 \u2192 278",
+    "FINDING-AUDIT-P152-002": "last_innovation_id corrected INNOV-56 \u2192 INNOV-58",
+    "FINDING-AUDIT-P152-003": "ga_gates populated",
+    "FINDING-AUDIT-P152-005": "README prose stale invariant references corrected"
+  }
+}
