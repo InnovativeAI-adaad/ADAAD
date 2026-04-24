@@ -329,14 +329,16 @@
     "phase149-mxe-implemented",
     "phase149-complete",
     "phase150-gcb-implemented",
-    "phase150-complete"
+    "phase150-complete",
+    "phase152-cpi-implemented",
+    "phase152-complete"
   ],
   "constitutional_invariants": {
-    "cumulative": 253,
-    "hard_class_count": 253
+    "cumulative": 278,
+    "hard_class_count": 278
   },
-  "current_phase": 151,
-  "current_version": "9.84.0",
+  "current_phase": 152,
+  "current_version": "9.85.0",
   "hard_class_count": 273,
   "hard_class_invariant_count": 263,
   "hard_class_invariants_cumulative": 263,
@@ -358,6 +360,12 @@
       "governor": "DUSTIN L REID",
       "scope": "Phase 93 \u2192 94 state alignment: version 9.26.0, agent_state sync, pyproject alignment, report_version sync, README branch closure, GPG tag ceremony authorization",
       "session_digest": "gsync-phase93-v9.26.0-alignment-2026-03-28"
+    },
+    {
+      "phase": 152,
+      "innov_id": "INNOV-58",
+      "token": "approved DUSTIN L REID",
+      "date": "2026-04-24"
     }
   ],
   "last_innovation": "INNOV-55",
@@ -615,7 +623,7 @@
     }
   ],
   "pending_evidence_rows": [],
-  "phase": 149,
+  "phase": 152,
   "phase_label": "Phase 149 \u00b7 INNOV-55 \u00b7 Mutation Explainability Engine",
   "phases_completed": [
     106,
@@ -939,13 +947,13 @@
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
   ],
-  "last_completed_phase": "22 \u00b7 Phase 150 \u00b7 INNOV-56 \u00b7 Governance Circuit Breaker (GCB)",
+  "last_completed_phase": "22 \u00b7 Phase 152 \u00b7 INNOV-58 \u00b7 Constitutional Pressure Index (CPI)",
   "last_agent_state_sync_digest": "gsync-6bb77246120c076f",
   "invariant_count": 263,
   "innovation_count": 55,
-  "innovations_shipped": 57,
+  "innovations_shipped": 58,
   "open_findings_count": 0,
-  "last_innovation_id": "INNOV-56",
+  "last_innovation_id": "INNOV-58",
   "total_innovations_shipped": 55,
   "ga_blocker_count": 0,
   "milestone": "v1.1-GA",
@@ -1143,5 +1151,25 @@
       "class": "Hard",
       "phase": 150
     }
-  ]
+  ],
+  "ga_gates": {
+    "gate1": {
+      "status": "COMPLETE",
+      "description": "Constitutional invariants \u2265 200"
+    },
+    "gate2": {
+      "status": "COMPLETE",
+      "description": "H-04 docs published"
+    },
+    "gate3": {
+      "status": "COMPLETE",
+      "description": "F-Droid + free-v9.10.0 push"
+    },
+    "gate4": {
+      "status": "COMPLETE",
+      "description": "GPG sign-off + v1.1-GA tag",
+      "tag": "v1.1-GA-pypi",
+      "date": "2026-04-21"
+    }
+  }
 }

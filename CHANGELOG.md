@@ -1,3 +1,25 @@
+## [9.85.0] — 2026-04-24 · Phase 152 · INNOV-58 · Constitutional Pressure Index (CPI)
+
+### Hard-class invariants (+5 → 278 total)
+- CPI-DETERM-0: CPI score is a deterministic function of (ledger_records, window, weights); identical inputs always produce identical output
+- CPI-LEDGER-0: Every CPIScorer invocation writes a PRESSURE_SNAPSHOT to the HMAC-chained ledger before returning
+- CPI-ALERT-0: A PRESSURE_ALERT ledger event is emitted whenever any domain score meets or exceeds the configured threshold; emission is never suppressed
+- CPI-SCOPE-0: CPI reads only the HMAC-chained ledger; it never reads live system state, process memory, or external data sources
+- CPI-HUMAN0-0: Threshold configuration changes require a non-empty HUMAN-0 operator identity; empty/None operator rejected
+
+### Added
+- `dorkllm/constitutional_pressure.py` — CPIScorer, CPIConfig, CPISnapshot, CPILedger; six-domain pressure scoring (SECURITY, DETERMINISM, REPLAY, HUMAN0, MUTATION, LEDGER)
+- `runtime/innovations30/constitutional_pressure.py` — INNOV-58 registry wrapper
+- `tests/innovations/test_phase152_cpi.py` — 30/30 acceptance suite
+- `artifacts/governance/phase152/` — ILA + signoff + tier_summary governance artifacts
+
+### State corrections (audit findings resolved)
+- FINDING-AUDIT-P152-001: `constitutional_invariants.cumulative` corrected 253 → 278
+- FINDING-AUDIT-P152-002: `last_innovation_id` corrected INNOV-56 → INNOV-58
+- FINDING-AUDIT-P152-003: `ga_gates` populated (all 4 gates COMPLETE)
+- FINDING-AUDIT-P152-004: GPG tags v9.83.0 + v9.84.0 signed and pushed ✅
+- FINDING-AUDIT-P152-005: README prose stale invariant count references corrected
+
 ## [9.83.0] — 2026-04-22 · Phase 150 · INNOV-56 · Governance Circuit Breaker (GCB)
 
 ### 5 new Hard-class invariants · 268 Hard-class total · 56 innovations shipped

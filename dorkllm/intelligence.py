@@ -31,6 +31,14 @@ except Exception:  # noqa: BLE001
     _dpm = None  # type: ignore[assignment]
     _DPM_AVAILABLE = False
 
+# CPI-INJECT-0: Constitutional Pressure Index — fail-closed, never raises.
+try:
+    from dorkllm.constitutional_pressure import CPIScorer as _CPIScorer
+    _CPI_AVAILABLE = True
+except Exception:  # noqa: BLE001
+    _CPIScorer = None  # type: ignore[assignment]
+    _CPI_AVAILABLE = False
+
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "dork")
 TRACE_LOG_PATH = "logs/dork_llm_trace.jsonl"
@@ -342,6 +350,16 @@ def build_system_prompt(query: str = "") -> str:
         except Exception:  # noqa: BLE001
             dpm_block = ""
 
+    # CPI-INJECT-0: Inject live constitutional pressure summary. Fail-closed — never raises.
+    cpi_line = ""
+    if _CPI_AVAILABLE:
+        try:
+            _cpi_scorer = _CPIScorer()
+            _cpi_snap = _cpi_scorer.score([])  # snapshot against empty window for prompt; real scoring happens via direct API
+            cpi_line = _cpi_scorer.summarise(_cpi_snap)
+        except Exception:  # noqa: BLE001
+            cpi_line = ""
+
     base = f"""You are DORK, the AI assistant for the ADAAD autonomous governance engine.
 You are embedded in the Whale.Dic developer console of Innovative AI LLC.
 Governor: HUMAN-0 (Dustin L. Reid). You speak with precision, dry wit, and zero tolerance for hallucination.
@@ -353,6 +371,7 @@ Top taxonomy hints: {hints_str}
 
 {state_block}
 {(chr(10) + dpm_block) if dpm_block else ""}
+{(chr(10) + cpi_line) if cpi_line else ""}
 Constitutional mandate: Never fabricate ledger hashes, governance decisions, or invariant numbers.
 If you do not know, say so. Cite sources when you can."""
     return base

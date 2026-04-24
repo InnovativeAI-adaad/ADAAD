@@ -1,0 +1,20 @@
+{
+  "phase": 152,
+  "innov_id": "INNOV-58",
+  "innov_name": "Constitutional Pressure Index (CPI)",
+  "tier": "DORK-SUBSYSTEM",
+  "classification": "Proactive governance health \u2014 permanently valuable, compounds with system age",
+  "domains": [
+    "SECURITY",
+    "DETERMINISM",
+    "REPLAY",
+    "HUMAN0",
+    "MUTATION",
+    "LEDGER"
+  ],
+  "ledger_events_emitted": [
+    "PRESSURE_SNAPSHOT",
+    "PRESSURE_ALERT"
+  ],
+  "dork_injection": "build_system_prompt() \u2014 terse CPI summary line (CPI-INJECT-0)"
+}
