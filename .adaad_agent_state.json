@@ -373,7 +373,7 @@
   "last_invocation": "2026-04-24",
   "last_phase_completed": 149,
   "last_phase_completed_label": "Phase 149 \u00b7 INNOV-55 \u00b7 Mutation Explainability Engine",
-  "last_sync_sha": "9601d2f0",
+  "last_sync_sha": "e2adc28d",
   "last_updated": "2026-04-22T00:00:00Z",
   "next_phase": 150,
   "next_pr": "Phase 148 \u2014 INNOV-54 Live Execution Feed (deterministic: first non-shipped phase whose predecessor is shipped)",
@@ -948,7 +948,7 @@
     "phase127-world-first-governed-redteam-response"
   ],
   "last_completed_phase": "Phase 24 \u00b7 Phase 154 \u00b7 INNOV-60 \u00b7 Constitutional Pre-Admission Gate (CPAG)",
-  "last_agent_state_sync_digest": "gsync-b10bafdc01192d96",
+  "last_agent_state_sync_digest": "gsync-53cb70a26d645e14",
   "invariant_count": 263,
   "innovation_count": 60,
   "innovations_shipped": 58,
