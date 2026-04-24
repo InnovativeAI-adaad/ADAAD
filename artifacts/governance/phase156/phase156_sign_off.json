@@ -1,0 +1,25 @@
+{
+  "phase": 156,
+  "innovation": "INNOV-62",
+  "code": "CGAI",
+  "name": "Constitutional Governance Anomaly Inspector",
+  "version": "9.89.0",
+  "status": "COMPLETE",
+  "tests": "30/30",
+  "new_invariants": [
+    "CGAI-DETECT-0",
+    "CGAI-SEVERITY-0",
+    "CGAI-EMIT-0",
+    "CGAI-DETERM-0"
+  ],
+  "invariant_total": 265,
+  "innovations_total": 62,
+  "successor_phase": 157,
+  "convergence_criterion": "6 — Adversarial Robustness Verified",
+  "module": "dorkllm/anomaly_inspector.py",
+  "rest": "app/api/governance_anomalies.py",
+  "tests_file": "tests/test_phase156_cgai.py",
+  "ip_note": "Closed-loop Constitutional Anomaly Detection architecture — findings re-emitted into governed telemetry ledger — novel claim for InnovativeAI LLC",
+  "author": "DEVADAAD",
+  "authority": "HUMAN-0 gate: Dustin L. Reid"
+}

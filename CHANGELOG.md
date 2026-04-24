@@ -1,3 +1,12 @@
+## [9.89.0] — Phase 156 · INNOV-62 · CGAI — Constitutional Governance Anomaly Inspector
+
+### Added
+- \`dorkllm/anomaly_inspector.py\` — CGAI: 7-pattern anomaly detector over CGTH stream
+- \`app/api/governance_anomalies.py\` — REST: /api/governance/anomalies/
+- \`tests/test_phase156_cgai.py\` — 30/30 passing acceptance tests
+- 4 new Hard-class invariants: CGAI-DETECT-0, CGAI-SEVERITY-0, CGAI-EMIT-0, CGAI-DETERM-0
+- Invariant total: 265 | Innovations total: 62
+
 ## [9.88.0] — Phase 155 · INNOV-61 · CGTH — Constitutional Governance Telemetry Hub
 
 **Date:** 2026-04-24  **Author:** DEVADAAD · InnovativeAI LLC
