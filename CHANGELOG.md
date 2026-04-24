@@ -1,3 +1,19 @@
+## [9.90.0] — Phase 157 · INNOV-63 · GHI — Governance Health Index
+
+### Added
+- `dorkllm/governance_health.py` — GHI: composite 0.0–1.0 constitutional health score from 5 sub-indices
+- `app/api/governance_health.py` — REST: /api/governance/health + /api/governance/health/history
+- `tests/test_phase157_ghi.py` — 30/30 passing acceptance suite
+- 4 new Hard-class invariants: GHI-SCORE-0, GHI-DETERM-0, GHI-EMIT-0, GHI-SUBINDEX-0
+- 'ghi' registered as known CGTH emitter component (telemetry_hub.py)
+- GHI router wired into server.py
+
+### Changed
+- VERSION: 9.89.0 → 9.90.0
+- Total invariants: 265 → 269
+- Total innovations: 62 → 63
+
+
 ## [9.89.0] — Phase 156 · INNOV-62 · CGAI — Constitutional Governance Anomaly Inspector
 
 ### Added
