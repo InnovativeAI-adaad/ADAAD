@@ -1,0 +1,14 @@
+{
+  "phase": 155,
+  "tier": "Tier-1",
+  "ratification_required": true,
+  "human0_sign_off": "DUSTIN L REID",
+  "modules_changed": [
+    "dorkllm/telemetry_hub.py",
+    "app/api/governance_telemetry.py",
+    "server.py",
+    "tests/test_phase155_cgth.py"
+  ],
+  "invariants_added": ["CGTH-CHAIN-0", "CGTH-DETERM-0", "CGTH-GATE-0", "CGTH-PERSIST-0", "CGTH-HUMAN0-0"],
+  "breaking_changes": false
+}

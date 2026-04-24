@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.87.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": "v9.88.0 RELEASED \u00b7 Phase 155 \u00b7 INNOV-61 CGTH",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -331,7 +331,11 @@
     "phase150-gcb-implemented",
     "phase150-complete",
     "phase152-cpi-implemented",
-    "phase152-complete"
+    "phase152-complete",
+    "phase155-plan",
+    "phase155-cgth-implemented",
+    "phase155-30-tests-passing",
+    "v9.88.0-released"
   ],
   "constitutional_invariants": {
     "cumulative": 288,
@@ -376,7 +380,7 @@
   "last_sync_sha": "e2adc28d",
   "last_updated": "2026-04-22T00:00:00Z",
   "next_phase": 150,
-  "next_pr": "Phase 148 \u2014 INNOV-54 Live Execution Feed (deterministic: first non-shipped phase whose predecessor is shipped)",
+  "next_pr": "Phase 156 \u2014 next innovation (deterministic: first non-shipped phase)",
   "open_findings": [
     {
       "id": "FINDING-66-001",
@@ -623,7 +627,7 @@
     }
   ],
   "pending_evidence_rows": [],
-  "phase": 152,
+  "phase": 155,
   "phase_label": "Phase 149 \u00b7 INNOV-55 \u00b7 Mutation Explainability Engine",
   "phases_completed": [
     106,
@@ -942,7 +946,7 @@
     "phase124-world-first-governed-kernel-extraction",
     "v9.57.0-released"
   ],
-  "version": "9.87.0",
+  "version": "9.88.0",
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
@@ -950,7 +954,7 @@
   "last_completed_phase": "Phase 24 \u00b7 Phase 154 \u00b7 INNOV-60 \u00b7 Constitutional Pre-Admission Gate (CPAG)",
   "last_agent_state_sync_digest": "gsync-53cb70a26d645e14",
   "invariant_count": 263,
-  "innovation_count": 60,
+  "innovation_count": 61,
   "innovations_shipped": 58,
   "open_findings_count": 0,
   "last_innovation_id": "INNOV-60",
