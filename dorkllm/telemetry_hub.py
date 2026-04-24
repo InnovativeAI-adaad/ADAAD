@@ -75,6 +75,7 @@ _KNOWN_COMPONENTS: frozenset[str] = frozenset(
         "invariant_monitor",
         "cgth",          # self-telemetry
         "test_harness",  # permitted for testing
+        "cgai",          # Constitutional Governance Anomaly Inspector (Phase 156)
     ]
 )
 
