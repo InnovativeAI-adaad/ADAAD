@@ -50,6 +50,7 @@ from app.api.compliance import router as compliance_router
 from app.api.audit_exports import router as audit_exports_router
 from app.api.mutation_control import router as mutation_control_router
 from app.api.streams import router as streams_router
+from app.api.governance_telemetry import router as cgth_router  # Phase 155 INNOV-61 CGTH
 from runtime.integrations.github_app import dispatch_event, verify_webhook_signature  # ADAADchat
 from app.api.dependencies import (
     require_audit_scope,
@@ -861,6 +862,7 @@ from app.api.telemetry import (
 app.include_router(telemetry_router)
 
 app.include_router(governance_router)
+app.include_router(cgth_router)          # Phase 155 INNOV-61 CGTH
 app.include_router(audit_router)
 app.include_router(ui_router)
 app.include_router(simulation_router)

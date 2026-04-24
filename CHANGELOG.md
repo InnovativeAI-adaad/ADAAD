@@ -1,3 +1,45 @@
+## [9.88.0] — Phase 155 · INNOV-61 · CGTH — Constitutional Governance Telemetry Hub
+
+**Date:** 2026-04-24  **Author:** DEVADAAD · InnovativeAI LLC
+
+### Summary
+Unified, hash-chained runtime telemetry aggregator for all ADAAD governance
+components. Every governance event — gate verdicts, pressure snapshots, throttle
+decisions, invariant fires, mutation proposals, DORK-PERM instrument snapshots —
+is captured as a structured, cryptographically linked record in the CGTH ledger.
+Advances V10 Convergence Criterion 5 (Constitutional Archaeology Complete).
+
+### New Module — `dorkllm/telemetry_hub.py`
+- `ConstitutionalGovernanceTelemetryHub` — process-singleton hub aggregating all governance events
+- `CGTHEventType` enum — 12 governance event types (GATE_VERDICT, PRESSURE_SNAPSHOT, THROTTLE_DECISION, INVARIANT_FIRE, MUTATION_PROPOSED, MUTATION_OUTCOME, PERM_SNAPSHOT, CIRCUIT_BREAK, ROLLBACK_EXECUTED, LEDGER_AUDIT, HUMAN0_AUTHORISATION, CGTH_INIT)
+- `TelemetryRecord` — immutable record with (event_id, event_type, component_id, payload, prev_hmac, this_hmac, seq)
+- `_CGTHLedger` — append-only JSONL ledger writer/reader
+- `verify_chain()` — full HMAC chain integrity verification
+- `emit()` module-level convenience function
+
+### REST Endpoints — `app/api/governance_telemetry.py`
+- `GET  /api/governance/telemetry/stream` — paginated filtered event stream
+- `GET  /api/governance/telemetry/audit`  — chain integrity audit
+- `GET  /api/governance/telemetry/summary` — aggregate counts by type/component
+- `POST /api/governance/telemetry/emit`   — emit a governance event
+
+### Hard-Class Invariants Added (5 new · total: 261)
+- **CGTH-CHAIN-0** — every event carries HMAC of predecessor; chain break = violation
+- **CGTH-DETERM-0** — given identical (type, payload, prev_hmac), event_id is identical
+- **CGTH-GATE-0** — only registered governance components may emit events
+- **CGTH-PERSIST-0** — ledger written before emit_event() returns
+- **CGTH-HUMAN0-0** — ledger is append-only; prune requires DUSTIN L REID authorisation
+
+### Tests
+30/30 passing · `tests/test_phase155_cgth.py`
+
+### IP Claims (InnovativeAI LLC)
+- Cryptographically Chained Governance Telemetry Aggregation for Autonomous Constitutional AI
+- Cross-subsystem governance event taxonomy with hash-linked audit trail
+- Structured queryability of tamper-evident governance event stream
+
+---
+
 ## [9.87.0] — 2026-04-24 · Phase 154 · INNOV-60 · Constitutional Pre-Admission Gate (CPAG)
 
 ### Hard-class invariants (+5 → 288 total)
