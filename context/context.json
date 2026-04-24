@@ -162,11 +162,11 @@
     }
   ],
   "current_phase": 156,
-  "version": "9.90.0",
+  "version": "9.91.0",
   "hard_class_count": 273,
   "innovations_shipped": 57,
   "last_innovation": "INNOV-57 \u00b7 Governed Rollback (GRB)",
-  "innovation_count": 63,
-  "phase": 157,
-  "total_invariants": 269
+  "innovation_count": 64,
+  "phase": 158,
+  "total_invariants": 274
 }

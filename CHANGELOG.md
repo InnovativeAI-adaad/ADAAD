@@ -1,3 +1,20 @@
+## [9.91.0] — Phase 158 · INNOV-64 · CSR — Constitutional Self-Repair Engine
+
+### Added
+- `dorkllm/self_repair.py` — CSR: closed-loop repair proposal engine from GHI score → CGTH ledger
+- `app/api/self_repair.py` — REST: /api/governance/repair/status|run|actions
+- `tests/test_phase158_csr.py` — 30/30 passing acceptance suite
+- 5 new Hard-class invariants: CSR-PROPOSE-0, CSR-DETERM-0, CSR-EMIT-0, CSR-CRITICAL-0, CSR-BOUNDED-0
+- 'csr' registered as known CGTH emitter component (telemetry_hub.py)
+- CSR router wired into server.py
+- Convergence criterion 8 — Autonomous Constitutional Self-Repair Demonstrated
+
+### Changed
+- VERSION: 9.90.0 → 9.91.0
+- Total invariants: 269 → 274
+- Total innovations: 63 → 64
+
+
 ## [9.90.0] — Phase 157 · INNOV-63 · GHI — Governance Health Index
 
 ### Added
