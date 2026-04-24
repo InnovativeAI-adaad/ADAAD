@@ -78,6 +78,7 @@ _KNOWN_COMPONENTS: frozenset[str] = frozenset(
         "cgai",          # Constitutional Governance Anomaly Inspector (Phase 156)
         "ghi",           # Governance Health Index (Phase 157)
         "csr",           # Constitutional Self-Repair Engine (Phase 158)
+        "csi",           # Constitutional Strength Index (Phase 159)
     ]
 )
 
