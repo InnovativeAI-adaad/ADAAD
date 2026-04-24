@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.92.0 RELEASED . Phase 159 INNOV-65 CSI complete",
+  "active_phase": "v9.92.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -377,7 +377,7 @@
   "last_invocation": "2026-04-24",
   "last_phase_completed": 149,
   "last_phase_completed_label": "Phase 149 \u00b7 INNOV-55 \u00b7 Mutation Explainability Engine",
-  "last_sync_sha": "5aefa298",
+  "last_sync_sha": "6323b84c",
   "last_updated": "2026-04-24T18:43:24.168406+00:00",
   "next_phase": 150,
   "next_pr": "Phase 159 \u2014 next innovation",
@@ -655,7 +655,7 @@
     141
   ],
   "schema_version": "1.5.0",
-  "software_version": "9.91.0",
+  "software_version": "9.92.0",
   "tife_active": true,
   "value_checkpoints_reached": [
     "phase0-track-a-hardening",
@@ -952,7 +952,7 @@
     "phase127-world-first-governed-redteam-response"
   ],
   "last_completed_phase": "24 \u00b7 Phase 154 \u00b7 INNOV-60 \u00b7 Constitutional Pre-Admission Gate (CPAG)",
-  "last_agent_state_sync_digest": "gsync-66ceb8a55607a0a2",
+  "last_agent_state_sync_digest": "gsync-22e06f7e1e50cbc1",
   "invariant_count": 263,
   "innovation_count": 64,
   "innovations_shipped": 58,
