@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "Phase 154 complete \u2014 v9.87.0 RELEASED \u00b7 INNOV-60 CPAG \u00b7 288 Hard-class invariants",
+  "active_phase": "v9.87.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -370,10 +370,10 @@
   ],
   "last_innovation": "INNOV-55",
   "last_innovation_name": "Mutation Explainability Engine",
-  "last_invocation": "2026-04-23",
+  "last_invocation": "2026-04-24",
   "last_phase_completed": 149,
   "last_phase_completed_label": "Phase 149 \u00b7 INNOV-55 \u00b7 Mutation Explainability Engine",
-  "last_sync_sha": "a4a7c85b",
+  "last_sync_sha": "9601d2f0",
   "last_updated": "2026-04-22T00:00:00Z",
   "next_phase": 150,
   "next_pr": "Phase 148 \u2014 INNOV-54 Live Execution Feed (deterministic: first non-shipped phase whose predecessor is shipped)",
@@ -651,7 +651,7 @@
     141
   ],
   "schema_version": "1.5.0",
-  "software_version": "9.84.0",
+  "software_version": "9.87.0",
   "tife_active": true,
   "value_checkpoints_reached": [
     "phase0-track-a-hardening",
@@ -947,8 +947,8 @@
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
   ],
-  "last_completed_phase": "22 \u00b7 Phase 152 \u00b7 INNOV-58 \u00b7 Constitutional Pressure Index (CPI)",
-  "last_agent_state_sync_digest": "gsync-6bb77246120c076f",
+  "last_completed_phase": "Phase 24 \u00b7 Phase 154 \u00b7 INNOV-60 \u00b7 Constitutional Pre-Admission Gate (CPAG)",
+  "last_agent_state_sync_digest": "gsync-b10bafdc01192d96",
   "invariant_count": 263,
   "innovation_count": 60,
   "innovations_shipped": 58,
