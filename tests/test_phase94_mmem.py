@@ -11,16 +11,17 @@ Invariants under test:
   MMEM-LEDGER-0  — append() without attestation raises IdentityAppendWithoutAttestationError
   MMEM-DETERM-0  — identical inputs → identical hash output
 
-Scaffold status: all tests marked xfail(strict=False, reason="SCAFFOLD").
-Tests will be promoted to passing as implementation is delivered.
+Migration note (2026-04-25): this suite previously used module-wide scaffold
+xfail markers while Phase 94 MMEM primitives were landing. The runtime
+implementation is now stable in-memory and lineage wiring, so scaffold framing
+has been removed and all tests execute as strict pass/fail invariants.
 """
 from __future__ import annotations
 
-import hashlib
-import json
+import inspect
 from pathlib import Path
 from typing import Any
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -39,10 +40,7 @@ from runtime.memory.identity_context_injector import (
 )
 from runtime.lineage.lineage_ledger_v2 import (
     LineageLedgerV2,
-    LineageEvent,
 )
-
-SCAFFOLD = pytest.mark.xfail(strict=False, reason="SCAFFOLD — not yet implemented")
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -51,7 +49,7 @@ SCAFFOLD = pytest.mark.xfail(strict=False, reason="SCAFFOLD — not yet implemen
 
 @pytest.fixture
 def empty_ledger(tmp_path: Path) -> IdentityLedger:
-    """IdentityLedger with no statements loaded (scaffold-safe)."""
+    """IdentityLedger with no statements loaded."""
     ledger = IdentityLedger(
         ledger_path=tmp_path / "ledger.jsonl",
         genesis_seed_path=Path("artifacts/governance/phase94/identity_ledger_seed.json"),
@@ -85,7 +83,6 @@ def mock_context() -> MagicMock:
 # ---------------------------------------------------------------------------
 
 
-@SCAFFOLD
 def test_T94_MMEM_01_statement_hash_deterministic() -> None:
     """MMEM-DETERM-0: identical fields → identical hash."""
     s1 = IdentityStatement(
@@ -107,7 +104,6 @@ def test_T94_MMEM_01_statement_hash_deterministic() -> None:
     assert s1.statement_hash == s2.statement_hash
 
 
-@SCAFFOLD
 def test_T94_MMEM_02_statement_hash_not_empty() -> None:
     """Statement hash must be populated after init."""
     s = IdentityStatement(
@@ -122,7 +118,6 @@ def test_T94_MMEM_02_statement_hash_not_empty() -> None:
     assert s.statement_hash.startswith("sha256:")
 
 
-@SCAFFOLD
 def test_T94_MMEM_03_statement_hash_changes_with_content() -> None:
     """Different statement text → different hash (MMEM-DETERM-0)."""
     s1 = IdentityStatement("IS-001", "purpose", "statement A", "test", "e1", ZERO_HASH)
@@ -130,7 +125,6 @@ def test_T94_MMEM_03_statement_hash_changes_with_content() -> None:
     assert s1.statement_hash != s2.statement_hash
 
 
-@SCAFFOLD
 def test_T94_MMEM_04_statement_hash_changes_with_predecessor() -> None:
     """Different predecessor → different hash (MMEM-DETERM-0)."""
     hash_a = "sha256:" + "a" * 64
@@ -140,7 +134,6 @@ def test_T94_MMEM_04_statement_hash_changes_with_predecessor() -> None:
     assert s1.statement_hash != s2.statement_hash
 
 
-@SCAFFOLD
 def test_T94_MMEM_05_valid_categories_accepted() -> None:
     """All VALID_CATEGORIES can be used without error."""
     for cat in VALID_CATEGORIES:
@@ -153,7 +146,6 @@ def test_T94_MMEM_05_valid_categories_accepted() -> None:
 # ---------------------------------------------------------------------------
 
 
-@SCAFFOLD
 def test_T94_MMEM_06_load_genesis_returns_ledger(tmp_path: Path) -> None:
     """load_genesis() returns a non-empty IdentityLedger."""
     ledger = IdentityLedger.load_genesis(
@@ -164,26 +156,22 @@ def test_T94_MMEM_06_load_genesis_returns_ledger(tmp_path: Path) -> None:
     assert len(ledger) > 0
 
 
-@SCAFFOLD
 def test_T94_MMEM_07_genesis_loads_8_statements(genesis_ledger: IdentityLedger) -> None:
     """Genesis seed contains exactly 8 IdentityStatements."""
     assert len(genesis_ledger) == 8
 
 
-@SCAFFOLD
 def test_T94_MMEM_08_genesis_statement_ids(genesis_ledger: IdentityLedger) -> None:
     """Genesis statements have IDs IS-001..IS-008."""
     ids = {s.statement_id for s in genesis_ledger.statements()}
     assert ids == {f"IS-{i:03d}" for i in range(1, 9)}
 
 
-@SCAFFOLD
 def test_T94_MMEM_09_genesis_chain_intact(genesis_ledger: IdentityLedger) -> None:
     """verify_chain() returns True for freshly-loaded genesis (MMEM-CHAIN-0)."""
     assert genesis_ledger.verify_chain() is True
 
 
-@SCAFFOLD
 def test_T94_MMEM_10_genesis_first_predecessor_is_zero_hash(
     genesis_ledger: IdentityLedger,
 ) -> None:
@@ -197,7 +185,6 @@ def test_T94_MMEM_10_genesis_first_predecessor_is_zero_hash(
 # ---------------------------------------------------------------------------
 
 
-@SCAFFOLD
 def test_T94_MMEM_11_check_never_raises_on_empty_ledger(
     empty_ledger: IdentityLedger,
 ) -> None:
@@ -206,7 +193,6 @@ def test_T94_MMEM_11_check_never_raises_on_empty_ledger(
     assert isinstance(result, IdentityConsistencyResult)
 
 
-@SCAFFOLD
 def test_T94_MMEM_12_check_returns_consistency_result(
     genesis_ledger: IdentityLedger,
 ) -> None:
@@ -218,14 +204,12 @@ def test_T94_MMEM_12_check_returns_consistency_result(
     assert 0.0 <= result.consistency_score <= 1.0
 
 
-@SCAFFOLD
 def test_T94_MMEM_13_check_score_bounded(genesis_ledger: IdentityLedger) -> None:
     """MMEM-0: consistency_score always in [0.0, 1.0]."""
     result = genesis_ledger.check("mut-002", "bypass governance gate entirely")
     assert 0.0 <= result.consistency_score <= 1.0
 
 
-@SCAFFOLD
 def test_T94_MMEM_14_check_does_not_modify_ledger(
     genesis_ledger: IdentityLedger,
 ) -> None:
@@ -235,7 +219,6 @@ def test_T94_MMEM_14_check_does_not_modify_ledger(
     assert len(genesis_ledger) == count_before
 
 
-@SCAFFOLD
 def test_T94_MMEM_15_check_violation_detected(genesis_ledger: IdentityLedger) -> None:
     """Intent contradicting IS-003 (human authority) should flag violation."""
     result = genesis_ledger.check(
@@ -245,7 +228,6 @@ def test_T94_MMEM_15_check_violation_detected(genesis_ledger: IdentityLedger) ->
     assert not result.consistent or len(result.violated_statements) > 0
 
 
-@SCAFFOLD
 def test_T94_MMEM_16_check_fallback_on_corrupt_state(tmp_path: Path) -> None:
     """MMEM-0: check() returns fallback result if internal error occurs."""
     ledger = IdentityLedger(ledger_path=tmp_path / "l.jsonl")
@@ -261,7 +243,6 @@ def test_T94_MMEM_16_check_fallback_on_corrupt_state(tmp_path: Path) -> None:
 # ---------------------------------------------------------------------------
 
 
-@SCAFFOLD
 def test_T94_MMEM_17_append_without_token_raises(
     genesis_ledger: IdentityLedger,
 ) -> None:
@@ -276,7 +257,6 @@ def test_T94_MMEM_17_append_without_token_raises(
         )
 
 
-@SCAFFOLD
 def test_T94_MMEM_18_append_with_valid_token_succeeds(
     genesis_ledger: IdentityLedger,
 ) -> None:
@@ -293,7 +273,6 @@ def test_T94_MMEM_18_append_with_valid_token_succeeds(
     assert len(genesis_ledger) == count_before + 1
 
 
-@SCAFFOLD
 def test_T94_MMEM_19_append_links_predecessor(genesis_ledger: IdentityLedger) -> None:
     """New statement's predecessor_hash equals prior terminal hash (MMEM-CHAIN-0)."""
     prior_last = genesis_ledger.statements()[-1].statement_hash
@@ -307,7 +286,6 @@ def test_T94_MMEM_19_append_links_predecessor(genesis_ledger: IdentityLedger) ->
     assert stmt.predecessor_hash == prior_last
 
 
-@SCAFFOLD
 def test_T94_MMEM_20_append_chain_still_valid_after_append(
     genesis_ledger: IdentityLedger,
 ) -> None:
@@ -327,13 +305,11 @@ def test_T94_MMEM_20_append_chain_still_valid_after_append(
 # ---------------------------------------------------------------------------
 
 
-@SCAFFOLD
 def test_T94_MMEM_21_verify_chain_passes_genesis(genesis_ledger: IdentityLedger) -> None:
     """Clean genesis ledger passes verify_chain() (MMEM-CHAIN-0)."""
     assert genesis_ledger.verify_chain() is True
 
 
-@SCAFFOLD
 def test_T94_MMEM_22_verify_chain_detects_tamper(genesis_ledger: IdentityLedger) -> None:
     """Tampered predecessor_hash raises ChainIntegrityError (MMEM-CHAIN-0)."""
     stmts = genesis_ledger.statements()
@@ -344,7 +320,6 @@ def test_T94_MMEM_22_verify_chain_detects_tamper(genesis_ledger: IdentityLedger)
         genesis_ledger.verify_chain()
 
 
-@SCAFFOLD
 def test_T94_MMEM_23_verify_chain_detects_hash_mutation(
     genesis_ledger: IdentityLedger,
 ) -> None:
@@ -356,7 +331,6 @@ def test_T94_MMEM_23_verify_chain_detects_hash_mutation(
         genesis_ledger.verify_chain()
 
 
-@SCAFFOLD
 def test_T94_MMEM_24_empty_ledger_verify_chain_passes(
     empty_ledger: IdentityLedger,
 ) -> None:
@@ -369,7 +343,6 @@ def test_T94_MMEM_24_empty_ledger_verify_chain_passes(
 # ---------------------------------------------------------------------------
 
 
-@SCAFFOLD
 def test_T94_MMEM_25_injector_returns_result(
     genesis_ledger: IdentityLedger, mock_context: MagicMock
 ) -> None:
@@ -379,7 +352,6 @@ def test_T94_MMEM_25_injector_returns_result(
     assert isinstance(result, InjectionResult)
 
 
-@SCAFFOLD
 def test_T94_MMEM_26_injector_sets_context_score(
     genesis_ledger: IdentityLedger, mock_context: MagicMock
 ) -> None:
@@ -390,7 +362,6 @@ def test_T94_MMEM_26_injector_sets_context_score(
     assert 0.0 <= mock_context.identity_consistency_score <= 1.0
 
 
-@SCAFFOLD
 def test_T94_MMEM_27_injector_never_raises_on_bad_ledger(
     mock_context: MagicMock,
 ) -> None:
@@ -403,7 +374,6 @@ def test_T94_MMEM_27_injector_never_raises_on_bad_ledger(
     assert result.fallback_used is True
 
 
-@SCAFFOLD
 def test_T94_MMEM_28_injector_idempotent(
     genesis_ledger: IdentityLedger, mock_context: MagicMock
 ) -> None:
@@ -419,7 +389,6 @@ def test_T94_MMEM_28_injector_idempotent(
 # ---------------------------------------------------------------------------
 
 
-@SCAFFOLD
 def test_T94_MMEM_29_lineage_attach_identity_result(tmp_path: Path) -> None:
     """attach_identity_result() writes MMEM signal to existing event."""
     ledger = LineageLedgerV2(ledger_path=tmp_path / "ll.jsonl")
@@ -438,7 +407,6 @@ def test_T94_MMEM_29_lineage_attach_identity_result(tmp_path: Path) -> None:
     assert matching[0].identity_consistency_score == 0.85
 
 
-@SCAFFOLD
 def test_T94_MMEM_30_lineage_verify_chain_after_attach(tmp_path: Path) -> None:
     """verify_chain() passes after attach_identity_result() (MMEM-CHAIN-0 via lineage)."""
     ledger = LineageLedgerV2(ledger_path=tmp_path / "ll.jsonl")
@@ -447,7 +415,6 @@ def test_T94_MMEM_30_lineage_verify_chain_after_attach(tmp_path: Path) -> None:
     assert ledger.verify_chain() is True
 
 
-@SCAFFOLD
 def test_T94_MMEM_31_lineage_semantic_proximity_score(tmp_path: Path) -> None:
     """semantic_proximity_score() returns ProximityScore in [0,1]."""
     from runtime.lineage.lineage_ledger_v2 import ProximityScore
@@ -462,16 +429,16 @@ def test_T94_MMEM_31_lineage_semantic_proximity_score(tmp_path: Path) -> None:
 # ---------------------------------------------------------------------------
 
 
-@SCAFFOLD
 def test_T94_MMEM_32_evolution_loop_has_identity_injector_slot() -> None:
-    """EvolutionLoop accepts _identity_injector attribute (MMEM-WIRE-0)."""
+    """EvolutionLoop contains MMEM identity injector initialization and call sites."""
     from runtime.evolution.evolution_loop import EvolutionLoop
-    loop = EvolutionLoop.__new__(EvolutionLoop)
-    # Attribute must exist (may be None before wiring)
-    assert hasattr(loop, "_identity_injector") or True  # scaffold: structural check
+
+    source = inspect.getsource(EvolutionLoop)
+    assert "self._identity_injector = None" in source
+    assert "if self._identity_injector is not None:" in source
+    assert "_mmem_result = self._identity_injector.inject(" in source
 
 
-@SCAFFOLD
 def test_T94_MMEM_33_import_contracts() -> None:
     """All MMEM public symbols importable from expected module paths."""
     from runtime.memory.identity_ledger import (  # noqa: F401
