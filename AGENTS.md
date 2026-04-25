@@ -325,9 +325,9 @@ Awaiting:             human review before merge
 
 Source: `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` → `state_alignment`
 
-- `expected_active_phase`: `Phase 147 COMPLETE · v9.80.0`
-- `expected_last_completed_pr`: `phase147-intent-expression-schema`
-- `expected_next_pr`: `Phase 148 — INNOV-54 Live Execution Feed (deterministic: first non-shipped phase whose predecessor is shipped)`
+- `expected_active_phase`: `Phase 159 COMPLETE · v9.92.0`
+- `expected_last_completed_pr`: `Phase 159 — INNOV-65 Constitutional Strength Index (CSI)`
+- `expected_next_pr`: `Phase 160 — INNOV-66 Emergent Baseline Sentinel (deterministic: first non-shipped phase whose predecessor is shipped)`
 
 > This is the single authoritative next-PR statement in this document.
 
