@@ -79,6 +79,7 @@ _KNOWN_COMPONENTS: frozenset[str] = frozenset(
         "ghi",           # Governance Health Index (Phase 157)
         "csr",           # Constitutional Self-Repair Engine (Phase 158)
         "csi",           # Constitutional Strength Index (Phase 159)
+        "ebs",           # Emergent Baseline Sentinel (Phase 160)
     ]
 )
 
@@ -405,6 +406,19 @@ class ConstitutionalGovernanceTelemetryHub:
             component_id="perm_engine",
             event_type=CGTHEventType.PERM_SNAPSHOT,
             payload={"engine_id": engine_id, "data": data},
+        )
+
+    def snapshot_ebs(self, alert_id: str, severity: str, baseline_digest: str) -> str:
+        """Record an Emergent Baseline Sentinel snapshot integration event."""
+        return self.emit_event(
+            component_id="ebs",
+            event_type=CGTHEventType.PERM_SNAPSHOT,
+            payload={
+                "component_id": "ebs",
+                "alert_id": alert_id,
+                "severity": severity,
+                "baseline_digest": baseline_digest,
+            },
         )
 
     # ------------------------------------------------------------------
