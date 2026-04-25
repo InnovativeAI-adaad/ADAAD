@@ -347,9 +347,9 @@
   },
   "current_phase": 160,
   "current_version": "9.93.0",
-  "hard_class_count": 279,
-  "hard_class_invariant_count": 263,
-  "hard_class_invariants_cumulative": 263,
+  "hard_class_count": 278,
+  "hard_class_invariant_count": 278,
+  "hard_class_invariants_cumulative": 278,
   "human0_signoffs": [
     {
       "date": "2026-03-27",
@@ -376,15 +376,15 @@
       "date": "2026-04-24"
     }
   ],
-  "last_innovation": "INNOV-62-CGAI",
+  "last_innovation": "INNOV-66-EBS",
   "last_innovation_name": "Mutation Explainability Engine",
   "last_invocation": "2026-04-25",
-  "last_phase_completed": 149,
+  "last_phase_completed": 160,
   "last_phase_completed_label": "Phase 149 \u00b7 INNOV-55 \u00b7 Mutation Explainability Engine",
   "last_sync_sha": "7c5e5d88",
-  "last_updated": "2026-04-24T18:43:24.168406+00:00",
-  "next_phase": 150,
-  "next_pr": "Phase 159 \u2014 next innovation",
+  "last_updated": "2026-04-25T12:34:07.921504+00:00",
+  "next_phase": null,
+  "next_pr": null,
   "open_findings": [
     {
       "id": "FINDING-66-001",
@@ -631,8 +631,8 @@
     }
   ],
   "pending_evidence_rows": [],
-  "phase": 158,
-  "phase_label": "Phase 149 \u00b7 INNOV-55 \u00b7 Mutation Explainability Engine",
+  "phase": 160,
+  "phase_label": "Phase 160 \u00b7 INNOV-66 \u00b7 EBS \u2014 Emergent Baseline Sentinel",
   "phases_completed": [
     106,
     107,
@@ -955,14 +955,14 @@
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
   ],
-  "last_completed_phase": "24 \u00b7 Phase 154 \u00b7 INNOV-60 \u00b7 Constitutional Pre-Admission Gate (CPAG)",
+  "last_completed_phase": "Phase 160 \u00b7 INNOV-66 \u00b7 EBS \u2014 Emergent Baseline Sentinel",
   "last_agent_state_sync_digest": "gsync-0d8e7b14ed5c57c4",
-  "invariant_count": 263,
-  "innovation_count": 64,
+  "invariant_count": 284,
+  "innovation_count": 66,
   "innovations_shipped": 66,
   "open_findings_count": 0,
   "last_innovation_id": "INNOV-66",
-  "total_innovations_shipped": 55,
+  "total_innovations_shipped": 66,
   "ga_blocker_count": 0,
   "milestone": "v1.1-GA",
   "ga_blockers": 0,

@@ -4,11 +4,11 @@
 
 ---
 
-## Current State — v9.92.0 · Phase 159 · INNOV-65 Constitutional Strength Index (CSI)
+## Current State — v9.93.0 · Phase 160 · INNOV-66 EBS — Emergent Baseline Sentinel
 
-**Status:** 65 innovations shipped (INNOV-01 through INNOV-65). Phase 159 complete. v9.92.0 baseline. 65/65 Grade-A modules hardened.
+**Status:** 66 innovations shipped (INNOV-01 through INNOV-66). Phase 160 complete. v9.93.0 baseline. 66/66 Grade-A modules hardened.
 **Automation pointer:** Machine phase progression consumes `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` §3.0 “Active Era Contract (Phases 131–136+)”, which governs the current stream through Phase 147.
-**Hard-class invariants:** 251 (cumulative, enforced)
+**Hard-class invariants:** 278 (cumulative, enforced)
 **Constitutional Evolution Loop:** 16-step CEL, deterministic replay, wired
 **Self-Proposing Innovation Engine (SPIE):** active — system proposes its own next innovations; HUMAN-0 ratifies
 **Deterministic Audit Sandbox (DAS):** active — one-command external verification; `docker compose up das-demo`
@@ -132,7 +132,7 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 157 | INNOV-63 GHI — Governance Health Index | v9.90.0 | P0 | ✅ shipped |
 | 158 | INNOV-64 CSR — Constitutional Self-Repair Engine | v9.91.0 | P0 | ✅ shipped |
 | 159 | INNOV-65 CSI — Constitutional Strength Index | v9.92.0 | P0 | ✅ shipped |
-| 160 | INNOV-66 · EBS | v9.93.0 | P0 | ⬜ in progress |
+| 160 | INNOV-66 · EBS — Emergent Baseline Sentinel | v9.93.0 | P0 | ✅ shipped |
 
 
 ## Phase 140 — Constitutional P0 Sweep + P1 Hardening (v9.73.0) ✅
