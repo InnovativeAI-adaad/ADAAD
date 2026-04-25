@@ -12,6 +12,15 @@ Each collected test item must resolve to **exactly one** primary lane marker.
 | `regression_standard` | Standard regression and API correctness coverage outside critical/governance-only lanes. | Must remain green in baseline/full-suite CI to prevent silent regressions. |
 | `dev_only` | Developer-focused acceptance/fixture coverage not used as the primary release signal. | May run in development-focused lanes but still requires marker inventory compliance. |
 
+## Experimental rollout markers
+
+`qa7` is an explicit experimental marker for lint-scope rollout coverage and is constrained as follows:
+
+- Allowed location: `tests/rollout/**` only.
+- Required opt-in: `QA7_LINT_ROLLOUT=1`.
+- Recommended invocation: `QA7_LINT_ROLLOUT=1 PYTHONPATH=. pytest -m qa7 tests/rollout -q`.
+- Default CI policy: baseline/full-suite lanes keep `QA7_LINT_ROLLOUT` unset and treat any resulting QA7 skips as expected conditional skips.
+
 ## Enforcement
 
 - Marker declarations live in `pytest.ini`.
