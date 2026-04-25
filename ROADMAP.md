@@ -4,9 +4,9 @@
 
 ---
 
-## Current State — v9.84.0 · Phase 151 · INNOV-57 Governed Rollback (GRB)
+## Current State — v9.92.0 · Phase 159 · INNOV-65 Constitutional Strength Index (CSI)
 
-**Status:** 53 innovations shipped (INNOV-01 through INNOV-53). Phase 147 complete. v9.80.0 released. 53/53 Grade-A modules hardened.
+**Status:** 65 innovations shipped (INNOV-01 through INNOV-65). Phase 159 complete. v9.92.0 baseline. 65/65 Grade-A modules hardened.
 **Automation pointer:** Machine phase progression consumes `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` §3.0 “Active Era Contract (Phases 131–136+)”, which governs the current stream through Phase 147.
 **Hard-class invariants:** 251 (cumulative, enforced)
 **Constitutional Evolution Loop:** 16-step CEL, deterministic replay, wired
@@ -131,7 +131,8 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 156 | INNOV-62 CGAI — Constitutional Governance Anomaly Inspector | v9.89.0 | P0 | ✅ shipped |
 | 157 | INNOV-63 GHI — Governance Health Index | v9.90.0 | P0 | ✅ shipped |
 | 158 | INNOV-64 CSR — Constitutional Self-Repair Engine | v9.91.0 | P0 | ✅ shipped |
-| 159 | INNOV-65 CSI - Constitutional Strength Index | v9.92.0 | P0 | shipped |
+| 159 | INNOV-65 CSI — Constitutional Strength Index | v9.92.0 | P0 | ✅ shipped |
+| 160 | INNOV-66 · EBS | v9.93.0 | P0 | ⬜ in progress |
 
 
 ## Phase 140 — Constitutional P0 Sweep + P1 Hardening (v9.73.0) ✅

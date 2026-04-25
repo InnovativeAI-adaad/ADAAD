@@ -62,7 +62,7 @@ Advances V10 Convergence Criterion 6 (Continuous Constitutional Strength Measure
 - tests/test_phase159_csi.py: 39/39 passing acceptance suite
 
 ### Changed
-- VERSION: 9.91.0 -> 9.92.0
+- VERSION: 9.92.0 -> 9.93.0
 - dorkllm/telemetry_hub.py: 'csi' registered as known CGTH emitter component
 - server.py: CSI router wired into FastAPI application
 - Total invariants: 274 -> 279

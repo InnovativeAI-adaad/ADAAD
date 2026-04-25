@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.92.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": "v9.93.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -335,14 +335,18 @@
     "phase155-plan",
     "phase155-cgth-implemented",
     "phase155-30-tests-passing",
-    "v9.88.0-released"
+    "v9.88.0-released",
+    "phase160-plan-authored",
+    "phase160-human0-ratified",
+    "phase160-innov66-ebs-implemented",
+    "v9.93.0-released"
   ],
   "constitutional_invariants": {
-    "cumulative": 288,
+    "cumulative": 284,
     "hard_class_count": 278
   },
-  "current_phase": 159,
-  "current_version": "9.92.0",
+  "current_phase": 160,
+  "current_version": "9.93.0",
   "hard_class_count": 279,
   "hard_class_invariant_count": 263,
   "hard_class_invariants_cumulative": 263,
@@ -374,10 +378,10 @@
   ],
   "last_innovation": "INNOV-62-CGAI",
   "last_innovation_name": "Mutation Explainability Engine",
-  "last_invocation": "2026-04-24",
+  "last_invocation": "2026-04-25",
   "last_phase_completed": 149,
   "last_phase_completed_label": "Phase 149 \u00b7 INNOV-55 \u00b7 Mutation Explainability Engine",
-  "last_sync_sha": "6323b84c",
+  "last_sync_sha": "8d6c5a55",
   "last_updated": "2026-04-24T18:43:24.168406+00:00",
   "next_phase": 150,
   "next_pr": "Phase 159 \u2014 next innovation",
@@ -655,7 +659,7 @@
     141
   ],
   "schema_version": "1.5.0",
-  "software_version": "9.92.0",
+  "software_version": "9.93.0",
   "tife_active": true,
   "value_checkpoints_reached": [
     "phase0-track-a-hardening",
@@ -952,12 +956,12 @@
     "phase127-world-first-governed-redteam-response"
   ],
   "last_completed_phase": "24 \u00b7 Phase 154 \u00b7 INNOV-60 \u00b7 Constitutional Pre-Admission Gate (CPAG)",
-  "last_agent_state_sync_digest": "gsync-22e06f7e1e50cbc1",
+  "last_agent_state_sync_digest": "gsync-26f69072e7a5a955",
   "invariant_count": 263,
   "innovation_count": 64,
-  "innovations_shipped": 58,
+  "innovations_shipped": 66,
   "open_findings_count": 0,
-  "last_innovation_id": "INNOV-60",
+  "last_innovation_id": "INNOV-66",
   "total_innovations_shipped": 55,
   "ga_blocker_count": 0,
   "milestone": "v1.1-GA",
