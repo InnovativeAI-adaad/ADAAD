@@ -1,3 +1,25 @@
+## [9.93.0] - Phase 160 . INNOV-66 . EBS - Emergent Baseline Sentinel
+
+**Date:** 2026-04-24  **Author:** DEVADAAD . InnovativeAI LLC
+
+### Added
+- `dorkllm/emergent_sentinel.py` — deterministic emergent detection engine with
+  baseline + alert HMAC-chained ledgers and fail-closed chain verification.
+- `app/api/emergent_sentinel.py` — EBS API routes:
+  - `GET /api/governance/ebs/status`
+  - `GET /api/governance/ebs/baseline/chain`
+  - `GET /api/governance/ebs/alerts/chain`
+  - `POST /api/governance/ebs/detect`
+- `tests/test_phase160_ebs.py` — deterministic replay, chain-break fail-closed,
+  CRITICAL HUMAN0 pre-alert emission, and 4-route schema/200 sanity coverage.
+- `artifacts/governance/phase160/ila.json` — phase attestation artifact.
+
+### Changed
+- `dorkllm/telemetry_hub.py` — registered `ebs` as known CGTH emitter.
+- `server.py` — wired EBS router into FastAPI app.
+- Version sync to `9.93.0`: `VERSION`, `pyproject.toml`,
+  `.adaad_agent_state.json`, `governance/report_version.json`.
+
 ## [9.92.0] - Phase 159 . INNOV-65 . CSI - Constitutional Strength Index
 
 **Date:** 2026-04-24  **Author:** DEVADAAD . InnovativeAI LLC

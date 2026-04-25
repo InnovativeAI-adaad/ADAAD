@@ -55,6 +55,7 @@ from app.api.governance_anomalies import router as cgai_router   # Phase 156 INN
 from app.api.governance_health import router as ghi_router        # Phase 157 INNOV-63 GHI
 from app.api.self_repair import router as csr_router              # Phase 158 INNOV-64 CSR
 from app.api.constitutional_strength import router as csi_router  # Phase 159 INNOV-65 CSI
+from app.api.emergent_sentinel import router as ebs_router        # Phase 160 INNOV-66 EBS
 from runtime.integrations.github_app import dispatch_event, verify_webhook_signature  # ADAADchat
 from app.api.dependencies import (
     require_audit_scope,
@@ -871,6 +872,7 @@ app.include_router(cgai_router)          # Phase 156 INNOV-62 CGAI
 app.include_router(ghi_router)           # Phase 157 INNOV-63 GHI
 app.include_router(csr_router)           # Phase 158 INNOV-64 CSR
 app.include_router(csi_router)           # Phase 159 INNOV-65 CSI
+app.include_router(ebs_router)           # Phase 160 INNOV-66 EBS
 app.include_router(audit_router)
 app.include_router(ui_router)
 app.include_router(simulation_router)

@@ -1,0 +1,24 @@
+{
+  "artifact_type": "ILA",
+  "phase": 160,
+  "innovation_id": "INNOV-66",
+  "innovation_name": "Emergent Baseline Sentinel",
+  "title": "ILA-160-2026-04-24-001",
+  "status": "staged",
+  "deterministic_invariants": [
+    "EBS-DETERM-0",
+    "EBS-CHAIN-0",
+    "EBS-HUMAN0-0",
+    "EBS-MUTATE-0"
+  ],
+  "evidence": {
+    "code": [
+      "dorkllm/emergent_sentinel.py",
+      "app/api/emergent_sentinel.py"
+    ],
+    "tests": [
+      "tests/test_phase160_ebs.py"
+    ]
+  },
+  "timestamp_utc": "2026-04-24T00:00:00Z"
+}
