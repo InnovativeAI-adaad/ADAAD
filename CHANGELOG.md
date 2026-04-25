@@ -1,4 +1,4 @@
-## [9.92.0] - Phase 159 . INNOV-65 . CSI - Constitutional Strength Index
+## [9.93.0] - Phase 160 . INNOV-65 . CSI - Constitutional Strength Index
 
 **Date:** 2026-04-24  **Author:** DEVADAAD . InnovativeAI LLC
 
@@ -40,7 +40,7 @@ Advances V10 Convergence Criterion 6 (Continuous Constitutional Strength Measure
 - tests/test_phase159_csi.py: 39/39 passing acceptance suite
 
 ### Changed
-- VERSION: 9.91.0 -> 9.92.0
+- VERSION: 9.92.0 -> 9.93.0
 - dorkllm/telemetry_hub.py: 'csi' registered as known CGTH emitter component
 - server.py: CSI router wired into FastAPI application
 - Total invariants: 274 -> 279
