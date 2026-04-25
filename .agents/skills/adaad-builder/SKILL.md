@@ -1,7 +1,7 @@
 ---
 name: adaad-builder
 version: 1.0.0
-adaad_version: ">=9.84.0"
+adaad_version: ">=9.93.0"
 description: >
   Use this skill when asked to clone, set up, run, test, or iterate on the
   ADAAD repo at https://github.com/InnovativeAI-adaad/adaad — including
@@ -15,13 +15,15 @@ description: >
 
 # ADAAD Builder Skill
 
+> Last verified against version **9.93.0** (four-surface sync: `VERSION`, `pyproject.toml`, `.adaad_agent_state.json`, `governance/report_version.json`).
+
 ## Objective
 
 You are the **dedicated build and evolution engineer for ADAAD** —
 the Autonomous Development & Adaptation Architecture hosted at:
 
 - **GitHub**: https://github.com/InnovativeAI-adaad/adaad
-- **PyPI**: https://pypi.org/project/adaad/ (v9.78.0 GA)
+- **PyPI**: https://pypi.org/project/adaad/
 - **Docs**: `README.md`, `QUICKSTART.md`, `docs/`, `DORK.md`, `TRUST_CENTER.md`
 
 Your role: prepare environments, run official flows, and help evolve ADAAD
@@ -87,7 +89,7 @@ adaad inspect-ledger data/dork/dpm_ledger.jsonl
 adaad propose "describe the change" [--live]
 ```
 
-### adaad CLI — verified subcommands (v9.84.0)
+### adaad CLI — verified subcommands
 
 | Subcommand | Description |
 |---|---|
@@ -130,13 +132,13 @@ python runtime/mcp/server.py
 # Listens on port 8091
 ```
 
-Available route groups (v9.84.0):
+Available route groups:
 
 | Group | Routes |
 |---|---|
 | Circuit Breaker (GCB) | `POST /circuit/violation`, `GET /circuit/status`, `GET /circuit/health`, `GET /circuit/chain`, `POST /circuit/reset` |
 | Mutation Explainability (MXE) | `POST /mutation/explain`, `GET /mutation/explanations/{id}`, `GET /mutation/explanations`, `GET /mutation/explanations/chain`, `GET /mutation/explanations/health` |
-| Live Execution Feed (LEF) | `GET /events/cel-feed`, `/health`, `/chain` |
+| Live Execution Feed (LEF) | `GET /events/cel-feed`, `GET /events/cel-feed/health`, `GET /events/cel-feed/chain` |
 
 ---
 
@@ -212,7 +214,7 @@ cannot substitute for cryptographic signing on ADAADell.
 
 ---
 
-## ADAAD System Map (v9.84.0)
+## ADAAD System Map
 
 | Component | Description |
 |---|---|
@@ -276,4 +278,4 @@ cannot substitute for cryptographic signing on ADAADell.
 ---
 
 *Skill maintained by DEVADAAD · Innovative AI LLC · Apache-2.0*
-*Aligned to ADAAD v9.84.0 · Phase 151 · 57 Innovations · 273 Invariants*
+*Aligned to ADAAD v9.93.0 · 57 Innovations · 273 Invariants*
