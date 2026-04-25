@@ -4,9 +4,9 @@
 > **Canonical source (automation sequence control):** This document is the controlling source for **Phase 51+ PR order and closure state**, dependency graph, CI tier, and status used by ADAAD automation. It supersedes `ADAAD_PR_PROCESSION_2026-03.md` (Phase 6 era, now archived).
 
 **Authority chain:** `docs/CONSTITUTION.md` > `docs/ARCHITECTURE_CONTRACT.md` > `docs/governance/ARCHITECT_SPEC_v3.1.0.md` > this document
-**Last reviewed:** 2026-04-22
-**Milestone:** `v9.80.0` (Phase 147 complete — INNOV-53 Intent Expression Schema)
-**Canonical evidence anchor:** `ROADMAP.md` current-state checkpoint (Phase 147 / v9.80.0) + this document’s machine contract in §3
+**Last reviewed:** 2026-04-25
+**Milestone:** `v9.92.0` (Phase 159 complete — INNOV-65 Constitutional Strength Index)
+**Canonical evidence anchor:** `ROADMAP.md` current-state checkpoint (Phase 159 / v9.92.0) + this document’s machine contract in §3
 
 ---
 
@@ -174,7 +174,7 @@ See `docs/governance/V1_GA_READINESS_CHECKLIST.md` for the machine-checkable art
 
 ## 3) Automation Contract Block (Machine-checkable)
 
-### 3.0 Active Era Contract (Phases 131–147+)
+### 3.0 Active Era Contract (Phases 131–159+)
 
 This subsection is the canonical machine-consumed checkpoint for phase progression. Historical tables above and below are informative only.
 
@@ -183,10 +183,10 @@ adaad_pr_procession_contract:
   schema_version: "2.1"
   source_of_truth: "docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md"
   supersedes: "docs/governance/ADAAD_PR_PROCESSION_2026-03.md"
-  active_phase: "phase147_complete"
-  milestone: "v9.80.0"
-  last_state_align: "2026-04-22"
-  state_align_authority: "ROADMAP current-state checkpoint reconciliation (Phase 147 / v9.80.0)"
+  active_phase: "phase159_complete"
+  milestone: "v9.92.0"
+  last_state_align: "2026-04-25"
+  state_align_authority: "ROADMAP current-state checkpoint reconciliation (Phase 159 / v9.92.0)"
   ordered_phase_ids:
     - phase47
     - phase48
@@ -932,9 +932,9 @@ adaad_pr_procession_contract:
       title: "INNOV-53 Intent Expression Schema"
   state_alignment:
     canonical_pr_identifier_format: "Phase <N> — <Title>"
-    expected_active_phase: "Phase 147 COMPLETE · v9.80.0"
-    expected_last_completed_pr: "Phase 147 — INNOV-53 Intent Expression Schema"
-    expected_next_pr: "Phase 148 — INNOV-54 Live Execution Feed (deterministic: first non-shipped phase whose predecessor is shipped)"
+    expected_active_phase: "Phase 159 COMPLETE · v9.92.0"
+    expected_last_completed_pr: "Phase 159 — INNOV-65 Constitutional Strength Index (CSI)"
+    expected_next_pr: "Phase 160 — INNOV-66 Emergent Baseline Sentinel (deterministic: first non-shipped phase whose predecessor is shipped)"
     blocked_reason_must_be_null: true
   open_findings:
     - id: FINDING-C03-GITHUB-APP
@@ -992,6 +992,7 @@ A validator comparing this document to `.adaad_agent_state.json` should fail if:
 
 ## 3.2 Changelog
 
+- **2026-04-25:** Reconciled automation checkpoint to **Phase 159 complete / v9.92.0** and normalized deterministic next-phase identifier format to `Phase 160 — …` for state-alignment validators.
 - **2026-04-22:** Reconciled automation checkpoint to **Phase 147 complete / v9.80.0**, extended active-era phase nodes through 147, and normalized deterministic next-phase identifier format to `Phase 148 — …` for state-alignment validators.
 - **2026-04-22:** Defined canonical PR identifier format in state alignment as `Phase <N> — <Title>` and enforced that both `expected_last_completed_pr` and `expected_next_pr` use that exact format.
 - **2026-04-11:** Reconciled automation checkpoint to **Phase 136 complete / v9.69.0**, added active-era deterministic next-phase rule (`PR-PHASE137-01` placeholder pattern), and moved older sequence windows into explicit historical-checkpoint framing.
