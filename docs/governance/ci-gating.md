@@ -153,6 +153,14 @@ Every run emits a `CI gating summary` in the workflow summary page with:
 - computed tier
 - each gated job's result and reason it ran or was skipped
 
+### QA7 lint rollout flag policy and skip reporting
+
+`QA7_LINT_ROLLOUT` is restricted to the explicit experimental lane:
+
+- `tests/rollout/**` with `pytest -m qa7` selection.
+- The flag must remain unset in baseline/full-suite lanes so default CI remains always-on for non-experimental determinism tests.
+- QA7 tests skipped because `QA7_LINT_ROLLOUT` is unset are reported as **conditional experimental skips** and must be called out separately from unexpected skips in CI summaries.
+
 This provides audit-ready traceability for CI escalation decisions.
 
 Simplification KPI enforcement is audited as a constitutional-grade control and is included in

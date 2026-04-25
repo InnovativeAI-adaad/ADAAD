@@ -69,7 +69,7 @@ include = ["adaad*", "runtime*", "app*", "security*", "tools*"]
 
 [tool.pytest.ini_options]
 markers = [
-  "qa7: lint scope expansion rollout tests gated behind QA7_LINT_ROLLOUT.",
+  "qa7: Explicit experimental lint rollout lane (allowed only with QA7_LINT_ROLLOUT=1, typically via pytest -m qa7 tests/rollout -q).",
   "pr3h_acceptance: PR-3H acceptance suite.",
   "pr3h_checkpoint_tamper: PR-3H checkpoint tamper escalation coverage.",
   "pr3h_entropy_triage: PR-3H entropy triage replay fixture coverage.",
