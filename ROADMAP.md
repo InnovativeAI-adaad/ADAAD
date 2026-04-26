@@ -8,7 +8,7 @@
 
 **Status:** 66 innovations shipped (INNOV-01 through INNOV-66). Phase 160 complete. v9.93.0 baseline. 66/66 Grade-A modules hardened.
 **Automation pointer:** Machine phase progression consumes `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` §3.0 “Active Era Contract (Phases 131–136+)”, which governs the current stream through Phase 147.
-**Hard-class invariants:** 278 (cumulative, enforced)
+**Hard-class invariants:** 284 (cumulative, enforced)
 **Constitutional Evolution Loop:** 16-step CEL, deterministic replay, wired
 **Self-Proposing Innovation Engine (SPIE):** active — system proposes its own next innovations; HUMAN-0 ratifies
 **Deterministic Audit Sandbox (DAS):** active — one-command external verification; `docker compose up das-demo`
