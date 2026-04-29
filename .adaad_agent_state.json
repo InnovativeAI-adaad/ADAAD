@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.93.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": "v9.94.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -346,7 +346,7 @@
     "hard_class_count": 278
   },
   "current_phase": 161,
-  "current_version": "9.93.0",
+  "current_version": "9.94.0",
   "hard_class_count": 278,
   "hard_class_invariant_count": 278,
   "hard_class_invariants_cumulative": 278,
@@ -378,10 +378,10 @@
   ],
   "last_innovation": "INNOV-67-CFE",
   "last_innovation_name": "Mutation Explainability Engine",
-  "last_invocation": "2026-04-26",
+  "last_invocation": "2026-04-29",
   "last_phase_completed": 160,
   "last_phase_completed_label": "Phase 149 \u00b7 INNOV-55 \u00b7 Mutation Explainability Engine",
-  "last_sync_sha": "605ce9ef",
+  "last_sync_sha": "a26dde3f",
   "last_updated": "2026-04-25T12:34:07.921504+00:00",
   "next_phase": null,
   "next_pr": null,
@@ -659,7 +659,7 @@
     141
   ],
   "schema_version": "1.5.0",
-  "software_version": "9.93.0",
+  "software_version": "9.94.0",
   "tife_active": true,
   "value_checkpoints_reached": [
     "phase0-track-a-hardening",
@@ -956,7 +956,7 @@
     "phase127-world-first-governed-redteam-response"
   ],
   "last_completed_phase": "24 \u00b7 Phase 154 \u00b7 INNOV-60 \u00b7 Constitutional Pre-Admission Gate (CPAG)",
-  "last_agent_state_sync_digest": "gsync-87d98f032004f00e",
+  "last_agent_state_sync_digest": "gsync-999263ea0d403e1f",
   "invariant_count": 288,
   "innovation_count": 67,
   "innovations_shipped": 66,
