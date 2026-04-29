@@ -1,3 +1,30 @@
+## [9.94.0] - Phase 161 . INNOV-67 . CFE - Constitutional Forecast Engine
+
+**Date:** 2026-04-26  **Author:** DEVADAAD . InnovativeAI LLC
+
+### Added
+- `dorkllm/constitutional_forecast.py` — deterministic constitutional stress
+  forecaster: linear-trend projection over CGTH pressure windows, four-tier
+  risk classification (LOW/MEDIUM/HIGH_RISK/CRITICAL), HMAC-chained append-only
+  forecast ledger, fail-closed CFE-WINDOW-0 guard (≥ 3 data points required),
+  and HUMAN0_AUTHORISATION pre-write emission for HIGH_RISK / CRITICAL forecasts.
+- `app/api/constitutional_forecast.py` — CFE API routes:
+  - `GET /api/governance/cfe/status`
+  - `GET /api/governance/cfe/chain`
+  - `POST /api/governance/cfe/forecast`
+  - `GET /api/governance/cfe/chain/verify`
+- `tests/test_phase161_cfe.py` — deterministic replay, chain-break fail-closed,
+  CRITICAL HUMAN0 pre-forecast emission, window-guard rejection, risk-tier
+  classification, and 4-route schema/200/422 sanity coverage (30/30 passing).
+- `artifacts/governance/phase161/ila.json` — phase attestation artifact.
+
+### Changed
+- `dorkllm/telemetry_hub.py` — registered `cfe` as known CGTH emitter.
+- `server.py` — wired CFE router into FastAPI app.
+- Version sync to `9.94.0`: `VERSION`, `pyproject.toml`,
+  `.adaad_agent_state.json`.
+
+
 ## [9.93.0] - Phase 160 . INNOV-66 . EBS - Emergent Baseline Sentinel
 
 **Date:** 2026-04-24  **Author:** DEVADAAD . InnovativeAI LLC
