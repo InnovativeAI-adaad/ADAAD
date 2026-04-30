@@ -470,3 +470,7 @@ Community constitutional amendment proposals go through the governed pipeline es
 *The global standard for trustable autonomous AI. Governed, proven, running.*
 
 </div>
+
+
+## Phase 163 (INNOV-69 · MCE)
+- Added Mutation Calibration Engine with deterministic calibration ledger and guarded weight updates.
