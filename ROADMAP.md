@@ -4,9 +4,9 @@
 
 ---
 
-## Current State — v9.94.0 · Phase 161 · INNOV-67 CFE — Constitutional Forecast Engine
+## Current State — v9.95.0 · Phase 162 · INNOV-68 MIA — Mutation Impact Analyzer
 
-**Status:** 67 innovations shipped (INNOV-01 through INNOV-67). Phase 161 complete. v9.94.0 baseline. 67/67 Grade-A modules hardened.
+**Status:** 68 innovations shipped (INNOV-01 through INNOV-68). Phase 162 complete. v9.95.0 baseline. 68/68 Grade-A modules hardened.
 **Automation pointer:** Machine phase progression consumes `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` §3.0 “Active Era Contract (Phases 131–136+)”, which governs the current stream through Phase 147.
 **Hard-class invariants:** 278 (cumulative, enforced)
 **Constitutional Evolution Loop:** 16-step CEL, deterministic replay, wired
@@ -62,6 +62,8 @@
 | INNOV-48 · CSS | embedder.py | 142 | v9.75.0 | CSS-DETERM-0, CSS-FALLBACK-0, CSS-DIM-0, CSS-COSINE-0, CSS-PYDROID-0 |
 | INNOV-49 · CMU | model_validator.py | 143 | v9.76.0 | CMU-CTX-0, CMU-TEMP-0, CMU-BENCH-0, CMU-DETERM-0, CMU-HUMAN0-0 |
 | INNOV-50 · RAGS | grounded_responder.py | 144 | v9.77.0 | RAGS-GROUND-0, RAGS-CTX-0, RAGS-DETERM-0, RAGS-CHAIN-0, RAGS-GATE-0 |
+| INNOV-67 · CFE | constitutional_forecast.py | 161 | v9.94.0 | CFE-DETERM-0, CFE-CHAIN-0, CFE-HUMAN0-0, CFE-WINDOW-0 |
+| INNOV-68 · MIA | mutation_impact_analyzer.py | 162 | v9.95.0 | MIA-DETERM-0, MIA-CHAIN-0, MIA-HUMAN0-0, MIA-SCOPE-0, MIA-AUDIT-0 |
 
 **Open GA blocker (canonical):** None — FINDING-66-004 resolved (2026-04-12). All ceremonies complete. GA track unblocked.  
 **Strategic plan:** `docs/governance/POST_PIPELINE_STRATEGIC_PLAN.md`
@@ -134,6 +136,7 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 159 | INNOV-65 CSI — Constitutional Strength Index | v9.92.0 | P0 | ✅ shipped |
 | 160 | INNOV-66 · EBS — Emergent Baseline Sentinel | v9.93.0 | P0 | ✅ shipped |
 | 161 | INNOV-67 · CFE — Constitutional Forecast Engine | v9.94.0 | P0 | ✅ shipped |
+| 162 | INNOV-68 · MIA — Mutation Impact Analyzer | v9.95.0 | P0 | ✅ shipped |
 
 
 ## Phase 140 — Constitutional P0 Sweep + P1 Hardening (v9.73.0) ✅

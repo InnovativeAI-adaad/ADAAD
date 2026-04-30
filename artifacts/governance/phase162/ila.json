@@ -1,0 +1,48 @@
+{
+  "schema": "adaad-governance-artifact-v1",
+  "artifact_type": "ila",
+  "ila_id": "ILA-162-2026-04-30-001",
+  "phase": 162,
+  "innovation_id": "INNOV-68",
+  "innovation_name": "MIA — Mutation Impact Analyzer",
+  "version": "9.95.0",
+  "date": "2026-04-30",
+  "author": "DEVADAAD · InnovativeAI LLC",
+  "status": "track_a_complete",
+  "invariants_added": [
+    "MIA-DETERM-0",
+    "MIA-CHAIN-0",
+    "MIA-HUMAN0-0",
+    "MIA-SCOPE-0",
+    "MIA-AUDIT-0"
+  ],
+  "tests_added": 30,
+  "tests_passed": 30,
+  "files_changed": [
+    "dorkllm/mutation_impact_analyzer.py",
+    "app/api/mutation_impact.py",
+    "tests/test_phase162_mia.py",
+    "dorkllm/telemetry_hub.py",
+    "server.py",
+    "artifacts/governance/phase162/ila.json",
+    "artifacts/governance/phase162/sign_off.json",
+    "artifacts/governance/phase162/tier_summary.json",
+    "artifacts/governance/phase162/invariant_register.json",
+    "CHANGELOG.md",
+    "ROADMAP.md",
+    "VERSION",
+    "pyproject.toml",
+    "adaad/__init__.py",
+    "adaad_core/__init__.py",
+    "pytest.ini",
+    ".adaad_agent_state.json"
+  ],
+  "api_routes": [
+    "GET /api/governance/mia/status",
+    "GET /api/governance/mia/history",
+    "POST /api/governance/mia/analyze",
+    "GET /api/governance/mia/chain/verify"
+  ],
+  "governance_note": "Tier-0 merge and tag requires HUMAN-0 GPG sign-off on ADAADell",
+  "session_id": "DEVADAAD-phase162-2026-04-30"
+}
