@@ -1,3 +1,43 @@
+## [9.95.0] - Phase 162 . INNOV-68 . MIA - Mutation Impact Analyzer
+
+**Date:** 2026-04-30  **Author:** DEVADAAD . InnovativeAI LLC
+
+### Added
+- `dorkllm/mutation_impact_analyzer.py` — pre-admission mutation intelligence engine:
+  - `MutationPayload` — canonical, frozen input struct with deterministic serialisation
+  - `ImpactAssessment` — immutable result with impact_id, composite_score, tier,
+    recommendation, and four scored `ImpactDimension` objects
+  - `MutationImpactAnalyzer` — core engine: four-dimension analysis
+    (precedent_match · invariant_risk · csi_alignment · forecast_headroom),
+    weighted composite score [0-100], tier classification (LOW/MEDIUM/HIGH_RISK/CRITICAL),
+    advisory recommendation (APPROVE/REVIEW/HOLD/BLOCK), HMAC-chained append-only
+    impact ledger, fail-closed MIA-CHAIN-0 guard, HUMAN0_AUTHORISATION pre-write
+    emission for HIGH_RISK/CRITICAL assessments, and module-level singleton accessor.
+- `app/api/mutation_impact.py` — MIA API routes:
+  - `GET  /api/governance/mia/status`
+  - `GET  /api/governance/mia/history`
+  - `POST /api/governance/mia/analyze`
+  - `GET  /api/governance/mia/chain/verify`
+- `tests/test_phase162_mia.py` — determinism replay, HMAC chain-break fail-closed,
+  HUMAN0 pre-emission ordering, four-dimension scope validation, append-only ledger
+  integrity, and 4-route schema/200/422 sanity coverage (30/30 passing).
+- `artifacts/governance/phase162/` — ila.json, sign_off.json, tier_summary.json,
+  invariant_register.json (5 new Hard-class invariants).
+
+### Changed
+- `dorkllm/telemetry_hub.py` — registered `mia` as known CGTH emitter.
+- `server.py` — wired MIA router into FastAPI app.
+- `pytest.ini` — registered `phase162` / `T162` marker.
+- Version sync to `9.95.0`: `VERSION`, `pyproject.toml`, `adaad/__init__.py`,
+  `adaad_core/__init__.py`, `.adaad_agent_state.json`.
+
+### Hard-class invariants added (5 · cumulative: 293)
+- `MIA-DETERM-0` — impact_id deterministic from canonical payload; no timestamp/random.
+- `MIA-CHAIN-0`  — HMAC-chained ledger; chain break → MIAChainError (fail-closed).
+- `MIA-HUMAN0-0` — HIGH_RISK/CRITICAL assessments emit HUMAN0_AUTHORISATION before write.
+- `MIA-SCOPE-0`  — analysis confined to supplied payload; no live-repo FS reads.
+- `MIA-AUDIT-0`  — impact ledger append-only; no deletion or in-place update.
+
 ## [9.94.0] - Phase 161 . INNOV-67 . CFE - Constitutional Forecast Engine
 
 **Date:** 2026-04-26  **Author:** DEVADAAD . InnovativeAI LLC

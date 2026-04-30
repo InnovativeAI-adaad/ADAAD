@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.94.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": "v9.95.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -345,7 +345,7 @@
     "cumulative": 284,
     "hard_class_count": 278
   },
-  "current_phase": 161,
+  "current_phase": 162,
   "current_version": "9.94.0",
   "hard_class_count": 278,
   "hard_class_invariant_count": 278,
@@ -376,14 +376,14 @@
       "date": "2026-04-24"
     }
   ],
-  "last_innovation": "INNOV-67-CFE",
-  "last_innovation_name": "Mutation Explainability Engine",
+  "last_innovation": "INNOV-68-MIA",
+  "last_innovation_name": "Mutation Impact Analyzer",
   "last_invocation": "2026-04-30",
   "last_phase_completed": 160,
   "last_phase_completed_label": "Phase 149 \u00b7 INNOV-55 \u00b7 Mutation Explainability Engine",
   "last_sync_sha": "f82f90c7",
   "last_updated": "2026-04-25T12:34:07.921504+00:00",
-  "next_phase": 162,
+  "next_phase": 163,
   "next_pr": null,
   "open_findings": [
     {
@@ -950,19 +950,19 @@
     "phase124-world-first-governed-kernel-extraction",
     "v9.57.0-released"
   ],
-  "version": "9.94.0",
+  "version": "9.95.0",
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
   ],
   "last_completed_phase": "24 \u00b7 Phase 154 \u00b7 INNOV-60 \u00b7 Constitutional Pre-Admission Gate (CPAG)",
   "last_agent_state_sync_digest": "gsync-2b25165dcee5865a",
-  "invariant_count": 288,
-  "innovation_count": 67,
-  "innovations_shipped": 67,
+  "invariant_count": 293,
+  "innovation_count": 68,
+  "innovations_shipped": 68,
   "open_findings_count": 0,
-  "last_innovation_id": "INNOV-67",
-  "total_innovations_shipped": 67,
+  "last_innovation_id": "INNOV-68",
+  "total_innovations_shipped": 68,
   "ga_blocker_count": 0,
   "milestone": "v1.1-GA",
   "ga_blockers": 0,
@@ -1180,7 +1180,7 @@
       "date": "2026-04-21"
     }
   },
-  "next_phase_id": 162,
+  "next_phase_id": 163,
   "phases_complete": 161,
-  "next_innovation_id": "INNOV-68"
+  "next_innovation_id": "INNOV-69"
 }
