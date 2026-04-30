@@ -339,7 +339,8 @@
     "phase160-plan-authored",
     "phase160-human0-ratified",
     "phase160-innov66-ebs-implemented",
-    "v9.93.0-released"
+    "v9.93.0-released",
+    "phase163-plan-authored"
   ],
   "constitutional_invariants": {
     "cumulative": 284,
@@ -384,7 +385,7 @@
   "last_sync_sha": "889f3427",
   "last_updated": "2026-04-25T12:34:07.921504+00:00",
   "next_phase": 163,
-  "next_pr": null,
+  "next_pr": "phase163-mutation-calibration-engine",
   "open_findings": [
     {
       "id": "FINDING-66-001",
