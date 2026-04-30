@@ -1,3 +1,36 @@
+## [9.96.0] - Phase 163 . INNOV-69 . MCE - Mutation Calibration Engine
+
+**Date:** 2026-04-30  **Author:** DEVADAAD . InnovativeAI LLC
+
+### Added
+- `dorkllm/mutation_calibration_engine.py` — closes MIA feedback loop via outcome-driven weight calibration:
+  - `MutationOutcome` — frozen input dataclass with deterministic canonical serialisation
+  - `CalibrationRecord` — immutable result with prev_digest chain link, HMAC chain_hash, cumulative_weights
+  - `MutationCalibrationEngine` — core engine: outcome recording, bounded gradient descent, atomic weight persistence
+  - `get_engine()` — process-singleton accessor
+  - 5 Hard-class invariants: MCE-CHAIN-0, MCE-WEIGHT-0, MCE-DRIFT-0, MCE-HUMAN0-0, MCE-DETERM-0
+  - HMAC-chained append-only JSONL calibration ledger (`ledger/mutation_calibration.jsonl`)
+  - Atomic weight file write via tmp + rename (`governance/mce_weights.json`)
+  - `MCE_VALID_SOURCES` frozenset — AUTH-CT-0 compliant source allowlist
+  - CGTH telemetry: MUTATION_OUTCOME and PERM_SNAPSHOT events per calibration cycle
+  - HUMAN0_AUTHORISATION gate on cumulative weight shift >0.10 (MCE-HUMAN0-0)
+- `app/api/mutation_calibration.py` — MCE API routes:
+  - `GET  /api/governance/mce/status`
+  - `GET  /api/governance/mce/weights`
+  - `GET  /api/governance/mce/history`
+  - `POST /api/governance/mce/outcome`
+  - `GET  /api/governance/mce/chain/verify`
+- `tests/test_phase163_mce.py` — 30/30 acceptance tests passing:
+  - 10 unit (determinism, weight sum, drift clamp, chain-break abort, source rejection, MIA lookup, persistence, enum, prev_digest)
+  - 10 integration (MIA roundtrip, tier lookup, reload, 20-cycle convergence, 5 API route tests)
+  - 10 invariant (all 5 error classes are RuntimeError, prev_digest field, append-only, hmac.compare_digest, frozenset, constants, atomic write, canonical determinism)
+- `artifacts/governance/phase163/ila.json` — phase attestation artifact.
+
+### Changed
+- `dorkllm/telemetry_hub.py` — registered `mce` as known CGTH emitter.
+- `server.py` — wired MCE router into FastAPI app.
+- Version sync to `9.96.0`: `VERSION`, `pyproject.toml`, `.adaad_agent_state.json`.
+
 ## [9.95.0] - Phase 162 . INNOV-68 . MIA - Mutation Impact Analyzer
 
 **Date:** 2026-04-30  **Author:** DEVADAAD . InnovativeAI LLC

@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.95.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": "v9.96.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -340,17 +340,27 @@
     "phase160-human0-ratified",
     "phase160-innov66-ebs-implemented",
     "v9.93.0-released",
-    "phase163-plan-authored"
+    "phase163-plan-authored",
+    "phase163-human0-ratified",
+    "phase163-innov69-mce-implemented",
+    "phase163-mce-chain-0-enforced",
+    "phase163-mce-weight-0-enforced",
+    "phase163-mce-drift-0-enforced",
+    "phase163-mce-human0-0-enforced",
+    "phase163-mce-determ-0-enforced",
+    "phase163-world-first-outcome-calibration",
+    "v9.96.0-released",
+    "phase163-complete"
   ],
   "constitutional_invariants": {
     "cumulative": 284,
     "hard_class_count": 278
   },
-  "current_phase": 162,
-  "current_version": "9.95.0",
-  "hard_class_count": 278,
-  "hard_class_invariant_count": 278,
-  "hard_class_invariants_cumulative": 278,
+  "current_phase": 163,
+  "current_version": "9.96.0",
+  "hard_class_count": 283,
+  "hard_class_invariant_count": 283,
+  "hard_class_invariants_cumulative": 283,
   "human0_signoffs": [
     {
       "date": "2026-03-27",
@@ -375,16 +385,22 @@
       "innov_id": "INNOV-58",
       "token": "approved DUSTIN L REID",
       "date": "2026-04-24"
+    },
+    {
+      "phase": 163,
+      "innov_id": "INNOV-69",
+      "token": "approved DUSTIN L REID",
+      "date": "2026-04-30"
     }
   ],
-  "last_innovation": "INNOV-68-MIA",
-  "last_innovation_name": "Mutation Impact Analyzer",
+  "last_innovation": "INNOV-69-MCE",
+  "last_innovation_name": "Mutation Calibration Engine",
   "last_invocation": "2026-04-30",
-  "last_phase_completed": 162,
-  "last_phase_completed_label": "Phase 162 \u00b7 INNOV-68 \u00b7 MIA \u2014 Mutation Impact Analyzer",
+  "last_phase_completed": 163,
+  "last_phase_completed_label": "Phase 163 \u00b7 INNOV-69 \u00b7 MCE \u2014 Mutation Calibration Engine",
   "last_sync_sha": "889f3427",
-  "last_updated": "2026-04-25T12:34:07.921504+00:00",
-  "next_phase": 163,
+  "last_updated": "2026-04-30T00:00:00.000000+00:00",
+  "next_phase": 164,
   "next_pr": "phase163-mutation-calibration-engine",
   "open_findings": [
     {
@@ -632,8 +648,8 @@
     }
   ],
   "pending_evidence_rows": [],
-  "phase": 162,
-  "phase_label": "Phase 162 \u00b7 INNOV-68 \u00b7 MIA \u2014 Mutation Impact Analyzer",
+  "phase": 163,
+  "phase_label": "Phase 163 \u00b7 INNOV-69 \u00b7 MCE \u2014 Mutation Calibration Engine",
   "phases_completed": [
     106,
     107,
@@ -660,7 +676,7 @@
     141
   ],
   "schema_version": "1.5.0",
-  "software_version": "9.95.0",
+  "software_version": "9.96.0",
   "tife_active": true,
   "value_checkpoints_reached": [
     "phase0-track-a-hardening",
@@ -951,19 +967,19 @@
     "phase124-world-first-governed-kernel-extraction",
     "v9.57.0-released"
   ],
-  "version": "9.95.0",
+  "version": "9.96.0",
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
   ],
-  "last_completed_phase": "24 \u00b7 Phase 154 \u00b7 INNOV-60 \u00b7 Constitutional Pre-Admission Gate (CPAG)",
+  "last_completed_phase": 163,
   "last_agent_state_sync_digest": "gsync-3ad30dfd8787133b",
-  "invariant_count": 293,
-  "innovation_count": 68,
-  "innovations_shipped": 68,
+  "invariant_count": 298,
+  "innovation_count": 69,
+  "innovations_shipped": 69,
   "open_findings_count": 0,
-  "last_innovation_id": "INNOV-68",
-  "total_innovations_shipped": 68,
+  "last_innovation_id": "INNOV-69",
+  "total_innovations_shipped": 69,
   "ga_blocker_count": 0,
   "milestone": "v1.1-GA",
   "ga_blockers": 0,
@@ -1159,6 +1175,31 @@
       "id": "GCB-HUMAN0-0",
       "class": "Hard",
       "phase": 150
+    },
+    {
+      "id": "MCE-CHAIN-0",
+      "class": "Hard",
+      "phase": 163
+    },
+    {
+      "id": "MCE-WEIGHT-0",
+      "class": "Hard",
+      "phase": 163
+    },
+    {
+      "id": "MCE-DRIFT-0",
+      "class": "Hard",
+      "phase": 163
+    },
+    {
+      "id": "MCE-HUMAN0-0",
+      "class": "Hard",
+      "phase": 163
+    },
+    {
+      "id": "MCE-DETERM-0",
+      "class": "Hard",
+      "phase": 163
     }
   ],
   "ga_gates": {
@@ -1181,7 +1222,7 @@
       "date": "2026-04-21"
     }
   },
-  "next_phase_id": 163,
-  "phases_complete": 162,
-  "next_innovation_id": "INNOV-69"
+  "next_phase_id": 164,
+  "phases_complete": 163,
+  "next_innovation_id": "INNOV-70"
 }
