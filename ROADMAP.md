@@ -144,3 +144,15 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 - Resolved 5 P0 audit findings (WL-001..WL-005) from the deepest audit in ADAAD history
 - 5 new Hard-class invariants: HAPG-IDENTITY-0, HAPG-EXPIRY-0, REPLAY-ALGO-0, TEST-ATTEST-0, GRRP-KEY-0
 - Total invariants: 221 | Total phases: 140 | Tests: 30/30
+
+## Phase 148 — Live Execution Feed — Innovation 54 (v9.97.0) ✅
+
+**Status:** ✅ shipped · **Released:** v9.97.0 · **Closed:** 2026-05-01
+
+Closes the MCP server import gap for `get_feed_engine`, `probe`, async `subscribe()`,
+`event_stream(q)`, and `verify_ledger_chain()`. Delivers the full HMAC-chained CEL
+observability stack with 40/40 tests, 5 constitutional invariants, and the
+`ui/whaledic.html` Constitutional Dark LEF panel.
+
+**Invariants:** CEL-FEED-0, CEL-FEED-COMPLETE-0, LEF-CHAIN-0, LEF-DETERM-0, LEF-NOWRITE-0
+**Tests:** 40/40 | **Innovation:** INNOV-54 | **Total phases:** 148

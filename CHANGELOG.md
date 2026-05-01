@@ -1,3 +1,44 @@
+## [9.97.0] — 2026-05-01  Phase 148 · Live Execution Feed — Innovation 54 (Gap-Close)
+
+**Date:** 2026-05-01  **Author:** DEVADAAD · InnovativeAI LLC
+
+### Closes
+
+Closes the import gap introduced when `runtime/mcp/server.py` referenced
+`get_feed_engine`, `probe`, `await engine.subscribe()`, `engine.event_stream(q)`,
+and `engine.verify_ledger_chain()` before those symbols were implemented.
+
+### Added
+
+**dorkllm/cel_feed.py — CELFeedEngine**
+- `async subscribe()` — awaitable subscriber registration for MCP SSE endpoint
+- `subscribe_sync()` — synchronous alias for non-async contexts and tests
+- `subscribe_async()` — explicit async alias
+- `event_stream(q=None)` — accepts pre-registered asyncio.Queue; async-drains it when supplied
+- `event_stream_async(q, timeout)` — explicit async SSE generator with queue drain
+- `verify_ledger_chain()` — structured JSON-safe dict response for `GET /events/cel-feed/chain`
+
+**runtime/innovations30/live_execution_feed.py — INNOV-54**
+- `get_feed_engine(phase)` — per-phase engine registry (stable singleton per phase key)
+- `probe(phase)` — INNOV-COMPLETE-0 health probe returning chain integrity + invariant status
+- `_phase_engines` registry with `_registry_lock` (thread-safe, CEL-FEED-0)
+
+**tests/innovations/test_phase148_lef.py**
+- 40/40 tests updated for async subscribe API
+- T148-E13 and T148-E14 updated to use await / subscribe_sync respectively
+
+### Constitutional invariants
+All five Phase 148 invariants (CEL-FEED-0, CEL-FEED-COMPLETE-0, LEF-CHAIN-0, LEF-DETERM-0, LEF-NOWRITE-0) verified and structurally enforced.  AST import boundary checks pass (T148-S03, S04, S05).
+
+### Acceptance criteria
+- `await engine.subscribe()` returns asyncio.Queue: **✅**
+- `engine.event_stream(q)` drains pre-registered queue: **✅**
+- `engine.verify_ledger_chain()` returns structured dict: **✅**
+- `get_feed_engine(148)` returns stable singleton: **✅**
+- `probe(148)` returns `{"ok": True, "chain_integrity": True, ...}`: **✅**
+- MCP server imports cleanly: **✅**
+- **40/40 tests passing**: **✅**
+
 ## [9.95.0] - Phase 162 . INNOV-68 . MIA - Mutation Impact Analyzer
 
 **Date:** 2026-04-30  **Author:** DEVADAAD . InnovativeAI LLC
