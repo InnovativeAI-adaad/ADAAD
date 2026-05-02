@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.97.0 RELEASED \u00b7 Phase 164 CGE",
+  "active_phase": "v9.97.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -360,7 +360,7 @@
     "hard_class_count": 278
   },
   "current_phase": 164,
-  "current_version": "9.96.0",
+  "current_version": "9.97.0",
   "hard_class_count": 283,
   "hard_class_invariant_count": 283,
   "hard_class_invariants_cumulative": 283,
@@ -401,7 +401,7 @@
   "last_invocation": "2026-05-02",
   "last_phase_completed": 163,
   "last_phase_completed_label": "Phase 163 \u00b7 INNOV-69 \u00b7 MCE \u2014 Mutation Calibration Engine",
-  "last_sync_sha": "7a97d5d1",
+  "last_sync_sha": "fcb6a34a",
   "last_updated": "2026-04-30T00:00:00.000000+00:00",
   "next_phase": 164,
   "next_pr": "phase163-mutation-calibration-engine",
@@ -679,7 +679,7 @@
     141
   ],
   "schema_version": "1.5.0",
-  "software_version": "9.96.0",
+  "software_version": "9.97.0",
   "tife_active": true,
   "value_checkpoints_reached": [
     "phase0-track-a-hardening",
@@ -976,7 +976,7 @@
     "phase127-world-first-governed-redteam-response"
   ],
   "last_completed_phase": "24 \u00b7 Phase 154 \u00b7 INNOV-60 \u00b7 Constitutional Pre-Admission Gate (CPAG)",
-  "last_agent_state_sync_digest": "gsync-2866a979c02978ea",
+  "last_agent_state_sync_digest": "gsync-b68a4ea7796150c5",
   "invariant_count": 298,
   "innovation_count": 69,
   "innovations_shipped": 70,
