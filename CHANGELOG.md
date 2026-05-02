@@ -1,3 +1,22 @@
+## [9.97.0] - Phase 164 · INNOV-70 · CGE — Constitutional Genome Encoder
+
+**Date:** 2026-05-02  **Author:** DEVADAAD · InnovativeAI LLC
+
+### Added
+- `runtime/innovations30/constitutional_genome_encoder.py` — ConstitutionalGenomeEncoder
+  implementing encode_genome(), diff_genomes(), merge_genomes(), verify_genome().
+- 7 new Hard-class invariants: CGE-ENCODE-0, CGE-CHAIN-0, CGE-DIFF-0, CGE-MERGE-0,
+  CGE-HUMAN0-0, CGE-DETERM-0, CGE-AUDIT-0
+- REST endpoints: POST /genome/encode · GET /genome/history
+- 30-test suite (T164-CGE-01..30): 30/30 Grade-A · tests/test_phase164_cge.py
+- pytest marker `phase164` registered in pytest.ini
+- Governance artifacts: artifacts/governance/phase164/
+
+### Constitutional
+- HUMAN-0 gate enforced at divergence_score > 0.35 (CGE-HUMAN0-0)
+- All genome IDs incorporate chain position — no collision across ledger positions
+- Genome encoding is deterministic regardless of loci input dict ordering (CGE-DETERM-0)
+
 ## [9.96.0] - Phase 163 . INNOV-69 . MCE - Mutation Calibration Engine
 
 **Date:** 2026-04-30  **Author:** DEVADAAD . InnovativeAI LLC

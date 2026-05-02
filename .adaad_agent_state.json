@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.96.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": "v9.97.0 RELEASED \u00b7 Phase 164 CGE",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -352,13 +352,14 @@
     "v9.96.0-released",
     "phase163-complete",
     "phase163-mce-implemented",
-    "phase163-world-first-outcome-driven-calibration"
+    "phase163-world-first-outcome-driven-calibration",
+    "phase164-cge-shipped"
   ],
   "constitutional_invariants": {
     "cumulative": 284,
     "hard_class_count": 278
   },
-  "current_phase": 163,
+  "current_phase": 164,
   "current_version": "9.96.0",
   "hard_class_count": 283,
   "hard_class_invariant_count": 283,
@@ -969,7 +970,7 @@
     "phase124-world-first-governed-kernel-extraction",
     "v9.57.0-released"
   ],
-  "version": "9.96.0",
+  "version": "9.97.0",
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
@@ -978,7 +979,7 @@
   "last_agent_state_sync_digest": "gsync-2866a979c02978ea",
   "invariant_count": 298,
   "innovation_count": 69,
-  "innovations_shipped": 69,
+  "innovations_shipped": 70,
   "open_findings_count": 0,
   "last_innovation_id": "INNOV-69",
   "total_innovations_shipped": 69,

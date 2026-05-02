@@ -4,7 +4,7 @@
 
 ---
 
-## Current State — v9.95.0 · Phase 162 · INNOV-68 MIA — Mutation Impact Analyzer
+## Current State — v9.97.0 · Phase 164 · INNOV-70 CGE — Constitutional Genome Encoder
 
 **Status:** 68 innovations shipped (INNOV-01 through INNOV-68). Phase 162 complete. v9.95.0 baseline. 68/68 Grade-A modules hardened.
 **Automation pointer:** Machine phase progression consumes `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` §3.0 “Active Era Contract (Phases 131–136+)”, which governs the current stream through Phase 147.
@@ -144,3 +144,4 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 - Resolved 5 P0 audit findings (WL-001..WL-005) from the deepest audit in ADAAD history
 - 5 new Hard-class invariants: HAPG-IDENTITY-0, HAPG-EXPIRY-0, REPLAY-ALGO-0, TEST-ATTEST-0, GRRP-KEY-0
 - Total invariants: 221 | Total phases: 140 | Tests: 30/30
+| 164 | INNOV-70 · CGE — Constitutional Genome Encoder | v9.97.0 | P0 | ✅ shipped |
