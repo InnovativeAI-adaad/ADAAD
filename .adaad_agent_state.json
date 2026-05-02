@@ -350,7 +350,9 @@
     "phase163-mce-determ-0-enforced",
     "phase163-world-first-outcome-calibration",
     "v9.96.0-released",
-    "phase163-complete"
+    "phase163-complete",
+    "phase163-mce-implemented",
+    "phase163-world-first-outcome-driven-calibration"
   ],
   "constitutional_invariants": {
     "cumulative": 284,
@@ -395,10 +397,10 @@
   ],
   "last_innovation": "INNOV-69-MCE",
   "last_innovation_name": "Mutation Calibration Engine",
-  "last_invocation": "2026-04-30",
+  "last_invocation": "2026-05-02",
   "last_phase_completed": 163,
   "last_phase_completed_label": "Phase 163 \u00b7 INNOV-69 \u00b7 MCE \u2014 Mutation Calibration Engine",
-  "last_sync_sha": "889f3427",
+  "last_sync_sha": "fa1337db",
   "last_updated": "2026-04-30T00:00:00.000000+00:00",
   "next_phase": 164,
   "next_pr": "phase163-mutation-calibration-engine",
