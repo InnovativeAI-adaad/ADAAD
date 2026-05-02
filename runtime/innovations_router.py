@@ -623,4 +623,75 @@ def record_seed_cel_outcome(
     }
 
 
+
+# ---------------------------------------------------------------------------
+# Phase 164 · INNOV-70 · CGE — Constitutional Genome Encoder
+# ---------------------------------------------------------------------------
+
+@router.post("/genome/encode")
+def genome_encode(
+    body: Dict[str, Any] = Body(default_factory=dict),
+) -> Dict[str, Any]:
+    """Encode a new ConstitutionalGenomeVector from supplied locus inputs.
+
+    CGE-ENCODE-0: deterministic and reproducible.
+    CGE-CHAIN-0:  chained to previous genome in the ledger.
+
+    Request body::
+
+        {
+          "phase":         164,
+          "timestamp_utc": "2026-05-02T00:00:00Z",
+          "loci": {
+            "hard_invariant_count": [0.85, 0.9, "HARD-INV-001", true],
+            "cel_gate_count":       [0.72, 0.8, "CEL-GATE-0",   false]
+          },
+          "metadata": {}
+        }
+    """
+    from runtime.innovations30.constitutional_genome_encoder import (  # noqa: PLC0415
+        ConstitutionalGenomeEncoder,
+        CGELociError,
+    )
+    from fastapi import HTTPException  # noqa: PLC0415
+
+    phase = int(body.get("phase", 164))
+    ts    = str(body.get("timestamp_utc", "1970-01-01T00:00:00Z"))
+    loci  = {k: tuple(v) for k, v in body.get("loci", {}).items()}
+    meta  = body.get("metadata", {})
+
+    engine_cge = ConstitutionalGenomeEncoder(det_timestamp=ts)
+    try:
+        gv = engine_cge.encode_genome(phase, loci, ts, meta)
+    except CGELociError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+
+    return {
+        "genome_id":        gv.genome_id,
+        "genome_hash":      gv.genome_hash,
+        "phase":            gv.phase,
+        "governor":         gv.governor,
+        "overall_fitness":  gv.overall_fitness(),
+        "loci_count":       len(gv.loci),
+        "ledger_seq":       gv.ledger_seq,
+        "invariant":        "CGE-ENCODE-0",
+    }
+
+
+@router.get("/genome/history")
+def genome_history() -> Dict[str, Any]:
+    """Return the ordered genome encode history from the audit ledger.
+
+    CGE-AUDIT-0: every encode is recorded in the append-only ledger.
+    """
+    from runtime.innovations30.constitutional_genome_encoder import ConstitutionalGenomeEncoder  # noqa: PLC0415
+    engine_cge = ConstitutionalGenomeEncoder()
+    history = engine_cge.genome_history()
+    return {
+        "count":    len(history),
+        "genomes":  history,
+        "invariant": "CGE-AUDIT-0",
+    }
+
+
 __all__ = ["router"]
