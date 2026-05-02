@@ -1,18 +1,18 @@
 {
   "corpus_version": "1.0",
-  "generated_at_utc": "2026-04-30T11:01:26.551379+00:00",
-  "source_phase": 162,
-  "source_version": "9.95.0",
-  "entry_count": 207,
+  "generated_at_utc": "2026-04-30T14:03:57.462439+00:00",
+  "source_phase": 163,
+  "source_version": "9.96.0",
+  "entry_count": 208,
   "type_counts": {
     "architecture": 6,
     "finding": 23,
     "governance": 7,
     "identity": 4,
-    "innovation": 49,
+    "innovation": 50,
     "invariant": 82,
     "system": 1,
     "phase": 35
   },
-  "chain_digest": "hmac-sha256:2e76ea337b812e07808a0138ad378c56871461fec4453e9168773f7aa7491978"
+  "chain_digest": "hmac-sha256:a2f0d48c8c9454210ad02d7129bf11eaadb79691674b2c049d0566a0230acf0d"
 }
