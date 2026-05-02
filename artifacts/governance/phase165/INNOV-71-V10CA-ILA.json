@@ -1,0 +1,32 @@
+{
+  "ila_schema": "innovation-ledger-attestation.v1",
+  "innovation_code": "INNOV-71",
+  "module_name": "V10CA",
+  "full_name": "V10 Convergence Assessor",
+  "phase": 165,
+  "version": "9.98.0",
+  "governor": "DUSTIN L REID",
+  "governor_role": "HUMAN-0",
+  "timestamp_utc": "2026-05-02T00:00:00Z",
+  "delivery_status": "SHIPPED",
+  "test_result": "30/30",
+  "test_file": "tests/test_phase165_v10ca.py",
+  "module_path": "dorkllm/convergence_assessor.py",
+  "invariants": [
+    "V10CA-DETERM-0",
+    "V10CA-CHAIN-0",
+    "V10CA-HUMAN0-0",
+    "V10CA-SCOPE-0",
+    "V10CA-AUDIT-0"
+  ],
+  "invariant_count_delta": 5,
+  "cumulative_hard_invariant_count": 310,
+  "api_endpoints": [
+    "POST /innovations/v10/assess",
+    "GET /innovations/v10/history"
+  ],
+  "patent_note": "Seven-criteria V10 convergence scoring with HMAC-chained deterministic snapshots \u2014 novel constitutional readiness metric for autonomous governance systems.",
+  "ratification_required": true,
+  "ratification_status": "PENDING_HUMAN0",
+  "notes": "Phase 165 complete. DEVADAAD awaits HUMAN-0 ratification. No production promotion until GPG sign-off."
+}

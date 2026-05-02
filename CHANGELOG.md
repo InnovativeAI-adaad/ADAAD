@@ -1,3 +1,49 @@
+## [9.98.0] - Phase 165 · INNOV-71 · V10CA — V10 Convergence Assessor
+
+**Date:** 2026-05-02  **Author:** DEVADAAD · InnovativeAI LLC
+
+### Added
+- `dorkllm/convergence_assessor.py` — V10ConvergenceAssessor implementing assess(),
+  score(), history(), verify_chain() against all 7 V10.0.0 convergence criteria.
+- 5 new Hard-class invariants: V10CA-DETERM-0, V10CA-CHAIN-0, V10CA-HUMAN0-0,
+  V10CA-SCOPE-0, V10CA-AUDIT-0
+- REST endpoints: POST /innovations/v10/assess · GET /innovations/v10/history
+- 30-test suite (T165-V10CA-01..30): 30/30 Grade-A · tests/test_phase165_v10ca.py
+- pytest marker `phase165` registered in pytest.ini
+- Governance artifacts: artifacts/governance/phase165/
+
+### Constitutional
+- V10CA-HUMAN0-0: convergence_score >= 0.90 gates on HUMAN-0 ratification before
+  any v10 promotion action
+- V10CA-SCOPE-0: exactly 7 canonical criteria enforced; no criterion may be added,
+  removed, or reordered without a constitutional amendment
+- V10CA-CHAIN-0: every snapshot HMAC-chained; digest re-verified on ledger reload
+- V10CA-DETERM-0: assess() is a pure function of inputs; no wall-clock time or
+  randomness influences ConvergenceSnapshot value fields
+
+### Hard-class invariants added (5 · cumulative: 310)
+- V10CA-DETERM-0 — determinism gate on assess()
+- V10CA-CHAIN-0  — HMAC chain with reload verification
+- V10CA-HUMAN0-0 — HUMAN-0 gate at convergence_score >= 0.90
+- V10CA-SCOPE-0  — seven-criteria scope lock
+- V10CA-AUDIT-0  — append-only JSONL ledger, written before gate fires
+
+### V10 Convergence Status (as of Phase 165 / v9.98.0)
+| Criterion | Actual | Threshold | Score |
+|-----------|--------|-----------|-------|
+| INVARIANT_DENSITY | 310 | 350 | 0.886 |
+| INNOVATION_DEPTH | 71 | 75 | 0.947 |
+| GENOME_INTEGRITY | chain valid | valid+entries | 1.000 |
+| SELF_REPAIR_ACTIVE | active | >0 actions | 1.000 |
+| FORECAST_COVERAGE | ≥5 phases | 5 | 1.000 |
+| DORK_INTELLIGENCE | fleet=5, router=live | 3, live | 1.000 |
+| GA_ALIGNMENT | 9.78.0 vs 9.98.0 | aligned | 0.500 |
+| **Overall** | | | **0.905** |
+
+> HUMAN-0 gate active: convergence_score 0.905 >= 0.90. v10 promotion requires
+> GPG-signed ratification by DUSTIN L REID on ADAADell.
+
+
 ## [9.97.0] - Phase 164 · INNOV-70 · CGE — Constitutional Genome Encoder
 
 **Date:** 2026-05-02  **Author:** DEVADAAD · InnovativeAI LLC

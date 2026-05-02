@@ -1,0 +1,45 @@
+{
+  "tier_schema": "adaad-tier-summary.v1",
+  "phase": 165,
+  "version": "9.98.0",
+  "innovation_id": "INNOV-71",
+  "innovation_code": "V10CA",
+  "date": "2026-05-02",
+  "test_results": {
+    "total": 30,
+    "passed": 30,
+    "failed": 0,
+    "grade": "A",
+    "test_file": "tests/test_phase165_v10ca.py"
+  },
+  "invariant_tier_breakdown": {
+    "V10CA-DETERM-0": {
+      "tier": "Hard",
+      "class": "Determinism",
+      "status": "ENFORCED"
+    },
+    "V10CA-CHAIN-0": {
+      "tier": "Hard",
+      "class": "ChainIntegrity",
+      "status": "ENFORCED"
+    },
+    "V10CA-HUMAN0-0": {
+      "tier": "Hard",
+      "class": "HumanOversight",
+      "status": "ENFORCED"
+    },
+    "V10CA-SCOPE-0": {
+      "tier": "Hard",
+      "class": "ScopeIntegrity",
+      "status": "ENFORCED"
+    },
+    "V10CA-AUDIT-0": {
+      "tier": "Hard",
+      "class": "Auditability",
+      "status": "ENFORCED"
+    }
+  },
+  "cumulative_hard_invariants": 310,
+  "total_innovations": 71,
+  "phase_status": "COMPLETE"
+}

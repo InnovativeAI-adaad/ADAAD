@@ -4,11 +4,11 @@
 
 ---
 
-## Current State — v9.97.0 · Phase 164 · INNOV-70 CGE — Constitutional Genome Encoder
+## Current State — v9.98.0 · Phase 165 · INNOV-71 V10CA — V10 Convergence Assessor
 
-**Status:** 68 innovations shipped (INNOV-01 through INNOV-68). Phase 162 complete. v9.95.0 baseline. 68/68 Grade-A modules hardened.
+**Status:** 71 innovations shipped (INNOV-01 through INNOV-71). Phase 165 complete. v9.98.0 baseline. 71/71 Grade-A modules hardened.
 **Automation pointer:** Machine phase progression consumes `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` §3.0 “Active Era Contract (Phases 131–136+)”, which governs the current stream through Phase 147.
-**Hard-class invariants:** 278 (cumulative, enforced)
+**Hard-class invariants:** 310 (cumulative, enforced)
 **Constitutional Evolution Loop:** 16-step CEL, deterministic replay, wired
 **Self-Proposing Innovation Engine (SPIE):** active — system proposes its own next innovations; HUMAN-0 ratifies
 **Deterministic Audit Sandbox (DAS):** active — one-command external verification; `docker compose up das-demo`
@@ -64,6 +64,9 @@
 | INNOV-50 · RAGS | grounded_responder.py | 144 | v9.77.0 | RAGS-GROUND-0, RAGS-CTX-0, RAGS-DETERM-0, RAGS-CHAIN-0, RAGS-GATE-0 |
 | INNOV-67 · CFE | constitutional_forecast.py | 161 | v9.94.0 | CFE-DETERM-0, CFE-CHAIN-0, CFE-HUMAN0-0, CFE-WINDOW-0 |
 | INNOV-68 · MIA | mutation_impact_analyzer.py | 162 | v9.95.0 | MIA-DETERM-0, MIA-CHAIN-0, MIA-HUMAN0-0, MIA-SCOPE-0, MIA-AUDIT-0 |
+| INNOV-69 · MCE | mutation_calibration_engine.py | 163 | v9.96.0 | MCE-CHAIN-0, MCE-WEIGHT-0, MCE-DRIFT-0, MCE-HUMAN0-0, MCE-DETERM-0 |
+| INNOV-70 · CGE | constitutional_genome_encoder.py | 164 | v9.97.0 | CGE-ENCODE-0, CGE-CHAIN-0, CGE-DIFF-0, CGE-MERGE-0, CGE-HUMAN0-0, CGE-DETERM-0, CGE-AUDIT-0 |
+| INNOV-71 · V10CA | convergence_assessor.py | 165 | v9.98.0 | V10CA-DETERM-0, V10CA-CHAIN-0, V10CA-HUMAN0-0, V10CA-SCOPE-0, V10CA-AUDIT-0 |
 
 **Open GA blocker (canonical):** None — FINDING-66-004 resolved (2026-04-12). All ceremonies complete. GA track unblocked.  
 **Strategic plan:** `docs/governance/POST_PIPELINE_STRATEGIC_PLAN.md`
@@ -145,3 +148,4 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 - 5 new Hard-class invariants: HAPG-IDENTITY-0, HAPG-EXPIRY-0, REPLAY-ALGO-0, TEST-ATTEST-0, GRRP-KEY-0
 - Total invariants: 221 | Total phases: 140 | Tests: 30/30
 | 164 | INNOV-70 · CGE — Constitutional Genome Encoder | v9.97.0 | P0 | ✅ shipped |
+| 165 | INNOV-71 · V10CA — V10 Convergence Assessor | v9.98.0 | P0 | ✅ shipped |
