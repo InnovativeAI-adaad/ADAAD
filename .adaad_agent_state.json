@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.97.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": "v9.97.0 RELEASED \u00b7 Phase 164 CGE complete \u00b7 Phase 165 V10CA pending",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -403,7 +403,7 @@
   "last_phase_completed_label": "Phase 163 \u00b7 INNOV-69 \u00b7 MCE \u2014 Mutation Calibration Engine",
   "last_sync_sha": "fcb6a34a",
   "last_updated": "2026-04-30T00:00:00.000000+00:00",
-  "next_phase": 164,
+  "next_phase": 165,
   "next_pr": "phase163-mutation-calibration-engine",
   "open_findings": [
     {
@@ -977,7 +977,7 @@
   ],
   "last_completed_phase": "24 \u00b7 Phase 154 \u00b7 INNOV-60 \u00b7 Constitutional Pre-Admission Gate (CPAG)",
   "last_agent_state_sync_digest": "gsync-b68a4ea7796150c5",
-  "invariant_count": 298,
+  "invariant_count": 305,
   "innovation_count": 69,
   "innovations_shipped": 70,
   "open_findings_count": 0,
@@ -1225,7 +1225,10 @@
       "date": "2026-04-21"
     }
   },
-  "next_phase_id": 164,
+  "next_phase_id": 165,
   "phases_complete": 163,
-  "next_innovation_id": "INNOV-70"
+  "next_innovation_id": "INNOV-71",
+  "next_innovation_name": "V10 Convergence Assessor",
+  "total_phases": 164,
+  "total_innovations": 70
 }

@@ -3,10 +3,10 @@
   "last_sync_sha": "fcb6a34a",
   "report_version": "9.97.0",
   "version_source": "governance/report_version.json",
-  "version": "9.96.0",
-  "phase": 163,
-  "date": "2026-04-24",
-  "innovation": "INNOV-65 CSI",
+  "version": "9.97.0",
+  "phase": 164,
+  "date": "2026-05-02",
+  "innovation": "INNOV-70 CGE",
   "updated": "2026-04-24T18:43:24.249202+00:00",
   "last_updated": "2026-05-02"
 }
