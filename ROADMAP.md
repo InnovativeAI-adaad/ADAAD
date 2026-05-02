@@ -137,7 +137,7 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 160 | INNOV-66 · EBS — Emergent Baseline Sentinel | v9.93.0 | P0 | ✅ shipped |
 | 161 | INNOV-67 · CFE — Constitutional Forecast Engine | v9.94.0 | P0 | ✅ shipped |
 | 162 | INNOV-68 · MIA — Mutation Impact Analyzer | v9.95.0 | P0 | ✅ shipped |
-| 163 | INNOV-69 · MCE — Mutation Calibration Engine | v9.96.0 | P0 | 🔄 proposed · awaiting HUMAN-0 ratification |
+| 163 | INNOV-69 · MCE — Mutation Calibration Engine | v9.96.0 | P0 | ✅ CLOSED · v9.96.0 · 30/30 · 298 invariants |
 
 
 ## Phase 140 — Constitutional P0 Sweep + P1 Hardening (v9.73.0) ✅

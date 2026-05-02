@@ -1,3 +1,47 @@
+## [9.96.0] - Phase 163 · INNOV-69 · MCE — Mutation Calibration Engine
+
+**Date:** 2026-05-02  **Author:** DEVADAAD · InnovativeAI LLC
+
+### Closure Note
+Phase 163 implementation was committed at `9b5b0215` without a governance seal.
+This entry closes finding `AGENT-STATE-DRIFT-163`: CHANGELOG entry, governance
+artifacts (ila.json · sign_off.json · tier_summary.json · invariant_register.json),
+`__init__.py` version pins, pytest.ini marker, and agent state all brought into
+canonical sync. 30/30 acceptance tests verified passing before closure commit.
+
+### Added
+- `runtime/innovations30/mutation_calibration_engine.py` — closes the MIA feedback loop:
+  - `MutationOutcome` — frozen input struct (impact_id, mutation_id, actual_result,
+    execution_phase, csi_delta, invariant_violations, submitted_by)
+  - `CalibrationRecord` — immutable result with calibration_id, prediction_error,
+    weight_delta, cumulative_weights, HMAC chain fields, ledger_seq, timestamp_utc
+  - `MutationCalibrationEngine` — core engine: outcome-driven weight calibration
+    (four MIA weights: precedent · invariant · csi · forecast), per-key delta clamp
+    MAX_DRIFT=0.05, HUMAN0_SHIFT_GATE=0.10, HMAC-chained append-only calibration
+    ledger, fail-closed MCE-CHAIN-0 guard, VALID_SOURCES allowlist enforcement,
+    atomic weight persistence via .tmp→rename pattern.
+- `tests/test_phase163_mce.py` — determinism replay, HMAC chain-break fail-closed,
+  HUMAN0 gate, drift clamp, source allowlist, weight persistence, seq increment,
+  append-only ledger, JSONL integrity, hmac.compare_digest usage, all OutcomeClass
+  variants (30/30 passing).
+- `artifacts/governance/phase163/` — ila.json, sign_off.json, tier_summary.json,
+  invariant_register.json (5 new Hard-class invariants).
+
+### Changed
+- `adaad/__init__.py` — version pinned to 9.96.0 (was 9.95.0, stale post-autosync).
+- `adaad_core/__init__.py` — version pinned to 9.96.0 (was 9.95.0, stale post-autosync).
+- `pytest.ini` — registered `phase163` / `T163` marker.
+- `.adaad_agent_state.json` — all Phase 163 completion fields synchronised.
+- `ROADMAP.md` — Phase 163 status updated to ✅ CLOSED.
+
+### Hard-class invariants added (5 · cumulative: 298)
+- `MCE-DETERM-0` — calibration_id deterministic from canonical payload (impact_id + actual_class + phase); no timestamp/random.
+- `MCE-CHAIN-0`  — HMAC-chained ledger; chain break → MCEChainError (fail-closed).
+- `MCE-HUMAN0-0` — weight shift > HUMAN0_SHIFT_GATE (0.10) raises MCEHuman0Gate before any write.
+- `MCE-SOURCE-0` — submitted_by must be in VALID_SOURCES frozenset; unlisted → MCESourceError.
+- `MCE-DRIFT-0`  — per-key weight delta clamped to MAX_DRIFT (0.05); no single calibration shifts any weight > 5%.
+
+
 ## [9.95.0] - Phase 162 . INNOV-68 . MIA - Mutation Impact Analyzer
 
 **Date:** 2026-04-30  **Author:** DEVADAAD . InnovativeAI LLC
