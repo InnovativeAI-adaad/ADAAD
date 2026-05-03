@@ -1,3 +1,33 @@
+## [9.101.0] - Phase 168 · INNOV-74 · MPG — Mutation Phylogeny Graph
+
+**Date:** 2026-05-03  **Author:** DEVADAAD · InnovativeAI LLC
+
+### Added
+- `dorkllm/mutation_phylogeny_graph.py` — MutationPhylogenyGraph: constitutional DAG
+  encoding the full phylogenetic lineage of every ADAAD mutation. Nodes are HMAC-chained;
+  edges are constitutionally typed. Ancestry, LCA, descendants, tamper-detection all enforced.
+- Core classes: PhylogenyNode, PhylogenyEdge, GraphOperation, NodeTier enum
+- Methods: add_node(), add_edge(), ancestry(), descendants(), lca(), depth(),
+  verify_chain(), history(), snapshot(), stats()
+- 5 canonical edge types: DERIVED_FROM, AMENDS, SUPERSEDES, REFERENCES, ROLLBACK_OF
+- Genesis node (MPG-GENESIS-0) bootstrapped at construction; immutable; pre-ratified
+- 10 new Hard-class invariants: MPG-DETERM-0, MPG-CHAIN-0, MPG-HUMAN0-0, MPG-ACYCLIC-0,
+  MPG-ANCHOR-0, MPG-PERSIST-0, MPG-ATOMIC-0, MPG-AUDIT-0, MPG-TRACE-0, MPG-SCOPE-0
+- 30-test suite (T168-MPG-01..30): 30/30 Grade-A · tests/test_phase168_mpg.py
+- pytest marker `phase168` registered in pytest.ini
+- Governance artifacts: artifacts/governance/phase168/
+
+### Constitutional
+- MPG-ACYCLIC-0: Cycle detection via BFS before every edge insertion; raises MPGCycleError
+- MPG-HUMAN0-0: Tier-0 node insertion without ratified=True raises MPGHuman0Flag
+- MPG-ANCHOR-0: Genesis node hash pinned at construction; verified before and after every write
+- MPG-CHAIN-0: HMAC-SHA256 linking every node to parent; verify_chain() detects tampering
+- MPG-TRACE-0: ancestry() returns complete deterministic path node→genesis; no gaps allowed
+
+### Hard-class invariants added (10 · cumulative: 340)
+- MPG-ACYCLIC-0: graph MUST be a directed acyclic graph at all times
+- MPG-ANCHOR-0: genesis node must exist and be immutable for the lifetime of the graph
+
 ## [9.100.0] - Phase 167 · INNOV-73 · IVB — Invariant Velocity Benchmark
 
 **Date:** 2026-05-02  **Author:** DEVADAAD · InnovativeAI LLC

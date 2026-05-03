@@ -1,0 +1,24 @@
+{
+  "ila_id": "ILA-168-2026-05-03-001",
+  "phase": 168,
+  "innovation": "INNOV-74 · MPG",
+  "title": "Mutation Phylogeny Graph",
+  "date": "2026-05-03",
+  "governor": "DUSTIN L REID",
+  "agent": "MutationAgent · InnovativeAI LLC",
+  "constitutional_compliance": "PASS",
+  "invariants": [
+    "MPG-DETERM-0: Phylogeny graph construction is deterministic given same node set",
+    "MPG-CHAIN-0: Every node carries HMAC linking it to its parent node hash",
+    "MPG-HUMAN0-0: Any tier0 node requires HUMAN-0 ratification before promotion",
+    "MPG-ACYCLIC-0: Graph MUST be a DAG; cycle insertion raises MPGCycleError immediately",
+    "MPG-ANCHOR-0: Genesis node (depth=0, parent=None) MUST exist and be immutable",
+    "MPG-PERSIST-0: All graph mutations are append-only; no node may be deleted or edited",
+    "MPG-ATOMIC-0: add_node() and add_edge() are atomic; partial writes raise MPGAtomicError",
+    "MPG-AUDIT-0: Every graph operation is recorded in the operations ledger",
+    "MPG-TRACE-0: ancestry() MUST return the complete deterministic path from node to genesis",
+    "MPG-SCOPE-0: Edge types are restricted to CANONICAL_EDGE_TYPES; foreign types rejected"
+  ],
+  "tests": "30/30 Grade-A · tests/test_phase168_mpg.py · markers T168-MPG-01..30",
+  "sign_off": "HUMAN-0: Approved. All signed: Dustin L. Reid"
+}
