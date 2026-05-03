@@ -1,7 +1,31 @@
-ADAAD
-Copyright (c) 2026-2027 ADAAD contributors
+ADAAD — Autonomous Development & Adaptation Architecture
+=========================================================
+Copyright (c) 2025–2026 InnovativeAI LLC. All rights reserved.
 
-This repository is distributed under the MIT License. See `LICENSE`.
+Founder & Sole Rights Holder: Dustin L. Reid (HUMAN-0)
+Organization: InnovativeAI LLC
+Location: Ponca City, Oklahoma, USA
+Contact: dustin@adaad.pro
 
-Third-party dependencies and bundled artifacts remain subject to their own
-respective licenses.
+LICENSE CHANGE NOTICE
+─────────────────────
+Effective with the introduction of this NOTICE file (v9.103.0, Phase 170,
+May 3 2026), ADAAD is no longer distributed under the Apache License 2.0.
+All rights are reserved to InnovativeAI LLC. See LICENSE for full terms.
+
+PATENT NOTICE
+─────────────
+One or more patent applications covering the ADAAD system are pending.
+All patent rights reserved to InnovativeAI LLC and Dustin L. Reid.
+
+TRADEMARK NOTICE
+────────────────
+ADAAD™, InnovativeAI™, Aponi™, and Cryovant™ are trademarks of
+InnovativeAI LLC. All rights reserved.
+
+SINGLE-OPERATOR SYSTEM
+───────────────────────
+This repository is operated exclusively by Dustin L. Reid (HUMAN-0).
+HUMAN-0 authority is a non-delegatable constitutional primitive.
+No access to this repository constitutes a license to use or reproduce
+any portion of the Software.

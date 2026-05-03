@@ -10,7 +10,7 @@ name = "adaad"
 version = "9.102.0"
 description = "ADAAD — Autonomous Development & Adaptation Architecture: governance-first constitutional AI evolution runtime"
 readme = "README.md"
-license = { text = "Apache-2.0" }
+license = { text = "Proprietary" }
 requires-python = ">=3.11"
 authors = [
   { name = "InnovativeAI LLC", email = "dev@innovativeai.io" },
@@ -23,7 +23,7 @@ classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
   "Intended Audience :: Science/Research",
-  "License :: OSI Approved :: Apache Software License",
+  "License :: Other/Proprietary License",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.11",
