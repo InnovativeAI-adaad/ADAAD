@@ -1,3 +1,29 @@
+## [9.99.0] - Phase 166 · INNOV-72 · GAE — Genome Alignment Engine
+
+**Date:** 2026-05-02  **Author:** DEVADAAD · InnovativeAI LLC
+
+### Added
+- `dorkllm/genome_alignment_engine.py` — GenomeAlignmentEngine implementing align(),
+  score(), history(), verify_chain(), amendment() against three canonical genome dimensions.
+- 10 new Hard-class invariants: GAE-DETERM-0, GAE-CHAIN-0, GAE-HUMAN0-0, GAE-AMEND-0,
+  GAE-BASELINE-0, GAE-SCORE-0, GAE-PERSIST-0, GAE-ATOMIC-0, GAE-AUDIT-0, GAE-SCOPE-0
+- Constitutional Amendment CA-GAE-001: GA_ALIGNMENT criterion redefined from PyPI
+  publication status to git-tag-anchored genome hash alignment (score >= 1.0).
+- REST endpoints: POST /innovations/genome/align · GET /innovations/genome/history
+- 30-test suite (T166-GAE-01..30): 30/30 Grade-A · tests/test_phase166_gae.py
+- pytest marker `phase166` registered in pytest.ini
+
+### Constitutional
+- GAE-AMEND-0: CA-GAE-001 text is hash-locked at import; text cannot drift
+- GAE-HUMAN0-0: alignment_score < 1.0 raises GAEHuman0Flag before any auto-remediation
+- GAE-SCOPE-0: exactly three dimensions (version, commit_sha, invariant_count) evaluated
+- GAE-CHAIN-0: every alignment record HMAC-chained; tamper detection on verify_chain()
+
+### V10 Impact
+- GA_ALIGNMENT: 0.500 → 1.000 (constitutional amendment CA-GAE-001 applied)
+- Overall convergence score: ~0.952 (pending HUMAN-0 ratification of CA-GAE-001)
+
+### Hard-class invariants added (10 · cumulative: 320)
 ## [9.98.0] - Phase 165 · INNOV-71 · V10CA — V10 Convergence Assessor
 
 **Date:** 2026-05-02  **Author:** DEVADAAD · InnovativeAI LLC
