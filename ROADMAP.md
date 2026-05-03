@@ -67,6 +67,9 @@
 | INNOV-69 · MCE | mutation_calibration_engine.py | 163 | v9.96.0 | MCE-CHAIN-0, MCE-WEIGHT-0, MCE-DRIFT-0, MCE-HUMAN0-0, MCE-DETERM-0 |
 | INNOV-70 · CGE | constitutional_genome_encoder.py | 164 | v9.97.0 | CGE-ENCODE-0, CGE-CHAIN-0, CGE-DIFF-0, CGE-MERGE-0, CGE-HUMAN0-0, CGE-DETERM-0, CGE-AUDIT-0 |
 | INNOV-71 · V10CA | convergence_assessor.py | 165 | v9.98.0 | V10CA-DETERM-0, V10CA-CHAIN-0, V10CA-HUMAN0-0, V10CA-SCOPE-0, V10CA-AUDIT-0 |
+| INNOV-72 · GAE | genome_alignment_engine.py | 166 | v9.99.0 | GAE-DETERM-0, GAE-CHAIN-0, GAE-HUMAN0-0, GAE-AMEND-0, GAE-BASELINE-0, GAE-SCORE-0, GAE-PERSIST-0, GAE-ATOMIC-0, GAE-AUDIT-0, GAE-SCOPE-0 |
+| INNOV-73 · IVB | invariant_velocity_benchmark.py | 167 | v9.100.0 | IVB-DETERM-0, IVB-CHAIN-0, IVB-HUMAN0-0, IVB-WINDOW-0, IVB-PERSIST-0, IVB-ATOMIC-0, IVB-AUDIT-0, IVB-FLOOR-0, IVB-BOUND-0, IVB-SCOPE-0 |
+| INNOV-74 · MPG | mutation_phylogeny_graph.py | 168 | v9.101.0 | MPG-DETERM-0, MPG-CHAIN-0, MPG-HUMAN0-0, MPG-ACYCLIC-0, MPG-ANCHOR-0, MPG-PERSIST-0, MPG-ATOMIC-0, MPG-AUDIT-0, MPG-TRACE-0, MPG-SCOPE-0 |
 
 **Open GA blocker (canonical):** None — FINDING-66-004 resolved (2026-04-12). All ceremonies complete. GA track unblocked.  
 **Strategic plan:** `docs/governance/POST_PIPELINE_STRATEGIC_PLAN.md`
