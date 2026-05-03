@@ -1,3 +1,21 @@
+## [9.105.0] - Phase 172 · INNOV-78 · MFV — Mutation Fitness Verifier
+
+**Date:** 2026-05-03  **Author:** DEVADAAD · InnovativeAI LLC
+
+### Added
+- `dorkllm/mutation_fitness_verifier.py` — INNOV-78 · MFV: World-first constitutionally-governed post-execution fitness verifier. Closes the ADAAD mutation execution loop. Consumes MEX sealed ExecutionRecords, computes constitutional fitness delta, issues immutable FitnessVerdicts (CERTIFIED / REGRESSED / INCONCLUSIVE). Sole authorized gate for lineage ledger promotion.
+- 10 new Hard-class invariants: MFV-CHAIN-0, MFV-DETERM-0, MFV-CERTIFY-0, MFV-HUMAN0-0, MFV-DELTA-0, MFV-ATOMIC-0, MFV-PERSIST-0, MFV-AUDIT-0, MFV-SCOPE-0, MFV-REPLAY-0
+- 30-test suite `tests/test_phase172_mfv.py` — 30/30 passing
+- Governance artifacts: `artifacts/governance/phase172/ILA_phase172_INNOV78_MFV.json`, `SIGNOFF_phase172.json`
+- Ledger: `data/mfv/fitness_verdict_ledger.jsonl`
+
+### Constitutional
+- Hard-class invariant count: 330 → **340**
+- HUMAN-0 gate enforced: INCONCLUSIVE verdicts require explicit override token; agent promotion prohibited (MFV-HUMAN0-0)
+- Fail-closed: REGRESSED and INCONCLUSIVE verdicts unconditionally block lineage promotion (MFV-CERTIFY-0)
+
+---
+
 ## [9.104.0] - Phase 171 · INNOV-77 · MEX — Mutation Execution Engine
 
 **Date:** 2026-05-03  **Author:** DEVADAAD · InnovativeAI LLC

@@ -364,10 +364,10 @@
     "v9.102.0-released"
   ],
   "constitutional_invariants": 370,
-  "current_phase": 171,
+  "current_phase": 172,
   "current_version": "9.104.0",
   "hard_class_count": 370,
-  "hard_class_invariant_count": 330,
+  "hard_class_invariant_count": 340,
   "hard_class_invariants_cumulative": 370,
   "human0_signoffs": [
     {
@@ -408,7 +408,7 @@
   "last_phase_completed_label": "Phase 171 \u00b7 INNOV-77 \u00b7 MEX \u2014 Mutation Execution Engine",
   "last_sync_sha": "9f2c4b1c",
   "last_updated": "2026-05-03T08:45:34.481313+00:00",
-  "next_phase": 172,
+  "next_phase": 173,
   "next_pr": "phase163-mutation-calibration-engine",
   "open_findings": [
     {
@@ -975,16 +975,16 @@
     "phase124-world-first-governed-kernel-extraction",
     "v9.57.0-released"
   ],
-  "version": "9.104.0",
+  "version": "9.105.0",
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
   ],
-  "last_completed_phase": "24 \u00b7 Phase 154 \u00b7 INNOV-60 \u00b7 Constitutional Pre-Admission Gate (CPAG)",
+  "last_completed_phase": "Phase 172 \u00b7 INNOV-78 \u00b7 MFV \u2014 Mutation Fitness Verifier",
   "last_agent_state_sync_digest": "gsync-1c006d86f25208b5",
   "invariant_count": 310,
   "innovation_count": 75,
-  "innovations_shipped": 73,
+  "innovations_shipped": 74,
   "open_findings_count": 0,
   "last_innovation_id": "INNOV-77",
   "total_innovations_shipped": 69,
@@ -1236,5 +1236,6 @@
   "next_innovation_name": "TBD \u2014 SPIE proposal pending HUMAN-0 ratification",
   "total_phases": 165,
   "total_innovations": 71,
-  "hard_invariant_count": 350
+  "hard_invariant_count": 350,
+  "last_completed_version": "9.105.0"
 }
