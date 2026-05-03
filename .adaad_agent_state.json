@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.104.0 RELEASING \u00b7 Phase 171 \u00b7 INNOV-77 \u00b7 MEX",
+  "active_phase": "v9.104.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -406,7 +406,7 @@
   "last_invocation": "2026-05-03",
   "last_phase_completed": 171,
   "last_phase_completed_label": "Phase 171 \u00b7 INNOV-77 \u00b7 MEX \u2014 Mutation Execution Engine",
-  "last_sync_sha": "607b7534",
+  "last_sync_sha": "9f2c4b1c",
   "last_updated": "2026-05-03T08:45:34.481313+00:00",
   "next_phase": 172,
   "next_pr": "phase163-mutation-calibration-engine",
@@ -981,7 +981,7 @@
     "phase127-world-first-governed-redteam-response"
   ],
   "last_completed_phase": "24 \u00b7 Phase 154 \u00b7 INNOV-60 \u00b7 Constitutional Pre-Admission Gate (CPAG)",
-  "last_agent_state_sync_digest": "gsync-f8cb4c4c0302faab",
+  "last_agent_state_sync_digest": "gsync-1c006d86f25208b5",
   "invariant_count": 310,
   "innovation_count": 75,
   "innovations_shipped": 73,
