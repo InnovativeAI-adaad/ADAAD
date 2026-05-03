@@ -361,10 +361,10 @@
     "cumulative": 284,
     "hard_class_count": 278
   },
-  "current_phase": 165,
+  "current_phase": 166,
   "current_version": "9.97.0",
   "hard_class_count": 283,
-  "hard_class_invariant_count": 283,
+  "hard_class_invariant_count": 320,
   "hard_class_invariants_cumulative": 283,
   "human0_signoffs": [
     {
@@ -972,7 +972,7 @@
     "phase124-world-first-governed-kernel-extraction",
     "v9.57.0-released"
   ],
-  "version": "9.98.0",
+  "version": "9.99.0",
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
@@ -981,7 +981,7 @@
   "last_agent_state_sync_digest": "gsync-b68a4ea7796150c5",
   "invariant_count": 310,
   "innovation_count": 69,
-  "innovations_shipped": 70,
+  "innovations_shipped": 72,
   "open_findings_count": 0,
   "last_innovation_id": "INNOV-69",
   "total_innovations_shipped": 69,
