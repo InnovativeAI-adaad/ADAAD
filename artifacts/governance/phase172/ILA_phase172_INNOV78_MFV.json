@@ -1,0 +1,39 @@
+{
+  "artifact_type": "ILA",
+  "innovation_id": "INNOV-78",
+  "innovation_code": "MFV",
+  "innovation_name": "Mutation Fitness Verifier",
+  "phase": 172,
+  "version": "9.105.0",
+  "ratification_authority": "DUSTIN L REID",
+  "ratification_phrase": "approved DUSTIN L REID",
+  "ratification_timestamp_utc": "2026-05-03T00:00:00Z",
+  "module_path": "dorkllm/mutation_fitness_verifier.py",
+  "test_path": "tests/test_phase172_mfv.py",
+  "tests_total": 30,
+  "tests_passed": 30,
+  "hard_class_invariants": [
+    "MFV-CHAIN-0",
+    "MFV-DETERM-0",
+    "MFV-CERTIFY-0",
+    "MFV-HUMAN0-0",
+    "MFV-DELTA-0",
+    "MFV-ATOMIC-0",
+    "MFV-PERSIST-0",
+    "MFV-AUDIT-0",
+    "MFV-SCOPE-0",
+    "MFV-REPLAY-0"
+  ],
+  "invariants_added": 10,
+  "invariants_total_post_phase": 340,
+  "pipeline_position": "post-MEX pre-lineage-promotion",
+  "verdict_types": [
+    "CERTIFIED",
+    "REGRESSED",
+    "INCONCLUSIVE"
+  ],
+  "ledger_path": "data/mfv/fitness_verdict_ledger.jsonl",
+  "description": "World-first constitutionally-governed post-execution fitness verifier. Closes the ADAAD mutation execution loop by evaluating constitutional fitness delta between pre/post snapshots and issuing immutable FitnessVerdicts. No mutation may enter the lineage ledger without a CERTIFIED verdict from MFV.",
+  "governor": "DUSTIN L REID",
+  "sha256_digest": "2aa28638725e6ea80e3f6831eac425ce65b5851c2542a2da26f91ce8ed4d5c44"
+}

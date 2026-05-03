@@ -4,7 +4,7 @@
 
 ---
 
-## Current State — v9.100.0 · Phase 167 · INNOV-73 IVB — Invariant Velocity Benchmark
+## Current State — v9.105.0 · Phase 172 · INNOV-78 MFV — Mutation Fitness Verifier
 
 **Status:** 71 innovations shipped (INNOV-01 through INNOV-71). Phase 165 complete. v9.98.0 baseline. 71/71 Grade-A modules hardened.
 **Automation pointer:** Machine phase progression consumes `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` §3.0 “Active Era Contract (Phases 131–136+)”, which governs the current stream through Phase 147.
@@ -72,6 +72,7 @@
 | INNOV-74 · MPG | mutation_phylogeny_graph.py | 168 | v9.101.0 | MPG-DETERM-0
 | INNOV-75 · MSE | mutation_selection_engine.py | 169 | v9.102.0 | MSE-RANK-0, MSE-CHAIN-0, MSE-HUMAN0-0, MSE-BLAST-0, MSE-FLOOR-0, MSE-WINDOW-0, MSE-PERSIST-0, MSE-ATOMIC-0, MSE-AUDIT-0, MSE-SCOPE-0 |, MPG-CHAIN-0, MPG-HUMAN0-0, MPG-ACYCLIC-0, MPG-ANCHOR-0, MPG-PERSIST-0, MPG-ATOMIC-0, MPG-AUDIT-0, MPG-TRACE-0, MPG-SCOPE-0 |
 | INNOV-77 · MEX | mutation_execution_engine.py | 171 | v9.104.0 | MEX-EXEC-0..MEX-SCOPE-0 |
+| INNOV-78 · MFV | mutation_fitness_verifier.py | 172 | v9.105.0 | MFV-CHAIN-0, MFV-DETERM-0, MFV-CERTIFY-0, MFV-HUMAN0-0, MFV-DELTA-0, MFV-ATOMIC-0, MFV-PERSIST-0, MFV-AUDIT-0, MFV-SCOPE-0, MFV-REPLAY-0 |
 | INNOV-76 · MRP | mutation_risk_profiler.py | 170 | v9.103.0 | MRP-SCORE-0, MRP-CHAIN-0, MRP-HUMAN0-0, MRP-CEIL-0, MRP-BLAST-0, MRP-PERSIST-0, MRP-ATOMIC-0, MRP-AUDIT-0, MRP-DIM-0, MRP-VERDICT-0 |
 
 **Open GA blocker (canonical):** None — FINDING-66-004 resolved (2026-04-12). All ceremonies complete. GA track unblocked.  
