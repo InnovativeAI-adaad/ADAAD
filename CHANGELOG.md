@@ -1,3 +1,31 @@
+## [9.102.0] - Phase 169 · INNOV-75 · MSE — Mutation Selection Engine
+
+**Date:** 2026-05-03  **Author:** DEVADAAD · InnovativeAI LLC
+
+### Added
+- `dorkllm/mutation_selection_engine.py` — MutationSelectionEngine: constitutionally-governed
+  ranking and selection of mutation proposals across five fitness axes with HMAC-chained ledger.
+- Classes: MutationCandidate, FitnessScore, SelectionRecord, CandidateTier, SelectionVerdict
+- Methods: score(), select(), release(), rank(), verify_chain(), history(), ledger(), stats(), window_status()
+- 5 canonical fitness axes: lineage_depth, blast_containment, velocity_alignment,
+  convergence_delta, constitutional_debt
+- 10 new Hard-class invariants: MSE-RANK-0, MSE-CHAIN-0, MSE-HUMAN0-0, MSE-BLAST-0,
+  MSE-FLOOR-0, MSE-WINDOW-0, MSE-PERSIST-0, MSE-ATOMIC-0, MSE-AUDIT-0, MSE-SCOPE-0
+- 30-test suite (T169-MSE-01..30): 30/30 Grade-A · tests/test_phase169_mse.py
+- pytest marker `phase169` registered in pytest.ini
+- Governance artifacts: artifacts/governance/phase169/
+
+### Constitutional
+- MSE-BLAST-0: blast_radius > MAX_BLAST_RADIUS raises MSEBlastReject before any scoring
+- MSE-HUMAN0-0: Tier-0 candidates without ratification raise MSEHuman0Flag immediately
+- MSE-FLOOR-0: score < 0.25 → REJECTED; no selection permitted below constitutional floor
+- MSE-WINDOW-0: rolling window fixed at 5 active selections; overflow verdict is DEFERRED
+- MSE-CHAIN-0: HMAC-SHA256 chain across all selection records; tamper detected by verify_chain()
+
+### Hard-class invariants added (10 · cumulative: 350)
+- MSE-RANK-0: deterministic fitness scoring; same inputs always yield same score
+- MSE-BLAST-0: blast radius hard cap enforced before any scoring begins
+
 ## [9.101.0] - Phase 168 · INNOV-74 · MPG — Mutation Phylogeny Graph
 
 **Date:** 2026-05-03  **Author:** DEVADAAD · InnovativeAI LLC
