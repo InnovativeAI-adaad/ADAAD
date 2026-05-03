@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.99.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": "v9.98.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -361,10 +361,10 @@
     "cumulative": 284,
     "hard_class_count": 278
   },
-  "current_phase": 166,
-  "current_version": "9.99.0",
+  "current_phase": 167,
+  "current_version": "9.97.0",
   "hard_class_count": 283,
-  "hard_class_invariant_count": 320,
+  "hard_class_invariant_count": 330,
   "hard_class_invariants_cumulative": 283,
   "human0_signoffs": [
     {
@@ -400,10 +400,10 @@
   ],
   "last_innovation": "INNOV-69-MCE",
   "last_innovation_name": "Mutation Calibration Engine",
-  "last_invocation": "2026-05-03",
+  "last_invocation": "2026-05-02",
   "last_phase_completed": 163,
   "last_phase_completed_label": "Phase 163 \u00b7 INNOV-69 \u00b7 MCE \u2014 Mutation Calibration Engine",
-  "last_sync_sha": "c709282d",
+  "last_sync_sha": "fcb6a34a",
   "last_updated": "2026-04-30T00:00:00.000000+00:00",
   "next_phase": 166,
   "next_pr": "phase163-mutation-calibration-engine",
@@ -681,7 +681,7 @@
     141
   ],
   "schema_version": "1.5.0",
-  "software_version": "9.99.0",
+  "software_version": "9.97.0",
   "tife_active": true,
   "value_checkpoints_reached": [
     "phase0-track-a-hardening",
@@ -972,16 +972,16 @@
     "phase124-world-first-governed-kernel-extraction",
     "v9.57.0-released"
   ],
-  "version": "9.99.0",
+  "version": "9.100.0",
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
   ],
   "last_completed_phase": "24 \u00b7 Phase 154 \u00b7 INNOV-60 \u00b7 Constitutional Pre-Admission Gate (CPAG)",
-  "last_agent_state_sync_digest": "gsync-1c7a7dd2814a034c",
+  "last_agent_state_sync_digest": "gsync-b68a4ea7796150c5",
   "invariant_count": 310,
   "innovation_count": 69,
-  "innovations_shipped": 72,
+  "innovations_shipped": 73,
   "open_findings_count": 0,
   "last_innovation_id": "INNOV-69",
   "total_innovations_shipped": 69,
