@@ -1,0 +1,8 @@
+{
+  "tier_schema": "adaad-tier-summary.v1",
+  "phase": 167, "version": "9.100.0",
+  "innovation_id": "INNOV-73", "innovation_code": "IVB",
+  "test_results": {"total": 30, "passed": 30, "failed": 0, "grade": "A"},
+  "cumulative_hard_invariants": 330, "total_innovations": 73,
+  "phase_status": "COMPLETE"
+}

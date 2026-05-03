@@ -1,3 +1,19 @@
+## [9.100.0] - Phase 167 · INNOV-73 · IVB — Invariant Velocity Benchmark
+
+**Date:** 2026-05-02  **Author:** DEVADAAD · InnovativeAI LLC
+
+### Added
+- `dorkllm/invariant_velocity_benchmark.py` — InvariantVelocityBenchmark implementing
+  record(), velocity(), forecast(), history(), verify_chain().
+- 10 new Hard-class invariants: IVB-DETERM-0, IVB-CHAIN-0, IVB-HUMAN0-0, IVB-WINDOW-0,
+  IVB-PERSIST-0, IVB-ATOMIC-0, IVB-AUDIT-0, IVB-FLOOR-0, IVB-BOUND-0, IVB-SCOPE-0
+- 30-test suite (T167-IVB-01..30): 30/30 Grade-A · tests/test_phase167_ivb.py
+- pytest marker `phase167` registered in pytest.ini
+
+### Hard-class invariants added (10 · cumulative: 330)
+- IVB-FLOOR-0: Hard-class invariant regression raises IVBRegressionError unconditionally
+- IVB-WINDOW-0: Rolling velocity window size is constitutionally fixed at 5
+
 ## [9.99.0] - Phase 166 · INNOV-72 · GAE — Genome Alignment Engine
 
 **Date:** 2026-05-02  **Author:** DEVADAAD · InnovativeAI LLC
