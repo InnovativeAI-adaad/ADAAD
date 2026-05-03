@@ -363,15 +363,12 @@
     "phase169-mse-complete",
     "v9.102.0-released"
   ],
-  "constitutional_invariants": {
-    "cumulative": 284,
-    "hard_class_count": 278
-  },
-  "current_phase": 169,
+  "constitutional_invariants": 360,
+  "current_phase": 170,
   "current_version": "9.103.0",
-  "hard_class_count": 283,
+  "hard_class_count": 360,
   "hard_class_invariant_count": 330,
-  "hard_class_invariants_cumulative": 283,
+  "hard_class_invariants_cumulative": 360,
   "human0_signoffs": [
     {
       "date": "2026-03-27",
@@ -404,14 +401,14 @@
       "date": "2026-04-30"
     }
   ],
-  "last_innovation": "INNOV-69-MCE",
-  "last_innovation_name": "Mutation Calibration Engine",
+  "last_innovation": "INNOV-76-MRP",
+  "last_innovation_name": "Mutation Risk Profiler",
   "last_invocation": "2026-05-03",
-  "last_phase_completed": 163,
-  "last_phase_completed_label": "Phase 163 \u00b7 INNOV-69 \u00b7 MCE \u2014 Mutation Calibration Engine",
+  "last_phase_completed": 170,
+  "last_phase_completed_label": "Phase 170 \u00b7 INNOV-76 \u00b7 MRP \u2014 Mutation Risk Profiler",
   "last_sync_sha": "607b7534",
   "last_updated": "2026-04-30T00:00:00.000000+00:00",
-  "next_phase": 170,
+  "next_phase": 171,
   "next_pr": "phase163-mutation-calibration-engine",
   "open_findings": [
     {
@@ -978,7 +975,7 @@
     "phase124-world-first-governed-kernel-extraction",
     "v9.57.0-released"
   ],
-  "version": "9.102.0",
+  "version": "9.103.0",
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
@@ -989,7 +986,7 @@
   "innovation_count": 75,
   "innovations_shipped": 73,
   "open_findings_count": 0,
-  "last_innovation_id": "INNOV-69",
+  "last_innovation_id": "INNOV-76",
   "total_innovations_shipped": 69,
   "ga_blocker_count": 0,
   "milestone": "v1.1-GA",
@@ -1233,10 +1230,10 @@
       "date": "2026-04-21"
     }
   },
-  "next_phase_id": 166,
+  "next_phase_id": 171,
   "phases_complete": 163,
-  "next_innovation_id": "INNOV-72",
-  "next_innovation_name": "TBD \u2014 SPIE proposal pending HUMAN-0 ratification",
+  "next_innovation_id": "INNOV-77",
+  "next_innovation_name": "MEX \u2014 Mutation Execution Engine",
   "total_phases": 165,
   "total_innovations": 71,
   "hard_invariant_count": 350
