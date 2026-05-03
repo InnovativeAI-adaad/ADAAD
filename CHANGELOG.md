@@ -1,3 +1,25 @@
+## [9.103.0] - Phase 170 · INNOV-76 · MRP — Mutation Risk Profiler
+
+**Date:** 2026-05-03  **Author:** DEVADAAD · InnovativeAI LLC
+
+### Added
+- `dorkllm/mutation_risk_profiler.py` — MutationRiskProfiler: constitutionally-governed
+  multi-dimensional risk profiler for mutation proposals. Scores across five canonical
+  risk dimensions (blast_exposure, invariant_stress, phylogenetic_novelty, temporal_urgency,
+  rollback_complexity), issues NEGLIGIBLE / LOW / MEDIUM / HIGH / CRITICAL verdicts,
+  enforces RISK_CEILING auto-block and HUMAN-0 gate for CRITICAL profiles, maintains
+  HMAC-chained append-only risk registry.
+- Classes: MutationProposal, RiskProfile, ProfileRecord, RiskVerdict, ProfileStatus
+- 10 Hard-class invariants: MRP-SCORE-0 through MRP-VERDICT-0
+- 30-test suite: `tests/test_phase170_mrp.py` — T170-MRP-01..30 (30/30 PASS)
+- Governance artifacts: `artifacts/governance/phase170/`
+
+### Governance
+- Invariants cumulative: 360
+- Governor: DUSTIN L REID
+
+---
+
 ## [9.102.0] - Phase 169 · INNOV-75 · MSE — Mutation Selection Engine
 
 **Date:** 2026-05-03  **Author:** DEVADAAD · InnovativeAI LLC
