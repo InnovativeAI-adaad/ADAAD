@@ -1,3 +1,42 @@
+## [9.104.0] - Phase 171 · INNOV-77 · MEX — Mutation Execution Engine
+
+**Date:** 2026-05-03  **Author:** DEVADAAD · InnovativeAI LLC
+
+### Added
+- `dorkllm/mutation_execution_engine.py` — MutationExecutionEngine: constitutionally-governed
+  mutation execution engine. Applies MSE-selected, MRP-cleared mutations under blast-radius
+  constraints with atomic rollback, HMAC-chained execution ledger, and HUMAN-0 gate for
+  HIGH/CRITICAL impact mutations.
+- Classes: MutationPayload, MRPClearanceToken, MSESelectionToken, RollbackRecord,
+  ExecutionRecord, ExecutionStatus, ImpactTier
+- Methods: apply(), rollback(), verify_chain(), ledger(), history(), stats(), seal()
+- 10 Hard-class invariants: MEX-EXEC-0 through MEX-SCOPE-0
+- 30-test suite: `tests/test_phase171_mex.py` — T171-MEX-01..30 (30/30 PASS)
+- pytest marker `phase171` registered in pytest.ini
+- Governance artifacts: `artifacts/governance/phase171/`
+
+### Governance
+- MEX-EXEC-0: No mutation executes without valid MRP clearance (composite_risk < RISK_CEILING)
+- MEX-CHAIN-0: Every execution record HMAC-SHA256 chained to prior record
+- MEX-HUMAN0-0: HIGH and CRITICAL impact mutations require HUMAN-0 ratification before apply()
+- MEX-BLAST-0: Execution aborted if blast_radius > MAX_BLAST_RADIUS at apply-time
+- MEX-ATOMIC-0: Atomic execution; partial application raises MEXAtomicViolation + auto-rollback
+- MEX-ROLLBACK-0: Every applied mutation has a rollback record co-committed in ledger
+- MEX-PERSIST-0: Execution ledger is append-only; no record may be modified or deleted
+- MEX-DETERM-0: Identical inputs always produce identical execution record fields
+- MEX-AUDIT-0: All phase transitions (QUEUED→EXECUTING→APPLIED/ROLLED_BACK) are ledgered
+- MEX-SCOPE-0: Only ADAAD constitutional scope targets permitted; others raise MEXScopeViolation
+
+### Hard-class invariants added (10 · cumulative: 370)
+- MEX-EXEC-0: MRP clearance gate — no mutation proceeds without risk < RISK_CEILING
+- MEX-CHAIN-0: HMAC-SHA256 chain across all execution and rollback records
+
+### Invariants
+- Invariants cumulative: 370
+- Governor: DUSTIN L REID
+
+---
+
 ## [9.103.0] - Phase 170 · INNOV-76 · MRP — Mutation Risk Profiler
 
 **Date:** 2026-05-03  **Author:** DEVADAAD · InnovativeAI LLC
