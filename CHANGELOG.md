@@ -1,3 +1,168 @@
+## [9.98.0] - Phase 165 · INNOV-71 · V10CA — V10 Convergence Assessor
+
+**Date:** 2026-05-02  **Author:** DEVADAAD · InnovativeAI LLC
+
+### Added
+- `dorkllm/convergence_assessor.py` — V10ConvergenceAssessor implementing assess(),
+  score(), history(), verify_chain() against all 7 V10.0.0 convergence criteria.
+- 5 new Hard-class invariants: V10CA-DETERM-0, V10CA-CHAIN-0, V10CA-HUMAN0-0,
+  V10CA-SCOPE-0, V10CA-AUDIT-0
+- REST endpoints: POST /innovations/v10/assess · GET /innovations/v10/history
+- 30-test suite (T165-V10CA-01..30): 30/30 Grade-A · tests/test_phase165_v10ca.py
+- pytest marker `phase165` registered in pytest.ini
+- Governance artifacts: artifacts/governance/phase165/
+
+### Constitutional
+- V10CA-HUMAN0-0: convergence_score >= 0.90 gates on HUMAN-0 ratification before
+  any v10 promotion action
+- V10CA-SCOPE-0: exactly 7 canonical criteria enforced; no criterion may be added,
+  removed, or reordered without a constitutional amendment
+- V10CA-CHAIN-0: every snapshot HMAC-chained; digest re-verified on ledger reload
+- V10CA-DETERM-0: assess() is a pure function of inputs; no wall-clock time or
+  randomness influences ConvergenceSnapshot value fields
+
+### Hard-class invariants added (5 · cumulative: 310)
+- V10CA-DETERM-0 — determinism gate on assess()
+- V10CA-CHAIN-0  — HMAC chain with reload verification
+- V10CA-HUMAN0-0 — HUMAN-0 gate at convergence_score >= 0.90
+- V10CA-SCOPE-0  — seven-criteria scope lock
+- V10CA-AUDIT-0  — append-only JSONL ledger, written before gate fires
+
+### V10 Convergence Status (as of Phase 165 / v9.98.0)
+| Criterion | Actual | Threshold | Score |
+|-----------|--------|-----------|-------|
+| INVARIANT_DENSITY | 310 | 350 | 0.886 |
+| INNOVATION_DEPTH | 71 | 75 | 0.947 |
+| GENOME_INTEGRITY | chain valid | valid+entries | 1.000 |
+| SELF_REPAIR_ACTIVE | active | >0 actions | 1.000 |
+| FORECAST_COVERAGE | ≥5 phases | 5 | 1.000 |
+| DORK_INTELLIGENCE | fleet=5, router=live | 3, live | 1.000 |
+| GA_ALIGNMENT | 9.78.0 vs 9.98.0 | aligned | 0.500 |
+| **Overall** | | | **0.905** |
+
+> HUMAN-0 gate active: convergence_score 0.905 >= 0.90. v10 promotion requires
+> GPG-signed ratification by DUSTIN L REID on ADAADell.
+
+
+## [9.97.0] - Phase 164 · INNOV-70 · CGE — Constitutional Genome Encoder
+
+**Date:** 2026-05-02  **Author:** DEVADAAD · InnovativeAI LLC
+
+### Added
+- `runtime/innovations30/constitutional_genome_encoder.py` — ConstitutionalGenomeEncoder
+  implementing encode_genome(), diff_genomes(), merge_genomes(), verify_genome().
+- 7 new Hard-class invariants: CGE-ENCODE-0, CGE-CHAIN-0, CGE-DIFF-0, CGE-MERGE-0,
+  CGE-HUMAN0-0, CGE-DETERM-0, CGE-AUDIT-0
+- REST endpoints: POST /genome/encode · GET /genome/history
+- 30-test suite (T164-CGE-01..30): 30/30 Grade-A · tests/test_phase164_cge.py
+- pytest marker `phase164` registered in pytest.ini
+- Governance artifacts: artifacts/governance/phase164/
+
+### Constitutional
+- HUMAN-0 gate enforced at divergence_score > 0.35 (CGE-HUMAN0-0)
+- All genome IDs incorporate chain position — no collision across ledger positions
+- Genome encoding is deterministic regardless of loci input dict ordering (CGE-DETERM-0)
+
+## [9.96.0] - Phase 163 . INNOV-69 . MCE - Mutation Calibration Engine
+
+**Date:** 2026-04-30  **Author:** DEVADAAD . InnovativeAI LLC
+
+### Added
+- `dorkllm/mutation_calibration_engine.py` — closes MIA feedback loop via outcome-driven weight calibration:
+  - `MutationOutcome` — frozen input dataclass with deterministic canonical serialisation
+  - `CalibrationRecord` — immutable result with prev_digest chain link, HMAC chain_hash, cumulative_weights
+  - `MutationCalibrationEngine` — core engine: outcome recording, bounded gradient descent, atomic weight persistence
+  - `get_engine()` — process-singleton accessor
+  - 5 Hard-class invariants: MCE-CHAIN-0, MCE-WEIGHT-0, MCE-DRIFT-0, MCE-HUMAN0-0, MCE-DETERM-0
+  - HMAC-chained append-only JSONL calibration ledger (`ledger/mutation_calibration.jsonl`)
+  - Atomic weight file write via tmp + rename (`governance/mce_weights.json`)
+  - `MCE_VALID_SOURCES` frozenset — AUTH-CT-0 compliant source allowlist
+  - CGTH telemetry: MUTATION_OUTCOME and PERM_SNAPSHOT events per calibration cycle
+  - HUMAN0_AUTHORISATION gate on cumulative weight shift >0.10 (MCE-HUMAN0-0)
+- `app/api/mutation_calibration.py` — MCE API routes:
+  - `GET  /api/governance/mce/status`
+  - `GET  /api/governance/mce/weights`
+  - `GET  /api/governance/mce/history`
+  - `POST /api/governance/mce/outcome`
+  - `GET  /api/governance/mce/chain/verify`
+- `tests/test_phase163_mce.py` — 30/30 acceptance tests passing:
+  - 10 unit (determinism, weight sum, drift clamp, chain-break abort, source rejection, MIA lookup, persistence, enum, prev_digest)
+  - 10 integration (MIA roundtrip, tier lookup, reload, 20-cycle convergence, 5 API route tests)
+  - 10 invariant (all 5 error classes are RuntimeError, prev_digest field, append-only, hmac.compare_digest, frozenset, constants, atomic write, canonical determinism)
+- `artifacts/governance/phase163/ila.json` — phase attestation artifact.
+
+### Changed
+- `dorkllm/telemetry_hub.py` — registered `mce` as known CGTH emitter.
+- `server.py` — wired MCE router into FastAPI app.
+- Version sync to `9.96.0`: `VERSION`, `pyproject.toml`, `.adaad_agent_state.json`.
+
+## [9.95.0] - Phase 162 . INNOV-68 . MIA - Mutation Impact Analyzer
+
+**Date:** 2026-04-30  **Author:** DEVADAAD . InnovativeAI LLC
+
+### Added
+- `dorkllm/mutation_impact_analyzer.py` — pre-admission mutation intelligence engine:
+  - `MutationPayload` — canonical, frozen input struct with deterministic serialisation
+  - `ImpactAssessment` — immutable result with impact_id, composite_score, tier,
+    recommendation, and four scored `ImpactDimension` objects
+  - `MutationImpactAnalyzer` — core engine: four-dimension analysis
+    (precedent_match · invariant_risk · csi_alignment · forecast_headroom),
+    weighted composite score [0-100], tier classification (LOW/MEDIUM/HIGH_RISK/CRITICAL),
+    advisory recommendation (APPROVE/REVIEW/HOLD/BLOCK), HMAC-chained append-only
+    impact ledger, fail-closed MIA-CHAIN-0 guard, HUMAN0_AUTHORISATION pre-write
+    emission for HIGH_RISK/CRITICAL assessments, and module-level singleton accessor.
+- `app/api/mutation_impact.py` — MIA API routes:
+  - `GET  /api/governance/mia/status`
+  - `GET  /api/governance/mia/history`
+  - `POST /api/governance/mia/analyze`
+  - `GET  /api/governance/mia/chain/verify`
+- `tests/test_phase162_mia.py` — determinism replay, HMAC chain-break fail-closed,
+  HUMAN0 pre-emission ordering, four-dimension scope validation, append-only ledger
+  integrity, and 4-route schema/200/422 sanity coverage (30/30 passing).
+- `artifacts/governance/phase162/` — ila.json, sign_off.json, tier_summary.json,
+  invariant_register.json (5 new Hard-class invariants).
+
+### Changed
+- `dorkllm/telemetry_hub.py` — registered `mia` as known CGTH emitter.
+- `server.py` — wired MIA router into FastAPI app.
+- `pytest.ini` — registered `phase162` / `T162` marker.
+- Version sync to `9.95.0`: `VERSION`, `pyproject.toml`, `adaad/__init__.py`,
+  `adaad_core/__init__.py`, `.adaad_agent_state.json`.
+
+### Hard-class invariants added (5 · cumulative: 293)
+- `MIA-DETERM-0` — impact_id deterministic from canonical payload; no timestamp/random.
+- `MIA-CHAIN-0`  — HMAC-chained ledger; chain break → MIAChainError (fail-closed).
+- `MIA-HUMAN0-0` — HIGH_RISK/CRITICAL assessments emit HUMAN0_AUTHORISATION before write.
+- `MIA-SCOPE-0`  — analysis confined to supplied payload; no live-repo FS reads.
+- `MIA-AUDIT-0`  — impact ledger append-only; no deletion or in-place update.
+
+## [9.94.0] - Phase 161 . INNOV-67 . CFE - Constitutional Forecast Engine
+
+**Date:** 2026-04-26  **Author:** DEVADAAD . InnovativeAI LLC
+
+### Added
+- `dorkllm/constitutional_forecast.py` — deterministic constitutional stress
+  forecaster: linear-trend projection over CGTH pressure windows, four-tier
+  risk classification (LOW/MEDIUM/HIGH_RISK/CRITICAL), HMAC-chained append-only
+  forecast ledger, fail-closed CFE-WINDOW-0 guard (≥ 3 data points required),
+  and HUMAN0_AUTHORISATION pre-write emission for HIGH_RISK / CRITICAL forecasts.
+- `app/api/constitutional_forecast.py` — CFE API routes:
+  - `GET /api/governance/cfe/status`
+  - `GET /api/governance/cfe/chain`
+  - `POST /api/governance/cfe/forecast`
+  - `GET /api/governance/cfe/chain/verify`
+- `tests/test_phase161_cfe.py` — deterministic replay, chain-break fail-closed,
+  CRITICAL HUMAN0 pre-forecast emission, window-guard rejection, risk-tier
+  classification, and 4-route schema/200/422 sanity coverage (30/30 passing).
+- `artifacts/governance/phase161/ila.json` — phase attestation artifact.
+
+### Changed
+- `dorkllm/telemetry_hub.py` — registered `cfe` as known CGTH emitter.
+- `server.py` — wired CFE router into FastAPI app.
+- Version sync to `9.94.0`: `VERSION`, `pyproject.toml`,
+  `.adaad_agent_state.json`.
+
+
 ## [9.93.0] - Phase 160 . INNOV-66 . EBS - Emergent Baseline Sentinel
 
 **Date:** 2026-04-24  **Author:** DEVADAAD . InnovativeAI LLC

@@ -4,11 +4,11 @@
 
 ---
 
-## Current State — v9.93.0 · Phase 160 · INNOV-66 EBS — Emergent Baseline Sentinel
+## Current State — v9.98.0 · Phase 165 · INNOV-71 V10CA — V10 Convergence Assessor
 
-**Status:** 66 innovations shipped (INNOV-01 through INNOV-66). Phase 160 complete. v9.93.0 baseline. 66/66 Grade-A modules hardened.
+**Status:** 71 innovations shipped (INNOV-01 through INNOV-71). Phase 165 complete. v9.98.0 baseline. 71/71 Grade-A modules hardened.
 **Automation pointer:** Machine phase progression consumes `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` §3.0 “Active Era Contract (Phases 131–136+)”, which governs the current stream through Phase 147.
-**Hard-class invariants:** 278 (cumulative, enforced)
+**Hard-class invariants:** 310 (cumulative, enforced)
 **Constitutional Evolution Loop:** 16-step CEL, deterministic replay, wired
 **Self-Proposing Innovation Engine (SPIE):** active — system proposes its own next innovations; HUMAN-0 ratifies
 **Deterministic Audit Sandbox (DAS):** active — one-command external verification; `docker compose up das-demo`
@@ -62,6 +62,11 @@
 | INNOV-48 · CSS | embedder.py | 142 | v9.75.0 | CSS-DETERM-0, CSS-FALLBACK-0, CSS-DIM-0, CSS-COSINE-0, CSS-PYDROID-0 |
 | INNOV-49 · CMU | model_validator.py | 143 | v9.76.0 | CMU-CTX-0, CMU-TEMP-0, CMU-BENCH-0, CMU-DETERM-0, CMU-HUMAN0-0 |
 | INNOV-50 · RAGS | grounded_responder.py | 144 | v9.77.0 | RAGS-GROUND-0, RAGS-CTX-0, RAGS-DETERM-0, RAGS-CHAIN-0, RAGS-GATE-0 |
+| INNOV-67 · CFE | constitutional_forecast.py | 161 | v9.94.0 | CFE-DETERM-0, CFE-CHAIN-0, CFE-HUMAN0-0, CFE-WINDOW-0 |
+| INNOV-68 · MIA | mutation_impact_analyzer.py | 162 | v9.95.0 | MIA-DETERM-0, MIA-CHAIN-0, MIA-HUMAN0-0, MIA-SCOPE-0, MIA-AUDIT-0 |
+| INNOV-69 · MCE | mutation_calibration_engine.py | 163 | v9.96.0 | MCE-CHAIN-0, MCE-WEIGHT-0, MCE-DRIFT-0, MCE-HUMAN0-0, MCE-DETERM-0 |
+| INNOV-70 · CGE | constitutional_genome_encoder.py | 164 | v9.97.0 | CGE-ENCODE-0, CGE-CHAIN-0, CGE-DIFF-0, CGE-MERGE-0, CGE-HUMAN0-0, CGE-DETERM-0, CGE-AUDIT-0 |
+| INNOV-71 · V10CA | convergence_assessor.py | 165 | v9.98.0 | V10CA-DETERM-0, V10CA-CHAIN-0, V10CA-HUMAN0-0, V10CA-SCOPE-0, V10CA-AUDIT-0 |
 
 **Open GA blocker (canonical):** None — FINDING-66-004 resolved (2026-04-12). All ceremonies complete. GA track unblocked.  
 **Strategic plan:** `docs/governance/POST_PIPELINE_STRATEGIC_PLAN.md`
@@ -133,9 +138,14 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 158 | INNOV-64 CSR — Constitutional Self-Repair Engine | v9.91.0 | P0 | ✅ shipped |
 | 159 | INNOV-65 CSI — Constitutional Strength Index | v9.92.0 | P0 | ✅ shipped |
 | 160 | INNOV-66 · EBS — Emergent Baseline Sentinel | v9.93.0 | P0 | ✅ shipped |
+| 161 | INNOV-67 · CFE — Constitutional Forecast Engine | v9.94.0 | P0 | ✅ shipped |
+| 162 | INNOV-68 · MIA — Mutation Impact Analyzer | v9.95.0 | P0 | ✅ shipped |
+| 163 | INNOV-69 · MCE — Mutation Calibration Engine | v9.96.0 | P0 | ✅ complete |
 
 
 ## Phase 140 — Constitutional P0 Sweep + P1 Hardening (v9.73.0) ✅
 - Resolved 5 P0 audit findings (WL-001..WL-005) from the deepest audit in ADAAD history
 - 5 new Hard-class invariants: HAPG-IDENTITY-0, HAPG-EXPIRY-0, REPLAY-ALGO-0, TEST-ATTEST-0, GRRP-KEY-0
 - Total invariants: 221 | Total phases: 140 | Tests: 30/30
+| 164 | INNOV-70 · CGE — Constitutional Genome Encoder | v9.97.0 | P0 | ✅ shipped |
+| 165 | INNOV-71 · V10CA — V10 Convergence Assessor | v9.98.0 | P0 | ✅ shipped |

@@ -1,11 +1,12 @@
 {
-  "last_sync_date": "2026-04-26",
-  "last_sync_sha": "605ce9ef",
-  "report_version": "9.93.0",
+  "last_sync_date": "2026-05-02",
+  "last_sync_sha": "fcb6a34a",
+  "report_version": "9.98.0",
   "version_source": "governance/report_version.json",
-  "version": "9.93.0",
-  "phase": 159,
-  "date": "2026-04-24",
-  "innovation": "INNOV-65 CSI",
-  "updated": "2026-04-24T18:43:24.249202+00:00"
+  "version": "9.98.0",
+  "phase": 165,
+  "date": "2026-05-02",
+  "innovation": "INNOV-71 V10CA",
+  "updated": "2026-04-24T18:43:24.249202+00:00",
+  "last_updated": "2026-05-02"
 }
