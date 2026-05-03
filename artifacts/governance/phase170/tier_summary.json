@@ -1,0 +1,5 @@
+{
+  "phase": 170,
+  "blast_radius": "CONTAINED — MutationRiskProfiler operates as a pure assessment layer; no existing mutation records, ledger entries, or runtime state modified",
+  "rollback_path": "Remove dorkllm/mutation_risk_profiler.py and tests/test_phase170_mrp.py; decrement VERSION to 9.102.0"
+}

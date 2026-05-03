@@ -1,0 +1,24 @@
+{
+  "ila_id": "ILA-170-2026-05-03-001",
+  "phase": 170,
+  "innovation": "INNOV-76 · MRP",
+  "title": "Mutation Risk Profiler",
+  "date": "2026-05-03",
+  "governor": "DUSTIN L REID",
+  "agent": "MutationAgent · InnovativeAI LLC",
+  "constitutional_compliance": "PASS",
+  "invariants": [
+    "MRP-SCORE-0: Risk score is deterministic given the same inputs",
+    "MRP-CHAIN-0: Every risk profile is HMAC-chained to the previous record",
+    "MRP-HUMAN0-0: CRITICAL risk profiles require HUMAN-0 acknowledgment before proceeding",
+    "MRP-CEIL-0: Proposals with composite_risk >= RISK_CEILING are auto-blocked",
+    "MRP-BLAST-0: blast_contribution is always >= 0.0 (risk is non-negative)",
+    "MRP-PERSIST-0: Risk registry is append-only; no profile may be modified or deleted",
+    "MRP-ATOMIC-0: profile() is atomic; partial results raise MRPAtomicError",
+    "MRP-AUDIT-0: Every profiling event is recorded in the audit trail",
+    "MRP-DIM-0: Risk dimensions are restricted to CANONICAL_DIMENSIONS",
+    "MRP-VERDICT-0: Verdict is determined solely by composite_risk thresholds; no bypass"
+  ],
+  "tests": "30/30 Grade-A · tests/test_phase170_mrp.py",
+  "sign_off": "HUMAN-0: Approved. All signed: Dustin L. Reid"
+}
