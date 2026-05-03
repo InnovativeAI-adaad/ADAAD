@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.100.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": "Phase 168 pre-audit complete \u2014 INNOV-74 MPG pending",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -355,7 +355,9 @@
     "phase163-world-first-outcome-driven-calibration",
     "phase164-cge-shipped",
     "phase165-v10ca-complete",
-    "v9.98.0-released"
+    "v9.98.0-released",
+    "phase166-gae-complete",
+    "phase167-ivb-complete"
   ],
   "constitutional_invariants": {
     "cumulative": 284,
@@ -405,7 +407,7 @@
   "last_phase_completed_label": "Phase 163 \u00b7 INNOV-69 \u00b7 MCE \u2014 Mutation Calibration Engine",
   "last_sync_sha": "d989d029",
   "last_updated": "2026-04-30T00:00:00.000000+00:00",
-  "next_phase": 166,
+  "next_phase": 168,
   "next_pr": "phase163-mutation-calibration-engine",
   "open_findings": [
     {
@@ -980,7 +982,7 @@
   "last_completed_phase": "24 \u00b7 Phase 154 \u00b7 INNOV-60 \u00b7 Constitutional Pre-Admission Gate (CPAG)",
   "last_agent_state_sync_digest": "gsync-1707b6f913c418b0",
   "invariant_count": 310,
-  "innovation_count": 69,
+  "innovation_count": 73,
   "innovations_shipped": 73,
   "open_findings_count": 0,
   "last_innovation_id": "INNOV-69",
@@ -1232,5 +1234,6 @@
   "next_innovation_id": "INNOV-72",
   "next_innovation_name": "TBD \u2014 SPIE proposal pending HUMAN-0 ratification",
   "total_phases": 165,
-  "total_innovations": 71
+  "total_innovations": 71,
+  "hard_invariant_count": 330
 }

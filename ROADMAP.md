@@ -4,7 +4,7 @@
 
 ---
 
-## Current State — v9.98.0 · Phase 165 · INNOV-71 V10CA — V10 Convergence Assessor
+## Current State — v9.100.0 · Phase 167 · INNOV-73 IVB — Invariant Velocity Benchmark
 
 **Status:** 71 innovations shipped (INNOV-01 through INNOV-71). Phase 165 complete. v9.98.0 baseline. 71/71 Grade-A modules hardened.
 **Automation pointer:** Machine phase progression consumes `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` §3.0 “Active Era Contract (Phases 131–136+)”, which governs the current stream through Phase 147.
