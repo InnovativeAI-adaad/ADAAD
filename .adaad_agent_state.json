@@ -409,7 +409,7 @@
   "last_invocation": "2026-05-03",
   "last_phase_completed": 163,
   "last_phase_completed_label": "Phase 163 \u00b7 INNOV-69 \u00b7 MCE \u2014 Mutation Calibration Engine",
-  "last_sync_sha": "6a5b0419",
+  "last_sync_sha": "607b7534",
   "last_updated": "2026-04-30T00:00:00.000000+00:00",
   "next_phase": 170,
   "next_pr": "phase163-mutation-calibration-engine",
@@ -984,7 +984,7 @@
     "phase127-world-first-governed-redteam-response"
   ],
   "last_completed_phase": "24 \u00b7 Phase 154 \u00b7 INNOV-60 \u00b7 Constitutional Pre-Admission Gate (CPAG)",
-  "last_agent_state_sync_digest": "gsync-d602053ceb8820bc",
+  "last_agent_state_sync_digest": "gsync-f8cb4c4c0302faab",
   "invariant_count": 310,
   "innovation_count": 75,
   "innovations_shipped": 73,
