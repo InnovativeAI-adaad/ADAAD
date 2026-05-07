@@ -1,0 +1,20 @@
+{
+  "phase": 171,
+  "innovation": "INNOV-77 · MEX",
+  "version": "9.104.0",
+  "date": "2026-05-03",
+  "invariants": {
+    "MEX-EXEC-0": "No mutation executes without valid MRP clearance (composite_risk < RISK_CEILING)",
+    "MEX-CHAIN-0": "Every execution record HMAC-SHA256 chained to prior record",
+    "MEX-HUMAN0-0": "HIGH and CRITICAL impact mutations require HUMAN-0 ratification",
+    "MEX-BLAST-0": "Execution aborted if blast_radius > MAX_BLAST_RADIUS at apply-time",
+    "MEX-ATOMIC-0": "Execution is atomic; partial application triggers auto-rollback",
+    "MEX-ROLLBACK-0": "Every executed mutation has a rollback record co-committed in ledger",
+    "MEX-PERSIST-0": "Execution ledger is append-only; no record may be modified or deleted",
+    "MEX-DETERM-0": "Identical inputs always produce identical execution record fields",
+    "MEX-AUDIT-0": "All phase transitions (QUEUED→EXECUTING→APPLIED/ROLLED_BACK) are ledgered",
+    "MEX-SCOPE-0": "Only ADAAD constitutional scope targets permitted; others raise MEXScopeViolation"
+  },
+  "cumulative_invariants": 370,
+  "ila_event_id": "ILA-171-20260503-001"
+}

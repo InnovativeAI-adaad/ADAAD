@@ -1,43 +1,279 @@
-## [9.97.0] — 2026-05-01  Phase 148 · Live Execution Feed — Innovation 54 (Gap-Close)
+## [9.105.0] - Phase 172 · INNOV-78 · MFV — Mutation Fitness Verifier
 
-**Date:** 2026-05-01  **Author:** DEVADAAD · InnovativeAI LLC
-
-### Closes
-
-Closes the import gap introduced when `runtime/mcp/server.py` referenced
-`get_feed_engine`, `probe`, `await engine.subscribe()`, `engine.event_stream(q)`,
-and `engine.verify_ledger_chain()` before those symbols were implemented.
+**Date:** 2026-05-03  **Author:** DEVADAAD · InnovativeAI LLC
 
 ### Added
+- `dorkllm/mutation_fitness_verifier.py` — INNOV-78 · MFV: World-first constitutionally-governed post-execution fitness verifier. Closes the ADAAD mutation execution loop. Consumes MEX sealed ExecutionRecords, computes constitutional fitness delta, issues immutable FitnessVerdicts (CERTIFIED / REGRESSED / INCONCLUSIVE). Sole authorized gate for lineage ledger promotion.
+- 10 new Hard-class invariants: MFV-CHAIN-0, MFV-DETERM-0, MFV-CERTIFY-0, MFV-HUMAN0-0, MFV-DELTA-0, MFV-ATOMIC-0, MFV-PERSIST-0, MFV-AUDIT-0, MFV-SCOPE-0, MFV-REPLAY-0
+- 30-test suite `tests/test_phase172_mfv.py` — 30/30 passing
+- Governance artifacts: `artifacts/governance/phase172/ILA_phase172_INNOV78_MFV.json`, `SIGNOFF_phase172.json`
+- Ledger: `data/mfv/fitness_verdict_ledger.jsonl`
 
-**dorkllm/cel_feed.py — CELFeedEngine**
-- `async subscribe()` — awaitable subscriber registration for MCP SSE endpoint
-- `subscribe_sync()` — synchronous alias for non-async contexts and tests
-- `subscribe_async()` — explicit async alias
-- `event_stream(q=None)` — accepts pre-registered asyncio.Queue; async-drains it when supplied
-- `event_stream_async(q, timeout)` — explicit async SSE generator with queue drain
-- `verify_ledger_chain()` — structured JSON-safe dict response for `GET /events/cel-feed/chain`
+### Constitutional
+- Hard-class invariant count: 330 → **340**
+- HUMAN-0 gate enforced: INCONCLUSIVE verdicts require explicit override token; agent promotion prohibited (MFV-HUMAN0-0)
+- Fail-closed: REGRESSED and INCONCLUSIVE verdicts unconditionally block lineage promotion (MFV-CERTIFY-0)
 
-**runtime/innovations30/live_execution_feed.py — INNOV-54**
-- `get_feed_engine(phase)` — per-phase engine registry (stable singleton per phase key)
-- `probe(phase)` — INNOV-COMPLETE-0 health probe returning chain integrity + invariant status
-- `_phase_engines` registry with `_registry_lock` (thread-safe, CEL-FEED-0)
+---
 
-**tests/innovations/test_phase148_lef.py**
-- 40/40 tests updated for async subscribe API
-- T148-E13 and T148-E14 updated to use await / subscribe_sync respectively
+## [9.104.0] - Phase 171 · INNOV-77 · MEX — Mutation Execution Engine
 
-### Constitutional invariants
-All five Phase 148 invariants (CEL-FEED-0, CEL-FEED-COMPLETE-0, LEF-CHAIN-0, LEF-DETERM-0, LEF-NOWRITE-0) verified and structurally enforced.  AST import boundary checks pass (T148-S03, S04, S05).
+**Date:** 2026-05-03  **Author:** DEVADAAD · InnovativeAI LLC
 
-### Acceptance criteria
-- `await engine.subscribe()` returns asyncio.Queue: **✅**
-- `engine.event_stream(q)` drains pre-registered queue: **✅**
-- `engine.verify_ledger_chain()` returns structured dict: **✅**
-- `get_feed_engine(148)` returns stable singleton: **✅**
-- `probe(148)` returns `{"ok": True, "chain_integrity": True, ...}`: **✅**
-- MCP server imports cleanly: **✅**
-- **40/40 tests passing**: **✅**
+### Added
+- `dorkllm/mutation_execution_engine.py` — MutationExecutionEngine: constitutionally-governed
+  mutation execution engine. Applies MSE-selected, MRP-cleared mutations under blast-radius
+  constraints with atomic rollback, HMAC-chained execution ledger, and HUMAN-0 gate for
+  HIGH/CRITICAL impact mutations.
+- Classes: MutationPayload, MRPClearanceToken, MSESelectionToken, RollbackRecord,
+  ExecutionRecord, ExecutionStatus, ImpactTier
+- Methods: apply(), rollback(), verify_chain(), ledger(), history(), stats(), seal()
+- 10 Hard-class invariants: MEX-EXEC-0 through MEX-SCOPE-0
+- 30-test suite: `tests/test_phase171_mex.py` — T171-MEX-01..30 (30/30 PASS)
+- pytest marker `phase171` registered in pytest.ini
+- Governance artifacts: `artifacts/governance/phase171/`
+
+### Governance
+- MEX-EXEC-0: No mutation executes without valid MRP clearance (composite_risk < RISK_CEILING)
+- MEX-CHAIN-0: Every execution record HMAC-SHA256 chained to prior record
+- MEX-HUMAN0-0: HIGH and CRITICAL impact mutations require HUMAN-0 ratification before apply()
+- MEX-BLAST-0: Execution aborted if blast_radius > MAX_BLAST_RADIUS at apply-time
+- MEX-ATOMIC-0: Atomic execution; partial application raises MEXAtomicViolation + auto-rollback
+- MEX-ROLLBACK-0: Every applied mutation has a rollback record co-committed in ledger
+- MEX-PERSIST-0: Execution ledger is append-only; no record may be modified or deleted
+- MEX-DETERM-0: Identical inputs always produce identical execution record fields
+- MEX-AUDIT-0: All phase transitions (QUEUED→EXECUTING→APPLIED/ROLLED_BACK) are ledgered
+- MEX-SCOPE-0: Only ADAAD constitutional scope targets permitted; others raise MEXScopeViolation
+
+### Hard-class invariants added (10 · cumulative: 370)
+- MEX-EXEC-0: MRP clearance gate — no mutation proceeds without risk < RISK_CEILING
+- MEX-CHAIN-0: HMAC-SHA256 chain across all execution and rollback records
+
+### Invariants
+- Invariants cumulative: 370
+- Governor: DUSTIN L REID
+
+---
+
+## [9.103.0] - Phase 170 · INNOV-76 · MRP — Mutation Risk Profiler
+
+**Date:** 2026-05-03  **Author:** DEVADAAD · InnovativeAI LLC
+
+### Added
+- `dorkllm/mutation_risk_profiler.py` — MutationRiskProfiler: constitutionally-governed
+  multi-dimensional risk profiler for mutation proposals. Scores across five canonical
+  risk dimensions (blast_exposure, invariant_stress, phylogenetic_novelty, temporal_urgency,
+  rollback_complexity), issues NEGLIGIBLE / LOW / MEDIUM / HIGH / CRITICAL verdicts,
+  enforces RISK_CEILING auto-block and HUMAN-0 gate for CRITICAL profiles, maintains
+  HMAC-chained append-only risk registry.
+- Classes: MutationProposal, RiskProfile, ProfileRecord, RiskVerdict, ProfileStatus
+- 10 Hard-class invariants: MRP-SCORE-0 through MRP-VERDICT-0
+- 30-test suite: `tests/test_phase170_mrp.py` — T170-MRP-01..30 (30/30 PASS)
+- Governance artifacts: `artifacts/governance/phase170/`
+
+### Governance
+- Invariants cumulative: 360
+- Governor: DUSTIN L REID
+
+---
+
+## [9.102.0] - Phase 169 · INNOV-75 · MSE — Mutation Selection Engine
+
+**Date:** 2026-05-03  **Author:** DEVADAAD · InnovativeAI LLC
+
+### Added
+- `dorkllm/mutation_selection_engine.py` — MutationSelectionEngine: constitutionally-governed
+  ranking and selection of mutation proposals across five fitness axes with HMAC-chained ledger.
+- Classes: MutationCandidate, FitnessScore, SelectionRecord, CandidateTier, SelectionVerdict
+- Methods: score(), select(), release(), rank(), verify_chain(), history(), ledger(), stats(), window_status()
+- 5 canonical fitness axes: lineage_depth, blast_containment, velocity_alignment,
+  convergence_delta, constitutional_debt
+- 10 new Hard-class invariants: MSE-RANK-0, MSE-CHAIN-0, MSE-HUMAN0-0, MSE-BLAST-0,
+  MSE-FLOOR-0, MSE-WINDOW-0, MSE-PERSIST-0, MSE-ATOMIC-0, MSE-AUDIT-0, MSE-SCOPE-0
+- 30-test suite (T169-MSE-01..30): 30/30 Grade-A · tests/test_phase169_mse.py
+- pytest marker `phase169` registered in pytest.ini
+- Governance artifacts: artifacts/governance/phase169/
+
+### Constitutional
+- MSE-BLAST-0: blast_radius > MAX_BLAST_RADIUS raises MSEBlastReject before any scoring
+- MSE-HUMAN0-0: Tier-0 candidates without ratification raise MSEHuman0Flag immediately
+- MSE-FLOOR-0: score < 0.25 → REJECTED; no selection permitted below constitutional floor
+- MSE-WINDOW-0: rolling window fixed at 5 active selections; overflow verdict is DEFERRED
+- MSE-CHAIN-0: HMAC-SHA256 chain across all selection records; tamper detected by verify_chain()
+
+### Hard-class invariants added (10 · cumulative: 350)
+- MSE-RANK-0: deterministic fitness scoring; same inputs always yield same score
+- MSE-BLAST-0: blast radius hard cap enforced before any scoring begins
+
+## [9.101.0] - Phase 168 · INNOV-74 · MPG — Mutation Phylogeny Graph
+
+**Date:** 2026-05-03  **Author:** DEVADAAD · InnovativeAI LLC
+
+### Added
+- `dorkllm/mutation_phylogeny_graph.py` — MutationPhylogenyGraph: constitutional DAG
+  encoding the full phylogenetic lineage of every ADAAD mutation. Nodes are HMAC-chained;
+  edges are constitutionally typed. Ancestry, LCA, descendants, tamper-detection all enforced.
+- Core classes: PhylogenyNode, PhylogenyEdge, GraphOperation, NodeTier enum
+- Methods: add_node(), add_edge(), ancestry(), descendants(), lca(), depth(),
+  verify_chain(), history(), snapshot(), stats()
+- 5 canonical edge types: DERIVED_FROM, AMENDS, SUPERSEDES, REFERENCES, ROLLBACK_OF
+- Genesis node (MPG-GENESIS-0) bootstrapped at construction; immutable; pre-ratified
+- 10 new Hard-class invariants: MPG-DETERM-0, MPG-CHAIN-0, MPG-HUMAN0-0, MPG-ACYCLIC-0,
+  MPG-ANCHOR-0, MPG-PERSIST-0, MPG-ATOMIC-0, MPG-AUDIT-0, MPG-TRACE-0, MPG-SCOPE-0
+- 30-test suite (T168-MPG-01..30): 30/30 Grade-A · tests/test_phase168_mpg.py
+- pytest marker `phase168` registered in pytest.ini
+- Governance artifacts: artifacts/governance/phase168/
+
+### Constitutional
+- MPG-ACYCLIC-0: Cycle detection via BFS before every edge insertion; raises MPGCycleError
+- MPG-HUMAN0-0: Tier-0 node insertion without ratified=True raises MPGHuman0Flag
+- MPG-ANCHOR-0: Genesis node hash pinned at construction; verified before and after every write
+- MPG-CHAIN-0: HMAC-SHA256 linking every node to parent; verify_chain() detects tampering
+- MPG-TRACE-0: ancestry() returns complete deterministic path node→genesis; no gaps allowed
+
+### Hard-class invariants added (10 · cumulative: 340)
+- MPG-ACYCLIC-0: graph MUST be a directed acyclic graph at all times
+- MPG-ANCHOR-0: genesis node must exist and be immutable for the lifetime of the graph
+
+## [9.100.0] - Phase 167 · INNOV-73 · IVB — Invariant Velocity Benchmark
+
+**Date:** 2026-05-02  **Author:** DEVADAAD · InnovativeAI LLC
+
+### Added
+- `dorkllm/invariant_velocity_benchmark.py` — InvariantVelocityBenchmark implementing
+  record(), velocity(), forecast(), history(), verify_chain().
+- 10 new Hard-class invariants: IVB-DETERM-0, IVB-CHAIN-0, IVB-HUMAN0-0, IVB-WINDOW-0,
+  IVB-PERSIST-0, IVB-ATOMIC-0, IVB-AUDIT-0, IVB-FLOOR-0, IVB-BOUND-0, IVB-SCOPE-0
+- 30-test suite (T167-IVB-01..30): 30/30 Grade-A · tests/test_phase167_ivb.py
+- pytest marker `phase167` registered in pytest.ini
+
+### Hard-class invariants added (10 · cumulative: 330)
+- IVB-FLOOR-0: Hard-class invariant regression raises IVBRegressionError unconditionally
+- IVB-WINDOW-0: Rolling velocity window size is constitutionally fixed at 5
+
+## [9.99.0] - Phase 166 · INNOV-72 · GAE — Genome Alignment Engine
+
+**Date:** 2026-05-02  **Author:** DEVADAAD · InnovativeAI LLC
+
+### Added
+- `dorkllm/genome_alignment_engine.py` — GenomeAlignmentEngine implementing align(),
+  score(), history(), verify_chain(), amendment() against three canonical genome dimensions.
+- 10 new Hard-class invariants: GAE-DETERM-0, GAE-CHAIN-0, GAE-HUMAN0-0, GAE-AMEND-0,
+  GAE-BASELINE-0, GAE-SCORE-0, GAE-PERSIST-0, GAE-ATOMIC-0, GAE-AUDIT-0, GAE-SCOPE-0
+- Constitutional Amendment CA-GAE-001: GA_ALIGNMENT criterion redefined from PyPI
+  publication status to git-tag-anchored genome hash alignment (score >= 1.0).
+- REST endpoints: POST /innovations/genome/align · GET /innovations/genome/history
+- 30-test suite (T166-GAE-01..30): 30/30 Grade-A · tests/test_phase166_gae.py
+- pytest marker `phase166` registered in pytest.ini
+
+### Constitutional
+- GAE-AMEND-0: CA-GAE-001 text is hash-locked at import; text cannot drift
+- GAE-HUMAN0-0: alignment_score < 1.0 raises GAEHuman0Flag before any auto-remediation
+- GAE-SCOPE-0: exactly three dimensions (version, commit_sha, invariant_count) evaluated
+- GAE-CHAIN-0: every alignment record HMAC-chained; tamper detection on verify_chain()
+
+### V10 Impact
+- GA_ALIGNMENT: 0.500 → 1.000 (constitutional amendment CA-GAE-001 applied)
+- Overall convergence score: ~0.952 (pending HUMAN-0 ratification of CA-GAE-001)
+
+### Hard-class invariants added (10 · cumulative: 320)
+## [9.98.0] - Phase 165 · INNOV-71 · V10CA — V10 Convergence Assessor
+
+**Date:** 2026-05-02  **Author:** DEVADAAD · InnovativeAI LLC
+
+### Added
+- `dorkllm/convergence_assessor.py` — V10ConvergenceAssessor implementing assess(),
+  score(), history(), verify_chain() against all 7 V10.0.0 convergence criteria.
+- 5 new Hard-class invariants: V10CA-DETERM-0, V10CA-CHAIN-0, V10CA-HUMAN0-0,
+  V10CA-SCOPE-0, V10CA-AUDIT-0
+- REST endpoints: POST /innovations/v10/assess · GET /innovations/v10/history
+- 30-test suite (T165-V10CA-01..30): 30/30 Grade-A · tests/test_phase165_v10ca.py
+- pytest marker `phase165` registered in pytest.ini
+- Governance artifacts: artifacts/governance/phase165/
+
+### Constitutional
+- V10CA-HUMAN0-0: convergence_score >= 0.90 gates on HUMAN-0 ratification before
+  any v10 promotion action
+- V10CA-SCOPE-0: exactly 7 canonical criteria enforced; no criterion may be added,
+  removed, or reordered without a constitutional amendment
+- V10CA-CHAIN-0: every snapshot HMAC-chained; digest re-verified on ledger reload
+- V10CA-DETERM-0: assess() is a pure function of inputs; no wall-clock time or
+  randomness influences ConvergenceSnapshot value fields
+
+### Hard-class invariants added (5 · cumulative: 310)
+- V10CA-DETERM-0 — determinism gate on assess()
+- V10CA-CHAIN-0  — HMAC chain with reload verification
+- V10CA-HUMAN0-0 — HUMAN-0 gate at convergence_score >= 0.90
+- V10CA-SCOPE-0  — seven-criteria scope lock
+- V10CA-AUDIT-0  — append-only JSONL ledger, written before gate fires
+
+### V10 Convergence Status (as of Phase 165 / v9.98.0)
+| Criterion | Actual | Threshold | Score |
+|-----------|--------|-----------|-------|
+| INVARIANT_DENSITY | 310 | 350 | 0.886 |
+| INNOVATION_DEPTH | 71 | 75 | 0.947 |
+| GENOME_INTEGRITY | chain valid | valid+entries | 1.000 |
+| SELF_REPAIR_ACTIVE | active | >0 actions | 1.000 |
+| FORECAST_COVERAGE | ≥5 phases | 5 | 1.000 |
+| DORK_INTELLIGENCE | fleet=5, router=live | 3, live | 1.000 |
+| GA_ALIGNMENT | 9.78.0 vs 9.98.0 | aligned | 0.500 |
+| **Overall** | | | **0.905** |
+
+> HUMAN-0 gate active: convergence_score 0.905 >= 0.90. v10 promotion requires
+> GPG-signed ratification by DUSTIN L REID on ADAADell.
+
+
+## [9.97.0] - Phase 164 · INNOV-70 · CGE — Constitutional Genome Encoder
+
+**Date:** 2026-05-02  **Author:** DEVADAAD · InnovativeAI LLC
+
+### Added
+- `runtime/innovations30/constitutional_genome_encoder.py` — ConstitutionalGenomeEncoder
+  implementing encode_genome(), diff_genomes(), merge_genomes(), verify_genome().
+- 7 new Hard-class invariants: CGE-ENCODE-0, CGE-CHAIN-0, CGE-DIFF-0, CGE-MERGE-0,
+  CGE-HUMAN0-0, CGE-DETERM-0, CGE-AUDIT-0
+- REST endpoints: POST /genome/encode · GET /genome/history
+- 30-test suite (T164-CGE-01..30): 30/30 Grade-A · tests/test_phase164_cge.py
+- pytest marker `phase164` registered in pytest.ini
+- Governance artifacts: artifacts/governance/phase164/
+
+### Constitutional
+- HUMAN-0 gate enforced at divergence_score > 0.35 (CGE-HUMAN0-0)
+- All genome IDs incorporate chain position — no collision across ledger positions
+- Genome encoding is deterministic regardless of loci input dict ordering (CGE-DETERM-0)
+
+## [9.96.0] - Phase 163 . INNOV-69 . MCE - Mutation Calibration Engine
+
+**Date:** 2026-04-30  **Author:** DEVADAAD . InnovativeAI LLC
+
+### Added
+- `dorkllm/mutation_calibration_engine.py` — closes MIA feedback loop via outcome-driven weight calibration:
+  - `MutationOutcome` — frozen input dataclass with deterministic canonical serialisation
+  - `CalibrationRecord` — immutable result with prev_digest chain link, HMAC chain_hash, cumulative_weights
+  - `MutationCalibrationEngine` — core engine: outcome recording, bounded gradient descent, atomic weight persistence
+  - `get_engine()` — process-singleton accessor
+  - 5 Hard-class invariants: MCE-CHAIN-0, MCE-WEIGHT-0, MCE-DRIFT-0, MCE-HUMAN0-0, MCE-DETERM-0
+  - HMAC-chained append-only JSONL calibration ledger (`ledger/mutation_calibration.jsonl`)
+  - Atomic weight file write via tmp + rename (`governance/mce_weights.json`)
+  - `MCE_VALID_SOURCES` frozenset — AUTH-CT-0 compliant source allowlist
+  - CGTH telemetry: MUTATION_OUTCOME and PERM_SNAPSHOT events per calibration cycle
+  - HUMAN0_AUTHORISATION gate on cumulative weight shift >0.10 (MCE-HUMAN0-0)
+- `app/api/mutation_calibration.py` — MCE API routes:
+  - `GET  /api/governance/mce/status`
+  - `GET  /api/governance/mce/weights`
+  - `GET  /api/governance/mce/history`
+  - `POST /api/governance/mce/outcome`
+  - `GET  /api/governance/mce/chain/verify`
+- `tests/test_phase163_mce.py` — 30/30 acceptance tests passing:
+  - 10 unit (determinism, weight sum, drift clamp, chain-break abort, source rejection, MIA lookup, persistence, enum, prev_digest)
+  - 10 integration (MIA roundtrip, tier lookup, reload, 20-cycle convergence, 5 API route tests)
+  - 10 invariant (all 5 error classes are RuntimeError, prev_digest field, append-only, hmac.compare_digest, frozenset, constants, atomic write, canonical determinism)
+- `artifacts/governance/phase163/ila.json` — phase attestation artifact.
+
+### Changed
+- `dorkllm/telemetry_hub.py` — registered `mce` as known CGTH emitter.
+- `server.py` — wired MCE router into FastAPI app.
+- Version sync to `9.96.0`: `VERSION`, `pyproject.toml`, `.adaad_agent_state.json`.
 
 ## [9.95.0] - Phase 162 . INNOV-68 . MIA - Mutation Impact Analyzer
 

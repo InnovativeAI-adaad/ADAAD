@@ -1,0 +1,15 @@
+{
+  "replay_schema": "adaad-replay-digest.v1",
+  "phase": 165,
+  "version": "9.98.0",
+  "innovation_id": "INNOV-71",
+  "date": "2026-05-02",
+  "artifacts_included": [
+    "phase165_plan.json",
+    "INNOV-71-V10CA-ILA.json",
+    "phase165_tier_summary.json"
+  ],
+  "sha256_digest": "c92098a05172225d1484962a75ed8d648bb16bc7626b08f26c3fd8a7852e9a73",
+  "replay_status": "DETERMINISTIC",
+  "authored_by": "DEVADAAD"
+}

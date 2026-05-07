@@ -4,11 +4,11 @@
 
 ---
 
-## Current State — v9.95.0 · Phase 162 · INNOV-68 MIA — Mutation Impact Analyzer
+## Current State — v9.105.0 · Phase 172 · INNOV-78 MFV — Mutation Fitness Verifier
 
-**Status:** 68 innovations shipped (INNOV-01 through INNOV-68). Phase 162 complete. v9.95.0 baseline. 68/68 Grade-A modules hardened.
+**Status:** 71 innovations shipped (INNOV-01 through INNOV-71). Phase 165 complete. v9.98.0 baseline. 71/71 Grade-A modules hardened.
 **Automation pointer:** Machine phase progression consumes `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` §3.0 “Active Era Contract (Phases 131–136+)”, which governs the current stream through Phase 147.
-**Hard-class invariants:** 278 (cumulative, enforced)
+**Hard-class invariants:** 310 (cumulative, enforced)
 **Constitutional Evolution Loop:** 16-step CEL, deterministic replay, wired
 **Self-Proposing Innovation Engine (SPIE):** active — system proposes its own next innovations; HUMAN-0 ratifies
 **Deterministic Audit Sandbox (DAS):** active — one-command external verification; `docker compose up das-demo`
@@ -64,6 +64,16 @@
 | INNOV-50 · RAGS | grounded_responder.py | 144 | v9.77.0 | RAGS-GROUND-0, RAGS-CTX-0, RAGS-DETERM-0, RAGS-CHAIN-0, RAGS-GATE-0 |
 | INNOV-67 · CFE | constitutional_forecast.py | 161 | v9.94.0 | CFE-DETERM-0, CFE-CHAIN-0, CFE-HUMAN0-0, CFE-WINDOW-0 |
 | INNOV-68 · MIA | mutation_impact_analyzer.py | 162 | v9.95.0 | MIA-DETERM-0, MIA-CHAIN-0, MIA-HUMAN0-0, MIA-SCOPE-0, MIA-AUDIT-0 |
+| INNOV-69 · MCE | mutation_calibration_engine.py | 163 | v9.96.0 | MCE-CHAIN-0, MCE-WEIGHT-0, MCE-DRIFT-0, MCE-HUMAN0-0, MCE-DETERM-0 |
+| INNOV-70 · CGE | constitutional_genome_encoder.py | 164 | v9.97.0 | CGE-ENCODE-0, CGE-CHAIN-0, CGE-DIFF-0, CGE-MERGE-0, CGE-HUMAN0-0, CGE-DETERM-0, CGE-AUDIT-0 |
+| INNOV-71 · V10CA | convergence_assessor.py | 165 | v9.98.0 | V10CA-DETERM-0, V10CA-CHAIN-0, V10CA-HUMAN0-0, V10CA-SCOPE-0, V10CA-AUDIT-0 |
+| INNOV-72 · GAE | genome_alignment_engine.py | 166 | v9.99.0 | GAE-DETERM-0, GAE-CHAIN-0, GAE-HUMAN0-0, GAE-AMEND-0, GAE-BASELINE-0, GAE-SCORE-0, GAE-PERSIST-0, GAE-ATOMIC-0, GAE-AUDIT-0, GAE-SCOPE-0 |
+| INNOV-73 · IVB | invariant_velocity_benchmark.py | 167 | v9.100.0 | IVB-DETERM-0, IVB-CHAIN-0, IVB-HUMAN0-0, IVB-WINDOW-0, IVB-PERSIST-0, IVB-ATOMIC-0, IVB-AUDIT-0, IVB-FLOOR-0, IVB-BOUND-0, IVB-SCOPE-0 |
+| INNOV-74 · MPG | mutation_phylogeny_graph.py | 168 | v9.101.0 | MPG-DETERM-0
+| INNOV-75 · MSE | mutation_selection_engine.py | 169 | v9.102.0 | MSE-RANK-0, MSE-CHAIN-0, MSE-HUMAN0-0, MSE-BLAST-0, MSE-FLOOR-0, MSE-WINDOW-0, MSE-PERSIST-0, MSE-ATOMIC-0, MSE-AUDIT-0, MSE-SCOPE-0 |, MPG-CHAIN-0, MPG-HUMAN0-0, MPG-ACYCLIC-0, MPG-ANCHOR-0, MPG-PERSIST-0, MPG-ATOMIC-0, MPG-AUDIT-0, MPG-TRACE-0, MPG-SCOPE-0 |
+| INNOV-77 · MEX | mutation_execution_engine.py | 171 | v9.104.0 | MEX-EXEC-0..MEX-SCOPE-0 |
+| INNOV-78 · MFV | mutation_fitness_verifier.py | 172 | v9.105.0 | MFV-CHAIN-0, MFV-DETERM-0, MFV-CERTIFY-0, MFV-HUMAN0-0, MFV-DELTA-0, MFV-ATOMIC-0, MFV-PERSIST-0, MFV-AUDIT-0, MFV-SCOPE-0, MFV-REPLAY-0 |
+| INNOV-76 · MRP | mutation_risk_profiler.py | 170 | v9.103.0 | MRP-SCORE-0, MRP-CHAIN-0, MRP-HUMAN0-0, MRP-CEIL-0, MRP-BLAST-0, MRP-PERSIST-0, MRP-ATOMIC-0, MRP-AUDIT-0, MRP-DIM-0, MRP-VERDICT-0 |
 
 **Open GA blocker (canonical):** None — FINDING-66-004 resolved (2026-04-12). All ceremonies complete. GA track unblocked.  
 **Strategic plan:** `docs/governance/POST_PIPELINE_STRATEGIC_PLAN.md`
@@ -137,22 +147,12 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 160 | INNOV-66 · EBS — Emergent Baseline Sentinel | v9.93.0 | P0 | ✅ shipped |
 | 161 | INNOV-67 · CFE — Constitutional Forecast Engine | v9.94.0 | P0 | ✅ shipped |
 | 162 | INNOV-68 · MIA — Mutation Impact Analyzer | v9.95.0 | P0 | ✅ shipped |
-| 163 | INNOV-69 · MCE — Mutation Calibration Engine | v9.96.0 | P0 | 🔄 proposed · awaiting HUMAN-0 ratification |
+| 163 | INNOV-69 · MCE — Mutation Calibration Engine | v9.96.0 | P0 | ✅ complete |
 
 
 ## Phase 140 — Constitutional P0 Sweep + P1 Hardening (v9.73.0) ✅
 - Resolved 5 P0 audit findings (WL-001..WL-005) from the deepest audit in ADAAD history
 - 5 new Hard-class invariants: HAPG-IDENTITY-0, HAPG-EXPIRY-0, REPLAY-ALGO-0, TEST-ATTEST-0, GRRP-KEY-0
 - Total invariants: 221 | Total phases: 140 | Tests: 30/30
-
-## Phase 148 — Live Execution Feed — Innovation 54 (v9.97.0) ✅
-
-**Status:** ✅ shipped · **Released:** v9.97.0 · **Closed:** 2026-05-01
-
-Closes the MCP server import gap for `get_feed_engine`, `probe`, async `subscribe()`,
-`event_stream(q)`, and `verify_ledger_chain()`. Delivers the full HMAC-chained CEL
-observability stack with 40/40 tests, 5 constitutional invariants, and the
-`ui/whaledic.html` Constitutional Dark LEF panel.
-
-**Invariants:** CEL-FEED-0, CEL-FEED-COMPLETE-0, LEF-CHAIN-0, LEF-DETERM-0, LEF-NOWRITE-0
-**Tests:** 40/40 | **Innovation:** INNOV-54 | **Total phases:** 148
+| 164 | INNOV-70 · CGE — Constitutional Genome Encoder | v9.97.0 | P0 | ✅ shipped |
+| 165 | INNOV-71 · V10CA — V10 Convergence Assessor | v9.98.0 | P0 | ✅ shipped |
