@@ -1,0 +1,31 @@
+{
+  "artifact_type": "ILA",
+  "innovation_id": "INNOV-79",
+  "innovation_code": "IIS",
+  "innovation_name": "Innovation Impact Scorer",
+  "phase": 173,
+  "version": "9.106.0",
+  "ratification_authority": "DUSTIN L REID",
+  "ratification_phrase": "approved DUSTIN L REID",
+  "ratification_timestamp_utc": "2026-05-07T00:00:00Z",
+  "module_path": "dorkllm/innovation_impact_scorer.py",
+  "test_path": "tests/test_phase173_iis.py",
+  "tests_total": 30,
+  "tests_passed": 30,
+  "hard_class_invariants": [
+    "IIS-CHAIN-0",
+    "IIS-BOUND-0",
+    "IIS-NONZERO-0",
+    "IIS-DETERM-0",
+    "IIS-PERSIST-0",
+    "IIS-AUTH-0",
+    "IIS-COVG-0",
+    "IIS-DELTA-0",
+    "IIS-ROLLUP-0",
+    "IIS-AUDIT-0"
+  ],
+  "hard_class_invariants_added": 10,
+  "hard_class_invariants_total": 380,
+  "description": "Scores the systemic impact of each shipped innovation on constitutional health, mutation approval rates, and fitness trajectory. Feeds SPIE with evidence-based signal. HMAC-chained append-only ledger. Fail-closed on every gate.",
+  "governor": "DUSTIN L REID"
+}
