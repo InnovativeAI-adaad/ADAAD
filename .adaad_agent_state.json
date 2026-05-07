@@ -395,7 +395,7 @@
       "session_digest": "gsync-phase93-v9.26.0-alignment-2026-03-28"
     },
     {
-      "phase": 152,
+      "date": "2026-04-24",
       "innov_id": "INNOV-58",
       "token": "approved DUSTIN L REID",
       "date": "2026-04-24"
@@ -452,6 +452,7 @@
       "title": "Patent filing: constitutional mutation governance method \u2014 pre-v1.1-GA deadline"
     },
     {
+      "ceremony_script": "scripts/ceremony_finding_66_004_ed25519_threshold.sh",
       "id": "FINDING-66-004",
       "note": "RESOLVED: 2-of-3 Ed25519 governance key ceremony executed on ADAADell. Three key pairs generated (primary, secondary, recovery). Public key ring committed: security/keys/ed25519_governance_ring.json. ILA attestation artifact committed: artifacts/governance/ceremony/ceremony-ed25519-2of3-20260412.json. Private keys stored locally in .env.ed25519_ceremony (gitignored). Threshold policy: 2-of-3 required for Tier 0 mutations. Pushed at commit 8f80367e by HUMAN-0 / Dustin L. Reid.",
       "phase_target": "66",
@@ -460,8 +461,7 @@
       "severity": "P2",
       "source": "Deep Dive \u00a7VI Medium Term",
       "status": "resolved",
-      "title": "Governance Key Ceremony (PR-01): 2-of-3 Ed25519 threshold not yet executed",
-      "ceremony_script": "scripts/ceremony_finding_66_004_ed25519_threshold.sh"
+      "title": "Governance Key Ceremony (PR-01): 2-of-3 Ed25519 threshold not yet executed"
     },
     {
       "id": "FINDING-66-005",
@@ -643,24 +643,25 @@
     {
       "id": "FINDING-140-001",
       "note": "RESOLVED: v9.59.0 GPG-signed against c05334c9 confirmed via git cat-file. Phase 140 Track B ceremony complete.",
+      "resolved_date": "2026-04-11",
       "severity": "P1",
       "source": "Phase 140 Track B",
       "status": "resolved",
-      "title": "v9.59.0 GPG re-sign ceremony pending \u2014 ghost tag deleted, new signed tag not yet pushed",
-      "resolved_date": "2026-04-11"
+      "title": "v9.59.0 GPG re-sign ceremony pending \u2014 ghost tag deleted, new signed tag not yet pushed"
     },
     {
+      "ceremony_script": "scripts/ceremony_finding_140_002_adaadell_git_creds.sh",
       "id": "FINDING-140-002",
       "note": "RESOLVED: Option B (SSH deploy key) executed on ADAADell WSL. Key adaad_deploy_ed25519 generated, added to GitHub deploy keys with write access, ~/.ssh/config configured with adaad-github alias, remote set-url updated. git push origin main confirmed: Everything up-to-date. Windows GCM bypass permanent \u2014 no PAT rotation dependency.",
+      "resolved_date": "2026-04-12",
+      "resolved_phase": "140",
       "severity": "P1",
       "source": "Phase 140 Track B",
       "status": "resolved",
-      "title": "ADAADell git credential manager broken \u2014 WSL cannot push via HTTPS with Windows GCM",
-      "ceremony_script": "scripts/ceremony_finding_140_002_adaadell_git_creds.sh",
-      "resolved_date": "2026-04-12",
-      "resolved_phase": "140"
+      "title": "ADAADell git credential manager broken \u2014 WSL cannot push via HTTPS with Windows GCM"
     }
   ],
+  "open_findings_count": 0,
   "pending_evidence_rows": [],
   "phase": 172,
   "phase_label": "Phase 172 \u00b7 INNOV-78 \u00b7 MFV \u2014 Mutation Fitness Verifier",
@@ -723,6 +724,7 @@
   "schema_version": "1.5.0",
   "software_version": "9.105.0",
   "tife_active": true,
+  "total_innovations_shipped": 69,
   "value_checkpoints_reached": [
     "phase0-track-a-hardening",
     "v1.3.0-released",
