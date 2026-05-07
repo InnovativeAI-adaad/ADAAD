@@ -397,8 +397,7 @@
     {
       "date": "2026-04-24",
       "innov_id": "INNOV-58",
-      "token": "approved DUSTIN L REID",
-      "date": "2026-04-24"
+      "token": "approved DUSTIN L REID"
     },
     {
       "phase": 163,
@@ -412,7 +411,7 @@
   "last_invocation": "2026-05-07",
   "last_phase_completed": 172,
   "last_phase_completed_label": "Phase 172 \u00b7 INNOV-78 \u00b7 MFV \u2014 Mutation Fitness Verifier",
-  "last_sync_sha": "b0596d31",
+  "last_sync_sha": "50839ba1",
   "last_updated": "2026-05-07T14:17:13.270999+00:00",
   "next_phase": 173,
   "next_pr": "phase163-mutation-calibration-engine",
@@ -724,7 +723,7 @@
   "schema_version": "1.5.0",
   "software_version": "9.105.0",
   "tife_active": true,
-  "total_innovations_shipped": 69,
+  "total_innovations_shipped": 78,
   "value_checkpoints_reached": [
     "phase0-track-a-hardening",
     "v1.3.0-released",
@@ -1020,13 +1019,11 @@
     "phase127-world-first-governed-redteam-response"
   ],
   "last_completed_phase": "24 \u00b7 Phase 154 \u00b7 INNOV-60 \u00b7 Constitutional Pre-Admission Gate (CPAG)",
-  "last_agent_state_sync_digest": "gsync-0623349e5a74cc3d",
+  "last_agent_state_sync_digest": "gsync-aff8e5452a4e9b2c",
   "invariant_count": 370,
   "innovation_count": 78,
   "innovations_shipped": 78,
-  "open_findings_count": 0,
   "last_innovation_id": "INNOV-78",
-  "total_innovations_shipped": 78,
   "ga_blocker_count": 0,
   "milestone": "v1.1-GA",
   "ga_blockers": 0,
