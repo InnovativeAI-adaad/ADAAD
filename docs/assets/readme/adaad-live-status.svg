@@ -21,7 +21,7 @@
   <rect width="1200" height="340" fill="#060a0f"/>
   <rect width="1200" height="4" fill="url(#hdr)"/>
   <text x="20" y="30" font-family="'JetBrains Mono','Courier New',monospace" font-size="11" fill="rgba(255,255,255,.35)" letter-spacing="3">LIVE SYSTEM STATUS</text>
-  <text x="210" y="30" font-family="'JetBrains Mono','Courier New',monospace" font-size="11" fill="rgba(0,212,255,.55)" letter-spacing="2">v9.93.0</text>
+  <text x="210" y="30" font-family="'JetBrains Mono','Courier New',monospace" font-size="11" fill="rgba(0,212,255,.55)" letter-spacing="2">v9.96.0</text>
   <text x="280" y="30" font-family="'JetBrains Mono','Courier New',monospace" font-size="11" fill="rgba(255,255,255,.18)" letter-spacing="2">2026-04-21</text>
   <circle cx="1180" cy="24" r="5" fill="#00ff88" class="live" filter="url(#glowsm)"/>
   <text x="1166" y="29" text-anchor="end" font-family="'JetBrains Mono','Courier New',monospace" font-size="11" fill="#00ff88" letter-spacing="1">ALL NOMINAL</text>

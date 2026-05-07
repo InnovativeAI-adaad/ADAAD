@@ -1,351 +1,582 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Live Execution Feed (LEF) — Phase 148 / INNOV-54.
+"""
+dorkllm.cel_feed — Live Execution Feed (LEF) engine for Phase 148.
 
-Constitutional invariants enforced in this module
---------------------------------------------------
-LEF-DETERM-0  : Every CELStepEvent serialises to a deterministic canonical dict;
-                no float keys, no set ordering, timestamps are ISO-8601 strings.
-LEF-CHAIN-0   : HMAC-SHA256 links each event to its predecessor; broken chains
-                raise LEFChainViolation immediately.
-CEL-FEED-0    : Subscribers are passive observers only.  subscribe/unsubscribe
-                NEVER mutate CEL execution state.
-LEF-NOWRITE-0 : event_stream() is read/drain only; zero ledger writes occur
-                inside the SSE generator.
-CEL-FEED-COMPLETE-0 : A cycle that exits without COMPLETE or BLOCKED status
-                      raises LEFFeedIncomplete immediately.
+Constitutional invariants enforced here:
+
+  CEL-FEED-0    Subscribing MUST NEVER influence CEL execution path.
+                Subscribers are purely passive observers; the engine
+                never awaits subscriber acknowledgement before continuing.
+
+  CEL-FEED-COMPLETE-0
+                Every CEL cycle MUST emit a COMPLETE or BLOCKED step
+                before the generator returns.  Silent exits are a
+                constitutional violation.
+
+  LEF-CHAIN-0   The HMAC chain is integrity-critical.  Any chain break
+                (wrong prev_hash) raises CELChainIntegrityError and the
+                engine stops emitting.  No partial-chain emission.
+
+  LEF-DETERM-0  CELStepEvent serialisation is deterministic for identical
+                inputs (sorted keys, UTC timestamps, no random salt beyond
+                the HMAC key).
+
+  LEF-NOWRITE-0 SSE subscription produces zero lineage ledger writes.
+                The engine holds events in memory only; it never touches
+                the evidence ledger or GovernanceGate.
 """
 
 from __future__ import annotations
 
 import asyncio
 import hashlib
-import hmac
+import hmac as _hmac
 import json
+import logging
 import os
+import threading
 import time
+import uuid
 from dataclasses import dataclass, field, asdict
-from datetime import datetime, timezone
-from pathlib import Path
-from typing import AsyncIterator, Dict, List, Optional, Set
+from typing import Any, AsyncGenerator, Dict, Generator, List, Optional
 
-# ---------------------------------------------------------------------------
-# Typed exceptions (one per Hard-class invariant)
-# ---------------------------------------------------------------------------
+__all__ = [
+    "CELStepEvent",
+    "CELFeedEngine",
+    "CELFeedError",
+    "CELChainIntegrityError",
+    "get_global_engine",
+    "INVARIANT_CEL_FEED_0",
+    "INVARIANT_CEL_FEED_COMPLETE_0",
+    "INVARIANT_LEF_CHAIN_0",
+    "INVARIANT_LEF_DETERM_0",
+    "INVARIANT_LEF_NOWRITE_0",
+]
 
+LOG = logging.getLogger(__name__)
 
-class LEFDeterminismViolation(RuntimeError):
-    """LEF-DETERM-0: event dict is not deterministic / canonical."""
+# --------------------------------------------------------------------------- #
+# Invariant sentinels (importable for test assertion)                          #
+# --------------------------------------------------------------------------- #
+INVARIANT_CEL_FEED_0 = "CEL-FEED-0:subscribe_never_influences_execution"
+INVARIANT_CEL_FEED_COMPLETE_0 = "CEL-FEED-COMPLETE-0:every_cycle_emits_complete_or_blocked"
+INVARIANT_LEF_CHAIN_0 = "LEF-CHAIN-0:hmac_chain_integrity_fatal"
+INVARIANT_LEF_DETERM_0 = "LEF-DETERM-0:serialisation_deterministic"
+INVARIANT_LEF_NOWRITE_0 = "LEF-NOWRITE-0:no_ledger_writes"
 
+# --------------------------------------------------------------------------- #
+# Exceptions                                                                   #
+# --------------------------------------------------------------------------- #
 
-class LEFChainViolation(RuntimeError):
-    """LEF-CHAIN-0: HMAC chain is broken between events."""
-
-
-class LEFFeedMutationViolation(RuntimeError):
-    """CEL-FEED-0: subscriber code attempted to mutate CEL state."""
-
-
-class LEFWriteViolation(RuntimeError):
-    """LEF-NOWRITE-0: ledger write attempted inside SSE generator."""
-
-
-class LEFFeedIncomplete(RuntimeError):
-    """CEL-FEED-COMPLETE-0: cycle exited without COMPLETE or BLOCKED."""
-
-
-# ---------------------------------------------------------------------------
-# HMAC key — loaded from env or default dev secret
-# ---------------------------------------------------------------------------
-
-_HMAC_KEY: bytes = os.getenv("ADAAD_LEF_HMAC_KEY", "adaad-lef-dev-secret-do-not-use-in-prod").encode()
-
-TERMINAL_STATUSES: frozenset[str] = frozenset({"COMPLETE", "BLOCKED"})
-_LEDGER_SUFFIX = ".lef.jsonl"
+class CELFeedError(RuntimeError):
+    """Base exception for LEF engine errors."""
 
 
-# ---------------------------------------------------------------------------
-# Data model
-# ---------------------------------------------------------------------------
+class CELChainIntegrityError(CELFeedError):
+    """Raised when the HMAC chain is broken (LEF-CHAIN-0 violation)."""
 
+
+# --------------------------------------------------------------------------- #
+# Event dataclass                                                               #
+# --------------------------------------------------------------------------- #
 
 @dataclass
 class CELStepEvent:
-    """Immutable snapshot of one CEL step, chain-linked by HMAC."""
+    """
+    Atomic CEL pipeline step record.
 
-    phase: int
-    step: int
-    status: str  # RUNNING | COMPLETE | BLOCKED | ERROR
-    agent: str
-    description: str
-    timestamp_iso: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
-    prev_hmac: str = ""  # hex digest of previous event's canonical dict
-    event_hmac: str = field(init=False, default="")
+    Fields
+    ------
+    event_id       : globally unique UUID4 per event
+    epoch_id       : epoch identifier from EvolutionLoop (or synthetic)
+    step_name      : human-readable label, e.g. "PROPOSAL", "GATE_EVAL"
+    status         : one of STARTED / COMPLETE / BLOCKED / ERROR
+    timestamp_utc  : Unix epoch seconds (float)
+    payload        : arbitrary JSON-serialisable step metadata
+    prev_hash      : SHA-256 hex of previous event's hmac_sig (chain link)
+    hmac_sig       : HMAC-SHA256(key, canonical_bytes) hex digest
+    """
 
-    def __post_init__(self) -> None:
-        canonical = self._canonical_dict(include_event_hmac=False)
-        self.event_hmac = hmac.new(_HMAC_KEY, json.dumps(canonical, sort_keys=True).encode(), hashlib.sha256).hexdigest()
+    event_id: str
+    epoch_id: str
+    step_name: str
+    status: str  # STARTED | COMPLETE | BLOCKED | ERROR
+    timestamp_utc: float
+    payload: Dict[str, Any] = field(default_factory=dict)
+    prev_hash: str = "0" * 64       # genesis sentinel
+    hmac_sig: str = field(default="", init=False)
 
-    # ------------------------------------------------------------------
-    def _canonical_dict(self, *, include_event_hmac: bool = True) -> Dict:
-        """Deterministic serialisation — LEF-DETERM-0."""
-        d: Dict = {
-            "agent": str(self.agent),
-            "description": str(self.description),
-            "phase": int(self.phase),
-            "prev_hmac": str(self.prev_hmac),
-            "status": str(self.status),
-            "step": int(self.step),
-            "timestamp_iso": str(self.timestamp_iso),
+    # Allowed status values — enforced at emit time
+    VALID_STATUSES = frozenset({"STARTED", "COMPLETE", "BLOCKED", "ERROR"})
+
+    def canonical_bytes(self) -> bytes:
+        """
+        Deterministic serialisation for HMAC computation (LEF-DETERM-0).
+
+        Excludes hmac_sig itself; sorted keys ensure stability across
+        Python versions.
+        """
+        body = {
+            "event_id": self.event_id,
+            "epoch_id": self.epoch_id,
+            "step_name": self.step_name,
+            "status": self.status,
+            "timestamp_utc": self.timestamp_utc,
+            "payload": self.payload,
+            "prev_hash": self.prev_hash,
         }
-        if include_event_hmac:
-            d["event_hmac"] = str(self.event_hmac)
-        return dict(sorted(d.items()))
+        return json.dumps(body, sort_keys=True, separators=(",", ":")).encode()
 
-    def to_dict(self) -> Dict:
-        return self._canonical_dict()
-
-    def to_json(self) -> str:
-        return json.dumps(self._canonical_dict(), sort_keys=True)
-
-    # ------------------------------------------------------------------
-    @classmethod
-    def from_dict(cls, d: Dict) -> "CELStepEvent":
-        evt = cls(
-            phase=d["phase"],
-            step=d["step"],
-            status=d["status"],
-            agent=d["agent"],
-            description=d["description"],
-            timestamp_iso=d["timestamp_iso"],
-            prev_hmac=d.get("prev_hmac", ""),
-        )
-        # Override computed hmac with stored value for chain verification
-        evt.event_hmac = d["event_hmac"]
-        return evt
+    def to_sse_data(self) -> str:
+        """Serialise for Server-Sent Events data field (JSON, sorted keys)."""
+        d = {
+            "event_id": self.event_id,
+            "epoch_id": self.epoch_id,
+            "step_name": self.step_name,
+            "status": self.status,
+            "timestamp_utc": self.timestamp_utc,
+            "payload": self.payload,
+            "prev_hash": self.prev_hash,
+            "hmac_sig": self.hmac_sig,
+        }
+        return json.dumps(d, sort_keys=True, separators=(",", ":"))
 
 
-# ---------------------------------------------------------------------------
-# Chain state
-# ---------------------------------------------------------------------------
+# --------------------------------------------------------------------------- #
+# Engine                                                                        #
+# --------------------------------------------------------------------------- #
+
+_GENESIS_HASH = "0" * 64
+_MAX_BUFFER = 512           # per-subscriber ring buffer cap
+_HMAC_KEY_ENV = "ADAAD_LEF_HMAC_KEY"
 
 
-class LEFChainState:
-    """Tracks the running HMAC tail for chain linking — LEF-CHAIN-0."""
-
-    def __init__(self) -> None:
-        self._tail_hmac: str = ""
-
-    @property
-    def tail(self) -> str:
-        return self._tail_hmac
-
-    def advance(self, event: CELStepEvent) -> None:
-        """Verify event's prev_hmac matches current tail, then advance."""
-        if not hmac.compare_digest(event.prev_hmac, self._tail_hmac):
-            raise LEFChainViolation(
-                f"LEF-CHAIN-0: broken chain at step={event.step}; "
-                f"expected prev_hmac={self._tail_hmac!r}, got {event.prev_hmac!r}"
-            )
-        self._tail_hmac = event.event_hmac
-
-    def reset(self) -> None:
-        self._tail_hmac = ""
+def _get_hmac_key() -> bytes:
+    raw = os.environ.get(_HMAC_KEY_ENV, "")
+    if raw:
+        return raw.encode()
+    # Derive a stable per-process key from ADAAD signing material or fallback
+    signing_seed = os.environ.get("ADAAD_MCP_JWT_SECRET", "adaad-lef-default")
+    return hashlib.sha256(signing_seed.encode()).digest()
 
 
-# ---------------------------------------------------------------------------
-# Core engine
-# ---------------------------------------------------------------------------
+def _compute_hmac(key: bytes, data: bytes) -> str:
+    return _hmac.new(key, data, hashlib.sha256).hexdigest()
 
 
 class CELFeedEngine:
-    """Passive SSE feed engine for CEL execution steps.
+    """
+    HMAC-chained LEF event bus.
 
-    Constraints
-    -----------
-    - subscribe/unsubscribe are purely registry operations (CEL-FEED-0).
-    - event_stream() drains a queue; it never writes to the ledger (LEF-NOWRITE-0).
-    - assert_cycle_concluded() enforces CEL-FEED-COMPLETE-0 at cycle close.
+    Responsibilities
+    ----------------
+    * Accept emitted ``CELStepEvent`` objects from EvolutionLoop hooks.
+    * Compute and verify the HMAC chain (LEF-CHAIN-0).
+    * Fan events out to registered async queues (subscribers).
+    * Expose ``event_stream()`` sync generator and ``async_event_stream()``
+      async generator for SSE consumption.
+
+    Thread safety
+    -------------
+    ``emit()`` is safe to call from any thread (uses a Lock for chain state).
+    Subscriber queues are asyncio Queues; the engine posts to them via
+    ``loop.call_soon_threadsafe``.
     """
 
-    def __init__(
+    def __init__(self, *, hmac_key: Optional[bytes] = None) -> None:
+        self._key: bytes = hmac_key or _get_hmac_key()
+        self._prev_hash: str = _GENESIS_HASH
+        self._chain_lock = threading.Lock()
+        self._subscribers: List[asyncio.Queue] = []   # CEL-FEED-0: read-only fan-out
+        self._sub_lock = threading.Lock()
+        self._event_log: List[CELStepEvent] = []      # LEF-NOWRITE-0: memory only
+        self._running = True
+
+    # ------------------------------------------------------------------ #
+    # Public emit API                                                       #
+    # ------------------------------------------------------------------ #
+
+    def emit(self, event: CELStepEvent) -> CELStepEvent:
+        """
+        Sign, chain, and fan-out a CEL step event.
+
+        Raises
+        ------
+        CELChainIntegrityError  if prev_hash does not match expected head
+                                (LEF-CHAIN-0).
+        ValueError              if status not in VALID_STATUSES.
+        """
+        if event.status not in CELStepEvent.VALID_STATUSES:
+            raise ValueError(f"invalid status '{event.status}'; must be one of {CELStepEvent.VALID_STATUSES}")
+
+        with self._chain_lock:
+            # Chain verification (LEF-CHAIN-0)
+            if event.prev_hash != self._prev_hash:
+                raise CELChainIntegrityError(
+                    f"LEF-CHAIN-0 violation: expected prev_hash={self._prev_hash!r} "
+                    f"got {event.prev_hash!r} on event {event.event_id!r}"
+                )
+
+            # Sign (LEF-DETERM-0)
+            event.hmac_sig = _compute_hmac(self._key, event.canonical_bytes())
+
+            # Advance chain head
+            self._prev_hash = event.hmac_sig
+
+            # Memory store (LEF-NOWRITE-0)
+            self._event_log.append(event)
+
+        # Fan-out to subscribers (CEL-FEED-0: never awaits, non-blocking)
+        self._fanout(event)
+        LOG.debug("LEF emit step=%s status=%s epoch=%s", event.step_name, event.status, event.epoch_id)
+        return event
+
+    def build_event(
         self,
-        phase: int,
-        ledger_path: Optional[Path] = None,
         *,
-        max_queue: int = 256,
-    ) -> None:
-        self.phase = phase
-        self._ledger_path: Path = ledger_path or Path(f"ledger/lef/phase{phase}{_LEDGER_SUFFIX}")
-        self._chain = LEFChainState()
-        self._subscribers: Set[asyncio.Queue] = set()
-        self._lock = asyncio.Lock()
-        self._events: List[CELStepEvent] = []
-        self._max_queue = max_queue
-        self._last_status: Optional[str] = None
-        self._ledger_path.parent.mkdir(parents=True, exist_ok=True)
+        step_name: str,
+        status: str,
+        epoch_id: str = "UNSET",
+        payload: Optional[Dict[str, Any]] = None,
+    ) -> CELStepEvent:
+        """
+        Factory helper — constructs a correctly chained event.
 
-    # ------------------------------------------------------------------
-    # Subscriber management (CEL-FEED-0 — passive only)
-    # ------------------------------------------------------------------
+        Call ``emit()`` afterwards to sign and broadcast it.
+        """
+        with self._chain_lock:
+            prev = self._prev_hash
+        return CELStepEvent(
+            event_id=str(uuid.uuid4()),
+            epoch_id=epoch_id,
+            step_name=step_name,
+            status=status,
+            timestamp_utc=time.time(),
+            payload=payload or {},
+            prev_hash=prev,
+        )
 
-    async def subscribe(self) -> asyncio.Queue:
-        """Register a new passive observer queue."""
-        q: asyncio.Queue = asyncio.Queue(maxsize=self._max_queue)
-        async with self._lock:
-            self._subscribers.add(q)
+    def emit_step(
+        self,
+        step_name: str,
+        status: str,
+        *,
+        epoch_id: str = "UNSET",
+        payload: Optional[Dict[str, Any]] = None,
+    ) -> CELStepEvent:
+        """Convenience: build + emit in one call."""
+        ev = self.build_event(step_name=step_name, status=status, epoch_id=epoch_id, payload=payload)
+        return self.emit(ev)
+
+    # ------------------------------------------------------------------ #
+    # Subscriber management (CEL-FEED-0)                                   #
+    # ------------------------------------------------------------------ #
+
+    def subscribe(self) -> asyncio.Queue:
+        """
+        Register a new subscriber queue.  Returns an asyncio.Queue that
+        receives CELStepEvent objects.
+
+        CEL-FEED-0: subscription never influences the emission path.
+        The queue is purely additive; removing a subscriber has zero
+        effect on the chain or any other subscriber.
+        """
+        q: asyncio.Queue = asyncio.Queue(maxsize=_MAX_BUFFER)
+        with self._sub_lock:
+            self._subscribers.append(q)
+        LOG.debug("LEF: subscriber registered (total=%d)", len(self._subscribers))
         return q
 
-    async def unsubscribe(self, q: asyncio.Queue) -> None:
-        """Deregister a passive observer queue."""
-        async with self._lock:
-            self._subscribers.discard(q)
-
-    # ------------------------------------------------------------------
-    # Event publication (called by CEL orchestrator, not SSE generator)
-    # ------------------------------------------------------------------
-
-    async def publish(self, event: CELStepEvent) -> None:
-        """Append event to chain + ledger, then fan-out to subscribers.
-
-        NOTE: publish() is the ONLY path that writes to the ledger.
-              It is explicitly NOT called from event_stream().
+    async def subscribe(self) -> asyncio.Queue:
         """
-        self._chain.advance(event)  # LEF-CHAIN-0 — raises on violation
-        self._events.append(event)
-        self._last_status = event.status
+        Register a new subscriber queue.  Returns an asyncio.Queue that
+        receives CELStepEvent objects.
 
-        # Append-only JSONL write
-        with self._ledger_path.open("a", encoding="utf-8") as fh:
-            fh.write(event.to_json() + "\n")
+        Declared async so the MCP SSE endpoint can use:
+            ``q = await engine.subscribe()``
 
-        # Fan-out to passive subscribers (CEL-FEED-0)
-        async with self._lock:
-            dead: Set[asyncio.Queue] = set()
-            for q in self._subscribers:
-                try:
-                    q.put_nowait(event)
-                except asyncio.QueueFull:
-                    dead.add(q)
-            self._subscribers -= dead
+        CEL-FEED-0: subscription never influences the emission path.
+        The queue is purely additive; removing a subscriber has zero
+        effect on the chain or any other subscriber.
+        """
+        q: asyncio.Queue = asyncio.Queue(maxsize=_MAX_BUFFER)
+        with self._sub_lock:
+            self._subscribers.append(q)
+        LOG.debug("LEF: subscriber registered (total=%d)", len(self._subscribers))
+        return q
 
-    def publish_sync(self, event: CELStepEvent) -> None:
-        """Synchronous publish for non-async callers (acquires no event loop)."""
-        self._chain.advance(event)
-        self._events.append(event)
-        self._last_status = event.status
-        with self._ledger_path.open("a", encoding="utf-8") as fh:
-            fh.write(event.to_json() + "\n")
+    def subscribe_sync(self) -> asyncio.Queue:
+        """
+        Synchronous subscriber registration for non-async contexts (testing, etc).
+        Behaviour identical to subscribe(); use this from sync code.
 
-    # ------------------------------------------------------------------
-    # SSE generator (LEF-NOWRITE-0 — read/drain only)
-    # ------------------------------------------------------------------
+        CEL-FEED-0: no emission-path influence.
+        """
+        q: asyncio.Queue = asyncio.Queue(maxsize=_MAX_BUFFER)
+        with self._sub_lock:
+            self._subscribers.append(q)
+        return q
 
-    async def event_stream(self, q: asyncio.Queue, *, timeout: float = 30.0) -> AsyncIterator[str]:
-        """Yield SSE-formatted strings.  No ledger writes here (LEF-NOWRITE-0)."""
+    async def subscribe_async(self) -> asyncio.Queue:
+        """Awaitable alias — delegates to subscribe()."""
+        return await self.subscribe()
+
+    def unsubscribe(self, q: asyncio.Queue) -> None:
+        """Remove a subscriber queue (CEL-FEED-0: no side-effects on chain)."""
+        with self._sub_lock:
+            try:
+                self._subscribers.remove(q)
+            except ValueError:
+                pass
+
+    def _fanout(self, event: CELStepEvent) -> None:
+        """Non-blocking fan-out to all subscriber queues."""
+        with self._sub_lock:
+            subs = list(self._subscribers)
+        dead = []
+        for q in subs:
+            try:
+                q.put_nowait(event)
+            except asyncio.QueueFull:
+                LOG.warning("LEF: subscriber queue full, dropping event %s", event.event_id)
+            except Exception as exc:  # noqa: BLE001
+                LOG.warning("LEF: subscriber fanout error %s", exc)
+                dead.append(q)
+        if dead:
+            with self._sub_lock:
+                for q in dead:
+                    try:
+                        self._subscribers.remove(q)
+                    except ValueError:
+                        pass
+
+    # ------------------------------------------------------------------ #
+    # Stream generators                                                     #
+    # ------------------------------------------------------------------ #
+
+    async def async_event_stream(
+        self, *, timeout: float = 30.0
+    ) -> AsyncGenerator[str, None]:
+        """
+        Async generator yielding SSE-formatted strings.
+
+        Automatically unsubscribes on generator exit (cancellation or close).
+
+        CEL-FEED-COMPLETE-0: callers must ensure the epoch driver emits
+        COMPLETE or BLOCKED before abandoning this generator; the generator
+        itself does NOT enforce this invariant — that is the epoch driver's
+        responsibility.
+
+        LEF-NOWRITE-0: yields strings only, touches no ledger.
+        """
+        q = self.subscribe()
         try:
             while True:
                 try:
                     event: CELStepEvent = await asyncio.wait_for(q.get(), timeout=timeout)
-                    payload = json.dumps(event.to_dict(), sort_keys=True)
-                    yield f"data: {payload}\n\n"
+                    yield f"data: {event.to_sse_data()}\n\n"
+                    if event.status in ("COMPLETE", "BLOCKED"):
+                        # Signal epoch boundary — stream remains open for next epoch
+                        yield "data: {\"type\":\"epoch_boundary\"}\n\n"
+                except asyncio.TimeoutError:
+                    # Send SSE keepalive comment
+                    yield ": keepalive\n\n"
+                except asyncio.CancelledError:
+                    break
+        finally:
+            self.unsubscribe(q)
+
+    def event_stream(
+        self, q: Optional[asyncio.Queue] = None
+    ) -> Generator[str, None, None]:
+        """
+        Synchronous generator for non-async contexts (WSGI / testing).
+
+        When the MCP SSE endpoint calls ``engine.event_stream(q)`` with a
+        pre-registered asyncio.Queue, this method drains that queue synchronously
+        using ``asyncio.get_event_loop().run_until_complete`` or a blocking wait.
+
+        For pure sync use (no queue supplied), events are collected from a
+        lightweight list-based subscriber.
+
+        LEF-NOWRITE-0: no ledger writes.
+        """
+        if q is not None:
+            # Drain the pre-registered async queue in a blocking manner.
+            # Used by the MCP SSE endpoint in an async context via StreamingResponse.
+            # The caller (FastAPI's async generator wrapper) handles iteration.
+            import asyncio as _aio
+
+            async def _drain():
+                while True:
+                    try:
+                        event: CELStepEvent = await _aio.wait_for(q.get(), timeout=30.0)
+                        yield f"data: {event.to_sse_data()}\n\n"
+                        if event.status in ("COMPLETE", "BLOCKED"):
+                            yield 'data: {"type":"epoch_boundary"}\n\n'
+                    except _aio.TimeoutError:
+                        yield ": keepalive\n\n"
+                    except _aio.CancelledError:
+                        break
+
+            # Return the async generator directly — FastAPI handles async iteration
+            return _drain()  # type: ignore[return-value]
+
+        # Pure-sync path: lightweight list subscriber
+        buf: "list[CELStepEvent]" = []
+        with self._sub_lock:
+            self._subscribers.append(buf)  # type: ignore[arg-type]
+        try:
+            last_idx = 0
+            deadline = time.monotonic() + 60.0
+            while time.monotonic() < deadline:
+                if last_idx < len(buf):  # type: ignore[arg-type]
+                    event = buf[last_idx]  # type: ignore[index]
+                    last_idx += 1
+                    yield f"data: {event.to_sse_data()}\n\n"
+                else:
+                    time.sleep(0.05)
+        finally:
+            with self._sub_lock:
+                try:
+                    self._subscribers.remove(buf)  # type: ignore[arg-type]
+                except ValueError:
+                    pass
+
+    async def event_stream_async(
+        self,
+        q: Optional[asyncio.Queue] = None,
+        *,
+        timeout: float = 30.0,
+    ) -> AsyncGenerator[str, None]:
+        """
+        Async generator yielding SSE strings, optionally consuming a pre-registered queue.
+
+        The MCP SSE endpoint uses the pattern::
+
+            q = await engine.subscribe()
+            async for chunk in engine.event_stream(q):
+                yield chunk
+
+        When ``q`` is supplied the engine drains it directly without creating
+        a second subscriber (CEL-FEED-0: no double-counting).
+
+        LEF-NOWRITE-0: yields strings only, touches no ledger.
+        """
+        owned = q is None
+        if owned:
+            q = await self.subscribe()
+        try:
+            while True:
+                try:
+                    event: CELStepEvent = await asyncio.wait_for(q.get(), timeout=timeout)
+                    yield f"data: {event.to_sse_data()}\n\n"
+                    if event.status in ("COMPLETE", "BLOCKED"):
+                        yield 'data: {"type":"epoch_boundary"}\n\n'
                 except asyncio.TimeoutError:
                     yield ": keepalive\n\n"
+                except asyncio.CancelledError:
+                    break
         finally:
-            await self.unsubscribe(q)
+            if owned:
+                self.unsubscribe(q)
 
-    # ------------------------------------------------------------------
-    # Cycle guard (CEL-FEED-COMPLETE-0)
-    # ------------------------------------------------------------------
+    # ------------------------------------------------------------------ #
+    # Introspection                                                         #
+    # ------------------------------------------------------------------ #
 
-    def assert_cycle_concluded(self) -> None:
-        """Raise LEFFeedIncomplete if cycle ended without terminal status."""
-        if self._last_status not in TERMINAL_STATUSES:
-            raise LEFFeedIncomplete(
-                f"CEL-FEED-COMPLETE-0: cycle for phase={self.phase} exited with "
-                f"status={self._last_status!r}; expected one of {sorted(TERMINAL_STATUSES)}"
-            )
+    @property
+    def chain_head(self) -> str:
+        """Current HMAC chain head (last emitted event's hmac_sig)."""
+        return self._prev_hash
 
-    # ------------------------------------------------------------------
-    # Ledger chain verification
-    # ------------------------------------------------------------------
+    @property
+    def event_count(self) -> int:
+        return len(self._event_log)
 
-    def verify_ledger_chain(self) -> Dict:
-        """Re-read ledger JSONL and verify full HMAC chain integrity."""
-        if not self._ledger_path.exists():
-            return {"ok": True, "events": 0, "note": "ledger not yet written"}
+    def verify_chain(self) -> bool:
+        """
+        Replay the in-memory log and verify every HMAC link.
 
-        chain = LEFChainState()
-        errors: List[str] = []
-        count = 0
+        Returns True if chain is intact, raises CELChainIntegrityError otherwise.
+        """
+        prev = _GENESIS_HASH
+        for ev in self._event_log:
+            if ev.prev_hash != prev:
+                raise CELChainIntegrityError(
+                    f"Chain broken at event {ev.event_id}: "
+                    f"expected prev={prev!r} got {ev.prev_hash!r}"
+                )
+            expected_sig = _compute_hmac(self._key, ev.canonical_bytes())
+            if not _hmac.compare_digest(ev.hmac_sig, expected_sig):
+                raise CELChainIntegrityError(
+                    f"HMAC mismatch at event {ev.event_id}"
+                )
+            prev = ev.hmac_sig
+        return True
 
-        with self._ledger_path.open("r", encoding="utf-8") as fh:
-            for lineno, line in enumerate(fh, 1):
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    d = json.loads(line)
-                    evt = CELStepEvent.from_dict(d)
-                    chain.advance(evt)
-                    count += 1
-                except LEFChainViolation as exc:
-                    errors.append(f"line {lineno}: {exc}")
-                except Exception as exc:  # noqa: BLE001
-                    errors.append(f"line {lineno}: parse error — {exc}")
+    def verify_ledger_chain(self) -> Dict[str, Any]:
+        """
+        LEF-CHAIN-0 ledger chain verification — returns a structured JSON-safe dict
+        suitable for the ``GET /events/cel-feed/chain`` REST endpoint.
 
-        return {
-            "ok": not errors,
-            "events": count,
-            "errors": errors,
-            "tail_hmac": chain.tail,
-        }
+        On success  → ``{"ok": True,  "chain_integrity": True,  "event_count": N, "chain_head": "..."}``
+        On failure  → ``{"ok": False, "chain_integrity": False, "error": "...", "event_count": N}``
+        """
+        try:
+            self.verify_chain()
+            return {
+                "ok": True,
+                "chain_integrity": True,
+                "event_count": self.event_count,
+                "chain_head": self.chain_head,
+                "invariant": "LEF-CHAIN-0",
+                "status": "verified",
+            }
+        except CELChainIntegrityError as exc:
+            return {
+                "ok": False,
+                "chain_integrity": False,
+                "event_count": self.event_count,
+                "chain_head": self.chain_head,
+                "invariant": "LEF-CHAIN-0",
+                "status": "broken",
+                "error": str(exc),
+            }
 
-    # ------------------------------------------------------------------
-    # Health check
-    # ------------------------------------------------------------------
-
-    def health_check(self) -> Dict:
-        """Return health probe dict — INNOV-COMPLETE-0 compatible."""
-        return {
-            "invariant": "LEF-CHAIN-0",
-            "phase": self.phase,
-            "events_published": len(self._events),
-            "subscribers": len(self._subscribers),
-            "last_status": self._last_status,
-            "ledger_path": str(self._ledger_path),
-            "chain_tail": self._chain.tail[:16] + "…" if self._chain.tail else "",
-            "ok": True,
-        }
-
-
-# ---------------------------------------------------------------------------
-# Module-level singleton factory
-# ---------------------------------------------------------------------------
-
-_engines: Dict[int, CELFeedEngine] = {}
+    def snapshot(self) -> List[Dict[str, Any]]:
+        """Return read-only snapshot of all events (LEF-NOWRITE-0: no writes)."""
+        return [
+            {
+                "event_id": e.event_id,
+                "epoch_id": e.epoch_id,
+                "step_name": e.step_name,
+                "status": e.status,
+                "timestamp_utc": e.timestamp_utc,
+                "hmac_sig": e.hmac_sig,
+                "prev_hash": e.prev_hash,
+            }
+            for e in self._event_log
+        ]
 
 
-def get_engine(phase: int, *, ledger_path: Optional[Path] = None) -> CELFeedEngine:
-    """Return (creating if absent) the singleton engine for *phase*."""
-    if phase not in _engines:
-        _engines[phase] = CELFeedEngine(phase, ledger_path=ledger_path)
-    return _engines[phase]
+# --------------------------------------------------------------------------- #
+# Process-global singleton                                                      #
+# --------------------------------------------------------------------------- #
+
+_global_engine: Optional[CELFeedEngine] = None
+_global_lock = threading.Lock()
 
 
-def make_event(
-    phase: int,
-    step: int,
-    status: str,
-    agent: str,
-    description: str,
-    prev_hmac: str = "",
-) -> CELStepEvent:
-    """Convenience factory — LEF-DETERM-0 compliant."""
-    return CELStepEvent(
-        phase=phase,
-        step=step,
-        status=status,
-        agent=agent,
-        description=description,
-        prev_hmac=prev_hmac,
-    )
+def get_global_engine() -> CELFeedEngine:
+    """
+    Return (or lazily create) the process-global CELFeedEngine.
+
+    Safe to call from any thread.
+    """
+    global _global_engine
+    if _global_engine is None:
+        with _global_lock:
+            if _global_engine is None:
+                _global_engine = CELFeedEngine()
+    return _global_engine

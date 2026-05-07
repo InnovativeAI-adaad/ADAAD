@@ -80,6 +80,9 @@ _KNOWN_COMPONENTS: frozenset[str] = frozenset(
         "csr",           # Constitutional Self-Repair Engine (Phase 158)
         "csi",           # Constitutional Strength Index (Phase 159)
         "ebs",           # Emergent Baseline Sentinel (Phase 160)
+        "cfe",           # Constitutional Forecast Engine (Phase 161)
+        "mia",           # Mutation Impact Analyzer (Phase 162)
+        "mce",           # Mutation Calibration Engine (Phase 163 INNOV-69)
     ]
 )
 

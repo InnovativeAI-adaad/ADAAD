@@ -1,0 +1,46 @@
+{
+  "phase": 163,
+  "innovation": "INNOV-69",
+  "invariants": [
+    {
+      "id": "MCE-DETERM-0",
+      "tier": 2,
+      "class": "Hard",
+      "description": "calibration_id is deterministic: SHA-256 of canonical JSON {impact_id, actual_class, phase}. No timestamp or random component. Same input always yields same ID.",
+      "exception": "None — structural; duplicate detection implicit via ledger sequence",
+      "test_coverage": ["test_T01_calibration_id_deterministic", "test_T22_calibration_id_sha256"]
+    },
+    {
+      "id": "MCE-CHAIN-0",
+      "tier": 1,
+      "class": "Hard",
+      "description": "HMAC-SHA-256 chain links each CalibrationRecord to prev_digest. Any tampered record causes MCEChainError (fail-closed). Chain root is 64-zero hex string.",
+      "exception": "MCEChainError(RuntimeError)",
+      "test_coverage": ["test_T04_chain_break_abort", "test_T10_prev_digest_link", "test_T12_verify_clean", "test_T23_prev_digest_on_first", "test_T25_hmac_compare_digest_used"]
+    },
+    {
+      "id": "MCE-HUMAN0-0",
+      "tier": 1,
+      "class": "Hard",
+      "description": "Any single-key weight shift exceeding HUMAN0_SHIFT_GATE (0.10) raises MCEHuman0Gate before any ledger or weight write. No write proceeds without human signoff for large calibration shifts.",
+      "exception": "MCEHuman0Gate(RuntimeError)",
+      "test_coverage": ["test_T07_human0_gate"]
+    },
+    {
+      "id": "MCE-SOURCE-0",
+      "tier": 2,
+      "class": "Hard",
+      "description": "submitted_by must be in VALID_SOURCES frozenset {cel_loop, governance_review, test_harness, phase163_migration}. Unlisted sources raise MCESourceError before processing.",
+      "exception": "MCESourceError(RuntimeError)",
+      "test_coverage": ["test_T05_valid_sources_reject", "test_T19_source_frozenset"]
+    },
+    {
+      "id": "MCE-DRIFT-0",
+      "tier": 2,
+      "class": "Hard",
+      "description": "Per-key weight delta is clamped to MAX_DRIFT (0.05). No single calibration event can shift any weight by more than 5%. Drift clamping is applied before weight persistence.",
+      "exception": "MCEDriftError(RuntimeError) — raised if clamp logic is bypassed",
+      "test_coverage": ["test_T03_drift_clamp", "test_T20_constants_present"]
+    }
+  ]
+}

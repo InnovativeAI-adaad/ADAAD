@@ -1,0 +1,19 @@
+{
+  "plan_schema": "adaad-phase-plan.v1",
+  "phase": 164,
+  "innovation_id": "INNOV-70",
+  "innovation_code": "CGE",
+  "full_name": "Constitutional Genome Encoder",
+  "version_target": "9.97.0",
+  "authored_by": "DEVADAAD",
+  "ratified_by": "HUMAN-0",
+  "date": "2026-05-02",
+  "objective": "Implement a deterministic, HMAC-chained encoder that represents the full constitutional state as a versioned, diff-mergeable genome vector. Supports genome encoding, diff scoring, merge with HUMAN-0 gate, and audit trail.",
+  "module_path": "runtime/innovations30/constitutional_genome_encoder.py",
+  "api_endpoints": ["POST /genome/encode", "GET /genome/history"],
+  "invariants_planned": ["CGE-ENCODE-0","CGE-CHAIN-0","CGE-DIFF-0","CGE-MERGE-0","CGE-HUMAN0-0","CGE-DETERM-0","CGE-AUDIT-0"],
+  "test_count_required": 30,
+  "test_file": "tests/test_phase164_cge.py",
+  "entry_gate": "four-surface version alignment at 9.96.0 confirmed",
+  "exit_gate": "30/30 Grade-A · no-FF merge · governance artifacts authored · version bumped to 9.97.0"
+}

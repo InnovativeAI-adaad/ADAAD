@@ -1,0 +1,35 @@
+{
+  "schema": "adaad-invariant-register-v1",
+  "phase": 161,
+  "innovation_id": "INNOV-67",
+  "innovation_name": "CFE — Constitutional Forecast Engine",
+  "version": "9.94.0",
+  "date": "2026-04-26",
+  "invariants": [
+    {
+      "id": "CFE-DETERM-0",
+      "class": "Hard",
+      "description": "forecast_id is deterministic from canonical window payload only.",
+      "module": "dorkllm/constitutional_forecast.py"
+    },
+    {
+      "id": "CFE-CHAIN-0",
+      "class": "Hard",
+      "description": "Forecast ledger is HMAC-chained; chain break → CFEChainError (fail-closed).",
+      "module": "dorkllm/constitutional_forecast.py"
+    },
+    {
+      "id": "CFE-HUMAN0-0",
+      "class": "Hard",
+      "description": "HIGH_RISK / CRITICAL forecasts emit HUMAN0_AUTHORISATION to CGTH before ledger write.",
+      "module": "dorkllm/constitutional_forecast.py"
+    },
+    {
+      "id": "CFE-WINDOW-0",
+      "class": "Hard",
+      "description": "forecast() rejects windows with < 3 data points (fail-closed).",
+      "module": "dorkllm/constitutional_forecast.py"
+    }
+  ],
+  "cumulative_invariant_count": 288
+}

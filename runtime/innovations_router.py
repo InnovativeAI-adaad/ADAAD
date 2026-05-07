@@ -623,4 +623,163 @@ def record_seed_cel_outcome(
     }
 
 
+
+# ---------------------------------------------------------------------------
+# Phase 164 · INNOV-70 · CGE — Constitutional Genome Encoder
+# ---------------------------------------------------------------------------
+
+@router.post("/genome/encode")
+def genome_encode(
+    body: Dict[str, Any] = Body(default_factory=dict),
+) -> Dict[str, Any]:
+    """Encode a new ConstitutionalGenomeVector from supplied locus inputs.
+
+    CGE-ENCODE-0: deterministic and reproducible.
+    CGE-CHAIN-0:  chained to previous genome in the ledger.
+
+    Request body::
+
+        {
+          "phase":         164,
+          "timestamp_utc": "2026-05-02T00:00:00Z",
+          "loci": {
+            "hard_invariant_count": [0.85, 0.9, "HARD-INV-001", true],
+            "cel_gate_count":       [0.72, 0.8, "CEL-GATE-0",   false]
+          },
+          "metadata": {}
+        }
+    """
+    from runtime.innovations30.constitutional_genome_encoder import (  # noqa: PLC0415
+        ConstitutionalGenomeEncoder,
+        CGELociError,
+    )
+    from fastapi import HTTPException  # noqa: PLC0415
+
+    phase = int(body.get("phase", 164))
+    ts    = str(body.get("timestamp_utc", "1970-01-01T00:00:00Z"))
+    loci  = {k: tuple(v) for k, v in body.get("loci", {}).items()}
+    meta  = body.get("metadata", {})
+
+    engine_cge = ConstitutionalGenomeEncoder(det_timestamp=ts)
+    try:
+        gv = engine_cge.encode_genome(phase, loci, ts, meta)
+    except CGELociError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+
+    return {
+        "genome_id":        gv.genome_id,
+        "genome_hash":      gv.genome_hash,
+        "phase":            gv.phase,
+        "governor":         gv.governor,
+        "overall_fitness":  gv.overall_fitness(),
+        "loci_count":       len(gv.loci),
+        "ledger_seq":       gv.ledger_seq,
+        "invariant":        "CGE-ENCODE-0",
+    }
+
+
+@router.get("/genome/history")
+def genome_history() -> Dict[str, Any]:
+    """Return the ordered genome encode history from the audit ledger.
+
+    CGE-AUDIT-0: every encode is recorded in the append-only ledger.
+    """
+    from runtime.innovations30.constitutional_genome_encoder import ConstitutionalGenomeEncoder  # noqa: PLC0415
+    engine_cge = ConstitutionalGenomeEncoder()
+    history = engine_cge.genome_history()
+    return {
+        "count":    len(history),
+        "genomes":  history,
+        "invariant": "CGE-AUDIT-0",
+    }
+
+
+
+# Phase 165 · INNOV-71 · V10CA — V10 Convergence Assessor
+@router.post("/v10/assess")
+def v10_assess(body: Dict[str, Any] = Body(default={})) -> Dict[str, Any]:
+    """Evaluate all seven V10 convergence criteria and return a chained snapshot.
+
+    V10CA-DETERM-0: assess() is deterministic given identical inputs.
+    V10CA-CHAIN-0:  every snapshot is HMAC-chained to its predecessor.
+    V10CA-HUMAN0-0: convergence_score >= 0.90 triggers HUMAN-0 gate.
+    V10CA-AUDIT-0:  every call is appended to the append-only ledger.
+
+    Body fields (all optional):
+        epoch_id             (str)   caller epoch label
+        hard_invariant_count (int)   cumulative hard-class invariants
+        innovation_count     (int)   shipped innovations
+        genome_chain_valid   (bool)  CGE genome chain intact
+        genome_entry_count   (int)   CGE genome entries
+        self_repair_actions  (int)   CSR repair actions executed
+        forecast_window      (int)   CFE forecast window (phases)
+        dork_fleet_size      (int)   DORK fleet members
+        dork_router_live     (bool)  DORK query router operational
+        ga_version_published (str)   PyPI GA published version
+        repo_version         (str)   current repo version
+    """
+    from dorkllm.convergence_assessor import (  # noqa: PLC0415
+        V10ConvergenceAssessor,
+        V10CAHuman0Gate,
+    )
+    from fastapi import HTTPException  # noqa: PLC0415
+
+    epoch_id = str(body.get("epoch_id", "api-call"))
+    inputs = {k: v for k, v in body.items() if k != "epoch_id"}
+
+    assessor = V10ConvergenceAssessor()
+    human0_triggered = False
+    try:
+        snap = assessor.assess(epoch_id=epoch_id, inputs=inputs)
+    except V10CAHuman0Gate:
+        # Gate fired after ledger write — recover snapshot from history
+        snap = assessor.history()[-1]
+        human0_triggered = True
+
+    return {
+        "snapshot_id":       snap.snapshot_id,
+        "epoch_id":          snap.epoch_id,
+        "convergence_score": snap.convergence_score,
+        "human0_required":   snap.human0_required,
+        "human0_gate_fired": human0_triggered,
+        "criteria": [
+            {
+                "criterion": c.criterion,
+                "status":    c.status,
+                "score":     c.score,
+                "note":      c.note,
+            }
+            for c in snap.criteria
+        ],
+        "digest":    snap.digest,
+        "invariant": "V10CA-DETERM-0,V10CA-CHAIN-0,V10CA-AUDIT-0",
+    }
+
+
+@router.get("/v10/history")
+def v10_history() -> Dict[str, Any]:
+    """Return all HMAC-chained convergence snapshots from the ledger.
+
+    V10CA-AUDIT-0: every assess() call is appended to the ledger.
+    """
+    from dorkllm.convergence_assessor import V10ConvergenceAssessor  # noqa: PLC0415
+
+    assessor = V10ConvergenceAssessor()
+    history = assessor.history()
+    return {
+        "count":     len(history),
+        "snapshots": [
+            {
+                "snapshot_id":       s.snapshot_id,
+                "epoch_id":          s.epoch_id,
+                "convergence_score": s.convergence_score,
+                "human0_required":   s.human0_required,
+                "digest":            s.digest,
+            }
+            for s in history
+        ],
+        "invariant": "V10CA-AUDIT-0",
+    }
+
+
 __all__ = ["router"]

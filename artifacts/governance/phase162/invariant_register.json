@@ -1,0 +1,43 @@
+{
+  "schema": "adaad-invariant-register-v1",
+  "phase": 162,
+  "innovation_id": "INNOV-68",
+  "innovation_name": "MIA — Mutation Impact Analyzer",
+  "version": "9.95.0",
+  "date": "2026-04-30",
+  "invariants": [
+    {
+      "id": "MIA-DETERM-0",
+      "class": "Hard",
+      "description": "impact_id is deterministic from canonical mutation payload only; no timestamp, no random — same input always yields same impact_id.",
+      "module": "dorkllm/mutation_impact_analyzer.py"
+    },
+    {
+      "id": "MIA-CHAIN-0",
+      "class": "Hard",
+      "description": "Impact ledger is HMAC-chained (SHA-256, ADAAD_LEDGER_KEY); chain break → MIAChainError (fail-closed; no write proceeds).",
+      "module": "dorkllm/mutation_impact_analyzer.py"
+    },
+    {
+      "id": "MIA-HUMAN0-0",
+      "class": "Hard",
+      "description": "CRITICAL or HIGH_RISK impact assessments emit HUMAN0_AUTHORISATION to CGTH before ledger append.",
+      "module": "dorkllm/mutation_impact_analyzer.py"
+    },
+    {
+      "id": "MIA-SCOPE-0",
+      "class": "Hard",
+      "description": "Analysis is restricted to the supplied mutation payload; MIA never reads live repo state or external filesystems during assessment.",
+      "module": "dorkllm/mutation_impact_analyzer.py"
+    },
+    {
+      "id": "MIA-AUDIT-0",
+      "class": "Hard",
+      "description": "Every impact record is immutable post-append; the ledger supports read and verify only — no deletion, no in-place update.",
+      "module": "dorkllm/mutation_impact_analyzer.py"
+    }
+  ],
+  "prior_invariant_count": 288,
+  "added_invariant_count": 5,
+  "cumulative_invariant_count": 293
+}
