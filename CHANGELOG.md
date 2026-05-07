@@ -1,3 +1,20 @@
+## [9.106.0] — Phase 173 · INNOV-79 · IIS — Innovation Impact Scorer
+
+### Added
+- `dorkllm/innovation_impact_scorer.py` — Innovation Impact Scorer (IIS)
+  - Deterministic impact scoring: approval delta (40%), violation delta (35%), fitness delta (25%)
+  - HMAC-chained append-only JSONL ledger at `security/iis_ledger.jsonl`
+  - System-wide rollup with full chain integrity verification
+  - HUMAN-0-gated report generation
+  - 10 new Hard-class invariants: IIS-CHAIN-0 through IIS-AUDIT-0
+- `tests/test_phase173_iis.py` — 30/30 acceptance tests (T173-IIS-01..30)
+- `artifacts/governance/phase173/` — ILA + SIGNOFF governance artifacts
+
+### Constitutional
+- Hard-class invariant count: 370 → 380 (+10)
+- Innovations shipped: 78 → 79 (INNOV-79)
+- Governor: DUSTIN L REID
+
 ## [9.105.0] - Phase 172 · INNOV-78 · MFV — Mutation Fitness Verifier
 
 **Date:** 2026-05-03  **Author:** DEVADAAD · InnovativeAI LLC
