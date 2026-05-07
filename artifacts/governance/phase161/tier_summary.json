@@ -1,0 +1,13 @@
+{
+  "phase": 161,
+  "innovation": "INNOV-67",
+  "module": "dorkllm/constitutional_forecast.py",
+  "tier": "Hard",
+  "invariants": [
+    "CFE-DETERM-0",
+    "CFE-CHAIN-0",
+    "CFE-WINDOW-0",
+    "CFE-HUMAN0-0"
+  ],
+  "tier_rationale": "Fail-closed forecast gate; HMAC-chained ledger; CGTH-gated emissions"
+}

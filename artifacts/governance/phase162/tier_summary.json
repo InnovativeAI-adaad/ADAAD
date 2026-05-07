@@ -1,0 +1,27 @@
+{
+  "schema": "adaad-governance-artifact-v1",
+  "artifact_type": "tier_summary",
+  "phase": 162,
+  "innovation_id": "INNOV-68",
+  "version": "9.95.0",
+  "date": "2026-04-30",
+  "tier": "Tier-0",
+  "classification": "Constitutional Intelligence Enhancement",
+  "rationale": "MIA introduces pre-admission mutation intelligence — a critical capability gap closure that makes the 9-gate mutation pipeline constitutionally smarter by providing a structured impact assessment before any mutation is admitted. Integrates CSI, CFE, and precedent history into a deterministic advisory signal.",
+  "hard_invariants_added": [
+    "MIA-DETERM-0",
+    "MIA-CHAIN-0",
+    "MIA-HUMAN0-0",
+    "MIA-SCOPE-0",
+    "MIA-AUDIT-0"
+  ],
+  "cumulative_hard_invariants": 293,
+  "api_surface": [
+    "GET /api/governance/mia/status",
+    "GET /api/governance/mia/history",
+    "POST /api/governance/mia/analyze",
+    "GET /api/governance/mia/chain/verify"
+  ],
+  "v10_convergence_advances": "Criterion 6 (Adversarial Robustness) — pre-admission impact assessment blocks constitution-weakening mutations before gate entry",
+  "session_id": "DEVADAAD-phase162-2026-04-30"
+}

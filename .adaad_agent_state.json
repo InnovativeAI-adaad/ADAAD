@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.93.0 RELEASED \u00b7 post-merge agent sync",
+  "active_phase": "v9.105.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -339,17 +339,42 @@
     "phase160-plan-authored",
     "phase160-human0-ratified",
     "phase160-innov66-ebs-implemented",
-    "v9.93.0-released"
+    "v9.93.0-released",
+    "phase163-plan-authored",
+    "phase163-human0-ratified",
+    "phase163-innov69-mce-implemented",
+    "phase163-mce-chain-0-enforced",
+    "phase163-mce-weight-0-enforced",
+    "phase163-mce-drift-0-enforced",
+    "phase163-mce-human0-0-enforced",
+    "phase163-mce-determ-0-enforced",
+    "phase163-world-first-outcome-calibration",
+    "v9.96.0-released",
+    "phase163-complete",
+    "phase163-mce-implemented",
+    "phase163-world-first-outcome-driven-calibration",
+    "phase164-cge-shipped",
+    "phase165-v10ca-complete",
+    "v9.98.0-released",
+    "phase166-gae-complete",
+    "phase167-ivb-complete",
+    "phase168-mpg-complete",
+    "v9.101.0-released",
+    "phase169-mse-complete",
+    "v9.102.0-released",
+    "phase170-mrp-complete",
+    "v9.103.0-released",
+    "phase171-mex-complete",
+    "v9.104.0-released",
+    "phase172-mfv-complete",
+    "v9.105.0-released"
   ],
-  "constitutional_invariants": {
-    "cumulative": 284,
-    "hard_class_count": 278
-  },
-  "current_phase": 160,
-  "current_version": "9.93.0",
-  "hard_class_count": 278,
-  "hard_class_invariant_count": 278,
-  "hard_class_invariants_cumulative": 278,
+  "constitutional_invariants": 370,
+  "current_phase": 172,
+  "current_version": "9.105.0",
+  "hard_class_count": 370,
+  "hard_class_invariant_count": 370,
+  "hard_class_invariants_cumulative": 370,
   "human0_signoffs": [
     {
       "date": "2026-03-27",
@@ -370,21 +395,26 @@
       "session_digest": "gsync-phase93-v9.26.0-alignment-2026-03-28"
     },
     {
-      "phase": 152,
+      "date": "2026-04-24",
       "innov_id": "INNOV-58",
+      "token": "approved DUSTIN L REID"
+    },
+    {
+      "phase": 163,
+      "innov_id": "INNOV-69",
       "token": "approved DUSTIN L REID",
-      "date": "2026-04-24"
+      "date": "2026-04-30"
     }
   ],
-  "last_innovation": "INNOV-66-EBS",
-  "last_innovation_name": "Mutation Explainability Engine",
-  "last_invocation": "2026-04-26",
-  "last_phase_completed": 160,
-  "last_phase_completed_label": "Phase 149 \u00b7 INNOV-55 \u00b7 Mutation Explainability Engine",
-  "last_sync_sha": "605ce9ef",
-  "last_updated": "2026-04-25T12:34:07.921504+00:00",
-  "next_phase": null,
-  "next_pr": null,
+  "last_innovation": "INNOV-78-MFV",
+  "last_innovation_name": "Mutation Fitness Verifier",
+  "last_invocation": "2026-05-07",
+  "last_phase_completed": 172,
+  "last_phase_completed_label": "Phase 172 \u00b7 INNOV-78 \u00b7 MFV \u2014 Mutation Fitness Verifier",
+  "last_sync_sha": "50839ba1",
+  "last_updated": "2026-05-07T14:17:13.270999+00:00",
+  "next_phase": 173,
+  "next_pr": "phase163-mutation-calibration-engine",
   "open_findings": [
     {
       "id": "FINDING-66-001",
@@ -421,6 +451,7 @@
       "title": "Patent filing: constitutional mutation governance method \u2014 pre-v1.1-GA deadline"
     },
     {
+      "ceremony_script": "scripts/ceremony_finding_66_004_ed25519_threshold.sh",
       "id": "FINDING-66-004",
       "note": "RESOLVED: 2-of-3 Ed25519 governance key ceremony executed on ADAADell. Three key pairs generated (primary, secondary, recovery). Public key ring committed: security/keys/ed25519_governance_ring.json. ILA attestation artifact committed: artifacts/governance/ceremony/ceremony-ed25519-2of3-20260412.json. Private keys stored locally in .env.ed25519_ceremony (gitignored). Threshold policy: 2-of-3 required for Tier 0 mutations. Pushed at commit 8f80367e by HUMAN-0 / Dustin L. Reid.",
       "phase_target": "66",
@@ -429,8 +460,7 @@
       "severity": "P2",
       "source": "Deep Dive \u00a7VI Medium Term",
       "status": "resolved",
-      "title": "Governance Key Ceremony (PR-01): 2-of-3 Ed25519 threshold not yet executed",
-      "ceremony_script": "scripts/ceremony_finding_66_004_ed25519_threshold.sh"
+      "title": "Governance Key Ceremony (PR-01): 2-of-3 Ed25519 threshold not yet executed"
     },
     {
       "id": "FINDING-66-005",
@@ -612,27 +642,28 @@
     {
       "id": "FINDING-140-001",
       "note": "RESOLVED: v9.59.0 GPG-signed against c05334c9 confirmed via git cat-file. Phase 140 Track B ceremony complete.",
+      "resolved_date": "2026-04-11",
       "severity": "P1",
       "source": "Phase 140 Track B",
       "status": "resolved",
-      "title": "v9.59.0 GPG re-sign ceremony pending \u2014 ghost tag deleted, new signed tag not yet pushed",
-      "resolved_date": "2026-04-11"
+      "title": "v9.59.0 GPG re-sign ceremony pending \u2014 ghost tag deleted, new signed tag not yet pushed"
     },
     {
+      "ceremony_script": "scripts/ceremony_finding_140_002_adaadell_git_creds.sh",
       "id": "FINDING-140-002",
       "note": "RESOLVED: Option B (SSH deploy key) executed on ADAADell WSL. Key adaad_deploy_ed25519 generated, added to GitHub deploy keys with write access, ~/.ssh/config configured with adaad-github alias, remote set-url updated. git push origin main confirmed: Everything up-to-date. Windows GCM bypass permanent \u2014 no PAT rotation dependency.",
+      "resolved_date": "2026-04-12",
+      "resolved_phase": "140",
       "severity": "P1",
       "source": "Phase 140 Track B",
       "status": "resolved",
-      "title": "ADAADell git credential manager broken \u2014 WSL cannot push via HTTPS with Windows GCM",
-      "ceremony_script": "scripts/ceremony_finding_140_002_adaadell_git_creds.sh",
-      "resolved_date": "2026-04-12",
-      "resolved_phase": "140"
+      "title": "ADAADell git credential manager broken \u2014 WSL cannot push via HTTPS with Windows GCM"
     }
   ],
+  "open_findings_count": 0,
   "pending_evidence_rows": [],
-  "phase": 161,
-  "phase_label": "Phase 160 \u00b7 INNOV-66 \u00b7 EBS \u2014 Emergent Baseline Sentinel",
+  "phase": 172,
+  "phase_label": "Phase 172 \u00b7 INNOV-78 \u00b7 MFV \u2014 Mutation Fitness Verifier",
   "phases_completed": [
     106,
     107,
@@ -656,11 +687,43 @@
     138,
     139,
     140,
-    141
+    141,
+    142,
+    143,
+    144,
+    145,
+    146,
+    147,
+    148,
+    149,
+    150,
+    151,
+    152,
+    153,
+    154,
+    155,
+    156,
+    157,
+    158,
+    159,
+    160,
+    161,
+    162,
+    163,
+    164,
+    165,
+    166,
+    167,
+    168,
+    169,
+    170,
+    171,
+    172
   ],
   "schema_version": "1.5.0",
-  "software_version": "9.93.0",
+  "software_version": "9.105.0",
   "tife_active": true,
+  "total_innovations_shipped": 78,
   "value_checkpoints_reached": [
     "phase0-track-a-hardening",
     "v1.3.0-released",
@@ -950,23 +1013,21 @@
     "phase124-world-first-governed-kernel-extraction",
     "v9.57.0-released"
   ],
-  "version": "9.94.0",
+  "version": "9.105.0",
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
   ],
   "last_completed_phase": "24 \u00b7 Phase 154 \u00b7 INNOV-60 \u00b7 Constitutional Pre-Admission Gate (CPAG)",
-  "last_agent_state_sync_digest": "gsync-87d98f032004f00e",
-  "invariant_count": 284,
-  "innovation_count": 66,
-  "innovations_shipped": 66,
-  "open_findings_count": 0,
-  "last_innovation_id": "INNOV-66",
-  "total_innovations_shipped": 66,
+  "last_agent_state_sync_digest": "gsync-aff8e5452a4e9b2c",
+  "invariant_count": 370,
+  "innovation_count": 78,
+  "innovations_shipped": 78,
+  "last_innovation_id": "INNOV-78",
   "ga_blocker_count": 0,
   "milestone": "v1.1-GA",
   "ga_blockers": 0,
-  "last_completed_pr": "phase149-mutation-explainability-engine",
+  "last_completed_pr": "phase172-mutation-fitness-verifier",
   "last_gate_results": {
     "tier_0": "pass",
     "tier_1": "pass",
@@ -1158,6 +1219,31 @@
       "id": "GCB-HUMAN0-0",
       "class": "Hard",
       "phase": 150
+    },
+    {
+      "id": "MCE-CHAIN-0",
+      "class": "Hard",
+      "phase": 163
+    },
+    {
+      "id": "MCE-WEIGHT-0",
+      "class": "Hard",
+      "phase": 163
+    },
+    {
+      "id": "MCE-DRIFT-0",
+      "class": "Hard",
+      "phase": 163
+    },
+    {
+      "id": "MCE-HUMAN0-0",
+      "class": "Hard",
+      "phase": 163
+    },
+    {
+      "id": "MCE-DETERM-0",
+      "class": "Hard",
+      "phase": 163
     }
   ],
   "ga_gates": {
@@ -1180,5 +1266,12 @@
       "date": "2026-04-21"
     }
   },
-  "next_phase_id": null
+  "next_phase_id": 173,
+  "phases_complete": 172,
+  "next_innovation_id": "INNOV-79",
+  "next_innovation_name": "TBD \u2014 SPIE proposal pending HUMAN-0 ratification",
+  "total_phases": 172,
+  "total_innovations": 78,
+  "hard_invariant_count": 370,
+  "last_completed_version": "9.105.0"
 }

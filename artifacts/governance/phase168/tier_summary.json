@@ -1,0 +1,10 @@
+{
+  "phase": 168,
+  "tier_breakdown": {
+    "tier0": {"count": 1, "notes": "genesis node pre-ratified; all other Tier-0 nodes require HUMAN-0 ratification"},
+    "tier1": {"count": 0},
+    "tier2": {"count": "unlimited; sandbox mutations default tier"}
+  },
+  "blast_radius": "CONTAINED — phylogeny graph is append-only; no existing mutation records modified",
+  "rollback_path": "Remove dorkllm/mutation_phylogeny_graph.py and tests/test_phase168_mpg.py; decrement VERSION to 9.100.0"
+}

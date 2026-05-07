@@ -1,0 +1,26 @@
+{
+  "ila_schema": "innovation-ledger-attestation.v1",
+  "innovation_code": "INNOV-73",
+  "module_name": "IVB",
+  "full_name": "Invariant Velocity Benchmark",
+  "phase": 167,
+  "version": "9.100.0",
+  "governor": "DUSTIN L REID",
+  "governor_role": "HUMAN-0",
+  "timestamp_utc": "2026-05-02T00:00:00Z",
+  "delivery_status": "SHIPPED",
+  "test_result": "30/30",
+  "test_file": "tests/test_phase167_ivb.py",
+  "module_path": "dorkllm/invariant_velocity_benchmark.py",
+  "invariants": [
+    "IVB-DETERM-0","IVB-CHAIN-0","IVB-HUMAN0-0","IVB-WINDOW-0",
+    "IVB-PERSIST-0","IVB-ATOMIC-0","IVB-AUDIT-0","IVB-FLOOR-0",
+    "IVB-BOUND-0","IVB-SCOPE-0"
+  ],
+  "invariant_count_delta": 10,
+  "cumulative_hard_invariant_count": 330,
+  "api_endpoints": ["POST /innovations/ivb/record","GET /innovations/ivb/history","GET /innovations/ivb/forecast"],
+  "patent_note": "Rolling-window invariant velocity benchmark with HMAC-chained snapshots and constitutional regression guard — novel V10 convergence acceleration mechanism.",
+  "ratification_required": true,
+  "ratification_status": "PENDING_HUMAN0"
+}
