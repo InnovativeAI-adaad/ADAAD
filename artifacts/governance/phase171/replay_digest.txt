@@ -1,0 +1,29 @@
+ADAAD Phase 171 Replay Digest
+==============================
+Phase:       171
+Innovation:  INNOV-77 · MEX — Mutation Execution Engine
+Version:     9.104.0
+Date:        2026-05-03
+Author:      DEVADAAD · InnovativeAI LLC
+ILA Event:   ILA-171-20260503-001
+
+Module:      dorkllm/mutation_execution_engine.py
+Tests:       tests/test_phase171_mex.py (30/30 PASS · Grade A)
+
+Hard-class invariants (10 · cumulative: 370):
+  MEX-EXEC-0    MRP clearance gate
+  MEX-CHAIN-0   HMAC-SHA256 chain
+  MEX-HUMAN0-0  HUMAN-0 gate for HIGH/CRITICAL
+  MEX-BLAST-0   Blast radius hard cap
+  MEX-ATOMIC-0  Atomic execution / auto-rollback
+  MEX-ROLLBACK-0 Co-committed rollback records
+  MEX-PERSIST-0  Append-only ledger
+  MEX-DETERM-0   Deterministic execution records
+  MEX-AUDIT-0    Full transition logging
+  MEX-SCOPE-0    Constitutional scope enforcement
+
+Governance:
+  HUMAN-0 sign-off: [slot reserved for Dustin L. Reid]
+  Track B:          Pending (GPG tag, PyPI publication)
+
+Replay command: pytest tests/test_phase171_mex.py -m phase171 -v

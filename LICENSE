@@ -1,160 +1,103 @@
-                                 Apache License
-                           Version 2.0, January 2004
-                        http://www.apache.org/licenses/
+ADAAD — Autonomous Development & Adaptation Architecture
+Proprietary Software License
 
-   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+Copyright (c) 2025–2026 InnovativeAI LLC. All rights reserved.
+Founder & Sole Rights Holder: Dustin L. Reid
+Contact: dustin@adaad.pro · adaad.pro
 
-   1. Definitions.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-      "License" shall mean the terms and conditions for use, reproduction,
-      and distribution as defined by Sections 1 through 9 of this document.
+NOTICE OF LICENSE CHANGE
 
-      "Licensor" shall mean the copyright owner or entity authorized by
-      the copyright owner that is granting the License.
+All versions of ADAAD from v10.0.0 onward (and all versions from v9.61.0
+onward where this file is present) are issued under this Proprietary License.
 
-      "Legal Entity" shall mean the union of the acting entity and all
-      other entities that control, are controlled by, or are under common
-      control with that entity. For the purposes of this definition,
-      "control" means (i) the power, direct or indirect, to cause the
-      direction or management of such entity, whether by contract or
-      otherwise, or (ii) ownership of fifty percent (50%) or more of the
-      outstanding shares, or (iii) beneficial ownership of such entity.
+Prior versions distributed under Apache License 2.0 remain governed by that
+license for recipients who received them before this change. InnovativeAI LLC
+makes no warranty of any kind regarding those prior versions.
 
-      "You" (or "Your") shall mean an individual or Legal Entity
-      exercising permissions granted by this License.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-      "Source" form shall mean the preferred form for making modifications,
-      including but not limited to software source code, documentation
-      source, and configuration files.
+PROPRIETARY LICENSE — ALL RIGHTS RESERVED
 
-      "Object" form shall mean any form resulting from mechanical
-      transformation or translation of a Source form, including but
-      not limited to compiled object code, generated documentation,
-      and conversions to other media types.
+1. OWNERSHIP
 
-      "Work" shall mean the work of authorship made available under
-      the License, as indicated by a copyright notice that is included
-      in or attached with the work (an example is provided in the
-      Appendix below).
+   All source code, documentation, governance schemas, constitutional
+   invariants, cryptographic audit structures, agent architectures,
+   innovation implementations, test suites, brand assets, trade names,
+   trademarks, and all other materials comprising or accompanying ADAAD
+   ("the Software") are the exclusive intellectual property of
+   InnovativeAI LLC and its founder Dustin L. Reid.
 
-      "Derivative Works" shall mean any work, whether in Source or Object
-      form, that is based on (or derived from) the Work and for which the
-      editorial revisions, annotations, elaborations, or other modifications
-      represent, as a whole, an original work of authorship. For the purposes
-      of this License, Derivative Works shall not include works that remain
-      separable from, or merely link (or bind by name) to the interfaces of,
-      the Work and Derivative Works thereof.
+2. RESTRICTIONS
 
-      "Contribution" shall mean, as submitted to the Licensor for inclusion
-      in the Work by the copyright owner or by an individual or Legal Entity
-      authorized to submit on behalf of the copyright owner. For the purposes
-      of this definition, "submitted" means any form of electronic, verbal,
-      or written communication sent to the Licensor or its representatives,
-      including but not limited to communication on electronic mailing lists,
-      source code control systems, and issue tracking systems that are managed
-      by, or on behalf of, the Licensor for the purpose of discussing and
-      improving the Work, but excluding communication that is conspicuously
-      marked or otherwise designated in writing by the copyright owner as
-      "Not a Contribution."
+   You may NOT, without the prior written permission of InnovativeAI LLC:
 
-      "Contributor" shall mean Licensor and any Legal Entity on behalf of
-      whom a Contribution has been received by the Licensor and included
-      within the Work.
+   a. Use, copy, reproduce, or execute any portion of the Software;
+   b. Modify, adapt, translate, or create derivative works of the Software;
+   c. Distribute, sublicense, sell, transfer, or otherwise convey the
+      Software or any rights therein to any third party;
+   d. Decompile, reverse engineer, disassemble, or attempt to derive source
+      code from any compiled portion of the Software;
+   e. Use any portion of the Software to train, fine-tune, or distill any
+      machine learning model or AI system;
+   f. Use the Software's governance architecture, constitutional invariant
+      framework, CEL pipeline, HMAC-chained ledger design, or replay proof
+      structures to build competing or substantially similar systems;
+   g. Remove, alter, or obscure any copyright, trademark, or proprietary
+      notice contained in or accompanying the Software.
 
-   2. Grant of Copyright License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      copyright license to reproduce, prepare Derivative Works of,
-      publicly display, publicly perform, sublicense, and distribute the
-      Work and such Derivative Works in Source or Object form.
+3. PATENT NOTICE
 
-   3. Grant of Patent License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      (except as stated in this section) patent license to make, have made,
-      use, offer to sell, sell, import, and otherwise transfer the Work,
-      where such license applies only to those patent claims licensable
-      by such Contributor that are necessarily infringed by their
-      Contribution(s) alone or by the combined Contribution(s) and the
-      Work to which such Contribution(s) was submitted.
+   The Software embodies patent-pending inventions, including but not
+   limited to: the Constitutional Evolution Loop (CEL), fail-closed
+   GovernanceGate, multi-signal constitutional fitness scoring with
+   adaptive weights, hash-chained governance ledger, and tiered mutation
+   authority architecture. All patent rights are reserved exclusively to
+   InnovativeAI LLC and Dustin L. Reid.
 
-   4. Redistribution. You may reproduce and distribute copies of the
-      Work or Derivative Works thereof in any medium, with or without
-      modifications, and in Source or Object form, provided that You
-      meet the following conditions:
+4. TRADEMARKS
 
-      (a) You must give any other recipients of the Work or Derivative
-          Works a copy of this License; and
+   ADAAD™, InnovativeAI™, Aponi™, and Cryovant™ are trademarks of
+   InnovativeAI LLC. No license to use these marks is granted by this
+   license or by any access to the Software.
 
-      (b) You must cause any modified files to carry prominent notices
-          stating that You changed the files; and
+5. SINGLE-USER ACCESS
 
-      (c) You must retain, in the Source form of any Derivative Works
-          that You distribute, all copyright, patent, trademark, and
-          attribution notices from the Source form of the Work,
-          excluding those notices that do not pertain to any part of
-          the Derivative Works; and
+   Access to this repository is granted solely to Dustin L. Reid
+   (HUMAN-0) and authorized agents explicitly designated by
+   InnovativeAI LLC. No access constitutes a license to use, copy,
+   or redistribute the Software.
 
-      (d) If the Work includes a "NOTICE" text file as part of its
-          distribution, You must include a readable copy of the
-          attribution notices contained within such NOTICE file, in
-          at least one of the following places: within a NOTICE text
-          file distributed as part of the Derivative Works; within
-          the Source form or documentation, if provided along with the
-          Derivative Works; or, within a display generated by the
-          Derivative Works, if and wherever such third-party notices
-          normally appear. The contents of the NOTICE file are for
-          informational purposes only and do not modify the License.
-          You may add Your own attribution notices within Derivative
-          Works that You distribute, alongside or in addition to the
-          NOTICE text from the Work, provided that such additional
-          attribution notices cannot be construed as modifying the License.
+6. NO WARRANTY
 
-   5. Submission of Contributions. Unless You explicitly state otherwise,
-      any Contribution intentionally submitted for inclusion in the Work
-      by You to the Licensor shall be under the terms and conditions of
-      this License, without any additional terms or conditions.
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT.
 
-   6. Trademarks. This License does not grant permission to use the trade
-      names, trademarks, service marks, or product names of the Licensor,
-      except as required for reasonable and customary use in describing the
-      origin of the Work and reproducing the content of the NOTICE file.
+7. LIMITATION OF LIABILITY
 
-   7. Disclaimer of Warranty. Unless required by applicable law or
-      agreed to in writing, Licensor provides the Work (and each
-      Contributor provides its Contributions) on an "AS IS" BASIS,
-      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-      implied, including, without limitation, any conditions of TITLE,
-      MERCHANTIBILITY, or FITNESS FOR A PARTICULAR PURPOSE. You are solely
-      responsible for determining the appropriateness of using or
-      redistributing the Work and assume any risks associated with Your
-      exercise of permissions under this License.
+   IN NO EVENT SHALL INNOVATIVEAI LLC OR DUSTIN L. REID BE LIABLE FOR
+   ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM, OUT OF, OR IN
+   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-   8. Limitation of Liability. In no event and under no legal theory,
-      whether in tort (including negligence), contract, or otherwise,
-      unless required by applicable law (such as deliberate and grossly
-      negligent acts) or agreed to in writing, shall any Contributor be
-      liable to You for damages, including any direct, indirect, special,
-      incidental, or exemplary damages of any character arising as a
-      result of this License or out of the use or inability to use the
-      Work (including but not limited to damages for loss of goodwill,
-      work stoppage, computer failure or malfunction, or all other
-      commercial damages or losses), even if such Contributor has been
-      advised of the possibility of such damages.
+8. GOVERNING LAW
 
-   9. Accepting Warranty or Liability. While redistributing the Work or
-      Derivative Works thereof, You may choose to offer, and charge a fee
-      for, acceptance of support, warranty, indemnity, or other liability
-      obligations and charge a fee for, acceptance of support, warranty,
-      indemnity, or other liability obligations and rights consistent with
-      this License. However, in accepting such obligations, You may offer
-      such obligations only on Your own behalf and on Your sole
-      responsibility, not on behalf of any other Contributor, and only if
-      You agree to indemnify, defend, and hold each Contributor harmless
-      for any liability incurred by, or claims asserted against, such
-      Contributor by reason of your accepting any such warranty or liability.
+   This license is governed by the laws of the State of Oklahoma, USA.
+   Any disputes shall be resolved exclusively in the courts of Kay County,
+   Oklahoma.
 
-   END OF TERMS AND CONDITIONS
+9. ENTIRE AGREEMENT
 
-   Copyright 2026-present Innovative AI LLC · Dustin L. Reid
-   Licensed under the Apache License, Version 2.0
+   This license constitutes the entire agreement between the parties with
+   respect to the Software and supersedes all prior agreements, oral or
+   written, relating thereto.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+For licensing inquiries, commercial agreements, or operator access:
+  Dustin L. Reid · InnovativeAI LLC
+  dustin@adaad.pro · adaad.pro
+
+"Constitutionally Governed AI — Autonomous Evolution, Auditable by Design."
+(c) 2025-2026 InnovativeAI LLC. All rights reserved.

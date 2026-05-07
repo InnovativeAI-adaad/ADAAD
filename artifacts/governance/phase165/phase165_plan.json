@@ -1,0 +1,28 @@
+{
+  "plan_schema": "adaad-phase-plan.v1",
+  "phase": 165,
+  "innovation_id": "INNOV-71",
+  "innovation_code": "V10CA",
+  "full_name": "V10 Convergence Assessor",
+  "version_target": "9.98.0",
+  "authored_by": "DEVADAAD",
+  "ratified_by": "HUMAN-0",
+  "date": "2026-05-02",
+  "objective": "Implement a deterministic, HMAC-chained assessor that evaluates all seven V10.0.0 convergence criteria and produces a scored snapshot answering: how close is this ADAAD instance to v10.0.0? Criteria: INVARIANT_DENSITY, INNOVATION_DEPTH, GENOME_INTEGRITY, SELF_REPAIR_ACTIVE, FORECAST_COVERAGE, DORK_INTELLIGENCE, GA_ALIGNMENT.",
+  "module_path": "dorkllm/convergence_assessor.py",
+  "api_endpoints": ["POST /innovations/v10/assess", "GET /innovations/v10/history"],
+  "invariants_planned": ["V10CA-DETERM-0","V10CA-CHAIN-0","V10CA-HUMAN0-0","V10CA-SCOPE-0","V10CA-AUDIT-0"],
+  "test_count_required": 30,
+  "test_file": "tests/test_phase165_v10ca.py",
+  "entry_gate": "four-surface version alignment at 9.97.0 confirmed",
+  "exit_gate": "30/30 Grade-A · no-FF merge · governance artifacts authored · version bumped to 9.98.0",
+  "v10_convergence_criteria": [
+    "INVARIANT_DENSITY: >= 350 hard-class invariants",
+    "INNOVATION_DEPTH: >= 75 innovations",
+    "GENOME_INTEGRITY: CGE chain valid, entries > 0",
+    "SELF_REPAIR_ACTIVE: CSR repair_actions > 0",
+    "FORECAST_COVERAGE: CFE forecast_window >= 5 phases",
+    "DORK_INTELLIGENCE: fleet >= 3, router live",
+    "GA_ALIGNMENT: PyPI GA version == repo version"
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "v9.96.0 CLOSED \u00b7 Phase 163 \u00b7 MCE \u00b7 governance seal applied",
+  "active_phase": "v9.105.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -341,226 +341,40 @@
     "phase160-innov66-ebs-implemented",
     "v9.93.0-released",
     "phase163-plan-authored",
-    "Phase 163 \u00b7 INNOV-69 \u00b7 MCE \u2014 Mutation Calibration Engine \u00b7 v9.96.0 \u00b7 30/30 \u00b7 298 invariants"
+    "phase163-human0-ratified",
+    "phase163-innov69-mce-implemented",
+    "phase163-mce-chain-0-enforced",
+    "phase163-mce-weight-0-enforced",
+    "phase163-mce-drift-0-enforced",
+    "phase163-mce-human0-0-enforced",
+    "phase163-mce-determ-0-enforced",
+    "phase163-world-first-outcome-calibration",
+    "v9.96.0-released",
+    "phase163-complete",
+    "phase163-mce-implemented",
+    "phase163-world-first-outcome-driven-calibration",
+    "phase164-cge-shipped",
+    "phase165-v10ca-complete",
+    "v9.98.0-released",
+    "phase166-gae-complete",
+    "phase167-ivb-complete",
+    "phase168-mpg-complete",
+    "v9.101.0-released",
+    "phase169-mse-complete",
+    "v9.102.0-released",
+    "phase170-mrp-complete",
+    "v9.103.0-released",
+    "phase171-mex-complete",
+    "v9.104.0-released",
+    "phase172-mfv-complete",
+    "v9.105.0-released"
   ],
-  "constitutional_invariants": {
-    "cumulative": 284,
-    "hard_class_count": 278
-  },
-  "current_phase": 164,
-  "current_version": "9.96.0",
-  "ga_blocker_count": 0,
-  "ga_blockers": 0,
-  "ga_gates": {
-    "gate1": {
-      "description": "Constitutional invariants \u2265 200",
-      "status": "COMPLETE"
-    },
-    "gate2": {
-      "description": "H-04 docs published",
-      "status": "COMPLETE"
-    },
-    "gate3": {
-      "description": "F-Droid + free-v9.10.0 push",
-      "status": "COMPLETE"
-    },
-    "gate4": {
-      "date": "2026-04-21",
-      "description": "GPG sign-off + v1.1-GA tag",
-      "status": "COMPLETE",
-      "tag": "v1.1-GA-pypi"
-    }
-  },
-  "hard_class_count": 278,
-  "hard_class_invariant_count": 278,
-  "hard_class_invariants": [
-    {
-      "class": "Hard",
-      "id": "CMU-CTX-0",
-      "phase": 143
-    },
-    {
-      "class": "Hard",
-      "id": "CMU-TEMP-0",
-      "phase": 143
-    },
-    {
-      "class": "Hard",
-      "id": "CMU-BENCH-0",
-      "phase": 143
-    },
-    {
-      "class": "Hard",
-      "id": "CMU-DETERM-0",
-      "phase": 143
-    },
-    {
-      "class": "Hard",
-      "id": "CMU-HUMAN0-0",
-      "phase": 143
-    },
-    {
-      "class": "Hard",
-      "id": "RAGS-GROUND-0",
-      "phase": 144
-    },
-    {
-      "class": "Hard",
-      "id": "RAGS-CTX-0",
-      "phase": 144
-    },
-    {
-      "class": "Hard",
-      "id": "RAGS-DETERM-0",
-      "phase": 144
-    },
-    {
-      "class": "Hard",
-      "id": "RAGS-CHAIN-0",
-      "phase": 144
-    },
-    {
-      "class": "Hard",
-      "id": "RAGS-GATE-0",
-      "phase": 144
-    },
-    {
-      "class": "Hard",
-      "id": "DPM-CHAIN-0",
-      "phase": 145
-    },
-    {
-      "class": "Hard",
-      "id": "DPM-INJECT-0",
-      "phase": 145
-    },
-    {
-      "class": "Hard",
-      "id": "DPM-DETERM-0",
-      "phase": 145
-    },
-    {
-      "class": "Hard",
-      "id": "DPM-HUMAN0-0",
-      "phase": 145
-    },
-    {
-      "class": "Hard",
-      "id": "DPM-GATE-0",
-      "phase": 145
-    },
-    {
-      "class": "Hard",
-      "id": "DQR-ROUTE-0",
-      "phase": 146
-    },
-    {
-      "class": "Hard",
-      "id": "DQR-CHAIN-0",
-      "phase": 146
-    },
-    {
-      "class": "Hard",
-      "id": "DQR-DETERM-0",
-      "phase": 146
-    },
-    {
-      "class": "Hard",
-      "id": "DQR-FALLBACK-0",
-      "phase": 146
-    },
-    {
-      "class": "Hard",
-      "id": "DQR-AUTH-0",
-      "phase": 146
-    },
-    {
-      "class": "Hard",
-      "id": "INTENT-SCHEMA-0",
-      "phase": 147
-    },
-    {
-      "class": "Hard",
-      "id": "INTENT-DRYRUN-0",
-      "phase": 147
-    },
-    {
-      "class": "Hard",
-      "id": "LEF-DETERM-0",
-      "phase": 148
-    },
-    {
-      "class": "Hard",
-      "id": "LEF-CHAIN-0",
-      "phase": 148
-    },
-    {
-      "class": "Hard",
-      "id": "CEL-FEED-0",
-      "phase": 148
-    },
-    {
-      "class": "Hard",
-      "id": "LEF-NOWRITE-0",
-      "phase": 148
-    },
-    {
-      "class": "Hard",
-      "id": "CEL-FEED-COMPLETE-0",
-      "phase": 148
-    },
-    {
-      "class": "Hard",
-      "id": "MXE-DETERM-0",
-      "phase": 149
-    },
-    {
-      "class": "Hard",
-      "id": "MXE-CHAIN-0",
-      "phase": 149
-    },
-    {
-      "class": "Hard",
-      "id": "MXE-IMMUT-0",
-      "phase": 149
-    },
-    {
-      "class": "Hard",
-      "id": "MXE-SCOPE-0",
-      "phase": 149
-    },
-    {
-      "class": "Hard",
-      "id": "MXE-AUDIT-0",
-      "phase": 149
-    },
-    {
-      "class": "Hard",
-      "id": "GCB-CHAIN-0",
-      "phase": 150
-    },
-    {
-      "class": "Hard",
-      "id": "GCB-FAILCLOSE-0",
-      "phase": 150
-    },
-    {
-      "class": "Hard",
-      "id": "GCB-READONLY-0",
-      "phase": 150
-    },
-    {
-      "class": "Hard",
-      "id": "GCB-DETERM-0",
-      "phase": 150
-    },
-    {
-      "class": "Hard",
-      "id": "GCB-HUMAN0-0",
-      "phase": 150
-    }
-  ],
-  "hard_class_invariants_cumulative": 278,
+  "constitutional_invariants": 370,
+  "current_phase": 172,
+  "current_version": "9.105.0",
+  "hard_class_count": 370,
+  "hard_class_invariant_count": 370,
+  "hard_class_invariants_cumulative": 370,
   "human0_signoffs": [
     {
       "date": "2026-03-27",
@@ -583,35 +397,25 @@
     {
       "date": "2026-04-24",
       "innov_id": "INNOV-58",
-      "phase": 152,
-      "token": "approved DUSTIN L REID"
+      "token": "approved DUSTIN L REID",
+      "date": "2026-04-24"
+    },
+    {
+      "phase": 163,
+      "innov_id": "INNOV-69",
+      "token": "approved DUSTIN L REID",
+      "date": "2026-04-30"
     }
   ],
-  "innovation_count": 69,
-  "innovations_shipped": 69,
-  "invariant_count": 298,
-  "last_agent_state_sync_digest": "gsync-40bd8bc754fd57e7",
-  "last_completed_phase": "24 \u00b7 Phase 154 \u00b7 INNOV-60 \u00b7 Constitutional Pre-Admission Gate (CPAG)",
-  "last_completed_pr": "phase163-mutation-calibration-engine",
-  "last_gate_results": {
-    "tier_0": "pass",
-    "tier_1": "pass",
-    "tier_2": "pass",
-    "tier_3": "pass"
-  },
-  "last_innovation": "INNOV-69-MCE",
-  "last_innovation_id": "INNOV-69",
-  "last_innovation_name": "Mutation Calibration Engine",
-  "last_invocation": "2026-05-02",
-  "last_phase_completed": 163,
-  "last_phase_completed_label": "Phase 163 \u00b7 INNOV-69 \u00b7 MCE \u2014 Mutation Calibration Engine",
-  "last_sync_sha": "6863c619",
-  "last_updated": "2026-05-02T15:07:47.166432+00:00",
-  "milestone": "v1.1-GA",
-  "next_innovation_id": "INNOV-70",
-  "next_phase": 164,
-  "next_phase_id": 164,
-  "next_pr": "phase164-tbd",
+  "last_innovation": "INNOV-78-MFV",
+  "last_innovation_name": "Mutation Fitness Verifier",
+  "last_invocation": "2026-05-07",
+  "last_phase_completed": 172,
+  "last_phase_completed_label": "Phase 172 \u00b7 INNOV-78 \u00b7 MFV \u2014 Mutation Fitness Verifier",
+  "last_sync_sha": "b0596d31",
+  "last_updated": "2026-05-07T14:17:13.270999+00:00",
+  "next_phase": 173,
+  "next_pr": "phase163-mutation-calibration-engine",
   "open_findings": [
     {
       "id": "FINDING-66-001",
@@ -859,9 +663,8 @@
   ],
   "open_findings_count": 0,
   "pending_evidence_rows": [],
-  "phase": 164,
-  "phase_label": "Phase 163 \u00b7 INNOV-69 \u00b7 MCE \u2014 Mutation Calibration Engine",
-  "phases_complete": 162,
+  "phase": 172,
+  "phase_label": "Phase 172 \u00b7 INNOV-78 \u00b7 MFV \u2014 Mutation Fitness Verifier",
   "phases_completed": [
     106,
     107,
@@ -886,10 +689,40 @@
     139,
     140,
     141,
-    163
+    142,
+    143,
+    144,
+    145,
+    146,
+    147,
+    148,
+    149,
+    150,
+    151,
+    152,
+    153,
+    154,
+    155,
+    156,
+    157,
+    158,
+    159,
+    160,
+    161,
+    162,
+    163,
+    164,
+    165,
+    166,
+    167,
+    168,
+    169,
+    170,
+    171,
+    172
   ],
   "schema_version": "1.5.0",
-  "software_version": "9.96.0",
+  "software_version": "9.105.0",
   "tife_active": true,
   "total_innovations_shipped": 69,
   "value_checkpoints_reached": [
@@ -1181,9 +1014,267 @@
     "phase124-world-first-governed-kernel-extraction",
     "v9.57.0-released"
   ],
-  "version": "9.96.0",
+  "version": "9.105.0",
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
-  ]
+  ],
+  "last_completed_phase": "24 \u00b7 Phase 154 \u00b7 INNOV-60 \u00b7 Constitutional Pre-Admission Gate (CPAG)",
+  "last_agent_state_sync_digest": "gsync-0623349e5a74cc3d",
+  "invariant_count": 370,
+  "innovation_count": 78,
+  "innovations_shipped": 78,
+  "open_findings_count": 0,
+  "last_innovation_id": "INNOV-78",
+  "total_innovations_shipped": 78,
+  "ga_blocker_count": 0,
+  "milestone": "v1.1-GA",
+  "ga_blockers": 0,
+  "last_completed_pr": "phase172-mutation-fitness-verifier",
+  "last_gate_results": {
+    "tier_0": "pass",
+    "tier_1": "pass",
+    "tier_2": "pass",
+    "tier_3": "pass"
+  },
+  "hard_class_invariants": [
+    {
+      "id": "CMU-CTX-0",
+      "class": "Hard",
+      "phase": 143
+    },
+    {
+      "id": "CMU-TEMP-0",
+      "class": "Hard",
+      "phase": 143
+    },
+    {
+      "id": "CMU-BENCH-0",
+      "class": "Hard",
+      "phase": 143
+    },
+    {
+      "id": "CMU-DETERM-0",
+      "class": "Hard",
+      "phase": 143
+    },
+    {
+      "id": "CMU-HUMAN0-0",
+      "class": "Hard",
+      "phase": 143
+    },
+    {
+      "id": "RAGS-GROUND-0",
+      "class": "Hard",
+      "phase": 144
+    },
+    {
+      "id": "RAGS-CTX-0",
+      "class": "Hard",
+      "phase": 144
+    },
+    {
+      "id": "RAGS-DETERM-0",
+      "class": "Hard",
+      "phase": 144
+    },
+    {
+      "id": "RAGS-CHAIN-0",
+      "class": "Hard",
+      "phase": 144
+    },
+    {
+      "id": "RAGS-GATE-0",
+      "class": "Hard",
+      "phase": 144
+    },
+    {
+      "id": "DPM-CHAIN-0",
+      "class": "Hard",
+      "phase": 145
+    },
+    {
+      "id": "DPM-INJECT-0",
+      "class": "Hard",
+      "phase": 145
+    },
+    {
+      "id": "DPM-DETERM-0",
+      "class": "Hard",
+      "phase": 145
+    },
+    {
+      "id": "DPM-HUMAN0-0",
+      "class": "Hard",
+      "phase": 145
+    },
+    {
+      "id": "DPM-GATE-0",
+      "class": "Hard",
+      "phase": 145
+    },
+    {
+      "id": "DQR-ROUTE-0",
+      "class": "Hard",
+      "phase": 146
+    },
+    {
+      "id": "DQR-CHAIN-0",
+      "class": "Hard",
+      "phase": 146
+    },
+    {
+      "id": "DQR-DETERM-0",
+      "class": "Hard",
+      "phase": 146
+    },
+    {
+      "id": "DQR-FALLBACK-0",
+      "class": "Hard",
+      "phase": 146
+    },
+    {
+      "id": "DQR-AUTH-0",
+      "class": "Hard",
+      "phase": 146
+    },
+    {
+      "id": "INTENT-SCHEMA-0",
+      "class": "Hard",
+      "phase": 147
+    },
+    {
+      "id": "INTENT-DRYRUN-0",
+      "class": "Hard",
+      "phase": 147
+    },
+    {
+      "id": "LEF-DETERM-0",
+      "class": "Hard",
+      "phase": 148
+    },
+    {
+      "id": "LEF-CHAIN-0",
+      "class": "Hard",
+      "phase": 148
+    },
+    {
+      "id": "CEL-FEED-0",
+      "class": "Hard",
+      "phase": 148
+    },
+    {
+      "id": "LEF-NOWRITE-0",
+      "class": "Hard",
+      "phase": 148
+    },
+    {
+      "id": "CEL-FEED-COMPLETE-0",
+      "class": "Hard",
+      "phase": 148
+    },
+    {
+      "id": "MXE-DETERM-0",
+      "class": "Hard",
+      "phase": 149
+    },
+    {
+      "id": "MXE-CHAIN-0",
+      "class": "Hard",
+      "phase": 149
+    },
+    {
+      "id": "MXE-IMMUT-0",
+      "class": "Hard",
+      "phase": 149
+    },
+    {
+      "id": "MXE-SCOPE-0",
+      "class": "Hard",
+      "phase": 149
+    },
+    {
+      "id": "MXE-AUDIT-0",
+      "class": "Hard",
+      "phase": 149
+    },
+    {
+      "id": "GCB-CHAIN-0",
+      "class": "Hard",
+      "phase": 150
+    },
+    {
+      "id": "GCB-FAILCLOSE-0",
+      "class": "Hard",
+      "phase": 150
+    },
+    {
+      "id": "GCB-READONLY-0",
+      "class": "Hard",
+      "phase": 150
+    },
+    {
+      "id": "GCB-DETERM-0",
+      "class": "Hard",
+      "phase": 150
+    },
+    {
+      "id": "GCB-HUMAN0-0",
+      "class": "Hard",
+      "phase": 150
+    },
+    {
+      "id": "MCE-CHAIN-0",
+      "class": "Hard",
+      "phase": 163
+    },
+    {
+      "id": "MCE-WEIGHT-0",
+      "class": "Hard",
+      "phase": 163
+    },
+    {
+      "id": "MCE-DRIFT-0",
+      "class": "Hard",
+      "phase": 163
+    },
+    {
+      "id": "MCE-HUMAN0-0",
+      "class": "Hard",
+      "phase": 163
+    },
+    {
+      "id": "MCE-DETERM-0",
+      "class": "Hard",
+      "phase": 163
+    }
+  ],
+  "ga_gates": {
+    "gate1": {
+      "status": "COMPLETE",
+      "description": "Constitutional invariants \u2265 200"
+    },
+    "gate2": {
+      "status": "COMPLETE",
+      "description": "H-04 docs published"
+    },
+    "gate3": {
+      "status": "COMPLETE",
+      "description": "F-Droid + free-v9.10.0 push"
+    },
+    "gate4": {
+      "status": "COMPLETE",
+      "description": "GPG sign-off + v1.1-GA tag",
+      "tag": "v1.1-GA-pypi",
+      "date": "2026-04-21"
+    }
+  },
+  "next_phase_id": 173,
+  "phases_complete": 172,
+  "next_innovation_id": "INNOV-79",
+  "next_innovation_name": "TBD \u2014 SPIE proposal pending HUMAN-0 ratification",
+  "total_phases": 172,
+  "total_innovations": 78,
+  "hard_invariant_count": 370,
+  "last_completed_version": "9.105.0"
 }

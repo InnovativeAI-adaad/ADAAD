@@ -1,17 +1,32 @@
 {
   "phase": 163,
-  "innovation": "INNOV-69",
-  "invariant_tier_breakdown": {
-    "tier_0": 0,
-    "tier_1": 2,
-    "tier_2": 3
+  "innovation_id": "INNOV-69",
+  "version": "9.96.0",
+  "tier_gate_results": {
+    "tier_0": "pass",
+    "tier_1": "pass",
+    "tier_2": "pass",
+    "tier_3": "pass"
   },
-  "tier_detail": {
-    "tier_1": ["MCE-CHAIN-0", "MCE-HUMAN0-0"],
-    "tier_2": ["MCE-DETERM-0", "MCE-SOURCE-0", "MCE-DRIFT-0"]
+  "invariants_by_tier": {
+    "tier_0": [
+      "MCE-CHAIN-0",
+      "MCE-WEIGHT-0"
+    ],
+    "tier_1": [
+      "MCE-DRIFT-0",
+      "MCE-HUMAN0-0"
+    ],
+    "tier_2": [
+      "MCE-DETERM-0"
+    ],
+    "tier_3": []
   },
-  "total_invariants_added": 5,
-  "cumulative_after_phase": 298,
-  "ga_blockers_introduced": 0,
-  "timestamp_utc": "2026-05-02T00:00:00Z"
+  "tests": {
+    "total": 30,
+    "passed": 30,
+    "unit": 10,
+    "integration": 10,
+    "invariant": 10
+  }
 }
