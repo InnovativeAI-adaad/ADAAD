@@ -183,10 +183,10 @@ adaad_pr_procession_contract:
   schema_version: "2.1"
   source_of_truth: "docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md"
   supersedes: "docs/governance/ADAAD_PR_PROCESSION_2026-03.md"
-  active_phase: "phase159_complete"
-  milestone: "v9.92.0"
-  last_state_align: "2026-04-25"
-  state_align_authority: "ROADMAP current-state checkpoint reconciliation (Phase 159 / v9.92.0)"
+  active_phase: "phase173_complete"
+  milestone: "v9.106.0"
+  last_state_align: "2026-05-08"
+  state_align_authority: "Repository governance state reconciliation (Phase 173 / v9.106.0)"
   ordered_phase_ids:
     - phase47
     - phase48
@@ -932,9 +932,9 @@ adaad_pr_procession_contract:
       title: "INNOV-53 Intent Expression Schema"
   state_alignment:
     canonical_pr_identifier_format: "Phase <N> — <Title>"
-    expected_active_phase: "Phase 160 COMPLETE · v9.93.0"
-    expected_last_completed_pr: "Phase 160 — INNOV-66 Emergent Baseline Sentinel (EBS)"
-    expected_next_pr: "Phase 161 — INNOV-67 (deterministic: first non-shipped phase whose predecessor is shipped)"
+    expected_active_phase: "Phase 173 — INNOV-79 IIS — Innovation Impact Scorer"
+    expected_last_completed_pr: "Phase 173 — INNOV-79 IIS — Innovation Impact Scorer"
+    expected_next_pr: "Phase 174 — TBD — SPIE proposal pending HUMAN-0 ratification"
     blocked_reason_must_be_null: true
   open_findings:
     - id: FINDING-C03-GITHUB-APP
@@ -992,6 +992,7 @@ A validator comparing this document to `.adaad_agent_state.json` should fail if:
 
 ## 3.2 Changelog
 
+- **2026-05-08:** Reconciled automation checkpoint to **Phase 173 complete / v9.106.0**, normalized `active_phase`, `last_completed_pr`, and `expected_next_pr` to the canonical `Phase <N> — <Title>` identifier format, and set deterministic next-phase targeting to **Phase 174 — TBD — SPIE proposal pending HUMAN-0 ratification**.
 - **2026-04-25:** Reconciled automation checkpoint to **Phase 160 complete / v9.93.0** and normalized deterministic next-phase identifier format to `Phase 161 — …` for state-alignment validators.
 - **2026-04-22:** Reconciled automation checkpoint to **Phase 147 complete / v9.80.0**, extended active-era phase nodes through 147, and normalized deterministic next-phase identifier format to `Phase 148 — …` for state-alignment validators.
 - **2026-04-22:** Defined canonical PR identifier format in state alignment as `Phase <N> — <Title>` and enforced that both `expected_last_completed_pr` and `expected_next_pr` use that exact format.
