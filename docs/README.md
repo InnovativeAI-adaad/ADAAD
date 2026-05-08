@@ -4,7 +4,7 @@
 
 <br/>
 
-[![Version](https://img.shields.io/badge/ADAAD-v9.106.0-000?style=for-the-badge&labelColor=0d1117&color=00d4ff)](../CHANGELOG.md)&nbsp;[![Phase](https://img.shields.io/badge/Phase_101-ERS_Shipped-000?style=for-the-badge&labelColor=0d1117&color=f5c842)](../ROADMAP.md)&nbsp;[![Constitution](https://img.shields.io/badge/Constitution-v0.9.0_%C2%B7_23_Rules-000?style=for-the-badge&labelColor=0d1117&color=ff4466)](CONSTITUTION.md)&nbsp;[![Tests](https://img.shields.io/badge/4%2C624_Tests-Passing-000?style=for-the-badge&labelColor=0d1117&color=00ff88)](../tests/)
+[![Version](https://img.shields.io/badge/ADAAD-v9.106.0-000?style=for-the-badge&labelColor=0d1117&color=00d4ff)](../CHANGELOG.md)&nbsp;[![Phase](https://img.shields.io/badge/Phase_173-IIS_Shipped-000?style=for-the-badge&labelColor=0d1117&color=f5c842)](../ROADMAP.md)&nbsp;[![Constitution](https://img.shields.io/badge/Constitution-v0.9.0_%C2%B7_23_Rules-000?style=for-the-badge&labelColor=0d1117&color=ff4466)](CONSTITUTION.md)&nbsp;[![Tests](https://img.shields.io/badge/4%2C624_Tests-Passing-000?style=for-the-badge&labelColor=0d1117&color=00ff88)](../tests/)
 
 <br/>
 
@@ -14,9 +14,9 @@
 
 <img src="assets/adaad-section-divider.svg" width="100%" style="opacity:0.72;" alt=""/>
 
-> Internal architecture, API contracts, configuration, evidence artifacts, and test coverage for **ADAAD v9.106.0 · Phase 101 (INNOV-16 Emergent Role Specialization (ERS) shipped)**. For user-facing setup see [QUICKSTART.md](../QUICKSTART.md). For the 23 rules see [CONSTITUTION.md](CONSTITUTION.md). For build-agent protocol see [AGENTS.md](../AGENTS.md).
+> Internal architecture, API contracts, configuration, evidence artifacts, and test coverage for **ADAAD v9.106.0 · Phase 173 (INNOV-79 Innovation Impact Scorer (IIS) shipped)**. For user-facing setup see [QUICKSTART.md](../QUICKSTART.md). For the 23 rules see [CONSTITUTION.md](CONSTITUTION.md). For build-agent protocol see [AGENTS.md](../AGENTS.md).
 >
-> **Last reviewed:** 2026-03-28
+> **Last reviewed:** 2026-05-08
 > **Current/Next:** Current = Phase 173 (v9.106.0), Next = Phase 174 — next non-shipped innovation.
 
 <br/>
@@ -632,7 +632,7 @@ ADAAD/
 
 <br/>
 
-![version](https://img.shields.io/badge/ADAAD-v9.106.0-0d1117?style=flat-square&labelColor=0d1117&color=00d4ff)&nbsp;![phase](https://img.shields.io/badge/Phase_101-ERS_Shipped-0d1117?style=flat-square&labelColor=0d1117&color=f5c842)&nbsp;![constitution](https://img.shields.io/badge/Constitution-v0.9.0_%C2%B7_23_Rules-0d1117?style=flat-square&labelColor=0d1117&color=ff4466)&nbsp;![license](https://img.shields.io/badge/Apache_2.0-Free_Forever-0d1117?style=flat-square&labelColor=0d1117&color=00ff88)
+![version](https://img.shields.io/badge/ADAAD-v9.106.0-0d1117?style=flat-square&labelColor=0d1117&color=00d4ff)&nbsp;![phase](https://img.shields.io/badge/Phase_173-IIS_Shipped-0d1117?style=flat-square&labelColor=0d1117&color=f5c842)&nbsp;![constitution](https://img.shields.io/badge/Constitution-v0.9.0_%C2%B7_23_Rules-0d1117?style=flat-square&labelColor=0d1117&color=ff4466)&nbsp;![license](https://img.shields.io/badge/Apache_2.0-Free_Forever-0d1117?style=flat-square&labelColor=0d1117&color=00ff88)
 
 <br/>
 

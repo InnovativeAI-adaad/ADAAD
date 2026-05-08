@@ -30,6 +30,7 @@
 
 ## Governance & Determinism Guarantees (Current State)
 
+- Canonical architecture contract: `docs/governance/ARCHITECT_SPEC_v3.1.0.md`.
 - `ADAAD_DETERMINISTIC_LOCK` can force deterministic-only execution paths at runtime.
 - `ADAAD_DISPATCH_LATENCY_BUDGET_MS` bounds governed dispatch latency for public endpoints.
 - Active canonical architecture spec: `docs/governance/ARCHITECT_SPEC_v3.1.0.md`.
