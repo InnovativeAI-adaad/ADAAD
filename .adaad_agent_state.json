@@ -1013,7 +1013,7 @@
     "phase124-world-first-governed-kernel-extraction",
     "v9.57.0-released"
   ],
-  "version": "9.105.0",
+  "version": "9.106.0",
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
@@ -1273,5 +1273,5 @@
   "total_phases": 172,
   "total_innovations": 78,
   "hard_invariant_count": 370,
-  "last_completed_version": "9.105.0"
+  "last_completed_version": "9.106.0"
 }

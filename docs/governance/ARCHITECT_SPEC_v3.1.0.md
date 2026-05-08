@@ -2,7 +2,7 @@
 
 ![Governance: Fail-Closed](https://img.shields.io/badge/Governance-Fail--Closed-critical)
 ![ArchitectAgent: Canonical](https://img.shields.io/badge/ArchitectAgent-Canonical-a855f7)
-![Version: 9.93.0](https://img.shields.io/badge/version-9.93.0-00d4ff)
+![Version: 9.106.0](https://img.shields.io/badge/version-9.106.0-00d4ff)
 ![Phase: 6 — Autonomous Roadmap Self-Amendment](https://img.shields.io/badge/Phase_6-Roadmap_Self--Amendment-f59e0b)
 
 > **Authority:** ArchitectAgent · ADAAD Constitutional Governance
