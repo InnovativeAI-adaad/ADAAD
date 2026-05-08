@@ -137,6 +137,83 @@ def test_context_hash_set_in_candidate() -> None:
     assert all(len(c.source_context_hash) > 0 for c in result)
 
 
+def test_parse_proposals_rebuilds_missing_ids_deterministically() -> None:
+    ctx = _make_context()
+    raw = json.dumps([
+        {
+            "description": "Add deterministic mutation-id fallback coverage.",
+            "expected_gain": 0.35,
+            "risk_score": 0.2,
+            "complexity": 0.25,
+            "coverage_delta": 0.1,
+            "target_files": ["runtime/autonomy/ai_mutation_proposer.py"],
+            "mutation_type": "coverage",
+        }
+    ])
+
+    first = _parse_proposals(
+        raw, "architect", ctx, parent_id="parent-001", epoch_id="epoch-test-001"
+    )
+    second = _parse_proposals(
+        raw, "architect", ctx, parent_id="parent-001", epoch_id="epoch-test-001"
+    )
+
+    assert [candidate.mutation_id for candidate in first] == [
+        candidate.mutation_id for candidate in second
+    ]
+    assert first[0].mutation_id.startswith("architect-auto-")
+
+
+def test_parse_proposals_rebuilds_wrong_prefix_ids_deterministically() -> None:
+    ctx = _make_context()
+    raw = json.dumps([
+        {
+            "mutation_id": "dream-cross-agent-123",
+            "description": "Repair an ID with the wrong agent prefix.",
+            "expected_gain": 0.35,
+            "risk_score": 0.2,
+            "complexity": 0.25,
+            "coverage_delta": 0.1,
+            "target_files": ["runtime/autonomy/ai_mutation_proposer.py"],
+            "mutation_type": "coverage",
+        }
+    ])
+
+    first = _parse_proposals(
+        raw, "architect", ctx, parent_id="parent-001", epoch_id="epoch-test-001"
+    )
+    second = _parse_proposals(
+        raw, "architect", ctx, parent_id="parent-001", epoch_id="epoch-test-001"
+    )
+
+    assert [candidate.mutation_id for candidate in first] == [
+        candidate.mutation_id for candidate in second
+    ]
+    assert first[0].mutation_id.startswith("architect-dream-cross-agent-123-")
+
+
+def test_parse_proposals_rebuilt_ids_remain_unique_within_batch() -> None:
+    ctx = _make_context()
+    base = {
+        "description": "Repair duplicate missing IDs within the same batch.",
+        "expected_gain": 0.35,
+        "risk_score": 0.2,
+        "complexity": 0.25,
+        "coverage_delta": 0.1,
+        "target_files": ["runtime/autonomy/ai_mutation_proposer.py"],
+        "mutation_type": "coverage",
+    }
+    raw = json.dumps([base, dict(base)])
+
+    proposals = _parse_proposals(
+        raw, "architect", ctx, parent_id="parent-001", epoch_id="epoch-test-001"
+    )
+    generated_ids = [candidate.mutation_id for candidate in proposals]
+
+    assert len(generated_ids) == 2
+    assert len(set(generated_ids)) == len(generated_ids)
+
+
 def test_context_hash_is_deterministic_for_same_context() -> None:
     ctx = _make_context()
     first = ctx.context_hash()

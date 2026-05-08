@@ -273,6 +273,49 @@ def _call_claude(
     return body["content"][0]["text"]
 
 
+def _stable_id_slug(raw_value: str) -> str:
+    """Return a deterministic, mutation-id-safe slug for rebuilt proposal IDs."""
+    slug = "".join(
+        ch.lower() if ch.isalnum() else "-"
+        for ch in raw_value.strip()
+    ).strip("-")
+    return slug or "auto"
+
+
+def _deterministic_mutation_id_suffix(
+    *,
+    agent: str,
+    epoch_id: str,
+    context_hash: str,
+    parent_id: Optional[str],
+    proposal_index: int,
+    proposal: Dict[str, Any],
+) -> str:
+    """Derive a stable suffix for repaired AI proposal mutation IDs.
+
+    Rationale: AI proposal parsing is replay-sensitive; fallback mutation IDs
+    must not depend on wall-clock time or process-local entropy. The suffix is
+    a SHA-256 digest over stable lineage inputs plus canonical proposal content.
+
+    Expected invariants:
+    - identical inputs produce identical fallback IDs across parse calls;
+    - proposals in the same batch differ by index/content and therefore remain
+      uniquely addressable;
+    - public parser/proposer function signatures remain unchanged.
+    """
+    payload = {
+        "agent": agent,
+        "epoch_id": epoch_id,
+        "context_hash": context_hash,
+        "parent_id": parent_id or "",
+        "proposal_index": proposal_index,
+        "proposal": proposal,
+    }
+    canonical = json.dumps(
+        payload, sort_keys=True, separators=(",", ":"), default=str
+    )
+    return hashlib.sha256(canonical.encode()).hexdigest()[:16]
+
 # ---------------------------------------------------------------------------
 # Internal: Parse proposals
 # ---------------------------------------------------------------------------
@@ -305,18 +348,31 @@ def _parse_proposals(
     proposals_raw = json.loads(text)  # JSONDecodeError propagates
 
     context_hash = context.context_hash()
-    ts = int(time.time())
+    stable_epoch_id = epoch_id or context.current_epoch_id
     candidates: List[MutationCandidate] = []
 
-    for p in proposals_raw:
+    for proposal_index, p in enumerate(proposals_raw):
         mut_type = p.get("mutation_type", "structural")
         if mut_type not in VALID_MUT_TYPES:
             mut_type = "structural"
 
-        # Ensure unique, agent-scoped mutation_id
-        raw_id = str(p.get("mutation_id", f"{agent}-auto-{ts}"))
+        # Ensure unique, agent-scoped mutation_id. Invalid or missing IDs are
+        # rebuilt from stable lineage inputs only: agent, epoch, context hash,
+        # parent, proposal index, and canonical proposal content. This preserves
+        # replay determinism while keeping IDs distinct within a batch.
+        raw_mutation_id = p.get("mutation_id")
+        raw_id = str(raw_mutation_id) if raw_mutation_id is not None else ""
         if not raw_id.startswith(agent):
-            raw_id = f"{agent}-{raw_id}-{ts}"
+            suffix = _deterministic_mutation_id_suffix(
+                agent=agent,
+                epoch_id=stable_epoch_id,
+                context_hash=context_hash,
+                parent_id=parent_id,
+                proposal_index=proposal_index,
+                proposal=p,
+            )
+            slug_source = raw_id or "auto"
+            raw_id = f"{agent}-{_stable_id_slug(slug_source)}-{suffix}"
 
         candidates.append(MutationCandidate(
             mutation_id=raw_id,
