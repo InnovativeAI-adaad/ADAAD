@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 innovation_impact_scorer.py — INNOV-79 · IIS
 Innovation Impact Scorer

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 dorkllm/pattern_detector.py
 DORK Persistent Memory (DPM) — Pattern Detector

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Deterministic seed controls for reproducible mutation workflows."""
 
 from __future__ import annotations

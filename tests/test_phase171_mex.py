@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: LicenseRef-Proprietary-InnovativeAI
+# SPDX-License-Identifier: Apache-2.0
 """
 Phase 171 · INNOV-77 · MEX — Mutation Execution Engine
 Test suite: T171-MEX-01 .. T171-MEX-30  (30 tests · Grade-A target)

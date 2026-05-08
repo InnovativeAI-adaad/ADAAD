@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Autonomous deterministic evolution scheduler."""
 
 from __future__ import annotations

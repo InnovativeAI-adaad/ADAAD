@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 dorkllm/knowledge_crystallizer.py
 DORK Persistent Memory (DPM) — Knowledge Crystallizer
