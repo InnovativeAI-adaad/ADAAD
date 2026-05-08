@@ -27,7 +27,7 @@
 - Ledger: `data/mfv/fitness_verdict_ledger.jsonl`
 
 ### Constitutional
-- Hard-class invariant count: 330 → **340**
+- Hard-class invariant count: 360 → **370**
 - HUMAN-0 gate enforced: INCONCLUSIVE verdicts require explicit override token; agent promotion prohibited (MFV-HUMAN0-0)
 - Fail-closed: REGRESSED and INCONCLUSIVE verdicts unconditionally block lineage promotion (MFV-CERTIFY-0)
 
