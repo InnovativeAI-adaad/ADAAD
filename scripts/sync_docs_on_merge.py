@@ -28,7 +28,9 @@ WHAT GETS UPDATED ON EVERY MERGE
     • report_version, last_sync_sha, last_sync_date fields
 
   .adaad_agent_state.json
-    • schema_version, active_phase, last_invocation, last_sync_sha
+    • active_phase, last_invocation, last_sync_sha
+    • schema_version is intentionally not release-synced; schema ownership
+      remains with sync_agent_state_on_merge.py / governance drift validation
 
 CONSTITUTIONAL INVARIANTS
 ──────────────────────────────────────────────────────────────────────────────
@@ -410,6 +412,7 @@ def _update_governance_report_version(plan: SyncPlan) -> list[dict[str, Any]]:
         return []
 
     obj["report_version"] = plan.version
+    obj["version"] = plan.version
     obj["version_source"] = "governance/report_version.json"
     obj["last_sync_sha"] = plan.git_sha
     obj["last_sync_date"] = plan.date_str
@@ -436,7 +439,12 @@ def _update_agent_state(plan: SyncPlan) -> list[dict[str, Any]]:
             state[key] = val
             changes.append({"file": rel, "rule": rule, "old": old[:80], "new": val})
 
-    _set("schema_version", plan.version, "schema_version")
+    # Rationale: release identity aliases follow VERSION; schema_version is
+    # intentionally preserved as the JSON document-format invariant.
+    _set("version", plan.version, "version")
+    _set("current_version", plan.version, "current_version")
+    _set("software_version", plan.version, "software_version")
+    _set("last_completed_version", plan.version, "last_completed_version")
     _set("active_phase",
          f"v{plan.version} RELEASED · post-merge doc sync",
          "active_phase")

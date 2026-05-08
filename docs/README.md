@@ -17,7 +17,7 @@
 > Internal architecture, API contracts, configuration, evidence artifacts, and test coverage for **ADAAD v9.106.0 · Phase 101 (INNOV-16 Emergent Role Specialization (ERS) shipped)**. For user-facing setup see [QUICKSTART.md](../QUICKSTART.md). For the 23 rules see [CONSTITUTION.md](CONSTITUTION.md). For build-agent protocol see [AGENTS.md](../AGENTS.md).
 >
 > **Last reviewed:** 2026-03-28
-> **Current/Next:** Current = Phase 101 (v9.33.0), Next = Phase 102 — INNOV-16.
+> **Current/Next:** Current = Phase 173 (v9.106.0), Next = Phase 174 — next non-shipped innovation.
 
 <br/>
 
