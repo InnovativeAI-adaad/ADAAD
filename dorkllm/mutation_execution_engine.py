@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: LicenseRef-Proprietary-InnovativeAI
+# SPDX-License-Identifier: Apache-2.0
 """
 INNOV-77 · MEX — Mutation Execution Engine
 ============================================

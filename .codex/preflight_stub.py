@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 ADAAD Codex Preflight Stub
 [INV-PREFLIGHT] — bootstraps contract validation until

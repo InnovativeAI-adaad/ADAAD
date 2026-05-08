@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """Repository-level license compliance validator.
 
 This wrapper exists to provide a stable CI command name while delegating

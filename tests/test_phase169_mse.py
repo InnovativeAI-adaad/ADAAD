@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 tests/test_phase169_mse.py — INNOV-75 · Mutation Selection Engine
 Grade-A 30-test suite · Phase 169 · v9.102.0

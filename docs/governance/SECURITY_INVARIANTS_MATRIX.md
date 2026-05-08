@@ -68,8 +68,8 @@ See [FEDERATION_KEY_REGISTRY.md](FEDERATION_KEY_REGISTRY.md) for the key rotatio
 
 ## SPDX / License Compliance Invariants
 
-- All Python source files carry `# SPDX-License-Identifier: Apache-2.0` headers.
-- Enforced by `scripts/check_spdx_headers.py`; run with `--fix` to auto-remediate.
+- All Python source files carry the exact `# SPDX-License-Identifier: Apache-2.0` header within the first six physical lines. Mixed Python SPDX identifiers are not allowed; `MIT`, proprietary `LicenseRef-*`, and compound expressions fail closed.
+- Enforced by `scripts/check_spdx_headers.py`; run with `--fix` to replace conflicting header identifiers or add the required header.
 - **[PR-CI-02 / H-08]** `spdx-header-lint` CI job in `.github/workflows/ci.yml` runs on every push and PR — finding H-08 closed 2026-03-06.
 
 ---

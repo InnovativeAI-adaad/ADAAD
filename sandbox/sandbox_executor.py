@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Strict sandbox execution envelope with typed result schema."""
 
 from __future__ import annotations

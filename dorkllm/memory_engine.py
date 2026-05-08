@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 dorkllm/memory_engine.py
 DORK Persistent Memory (DPM) — Memory Engine

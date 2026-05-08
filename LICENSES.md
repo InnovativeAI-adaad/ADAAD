@@ -1,8 +1,9 @@
 # Licensing Overview
 
-- **Repository license**: MIT License (see `LICENSE`).
-- **Documentation and examples**: MIT License unless otherwise stated in-file.
-- **Tests, tools, and scripts**: MIT License unless otherwise stated.
+- **Repository license**: Proprietary Software License (see `LICENSE`).
+- **Prior releases**: Versions that were distributed under Apache License 2.0 remain governed by Apache-2.0 for recipients who received those versions before the license change.
+- **Python source headers**: Repository-authored Python source files use the exact `# SPDX-License-Identifier: Apache-2.0` header as the governed source-header invariant. This header policy is enforced separately from the current proprietary repository distribution license.
+- **Documentation, examples, tests, tools, and scripts**: Proprietary unless another in-file notice states otherwise; Python files still follow the exact Apache-2.0 SPDX source-header invariant.
 
 ## Third-party dependencies
 
@@ -12,16 +13,16 @@ upstream project notices before redistribution in regulated environments.
 
 ## License compatibility quick matrix
 
-| Dependency license family | Compatibility with ADAAD MIT distribution | Notes |
+| Dependency license family | Compatibility with ADAAD proprietary distribution | Notes |
 | --- | --- | --- |
-| MIT / BSD / ISC | Compatible | Preferred for low-friction redistribution. |
-| Apache-2.0 | Compatible | Preserve NOTICE/attribution obligations where required. |
-| GPL / AGPL / copyleft | Case-by-case review required | Require legal review before redistribution in regulated releases. |
+| MIT / BSD / ISC | Case-by-case review required | Preserve notices and attribution where required. |
+| Apache-2.0 | Case-by-case review required | Preserve NOTICE/attribution obligations where required. |
+| GPL / AGPL / copyleft | Legal review required | Do not redistribute in regulated releases without counsel approval. |
 
 ## Compliance automation
 
-Run `python scripts/validate_license_compliance.py` in CI to verify MIT baseline
-license artifacts and SPDX/header guardrails.
+Run `python scripts/validate_license_compliance.py` in CI to verify proprietary
+license artifacts and exact Apache-2.0 Python SPDX/header guardrails.
 
 ## Documentation image provenance and brand constraints
 

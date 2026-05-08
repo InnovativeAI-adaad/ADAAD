@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Automatic rollback and pruning logic."""
 
 from __future__ import annotations

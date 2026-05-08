@@ -155,8 +155,9 @@ PYTHONPATH=. pytest tests/innovations/test_phase151_grb.py -v
 python scripts/check_spdx_headers.py
 ```
 
-**Critical**: every `.py` file requires `# SPDX-License-Identifier: Apache-2.0`
-as the first or second line. `check_spdx_headers.py` is a merge gate.
+**Critical**: every `.py` file requires the exact line `# SPDX-License-Identifier: Apache-2.0`
+within the first six physical lines. Mixed Python SPDX identifiers, including `MIT` and
+proprietary `LicenseRef-*` values, are rejected by `check_spdx_headers.py`, a merge gate.
 
 `CONSTITUTION_VERSION` mismatches block test collection — resolve before running
 suites.

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 tests/test_phase173_iis.py — Phase 173 · INNOV-79 · IIS
 Innovation Impact Scorer — 30-test acceptance suite

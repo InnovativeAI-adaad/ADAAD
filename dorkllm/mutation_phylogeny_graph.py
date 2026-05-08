@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 INNOV-74 · MPG — Mutation Phylogeny Graph
 ==========================================
