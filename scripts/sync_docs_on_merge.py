@@ -28,7 +28,9 @@ WHAT GETS UPDATED ON EVERY MERGE
     • report_version, last_sync_sha, last_sync_date fields
 
   .adaad_agent_state.json
-    • schema_version, active_phase, last_invocation, last_sync_sha
+    • active_phase, last_invocation, last_sync_sha
+    • schema_version is intentionally not release-synced; schema ownership
+      remains with sync_agent_state_on_merge.py / governance drift validation
 
 CONSTITUTIONAL INVARIANTS
 ──────────────────────────────────────────────────────────────────────────────
@@ -436,7 +438,10 @@ def _update_agent_state(plan: SyncPlan) -> list[dict[str, Any]]:
             state[key] = val
             changes.append({"file": rel, "rule": rule, "old": old[:80], "new": val})
 
-    _set("schema_version", plan.version, "schema_version")
+    # Rationale/invariant: schema_version is the agent-state document format
+    # (GSYNC-SCHEMA-0), not the release semver.  This mutator leaves schema
+    # ownership to sync_agent_state_on_merge.py / drift validation and only
+    # writes release-derived sync metadata below.
     _set("active_phase",
          f"v{plan.version} RELEASED · post-merge doc sync",
          "active_phase")
