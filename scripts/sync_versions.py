@@ -56,6 +56,26 @@ def _rules(version: str) -> dict[str, list[SyncRule]]:
                 replacement=rf"\g<1>{version}\g<3>",
                 description="README hero alt version",
             ),
+            SyncRule(
+                pattern=re.compile(r"(\[!\[v)(\d+\.\d+\.\d+)(\]\(https://img\.shields\.io/badge/version-v)"),
+                replacement=rf"\g<1>{version}\g<3>",
+                description="README visible version badge label",
+            ),
+            SyncRule(
+                pattern=re.compile(r"(img\.shields\.io/badge/version-v)(\d+\.\d+\.\d+)(-)"),
+                replacement=rf"\g<1>{version}\g<3>",
+                description="README version badge",
+            ),
+            SyncRule(
+                pattern=re.compile(r"(\| \*\*Current version\*\* \| `)(\d+\.\d+\.\d+)(` \|)"),
+                replacement=rf"\g<1>{version}\g<3>",
+                description="README generated version infobox",
+            ),
+            SyncRule(
+                pattern=re.compile(r"(\| Current version \| `v)(\d+\.\d+\.\d+)(` · Phase `\d+` \|)"),
+                replacement=rf"\g<1>{version}\g<3>",
+                description="README by-the-numbers version",
+            ),
         ],
         "docs/README.md": [
             SyncRule(

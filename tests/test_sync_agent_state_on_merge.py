@@ -20,8 +20,10 @@ def tmp_repo(tmp_path: Path) -> Path:
     )
     state = {
         "schema_version": "1.5.0",
+        "version": "9.12.1",
         "current_version": "9.12.1",
         "software_version": "9.12.1",
+        "last_completed_version": "9.12.1",
         "active_phase": "old",
         "last_invocation": "2026-01-01",
         "last_sync_sha": "abc1234",
@@ -87,3 +89,8 @@ def test_success_path_writes_sha_and_deterministic_digest(tmp_repo: Path) -> Non
 
     assert state["last_sync_sha"] == "deadbee"
     assert state["last_agent_state_sync_digest"] == expected_digest
+    assert state["schema_version"] == "1.5.0"
+    assert state["version"] == "9.17.0"
+    assert state["current_version"] == "9.17.0"
+    assert state["software_version"] == "9.17.0"
+    assert state["last_completed_version"] == "9.17.0"

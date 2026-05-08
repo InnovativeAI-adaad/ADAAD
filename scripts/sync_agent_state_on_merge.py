@@ -7,8 +7,10 @@ Single-responsibility script: reads VERSION and CHANGELOG.md, writes
 
 WHAT THIS SCRIPT UPDATES
 ────────────────────────
+  version              ← VERSION (semver, product release identity)
   current_version      ← VERSION (semver)
   software_version     ← VERSION (semver, canonical alias)
+  last_completed_version ← VERSION (semver, release closure identity)
   last_invocation      ← today ISO-8601 date
   last_sync_sha        ← git HEAD short SHA
   active_phase         ← "v{version} RELEASED · post-merge agent sync"
@@ -22,7 +24,7 @@ WHAT THIS SCRIPT NEVER TOUCHES
 
 CONSTITUTIONAL INVARIANTS
 ─────────────────────────
-  GSYNC-0        current_version == VERSION on every successful run.
+  GSYNC-0        version/current_version/software_version/last_completed_version == VERSION on every successful run.
   GSYNC-DETERM-0 identical VERSION + CHANGELOG state → identical output.
   GSYNC-SCHEMA-0 schema_version is read-only from the perspective of this script.
   GSYNC-PHASE-0  last_completed_phase derived from CHANGELOG header regex.
@@ -189,8 +191,13 @@ def sync_agent_state(*, dry_run: bool = False) -> list[dict[str, Any]]:
             "new": AGENT_STATE_SCHEMA_VERSION,
         })
 
+    # Rationale: VERSION is the canonical product release identity; these
+    # aliases are synchronized together while schema_version remains a document
+    # format invariant, not a release-version field.
+    _set("version", version, "GSYNC-0")
     _set("current_version", version, "GSYNC-0")
     _set("software_version", version, "GSYNC-0")
+    _set("last_completed_version", version, "GSYNC-0")
     _set("last_completed_phase", phase_title, "GSYNC-PHASE-0")
     _set("active_phase", active_phase_str, "GSYNC-DETERM-0")
     _set("last_invocation", today, "GSYNC-DETERM-0")
