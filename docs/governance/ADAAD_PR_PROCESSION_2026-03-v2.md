@@ -183,10 +183,10 @@ adaad_pr_procession_contract:
   schema_version: "2.1"
   source_of_truth: "docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md"
   supersedes: "docs/governance/ADAAD_PR_PROCESSION_2026-03.md"
-  active_phase: "phase159_complete"
-  milestone: "v9.92.0"
-  last_state_align: "2026-04-25"
-  state_align_authority: "ROADMAP current-state checkpoint reconciliation (Phase 159 / v9.92.0)"
+  active_phase: "phase173_complete"
+  milestone: "v9.106.0"
+  last_state_align: "2026-05-08"
+  state_align_authority: "Phase 161 completion-evidence audit plus current-state reconciliation through Phase 173 / v9.106.0"
   ordered_phase_ids:
     - phase47
     - phase48
@@ -283,6 +283,33 @@ adaad_pr_procession_contract:
     - phase145
     - phase146
     - phase147
+    - phase148
+    - phase149
+    - phase150
+    - phase151
+    - phase152
+    - phase153
+    - phase154
+    - phase155
+    - phase156
+    - phase157
+    - phase158
+    - phase159
+    - phase160
+    - phase161
+    - phase162
+    - phase163
+    - phase164
+    - phase165
+    - phase166
+    - phase167
+    - phase168
+    - phase169
+    - phase170
+    - phase171
+    - phase172
+    - phase173
+    - phase174
   phase_nodes:
     phase47:
       ci_tier: standard
@@ -930,11 +957,173 @@ adaad_pr_procession_contract:
       status: merged
       version: "v9.80.0"
       title: "INNOV-53 Intent Expression Schema"
+    phase148:
+      ci_tier: constitutional
+      depends_on: ["phase147"]
+      status: shipped
+      version: "v9.81.0"
+      title: "INNOV-54 Live Execution Feed"
+    phase149:
+      ci_tier: constitutional
+      depends_on: ["phase148"]
+      status: shipped
+      version: "v9.82.0"
+      title: "INNOV-55 Mutation Explainability Engine"
+    phase150:
+      ci_tier: constitutional
+      depends_on: ["phase149"]
+      status: shipped
+      version: "v9.83.0"
+      title: "INNOV-56 Governance Circuit Breaker"
+    phase151:
+      ci_tier: constitutional
+      depends_on: ["phase150"]
+      status: shipped
+      version: "v9.84.0"
+      title: "INNOV-57 Governed Rollback"
+    phase152:
+      ci_tier: constitutional
+      depends_on: ["phase151"]
+      status: shipped
+      version: "v9.85.0"
+      title: "INNOV-58 Constitutional Pressure Index"
+    phase153:
+      ci_tier: constitutional
+      depends_on: ["phase152"]
+      status: shipped
+      version: "v9.86.0"
+      title: "INNOV-59 Adaptive Mutation Throttle"
+    phase154:
+      ci_tier: constitutional
+      depends_on: ["phase153"]
+      status: shipped
+      version: "v9.87.0"
+      title: "INNOV-60 Constitutional Pre-Admission Gate"
+    phase155:
+      ci_tier: constitutional
+      depends_on: ["phase154"]
+      status: shipped
+      version: "v9.88.0"
+      title: "INNOV-61 Constitutional Governance Telemetry Hub"
+    phase156:
+      ci_tier: constitutional
+      depends_on: ["phase155"]
+      status: shipped
+      version: "v9.89.0"
+      title: "INNOV-62 Constitutional Governance Anomaly Inspector"
+    phase157:
+      ci_tier: constitutional
+      depends_on: ["phase156"]
+      status: shipped
+      version: "v9.90.0"
+      title: "INNOV-63 Governance Health Index"
+    phase158:
+      ci_tier: constitutional
+      depends_on: ["phase157"]
+      status: shipped
+      version: "v9.91.0"
+      title: "INNOV-64 Constitutional Self-Repair Engine"
+    phase159:
+      ci_tier: constitutional
+      depends_on: ["phase158"]
+      status: shipped
+      version: "v9.92.0"
+      title: "INNOV-65 Constitutional Strength Index"
+    phase160:
+      ci_tier: constitutional
+      depends_on: ["phase159"]
+      status: shipped
+      version: "v9.93.0"
+      title: "INNOV-66 Emergent Baseline Sentinel (EBS)"
+    phase161:
+      ci_tier: constitutional
+      depends_on: ["phase160"]
+      status: shipped
+      version: "v9.94.0"
+      title: "INNOV-67 Constitutional Forecast Engine (CFE)"
+    phase162:
+      ci_tier: constitutional
+      depends_on: ["phase161"]
+      status: shipped
+      version: "v9.95.0"
+      title: "INNOV-68 Mutation Impact Analyzer (MIA)"
+    phase163:
+      ci_tier: constitutional
+      depends_on: ["phase162"]
+      status: shipped
+      version: "v9.96.0"
+      title: "INNOV-69 Mutation Calibration Engine (MCE)"
+    phase164:
+      ci_tier: constitutional
+      depends_on: ["phase163"]
+      status: shipped
+      version: "v9.97.0"
+      title: "INNOV-70 Constitutional Genome Encoder (CGE)"
+    phase165:
+      ci_tier: constitutional
+      depends_on: ["phase164"]
+      status: shipped
+      version: "v9.98.0"
+      title: "INNOV-71 V10 Convergence Assessor (V10CA)"
+    phase166:
+      ci_tier: constitutional
+      depends_on: ["phase165"]
+      status: shipped
+      version: "v9.99.0"
+      title: "INNOV-72 Genome Alignment Engine (GAE)"
+    phase167:
+      ci_tier: constitutional
+      depends_on: ["phase166"]
+      status: shipped
+      version: "v9.100.0"
+      title: "INNOV-73 Invariant Velocity Benchmark (IVB)"
+    phase168:
+      ci_tier: constitutional
+      depends_on: ["phase167"]
+      status: shipped
+      version: "v9.101.0"
+      title: "INNOV-74 Mutation Phylogeny Graph (MPG)"
+    phase169:
+      ci_tier: constitutional
+      depends_on: ["phase168"]
+      status: shipped
+      version: "v9.102.0"
+      title: "INNOV-75 Mutation Selection Engine (MSE)"
+    phase170:
+      ci_tier: constitutional
+      depends_on: ["phase169"]
+      status: shipped
+      version: "v9.103.0"
+      title: "INNOV-76 Mutation Risk Profiler (MRP)"
+    phase171:
+      ci_tier: constitutional
+      depends_on: ["phase170"]
+      status: shipped
+      version: "v9.104.0"
+      title: "INNOV-77 Mutation Execution Engine (MEX)"
+    phase172:
+      ci_tier: constitutional
+      depends_on: ["phase171"]
+      status: shipped
+      version: "v9.105.0"
+      title: "INNOV-78 Mutation Fitness Verifier (MFV)"
+    phase173:
+      ci_tier: constitutional
+      depends_on: ["phase172"]
+      status: shipped
+      version: "v9.106.0"
+      title: "INNOV-79 Innovation Impact Scorer (IIS)"
+    phase174:
+      ci_tier: constitutional
+      depends_on: ["phase173"]
+      status: planned
+      version: "v9.107.0"
+      title: "TBD — next SPIE-ratified innovation"
   state_alignment:
     canonical_pr_identifier_format: "Phase <N> — <Title>"
-    expected_active_phase: "Phase 160 COMPLETE · v9.93.0"
-    expected_last_completed_pr: "Phase 160 — INNOV-66 Emergent Baseline Sentinel (EBS)"
-    expected_next_pr: "Phase 161 — INNOV-67 (deterministic: first non-shipped phase whose predecessor is shipped)"
+    expected_active_phase: "Phase 173 COMPLETE · v9.106.0"
+    expected_last_completed_pr: "Phase 173 — INNOV-79 Innovation Impact Scorer (IIS)"
+    expected_next_pr: "Phase 174 — TBD (deterministic: first non-shipped phase whose predecessor is shipped)"
     blocked_reason_must_be_null: true
   open_findings:
     - id: FINDING-C03-GITHUB-APP
@@ -992,6 +1181,7 @@ A validator comparing this document to `.adaad_agent_state.json` should fail if:
 
 ## 3.2 Changelog
 
+- **2026-05-08:** Audited Phase 161 completion evidence as shipped, reconciled active-era phase nodes through **Phase 173 complete / v9.106.0**, and advanced deterministic next-phase targeting to `Phase 174 — …` so `expected_next_pr` no longer points to completed work.
 - **2026-04-25:** Reconciled automation checkpoint to **Phase 160 complete / v9.93.0** and normalized deterministic next-phase identifier format to `Phase 161 — …` for state-alignment validators.
 - **2026-04-22:** Reconciled automation checkpoint to **Phase 147 complete / v9.80.0**, extended active-era phase nodes through 147, and normalized deterministic next-phase identifier format to `Phase 148 — …` for state-alignment validators.
 - **2026-04-22:** Defined canonical PR identifier format in state alignment as `Phase <N> — <Title>` and enforced that both `expected_last_completed_pr` and `expected_next_pr` use that exact format.
