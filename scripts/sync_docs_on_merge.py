@@ -28,7 +28,9 @@ WHAT GETS UPDATED ON EVERY MERGE
     • report_version, last_sync_sha, last_sync_date fields
 
   .adaad_agent_state.json
-    • schema_version, active_phase, last_invocation, last_sync_sha
+    • active_phase, last_invocation, last_sync_sha
+    • schema_version is intentionally not release-synced; schema ownership
+      remains with sync_agent_state_on_merge.py / governance drift validation
 
 CONSTITUTIONAL INVARIANTS
 ──────────────────────────────────────────────────────────────────────────────
