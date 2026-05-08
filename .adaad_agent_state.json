@@ -414,7 +414,8 @@
   "last_sync_sha": "a0d62591",
   "last_updated": "2026-05-07T14:17:13.270999+00:00",
   "next_phase": 174,
-  "next_pr": "phase163-mutation-calibration-engine",
+  "next_pr": "Phase 173 \u2014 INNOV-79 \u00b7 IIS \u2014 Innovation Impact Scorer",
+  "expected_next_pr": "Phase 173 \u2014 INNOV-79 \u00b7 IIS \u2014 Innovation Impact Scorer",
   "open_findings": [
     {
       "id": "FINDING-66-001",
@@ -1027,7 +1028,7 @@
   "ga_blocker_count": 0,
   "milestone": "v1.1-GA",
   "ga_blockers": 0,
-  "last_completed_pr": "phase172-mutation-fitness-verifier",
+  "last_completed_pr": "Phase 172 \u2014 INNOV-78 \u00b7 MFV \u2014 Mutation Fitness Verifier",
   "last_gate_results": {
     "tier_0": "pass",
     "tier_1": "pass",
@@ -1269,7 +1270,7 @@
   "next_phase_id": 173,
   "phases_complete": 172,
   "next_innovation_id": "INNOV-79",
-  "next_innovation_name": "TBD \u2014 SPIE proposal pending HUMAN-0 ratification",
+  "next_innovation_name": "Innovation Impact Scorer",
   "total_phases": 172,
   "total_innovations": 78,
   "hard_invariant_count": 370,

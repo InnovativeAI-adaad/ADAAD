@@ -932,9 +932,9 @@ adaad_pr_procession_contract:
       title: "INNOV-53 Intent Expression Schema"
   state_alignment:
     canonical_pr_identifier_format: "Phase <N> — <Title>"
-    expected_active_phase: "Phase 160 COMPLETE · v9.93.0"
-    expected_last_completed_pr: "Phase 160 — INNOV-66 Emergent Baseline Sentinel (EBS)"
-    expected_next_pr: "Phase 161 — INNOV-67 (deterministic: first non-shipped phase whose predecessor is shipped)"
+    expected_active_phase: "Phase 172 COMPLETE · v9.106.0"
+    expected_last_completed_pr: "Phase 172 — INNOV-78 · MFV — Mutation Fitness Verifier"
+    expected_next_pr: "Phase 173 — INNOV-79 · IIS — Innovation Impact Scorer"
     blocked_reason_must_be_null: true
   open_findings:
     - id: FINDING-C03-GITHUB-APP
