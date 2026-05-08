@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "Phase 173 \u2014 INNOV-79 IIS \u2014 Innovation Impact Scorer",
+  "active_phase": "v9.106.0 RELEASED \u00b7 post-merge agent sync",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -413,7 +413,7 @@
   "last_invocation": "2026-05-08",
   "last_phase_completed": 173,
   "last_phase_completed_label": "Phase 173 \u2014 INNOV-79 IIS \u2014 Innovation Impact Scorer",
-  "last_sync_sha": "a0d62591",
+  "last_sync_sha": "140a985b",
   "last_updated": "2026-05-07T14:17:13.270999+00:00",
   "next_phase": 174,
   "next_pr": "Phase 174 \u2014 TBD \u2014 SPIE proposal pending HUMAN-0 ratification",
@@ -1021,8 +1021,8 @@
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
   ],
-  "last_completed_phase": "Phase 173 \u2014 INNOV-79 IIS \u2014 Innovation Impact Scorer",
-  "last_agent_state_sync_digest": "gsync-bfd5dc7105fbc63b",
+  "last_completed_phase": "24 \u00b7 Phase 154 \u00b7 INNOV-60 \u00b7 Constitutional Pre-Admission Gate (CPAG)",
+  "last_agent_state_sync_digest": "gsync-3c01943fddcc2aa8",
   "invariant_count": 380,
   "innovation_count": 79,
   "innovations_shipped": 79,
