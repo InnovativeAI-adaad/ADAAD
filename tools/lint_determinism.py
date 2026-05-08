@@ -61,6 +61,9 @@ ENTROPY_ENFORCED_FILES: frozenset[str] = frozenset(
     {
         "app/dream_mode.py",
         "app/beast_mode_loop.py",
+        # AI proposal identity repair is replay-sensitive; mutation IDs must be
+        # derived from stable lineage/proposal inputs rather than wall-clock time.
+        "runtime/autonomy/ai_mutation_proposer.py",
     }
 )
 ENTROPY_ALLOWLIST: frozenset[str] = frozenset(
