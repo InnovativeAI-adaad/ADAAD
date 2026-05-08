@@ -367,14 +367,16 @@
     "phase171-mex-complete",
     "v9.104.0-released",
     "phase172-mfv-complete",
-    "v9.105.0-released"
+    "v9.105.0-released",
+    "phase173-iis-complete",
+    "v9.106.0-released"
   ],
-  "constitutional_invariants": 370,
-  "current_phase": 173,
+  "constitutional_invariants": 380,
+  "current_phase": 174,
   "current_version": "9.106.0",
-  "hard_class_count": 370,
+  "hard_class_count": 380,
   "hard_class_invariant_count": 380,
-  "hard_class_invariants_cumulative": 370,
+  "hard_class_invariants_cumulative": 380,
   "human0_signoffs": [
     {
       "date": "2026-03-27",
@@ -406,15 +408,15 @@
       "date": "2026-04-30"
     }
   ],
-  "last_innovation": "INNOV-78-MFV",
-  "last_innovation_name": "Mutation Fitness Verifier",
+  "last_innovation": "INNOV-79-IIS",
+  "last_innovation_name": "Innovation Impact Scorer",
   "last_invocation": "2026-05-08",
-  "last_phase_completed": 172,
-  "last_phase_completed_label": "Phase 172 \u00b7 INNOV-78 \u00b7 MFV \u2014 Mutation Fitness Verifier",
-  "last_sync_sha": "a0d62591",
+  "last_phase_completed": 173,
+  "last_phase_completed_label": "Phase 173 \u2014 INNOV-79 IIS \u2014 Innovation Impact Scorer",
+  "last_sync_sha": "140a985b",
   "last_updated": "2026-05-07T14:17:13.270999+00:00",
   "next_phase": 174,
-  "next_pr": "phase163-mutation-calibration-engine",
+  "next_pr": "Phase 174 \u2014 TBD \u2014 SPIE proposal pending HUMAN-0 ratification",
   "open_findings": [
     {
       "id": "FINDING-66-001",
@@ -662,8 +664,8 @@
   ],
   "open_findings_count": 0,
   "pending_evidence_rows": [],
-  "phase": 172,
-  "phase_label": "Phase 172 \u00b7 INNOV-78 \u00b7 MFV \u2014 Mutation Fitness Verifier",
+  "phase": 173,
+  "phase_label": "Phase 173 \u2014 INNOV-79 IIS \u2014 Innovation Impact Scorer",
   "phases_completed": [
     106,
     107,
@@ -718,7 +720,8 @@
     169,
     170,
     171,
-    172
+    172,
+    173
   ],
   "schema_version": "1.5.0",
   "software_version": "9.106.0",
@@ -1019,15 +1022,15 @@
     "phase127-world-first-governed-redteam-response"
   ],
   "last_completed_phase": "24 \u00b7 Phase 154 \u00b7 INNOV-60 \u00b7 Constitutional Pre-Admission Gate (CPAG)",
-  "last_agent_state_sync_digest": "gsync-bfd5dc7105fbc63b",
-  "invariant_count": 370,
-  "innovation_count": 78,
+  "last_agent_state_sync_digest": "gsync-3c01943fddcc2aa8",
+  "invariant_count": 380,
+  "innovation_count": 79,
   "innovations_shipped": 79,
-  "last_innovation_id": "INNOV-78",
+  "last_innovation_id": "INNOV-79",
   "ga_blocker_count": 0,
   "milestone": "v1.1-GA",
   "ga_blockers": 0,
-  "last_completed_pr": "phase172-mutation-fitness-verifier",
+  "last_completed_pr": "Phase 173 \u2014 INNOV-79 IIS \u2014 Innovation Impact Scorer",
   "last_gate_results": {
     "tier_0": "pass",
     "tier_1": "pass",
@@ -1266,12 +1269,13 @@
       "date": "2026-04-21"
     }
   },
-  "next_phase_id": 173,
-  "phases_complete": 172,
-  "next_innovation_id": "INNOV-79",
+  "next_phase_id": 174,
+  "phases_complete": 173,
+  "next_innovation_id": "INNOV-80",
   "next_innovation_name": "TBD \u2014 SPIE proposal pending HUMAN-0 ratification",
-  "total_phases": 172,
-  "total_innovations": 78,
-  "hard_invariant_count": 370,
-  "last_completed_version": "9.106.0"
+  "total_phases": 173,
+  "total_innovations": 79,
+  "hard_invariant_count": 380,
+  "last_completed_version": "9.106.0",
+  "expected_next_pr": "Phase 174 \u2014 TBD \u2014 SPIE proposal pending HUMAN-0 ratification"
 }
