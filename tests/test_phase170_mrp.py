@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 tests/test_phase170_mrp.py
 Phase 170 · INNOV-76 · MRP — Mutation Risk Profiler

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Multi-axis deterministic fitness scoring."""
 
 from __future__ import annotations

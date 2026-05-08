@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Evolution analytics and reporting utilities."""
 
 from __future__ import annotations

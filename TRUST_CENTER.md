@@ -122,7 +122,7 @@ ADAAD is effectively built by one person: Dustin L. Reid, Governor, Innovative A
 
 1. **FINDING-66-004 — Ed25519 2-of-3 key ceremony (✅ RESOLVED 2026-04-12):** The 2-of-3 Ed25519 threshold key ceremony was executed on ADAADell. Three key pairs generated (primary, secondary, recovery). Public key ring committed at `security/keys/ed25519_governance_ring.json`. Attestation artifact: `artifacts/governance/ceremony/ceremony-ed25519-2of3-20260412.json`. Tier 0 authority is now distributed across 3 key holders.
 
-2. **Open source mitigates bus factor:** The constitutional framework, invariant enforcement, ledger architecture, and all 36 innovations are fully open source under Apache 2.0. Any competent Python engineer can audit, fork, and operate the system from the public repository.
+2. **Auditability mitigates bus factor:** The active repository is distributed under the Proprietary License stated in `LICENSE` and `pyproject.toml`; prior Apache-2.0 releases remain governed by their original terms. Python source files retain exact `# SPDX-License-Identifier: Apache-2.0` headers as the governed source-header invariant, enforced separately from repository distribution metadata.
 
 3. **The ledger is portable:** Every governance decision is in append-only JSONL files in the repository. The audit trail survives any organizational change.
 

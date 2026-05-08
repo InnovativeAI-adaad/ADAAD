@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
-"""Enforce SPDX-License-Identifier headers on all Python source files.
+"""Enforce exact Apache-2.0 SPDX headers on Python source files.
 
 Usage:
     python scripts/check_spdx_headers.py [--fix] [paths...]
 
-Exits non-zero if any file is missing a valid SPDX header.
-With --fix, writes the header to offending files.
+Exits non-zero if any file is missing the exact required header line
+``# SPDX-License-Identifier: Apache-2.0`` within the allowed header window.
+Other SPDX identifiers, including MIT or proprietary LicenseRef values, are
+rejected for Python source files even when the repository-level distribution
+license is proprietary. With --fix, writes or replaces the required header.
 """
 from __future__ import annotations
 
@@ -17,6 +20,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 SPDX_LINE = "# SPDX-License-Identifier: Apache-2.0"
+HEADER_WINDOW_LINES = 6
 
 EXCLUDE_PATTERNS = (
     ".git",
@@ -30,15 +34,25 @@ EXCLUDE_PATTERNS = (
 )
 
 DEFAULT_SCAN_DIRS = (
+    ".codex",
     "app",
     "adaad",
+    "core",
+    "dorkllm",
+    "evolution",
+    "examples",
     "runtime",
+    "sandbox",
     "scripts",
     "security",
     "tests",
     "tools",
     "governance",
     "ui",
+    "server.py",
+    "nexus_setup.py",
+    "onboard_phone.py",
+    "patch_dork.py",
 )
 
 
@@ -51,9 +65,9 @@ def _has_spdx(path: Path) -> bool:
     try:
         with path.open("r", encoding="utf-8", errors="replace") as fh:
             for i, line in enumerate(fh):
-                if i > 5:
+                if i >= HEADER_WINDOW_LINES:
                     break
-                if "SPDX-License-Identifier" in line:
+                if line.rstrip("\r\n") == SPDX_LINE:
                     return True
     except OSError:
         pass
@@ -61,7 +75,14 @@ def _has_spdx(path: Path) -> bool:
 
 
 def _fix_file(path: Path) -> None:
-    content = path.read_text(encoding="utf-8")
+    lines = path.read_text(encoding="utf-8").splitlines(keepends=True)
+    for i, line in enumerate(lines[:HEADER_WINDOW_LINES]):
+        if "SPDX-License-Identifier" in line:
+            newline = "\r\n" if line.endswith("\r\n") else "\n"
+            lines[i] = SPDX_LINE + newline
+            path.write_text("".join(lines), encoding="utf-8")
+            return
+    content = "".join(lines)
     path.write_text(SPDX_LINE + "\n" + content, encoding="utf-8")
 
 
@@ -77,18 +98,22 @@ def main() -> int:
     for root in scan_roots:
         if not root.exists():
             continue
-        for path in sorted(root.rglob("*.py")):
-            if _excluded(path):
+        candidates = [root] if root.is_file() else sorted(root.rglob("*.py"))
+        for path in candidates:
+            if path.suffix != ".py" or _excluded(path):
                 continue
             if not _has_spdx(path):
                 violations.append(path)
 
     if not violations:
-        print(f"✅ SPDX check passed — all Python files have license headers.")
+        print(f"✅ SPDX check passed — all Python files have exact Apache-2.0 license headers.")
         return 0
 
     for v in violations:
-        rel = v.relative_to(REPO_ROOT)
+        try:
+            rel = v.relative_to(REPO_ROOT)
+        except ValueError:
+            rel = v
         if args.fix:
             _fix_file(v)
             print(f"  fixed: {rel}")
@@ -99,8 +124,8 @@ def main() -> int:
         print(f"✅ Fixed {len(violations)} file(s).")
         return 0
 
-    print(f"\n❌ {len(violations)} file(s) missing SPDX-License-Identifier header.")
-    print("Run with --fix to add headers automatically.")
+    print(f"\n❌ {len(violations)} file(s) missing exact Apache-2.0 SPDX-License-Identifier header.")
+    print("Run with --fix to add or replace headers automatically.")
     return 1
 
 

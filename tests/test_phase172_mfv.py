@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: LicenseRef-Proprietary-InnovativeAI
+# SPDX-License-Identifier: Apache-2.0
 """
 Test suite: Phase 172 · INNOV-78 · MFV — Mutation Fitness Verifier
 T172-MFV-01 through T172-MFV-30

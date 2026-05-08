@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Bootstrap script for initializing the He65 Nexus workspace.
 
 This script materializes the canonical folder structure, seeds protocol
