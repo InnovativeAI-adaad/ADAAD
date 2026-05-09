@@ -664,7 +664,7 @@
   ],
   "open_findings_count": 0,
   "pending_evidence_rows": [],
-  "phase": 173,
+  "phase": 174,
   "phase_label": "Phase 173 \u2014 INNOV-79 IIS \u2014 Innovation Impact Scorer",
   "phases_completed": [
     106,
@@ -1016,7 +1016,7 @@
     "phase124-world-first-governed-kernel-extraction",
     "v9.57.0-released"
   ],
-  "version": "9.106.0",
+  "version": "9.107.0",
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
@@ -1277,5 +1277,7 @@
   "total_innovations": 79,
   "hard_invariant_count": 380,
   "last_completed_version": "9.106.0",
-  "expected_next_pr": "Phase 174 \u2014 TBD \u2014 SPIE proposal pending HUMAN-0 ratification"
+  "expected_next_pr": "Phase 174 \u2014 TBD \u2014 SPIE proposal pending HUMAN-0 ratification",
+  "last_phase_name": "CMF \u2014 Compliance Module Fix",
+  "timestamp": "2026-05-09T14:25:56.557096+00:00"
 }
