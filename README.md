@@ -13,6 +13,19 @@
 
 ---
 
+## Governance & Determinism Guarantees (Current State)
+
+- `ADAAD_DETERMINISTIC_LOCK` can force deterministic-only execution paths at runtime.
+- `ADAAD_DISPATCH_LATENCY_BUDGET_MS` bounds governed dispatch latency for public endpoints.
+
+<!-- ADAAD_VERSION_INFOBOX:START -->
+| Field | Value |
+| --- | --- |
+| **Current version** | `9.110.0` |
+| **Released** | `2026-05-09` |
+| **Release SHA** | `9827de9` |
+<!-- ADAAD_VERSION_INFOBOX:END -->
+
 ## The only AI system that governs its own evolution — and can prove it.
 
 **Every mutation flows through a 16-step Constitutional Evolution Loop.** **Every decision is sealed in a hash-chained cryptographic proof.** **One human key unlocks critical changes. That is not configurable.**

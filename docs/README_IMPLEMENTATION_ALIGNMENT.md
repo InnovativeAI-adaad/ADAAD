@@ -10,6 +10,9 @@ This document cross-references `README.md` operational claims with concrete impl
 | Metric | Value |
 | --- | --- |
 | Report version | `9.110.0` |
+| Branch | `work` |
+| Tag | `(none)` |
+| Short SHA | `22df224` |
 | Branch | `main` |
 | Tag | `(none)` |
 | Short SHA | `6ddea7fb` |
