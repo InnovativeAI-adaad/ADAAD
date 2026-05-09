@@ -1,0 +1,49 @@
+{
+  "sync_timestamp": "2026-05-09T14:41:24.274051+00:00",
+  "canonical": {
+    "version": "9.108.0",
+    "phase": 175,
+    "hard_class_count": 390,
+    "innovations": 80,
+    "sha": "591de201"
+  },
+  "surfaces": [
+    {
+      "file": "pyproject.toml",
+      "changed": false,
+      "ops": []
+    },
+    {
+      "file": "README.md",
+      "changed": false,
+      "ops": []
+    },
+    {
+      "file": "docs/README.md",
+      "changed": false,
+      "ops": []
+    },
+    {
+      "file": "ROADMAP.md",
+      "changed": false,
+      "ops": []
+    },
+    {
+      "file": "governance/report_version.json",
+      "changed": false,
+      "ops": []
+    },
+    {
+      "file": ".adaad_agent_state.json",
+      "changed": false,
+      "ops": []
+    },
+    {
+      "file": "docs/assets/readme/inline-hero_banner.svg",
+      "changed": false,
+      "ops": []
+    }
+  ],
+  "total_changed": 0,
+  "digest": "1521edd43205e2fa"
+}

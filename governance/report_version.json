@@ -1,12 +1,12 @@
 {
-  "last_sync_date": "2026-05-09",
-  "last_sync_sha": "1f7bd86f",
-  "report_version": "9.106.0",
-  "version_source": "governance/report_version.json",
-  "version": "9.106.0",
-  "phase": 172,
-  "date": "2026-05-07",
-  "innovation": "INNOV-79 IIS",
-  "updated": "2026-05-07T14:16:46.194795+00:00",
-  "last_updated": "2026-05-07"
+    "last_sync_date": "2026-05-09",
+    "last_sync_sha": "591de201",
+    "report_version": "9.108.0",
+    "version_source": "governance/report_version.json",
+    "version": "9.108.0",
+    "phase": 175,
+    "date": "2026-05-09",
+    "innovation": "INNOV-80",
+    "updated": "2026-05-09T14:39:27.978227+00:00",
+    "last_updated": "2026-05-09"
 }

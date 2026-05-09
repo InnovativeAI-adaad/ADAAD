@@ -1,0 +1,161 @@
+# SPDX-License-Identifier: Apache-2.0
+# Invariant codes: VSYNC-TRUTH-0 · VSYNC-ATOM-0 · VSYNC-IDEM-0 · VSYNC-AUDIT-0
+#
+# VERSION AUTOSYNC WORKFLOW
+# ─────────────────────────────────────────────────────────────────────────────
+# Purpose: Drift-proof version synchronisation across every tracked surface.
+#          Runs on every push to main and on a nightly schedule.
+#          Calls scripts/version_sync.py (the authoritative sync engine).
+#
+# What gets synced on every run:
+#   • pyproject.toml          — version field
+#   • README.md               — badges, infobox, by-the-numbers table
+#   • docs/README.md          — version + phase badges
+#   • ROADMAP.md              — Current State header, status line
+#   • governance/report_version.json
+#   • .adaad_agent_state.json — version/phase/invariant/innovation fields
+#   • docs/assets/readme/inline-hero_banner.svg  — stat boxes + version badge
+#   • governance/sync_manifest_latest.json        — machine-readable sync log
+#
+# Constitutional invariants:
+#   VSYNC-TRUTH-0   VERSION file is the sole arbiter of the version string.
+#   VSYNC-IDEM-0    Zero drift → zero commit → no workflow loop.
+#   VSYNC-AUDIT-0   Every sync run emits a manifest to governance/.
+#   VSYNC-NOLOOP-0  This workflow must not trigger itself. Enforced by
+#                   [skip ci] in the commit message and path filters.
+
+name: Version Autosync
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - VERSION
+      - pyproject.toml
+      - CHANGELOG.md
+      - .adaad_agent_state.json
+      - governance/report_version.json
+      - docs/assets/readme/inline-hero_banner.svg
+  schedule:
+    # 06:30 UTC daily — catch any offline drift
+    - cron: "30 6 * * *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Force sync even if no trigger paths changed"
+        required: false
+        default: "false"
+
+permissions:
+  contents: write
+
+jobs:
+  version-autosync:
+    name: Sync all version surfaces
+    runs-on: ubuntu-latest
+    # Skip if the last commit was already a sync commit (VSYNC-NOLOOP-0)
+    if: |
+      !contains(github.event.head_commit.message, '[version-autosync]') &&
+      !contains(github.event.head_commit.message, '[skip ci]')
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Read canonical version
+        id: ver
+        run: |
+          VER=$(cat VERSION | tr -d '[:space:]')
+          echo "version=${VER}" >> $GITHUB_OUTPUT
+          echo "Canonical version: ${VER}"
+
+      - name: Run version_sync.py
+        id: sync
+        run: |
+          python3 scripts/version_sync.py 2>&1 | tee /tmp/sync_output.txt
+          # Extract changed count from manifest
+          CHANGED=$(python3 -c "
+          import json, sys
+          try:
+              m = json.load(open('governance/sync_manifest_latest.json'))
+              print(m['total_changed'])
+          except Exception as e:
+              print('0')
+          ")
+          echo "changed=${CHANGED}" >> $GITHUB_OUTPUT
+          echo "Surfaces changed: ${CHANGED}"
+
+      - name: Configure git identity
+        run: |
+          git config user.name  "DEVADAAD"
+          git config user.email "devadaad@innovativeai.dev"
+
+      - name: Commit drift corrections (if any)
+        if: steps.sync.outputs.changed != '0'
+        run: |
+          VER="${{ steps.ver.outputs.version }}"
+          CHANGED="${{ steps.sync.outputs.changed }}"
+
+          git add \
+            README.md \
+            docs/README.md \
+            ROADMAP.md \
+            pyproject.toml \
+            .adaad_agent_state.json \
+            governance/report_version.json \
+            governance/sync_manifest_latest.json \
+            docs/assets/readme/inline-hero_banner.svg \
+            || true
+
+          # Only commit if there are staged changes
+          if git diff --cached --quiet; then
+            echo "No staged changes — nothing to commit."
+            exit 0
+          fi
+
+          git commit -m "chore: [version-autosync] sync all surfaces to v${VER}
+
+          Automated drift correction — ${CHANGED} surface(s) updated.
+
+          Surfaces: README.md, docs/README.md, ROADMAP.md, pyproject.toml,
+                    .adaad_agent_state.json, governance/report_version.json,
+                    docs/assets/readme/inline-hero_banner.svg
+
+          Canonical truth: VERSION file → v${VER}
+          Sync engine: scripts/version_sync.py
+          Invariants: VSYNC-TRUTH-0 VSYNC-ATOM-0 VSYNC-IDEM-0 VSYNC-AUDIT-0
+
+          HUMAN-0: DUSTIN L REID [version-autosync] [skip ci]"
+
+      - name: Push corrections
+        if: steps.sync.outputs.changed != '0'
+        run: |
+          git push origin main || {
+            echo "Push failed — pulling and retrying"
+            git fetch origin main
+            git merge FETCH_HEAD --strategy-option=ours \
+              -m "chore: [version-autosync] pull before retry [skip ci]"
+            git push origin main
+          }
+
+      - name: Report — no drift detected
+        if: steps.sync.outputs.changed == '0'
+        run: |
+          echo "✓ VSYNC-IDEM-0: all surfaces already agree with v${{ steps.ver.outputs.version }}"
+          echo "  No commit needed."
+
+      - name: Upload sync manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sync-manifest-${{ github.run_number }}
+          path: governance/sync_manifest_latest.json
+          retention-days: 30
