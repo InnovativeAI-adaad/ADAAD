@@ -45,7 +45,7 @@
 | **Current version** | `9.108.0` |
 | **Phase** | `175` |
 | **Released** | `2026-05-09` |
-| **Release SHA** | `591de201` |
+| **Release SHA** | `f7e38ce4` |
 | **Hard-class invariants** | `390` |
 | **Innovations shipped** | `80` |
 <!-- ADAAD_VERSION_INFOBOX:END -->

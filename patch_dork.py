@@ -15,7 +15,7 @@ with open("dork", "r") as f:
 
 pattern = re.compile(r'# Enhance: Autonomous LLM Intelligence Fallback.*?else:\s+if not api_key:.*?req = urllib.request.Request(.*?data=json.dumps(.*?).encode("utf-8"))\s+\)', re.DOTALL)
 
-new_logic = """# Enhance: Autonomous LLM Intelligence Fallback
+new_logic = '''# Enhance: Autonomous LLM Intelligence Fallback
     api_key = os.getenv("ADAAD_ANTHROPIC_API_KEY") or os.getenv("ANTHROPIC_API_KEY")
     groq_key = os.getenv("GROQ_API_KEY")
     ngrok_gateway_url = os.getenv("NGROK_AI_GATEWAY_URL")
@@ -129,7 +129,7 @@ You are the primary Strategic Orchestrator for ADAAD (Autonomous Development & A
                             "system": system_prompt,
                             "messages": messages
                         }).encode("utf-8")
-                    ) """
+                    ) '''
 
 # Instead of direct replace, we'll just write the whole dork file if we find the function
 # But for now, let's just make patch_dork.py reflect the intent.
