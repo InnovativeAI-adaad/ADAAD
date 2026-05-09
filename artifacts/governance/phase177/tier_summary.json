@@ -1,0 +1,17 @@
+{
+  "phase": 177,
+  "innovation": "INNOV-82",
+  "tier_breakdown": {
+    "tier0_mutations": 0,
+    "tier1_mutations": 0,
+    "tier2_mutations": 1,
+    "track_a_autonomous": 1
+  },
+  "constitutional_gates_passed": 10,
+  "blast_radius": "low",
+  "scope": "dorkllm/cfi_feedback_integrator.py + tests/test_innov82_cfi.py",
+  "ledger_path": "data/cfi/feedback_weight_ledger.jsonl",
+  "snapshot_path": "data/cfi/current_weights.json",
+  "rdp_integration": "reads data/rdp/disposition_ledger.jsonl (read-only)",
+  "mse_integration": "CFIFeedbackIntegrator().load_current_weights() → MutationSelectionEngine(weights=...)"
+}

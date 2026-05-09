@@ -1,3 +1,32 @@
+## [9.110.0] — Phase 177 · INNOV-82 · CFI — CEL Feedback Integrator
+
+**Date:** 2026-05-09  **Author:** MutationAgent · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### Added
+- `dorkllm/cfi_feedback_integrator.py` — INNOV-82 · CFI: reads HUMAN-0 disposition outcomes
+  from RDP (INNOV-81) disposition_ledger.jsonl and translates them into calibrated MSE
+  selection-weight adjustments. ACCEPTED dispositions amplify; REJECTED dispositions decay;
+  DEFERRED is neutral. Weights are re-normalised to sum=1.0 after each cycle. Closes the
+  last mechanical gap in the CEL self-improvement loop.
+- `tests/test_innov82_cfi.py` — 30 acceptance tests (T177-CFI-01..30), 30/30 passing
+- `artifacts/governance/phase177/` — four governance artifacts (phase_sign_off, track_a_sign_off,
+  tier_summary, replay_digest)
+- `data/cfi/` — new ledger directory: feedback_weight_ledger.jsonl + current_weights.json snapshot
+
+### Invariants Added (10 Hard-class, cumulative: 410)
+  CFI-CHAIN-0  CFI-DETERM-0  CFI-HUMAN0-0  CFI-IMMUT-0  CFI-ATOMIC-0
+  CFI-SCOPE-0  CFI-FLOOR-0   CFI-CEIL-0    CFI-NORM-0   CFI-REPLAY-0
+
+### World-First
+- First constitutionally-governed AI feedback loop translating HUMAN-0 amendment dispositions
+  into calibrated MSE selection-weight adjustments — closing the CEL self-improvement loop
+  mechanically end-to-end.
+
+### CEL Self-Improvement Loop — Now Fully Closed
+  MSE → MRP → MPG → MEX → MFV → IIS → CAL → RDP → HUMAN-0
+   ↑                                                      │
+   └───────────────── CFI (INNOV-82) ◄────────────────────┘
+
 ## [9.109.0] — Phase 176 · INNOV-81 · RDP — Recommendation Delivery Protocol
 
 **Date:** 2026-05-09  **Author:** MutationAgent · InnovativeAI LLC  **Governor:** DUSTIN L REID
