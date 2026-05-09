@@ -13,6 +13,9 @@ This document cross-references `README.md` operational claims with concrete impl
 | Branch | `work` |
 | Tag | `(none)` |
 | Short SHA | `22df224` |
+| Branch | `main` |
+| Tag | `(none)` |
+| Short SHA | `6ddea7fb` |
 
 All future architecture snapshots MUST include branch, tag (if any), and short SHA.
 <!-- ARCH_SNAPSHOT_METADATA:END -->
