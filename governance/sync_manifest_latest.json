@@ -1,11 +1,11 @@
 {
-  "sync_timestamp": "2026-05-09T15:17:35.331199+00:00",
+  "sync_timestamp": "2026-05-09T18:40:37.230890+00:00",
   "canonical": {
     "version": "9.110.0",
-    "phase": 176,
+    "phase": 177,
     "hard_class_count": 400,
-    "innovations": 81,
-    "sha": "9827de9"
+    "innovations": 82,
+    "sha": "b015910"
   },
   "surfaces": [
     {
@@ -17,16 +17,15 @@
       "file": "README.md",
       "changed": true,
       "ops": [
-        "README version badge",
-        "block [<!-- ADAAD_VERSION_INFOBOX:STA]",
-        "By-the-numbers: version+phase"
+        "README invariants badge",
+        "block [<!-- ADAAD_VERSION_INFOBOX:STA]"
       ]
     },
     {
       "file": "docs/README.md",
       "changed": true,
       "ops": [
-        "docs/README version badge"
+        "docs/README phase badge"
       ]
     },
     {
@@ -41,34 +40,29 @@
       "file": "governance/report_version.json",
       "changed": true,
       "ops": [
-        "updated version",
-        "updated report_version",
-        "updated last_sync_sha"
+        "updated phase",
+        "updated last_sync_sha",
+        "updated innovation"
       ]
     },
     {
       "file": ".adaad_agent_state.json",
       "changed": true,
       "ops": [
-        "synced current_version",
-        "synced software_version",
-        "synced last_completed_version",
-        "synced current_phase",
-        "synced next_phase",
-        "synced next_phase_id",
-        "synced hard_invariant_count",
-        "synced innovation_count"
+        "synced total_phases",
+        "synced total_innovations_shipped",
+        "synced total_innovations"
       ]
     },
     {
       "file": "docs/assets/readme/inline-hero_banner.svg",
       "changed": true,
       "ops": [
-        "SVG: version LIVE badge",
-        "SVG: stale version ref >v9.109.0<"
+        "SVG: phases stat 177",
+        "SVG: innovations stat 82"
       ]
     }
   ],
   "total_changed": 6,
-  "digest": "56a67cdef086270d"
+  "digest": "2845b0146faec6eb"
 }
