@@ -174,7 +174,7 @@ See `docs/governance/V1_GA_READINESS_CHECKLIST.md` for the machine-checkable art
 
 ## 3) Automation Contract Block (Machine-checkable)
 
-### 3.0 Active Era Contract (Phases 131–159+)
+### 3.0 Active Era Contract (Phases 131–178+)
 
 This subsection is the canonical machine-consumed checkpoint for phase progression. Historical tables above and below are informative only.
 
@@ -183,10 +183,10 @@ adaad_pr_procession_contract:
   schema_version: "2.1"
   source_of_truth: "docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md"
   supersedes: "docs/governance/ADAAD_PR_PROCESSION_2026-03.md"
-  active_phase: "phase173_complete"
-  milestone: "v9.106.0"
-  last_state_align: "2026-05-08"
-  state_align_authority: "Repository governance state reconciliation (Phase 173 / v9.106.0)"
+  active_phase: "phase177_complete"
+  milestone: "v9.110.0"
+  last_state_align: "2026-05-09"
+  state_align_authority: "Repository governance state reconciliation (Phase 177 / v9.110.0)"
   ordered_phase_ids:
     - phase47
     - phase48
@@ -310,6 +310,10 @@ adaad_pr_procession_contract:
     - phase172
     - phase173
     - phase174
+    - phase175
+    - phase176
+    - phase177
+    - phase178
   phase_nodes:
     phase47:
       ci_tier: standard
@@ -1116,14 +1120,38 @@ adaad_pr_procession_contract:
     phase174:
       ci_tier: constitutional
       depends_on: ["phase173"]
-      status: planned
+      status: shipped
       version: "v9.107.0"
-      title: "TBD — next SPIE-ratified innovation"
+      title: "CMF — Compliance Module Fix"
+    phase175:
+      ci_tier: constitutional
+      depends_on: ["phase174"]
+      status: shipped
+      version: "v9.108.0"
+      title: "INNOV-80 Constitutional Adaptive Learner (CAL)"
+    phase176:
+      ci_tier: constitutional
+      depends_on: ["phase175"]
+      status: shipped
+      version: "v9.109.0"
+      title: "INNOV-81 Recommendation Delivery Protocol (RDP)"
+    phase177:
+      ci_tier: constitutional
+      depends_on: ["phase176"]
+      status: shipped
+      version: "v9.110.0"
+      title: "INNOV-82 CEL Feedback Integrator (CFI)"
+    phase178:
+      ci_tier: constitutional
+      depends_on: ["phase177"]
+      status: planned
+      version: "v9.111.0"
+      title: "INNOV-83 Constitutional Amendment Executor (CAE)"
   state_alignment:
     canonical_pr_identifier_format: "Phase <N> — <Title>"
-    expected_active_phase: "Phase 173 — INNOV-79 IIS — Innovation Impact Scorer"
-    expected_last_completed_pr: "Phase 173 — INNOV-79 IIS — Innovation Impact Scorer"
-    expected_next_pr: "Phase 174 — TBD — SPIE proposal pending HUMAN-0 ratification"
+    expected_active_phase: "Phase 177 — INNOV-82 CFI — CEL Feedback Integrator"
+    expected_last_completed_pr: "Phase 177 — INNOV-82 CFI — CEL Feedback Integrator"
+    expected_next_pr: "Phase 178 — INNOV-83 CAE — Constitutional Amendment Executor"
     blocked_reason_must_be_null: true
   open_findings:
     - id: FINDING-C03-GITHUB-APP
@@ -1181,6 +1209,7 @@ A validator comparing this document to `.adaad_agent_state.json` should fail if:
 
 ## 3.2 Changelog
 
+- **2026-05-09:** Reconciled automation checkpoint to **Phase 177 complete / v9.110.0**, recorded Phase 174–177 completion in `ordered_phase_ids` and `phase_nodes`, normalized `.adaad_agent_state.json` and `state_alignment` to the canonical `Phase <N> — <Title>` identifier format, and set deterministic next-phase targeting to **Phase 178 — INNOV-83 CAE — Constitutional Amendment Executor**.
 - **2026-05-08:** Reconciled automation checkpoint to **Phase 173 complete / v9.106.0**, normalized `active_phase`, `last_completed_pr`, and `expected_next_pr` to the canonical `Phase <N> — <Title>` identifier format, and set deterministic next-phase targeting to **Phase 174 — TBD — SPIE proposal pending HUMAN-0 ratification**.
 - **2026-04-25:** Reconciled automation checkpoint to **Phase 160 complete / v9.93.0** and normalized deterministic next-phase identifier format to `Phase 161 — …` for state-alignment validators.
 - **2026-04-22:** Reconciled automation checkpoint to **Phase 147 complete / v9.80.0**, extended active-era phase nodes through 147, and normalized deterministic next-phase identifier format to `Phase 148 — …` for state-alignment validators.
