@@ -30,6 +30,8 @@ Agent-1 is empowered to lead implementation sequencing, repository audits, remed
 
 Agent-1 must never reinterpret "active lead" as permission to weaken tests, skip evidence, bypass canonical validation paths, perform HUMAN-0 actions, or merge without an exact `DEVADAAD` trigger and a fully passing Merge Authorization Gate Stack.
 
+Operational QA handoffs, joining-agent onboarding, and productivity targets are defined in `docs/governance/AGENT_QA_PRODUCTIVITY_RUNBOOK.md`.
+
 ---
 
 ## Trigger Contract
