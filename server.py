@@ -263,6 +263,21 @@ def EvidenceBundleBuilder(*, export_dir: Path) -> Any:  # noqa: N802 — factory
     return _lazy_import("runtime.evolution.evidence_bundle", "EvidenceBundleBuilder")(export_dir=export_dir)
 
 
+def _read_gate_state() -> Dict[str, Any]:
+    return read_gate_state_snapshot(gate_lock_file=GATE_LOCK_FILE, protocol=GATE_PROTOCOL)
+
+
+def _assert_gate_open() -> Dict[str, Any]:
+    gate = _read_gate_state()
+    if gate["locked"]:
+        raise HTTPException(
+            status_code=423,
+            detail=gate["reason"] or "Cryovant gate LOCKED",
+            headers={"X-ADAAD-GATE": "locked"},
+        )
+    return gate
+
+
 def _build_runtime_context() -> RuntimeContext:
     """Build shared API dependencies from server-scoped runtime objects."""
     return RuntimeContext(
@@ -619,11 +634,6 @@ def _resolve_static_asset(base_dir: Path, asset_path: str) -> Path:
     return resolved
 
 
-def _read_gate_state() -> Dict[str, Any]:
-    return read_gate_state_snapshot(gate_lock_file=GATE_LOCK_FILE, protocol=GATE_PROTOCOL)
-
-
-
 
 def _load_audit_tokens() -> dict[str, list[str]]:
     return load_audit_tokens()
@@ -660,20 +670,6 @@ def IntelligenceRouter() -> Any:
 def MutationLintingBridge() -> Any:
     return _lazy_import("runtime.mcp.linting_bridge", "MutationLintingBridge")()
 
-
-def _assert_gate_open() -> Dict[str, Any]:
-    gate = _read_gate_state()
-    if gate["locked"]:
-        raise HTTPException(
-            status_code=423,
-            detail=gate["reason"] or "Cryovant gate LOCKED",
-            headers={"X-ADAAD-GATE": "locked"},
-        )
-    return gate
-
-
-_REPORT_VERSION_PATH = DEFAULT_REPORT_VERSION_PATH
-_VERSION_PATH = DEFAULT_VERSION_PATH
 
 
 def _load_live_version() -> Dict[str, Any]:
