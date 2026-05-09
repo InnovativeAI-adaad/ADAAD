@@ -1,3 +1,16 @@
+## [9.107.0] — Phase 174 · CMF — Compliance Module Fix
+
+### Fixed
+- `app/api/compliance.py` — resolved six NameErrors blocking server boot
+  - Added `_COMPLIANCE_EXPORT_LIMIT_DEFAULT = 200` and `_COMPLIANCE_EXPORT_LIMIT_MAX = 1000`
+  - Added `stream_csv_rows` and `stream_json_records` streaming generators
+  - Fixed phantom `data` variable → resolved `rows` in `get_compliance_export`
+  - Removed phantom `page`, `snapshot`, `used_cursor` references in `create_compliance_export_job`
+  - Invariants: COMPLIANCE-CONST-0, COMPLIANCE-STREAM-0, COMPLIANCE-DATA-0
+
+### Tests
+- `tests/test_phase174_compliance_fix.py` — 30/30 T174-CMF-01..30
+
 ## [9.106.0] — Phase 173 · INNOV-79 · IIS — Innovation Impact Scorer
 
 ### Added

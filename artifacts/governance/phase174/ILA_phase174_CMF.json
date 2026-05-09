@@ -1,0 +1,29 @@
+{
+  "artifact_type": "ILA",
+  "innovation_id": "COMPLIANCE-FIX",
+  "innovation_code": "CMF",
+  "innovation_name": "Compliance Module Fix",
+  "phase": 174,
+  "version": "9.107.0",
+  "ratification_authority": "DUSTIN L REID",
+  "ratification_phrase": "approved DUSTIN L REID",
+  "ratification_timestamp_utc": "2026-05-09T00:00:00Z",
+  "module_path": "app/api/compliance.py",
+  "test_path": "tests/test_phase174_compliance_fix.py",
+  "tests_total": 30,
+  "tests_passed": 30,
+  "hard_class_invariants": [
+    "COMPLIANCE-CONST-0",
+    "COMPLIANCE-STREAM-0",
+    "COMPLIANCE-DATA-0"
+  ],
+  "defects_resolved": [
+    "NameError: _COMPLIANCE_EXPORT_LIMIT_DEFAULT undefined at module load",
+    "NameError: _COMPLIANCE_EXPORT_LIMIT_MAX undefined at module load",
+    "NameError: stream_csv_rows not defined",
+    "NameError: stream_json_records not defined",
+    "NameError: data undefined in get_compliance_export payload",
+    "NameError: page, snapshot, used_cursor phantom variables in create_compliance_export_job"
+  ],
+  "constitutional_verdict": "APPROVED"
+}
