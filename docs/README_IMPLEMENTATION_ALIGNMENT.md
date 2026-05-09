@@ -9,10 +9,10 @@ This document cross-references `README.md` operational claims with concrete impl
 
 | Metric | Value |
 | --- | --- |
-| Report version | `9.106.0` |
-| Branch | `work` |
+| Report version | `9.110.0` |
+| Branch | `main` |
 | Tag | `(none)` |
-| Short SHA | `5e23052` |
+| Short SHA | `6ddea7fb` |
 
 All future architecture snapshots MUST include branch, tag (if any), and short SHA.
 <!-- ARCH_SNAPSHOT_METADATA:END -->
