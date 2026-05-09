@@ -159,7 +159,9 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 171 | INNOV-77 · MEX — Mutation Execution Engine | v9.104.0 | P0 | ✅ shipped |
 | 172 | INNOV-78 · MFV — Mutation Fitness Verifier | v9.105.0 | P0 | ✅ shipped |
 | 173 | INNOV-79 · IIS — Innovation Impact Scorer | v9.106.0 | P0 | ✅ shipped |
-| 174 | TBD — next SPIE-ratified innovation | v9.107.0 | P0 | ⏭️ next non-shipped |
+| 174 | TBD — next SPIE-ratified innovation | v9.107.0 | P0 | ✅ shipped |
+| 175 | INNOV-80 · CAL — Constitutional Adaptive Learner | v9.108.0 | P0 | ✅ shipped |
+| 176 | TBD — next SPIE-ratified innovation | v9.109.0 | P0 | ⏭️ next non-shipped |
 
 
 ## Phase 140 — Constitutional P0 Sweep + P1 Hardening (v9.73.0) ✅

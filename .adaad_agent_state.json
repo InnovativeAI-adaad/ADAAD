@@ -664,7 +664,7 @@
   ],
   "open_findings_count": 0,
   "pending_evidence_rows": [],
-  "phase": 174,
+  "phase": 175,
   "phase_label": "Phase 173 \u2014 INNOV-79 IIS \u2014 Innovation Impact Scorer",
   "phases_completed": [
     106,
@@ -1016,7 +1016,7 @@
     "phase124-world-first-governed-kernel-extraction",
     "v9.57.0-released"
   ],
-  "version": "9.107.0",
+  "version": "9.108.0",
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response"
@@ -1025,7 +1025,7 @@
   "last_agent_state_sync_digest": "gsync-7796c1149116f08c",
   "invariant_count": 380,
   "innovation_count": 79,
-  "innovations_shipped": 79,
+  "innovations_shipped": 80,
   "last_innovation_id": "INNOV-79",
   "ga_blocker_count": 0,
   "milestone": "v1.1-GA",
@@ -1247,6 +1247,56 @@
       "id": "MCE-DETERM-0",
       "class": "Hard",
       "phase": 163
+    },
+    {
+      "id": "CAL-CHAIN-0",
+      "class": "Hard",
+      "phase": 175
+    },
+    {
+      "id": "CAL-DETERM-0",
+      "class": "Hard",
+      "phase": 175
+    },
+    {
+      "id": "CAL-HUMAN0-0",
+      "class": "Hard",
+      "phase": 175
+    },
+    {
+      "id": "CAL-READONLY-0",
+      "class": "Hard",
+      "phase": 175
+    },
+    {
+      "id": "CAL-ATOMIC-0",
+      "class": "Hard",
+      "phase": 175
+    },
+    {
+      "id": "CAL-BOUND-0",
+      "class": "Hard",
+      "phase": 175
+    },
+    {
+      "id": "CAL-AUDIT-0",
+      "class": "Hard",
+      "phase": 175
+    },
+    {
+      "id": "CAL-SCOPE-0",
+      "class": "Hard",
+      "phase": 175
+    },
+    {
+      "id": "CAL-REPLAY-0",
+      "class": "Hard",
+      "phase": 175
+    },
+    {
+      "id": "CAL-NOSELF-0",
+      "class": "Hard",
+      "phase": 175
     }
   ],
   "ga_gates": {
@@ -1278,6 +1328,6 @@
   "hard_invariant_count": 380,
   "last_completed_version": "9.106.0",
   "expected_next_pr": "Phase 174 \u2014 TBD \u2014 SPIE proposal pending HUMAN-0 ratification",
-  "last_phase_name": "CMF \u2014 Compliance Module Fix",
-  "timestamp": "2026-05-09T14:25:56.557096+00:00"
+  "last_phase_name": "INNOV-80 \u00b7 CAL \u2014 Constitutional Adaptive Learner",
+  "timestamp": "2026-05-09T00:00:00+00:00"
 }

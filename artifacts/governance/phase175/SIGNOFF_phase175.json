@@ -1,0 +1,18 @@
+{
+  "signoff_version": "1.0",
+  "phase": 175,
+  "innovation_code": "INNOV-80",
+  "governor": "DUSTIN L REID",
+  "human0_required": true,
+  "human0_ratification_status": "PENDING — HUMAN-0 GPG sign-off required for Tier-0 promotion",
+  "devadaad_delivery_status": "COMPLETE",
+  "tests_passing": "30/30",
+  "chain_integrity": "VERIFIED",
+  "deliverables": [
+    "dorkllm/constitutional_adaptive_learner.py",
+    "tests/test_phase175_cal.py",
+    "artifacts/governance/phase175/ILA_phase175_INNOV80_CAL.json",
+    "artifacts/governance/phase175/SIGNOFF_phase175.json"
+  ],
+  "notes": "CAL is the first module in ADAAD that constitutionally learns from its own governance output. Fail-closed by design: broken chain halts all cycle execution. All recommendations are permanently HUMAN-0 gated (CAL-HUMAN0-0 is structurally enforced via dataclass default — cannot be overridden at runtime)."
+}
