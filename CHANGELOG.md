@@ -1,3 +1,22 @@
+## [9.108.0] — Phase 175 · INNOV-80 · CAL — Constitutional Adaptive Learner
+
+**Date:** 2026-05-09  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### Added
+- `dorkllm/constitutional_adaptive_learner.py` — INNOV-80 · CAL: World-first constitutionally-governed adaptive learner. Closes the ADAAD mutation pipeline feedback loop. Reads IIS (INNOV-79) and MFV (INNOV-78) ledgers, computes deterministic per-invariant fitness contribution weights, and generates HUMAN-0-gated constitutional amendment recommendations. The CAL is a read-only oracle — it never self-applies. HMAC-SHA-256 chained audit ledger. Fail-closed: broken chain halts all cycle execution.
+- 10 new Hard-class invariants: CAL-CHAIN-0, CAL-DETERM-0, CAL-HUMAN0-0, CAL-READONLY-0, CAL-ATOMIC-0, CAL-BOUND-0, CAL-AUDIT-0, CAL-SCOPE-0, CAL-REPLAY-0, CAL-NOSELF-0
+- `tests/test_phase175_cal.py` — 30/30 T175-CAL-01..30
+- `artifacts/governance/phase175/` — ILA + SIGNOFF governance artifacts
+- `data/cal/` — CAL-exclusive ledger directories (cal_learning_ledger.jsonl, cal_amendment_recommendations.json)
+
+### Fixed (included in this phase)
+- `pyproject.toml` + `.adaad_agent_state.json`: version/phase sync gap (9.106.0/173 → 9.107.0/174) corrected before Phase 175 branch
+
+### Constitutional
+- Hard-class invariant count: 380 → 390 (+10)
+- Innovations shipped: 79 → 80 (INNOV-80)
+- Governor: DUSTIN L REID
+
 ## [9.107.0] — Phase 174 · CMF — Compliance Module Fix
 
 ### Fixed

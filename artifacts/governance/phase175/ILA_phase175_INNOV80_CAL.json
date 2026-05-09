@@ -1,0 +1,44 @@
+{
+  "ila_version": "1.0",
+  "phase": 175,
+  "innovation_code": "INNOV-80",
+  "innovation_name": "CAL — Constitutional Adaptive Learner",
+  "version": "9.108.0",
+  "governor": "DUSTIN L REID",
+  "author": "DEVADAAD · InnovativeAI LLC",
+  "timestamp_utc": "2026-05-09T00:00:00+00:00",
+  "description": "World-first constitutionally-governed adaptive learner. Closes the ADAAD mutation pipeline feedback loop by reading from IIS (INNOV-79) and MFV (INNOV-78) ledgers, computing per-invariant fitness contribution weights, and generating HUMAN-0-gated constitutional amendment recommendations. The CAL is a read-only oracle — it never self-applies recommendations.",
+  "world_first_claim": "First autonomous constitutional governance system to produce HUMAN-0-gated self-improvement recommendations grounded in empirical mutation fitness history, with HMAC-chained verifiable audit trail.",
+  "hard_class_invariants_added": 10,
+  "hard_class_invariants_total": 390,
+  "innovations_shipped": 80,
+  "tests": {
+    "suite": "tests/test_phase175_cal.py",
+    "count": 30,
+    "passing": 30,
+    "identifiers": "T175-CAL-01 through T175-CAL-30"
+  },
+  "invariants": [
+    {"id": "CAL-CHAIN-0",   "class": "Hard", "description": "HMAC chain must be verified before any read operation"},
+    {"id": "CAL-DETERM-0",  "class": "Hard", "description": "All scoring is deterministic; no wall-clock or random calls"},
+    {"id": "CAL-HUMAN0-0",  "class": "Hard", "description": "Amendment recommendations are HUMAN-0-gated; never auto-applied"},
+    {"id": "CAL-READONLY-0","class": "Hard", "description": "CAL never mutates source ledgers (IIS / MFV)"},
+    {"id": "CAL-ATOMIC-0",  "class": "Hard", "description": "Ledger writes use os.replace; never in-place JSON mutation"},
+    {"id": "CAL-BOUND-0",   "class": "Hard", "description": "Invariant weights are clamped to [0.0, 1.0]"},
+    {"id": "CAL-AUDIT-0",   "class": "Hard", "description": "Every learning cycle writes an immutable audit record"},
+    {"id": "CAL-SCOPE-0",   "class": "Hard", "description": "CAL operates only on its declared input ledger paths"},
+    {"id": "CAL-REPLAY-0",  "class": "Hard", "description": "Full learning history must be deterministically replayable"},
+    {"id": "CAL-NOSELF-0",  "class": "Hard", "description": "CAL may not read its own ledger as an input source"}
+  ],
+  "integration": {
+    "reads": [
+      "security/iis_ledger.jsonl (INNOV-79 IIS)",
+      "data/mfv/fitness_verdict_ledger.jsonl (INNOV-78 MFV)"
+    ],
+    "writes": [
+      "data/cal/cal_learning_ledger.jsonl (append-only, HMAC-chained)",
+      "data/cal/cal_amendment_recommendations.json (HUMAN-0 review)"
+    ]
+  },
+  "status": "SHIPPED"
+}
