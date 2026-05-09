@@ -672,6 +672,10 @@ def MutationLintingBridge() -> Any:
 
 
 
+_REPORT_VERSION_PATH = DEFAULT_REPORT_VERSION_PATH
+_VERSION_PATH = DEFAULT_VERSION_PATH
+
+
 def _load_live_version() -> Dict[str, Any]:
     return load_live_version_snapshot(
         version_path=_VERSION_PATH,
