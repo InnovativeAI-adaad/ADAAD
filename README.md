@@ -10,7 +10,7 @@
 
 <br/>
 
-[![Proprietary](https://img.shields.io/badge/license-Proprietary-ff4466?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v9.108.0](https://img.shields.io/badge/version-v9.108.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![390 Invariants](https://img.shields.io/badge/invariants-390%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![80 Innovations](https://img.shields.io/badge/innovations-80%20shipped-f97316?style=flat-square&labelColor=0d1117)](ROADMAP.md)&nbsp;[![Free Download](https://img.shields.io/github/v/release/InnovativeAI-adaad/ADAAD?label=APK&color=00d4ff)](https://github.com/InnovativeAI-adaad/ADAAD/releases)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
+[![Proprietary](https://img.shields.io/badge/license-Proprietary-ff4466?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v9.109.0](https://img.shields.io/badge/version-v9.109.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![400 Invariants](https://img.shields.io/badge/invariants-400%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![81 Innovations](https://img.shields.io/badge/innovations-81%20shipped-f97316?style=flat-square&labelColor=0d1117)](ROADMAP.md)&nbsp;[![Free Download](https://img.shields.io/github/v/release/InnovativeAI-adaad/ADAAD?label=APK&color=00d4ff)](https://github.com/InnovativeAI-adaad/ADAAD/releases)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
 
 </div>
 
@@ -42,12 +42,12 @@
 
 | Field | Value |
 | --- | --- |
-| **Current version** | `9.108.0` |
-| **Phase** | `175` |
+| **Current version** | `9.109.0` |
+| **Phase** | `176` |
 | **Released** | `2026-05-09` |
-| **Release SHA** | `f7e38ce4` |
-| **Hard-class invariants** | `390` |
-| **Innovations shipped** | `80` |
+| **Release SHA** | `773706b3` |
+| **Hard-class invariants** | `400` |
+| **Innovations shipped** | `81` |
 <!-- ADAAD_VERSION_INFOBOX:END -->
 
 ## What ADAAD solves
@@ -69,9 +69,9 @@ ADAAD is not an agent framework. Not an LLM wrapper. Not a dev tool. It is a **g
 
 | Metric | Value |
 |:-------|:------|
-| Current version | `v9.108.0` · Phase `175` |
-| Hard-class constitutional invariants | **390** — cryptographically enforced |
-| Shipped innovations | **80** — INNOV-01 through INNOV-80 |
+| Current version | `v9.109.0` · Phase `176` |
+| Hard-class constitutional invariants | **400** — cryptographically enforced |
+| Shipped innovations | **81** — INNOV-01 through INNOV-81 |
 | Constitutional Evolution Loop | **16 steps** — deterministic, replayable |
 | Specialist agents | **3** — Architect · Dream · Beast |
 | HUMAN-0 gate | **1** — structurally non-delegatable |

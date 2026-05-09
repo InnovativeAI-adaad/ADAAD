@@ -4,11 +4,11 @@
 
 ---
 
-## Current State — v9.108.0 · Phase 175 · INNOV-80 · CAL — Constitutional Adaptive Learner
+## Current State — v9.109.0 · Phase 176 · INNOV-81 · RDP — Recommendation Delivery Protocol
 
-**Status:** 80 innovations shipped (INNOV-01 through INNOV-80). Phase 175 complete. v9.108.0 baseline. 79/79 Grade-A modules hardened.
+**Status:** 81 innovations shipped (INNOV-01 through INNOV-81). Phase 176 complete. v9.109.0 baseline. 79/79 Grade-A modules hardened.
 **Automation pointer:** Machine phase progression consumes `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` §3.0 “Active Era Contract (Phases 131–136+)”, which governs the current stream through Phase 173 and the Phase 174 next-work pointer.
-**Hard-class invariants:** 390 (cumulative, enforced)
+**Hard-class invariants:** 400 (cumulative, enforced)
 **Constitutional Evolution Loop:** 16-step CEL, deterministic replay, wired
 **Self-Proposing Innovation Engine (SPIE):** active — system proposes its own next innovations; HUMAN-0 ratifies
 **Deterministic Audit Sandbox (DAS):** active — one-command external verification; `docker compose up das-demo`
@@ -161,7 +161,8 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 173 | INNOV-79 · IIS — Innovation Impact Scorer | v9.106.0 | P0 | ✅ shipped |
 | 174 | TBD — next SPIE-ratified innovation | v9.107.0 | P0 | ✅ shipped |
 | 175 | INNOV-80 · CAL — Constitutional Adaptive Learner | v9.108.0 | P0 | ✅ shipped |
-| 176 | TBD — next SPIE-ratified innovation | v9.109.0 | P0 | ⏭️ next non-shipped |
+| 176 | INNOV-81 · RDP — Recommendation Delivery Protocol | v9.109.0 | P0 | ✅ shipped |
+| 177 | TBD — next SPIE-ratified innovation | v9.110.0 | P0 | ⏭️ next |
 
 
 ## Phase 140 — Constitutional P0 Sweep + P1 Hardening (v9.73.0) ✅

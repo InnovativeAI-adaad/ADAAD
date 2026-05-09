@@ -1,11 +1,11 @@
 {
-  "sync_timestamp": "2026-05-09T14:52:08.238957+00:00",
+  "sync_timestamp": "2026-05-09T14:58:36.577248+00:00",
   "canonical": {
-    "version": "9.108.0",
-    "phase": 175,
-    "hard_class_count": 390,
-    "innovations": 80,
-    "sha": "f7e38ce4"
+    "version": "9.109.0",
+    "phase": 176,
+    "hard_class_count": 400,
+    "innovations": 81,
+    "sha": "773706b3"
   },
   "surfaces": [
     {
@@ -15,10 +15,8 @@
     },
     {
       "file": "README.md",
-      "changed": true,
-      "ops": [
-        "block [<!-- ADAAD_VERSION_INFOBOX:STA]"
-      ]
+      "changed": false,
+      "ops": []
     },
     {
       "file": "docs/README.md",
@@ -32,10 +30,8 @@
     },
     {
       "file": "governance/report_version.json",
-      "changed": true,
-      "ops": [
-        "updated last_sync_sha"
-      ]
+      "changed": false,
+      "ops": []
     },
     {
       "file": ".adaad_agent_state.json",
@@ -48,6 +44,6 @@
       "ops": []
     }
   ],
-  "total_changed": 2,
-  "digest": "307878b5c37c18b3"
+  "total_changed": 0,
+  "digest": "22bf353908a0a02f"
 }

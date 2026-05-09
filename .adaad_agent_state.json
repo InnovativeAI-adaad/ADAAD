@@ -1,6 +1,6 @@
 {
     "acse_active": true,
-    "active_phase": "v9.106.0 RELEASED \u00b7 post-merge agent sync",
+    "active_phase": "v9.109.0 RELEASED \u00b7 post-merge agent sync",
     "blocked_at_gate": null,
     "blocked_at_tier": null,
     "blocked_reason": null,
@@ -373,14 +373,44 @@
         "phase174-cmf-complete",
         "v9.107.0-released",
         "phase175-cal-complete",
-        "v9.108.0-released"
+        "v9.108.0-released",
+        "phase176-rdp-implemented",
+        "phase176-complete",
+        "v9.109.0-released",
+        "innov81-rdp-cel-loop-closed",
+        "hard-invariant-400-milestone"
     ],
-    "constitutional_invariants": 390,
-    "current_phase": 175,
-    "current_version": "9.108.0",
-    "hard_class_count": 390,
-    "hard_class_invariant_count": 390,
-    "hard_class_invariants_cumulative": 390,
+    "constitutional_invariants": 400,
+    "current_phase": 176,
+    "current_version": "9.109.0",
+    "expected_next_pr": "Phase 174 \u2014 TBD \u2014 SPIE proposal pending HUMAN-0 ratification",
+    "ga_blocker_count": 0,
+    "ga_blockers": 0,
+    "ga_gates": {
+        "gate1": {
+            "description": "Constitutional invariants \u2265 200",
+            "status": "COMPLETE"
+        },
+        "gate2": {
+            "description": "H-04 docs published",
+            "status": "COMPLETE"
+        },
+        "gate3": {
+            "description": "F-Droid + free-v9.10.0 push",
+            "status": "COMPLETE"
+        },
+        "gate4": {
+            "date": "2026-04-21",
+            "description": "GPG sign-off + v1.1-GA tag",
+            "status": "COMPLETE",
+            "tag": "v1.1-GA-pypi"
+        }
+    },
+    "hard_class_count": 400,
+    "hard_class_invariant_count": 400,
+    "hard_class_invariants": 400,
+    "hard_class_invariants_cumulative": 400,
+    "hard_invariant_count": 400,
     "human0_signoffs": [
         {
             "date": "2026-03-27",
@@ -406,20 +436,39 @@
             "token": "approved DUSTIN L REID"
         },
         {
-            "phase": 163,
+            "date": "2026-04-30",
             "innov_id": "INNOV-69",
-            "token": "approved DUSTIN L REID",
-            "date": "2026-04-30"
+            "phase": 163,
+            "token": "approved DUSTIN L REID"
         }
     ],
-    "last_innovation": "INNOV-80-CAL",
-    "last_innovation_name": "Constitutional Adaptive Learner",
+    "innovation_count": 81,
+    "innovations_shipped": 81,
+    "invariant_count": 400,
+    "last_agent_state_sync_digest": "gsync-7796c1149116f08c",
+    "last_completed_phase": "24 \u00b7 Phase 154 \u00b7 INNOV-60 \u00b7 Constitutional Pre-Admission Gate (CPAG)",
+    "last_completed_pr": "Phase 176 \u2014 INNOV-81 RDP \u2014 Recommendation Delivery Protocol",
+    "last_completed_version": "9.109.0",
+    "last_gate_results": {
+        "tier_0": "pass",
+        "tier_1": "pass",
+        "tier_2": "pass",
+        "tier_3": "pass"
+    },
+    "last_innovation": "INNOV-81-RDP",
+    "last_innovation_id": "INNOV-81",
+    "last_innovation_name": "Recommendation Delivery Protocol",
     "last_invocation": "2026-05-09",
-    "last_phase_completed": 175,
-    "last_phase_completed_label": "Phase 175 \u2014 INNOV-80 CAL \u2014 Constitutional Adaptive Learner",
+    "last_phase_completed": 176,
+    "last_phase_completed_label": "Phase 176 \u2014 INNOV-81 RDP \u2014 Recommendation Delivery Protocol",
+    "last_phase_name": "INNOV-81 \u00b7 RDP \u2014 Recommendation Delivery Protocol",
     "last_sync_sha": "1f7bd86f",
-    "last_updated": "2026-05-09T14:39:27.979176+00:00",
-    "next_phase": 176,
+    "last_updated": "2026-05-09T14:58:28.192545+00:00",
+    "milestone": "v1.1-GA",
+    "next_innovation_id": "INNOV-82",
+    "next_innovation_name": "TBD \u2014 next SPIE-ratified innovation",
+    "next_phase": 177,
+    "next_phase_id": 177,
     "next_pr": "Phase 174 \u2014 TBD \u2014 SPIE proposal pending HUMAN-0 ratification",
     "open_findings": [
         {
@@ -668,8 +717,9 @@
     ],
     "open_findings_count": 0,
     "pending_evidence_rows": [],
-    "phase": 175,
-    "phase_label": "Phase 175 \u2014 INNOV-80 CAL \u2014 Constitutional Adaptive Learner",
+    "phase": 176,
+    "phase_label": "Phase 176 \u2014 INNOV-81 RDP \u2014 Recommendation Delivery Protocol",
+    "phases_complete": 176,
     "phases_completed": [
         106,
         107,
@@ -727,12 +777,16 @@
         172,
         173,
         174,
-        175
+        175,
+        176
     ],
     "schema_version": "1.5.0",
-    "software_version": "9.108.0",
+    "software_version": "9.109.0",
     "tife_active": true,
-    "total_innovations_shipped": 80,
+    "timestamp": "2026-05-09T00:00:00+00:00",
+    "total_innovations": 81,
+    "total_innovations_shipped": 81,
+    "total_phases": 176,
     "value_checkpoints_reached": [
         "phase0-track-a-hardening",
         "v1.3.0-released",
@@ -1022,318 +1076,10 @@
         "phase124-world-first-governed-kernel-extraction",
         "v9.57.0-released"
     ],
-    "version": "9.108.0",
+    "version": "9.109.0",
     "world_firsts_claimed": [
         "phase118-world-first-federation-bundle-exchange",
-        "phase127-world-first-governed-redteam-response"
-    ],
-    "last_completed_phase": "24 \u00b7 Phase 154 \u00b7 INNOV-60 \u00b7 Constitutional Pre-Admission Gate (CPAG)",
-    "last_agent_state_sync_digest": "gsync-7796c1149116f08c",
-    "invariant_count": 390,
-    "innovation_count": 80,
-    "innovations_shipped": 80,
-    "last_innovation_id": "INNOV-80",
-    "ga_blocker_count": 0,
-    "milestone": "v1.1-GA",
-    "ga_blockers": 0,
-    "last_completed_pr": "Phase 175 \u2014 INNOV-80 CAL \u2014 Constitutional Adaptive Learner",
-    "last_gate_results": {
-        "tier_0": "pass",
-        "tier_1": "pass",
-        "tier_2": "pass",
-        "tier_3": "pass"
-    },
-    "hard_class_invariants": [
-        {
-            "id": "CMU-CTX-0",
-            "class": "Hard",
-            "phase": 143
-        },
-        {
-            "id": "CMU-TEMP-0",
-            "class": "Hard",
-            "phase": 143
-        },
-        {
-            "id": "CMU-BENCH-0",
-            "class": "Hard",
-            "phase": 143
-        },
-        {
-            "id": "CMU-DETERM-0",
-            "class": "Hard",
-            "phase": 143
-        },
-        {
-            "id": "CMU-HUMAN0-0",
-            "class": "Hard",
-            "phase": 143
-        },
-        {
-            "id": "RAGS-GROUND-0",
-            "class": "Hard",
-            "phase": 144
-        },
-        {
-            "id": "RAGS-CTX-0",
-            "class": "Hard",
-            "phase": 144
-        },
-        {
-            "id": "RAGS-DETERM-0",
-            "class": "Hard",
-            "phase": 144
-        },
-        {
-            "id": "RAGS-CHAIN-0",
-            "class": "Hard",
-            "phase": 144
-        },
-        {
-            "id": "RAGS-GATE-0",
-            "class": "Hard",
-            "phase": 144
-        },
-        {
-            "id": "DPM-CHAIN-0",
-            "class": "Hard",
-            "phase": 145
-        },
-        {
-            "id": "DPM-INJECT-0",
-            "class": "Hard",
-            "phase": 145
-        },
-        {
-            "id": "DPM-DETERM-0",
-            "class": "Hard",
-            "phase": 145
-        },
-        {
-            "id": "DPM-HUMAN0-0",
-            "class": "Hard",
-            "phase": 145
-        },
-        {
-            "id": "DPM-GATE-0",
-            "class": "Hard",
-            "phase": 145
-        },
-        {
-            "id": "DQR-ROUTE-0",
-            "class": "Hard",
-            "phase": 146
-        },
-        {
-            "id": "DQR-CHAIN-0",
-            "class": "Hard",
-            "phase": 146
-        },
-        {
-            "id": "DQR-DETERM-0",
-            "class": "Hard",
-            "phase": 146
-        },
-        {
-            "id": "DQR-FALLBACK-0",
-            "class": "Hard",
-            "phase": 146
-        },
-        {
-            "id": "DQR-AUTH-0",
-            "class": "Hard",
-            "phase": 146
-        },
-        {
-            "id": "INTENT-SCHEMA-0",
-            "class": "Hard",
-            "phase": 147
-        },
-        {
-            "id": "INTENT-DRYRUN-0",
-            "class": "Hard",
-            "phase": 147
-        },
-        {
-            "id": "LEF-DETERM-0",
-            "class": "Hard",
-            "phase": 148
-        },
-        {
-            "id": "LEF-CHAIN-0",
-            "class": "Hard",
-            "phase": 148
-        },
-        {
-            "id": "CEL-FEED-0",
-            "class": "Hard",
-            "phase": 148
-        },
-        {
-            "id": "LEF-NOWRITE-0",
-            "class": "Hard",
-            "phase": 148
-        },
-        {
-            "id": "CEL-FEED-COMPLETE-0",
-            "class": "Hard",
-            "phase": 148
-        },
-        {
-            "id": "MXE-DETERM-0",
-            "class": "Hard",
-            "phase": 149
-        },
-        {
-            "id": "MXE-CHAIN-0",
-            "class": "Hard",
-            "phase": 149
-        },
-        {
-            "id": "MXE-IMMUT-0",
-            "class": "Hard",
-            "phase": 149
-        },
-        {
-            "id": "MXE-SCOPE-0",
-            "class": "Hard",
-            "phase": 149
-        },
-        {
-            "id": "MXE-AUDIT-0",
-            "class": "Hard",
-            "phase": 149
-        },
-        {
-            "id": "GCB-CHAIN-0",
-            "class": "Hard",
-            "phase": 150
-        },
-        {
-            "id": "GCB-FAILCLOSE-0",
-            "class": "Hard",
-            "phase": 150
-        },
-        {
-            "id": "GCB-READONLY-0",
-            "class": "Hard",
-            "phase": 150
-        },
-        {
-            "id": "GCB-DETERM-0",
-            "class": "Hard",
-            "phase": 150
-        },
-        {
-            "id": "GCB-HUMAN0-0",
-            "class": "Hard",
-            "phase": 150
-        },
-        {
-            "id": "MCE-CHAIN-0",
-            "class": "Hard",
-            "phase": 163
-        },
-        {
-            "id": "MCE-WEIGHT-0",
-            "class": "Hard",
-            "phase": 163
-        },
-        {
-            "id": "MCE-DRIFT-0",
-            "class": "Hard",
-            "phase": 163
-        },
-        {
-            "id": "MCE-HUMAN0-0",
-            "class": "Hard",
-            "phase": 163
-        },
-        {
-            "id": "MCE-DETERM-0",
-            "class": "Hard",
-            "phase": 163
-        },
-        {
-            "id": "CAL-CHAIN-0",
-            "class": "Hard",
-            "phase": 175
-        },
-        {
-            "id": "CAL-DETERM-0",
-            "class": "Hard",
-            "phase": 175
-        },
-        {
-            "id": "CAL-HUMAN0-0",
-            "class": "Hard",
-            "phase": 175
-        },
-        {
-            "id": "CAL-READONLY-0",
-            "class": "Hard",
-            "phase": 175
-        },
-        {
-            "id": "CAL-ATOMIC-0",
-            "class": "Hard",
-            "phase": 175
-        },
-        {
-            "id": "CAL-BOUND-0",
-            "class": "Hard",
-            "phase": 175
-        },
-        {
-            "id": "CAL-AUDIT-0",
-            "class": "Hard",
-            "phase": 175
-        },
-        {
-            "id": "CAL-SCOPE-0",
-            "class": "Hard",
-            "phase": 175
-        },
-        {
-            "id": "CAL-REPLAY-0",
-            "class": "Hard",
-            "phase": 175
-        },
-        {
-            "id": "CAL-NOSELF-0",
-            "class": "Hard",
-            "phase": 175
-        }
-    ],
-    "ga_gates": {
-        "gate1": {
-            "status": "COMPLETE",
-            "description": "Constitutional invariants \u2265 200"
-        },
-        "gate2": {
-            "status": "COMPLETE",
-            "description": "H-04 docs published"
-        },
-        "gate3": {
-            "status": "COMPLETE",
-            "description": "F-Droid + free-v9.10.0 push"
-        },
-        "gate4": {
-            "status": "COMPLETE",
-            "description": "GPG sign-off + v1.1-GA tag",
-            "tag": "v1.1-GA-pypi",
-            "date": "2026-04-21"
-        }
-    },
-    "next_phase_id": 176,
-    "phases_complete": 175,
-    "next_innovation_id": "INNOV-81",
-    "next_innovation_name": "RDP \u2014 Recommendation Delivery Protocol",
-    "total_phases": 175,
-    "total_innovations": 80,
-    "hard_invariant_count": 390,
-    "last_completed_version": "9.108.0",
-    "expected_next_pr": "Phase 174 \u2014 TBD \u2014 SPIE proposal pending HUMAN-0 ratification",
-    "last_phase_name": "INNOV-80 \u00b7 CAL \u2014 Constitutional Adaptive Learner",
-    "timestamp": "2026-05-09T00:00:00+00:00"
+        "phase127-world-first-governed-redteam-response",
+        "phase176-world-first-governed-amendment-delivery-protocol"
+    ]
 }

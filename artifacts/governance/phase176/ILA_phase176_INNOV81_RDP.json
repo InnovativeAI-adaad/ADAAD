@@ -1,0 +1,25 @@
+{
+  "attestation_id": "ILA-176-2026-05-09-001",
+  "phase": 176,
+  "innovation_id": "INNOV-81",
+  "innovation_code": "RDP",
+  "innovation_name": "Recommendation Delivery Protocol",
+  "module": "dorkllm/recommendation_delivery_protocol.py",
+  "version": "9.109.0",
+  "date": "2026-05-09",
+  "governor": "DUSTIN L REID",
+  "human0_sign_off": "HUMAN-0: Approved. All signed: Dustin L. Reid",
+  "hard_class_invariants_added": 10,
+  "hard_class_invariants_cumulative": 400,
+  "innovations_shipped": 81,
+  "test_suite": "tests/test_phase176_rdp.py",
+  "tests_passing": 30,
+  "tests_total": 30,
+  "world_first_claim": "First constitutionally-governed amendment proposal delivery gateway with HUMAN-0 disposition audit trail, closing the full CEL self-improvement loop",
+  "invariants": [
+    "RDP-CHAIN-0", "RDP-DETERM-0", "RDP-HUMAN0-0", "RDP-IMMUT-0",
+    "RDP-ATOMIC-0", "RDP-SCOPE-0", "RDP-AUDIT-0", "RDP-FORMAT-0",
+    "RDP-QUEUE-0", "RDP-REPLAY-0"
+  ],
+  "closed_loop_components": ["INNOV-78-MFV", "INNOV-79-IIS", "INNOV-80-CAL", "INNOV-81-RDP"]
+}

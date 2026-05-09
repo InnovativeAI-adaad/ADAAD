@@ -1,3 +1,24 @@
+## [9.109.0] — Phase 176 · INNOV-81 · RDP — Recommendation Delivery Protocol
+
+**Date:** 2026-05-09  **Author:** MutationAgent · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### Added
+- `dorkllm/recommendation_delivery_protocol.py` — INNOV-81 · RDP: World-first constitutionally-governed amendment proposal delivery gateway. Reads CAL (INNOV-80) recommendations, formats them as signed GovernanceProposal records, queues them for HUMAN-0 review, and writes all disposition decisions (ACCEPTED / DEFERRED / REJECTED) to an immutable HMAC-chained JSONL ledger. Closes the full CEL self-improvement loop with a verifiable human decision audit trail.
+- 10 new Hard-class invariants: RDP-CHAIN-0, RDP-DETERM-0, RDP-HUMAN0-0, RDP-IMMUT-0, RDP-ATOMIC-0, RDP-SCOPE-0, RDP-AUDIT-0, RDP-FORMAT-0, RDP-QUEUE-0, RDP-REPLAY-0
+- `tests/test_phase176_rdp.py` — 30/30 T176-RDP-01..30
+- `artifacts/governance/phase176/` — ILA + SIGNOFF governance artifacts
+- `data/rdp/` — proposal_ledger.jsonl, disposition_ledger.jsonl, proposal_queue.json
+- `Makefile` — 12-target developer CLI (test/sync/lint/audit/tag/clean etc.)
+- patch_dork.py syntax error fixed (triple-quote delimiter conflict)
+- 5 superseded sync scripts archived to `scripts/archive/`
+
+### Constitutional
+- Hard-class invariant count: 390 → 400 (+10) ← first time ADAAD crosses 400 Hard-class invariants
+- Innovations shipped: 80 → 81 (INNOV-81)
+- CEL self-improvement loop: COMPLETE — MFV→IIS→CAL→RDP pipeline is closed
+- Governor: DUSTIN L REID
+
+
 ## [9.108.0] — Phase 175 · INNOV-80 · CAL — Constitutional Adaptive Learner
 
 **Date:** 2026-05-09  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
