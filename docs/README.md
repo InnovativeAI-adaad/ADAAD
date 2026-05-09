@@ -92,6 +92,17 @@
 </details>
 
 <details>
+<summary><strong>🧭 Strategy &amp; Universe Alignment</strong></summary>
+
+<br/>
+
+| Document | Purpose |
+|:---|:---|
+| [INNOVATIVEAI_UNIVERSE_ALIGNMENT.md](INNOVATIVEAI_UNIVERSE_ALIGNMENT.md) | Repository-native alignment map for ADAAD, InnovativeArtsInc, JRT, Shame Tapestry / MVNA, hub routing, enhancement backlog, and optimization scorecard |
+
+</details>
+
+<details>
 <summary><strong>📋 Release History</strong></summary>
 
 <br/>
