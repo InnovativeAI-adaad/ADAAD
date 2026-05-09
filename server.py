@@ -259,6 +259,10 @@ async def _lifespan(application: FastAPI):  # noqa: ARG001
 app = FastAPI(title="InnovativeAI-adaad Unified Server", lifespan=_lifespan)
 
 
+def EvidenceBundleBuilder(*, export_dir: Path) -> Any:  # noqa: N802 — factory must match class-name convention
+    return _lazy_import("runtime.evolution.evidence_bundle", "EvidenceBundleBuilder")(export_dir=export_dir)
+
+
 def _build_runtime_context() -> RuntimeContext:
     """Build shared API dependencies from server-scoped runtime objects."""
     return RuntimeContext(
@@ -656,9 +660,6 @@ def IntelligenceRouter() -> Any:
 def MutationLintingBridge() -> Any:
     return _lazy_import("runtime.mcp.linting_bridge", "MutationLintingBridge")()
 
-
-def EvidenceBundleBuilder(*, export_dir: Path) -> Any:
-    return _lazy_import("runtime.evolution.evidence_bundle", "EvidenceBundleBuilder")(export_dir=export_dir)
 
 def _assert_gate_open() -> Dict[str, Any]:
     gate = _read_gate_state()
