@@ -162,7 +162,8 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 174 | TBD — next SPIE-ratified innovation | v9.107.0 | P0 | ✅ shipped |
 | 175 | INNOV-80 · CAL — Constitutional Adaptive Learner | v9.108.0 | P0 | ✅ shipped |
 | 176 | INNOV-81 · RDP — Recommendation Delivery Protocol | v9.109.0 | P0 | ✅ shipped |
-| 177 | TBD — next SPIE-ratified innovation | v9.110.0 | P0 | ⏭️ next |
+| 177 | INNOV-82 · CFI — CEL Feedback Integrator | v9.110.0 | P0 | ✅ complete |
+| 178 | INNOV-83 · CAE — Constitutional Amendment Executor | v9.111.0 | P0 | ⏭️ next |
 
 
 ## Phase 140 — Constitutional P0 Sweep + P1 Hardening (v9.73.0) ✅

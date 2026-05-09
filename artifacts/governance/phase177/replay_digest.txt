@@ -1,0 +1,11 @@
+{
+  "phase": 177,
+  "innovation": "INNOV-82",
+  "file_digests": {
+    "artifacts/governance/phase177/phase_sign_off.json": "4dcc502111b856a54bee840b2a6aeabc3021c75e7aa03df4cc9b274c6967ab35",
+    "artifacts/governance/phase177/track_a_sign_off.json": "c56b9ef86bb3e66907b696a7c70b1aa418e7d640f17c443c0df0585ca36fe51d",
+    "artifacts/governance/phase177/tier_summary.json": "8ff179c8db63e0b015bf923fa75ff1651adadc32bfa8b382821862de9ceb563c",
+    "dorkllm/cfi_feedback_integrator.py": "aa7684627049b8583772cd64d7ecdfc8e0069168ef8cd69e9c169fd98f2d33e3",
+    "tests/test_innov82_cfi.py": "96dcbfb2620b664cae4c7ecc1c8837b20005b466a16b449fb2b706b92827789d"
+  }
+}
