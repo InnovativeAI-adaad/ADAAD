@@ -1,12 +1,12 @@
 {
     "last_sync_date": "2026-05-09",
-    "last_sync_sha": "f7e38ce4",
-    "report_version": "9.108.0",
+    "last_sync_sha": "773706b3",
+    "report_version": "9.109.0",
     "version_source": "governance/report_version.json",
-    "version": "9.108.0",
-    "phase": 175,
+    "version": "9.109.0",
+    "phase": 176,
     "date": "2026-05-09",
-    "innovation": "INNOV-80",
-    "updated": "2026-05-09T14:52:08.236510+00:00",
+    "innovation": "INNOV-81",
+    "updated": "2026-05-09T14:58:34.638075+00:00",
     "last_updated": "2026-05-09"
 }
