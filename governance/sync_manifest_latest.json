@@ -1,11 +1,11 @@
 {
-  "sync_timestamp": "2026-05-10T09:05:46.546056+00:00",
+  "sync_timestamp": "2026-05-10T11:08:59.351429+00:00",
   "canonical": {
-    "version": "9.111.0",
+    "version": "9.112.0",
     "phase": 177,
-    "hard_class_count": 400,
-    "innovations": 83,
-    "sha": "07ea3de"
+    "hard_class_count": 430,
+    "innovations": 84,
+    "sha": "afe769e"
   },
   "surfaces": [
     {
@@ -18,6 +18,7 @@
       "changed": true,
       "ops": [
         "README version badge",
+        "README invariants badge",
         "README innovations badge",
         "block [<!-- ADAAD_VERSION_INFOBOX:STA]"
       ]
@@ -42,19 +43,22 @@
       "file": "governance/report_version.json",
       "changed": true,
       "ops": [
-        "updated version",
-        "updated report_version",
-        "updated last_sync_sha"
+        "updated phase",
+        "updated last_sync_sha",
+        "updated innovation"
       ]
     },
     {
       "file": ".adaad_agent_state.json",
       "changed": true,
       "ops": [
-        "synced current_version",
+        "synced version",
         "synced software_version",
         "synced last_completed_version",
         "synced current_phase",
+        "synced hard_class_invariant_count",
+        "synced hard_class_invariants_cumulative",
+        "synced invariant_count",
         "synced hard_invariant_count",
         "synced total_innovations_shipped",
         "synced innovation_count",
@@ -66,11 +70,12 @@
       "changed": true,
       "ops": [
         "SVG: version LIVE badge",
-        "SVG: innovations stat 83",
-        "SVG: stale version ref >v9.110.0<"
+        "SVG: innovations stat 84",
+        "SVG: invariants stat 430",
+        "SVG: stale version ref >v9.111.0<"
       ]
     }
   ],
   "total_changed": 6,
-  "digest": "0e0c71b8440a3e91"
+  "digest": "462c151c79ac4df4"
 }
