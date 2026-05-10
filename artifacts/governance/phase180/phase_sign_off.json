@@ -1,0 +1,19 @@
+{
+  "phase": 180,
+  "phase_label": "Phase 180 — INNOV-85 CAR — Constitutional Amendment Rollback",
+  "version": "9.113.0",
+  "innov_id": "INNOV-85",
+  "innov_name": "CAR — Constitutional Amendment Rollback",
+  "governor": "DUSTIN L REID",
+  "human0_approval": "APPROVED ; DUSTIN L. REID — 2026-05-10",
+  "authored_by": "DEVADAAD",
+  "date": "2026-05-10",
+  "tests_passed": "30/30",
+  "test_file": "tests/test_phase180_car.py",
+  "module": "dorkllm/constitutional_amendment_rollback.py",
+  "hard_class_invariants_added": 10,
+  "hard_class_invariants_cumulative": 440,
+  "world_first": "First constitutionally-governed AI amendment rollback engine to revert applied constitutional amendments based on cryptographic SCSI signals from a governed stability monitor, with HMAC-chained rollback ledgers and fail-closed HUMAN-0 escalation gates.",
+  "ratification_slot": "[slot reserved — HUMAN-0 GPG sign-off]",
+  "status": "COMPLETE"
+}

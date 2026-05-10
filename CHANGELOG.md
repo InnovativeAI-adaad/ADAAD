@@ -1,3 +1,32 @@
+## [9.113.0] — Phase 180 · INNOV-85 · CAR — Constitutional Amendment Rollback
+
+**Date:** 2026-05-10  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### Added
+- `dorkllm/constitutional_amendment_rollback.py` — INNOV-85 · CAR: World-first
+  constitutionally-governed constitutional amendment rollback engine. Reads CAE
+  (INNOV-83) execution ledgers and CSC (INNOV-84) SCSI snapshots to revert applied
+  constitutional amendments when SCSI < CRITICAL_THRESHOLD (0.50) or HUMAN-0 issues
+  an explicit CAR-ROLLBACK-* directive. Maintains an immutable HMAC-SHA-256-chained
+  rollback execution ledger, idempotency guard (CAR-DOUBLE-0), and fail-closed
+  HUMAN-0 token gate (CAR-HUMAN0-0). Closes the governed constitutional amendment
+  lifecycle: RDP → CAE → CSC → CAR (self-correction loop).
+- `tests/test_phase180_car.py` — 30 acceptance tests (T180-CAR-01..30), 30/30 passing
+- `artifacts/governance/phase180/` — four governance artifacts (phase_sign_off,
+  tier_summary, ILA, findings_resolution)
+- `data/car/` — new data directory: rollback_execution_ledger.jsonl,
+  rollback_state.json, rejected_rollbacks.jsonl
+
+### Invariants Added (10 Hard-class, cumulative: 440)
+  CAR-SCOPE-0    CAR-CHAIN-0    CAR-IMMUT-0    CAR-DETERM-0   CAR-TRIGGER-0
+  CAR-AUDIT-0    CAR-HUMAN0-0   CAR-DOUBLE-0   CAR-PERSIST-0  CAR-SEAL-0
+
+### World-First
+- First constitutionally-governed AI amendment rollback engine to revert applied
+  constitutional amendments based on cryptographic SCSI signals from a governed
+  stability monitor (CSC), with HMAC-chained rollback ledgers and fail-closed
+  HUMAN-0 escalation gates for manual reversion directives.
+
 ## [9.112.0] — Phase 179 · INNOV-84 · CSC — Constitutional Stability Controller
 
 **Date:** 2026-05-10  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
