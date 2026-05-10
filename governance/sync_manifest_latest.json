@@ -1,11 +1,11 @@
 {
-  "sync_timestamp": "2026-05-10T08:27:22.489897+00:00",
+  "sync_timestamp": "2026-05-10T09:05:46.546056+00:00",
   "canonical": {
-    "version": "9.110.0",
+    "version": "9.111.0",
     "phase": 177,
     "hard_class_count": 400,
-    "innovations": 82,
-    "sha": "f7147a1"
+    "innovations": 83,
+    "sha": "07ea3de"
   },
   "surfaces": [
     {
@@ -17,40 +17,60 @@
       "file": "README.md",
       "changed": true,
       "ops": [
-        "README invariants badge",
+        "README version badge",
+        "README innovations badge",
         "block [<!-- ADAAD_VERSION_INFOBOX:STA]"
       ]
     },
     {
       "file": "docs/README.md",
-      "changed": false,
-      "ops": []
+      "changed": true,
+      "ops": [
+        "docs/README version badge"
+      ]
     },
     {
       "file": "ROADMAP.md",
-      "changed": false,
-      "ops": []
+      "changed": true,
+      "ops": [
+        "ROADMAP Current State header",
+        "ROADMAP status line",
+        "ROADMAP invariant count"
+      ]
     },
     {
       "file": "governance/report_version.json",
       "changed": true,
       "ops": [
-        "updated date",
-        "updated last_sync_date",
+        "updated version",
+        "updated report_version",
         "updated last_sync_sha"
       ]
     },
     {
       "file": ".adaad_agent_state.json",
-      "changed": false,
-      "ops": []
+      "changed": true,
+      "ops": [
+        "synced current_version",
+        "synced software_version",
+        "synced last_completed_version",
+        "synced current_phase",
+        "synced hard_invariant_count",
+        "synced total_innovations_shipped",
+        "synced innovation_count",
+        "synced total_innovations"
+      ]
     },
     {
       "file": "docs/assets/readme/inline-hero_banner.svg",
-      "changed": false,
-      "ops": []
+      "changed": true,
+      "ops": [
+        "SVG: version LIVE badge",
+        "SVG: innovations stat 83",
+        "SVG: stale version ref >v9.110.0<"
+      ]
     }
   ],
-  "total_changed": 2,
-  "digest": "358512b11dcb891f"
+  "total_changed": 6,
+  "digest": "0e0c71b8440a3e91"
 }
