@@ -1,11 +1,11 @@
 {
-  "sync_timestamp": "2026-05-10T11:08:59.351429+00:00",
+  "sync_timestamp": "2026-05-10T13:08:06.078796+00:00",
   "canonical": {
     "version": "9.112.0",
-    "phase": 177,
+    "phase": 179,
     "hard_class_count": 430,
     "innovations": 84,
-    "sha": "afe769e"
+    "sha": "f321a22"
   },
   "surfaces": [
     {
@@ -17,9 +17,6 @@
       "file": "README.md",
       "changed": true,
       "ops": [
-        "README version badge",
-        "README invariants badge",
-        "README innovations badge",
         "block [<!-- ADAAD_VERSION_INFOBOX:STA]"
       ]
     },
@@ -27,7 +24,7 @@
       "file": "docs/README.md",
       "changed": true,
       "ops": [
-        "docs/README version badge"
+        "docs/README phase badge"
       ]
     },
     {
@@ -35,47 +32,29 @@
       "changed": true,
       "ops": [
         "ROADMAP Current State header",
-        "ROADMAP status line",
-        "ROADMAP invariant count"
+        "ROADMAP status line"
       ]
     },
     {
       "file": "governance/report_version.json",
       "changed": true,
       "ops": [
-        "updated phase",
-        "updated last_sync_sha",
-        "updated innovation"
+        "updated last_sync_sha"
       ]
     },
     {
       "file": ".adaad_agent_state.json",
-      "changed": true,
-      "ops": [
-        "synced version",
-        "synced software_version",
-        "synced last_completed_version",
-        "synced current_phase",
-        "synced hard_class_invariant_count",
-        "synced hard_class_invariants_cumulative",
-        "synced invariant_count",
-        "synced hard_invariant_count",
-        "synced total_innovations_shipped",
-        "synced innovation_count",
-        "synced total_innovations"
-      ]
+      "changed": false,
+      "ops": []
     },
     {
       "file": "docs/assets/readme/inline-hero_banner.svg",
       "changed": true,
       "ops": [
-        "SVG: version LIVE badge",
-        "SVG: innovations stat 84",
-        "SVG: invariants stat 430",
-        "SVG: stale version ref >v9.111.0<"
+        "SVG: phases stat 179"
       ]
     }
   ],
-  "total_changed": 6,
-  "digest": "462c151c79ac4df4"
+  "total_changed": 5,
+  "digest": "4bf2b898f1987618"
 }

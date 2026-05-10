@@ -35,9 +35,9 @@
 | Field | Value |
 | --- | --- |
 | **Current version** | `9.112.0` |
-| **Phase** | `177` |
+| **Phase** | `179` |
 | **Released** | `2026-05-10` |
-| **Release SHA** | `afe769e` |
+| **Release SHA** | `f321a22` |
 | **Hard-class invariants** | `430` |
 | **Innovations shipped** | `84` |
 <!-- ADAAD_VERSION_INFOBOX:END -->
