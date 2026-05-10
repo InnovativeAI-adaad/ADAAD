@@ -164,7 +164,8 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 176 | INNOV-81 · RDP — Recommendation Delivery Protocol | v9.109.0 | P0 | ✅ shipped |
 | 177 | INNOV-82 · CFI — CEL Feedback Integrator | v9.110.0 | P0 | ✅ complete |
 | 178 | INNOV-83 · CAE — Constitutional Amendment Executor | v9.111.0 | P0 | ✅ complete |
-| 179 | INNOV-84 · CSC — Constitutional Stability Controller | v9.112.0 | P0 | ⏭️ next |
+| 179 | INNOV-84 · CSC — Constitutional Stability Controller | v9.112.0 | P0 | ✅ shipped |
+| 180 | INNOV-85 · TBD — next SPIE-ratified innovation | v9.113.0 | P0 | ⏭️ next |
 
 
 ## Phase 140 — Constitutional P0 Sweep + P1 Hardening (v9.73.0) ✅
