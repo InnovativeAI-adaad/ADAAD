@@ -441,12 +441,60 @@ class RoadmapAmendmentEngine:
         proposal = self._load(proposal_id)
         recomputed = _lineage_hash(proposal.prior_roadmap_hash, proposal.content_hash())
         if recomputed != proposal.lineage_chain_hash:
+            journal.write_entry(
+                agent_id="RoadmapAmendmentEngine",
+                action="roadmap_amendment_determinism_divergence",
+                payload={
+                    "proposal_id": proposal_id,
+                    "stored_hash": proposal.lineage_chain_hash[:16],
+                    "recomputed_hash": recomputed[:16],
+                },
+            )
             raise DeterminismViolation(
                 f"Roadmap amendment replay diverged for '{proposal_id}': "
                 f"stored={proposal.lineage_chain_hash[:16]} "
                 f"recomputed={recomputed[:16]}"
             )
         return True
+
+    def execute_amendment(
+        self,
+        proposal_id: str,
+        *,
+        governor_id: str,
+        human_signoff_token: str | None,
+    ) -> RoadmapAmendmentProposal:
+        """
+        Execute governed amendment approval flow with fail-closed checks.
+
+        Preconditions:
+          - proposal payload schema is valid (round-trip parse)
+          - authority_level remains immutable at governor-review
+          - INVARIANT PHASE6-HUMAN-0 signoff token is present
+          - deterministic replay verifies before any approval mutation
+        """
+        proposal = self._load(proposal_id)
+        self._validate_proposal_payload(proposal)
+        if not str(human_signoff_token or "").strip():
+            journal.write_entry(
+                agent_id=governor_id,
+                action="roadmap_amendment_rejected",
+                payload={"proposal_id": proposal_id, "reason": "PHASE6-HUMAN-0-signoff-missing"},
+            )
+            raise GovernanceViolation("INVARIANT PHASE6-HUMAN-0 violation: missing human_signoff_token.")
+
+        self.verify_replay(proposal_id)
+        journal.write_entry(
+            agent_id=governor_id,
+            action="roadmap_amendment_human_signoff",
+            payload={
+                "proposal_id": proposal_id,
+                "governor_id": governor_id,
+                "signoff_timestamp": self.provider.iso_now(),
+                "human_signoff_token": str(human_signoff_token).strip(),
+            },
+        )
+        return self.approve(proposal_id, governor_id=governor_id)
 
     # ── Internal helpers ───────────────────────────────────────────────────
 
@@ -475,3 +523,13 @@ class RoadmapAmendmentEngine:
 
     def _load_file(self, path: Path) -> RoadmapAmendmentProposal:
         return RoadmapAmendmentProposal.from_json(path.read_text("utf-8"))
+
+    def _validate_proposal_payload(self, proposal: RoadmapAmendmentProposal) -> None:
+        try:
+            RoadmapAmendmentProposal.from_json(proposal.to_json())
+        except Exception as exc:
+            raise GovernanceViolation(f"Proposal payload schema validation failed: {exc}") from exc
+        if proposal.authority_level != _AUTHORITY_LEVEL:
+            raise GovernanceViolation(
+                "INVARIANT PHASE6-AUTH-0 violation: authority_level mutation detected."
+            )
