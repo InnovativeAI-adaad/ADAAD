@@ -1,3 +1,39 @@
+## [9.111.0] — Phase 178 · INNOV-83 · CAE — Constitutional Amendment Executor
+
+**Date:** 2026-05-10  **Author:** MutationAgent · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### Added
+- `dorkllm/constitutional_amendment_executor.py` — INNOV-83 · CAE: World-first constitutionally-governed
+  amendment execution engine. Reads HUMAN-0-ACCEPTED proposals from RDP (INNOV-81) disposition_ledger.jsonl
+  and applies each as a live constitutional amendment to the ADAAD invariant store. REINFORCE amplifies
+  invariant weight (+1 reinforcement_count); REVIEW flags for governance cycle; STABLE marks settled;
+  ADD creates new invariant entries; RETIRE marks retired (never hard-deletes). Maintains an immutable
+  HMAC-SHA-256 chained execution ledger and writes a post-execution constitutional snapshot after every
+  cycle. CAE-NOSELF-0 prevents self-amendment; CAE-REPLAY-0 deduplicates by execution_id; CAE-HUMAN0-0
+  enforces ACCEPTED-only execution. **Closes the final capstone of the CEL self-improvement loop.**
+- `tests/test_phase178_cae.py` — 30 acceptance tests (T178-CAE-01..30), 30/30 passing
+- `artifacts/governance/phase178/` — four governance artifacts (phase_sign_off, tier_summary, ILA, findings_resolution)
+- `data/cae/` — new ledger directory: amendment_execution_ledger.jsonl, constitution_snapshot.json, rejected_amendments.jsonl, live_constitution.json
+
+### Invariants Added (10 Hard-class, cumulative: 420)
+  CAE-CHAIN-0  CAE-DETERM-0  CAE-HUMAN0-0  CAE-IMMUT-0   CAE-ATOMIC-0
+  CAE-SCOPE-0  CAE-AUDIT-0   CAE-SNAPSHOT-0  CAE-NOSELF-0  CAE-REPLAY-0
+
+### World-First
+- First constitutionally-governed AI self-amendment executor: HUMAN-0-ACCEPTED amendment proposals
+  are applied to the live ADAAD constitutional invariant store with full HMAC chain audit, deterministic
+  replay, and post-execution snapshot — completing the world's first fully closed, verifiable AI
+  constitutional self-improvement loop.
+
+### CEL Self-Improvement Loop — FULLY CLOSED
+  MSE → MRP → MPG → MEX → MFV → IIS → CAL → RDP → HUMAN-0
+   ↑                                                      │
+   └─── CFI ◄─────────────────── CAE (INNOV-83) ◄────────┘
+                                       │
+                               Constitution updated
+                               (live_constitution.json)
+
+
 ## [9.110.0] — Phase 177 · INNOV-82 · CFI — CEL Feedback Integrator
 
 **Date:** 2026-05-09  **Author:** MutationAgent · InnovativeAI LLC  **Governor:** DUSTIN L REID

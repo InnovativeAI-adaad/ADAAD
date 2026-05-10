@@ -1,0 +1,22 @@
+{
+  "artifact_type": "tier_summary",
+  "phase": 178,
+  "innovation": "INNOV-83",
+  "version": "9.111.0",
+  "date": "2026-05-10",
+  "governor": "DUSTIN L REID",
+  "hard_invariants": [
+    {"id": "CAE-CHAIN-0",    "description": "HMAC-SHA-256 chain on execution ledger; broken chain halts all ops"},
+    {"id": "CAE-DETERM-0",   "description": "No wall-clock injection; all timestamps via _utc_iso()"},
+    {"id": "CAE-HUMAN0-0",   "description": "Only ACCEPTED dispositions execute; non-ACCEPTED rejected fail-closed"},
+    {"id": "CAE-IMMUT-0",    "description": "Execution ledger is append-only; no record mutation permitted"},
+    {"id": "CAE-ATOMIC-0",   "description": "Amendment application + ledger append are atomic; partial writes raise"},
+    {"id": "CAE-SCOPE-0",    "description": "CAE reads RDP disposition only; never writes to RDP/CAL/CFI ledgers"},
+    {"id": "CAE-AUDIT-0",    "description": "Every amendment execution emits a signed JSONL audit record"},
+    {"id": "CAE-SNAPSHOT-0", "description": "Post-execution constitutional snapshot written after every successful cycle"},
+    {"id": "CAE-NOSELF-0",   "description": "CAE cannot amend its own invariants; self-referential amendments rejected"},
+    {"id": "CAE-REPLAY-0",   "description": "execution_id must be globally unique; duplicates rejected fail-closed"}
+  ],
+  "total_hard_class_added": 10,
+  "cumulative_hard_class": 420
+}
