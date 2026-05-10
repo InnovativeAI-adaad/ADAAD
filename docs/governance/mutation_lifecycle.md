@@ -185,3 +185,7 @@ identifier for audit traceability.
 - State machine: `runtime/autonomy/roadmap_amendment_engine.py`
 - Ledger writes: `runtime/ledger/cryovant_journal.py`
 - Federation intake: `runtime/governance/federation/mutation_broker.py` (`propagate_amendment()`)
+
+### Phase 178 — INNOV-83 CAE execution boundary
+
+CAE execution is constrained to the canonical governance/runtime path: `runtime/autonomy/roadmap_amendment_engine.py` (proposal/execution), `security/ledger/*` (event persistence), and existing boot/replay validation entry routes in `app/main.py` and `security/cryovant.py`. CAE must fail closed on payload schema errors, authority-level mutation, missing `human_signoff_token`, or replay divergence before approval transitions are written.

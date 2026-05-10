@@ -277,6 +277,64 @@ class TestDeterminism:
         assert p1.content_hash() == p2.content_hash()
 
 
+class TestConstitutionalAmendmentExecution:
+    def test_execute_amendment_success_with_human_signoff(self, tmp_engine, valid_milestones):
+        proposal = tmp_engine.propose(
+            proposer_agent="ArchitectAgent",
+            milestones=valid_milestones,
+            rationale=_GOOD_RATIONALE,
+        )
+        approved = tmp_engine.execute_amendment(
+            proposal.proposal_id,
+            governor_id="governor-a",
+            human_signoff_token="human-signoff-001",
+        )
+        assert approved.status == ProposalStatus.PENDING
+        assert "governor-a" in approved.approvals
+
+    def test_execute_amendment_rejects_when_signoff_missing(self, tmp_engine, valid_milestones):
+        proposal = tmp_engine.propose(
+            proposer_agent="ArchitectAgent",
+            milestones=valid_milestones,
+            rationale=_GOOD_RATIONALE,
+        )
+        with pytest.raises(GovernanceViolation, match="PHASE6-HUMAN-0"):
+            tmp_engine.execute_amendment(
+                proposal.proposal_id,
+                governor_id="governor-a",
+                human_signoff_token="",
+            )
+
+    def test_execute_amendment_rejects_authority_violation(self, tmp_engine, valid_milestones):
+        proposal = tmp_engine.propose(
+            proposer_agent="ArchitectAgent",
+            milestones=valid_milestones,
+            rationale=_GOOD_RATIONALE,
+        )
+        path = tmp_engine.proposals_dir / f"{proposal.proposal_id}.json"
+        data = json.loads(path.read_text("utf-8"))
+        data["authority_level"] = "agent-review"
+        path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+
+        with pytest.raises(GovernanceViolation, match="PHASE6-AUTH-0"):
+            tmp_engine.execute_amendment(
+                proposal.proposal_id,
+                governor_id="governor-a",
+                human_signoff_token="human-signoff-001",
+            )
+
+    def test_execute_amendment_replay_parity_identical_inputs(self, tmp_engine, valid_milestones):
+        proposal = tmp_engine.propose(
+            proposer_agent="ArchitectAgent",
+            milestones=valid_milestones,
+            rationale=_GOOD_RATIONALE,
+        )
+        first = tmp_engine.verify_replay(proposal.proposal_id)
+        second = tmp_engine.verify_replay(proposal.proposal_id)
+        assert first is True
+        assert second is True
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 # list_pending
 # ──────────────────────────────────────────────────────────────────────────────
