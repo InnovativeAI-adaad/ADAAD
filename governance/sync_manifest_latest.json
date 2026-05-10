@@ -1,11 +1,11 @@
 {
-  "sync_timestamp": "2026-05-09T18:42:28.503554+00:00",
+  "sync_timestamp": "2026-05-10T08:27:22.489897+00:00",
   "canonical": {
     "version": "9.110.0",
     "phase": 177,
     "hard_class_count": 400,
     "innovations": 82,
-    "sha": "dbeaf91"
+    "sha": "f7147a1"
   },
   "surfaces": [
     {
@@ -17,6 +17,7 @@
       "file": "README.md",
       "changed": true,
       "ops": [
+        "README invariants badge",
         "block [<!-- ADAAD_VERSION_INFOBOX:STA]"
       ]
     },
@@ -34,6 +35,8 @@
       "file": "governance/report_version.json",
       "changed": true,
       "ops": [
+        "updated date",
+        "updated last_sync_date",
         "updated last_sync_sha"
       ]
     },
@@ -49,5 +52,5 @@
     }
   ],
   "total_changed": 2,
-  "digest": "60ba6ffc3bf47698"
+  "digest": "358512b11dcb891f"
 }
