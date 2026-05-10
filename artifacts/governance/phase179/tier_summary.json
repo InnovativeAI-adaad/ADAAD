@@ -1,0 +1,21 @@
+{
+  "phase": 179,
+  "version": "9.112.0",
+  "tier": "P0",
+  "innovation": "INNOV-84",
+  "blast_radius": "READ-ONLY",
+  "invariants": {
+    "CSC-SCORE-0": "Stability score computed deterministically; no RNG",
+    "CSC-READONLY-0": "CSC never writes to CAE, CFI, RDP, or CAL ledgers",
+    "CSC-CHAIN-0": "HMAC-SHA-256 chain on stability report ledger; broken chain halts",
+    "CSC-IMMUT-0": "Stability report ledger is append-only; no record mutation",
+    "CSC-DETERM-0": "No wall-clock injection; timestamps via _utc_iso()",
+    "CSC-ALERT-0": "SCSI below WARNING_THRESHOLD must emit alert; fail-closed",
+    "CSC-THRESHOLD-0": "Stability thresholds are governed constants; not runtime-modifiable",
+    "CSC-SCOPE-0": "CSC reads only constitution_snapshot.json + amendment ledger; no ext I/O",
+    "CSC-AUDIT-0": "Every stability computation cycle writes a signed audit record",
+    "CSC-HUMAN0-0": "SCSI < CRITICAL_THRESHOLD sets human0_escalation=True in alert"
+  },
+  "governor": "DUSTIN L REID",
+  "date": "2026-05-10"
+}
