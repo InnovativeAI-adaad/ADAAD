@@ -1,0 +1,25 @@
+{
+  "event_id": "ILA-180-2026-05-10-001",
+  "phase": 180,
+  "version": "9.113.0",
+  "innov_id": "INNOV-85",
+  "innov_name": "CAR — Constitutional Amendment Rollback",
+  "module": "dorkllm/constitutional_amendment_rollback.py",
+  "hard_class_invariants": [
+    {"id": "CAR-SCOPE-0",   "description": "Only EXECUTED amendments are rollback-eligible"},
+    {"id": "CAR-CHAIN-0",   "description": "HMAC-SHA-256 chain on rollback ledger; broken chain halts all ops"},
+    {"id": "CAR-IMMUT-0",   "description": "Rollback ledger is append-only; no record mutation permitted"},
+    {"id": "CAR-DETERM-0",  "description": "No wall-clock injection; all timestamps via _utc_iso()"},
+    {"id": "CAR-TRIGGER-0", "description": "Rollback only on CRITICAL CSC alert or HUMAN-0 explicit token"},
+    {"id": "CAR-AUDIT-0",   "description": "Every rollback attempt is ledger-recorded"},
+    {"id": "CAR-HUMAN0-0",  "description": "Manual rollback requires HUMAN-0 ratification token"},
+    {"id": "CAR-DOUBLE-0",  "description": "No amendment may be rolled back twice"},
+    {"id": "CAR-PERSIST-0", "description": "Rollback state is ledger-backed and survives restarts"},
+    {"id": "CAR-SEAL-0",    "description": "Each rollback record sealed with HMAC before ledger append"}
+  ],
+  "cumulative_invariants": 440,
+  "governor": "DUSTIN L REID",
+  "ratification_slot": "[slot reserved — HUMAN-0 GPG sign-off]",
+  "date": "2026-05-10",
+  "authored_by": "DEVADAAD"
+}

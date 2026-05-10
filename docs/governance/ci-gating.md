@@ -538,3 +538,8 @@ for `ROADMAP.md` and `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` using f
 **Pass condition:** No invariant violation in bounded model exploration; formal model tests pass.
 
 **Fail condition:** Any property violation or test failure blocks CI.
+
+
+### Phase 178 — INNOV-83 CAE CI tier classification
+
+Phase 178 CAE changes are **constitutional tier** when touching amendment execution paths (`runtime/autonomy/roadmap_amendment_engine.py`, `security/*`, replay validation routes). Required stack: Tier 0 + Tier 1 + Tier 2 (strict replay/evidence suite) + Tier 3 completeness.

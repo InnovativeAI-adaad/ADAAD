@@ -4355,6 +4355,85 @@ def fleet_heal():
     }
 
 
+# ── INNOV-84 · CSC — Constitutional Stability Controller ─────────────────────
+
+def _get_csc():
+    """Lazy-import CSC to avoid startup cost."""
+    from dorkllm.constitutional_stability_controller import ConstitutionalStabilityController
+    return ConstitutionalStabilityController()
+
+
+@app.post("/api/csc/run")
+def csc_run_cycle():
+    """
+    INNOV-84 · CSC: Run one constitutional stability computation cycle.
+    CSC-AUDIT-0: every cycle is recorded; CSC-CHAIN-0: HMAC-chained ledger.
+    """
+    try:
+        csc = _get_csc()
+        report = csc.run_stability_cycle()
+        return {
+            "ok": True,
+            "report_id": report.report_id,
+            "scsi": report.scsi,
+            "scsi_status": report.scsi_status,
+            "human0_escalation": report.human0_escalation,
+            "alert_emitted": report.alert_emitted,
+            "invariant_count_active": report.invariant_count_active,
+            "invariant_count_total": report.invariant_count_total,
+            "cycle_timestamp": report.cycle_timestamp,
+            "innov_code": "INNOV-84",
+            "governor": "DUSTIN L REID",
+        }
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.get("/api/csc/snapshot")
+def csc_snapshot():
+    """
+    INNOV-84 · CSC: Return the latest SCSI snapshot.
+    CSC-AUDIT-0: snapshot written after every cycle.
+    """
+    try:
+        csc = _get_csc()
+        snap = csc.get_scsi_snapshot()
+        if snap is None:
+            return {"ok": False, "detail": "no_snapshot_yet", "innov_code": "INNOV-84"}
+        return {"ok": True, "snapshot": snap, "innov_code": "INNOV-84"}
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.get("/api/csc/history")
+def csc_history(last_n: int = 10):
+    """
+    INNOV-84 · CSC: Return the last N stability reports from the ledger.
+    CSC-IMMUT-0: ledger is append-only; reads never modify it.
+    """
+    try:
+        csc = _get_csc()
+        reports = csc.get_report_history(last_n=min(last_n, 100))
+        return {"ok": True, "count": len(reports), "reports": reports, "innov_code": "INNOV-84"}
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.get("/api/csc/alerts")
+def csc_alerts(last_n: int = 10):
+    """
+    INNOV-84 · CSC: Return the last N stability alerts.
+    CSC-ALERT-0: alerts emitted when SCSI < WARNING_THRESHOLD.
+    CSC-HUMAN0-0: human0_escalation=True when SCSI < CRITICAL_THRESHOLD.
+    """
+    try:
+        csc = _get_csc()
+        alerts = csc.get_alert_history(last_n=min(last_n, 100))
+        return {"ok": True, "count": len(alerts), "alerts": alerts, "innov_code": "INNOV-84"}
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
 app.mount("/", SPAStaticFiles(directory=str(APONI_DIR), html=True, index_path=INDEX), name="aponi")
 
 
