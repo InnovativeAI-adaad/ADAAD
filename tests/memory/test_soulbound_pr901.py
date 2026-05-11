@@ -237,6 +237,56 @@ class TestSoulboundLedger:
         assert len(rotation_events) == 1
 
 
+class TestSoulboundLedgerFilterIntegration:
+    def test_T9_01_26_append_rejects_missing_epoch_id_without_manual_filter(self, tmp_path):
+        """append() must apply ContextFilterChain and reject payloads missing epoch_id."""
+        ledger, events = _make_ledger(tmp_path, collect_events=True)
+        result = ledger.append(
+            epoch_id="epoch-901",
+            context_type="mutation_proposal",
+            payload={"context_hash": "abc123"},
+        )
+
+        assert result.accepted is False
+        assert result.rejection_reason == "payload_missing_epoch_id"
+        assert ledger.entry_count() == 0
+        rejected_events = [e for e in events if e[0] == "context_ledger_entry_rejected.v1"]
+        assert rejected_events[-1][1]["rejecting_filter"] == "epoch_id_required"
+
+    def test_T9_01_27_append_rejects_oversized_payload_without_manual_filter(self, tmp_path):
+        """append() must apply payload size limits before digesting or signing."""
+        from runtime.memory.context_filter_chain import MAX_PAYLOAD_BYTES
+
+        ledger, events = _make_ledger(tmp_path, collect_events=True)
+        result = ledger.append(
+            epoch_id="epoch-902",
+            context_type="mutation_proposal",
+            payload={"epoch_id": "epoch-902", "data": "x" * (MAX_PAYLOAD_BYTES + 1000)},
+        )
+
+        assert result.accepted is False
+        assert result.rejection_reason is not None
+        assert "exceeds_limit" in result.rejection_reason
+        assert ledger.entry_count() == 0
+        rejected_events = [e for e in events if e[0] == "context_ledger_entry_rejected.v1"]
+        assert rejected_events[-1][1]["rejecting_filter"] == "payload_size_limit"
+
+    def test_T9_01_28_append_rejects_private_key_pattern_without_manual_filter(self, tmp_path):
+        """append() must apply private-key leak detection before accepting entries."""
+        ledger, events = _make_ledger(tmp_path, collect_events=True)
+        result = ledger.append(
+            epoch_id="epoch-903",
+            context_type="mutation_proposal",
+            payload={"epoch_id": "epoch-903", "data": "ghp_" + "a" * 36},
+        )
+
+        assert result.accepted is False
+        assert result.rejection_reason == "payload_contains_private_key_pattern"
+        assert ledger.entry_count() == 0
+        rejected_events = [e for e in events if e[0] == "context_ledger_entry_rejected.v1"]
+        assert rejected_events[-1][1]["rejecting_filter"] == "no_private_key_leak"
+
+
 # ============================================================================
 # ContextFilterChain — T9-01-18..25
 # ============================================================================
