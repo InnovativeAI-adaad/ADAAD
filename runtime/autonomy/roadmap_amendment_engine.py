@@ -348,22 +348,45 @@ class RoadmapAmendmentEngine:
         )
         return proposal
 
-    def approve(self, proposal_id: str, *, governor_id: str) -> RoadmapAmendmentProposal:
+    def approve(
+        self,
+        proposal_id: str,
+        *,
+        governor_id: str,
+        human_signoff_token: str | None = None,
+    ) -> RoadmapAmendmentProposal:
         """
-        Record a governor approval. Transitions to APPROVED when threshold met.
+        Record a governor approval after a human signoff ledger event.
 
         Governance invariants:
+          - INVARIANT PHASE6-HUMAN-0 requires a non-empty human_signoff_token.
+          - The roadmap_amendment_human_signoff ledger event is written before
+            any approval mutation is persisted.
           - A governor may not approve the same proposal twice.
           - Once rejected, a proposal cannot be re-approved (status = REJECTED).
           - authority_level remains "governor-review" through all transitions.
         """
         proposal = self._load(proposal_id)
-        self._assert_mutable(proposal)
+        self._validate_proposal_payload(proposal)
+        self._assert_human_signoff_token(
+            proposal_id,
+            governor_id=governor_id,
+            human_signoff_token=human_signoff_token,
+        )
+        self.verify_replay(proposal_id)
+        self._assert_approval_allowed(proposal_id, governor_id=governor_id)
+        self._record_human_signoff(
+            proposal_id,
+            governor_id=governor_id,
+            human_signoff_token=human_signoff_token,
+        )
+        return self._record_approval(proposal_id, governor_id=governor_id)
 
-        if governor_id in proposal.approvals:
-            raise GovernanceViolation(
-                f"Governor '{governor_id}' already approved '{proposal_id}'."
-            )
+    def _record_approval(self, proposal_id: str, *, governor_id: str) -> RoadmapAmendmentProposal:
+        """Persist approval mutation after PHASE6-HUMAN-0 signoff is recorded."""
+        proposal = self._load(proposal_id)
+        self._validate_proposal_payload(proposal)
+        self._assert_approval_allowed(proposal_id, governor_id=governor_id)
 
         proposal.approvals.append(governor_id)
         proposal.phase_transitions.append(
@@ -475,15 +498,60 @@ class RoadmapAmendmentEngine:
         """
         proposal = self._load(proposal_id)
         self._validate_proposal_payload(proposal)
-        if not str(human_signoff_token or "").strip():
+        self._assert_human_signoff_token(
+            proposal_id,
+            governor_id=governor_id,
+            human_signoff_token=human_signoff_token,
+        )
+        self.verify_replay(proposal_id)
+        self._assert_approval_allowed(proposal_id, governor_id=governor_id)
+        self._record_human_signoff(
+            proposal_id,
+            governor_id=governor_id,
+            human_signoff_token=human_signoff_token,
+        )
+        return self._record_approval(proposal_id, governor_id=governor_id)
+
+    # ── Internal helpers ───────────────────────────────────────────────────
+
+    def _assert_approval_allowed(self, proposal_id: str, *, governor_id: str) -> None:
+        proposal = self._load(proposal_id)
+        self._validate_proposal_payload(proposal)
+        self._assert_mutable(proposal)
+        if governor_id in proposal.approvals:
+            raise GovernanceViolation(
+                f"Governor '{governor_id}' already approved '{proposal_id}'."
+            )
+
+    def _assert_human_signoff_token(
+        self,
+        proposal_id: str,
+        *,
+        governor_id: str,
+        human_signoff_token: str | None,
+    ) -> str:
+        token = str(human_signoff_token or "").strip()
+        if not token:
             journal.write_entry(
                 agent_id=governor_id,
                 action="roadmap_amendment_rejected",
                 payload={"proposal_id": proposal_id, "reason": "PHASE6-HUMAN-0-signoff-missing"},
             )
             raise GovernanceViolation("INVARIANT PHASE6-HUMAN-0 violation: missing human_signoff_token.")
+        return token
 
-        self.verify_replay(proposal_id)
+    def _record_human_signoff(
+        self,
+        proposal_id: str,
+        *,
+        governor_id: str,
+        human_signoff_token: str | None,
+    ) -> None:
+        token = self._assert_human_signoff_token(
+            proposal_id,
+            governor_id=governor_id,
+            human_signoff_token=human_signoff_token,
+        )
         journal.write_entry(
             agent_id=governor_id,
             action="roadmap_amendment_human_signoff",
@@ -491,12 +559,9 @@ class RoadmapAmendmentEngine:
                 "proposal_id": proposal_id,
                 "governor_id": governor_id,
                 "signoff_timestamp": self.provider.iso_now(),
-                "human_signoff_token": str(human_signoff_token).strip(),
+                "human_signoff_token": token,
             },
         )
-        return self.approve(proposal_id, governor_id=governor_id)
-
-    # ── Internal helpers ───────────────────────────────────────────────────
 
     def _validate_rationale(self, rationale: str) -> None:
         words = len(rationale.split())
