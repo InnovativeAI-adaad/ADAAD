@@ -342,9 +342,9 @@ Awaiting:             human review before merge
 
 Source: `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` → `state_alignment`
 
-- `expected_active_phase`: `Phase 160 COMPLETE · v9.93.0`
-- `expected_last_completed_pr`: `Phase 160 — INNOV-66 Emergent Baseline Sentinel (EBS)`
-- `expected_next_pr`: `Phase 161 — INNOV-67 (deterministic: first non-shipped phase whose predecessor is shipped)`
+- `expected_active_phase`: `Phase 180 — INNOV-85 CAR — Constitutional Amendment Rollback`
+- `expected_last_completed_pr`: `Phase 180 — INNOV-85 CAR — Constitutional Amendment Rollback`
+- `expected_next_pr`: `Phase 181 — INNOV-86 TBD — SPIE-ratified`
 
 > This is the single authoritative next-PR statement in this document.
 

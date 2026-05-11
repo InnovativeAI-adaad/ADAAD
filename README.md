@@ -42,6 +42,8 @@
 | **Innovations shipped** | `85` |
 <!-- ADAAD_VERSION_INFOBOX:END -->
 
+Canonical architecture spec: [`docs/governance/ARCHITECT_SPEC_v3.1.0.md`](docs/governance/ARCHITECT_SPEC_v3.1.0.md).
+
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 
 ## <a id="what-it-does"></a>What ADAAD is
