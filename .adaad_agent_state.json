@@ -404,7 +404,7 @@
     "constitutional_invariants": 440,
     "current_phase": 180,
     "current_version": "9.113.0",
-    "expected_next_pr": "Phase 181 \u2014 INNOV-86 TBD \u2014 SPIE-ratified",
+    "expected_next_pr": "Phase 181 \u2014 INNOV-86 GIR \u2014 Governance Implementation Readiness",
     "ga_blocker_count": 0,
     "ga_blockers": 0,
     "ga_gates": {
@@ -488,12 +488,12 @@
     "milestone": "v1.1-GA",
     "next_innovation": "INNOV-86",
     "next_innovation_id": "INNOV-86",
-    "next_innovation_name": "TBD \u2014 SPIE-ratified",
+    "next_innovation_name": "GIR \u2014 Governance Implementation Readiness",
     "next_phase": 181,
-    "next_phase_description": "TBD \u2014 SPIE-ratified INNOV-86",
+    "next_phase_description": "GIR \u2014 Governance Implementation Readiness INNOV-86",
     "next_phase_id": 181,
     "next_phase_target": 181,
-    "next_pr": "Phase 181 \u2014 INNOV-86 TBD \u2014 SPIE-ratified",
+    "next_pr": "Phase 181 \u2014 INNOV-86 GIR \u2014 Governance Implementation Readiness",
     "open_findings": [
         {
             "id": "FINDING-66-001",

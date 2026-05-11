@@ -1164,15 +1164,22 @@ adaad_pr_procession_contract:
       title: "INNOV-85 CAR — Constitutional Amendment Rollback"
     phase181:
       ci_tier: constitutional
+      implementation_lane: governance-metadata
       depends_on: ["phase180"]
+      prerequisite_phases: ["phase180"]
       status: planned
       version: "v9.114.0"
-      title: "INNOV-86 TBD — SPIE-ratified"
+      title: "INNOV-86 GIR — Governance Implementation Readiness"
+      acceptance_criteria:
+        - "Phase 181 canonical title contains no placeholder title text in the procession contract or agent state."
+        - "Implementation lane, CI tier, and prerequisite phase metadata are explicit before the Phase 181 implementation PR opens."
+        - "Agent state next-PR fields mirror the procession contract title exactly."
+        - "Claims evidence matrix records a Complete evidence row for Phase 181 metadata readiness."
   state_alignment:
     canonical_pr_identifier_format: "Phase <N> — <Title>"
     expected_active_phase: "Phase 180 — INNOV-85 CAR — Constitutional Amendment Rollback"
     expected_last_completed_pr: "Phase 180 — INNOV-85 CAR — Constitutional Amendment Rollback"
-    expected_next_pr: "Phase 181 — INNOV-86 TBD — SPIE-ratified"
+    expected_next_pr: "Phase 181 — INNOV-86 GIR — Governance Implementation Readiness"
     blocked_reason_must_be_null: true
   open_findings:
     - id: FINDING-C03-GITHUB-APP
@@ -1230,7 +1237,7 @@ A validator comparing this document to `.adaad_agent_state.json` should fail if:
 
 ## 3.2 Changelog
 
-- **2026-05-11:** Reconciled automation checkpoint to **Phase 180 complete / v9.113.0**, recorded Phase 178–180 completion in `ordered_phase_ids` and `phase_nodes`, kept `state_alignment` in the canonical `Phase <N> — <Title>` identifier format, and set deterministic next-phase targeting to **Phase 181 — INNOV-86 TBD — SPIE-ratified**.
+- **2026-05-11:** Reconciled automation checkpoint to **Phase 180 complete / v9.113.0**, recorded Phase 178–180 completion in `ordered_phase_ids` and `phase_nodes`, kept `state_alignment` in the canonical `Phase <N> — <Title>` identifier format, and set deterministic next-phase targeting to **Phase 181 — INNOV-86 GIR — Governance Implementation Readiness**.
 - **2026-05-09:** Reconciled automation checkpoint to **Phase 177 complete / v9.110.0**, recorded Phase 174–177 completion in `ordered_phase_ids` and `phase_nodes`, normalized `.adaad_agent_state.json` and `state_alignment` to the canonical `Phase <N> — <Title>` identifier format, and set deterministic next-phase targeting to **Phase 178 — INNOV-83 CAE — Constitutional Amendment Executor**.
 - **2026-05-08:** Reconciled automation checkpoint to **Phase 173 complete / v9.106.0**, normalized `active_phase`, `last_completed_pr`, and `expected_next_pr` to the canonical `Phase <N> — <Title>` identifier format, and set deterministic next-phase targeting to **Phase 174 — TBD — SPIE proposal pending HUMAN-0 ratification**.
 - **2026-04-25:** Reconciled automation checkpoint to **Phase 160 complete / v9.93.0** and normalized deterministic next-phase identifier format to `Phase 161 — …` for state-alignment validators.
