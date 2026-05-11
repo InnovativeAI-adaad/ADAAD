@@ -5,13 +5,17 @@
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 from typing import Any
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 from runtime.governance.schema_validator import validate_governance_schemas
 from runtime.preflight import _validate_against_schema, migrate_runtime_profile_lock
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
 CONSTITUTION_PATH = REPO_ROOT / "runtime/governance/constitution.yaml"
 SCHEMA_PATH = REPO_ROOT / "docs/schemas/constitution.v1.json"
 RUNTIME_PROFILE_PATH = REPO_ROOT / "governance_runtime_profile.lock.json"
