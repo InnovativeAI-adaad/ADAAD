@@ -204,33 +204,85 @@ class TestApproveReject:
 
     def test_single_approval_stays_pending(self, tmp_engine, valid_milestones):
         p = self._make_proposal(tmp_engine, valid_milestones)
-        p = tmp_engine.approve(p.proposal_id, governor_id="governor-a")
+        p = tmp_engine.approve(
+            p.proposal_id, governor_id="governor-a", human_signoff_token="signoff-a"
+        )
         assert p.status == ProposalStatus.PENDING
+
+    def test_direct_approval_without_signoff_is_rejected(self, tmp_engine, valid_milestones):
+        p = self._make_proposal(tmp_engine, valid_milestones)
+        with pytest.raises(GovernanceViolation, match="PHASE6-HUMAN-0"):
+            tmp_engine.approve(p.proposal_id, governor_id="governor-a")
+
+        persisted = RoadmapAmendmentProposal.from_json(
+            (tmp_engine.proposals_dir / f"{p.proposal_id}.json").read_text("utf-8")
+        )
+        assert persisted.approvals == []
+        assert persisted.status == ProposalStatus.PENDING
+
+    def test_signoff_event_is_recorded_before_direct_approval_mutation(
+        self, tmp_engine, valid_milestones, monkeypatch
+    ):
+        p = self._make_proposal(tmp_engine, valid_milestones)
+        events = []
+
+        def capture_write_entry(agent_id, action, payload=None, **kwargs):
+            if action == "roadmap_amendment_human_signoff":
+                persisted = RoadmapAmendmentProposal.from_json(
+                    (tmp_engine.proposals_dir / f"{p.proposal_id}.json").read_text("utf-8")
+                )
+                assert persisted.approvals == []
+                assert persisted.status == ProposalStatus.PENDING
+            events.append((agent_id, action, payload, kwargs))
+
+        monkeypatch.setattr(
+            "runtime.autonomy.roadmap_amendment_engine.journal.write_entry",
+            capture_write_entry,
+        )
+
+        approved = tmp_engine.approve(
+            p.proposal_id, governor_id="governor-a", human_signoff_token="signoff-a"
+        )
+
+        assert approved.approvals == ["governor-a"]
+        assert [event[1] for event in events] == ["roadmap_amendment_human_signoff"]
 
     def test_two_approvals_transitions_to_approved(self, tmp_engine, valid_milestones):
         p = self._make_proposal(tmp_engine, valid_milestones)
-        tmp_engine.approve(p.proposal_id, governor_id="governor-a")
-        p = tmp_engine.approve(p.proposal_id, governor_id="governor-b")
+        tmp_engine.approve(
+            p.proposal_id, governor_id="governor-a", human_signoff_token="signoff-a"
+        )
+        p = tmp_engine.approve(
+            p.proposal_id, governor_id="governor-b", human_signoff_token="signoff-b"
+        )
         assert p.status == ProposalStatus.APPROVED
 
     def test_double_approval_same_governor_raises(self, tmp_engine, valid_milestones):
         p = self._make_proposal(tmp_engine, valid_milestones)
-        tmp_engine.approve(p.proposal_id, governor_id="governor-a")
+        tmp_engine.approve(
+            p.proposal_id, governor_id="governor-a", human_signoff_token="signoff-a"
+        )
         with pytest.raises(GovernanceViolation, match="already approved"):
-            tmp_engine.approve(p.proposal_id, governor_id="governor-a")
+            tmp_engine.approve(
+                p.proposal_id,
+                governor_id="governor-a",
+                human_signoff_token="signoff-a-duplicate",
+            )
 
     def test_reject_is_terminal(self, tmp_engine, valid_milestones):
         p = self._make_proposal(tmp_engine, valid_milestones)
         tmp_engine.reject(p.proposal_id, governor_id="governor-a", reason="Premature.")
         with pytest.raises(GovernanceViolation, match="terminal"):
-            tmp_engine.approve(p.proposal_id, governor_id="governor-b")
+            tmp_engine.approve(
+                p.proposal_id, governor_id="governor-b", human_signoff_token="signoff-b"
+            )
 
     def test_approve_after_approved_raises(self, tmp_engine, valid_milestones):
         p = self._make_proposal(tmp_engine, valid_milestones)
-        tmp_engine.approve(p.proposal_id, governor_id="g1")
-        tmp_engine.approve(p.proposal_id, governor_id="g2")
+        tmp_engine.approve(p.proposal_id, governor_id="g1", human_signoff_token="signoff-1")
+        tmp_engine.approve(p.proposal_id, governor_id="g2", human_signoff_token="signoff-2")
         with pytest.raises(GovernanceViolation, match="terminal"):
-            tmp_engine.approve(p.proposal_id, governor_id="g3")
+            tmp_engine.approve(p.proposal_id, governor_id="g3", human_signoff_token="signoff-3")
 
 
 # ──────────────────────────────────────────────────────────────────────────────

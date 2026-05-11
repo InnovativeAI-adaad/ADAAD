@@ -1,6 +1,6 @@
 {
     "acse_active": true,
-    "active_phase": 180,
+    "active_phase": "Phase 180 \u2014 INNOV-85 CAR \u2014 Constitutional Amendment Rollback",
     "blocked_at_gate": null,
     "blocked_at_tier": null,
     "blocked_reason": null,
@@ -481,8 +481,8 @@
     "last_innovation_name": "Constitutional Amendment Rollback",
     "last_invocation": "2026-05-10",
     "last_phase_completed": "Phase 180 \u00b7 INNOV-85 \u00b7 CAR \u2014 Constitutional Amendment Rollback",
-    "last_phase_completed_label": "Phase 177 \u2014 INNOV-82 CFI \u2014 CEL Feedback Integrator",
-    "last_phase_name": "INNOV-82 CFI \u2014 CEL Feedback Integrator",
+    "last_phase_completed_label": "Phase 180 \u2014 INNOV-85 CAR \u2014 Constitutional Amendment Rollback",
+    "last_phase_name": "INNOV-85 CAR \u2014 Constitutional Amendment Rollback",
     "last_sync_sha": "phase180-car",
     "last_updated": "2026-05-10T13:22:43.775886+00:00",
     "milestone": "v1.1-GA",
