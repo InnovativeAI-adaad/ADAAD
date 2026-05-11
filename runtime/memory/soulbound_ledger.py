@@ -48,6 +48,8 @@ from typing import Any, Dict, List, Optional
 
 from memory.versionedstore import VersionedMemoryStore
 from runtime.governance.foundation import canonical_json
+from runtime.memory.context_filter_chain import ContextFilterChain
+from runtime.memory.context_types import VALID_CONTEXT_TYPES
 from runtime.memory.soulbound_key import SoulboundKeyError, sign, verify
 
 # Journal imports — graceful no-op if not available (test environments)
@@ -63,14 +65,6 @@ except ImportError:  # pragma: no cover
 # ---------------------------------------------------------------------------
 
 LEDGER_SCHEMA_VERSION: str = "1.0"
-
-VALID_CONTEXT_TYPES: frozenset[str] = frozenset({
-    "mutation_proposal",    # Pre-mutation codebase snapshot
-    "fitness_signal",       # FitnessLandscape signal context
-    "governance_advisory",  # GovernanceHealthAggregator advisory context
-    "craft_pattern",        # CraftPatternExtractor output (Phase 9 PR-9-02)
-    "replay_injection",     # ContextReplayInterface injection (Phase 9 PR-9-03)
-})
 
 DEFAULT_LEDGER_PATH = Path("data/soulbound_ledger.json")
 
@@ -173,6 +167,8 @@ class SoulboundLedger:
                       Defaults to the real journal; pass a no-op in tests.
         key_override: Raw HMAC key bytes for testing.  If provided, bypasses
                       ADAAD_SOULBOUND_KEY env var — NEVER use in production.
+        filter_chain: Optional ContextFilterChain. Defaults to the built-in
+                      chain that fail-closed screens payloads before signing.
     """
 
     def __init__(
@@ -180,10 +176,12 @@ class SoulboundLedger:
         ledger_path: Path = DEFAULT_LEDGER_PATH,
         audit_writer: Optional[Any] = None,
         key_override: Optional[bytes] = None,
+        filter_chain: Optional[ContextFilterChain] = None,
     ) -> None:
         self._store = VersionedMemoryStore(path=ledger_path, backend="json")
         self._audit = audit_writer or _journal_append_tx
         self._key_override = key_override
+        self._filter_chain = filter_chain or ContextFilterChain()
         self._last_chain_hash: str = self._recover_chain_tip()
 
     # ------------------------------------------------------------------
@@ -218,20 +216,16 @@ class SoulboundLedger:
             and emitted as journal events, except SoulboundKeyError which is
             re-raised to preserve the fail-closed contract.
         """
-        # --- Validate context_type ---
-        if context_type not in VALID_CONTEXT_TYPES:
-            reason = f"invalid_context_type:{context_type}"
-            self._emit_rejected(epoch_id, context_type, reason)
-            return AppendResult(
-                entry=self._null_entry(epoch_id, context_type),
-                accepted=False,
-                rejection_reason=reason,
+        # --- Evaluate context filter chain before digesting or signing ---
+        filter_result = self._filter_chain.evaluate(payload=payload, context_type=context_type)
+        if not filter_result.accepted:
+            reason = filter_result.rejection_reason or "context_filter_rejected"
+            self._emit_rejected(
+                epoch_id,
+                context_type,
+                reason,
+                rejecting_filter=filter_result.rejecting_filter,
             )
-
-        # --- Validate payload is a non-empty dict ---
-        if not isinstance(payload, dict) or not payload:
-            reason = "payload_empty_or_not_dict"
-            self._emit_rejected(epoch_id, context_type, reason)
             return AppendResult(
                 entry=self._null_entry(epoch_id, context_type),
                 accepted=False,
@@ -429,15 +423,22 @@ class SoulboundLedger:
             },
         )
 
-    def _emit_rejected(self, epoch_id: str, context_type: str, reason: str) -> None:
-        self._emit(
-            "context_ledger_entry_rejected.v1",
-            {
-                "epoch_id":     epoch_id,
-                "context_type": context_type,
-                "reason":       reason,
-            },
-        )
+    def _emit_rejected(
+        self,
+        epoch_id: str,
+        context_type: str,
+        reason: str,
+        *,
+        rejecting_filter: Optional[str] = None,
+    ) -> None:
+        payload = {
+            "epoch_id":     epoch_id,
+            "context_type": context_type,
+            "reason":       reason,
+        }
+        if rejecting_filter is not None:
+            payload["rejecting_filter"] = rejecting_filter
+        self._emit("context_ledger_entry_rejected.v1", payload)
 
     def _emit_key_absent(self, epoch_id: str, error: str) -> None:
         self._emit(

@@ -47,7 +47,7 @@ import re
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
 
-from runtime.memory.soulbound_ledger import VALID_CONTEXT_TYPES
+from runtime.memory.context_types import VALID_CONTEXT_TYPES
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -151,7 +151,7 @@ def _filter_context_type_allowlist(payload: Dict[str, Any], context_type: str) -
     """Reject unknown context_type values."""
     name = "context_type_allowlist"
     if context_type not in VALID_CONTEXT_TYPES:
-        return FilterResult.reject(name, f"context_type_not_in_allowlist:{context_type}")
+        return FilterResult.reject(name, f"invalid_context_type:{context_type}")
     return FilterResult.accept(name)
 
 
