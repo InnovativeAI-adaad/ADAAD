@@ -60,6 +60,7 @@ from app.api.emergent_sentinel import router as ebs_router        # Phase 160 IN
 from app.api.constitutional_forecast import router as cfe_router  # Phase 161 INNOV-67 CFE
 from app.api.mutation_impact import router as mia_router           # Phase 162 INNOV-68 MIA
 from app.api.mutation_calibration import router as mce_router      # Phase 163 INNOV-69 MCE
+from app.api.governance_implementation_readiness import router as gir_router  # Phase 181 INNOV-86 GIR
 from runtime.integrations.github_app import dispatch_event, verify_webhook_signature  # ADAADchat
 from app.api.dependencies import (
     require_audit_scope,
@@ -881,6 +882,7 @@ app.include_router(ebs_router)           # Phase 160 INNOV-66 EBS
 app.include_router(cfe_router)           # Phase 161 INNOV-67 CFE
 app.include_router(mia_router)           # Phase 162 INNOV-68 MIA
 app.include_router(mce_router)           # Phase 163 INNOV-69 MCE
+app.include_router(gir_router)           # Phase 181 INNOV-86 GIR
 app.include_router(audit_router)
 app.include_router(ui_router)
 app.include_router(simulation_router)
