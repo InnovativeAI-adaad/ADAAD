@@ -161,8 +161,8 @@
       "source_doc": "docs/governance/ledger_event_contract.md"
     }
   ],
-  "current_phase": 156,
-  "version": "9.91.0",
+  "current_phase": 184,
+  "version": "9.117.0",
   "hard_class_count": 273,
   "innovations_shipped": 57,
   "last_innovation": "INNOV-57 \u00b7 Governed Rollback (GRB)",
