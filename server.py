@@ -62,6 +62,7 @@ from app.api.mutation_impact import router as mia_router           # Phase 162 I
 from app.api.mutation_calibration import router as mce_router      # Phase 163 INNOV-69 MCE
 from app.api.governance_implementation_readiness import router as gir_router  # Phase 181 INNOV-86 GIR
 from app.api.convergence_gap_resolver import router as cgr_router             # Phase 182 INNOV-87 CGR
+from app.api.convergence_plan_executor import router as cpe_router             # Phase 183 INNOV-88 CPE
 from runtime.integrations.github_app import dispatch_event, verify_webhook_signature  # ADAADchat
 from app.api.dependencies import (
     require_audit_scope,
@@ -885,6 +886,7 @@ app.include_router(mia_router)           # Phase 162 INNOV-68 MIA
 app.include_router(mce_router)           # Phase 163 INNOV-69 MCE
 app.include_router(gir_router)           # Phase 181 INNOV-86 GIR
 app.include_router(cgr_router)           # Phase 182 INNOV-87 CGR
+app.include_router(cpe_router)           # Phase 183 INNOV-88 CPE
 app.include_router(audit_router)
 app.include_router(ui_router)
 app.include_router(simulation_router)

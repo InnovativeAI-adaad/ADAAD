@@ -168,7 +168,8 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 180 | INNOV-85 · CAR — Constitutional Amendment Rollback | v9.113.0 | P0 | ✅ shipped |
 | 181 | INNOV-86 · GIR — Governance Implementation Readiness | v9.114.0 | P0 | ✅ shipped |
 | 182 | INNOV-87 · CGR — Convergence Gap Resolver | v9.115.0 | P0 | ✅ shipped |
-| 183 | INNOV-88 · TBD — next SPIE-ratified innovation | v9.116.0 | P0 | ⏭️ next |
+| 183 | INNOV-88 · CPE — Convergence Plan Executor | v9.116.0 | P0 | ✅ shipped |
+| 184 | INNOV-89 · TBD — next SPIE-ratified innovation | v9.117.0 | P0 | ⏭️ next |
 
 
 ## Phase 140 — Constitutional P0 Sweep + P1 Hardening (v9.73.0) ✅
