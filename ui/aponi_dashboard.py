@@ -354,6 +354,7 @@ CONTROL_QUEUE_PATH = Path(os.environ.get("APONI_COMMAND_QUEUE_PATH", str(APP_ROO
 FREE_CAPABILITY_SOURCES_PATH = Path(os.environ.get("APONI_FREE_SOURCES_PATH", str(APP_ROOT.parent / "data" / "free_capability_sources.json")))
 SKILL_PROFILES_PATH = Path(os.environ.get("APONI_SKILL_PROFILES_PATH", str(APP_ROOT.parent / "data" / "governed_skill_profiles.json")))
 REPLAY_INSPECTOR_JS_PATH = APP_ROOT.parent / "ui" / "aponi" / "replay_inspector.js"
+DORK_PANEL_JS_PATH = APP_ROOT.parent / "ui" / "aponi" / "dork_panel.js"
 CONTROL_CAPABILITIES_MAX = 8
 CONTROL_TEXT_FIELD_MAX = 240
 MCP_MUTATION_ENDPOINTS = {"/mcp/tools/call", "/mcp/context/record"}
@@ -1381,6 +1382,12 @@ class AponiDashboard:
                     return
                 if path == "/ui/aponi.js":
                     self._send_js(self._user_console_js())
+                    return
+                if path == "/ui/aponi/dork_panel.js":
+                    try:
+                        self._send_file(DORK_PANEL_JS_PATH, mime="application/javascript")
+                    except Exception:
+                        self._send_json({"ok": False, "error": "dork_panel_unavailable"}, status_code=503)
                     return
                 if path == "/ui/aponi/replay_inspector.js":
                     try:
