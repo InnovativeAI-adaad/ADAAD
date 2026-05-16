@@ -3,13 +3,16 @@
   "last_sync_sha": "0fbec76",
   "report_version": "9.113.0",
   "version_source": "governance/report_version.json",
-  "version": "9.116.0",
-  "phase": 183,
+  "version": "9.119.0",
+  "phase": 186,
   "date": "2026-05-11",
   "innovation": "INNOV-85",
   "updated": "2026-05-11T10:07:45.059112+00:00",
-  "last_updated": "2026-05-11",
+  "last_updated": "2026-05-16",
   "phase_label": "Phase 180 \u2014 INNOV-85 CAR \u2014 Constitutional Amendment Rollback",
   "last_phase": "Phase 183 \u00b7 INNOV-88 \u00b7 CPE \u2014 Convergence Plan Executor",
-  "hard_invariants": 476
+  "hard_invariants": 476,
+  "last_innovation": "INNOV-91-CLS",
+  "hard_class_invariant_count": 500,
+  "innovations_shipped": 90
 }
