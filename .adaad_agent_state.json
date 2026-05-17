@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "Phase 186 \u2014 INNOV-91 CLS \u2014 CEL Loop Sentinel",
+  "active_phase": "Phase 187 \u2014 INNOV-92 GPE \u2014 GA Promotion Engine",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -415,7 +415,7 @@
   "constitutional_invariants": 488,
   "current_phase": 186,
   "current_version": "9.118.0",
-  "expected_next_pr": "Phase 187 \u2014 INNOV-92 \u00b7 TBD",
+  "expected_next_pr": "Phase 188 \u2014 next SPIE-ratified innovation or v10.0.0 GA Tag Ceremony",
   "ga_blocker_count": 0,
   "ga_blockers": 0,
   "ga_gates": {
@@ -479,7 +479,7 @@
   "invariant_count": 488,
   "last_agent_state_sync_digest": "gsync-phase185-cca-9.118.0",
   "last_completed_phase": "Phase 186 \u2014 INNOV-91 CLS \u2014 CEL Loop Sentinel",
-  "last_completed_pr": "Phase 185 \u2014 INNOV-90 CCA \u2014 Convergence Certification Auditor",
+  "last_completed_pr": "Phase 187 \u2014 INNOV-92 GPE \u2014 GA Promotion Engine",
   "last_completed_version": "9.118.0",
   "last_gate_results": {
     "tier_0": "pass",
@@ -1117,7 +1117,7 @@
     "phase124-world-first-governed-kernel-extraction",
     "v9.57.0-released"
   ],
-  "version": "9.119.0",
+  "version": "9.120.0",
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response",

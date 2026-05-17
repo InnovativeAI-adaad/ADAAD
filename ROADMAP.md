@@ -4,9 +4,9 @@
 
 ---
 
-## Current State — v9.119.0 · Phase 186 · INNOV-91 CLS — CEL Loop Sentinel
+## Current State — v9.120.0 · Phase 187 · INNOV-92 GPE — GA Promotion Engine
 
-**Status:** 90 innovations shipped (INNOV-01 through INNOV-91). Phase 186 complete. v9.119.0 baseline. CEL Loop Sentinel active; V10 C5 resolved.
+**Status:** 92 innovations shipped (INNOV-01 through INNOV-92). Phase 187 complete. v9.120.0 baseline. GA Promotion Engine active; V10 C7 (GA_ALIGNMENT) addressable — HUMAN-0 PyPI publish pending.
 **Automation pointer:** Machine phase progression consumes `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` §3.0 “Active Era Contract (Phases 131–136+)”, which governs the current stream through Phase 173 and the Phase 174 next-work pointer.
 **Hard-class invariants:** 500 (cumulative, enforced)
 **Constitutional Evolution Loop:** 16-step CEL, deterministic replay, wired
@@ -171,7 +171,9 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 183 | INNOV-88 · CPE — Convergence Plan Executor | v9.116.0 | P0 | ✅ shipped |
 | 184 | INNOV-89 · COV — Convergence Outcome Validator | v9.117.0 | P0 | ✅ shipped |
 | 185 | INNOV-90 · CCA — Convergence Certification Auditor | v9.118.0 | P0 | ✅ shipped |
-| 186 | INNOV-91 · TBD — next SPIE-ratified innovation | v9.119.0 | P0 | ⏭️ next |
+| 186 | INNOV-91 · CLS — CEL Loop Sentinel | v9.119.0 | P0 | ✅ shipped |
+| 187 | INNOV-92 · GPE — GA Promotion Engine | v9.120.0 | P0 | ✅ shipped |
+| 188 | TBD — v10.0.0 GA Tag Ceremony or next SPIE-ratified innovation | v9.121.0 | P0 | ⏭️ next |
 
 
 ## Phase 140 — Constitutional P0 Sweep + P1 Hardening (v9.73.0) ✅
