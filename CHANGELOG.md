@@ -1,3 +1,24 @@
+## [9.120.0] — Phase 187 · INNOV-92 · GPE — GA Promotion Engine
+
+**Date:** 2026-05-17  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### Added
+- **INNOV-92 · GPE — GA Promotion Engine** (`dorkllm/ga_promotion_engine.py`)
+  - World-first constitutionally-governed GA Promotion Engine; closes the V10 convergence arc
+  - Evaluates all seven V10 convergence criteria; verifies PyPI ↔ repo version alignment
+  - Directly addresses GA_ALIGNMENT (V10 C7 — the final outstanding convergence criterion)
+  - Sealed HMAC-SHA-256 GA Release Manifests in append-only hash-chained ledger
+  - HUMAN0_REQUIRED status emitted when all 7 criteria MET and versions aligned
+  - HUMAN-0 ratification advisory generated for v10.0.0 General Availability promotion ceremony
+  - 12 hard-class invariants: GPE-SCOPE-0 GPE-CHAIN-0 GPE-IMMUT-0 GPE-DETERM-0 GPE-HUMAN0-0
+    GPE-AUDIT-0 GPE-PERSIST-0 GPE-SEAL-0 GPE-ALIGN-0 GPE-CRITERIA-0 GPE-READONLY-0 GPE-SNAPSHOT-0
+- **REST router** `/api/gpe/*` (assess, status, manifest, verify) · **30/30 tests** `tests/test_phase187_gpe.py`
+- **Cumulative invariants: 512** | **Innovations shipped: 92** | **Phases complete: 187**
+- **World first**: `phase187-world-first-ga-promotion-engine-v10-c7-alignment`
+- **HUMAN-0 action**: publish `adaad-core==9.120.0` to PyPI, then tag `v10.0.0` GA ceremony
+
+---
+
 ## [9.119.0] — Phase 186 · INNOV-91 · CLS — CEL Loop Sentinel
 
 **Date:** 2026-05-16  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
