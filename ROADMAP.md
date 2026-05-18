@@ -166,7 +166,8 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 178 | INNOV-83 · CAE — Constitutional Amendment Executor | v9.111.0 | P0 | ✅ complete |
 | 179 | INNOV-84 · CSC — Constitutional Stability Controller | v9.112.0 | P0 | ✅ shipped |
 | 180 | INNOV-85 · CAR — Constitutional Amendment Rollback | v9.113.0 | P0 | ✅ shipped |
-| 181 | INNOV-86 · GIR — Governance Implementation Readiness | v9.114.0 | P0 | ⏭️ next |
+| 181 | INNOV-86 · GIR — Governance Implementation Readiness | v9.114.0 | P0 | ✅ shipped |
+| 182 | INNOV-87 · TBD — SPIE-ratified | v9.115.0 | P0 | ⏭️ next |
 
 
 ## Phase 140 — Constitutional P0 Sweep + P1 Hardening (v9.73.0) ✅

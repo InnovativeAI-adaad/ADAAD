@@ -1,11 +1,11 @@
 {
   "_comment": "Machine-readable invariant registry \u2014 single source of truth for all Hard-class invariant counts. All badges, docs, and CI gates derive from this file. Do not edit manually; update via phase sign-off process.",
-  "version": "9.84.0",
-  "phase": 151,
-  "updated": "2026-04-22",
-  "cumulative_hard_class_invariants": 273,
-  "innovations_shipped": 57,
-  "phases_complete": 151,
+  "version": "9.114.0",
+  "phase": 181,
+  "updated": "2026-05-18",
+  "cumulative_hard_class_invariants": 450,
+  "innovations_shipped": 86,
+  "phases_complete": 181,
   "authoritative_source": "artifacts/governance/phase150/ILA-150-2026-04-22-001.json",
   "phase_invariant_log": [
     {
@@ -138,6 +138,25 @@
         "GRB-ATOMIC-0",
         "GRB-DETERM-0",
         "GRB-HUMAN0-0"
+      ]
+    },
+    {
+      "phase": 181,
+      "version": "9.114.0",
+      "innovation": "INNOV-86",
+      "innovation_name": "Governance Implementation Readiness (GIR)",
+      "invariants_added": 10,
+      "ids": [
+        "GIR-CHAIN-0",
+        "GIR-DETERM-0",
+        "GIR-HUMAN0-0",
+        "GIR-READONLY-0",
+        "GIR-ATOMIC-0",
+        "GIR-SEAL-0",
+        "GIR-SCOPE-0",
+        "GIR-AUDIT-0",
+        "GIR-THRESHOLD-0",
+        "GIR-REPLAY-0"
       ]
     }
   ],
