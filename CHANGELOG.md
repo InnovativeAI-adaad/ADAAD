@@ -1,3 +1,23 @@
+## [9.121.0] — Phase 188 · INNOV-93 · GTC — Governance Tag Certifier (2026-05-21)
+
+### INNOV-93 · GTC — Governance Tag Certifier
+
+**World-first:** Constitutionally-governed, Merkle-rooted Release Bundle certifier bridging the GPE GA-READY signal to the v10.0.0 tag ceremony with a mandatory HUMAN-0 ceremony runbook.
+
+**New module:** `dorkllm/governance_tag_certifier.py` (588 lines)
+**New router:** `app/api/governance_tag_certifier.py`
+**New endpoints:** `POST /gtc/certify`, `GET /gtc/history`, `GET /gtc/verify-chain`, `GET /gtc/advisory`
+**Tests:** 30/30 passing (`tests/test_phase188_gtc.py`)
+
+**Hard-class invariants added (+5 → 517 total):**
+- `GTC-SCOPE-0` — GTC reads only GPE manifest, VERSION, agent state; never mutates upstream
+- `GTC-CHAIN-0` — Release bundle entries form valid HMAC-SHA-256 chain; broken chain halts
+- `GTC-HUMAN0-0` — HUMAN-0 ceremony advisory emitted and recorded before bundle is sealed
+- `GTC-MERKLE-0` — Constitutional Merkle Root computed deterministically over sorted innovation digests
+- `GTC-IMMUT-0` — Release ledger is append-only; entries never modified after write
+
+**Ratified by:** DUSTIN L REID (HUMAN-0) · Governor: InnovativeAI LLC
+
 ## [9.120.0] — Phase 187 · INNOV-92 · GPE — GA Promotion Engine
 
 **Date:** 2026-05-17  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
