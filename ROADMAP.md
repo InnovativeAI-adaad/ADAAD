@@ -173,7 +173,8 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 185 | INNOV-90 · CCA — Convergence Certification Auditor | v9.118.0 | P0 | ✅ shipped |
 | 186 | INNOV-91 · CLS — CEL Loop Sentinel | v9.119.0 | P0 | ✅ shipped |
 | 187 | INNOV-92 · GPE — GA Promotion Engine | v9.120.0 | P0 | ✅ shipped |
-| 188 | TBD — v10.0.0 GA Tag Ceremony or next SPIE-ratified innovation | v9.121.0 | P0 | ⏭️ next |
+| 188 | INNOV-93 · GTC — Governance Tag Certifier | v9.121.0 | P0 | ✅ shipped |
+| 189 | TBD — v10.0.0 GA Tag Ceremony or next SPIE-ratified innovation | v9.122.0 | P0 | ⏭️ next |
 
 
 ## Phase 140 — Constitutional P0 Sweep + P1 Hardening (v9.73.0) ✅
