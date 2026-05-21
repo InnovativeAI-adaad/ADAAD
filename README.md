@@ -10,7 +10,7 @@
 
 <br/>
 
-[![Proprietary](https://img.shields.io/badge/license-Proprietary-ff4466?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v9.113.0](https://img.shields.io/badge/version-v9.113.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![440 Invariants](https://img.shields.io/badge/invariants-440%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![85 Innovations](https://img.shields.io/badge/innovations-85%20shipped-f97316?style=flat-square&labelColor=0d1117)](ROADMAP.md)&nbsp;[![Free Download](https://img.shields.io/github/v/release/InnovativeAI-adaad/ADAAD?label=APK&color=00d4ff)](https://github.com/InnovativeAI-adaad/ADAAD/releases)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
+[![Proprietary](https://img.shields.io/badge/license-Proprietary-ff4466?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v9.120.0](https://img.shields.io/badge/version-v9.120.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![512 Invariants](https://img.shields.io/badge/invariants-512%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![92 Innovations](https://img.shields.io/badge/innovations-92%20shipped-f97316?style=flat-square&labelColor=0d1117)](ROADMAP.md)&nbsp;[![Free Download](https://img.shields.io/github/v/release/InnovativeAI-adaad/ADAAD?label=APK&color=00d4ff)](https://github.com/InnovativeAI-adaad/ADAAD/releases)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
 
 </div>
 
@@ -34,12 +34,12 @@
 
 | Field | Value |
 | --- | --- |
-| **Current version** | `9.113.0` |
-| **Phase** | `180` |
-| **Released** | `2026-05-11` |
-| **Release SHA** | `0fbec76` |
-| **Hard-class invariants** | `440` |
-| **Innovations shipped** | `85` |
+| **Current version** | `9.120.0` |
+| **Phase** | `187` |
+| **Released** | `2026-05-17` |
+| **Release SHA** | `580fc585` |
+| **Hard-class invariants** | `512` |
+| **Innovations shipped** | `92` |
 <!-- ADAAD_VERSION_INFOBOX:END -->
 
 Canonical architecture spec: [`docs/governance/ARCHITECT_SPEC_v3.1.0.md`](docs/governance/ARCHITECT_SPEC_v3.1.0.md).
@@ -181,7 +181,7 @@ Every mutation — without exception — traverses 16 steps before it ships:
   [6]  AFRT adversarial red-team       [14] GPG-signed ledger entry
   [7]  Fitness surface evaluation      [15] Hash-chained CEPD proof
   [8]  Constitutional scoring          [16] Annotated tag + release evidence
-       (410 Hard-class invariants)
+       (512 Hard-class invariants)
 ```
 
 Every step is deterministic. Every step produces a ledger record. Every ledger record is hash-chained. The entire pipeline is replayable from any point.
@@ -197,7 +197,7 @@ Every step is deterministic. Every step produces a ledger record. Every ledger r
 │    Agent     │              Role                     │      Disposition        │
 ├──────────────┼───────────────────────────────────────┼─────────────────────────┤
 │  Architect   │  Governance, structure, invariant      │  Conservative. Blocks   │
-│  (blue)      │  scoring against all 410 Hard-class    │  anything that breaks   │
+│  (blue)      │  scoring against all 512 Hard-class    │  anything that breaks   │
 │              │  invariants before any execution       │  constitutional integrity│
 ├──────────────┼───────────────────────────────────────┼─────────────────────────┤
 │  Dream       │  Creativity, ideation, novelty         │  Bold. Proposes novelty.│
@@ -269,9 +269,9 @@ Every invariant violation raises a typed exception, terminates the operation, an
 
 | Metric | Value |
 |:-------|:------|
-| Version | `v9.110.0` · Phase `177` |
-| Hard-class constitutional invariants | **410** — every one enforced fail-closed |
-| Shipped capabilities | **82** — from constitutional stress testing to full feedback loop closure |
+| Version | `v9.120.0` · Phase `187` |
+| Hard-class constitutional invariants | **512** — every one enforced fail-closed |
+| Shipped capabilities | **92** — from constitutional stress testing to full feedback loop closure |
 | Constitutional Evolution Loop | **16 steps** — deterministic, replayable |
 | Specialist agents | **3** — Architect · Dream · Beast |
 | HUMAN-0 gate | **1** — structurally non-delegatable |
@@ -356,7 +356,7 @@ adaad/
 |:---------|:--------------|
 | **AI safety researchers** | A production-running cryptographically evidenced autonomous governance loop — not a prototype |
 | **Autonomous systems engineers** | Reference architecture for constitutional self-modification with full replay capability |
-| **Governance architects** | 410 Hard-class invariants mapped to real operational guarantees, all independently verifiable |
+| **Governance architects** | 512 Hard-class invariants mapped to real operational guarantees, all independently verifiable |
 | **Indie devs on Android** | Full governed runtime on a $200 phone — [`TERMUX_SETUP.md`](TERMUX_SETUP.md) |
 | **Constitutional AI contributors** | Open governed amendment pipeline — all contributions traverse the CEL |
 | **Patent / IP practitioners** | Novel mechanisms with documented prior art absence and replayable cryptographic evidence |
