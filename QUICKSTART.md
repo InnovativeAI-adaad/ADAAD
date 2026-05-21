@@ -132,9 +132,9 @@ The Deterministic Audit Sandbox (INNOV-36) runs the full pipeline from scratch a
 | Resource | What it covers |
 |:---------|:---------------|
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Full system architecture and module map |
-| [`docs/CONSTITUTION.md`](docs/CONSTITUTION.md) | The 241 Hard-class invariants |
+| [`docs/CONSTITUTION.md`](docs/CONSTITUTION.md) | The 512 Hard-class invariants |
 | [`DORK.md`](DORK.md) | The governance intelligence layer |
-| [`ROADMAP.md`](ROADMAP.md) | All 50 shipped innovations and what's next |
+| [`ROADMAP.md`](ROADMAP.md) | All 92 shipped innovations and what's next |
 | [`TRUST_CENTER.md`](TRUST_CENTER.md) | Security posture and disclosure policy |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Contribution protocol |
 | [`TERMUX_SETUP.md`](TERMUX_SETUP.md) | Android / Termux setup guide |
