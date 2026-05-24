@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Proprietary — All Rights Reserved
+# SPDX-License-Identifier: Apache-2.0
 """
 INNOV-93 · GTC — Governance Tag Certifier
 Phase 188 · v9.121.0 · InnovativeAI LLC

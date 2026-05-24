@@ -1,0 +1,11 @@
+{
+  "schema": "adaad-tier-summary-v1",
+  "phase": 191,
+  "innovation": "INNOV-96-CIL",
+  "tier": "T1-CONSTITUTIONAL",
+  "blast_radius": "MODULE",
+  "invariant_tier": "HARD",
+  "human0_gate_required": true,
+  "human0_gate_cleared": "N/A-runtime",
+  "date": "2026-05-24"
+}
