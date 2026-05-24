@@ -11,7 +11,7 @@ import urllib.request
 import subprocess
 import re
 import shlex
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 try:
@@ -314,7 +314,7 @@ def log_trace(event_type: str, payload: dict) -> None:
     """DORK-TRACE-0: emit structured trace entry before returning."""
     os.makedirs("logs", exist_ok=True)
     entry = {
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "event": event_type,
         **payload,
     }

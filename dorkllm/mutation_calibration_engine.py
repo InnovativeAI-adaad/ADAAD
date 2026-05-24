@@ -277,7 +277,7 @@ class MutationCalibrationEngine:
             self._emit_human0_gate(outcome, new_weights, cumulative_shift)  # MCE-HUMAN0-0
 
         import datetime
-        ts = import_timestamp or datetime.datetime.utcnow().isoformat() + "Z"
+        ts = import_timestamp or datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00","Z")
         cal_id      = _calibration_id(outcome)
         prev_digest = _record_digest(records[-1]) if records else _MCE_GENESIS_HASH
 

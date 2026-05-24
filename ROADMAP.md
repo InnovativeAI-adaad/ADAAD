@@ -181,3 +181,5 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 - Resolved 5 P0 audit findings (WL-001..WL-005) from the deepest audit in ADAAD history
 - 5 new Hard-class invariants: HAPG-IDENTITY-0, HAPG-EXPIRY-0, REPLAY-ALGO-0, TEST-ATTEST-0, GRRP-KEY-0
 - Total invariants: 221 | Total phases: 140 | Tests: 30/30
+
+| Phase 190 | INNOV-95 | MSR — Mutation Strategy Router | ✅ SHIPPED | v10.1.0 | 527 invariants |
