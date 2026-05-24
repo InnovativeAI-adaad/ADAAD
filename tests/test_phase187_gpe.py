@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Proprietary — All Rights Reserved
+# SPDX-License-Identifier: Apache-2.0
 """
 Test suite — INNOV-92 · GPE — GA Promotion Engine
 Phase 187 · v9.120.0 · InnovativeAI LLC

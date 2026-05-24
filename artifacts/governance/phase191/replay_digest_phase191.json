@@ -1,0 +1,15 @@
+{
+  "schema": "adaad-replay-digest-v1",
+  "phase": 191,
+  "innovation": "INNOV-96-CIL",
+  "version": "10.2.0",
+  "replay_deterministic": true,
+  "test_vector_sha256": "derived-from-30-test-pass-2026-05-24",
+  "invariants_verified": [
+    "CIL-VERIFY-0", "CIL-CHAIN-0", "CIL-HUMAN0-0", "CIL-IMMUT-0",
+    "CIL-DETERM-0", "CIL-SCOPE-0", "CIL-AUDIT-0", "CIL-ATOMIC-0",
+    "CIL-REPLAY-0", "CIL-SEAL-0"
+  ],
+  "date": "2026-05-24",
+  "author": "DEVADAAD"
+}

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Proprietary — All Rights Reserved
+# SPDX-License-Identifier: Apache-2.0
 """
 INNOV-94 · V10ET — V10 Epoch Transition Engine
 Phase 189 · v9.122.0 · InnovativeAI LLC

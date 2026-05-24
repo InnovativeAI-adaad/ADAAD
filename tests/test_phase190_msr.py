@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 Phase 190 · INNOV-95 · MSR test suite — 30 tests
 Covers: routing correctness, chain integrity, HUMAN-0 gate,

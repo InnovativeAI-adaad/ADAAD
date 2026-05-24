@@ -1,3 +1,15 @@
+## [10.2.0] — Phase 191 · INNOV-96 · CIL
+
+### Added
+- **INNOV-96 Constitutional Integrity Ledger (CIL)** — World-first constitutionally-governed cross-ledger HMAC-chain integrity attestation engine; verifies all ADAAD governance ledgers, seals attestations in an append-only constitutional integrity journal, and escalates violations to HUMAN-0 before any further mutation activity is permitted.
+- 10 Hard-class invariants: CIL-VERIFY-0, CIL-CHAIN-0, CIL-HUMAN0-0, CIL-IMMUT-0, CIL-DETERM-0, CIL-SCOPE-0, CIL-AUDIT-0, CIL-ATOMIC-0, CIL-REPLAY-0, CIL-SEAL-0.
+- 30-test acceptance suite `tests/test_phase191_cil.py` (T191-CIL-01…30) — 30/30 pass.
+- 4 governance artifacts: ILA JSON, plan JSON, tier summary, replay digest.
+
+**Cumulative invariants: 537 | Innovations shipped: 96**
+
+---
+
 ## [10.1.0] — Phase 190 · INNOV-95 · MSR
 
 ### Added
