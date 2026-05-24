@@ -1,3 +1,15 @@
+## [10.0.1] — Phase 189 · INNOV-94 · V10ET — V10 Epoch Transition Engine (2026-05-24)
+
+### INNOV-94 · V10ET — V10 Epoch Transition Engine
+- Terminal innovation of the v9.x.x governance arc
+- Consumes GTC Release Bundle (INNOV-93), independently re-validates Constitutional Merkle Root (V10ET-VERIFY-0)
+- Seals v9→v10 epoch boundary as immutable HMAC-chained ledger record (V10ET-CHAIN-0, V10ET-EPOCH-0)
+- Emits structured HUMAN-0 Track B runbook before seal (V10ET-HUMAN0-0)
+- 5 new Hard-class invariants: V10ET-SCOPE-0, V10ET-CHAIN-0, V10ET-HUMAN0-0, V10ET-EPOCH-0, V10ET-VERIFY-0
+- Cumulative Hard-class invariants: 522
+- 30/30 acceptance tests passing
+- REST endpoints: POST /v10et/seal, GET /v10et/history, GET /v10et/verify-chain, GET /v10et/advisory
+
 ## [9.121.0] — Phase 188 · INNOV-93 · GTC — Governance Tag Certifier (2026-05-21)
 
 ### INNOV-93 · GTC — Governance Tag Certifier
