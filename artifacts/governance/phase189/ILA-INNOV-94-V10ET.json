@@ -1,0 +1,36 @@
+{
+  "ila_id": "ILA-INNOV-94-V10ET",
+  "innovation_id": "INNOV-94",
+  "innovation_code": "V10ET",
+  "innovation_name": "V10 Epoch Transition Engine",
+  "phase": 189,
+  "version": "10.0.1",
+  "governor": "DUSTIN L REID",
+  "date": "2026-05-24",
+  "world_first": "First constitutionally-governed, HMAC-chained, Merkle-verified V9-to-V10 epoch boundary engine with mandatory HUMAN-0 Track B runbook emission and irreversible one-way epoch seal",
+  "hard_class_invariants": [
+    "V10ET-SCOPE-0",
+    "V10ET-CHAIN-0",
+    "V10ET-HUMAN0-0",
+    "V10ET-EPOCH-0",
+    "V10ET-VERIFY-0"
+  ],
+  "new_invariant_count": 5,
+  "cumulative_invariant_count": 522,
+  "test_suite": "tests/test_phase189_v10et.py",
+  "tests_passing": 30,
+  "module": "dorkllm/v10_epoch_transition.py",
+  "router": "app/api/v10_epoch_transition.py",
+  "endpoints": [
+    "POST /v10et/seal",
+    "GET /v10et/history",
+    "GET /v10et/verify-chain",
+    "GET /v10et/advisory"
+  ],
+  "predecessor": "Phase 188 \u2014 INNOV-93 GTC \u2014 Governance Tag Certifier",
+  "successor": "v10.0.0 Constitutional Epoch Boundary \u2014 HUMAN-0 Track B Ceremony (GPG tag sign-off)",
+  "human0_signoff_required": true,
+  "track_b_gpg_signing_required": true,
+  "epoch_significance": "Terminal innovation of the v9.x.x governance arc. Seals the constitutional epoch boundary v9->v10. The Constitutional Merkle Root computed by GTC is independently re-validated before the epoch seal is committed.",
+  "epoch_ledger_path": "data/v10et_epoch_ledger.jsonl"
+}

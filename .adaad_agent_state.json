@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "Phase 188 \u2014 INNOV-93 GTC \u2014 Governance Tag Certifier",
+  "active_phase": "Phase 189 \u2014 INNOV-94 V10ET \u2014 V10 Epoch Transition Engine",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -431,14 +431,10 @@
     "phase188-gtc-immut-0-enforced",
     "phase188-world-first-governance-tag-certifier",
     "v9.121.0-released",
-    "phase188-complete",
-    "v10.0.0-tag-ceremony-complete",
-    "v10.0.0-gpg-signed-DB15A9BBBA90741D0ECD6ADCEB0D43E7CBD7CD37",
-    "adaad-core-9.121.0-pypi-published",
-    "human0-phone-ceremony-2026-05-24"
+    "phase188-complete"
   ],
   "constitutional_invariants": 517,
-  "current_phase": 188,
+  "current_phase": 189,
   "current_version": "9.121.0",
   "expected_next_pr": "Phase 189 \u2014 INNOV-94 \u00b7 TBD or v10.0.0 GA Tag Ceremony",
   "ga_blocker_count": 0,
@@ -464,7 +460,7 @@
     }
   },
   "hard_class_count": 517,
-  "hard_class_invariant_count": 517,
+  "hard_class_invariant_count": 522,
   "hard_class_invariants": 517,
   "hard_class_invariants_cumulative": 517,
   "hard_invariant_count": 517,
@@ -500,10 +496,10 @@
     }
   ],
   "innovation_count": 93,
-  "innovations_shipped": 93,
+  "innovations_shipped": 94,
   "invariant_count": 517,
   "last_agent_state_sync_digest": "gsync-phase188-gtc-9.121.0",
-  "last_completed_phase": "Phase 188 \u2014 INNOV-93 GTC \u2014 Governance Tag Certifier",
+  "last_completed_phase": "Phase 189 \u00b7 INNOV-94 \u00b7 V10ET \u2014 V10 Epoch Transition Engine",
   "last_completed_pr": "Phase 188 \u2014 INNOV-93 GTC \u2014 Governance Tag Certifier",
   "last_completed_version": "9.121.0",
   "last_gate_results": {
@@ -515,17 +511,17 @@
   "last_innovation": "INNOV-93-GTC",
   "last_innovation_id": "INNOV-93",
   "last_innovation_name": "Governance Tag Certifier",
-  "last_invocation": "2026-05-24",
+  "last_invocation": "2026-05-21",
   "last_phase_completed": "Phase 188 \u00b7 INNOV-93 \u00b7 GTC \u2014 Governance Tag Certifier",
   "last_phase_completed_label": "Phase 188 \u2014 INNOV-93 GTC \u2014 Governance Tag Certifier",
   "last_phase_name": "INNOV-93 GTC \u2014 Governance Tag Certifier",
   "last_sync_sha": "phase188-gtc",
-  "last_updated": "2026-05-24",
-  "milestone": "v10.0.0-GA",
-  "next_innovation": "INNOV-94",
+  "last_updated": "2026-05-21",
+  "milestone": "v1.1-GA",
+  "next_innovation": "INNOV-95",
   "next_innovation_id": "INNOV-94",
   "next_innovation_name": "TBD",
-  "next_phase": 189,
+  "next_phase": 190,
   "next_phase_description": "TBD",
   "next_phase_id": 189,
   "next_phase_target": 189,
@@ -777,7 +773,7 @@
   ],
   "open_findings_count": 0,
   "pending_evidence_rows": [],
-  "phase": 188,
+  "phase": 189,
   "phase_label": "Phase 188 \u2014 INNOV-93 GTC \u2014 Governance Tag Certifier",
   "phases_complete": 188,
   "phases_completed": [
@@ -851,7 +847,7 @@
   "schema_version": "1.5.0",
   "software_version": "9.121.0",
   "tife_active": true,
-  "timestamp": "2026-05-24T00:00:00+00:00",
+  "timestamp": "2026-05-21T00:00:00+00:00",
   "total_innovations": 93,
   "total_innovations_shipped": 93,
   "total_phases": 187,
@@ -1144,7 +1140,7 @@
     "phase124-world-first-governed-kernel-extraction",
     "v9.57.0-released"
   ],
-  "version": "9.121.0",
+  "version": "10.0.1",
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response",
@@ -1152,7 +1148,6 @@
     "phase183-world-first-governed-convergence-plan-executor",
     "phase185-world-first-governed-convergence-certification-auditor",
     "phase187-world-first-ga-promotion-engine-v10-c7-alignment",
-    "phase188-world-first-governance-tag-certifier",
-    "v10.0.0-first-ga-ceremony-executed-from-android-termux"
+    "phase188-world-first-governance-tag-certifier"
   ]
 }
