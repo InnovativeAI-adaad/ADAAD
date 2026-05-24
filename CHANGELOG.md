@@ -1,4 +1,5 @@
 ## [9.122.0] — Phase 189 · INNOV-94 · V10ET — V10 Epoch Transition Engine (2026-05-24)
+## [10.0.1] — Phase 189 · INNOV-94 · V10ET — V10 Epoch Transition Engine (2026-05-24)
 
 ### INNOV-94 · V10ET — V10 Epoch Transition Engine
 - Terminal innovation of the v9.x.x governance arc

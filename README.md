@@ -40,6 +40,9 @@
 | **Release SHA** | `580fc585` |
 | **Hard-class invariants** | `512` |
 | **Innovations shipped** | `92` |
+| **Latest innovation** | `INNOV-92 · GPE — GA Promotion Engine` |
+| **V10 GA status** | `All convergence criteria met · ceremony pending` |
+| **adaad-core (PyPI)** | `pip install adaad-core` · `9.120.0` |
 <!-- ADAAD_VERSION_INFOBOX:END -->
 
 Canonical architecture spec: [`docs/governance/ARCHITECT_SPEC_v3.1.0.md`](docs/governance/ARCHITECT_SPEC_v3.1.0.md).
@@ -108,6 +111,32 @@ DORK (Developer Operator Runtime Kernel) is a natural language interface to the 
 
 ### Run on a $200 phone
 The full governed runtime runs on Android via Termux. See [`TERMUX_SETUP.md`](TERMUX_SETUP.md).
+
+### Assess its own GA readiness autonomously (INNOV-92 · GPE)
+The **GA Promotion Engine** monitors every V10 convergence criterion in real-time and delivers a structured `HUMAN0_REQUIRED` signal the moment all criteria are met — triggering the GA tag ceremony without polling, drift, or manual state inspection.
+
+```bash
+# Assess current GA readiness
+curl -X POST http://localhost:8000/api/gpe/assess \
+  -H "Content-Type: application/json" \
+  -d '{"pypi_version": "9.120.0"}'
+# → {"verdict": "HUMAN0_REQUIRED", "criteria_met": 7, "criteria_total": 7}
+```
+
+All seven V10 convergence criteria are now satisfied. The V10.0.0 GA tag ceremony is the imminent next milestone — HUMAN-0 ratification only.
+
+### Connect via GitHub App (ADAADchat)
+**ADAADchat** is the governance-native GitHub App for ADAAD — HMAC-SHA256 verified webhooks, slash command dispatch, and a live governance bridge between GitHub events and the CEL.
+
+```
+# Slash commands (issue / PR comments)
+/adaad status      → governance orientation report, open PRs, active phase
+/adaad dry-run     → evaluate mutations through GovernanceGate, nothing applied
+/adaad preflight   → boot invariants + agent contracts only
+DEVADAAD           → full build + merge authority — all 5 gate tiers must pass
+```
+
+Install: [github.com/apps/adaadchat](https://github.com/apps/adaadchat)
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 
@@ -272,12 +301,16 @@ Every invariant violation raises a typed exception, terminates the operation, an
 | Version | `v9.120.0` · Phase `187` |
 | Hard-class constitutional invariants | **512** — every one enforced fail-closed |
 | Shipped capabilities | **92** — from constitutional stress testing to full feedback loop closure |
+| Latest shipped innovation | **INNOV-92 · GPE** — GA Promotion Engine · V10 criterion 7 closed |
 | Constitutional Evolution Loop | **16 steps** — deterministic, replayable |
 | Specialist agents | **3** — Architect · Dream · Beast |
 | HUMAN-0 gate | **1** — structurally non-delegatable |
 | Append-only ledger entries | **48,000+** |
 | Acceptance tests | **8,038+** |
 | Governance artifacts | **249+** committed JSON attestations |
+| PyPI packages | `adaad` · `adaad-core==9.120.0` — pip installable |
+| GitHub App | **ADAADchat** — governance-native webhook + slash command bridge |
+| V10 GA convergence | **7 / 7 criteria met** — tag ceremony pending HUMAN-0 |
 | Platforms | Linux · macOS · Windows · Android · Docker |
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
@@ -419,6 +452,24 @@ Community constitutional amendment proposals go through the governed pipeline. S
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 
+## V10.0.0 — GA Status
+
+ADAAD is at the threshold of its first General Availability release. All seven V10 convergence criteria have been satisfied. The sole remaining action is HUMAN-0 ratification.
+
+| Criterion | Status |
+|:----------|:-------|
+| CEL Wire integrity | ✅ |
+| Constitutional invariant coverage | ✅ |
+| Ledger chain verification | ✅ |
+| Replay determinism | ✅ |
+| AFRT adversarial coverage | ✅ |
+| adaad-core PyPI publish | ✅ `9.120.0` |
+| GA_ALIGNMENT (GPE assessment) | ✅ `HUMAN0_REQUIRED` triggered |
+
+**Next:** `POST /api/gpe/assess` with `pypi_version="9.120.0"` → `HUMAN0_REQUIRED` → HUMAN-0 executes `git tag v10.0.0` ceremony.
+
+![Section Divider](docs/assets/readme/inline-divider.svg)
+
 ## Links
 
 | Resource | URL |
@@ -429,6 +480,8 @@ Community constitutional amendment proposals go through the governed pipeline. S
 | Documentation | [docs.adaad.pro](https://docs.adaad.pro) |
 | PyPI | [pypi.org/project/adaad](https://pypi.org/project/adaad) |
 | GitHub | [github.com/InnovativeAI-adaad/ADAAD](https://github.com/InnovativeAI-adaad/ADAAD) |
+| GitHub App | [github.com/apps/adaadchat](https://github.com/apps/adaadchat) |
+| adaad-core (PyPI) | [pypi.org/project/adaad-core](https://pypi.org/project/adaad-core) |
 | LinkedIn | [linkedin.com/in/innovative-ai-a472513b5](https://www.linkedin.com/in/innovative-ai-a472513b5) |
 | Telegram | [t.me/InnovativeAI_adaad](https://t.me/InnovativeAI_adaad) |
 

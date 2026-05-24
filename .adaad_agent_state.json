@@ -1,6 +1,7 @@
 {
   "acse_active": true,
   "active_phase": "Phase 188 \u2014 INNOV-93 GTC \u2014 Governance Tag Certifier",
+  "active_phase": "Phase 189 \u2014 INNOV-94 V10ET \u2014 V10 Epoch Transition Engine",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -1141,6 +1142,7 @@
     "v9.57.0-released"
   ],
   "version": "9.122.0",
+  "version": "10.0.1",
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response",

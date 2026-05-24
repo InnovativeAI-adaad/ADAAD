@@ -45,7 +45,7 @@ from typing import Any, Dict, List, Optional, Sequence
 GOVERNOR: str = "DUSTIN L REID"
 INNOVATION_ID: str = "INNOV-94"
 PHASE: int = 189
-VERSION: str = "9.122.0"
+VERSION: str = "10.0.1"
 EPOCH_FROM: str = "v9"
 EPOCH_TO: str = "v10"
 TARGET_VERSION: str = "10.0.0"
