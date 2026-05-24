@@ -4,11 +4,11 @@
 
 ---
 
-## Current State — v9.120.0 · Phase 187 · INNOV-92 GPE — GA Promotion Engine
+## Current State — v10.0.1 · Phase 189 · INNOV-94 V10ET — V10 Epoch Transition Engine
 
-**Status:** 92 innovations shipped (INNOV-01 through INNOV-92). Phase 187 complete. v9.120.0 baseline. GA Promotion Engine active; V10 C7 (GA_ALIGNMENT) addressable — HUMAN-0 PyPI publish pending.
+**Status:** 94 innovations shipped (INNOV-01 through INNOV-94). Phase 189 complete. v10.0.1 baseline. V10.0.0 GA released. adaad-core 9.121.0 published to PyPI.
 **Automation pointer:** Machine phase progression consumes `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` §3.0 “Active Era Contract (Phases 131–136+)”, which governs the current stream through Phase 173 and the Phase 174 next-work pointer.
-**Hard-class invariants:** 500 (cumulative, enforced)
+**Hard-class invariants:** 522 (cumulative, enforced)
 **Constitutional Evolution Loop:** 16-step CEL, deterministic replay, wired
 **Self-Proposing Innovation Engine (SPIE):** active — system proposes its own next innovations; HUMAN-0 ratifies
 **Deterministic Audit Sandbox (DAS):** active — one-command external verification; `docker compose up das-demo`
