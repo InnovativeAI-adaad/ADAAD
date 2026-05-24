@@ -1167,7 +1167,7 @@ adaad_pr_procession_contract:
       implementation_lane: governance-metadata
       depends_on: ["phase180"]
       prerequisite_phases: ["phase180"]
-      status: planned
+      status: merged
       version: "v9.114.0"
       title: "INNOV-86 GIR — Governance Implementation Readiness"
       acceptance_criteria:
@@ -1177,9 +1177,9 @@ adaad_pr_procession_contract:
         - "Claims evidence matrix records a Complete evidence row for Phase 181 metadata readiness."
   state_alignment:
     canonical_pr_identifier_format: "Phase <N> — <Title>"
-    expected_active_phase: "Phase 180 — INNOV-85 CAR — Constitutional Amendment Rollback"
-    expected_last_completed_pr: "Phase 180 — INNOV-85 CAR — Constitutional Amendment Rollback"
-    expected_next_pr: "Phase 181 — INNOV-86 GIR — Governance Implementation Readiness"
+    expected_active_phase: "Phase 182 — INNOV-87 CGR — Convergence Gap Resolver"
+    expected_last_completed_pr: "Phase 182 — INNOV-87 CGR — Convergence Gap Resolver"
+    expected_next_pr: "Phase 183 — INNOV-88 TBD — next SPIE-ratified innovation"
     blocked_reason_must_be_null: true
   open_findings:
     - id: FINDING-C03-GITHUB-APP

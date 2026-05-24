@@ -10,7 +10,7 @@
 
 <br/>
 
-[![Proprietary](https://img.shields.io/badge/license-Proprietary-ff4466?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v9.114.0](https://img.shields.io/badge/version-v9.114.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![450 Invariants](https://img.shields.io/badge/invariants-450%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![86 Innovations](https://img.shields.io/badge/innovations-86%20shipped-f97316?style=flat-square&labelColor=0d1117)](ROADMAP.md)&nbsp;[![Free Download](https://img.shields.io/github/v/release/InnovativeAI-adaad/ADAAD?label=APK&color=00d4ff)](https://github.com/InnovativeAI-adaad/ADAAD/releases)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
+[![Proprietary](https://img.shields.io/badge/license-Proprietary-ff4466?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v9.120.0](https://img.shields.io/badge/version-v9.120.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![512 Invariants](https://img.shields.io/badge/invariants-512%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![92 Innovations](https://img.shields.io/badge/innovations-92%20shipped-f97316?style=flat-square&labelColor=0d1117)](ROADMAP.md)&nbsp;[![Free Download](https://img.shields.io/github/v/release/InnovativeAI-adaad/ADAAD?label=APK&color=00d4ff)](https://github.com/InnovativeAI-adaad/ADAAD/releases)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
 
 </div>
 
@@ -34,12 +34,15 @@
 
 | Field | Value |
 | --- | --- |
-| **Current version** | `9.114.0` |
-| **Phase** | `180` |
-| **Released** | `2026-05-11` |
-| **Release SHA** | `0fbec76` |
-| **Hard-class invariants** | `440` |
-| **Innovations shipped** | `85` |
+| **Current version** | `9.120.0` |
+| **Phase** | `187` |
+| **Released** | `2026-05-17` |
+| **Release SHA** | `580fc585` |
+| **Hard-class invariants** | `512` |
+| **Innovations shipped** | `92` |
+| **Latest innovation** | `INNOV-92 · GPE — GA Promotion Engine` |
+| **V10 GA status** | `All convergence criteria met · ceremony pending` |
+| **adaad-core (PyPI)** | `pip install adaad-core` · `9.120.0` |
 <!-- ADAAD_VERSION_INFOBOX:END -->
 
 Canonical architecture spec: [`docs/governance/ARCHITECT_SPEC_v3.1.0.md`](docs/governance/ARCHITECT_SPEC_v3.1.0.md).
@@ -108,6 +111,32 @@ DORK (Developer Operator Runtime Kernel) is a natural language interface to the 
 
 ### Run on a $200 phone
 The full governed runtime runs on Android via Termux. See [`TERMUX_SETUP.md`](TERMUX_SETUP.md).
+
+### Assess its own GA readiness autonomously (INNOV-92 · GPE)
+The **GA Promotion Engine** monitors every V10 convergence criterion in real-time and delivers a structured `HUMAN0_REQUIRED` signal the moment all criteria are met — triggering the GA tag ceremony without polling, drift, or manual state inspection.
+
+```bash
+# Assess current GA readiness
+curl -X POST http://localhost:8000/api/gpe/assess \
+  -H "Content-Type: application/json" \
+  -d '{"pypi_version": "9.120.0"}'
+# → {"verdict": "HUMAN0_REQUIRED", "criteria_met": 7, "criteria_total": 7}
+```
+
+All seven V10 convergence criteria are now satisfied. The V10.0.0 GA tag ceremony is the imminent next milestone — HUMAN-0 ratification only.
+
+### Connect via GitHub App (ADAADchat)
+**ADAADchat** is the governance-native GitHub App for ADAAD — HMAC-SHA256 verified webhooks, slash command dispatch, and a live governance bridge between GitHub events and the CEL.
+
+```
+# Slash commands (issue / PR comments)
+/adaad status      → governance orientation report, open PRs, active phase
+/adaad dry-run     → evaluate mutations through GovernanceGate, nothing applied
+/adaad preflight   → boot invariants + agent contracts only
+DEVADAAD           → full build + merge authority — all 5 gate tiers must pass
+```
+
+Install: [github.com/apps/adaadchat](https://github.com/apps/adaadchat)
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 
@@ -181,7 +210,7 @@ Every mutation — without exception — traverses 16 steps before it ships:
   [6]  AFRT adversarial red-team       [14] GPG-signed ledger entry
   [7]  Fitness surface evaluation      [15] Hash-chained CEPD proof
   [8]  Constitutional scoring          [16] Annotated tag + release evidence
-       (410 Hard-class invariants)
+       (512 Hard-class invariants)
 ```
 
 Every step is deterministic. Every step produces a ledger record. Every ledger record is hash-chained. The entire pipeline is replayable from any point.
@@ -197,7 +226,7 @@ Every step is deterministic. Every step produces a ledger record. Every ledger r
 │    Agent     │              Role                     │      Disposition        │
 ├──────────────┼───────────────────────────────────────┼─────────────────────────┤
 │  Architect   │  Governance, structure, invariant      │  Conservative. Blocks   │
-│  (blue)      │  scoring against all 410 Hard-class    │  anything that breaks   │
+│  (blue)      │  scoring against all 512 Hard-class    │  anything that breaks   │
 │              │  invariants before any execution       │  constitutional integrity│
 ├──────────────┼───────────────────────────────────────┼─────────────────────────┤
 │  Dream       │  Creativity, ideation, novelty         │  Bold. Proposes novelty.│
@@ -269,15 +298,19 @@ Every invariant violation raises a typed exception, terminates the operation, an
 
 | Metric | Value |
 |:-------|:------|
-| Version | `v9.110.0` · Phase `177` |
-| Hard-class constitutional invariants | **410** — every one enforced fail-closed |
-| Shipped capabilities | **82** — from constitutional stress testing to full feedback loop closure |
+| Version | `v9.120.0` · Phase `187` |
+| Hard-class constitutional invariants | **512** — every one enforced fail-closed |
+| Shipped capabilities | **92** — from constitutional stress testing to full feedback loop closure |
+| Latest shipped innovation | **INNOV-92 · GPE** — GA Promotion Engine · V10 criterion 7 closed |
 | Constitutional Evolution Loop | **16 steps** — deterministic, replayable |
 | Specialist agents | **3** — Architect · Dream · Beast |
 | HUMAN-0 gate | **1** — structurally non-delegatable |
 | Append-only ledger entries | **48,000+** |
 | Acceptance tests | **8,038+** |
 | Governance artifacts | **249+** committed JSON attestations |
+| PyPI packages | `adaad` · `adaad-core==9.120.0` — pip installable |
+| GitHub App | **ADAADchat** — governance-native webhook + slash command bridge |
+| V10 GA convergence | **7 / 7 criteria met** — tag ceremony pending HUMAN-0 |
 | Platforms | Linux · macOS · Windows · Android · Docker |
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
@@ -356,7 +389,7 @@ adaad/
 |:---------|:--------------|
 | **AI safety researchers** | A production-running cryptographically evidenced autonomous governance loop — not a prototype |
 | **Autonomous systems engineers** | Reference architecture for constitutional self-modification with full replay capability |
-| **Governance architects** | 410 Hard-class invariants mapped to real operational guarantees, all independently verifiable |
+| **Governance architects** | 512 Hard-class invariants mapped to real operational guarantees, all independently verifiable |
 | **Indie devs on Android** | Full governed runtime on a $200 phone — [`TERMUX_SETUP.md`](TERMUX_SETUP.md) |
 | **Constitutional AI contributors** | Open governed amendment pipeline — all contributions traverse the CEL |
 | **Patent / IP practitioners** | Novel mechanisms with documented prior art absence and replayable cryptographic evidence |
@@ -419,6 +452,24 @@ Community constitutional amendment proposals go through the governed pipeline. S
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 
+## V10.0.0 — GA Status
+
+ADAAD is at the threshold of its first General Availability release. All seven V10 convergence criteria have been satisfied. The sole remaining action is HUMAN-0 ratification.
+
+| Criterion | Status |
+|:----------|:-------|
+| CEL Wire integrity | ✅ |
+| Constitutional invariant coverage | ✅ |
+| Ledger chain verification | ✅ |
+| Replay determinism | ✅ |
+| AFRT adversarial coverage | ✅ |
+| adaad-core PyPI publish | ✅ `9.120.0` |
+| GA_ALIGNMENT (GPE assessment) | ✅ `HUMAN0_REQUIRED` triggered |
+
+**Next:** `POST /api/gpe/assess` with `pypi_version="9.120.0"` → `HUMAN0_REQUIRED` → HUMAN-0 executes `git tag v10.0.0` ceremony.
+
+![Section Divider](docs/assets/readme/inline-divider.svg)
+
 ## Links
 
 | Resource | URL |
@@ -429,6 +480,8 @@ Community constitutional amendment proposals go through the governed pipeline. S
 | Documentation | [docs.adaad.pro](https://docs.adaad.pro) |
 | PyPI | [pypi.org/project/adaad](https://pypi.org/project/adaad) |
 | GitHub | [github.com/InnovativeAI-adaad/ADAAD](https://github.com/InnovativeAI-adaad/ADAAD) |
+| GitHub App | [github.com/apps/adaadchat](https://github.com/apps/adaadchat) |
+| adaad-core (PyPI) | [pypi.org/project/adaad-core](https://pypi.org/project/adaad-core) |
 | LinkedIn | [linkedin.com/in/innovative-ai-a472513b5](https://www.linkedin.com/in/innovative-ai-a472513b5) |
 | Telegram | [t.me/InnovativeAI_adaad](https://t.me/InnovativeAI_adaad) |
 

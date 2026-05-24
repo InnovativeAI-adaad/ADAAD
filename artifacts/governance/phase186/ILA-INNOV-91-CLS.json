@@ -1,0 +1,35 @@
+{
+  "ila_version": "1.0",
+  "innovation_id": "INNOV-91",
+  "innovation_code": "CLS",
+  "innovation_name": "CEL Loop Sentinel",
+  "phase": 186,
+  "version": "9.119.0",
+  "governor": "DUSTIN L REID",
+  "date": "2026-05-16",
+  "world_first": "phase186-world-first-cel-loop-sentinel-v10-c5-closure",
+  "description": "World-first constitutionally-governed CEL Loop Sentinel engine. Monitors all registered Constitutional Evolution Loop gates for open conditions, computes deterministic closure scores, and emits HMAC-SHA-256-sealed snapshots in an append-only hash-chained ledger. Directly satisfies V10 Criterion C5 (CEL Loop Closure). HUMAN-0 advisory issued when closure_score < 1.0.",
+  "hard_class_invariants": [
+    "CLS-SCOPE-0", "CLS-DETERM-0", "CLS-CHAIN-0", "CLS-IMMUT-0",
+    "CLS-ADVISORY-0", "CLS-SEAL-0", "CLS-READONLY-0", "CLS-AUDIT-0",
+    "CLS-HUMAN0-0", "CLS-CLOSURE-0", "CLS-PERSIST-0", "CLS-SNAPSHOT-0"
+  ],
+  "hard_class_invariant_count": 12,
+  "cumulative_invariant_count": 500,
+  "tests": "tests/test_phase186_cls.py",
+  "test_count": 30,
+  "test_result": "30/30 PASS",
+  "module": "dorkllm/cel_loop_sentinel.py",
+  "router": "app/api/cel_loop_sentinel.py",
+  "rest_prefix": "/api/cls",
+  "endpoints": [
+    "POST /api/cls/scan",
+    "GET  /api/cls/status",
+    "GET  /api/cls/ledger",
+    "GET  /api/cls/verify"
+  ],
+  "v10_criterion_addressed": "C5 — CEL Loop Closure",
+  "ip_claim": "Novel constitutionally-governed CEL gate registry with HMAC-SHA-256 hash-chained closure snapshots and HUMAN-0 advisory emission for loop-open conditions in autonomous AI governance systems.",
+  "ratification_status": "PENDING_HUMAN0",
+  "ratification_authority": "DUSTIN L REID"
+}

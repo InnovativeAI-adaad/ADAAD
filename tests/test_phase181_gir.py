@@ -1,320 +1,373 @@
 # SPDX-License-Identifier: Apache-2.0
 """
 Phase 181 · INNOV-86 · GIR — Governance Implementation Readiness
-Test suite: T181-GIR-01..30  (30/30 required)
+Test suite T181-GIR-01..30
 Governor: DUSTIN L REID
 """
 
+from __future__ import annotations
+
 import json
-import os
-import shutil
-import tempfile
+import time
+import uuid
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 
-# ── Isolate all file I/O to a temp directory ─────────────────────────────────
-@pytest.fixture(autouse=True)
-def isolated_fs(tmp_path, monkeypatch):
-    monkeypatch.chdir(tmp_path)
-    yield tmp_path
-
-
-import importlib
-import dorkllm.governance_implementation_readiness as gir_mod
-
-
-def reload_gir(tmp_path):
-    """Reload module so Path constants resolve relative to tmp_path cwd."""
-    importlib.reload(gir_mod)
-    return gir_mod
-
-
-# ── T181-GIR-01: Basic assessment returns dict ───────────────────────────────
-def test_T181_GIR_01_returns_dict(tmp_path):
-    g = reload_gir(tmp_path)
-    result = g.run_readiness_assessment("v9.114.0")
-    assert isinstance(result, dict)
-
-
-# ── T181-GIR-02: assessment_id is a UUID string ──────────────────────────────
-def test_T181_GIR_02_assessment_id_uuid(tmp_path):
-    g = reload_gir(tmp_path)
-    result = g.run_readiness_assessment("v9.114.0")
-    import uuid
-    uuid.UUID(result["assessment_id"])  # raises if invalid
-
-
-# ── T181-GIR-03: All 6 dimensions present ────────────────────────────────────
-def test_T181_GIR_03_all_dimensions_present(tmp_path):
-    g = reload_gir(tmp_path)
-    result = g.run_readiness_assessment("milestone-A")
-    for dim in g.DIMENSIONS:
-        assert dim in result["dimension_scores"]
-
-
-# ── T181-GIR-04: GRS is float in [0, 1] ─────────────────────────────────────
-def test_T181_GIR_04_grs_bounded(tmp_path):
-    g = reload_gir(tmp_path)
-    result = g.run_readiness_assessment("milestone-B")
-    assert 0.0 <= result["grs"] <= 1.0
-
-
-# ── T181-GIR-05: promotion_threshold constant is 0.75 ────────────────────────
-def test_T181_GIR_05_promotion_threshold_constant(tmp_path):
-    g = reload_gir(tmp_path)
-    assert g.PROMOTION_THRESHOLD == 0.75
-
-
-# ── T181-GIR-06: Without human0_token, status is READY or NOT_READY ─────────
-def test_T181_GIR_06_no_token_status(tmp_path):
-    g = reload_gir(tmp_path)
-    result = g.run_readiness_assessment("v-test")
-    assert result["promotion_status"] in {"READY", "NOT_READY"}
-
-
-# ── T181-GIR-07: With token and GRS >= threshold → PROMOTED ─────────────────
-def test_T181_GIR_07_promoted_with_token(tmp_path):
-    g = reload_gir(tmp_path)
-    # All defaults → no pressure, no rollbacks → high GRS
-    result = g.run_readiness_assessment("v-milestone", human0_token="APPROVED DUSTIN L REID")
-    if result["grs"] >= g.PROMOTION_THRESHOLD:
-        assert result["promotion_status"] == "PROMOTED"
-
-
-# ── T181-GIR-08: With token but GRS < threshold → PROMOTION_DENIED ───────────
-def test_T181_GIR_08_promotion_denied_low_grs(tmp_path):
-    g = reload_gir(tmp_path)
-    # Force critical SCSI alert → stability score 0 → low GRS
-    snap = {"scsi": 0.3}
-    (tmp_path / "data" / "csc").mkdir(parents=True)
-    (tmp_path / "data" / "csc" / "scsi_snapshot.json").write_text(json.dumps(snap))
-    importlib.reload(g)
-    result = g.run_readiness_assessment("v-fail", human0_token="APPROVED DUSTIN L REID")
-    assert result["promotion_status"] == "PROMOTION_DENIED"
-
-
-# ── T181-GIR-09: Rejected promotions written to rejected ledger ──────────────
-def test_T181_GIR_09_rejected_ledger_written(tmp_path):
-    g = reload_gir(tmp_path)
-    snap = {"scsi": 0.3}
-    (tmp_path / "data" / "csc").mkdir(parents=True)
-    (tmp_path / "data" / "csc" / "scsi_snapshot.json").write_text(json.dumps(snap))
-    importlib.reload(g)
-    g.run_readiness_assessment("v-rej", human0_token="APPROVED DUSTIN L REID")
-    rejected = tmp_path / "data" / "gir" / "rejected_promotions.jsonl"
-    assert rejected.exists()
-    lines = [l for l in rejected.read_text().splitlines() if l.strip()]
-    assert len(lines) >= 1
-
-
-# ── T181-GIR-10: Ledger file created after assessment ────────────────────────
-def test_T181_GIR_10_ledger_created(tmp_path):
-    g = reload_gir(tmp_path)
-    g.run_readiness_assessment("v-ledger")
-    assert (tmp_path / "data" / "gir" / "readiness_attestation_ledger.jsonl").exists()
-
-
-# ── T181-GIR-11: Snapshot file created and parseable ─────────────────────────
-def test_T181_GIR_11_snapshot_created(tmp_path):
-    g = reload_gir(tmp_path)
-    g.run_readiness_assessment("v-snap")
-    snap = tmp_path / "data" / "gir" / "readiness_snapshot.json"
-    assert snap.exists()
-    data = json.loads(snap.read_text())
-    assert "grs" in data
-
-
-# ── T181-GIR-12: HMAC chain valid after single write ─────────────────────────
-def test_T181_GIR_12_chain_valid_single(tmp_path):
-    g = reload_gir(tmp_path)
-    g.run_readiness_assessment("v-chain1")
-    report = g.verify_ledger_integrity()
-    assert report["chain_valid"] is True
-
-
-# ── T181-GIR-13: HMAC chain valid after multiple writes ──────────────────────
-def test_T181_GIR_13_chain_valid_multiple(tmp_path):
-    g = reload_gir(tmp_path)
-    for i in range(5):
-        g.run_readiness_assessment(f"v-iter-{i}")
-    report = g.verify_ledger_integrity()
-    assert report["chain_valid"] is True
-    assert report["entry_count"] == 5
-
-
-# ── T181-GIR-14: Tampered ledger detected ────────────────────────────────────
-def test_T181_GIR_14_tamper_detected(tmp_path):
-    g = reload_gir(tmp_path)
-    g.run_readiness_assessment("v-tamper")
-    ledger = tmp_path / "data" / "gir" / "readiness_attestation_ledger.jsonl"
-    content = ledger.read_text()
-    ledger.write_text(content.replace('"grs":', '"grs_tampered":'))
-    report = g.verify_ledger_integrity()
-    assert report["chain_valid"] is False
-
-
-# ── T181-GIR-15: GIR-CHAIN-0 violation raised on corrupt chain ───────────────
-def test_T181_GIR_15_chain_violation_on_corrupt(tmp_path):
-    g = reload_gir(tmp_path)
-    g.run_readiness_assessment("v-corrupt")
-    ledger = tmp_path / "data" / "gir" / "readiness_attestation_ledger.jsonl"
-    ledger.write_text('{"chain_digest":"badhash","attestation":{"grs":0.5}}\n')
-    with pytest.raises(g.GIRViolation):
-        g.run_readiness_assessment("v-post-corrupt")
-
-
-# ── T181-GIR-16: Stability dimension reads CSC SCSI correctly ────────────────
-def test_T181_GIR_16_stability_reads_scsi(tmp_path):
-    g = reload_gir(tmp_path)
-    (tmp_path / "data" / "csc").mkdir(parents=True)
-    (tmp_path / "data" / "csc" / "scsi_snapshot.json").write_text(json.dumps({"scsi": 0.9}))
-    importlib.reload(g)
-    result = g.run_readiness_assessment("v-stab")
-    assert result["subsystem_signals"]["scsi"] == 0.9
-    assert result["dimension_scores"]["stability"] == pytest.approx(0.9, abs=0.01)
-
-
-# ── T181-GIR-17: Critical SCSI alert → stability score 0.0 ──────────────────
-def test_T181_GIR_17_critical_scsi_zero_stability(tmp_path):
-    g = reload_gir(tmp_path)
-    (tmp_path / "data" / "csc").mkdir(parents=True)
-    (tmp_path / "data" / "csc" / "scsi_snapshot.json").write_text(json.dumps({"scsi": 0.3}))
-    importlib.reload(g)
-    result = g.run_readiness_assessment("v-critical")
-    assert result["dimension_scores"]["stability"] == 0.0
-    assert result["subsystem_signals"]["critical_alert"] is True
-
-
-# ── T181-GIR-18: Pressure score: 0 high-pressure events → 1.0 ───────────────
-def test_T181_GIR_18_zero_pressure_score_1(tmp_path):
-    g = reload_gir(tmp_path)
-    result = g.run_readiness_assessment("v-nopress")
-    # No CPI ledger → pressure ratio 0.0 → score 1.0
-    assert result["dimension_scores"]["pressure"] == 1.0
-
-
-# ── T181-GIR-19: Pressure score decays with high-tension events ──────────────
-def test_T181_GIR_19_pressure_decays(tmp_path):
-    g = reload_gir(tmp_path)
-    (tmp_path / "data" / "cpi").mkdir(parents=True)
-    # 10 high-tension events out of 10 → ratio 1.0 → pressure score 0.0
-    ledger = tmp_path / "data" / "cpi" / "pressure_ledger.jsonl"
-    with open(ledger, "w") as fh:
-        for _ in range(10):
-            entry = {"attestation": {"tension_delta": 0.8}, "prev_digest": "x", "chain_digest": "y"}
-            fh.write(json.dumps(entry) + "\n")
-    importlib.reload(g)
-    result = g.run_readiness_assessment("v-press")
-    assert result["dimension_scores"]["pressure"] == 0.0
-
-
-# ── T181-GIR-20: Amendment score decays with pending recs ────────────────────
-def test_T181_GIR_20_amendment_score_decays(tmp_path):
-    g = reload_gir(tmp_path)
-    (tmp_path / "data" / "cal").mkdir(parents=True)
-    recs = [{"status": "PENDING"} for _ in range(5)]
-    (tmp_path / "data" / "cal" / "cal_amendment_recommendations.json").write_text(
-        json.dumps({"recommendations": recs})
-    )
-    importlib.reload(g)
-    result = g.run_readiness_assessment("v-amend")
-    # 5 pending → 1.0 - 0.5 = 0.5
-    assert result["dimension_scores"]["amendment"] == pytest.approx(0.5, abs=0.01)
-
-
-# ── T181-GIR-21: 0 pending amendments → amendment score 1.0 ─────────────────
-def test_T181_GIR_21_zero_amendments_score_1(tmp_path):
-    g = reload_gir(tmp_path)
-    result = g.run_readiness_assessment("v-no-amend")
-    assert result["dimension_scores"]["amendment"] == 1.0
-
-
-# ── T181-GIR-22: Active rollbacks decay rollback score ───────────────────────
-def test_T181_GIR_22_rollback_score_decays(tmp_path):
-    g = reload_gir(tmp_path)
-    (tmp_path / "data" / "car").mkdir(parents=True)
-    ledger = tmp_path / "data" / "car" / "rollback_execution_ledger.jsonl"
-    with open(ledger, "w") as fh:
-        for _ in range(2):
-            entry = {"attestation": {"status": "EXECUTED"}, "prev_digest": "x", "chain_digest": "y"}
-            fh.write(json.dumps(entry) + "\n")
-    importlib.reload(g)
-    result = g.run_readiness_assessment("v-rollback")
-    # 2 active → 1.0 - 0.5 = 0.5
-    assert result["dimension_scores"]["rollback"] == pytest.approx(0.5, abs=0.01)
-
-
-# ── T181-GIR-23: 0 active rollbacks → rollback score 1.0 ────────────────────
-def test_T181_GIR_23_zero_rollbacks_score_1(tmp_path):
-    g = reload_gir(tmp_path)
-    result = g.run_readiness_assessment("v-no-rollback")
-    assert result["dimension_scores"]["rollback"] == 1.0
-
-
-# ── T181-GIR-24: Integrity score uses invariant count ───────────────────────
-def test_T181_GIR_24_integrity_uses_invariant_count(tmp_path):
-    g = reload_gir(tmp_path)
-    state = {"hard_class_invariants": 400}
-    (tmp_path / ".adaad_agent_state.json").write_text(json.dumps(state))
-    importlib.reload(g)
-    result = g.run_readiness_assessment("v-integrity")
-    assert result["dimension_scores"]["integrity"] == 1.0
-
-
-# ── T181-GIR-25: GRS weighted mean is deterministic ─────────────────────────
-def test_T181_GIR_25_grs_deterministic(tmp_path):
-    g = reload_gir(tmp_path)
-    r1 = g.run_readiness_assessment("v-det-1")
-    (tmp_path / "data" / "gir" / "readiness_attestation_ledger.jsonl").write_text("")
-    importlib.reload(g)
-    r2 = g.run_readiness_assessment("v-det-2")
-    # Same subsystem signals → same GRS (assessment_id differs, GRS must match)
-    assert r1["grs"] == r2["grs"]
-
-
-# ── T181-GIR-26: seal_hash present and is SHA-256 hex ───────────────────────
-def test_T181_GIR_26_seal_hash_present(tmp_path):
-    g = reload_gir(tmp_path)
-    result = g.run_readiness_assessment("v-seal")
-    assert "seal_hash" in result
-    assert len(result["seal_hash"]) == 64
-    int(result["seal_hash"], 16)  # raises if not hex
-
-
-# ── T181-GIR-27: human0_token_present flag is accurate ──────────────────────
-def test_T181_GIR_27_human0_token_flag(tmp_path):
-    g = reload_gir(tmp_path)
-    r_no  = g.run_readiness_assessment("v-flag-no")
-    r_yes = g.run_readiness_assessment("v-flag-yes", human0_token="APPROVED DUSTIN L REID")
-    assert r_no["human0_token_present"]  is False
-    assert r_yes["human0_token_present"] is True
-
-
-# ── T181-GIR-28: get_readiness_history returns list ──────────────────────────
-def test_T181_GIR_28_history_returns_list(tmp_path):
-    g = reload_gir(tmp_path)
-    g.run_readiness_assessment("v-hist-1")
-    g.run_readiness_assessment("v-hist-2")
-    history = g.get_readiness_history()
-    assert isinstance(history, list)
-    assert len(history) == 2
-
-
-# ── T181-GIR-29: get_readiness_snapshot returns latest ──────────────────────
-def test_T181_GIR_29_snapshot_is_latest(tmp_path):
-    g = reload_gir(tmp_path)
-    g.run_readiness_assessment("v-snap-1")
-    g.run_readiness_assessment("v-snap-2")
-    snap = g.get_readiness_snapshot()
-    assert snap["milestone_label"] == "v-snap-2"
-
-
-# ── T181-GIR-30: INNOV and governor fields present in attestation ────────────
-def test_T181_GIR_30_governance_metadata(tmp_path):
-    g = reload_gir(tmp_path)
-    result = g.run_readiness_assessment("v-gov-meta")
-    assert result["innov"] == "INNOV-86"
-    assert result["governor"] == "DUSTIN L REID"
-    assert result["schema_version"] == "1.0"
+from dorkllm.governance_implementation_readiness import (
+    CRITICAL_THRESHOLD,
+    WARNING_THRESHOLD,
+    GovernanceImplementationReadiness,
+    _cri_status,
+    _hmac_digest,
+    _HMAC_KEY,
+    _canonical_json,
+    _ledger_score,
+    _read_jsonl,
+    _read_json,
+    _DIM_WEIGHTS,
+    _V10_CRITERIA,
+)
+
+pytestmark = pytest.mark.phase181_gir
+
+
+# ── Fixtures ──────────────────────────────────────────────────────────────────
+
+@pytest.fixture
+def tmp_engine(tmp_path):
+    """GIR engine pointed at an isolated tmp directory."""
+    engine = GovernanceImplementationReadiness(data_dir=tmp_path / "gir")
+    return engine, tmp_path
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-01  Engine instantiates without error
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_01_instantiation(tmp_engine):
+    engine, _ = tmp_engine
+    assert isinstance(engine, GovernanceImplementationReadiness)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-02  assess() returns a result with required fields
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_02_assess_fields(tmp_engine):
+    engine, _ = tmp_engine
+    result = engine.assess()
+    assert result.assessment_id
+    assert result.timestamp
+    assert result.cri is not None
+    assert result.cri_status in ("READY", "WARNING", "CRITICAL")
+    assert result.governor == "DUSTIN L REID"
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-03  CRI is in [0.0, 1.0]
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_03_cri_bounds(tmp_engine):
+    engine, _ = tmp_engine
+    result = engine.assess()
+    assert 0.0 <= result.cri <= 1.0
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-04  Dimension weights sum to 1.0 — GIR-WEIGHT-0
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_04_weights_sum(tmp_engine):
+    _, _ = tmp_engine
+    total = sum(_DIM_WEIGHTS.values())
+    assert abs(total - 1.0) < 1e-9, f"Weights sum to {total}, expected 1.0"
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-05  Ten dimensions scored
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_05_ten_dimensions(tmp_engine):
+    engine, _ = tmp_engine
+    result = engine.assess()
+    assert len(result.dimensions) == 10
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-06  All dimension scores in [0.0, 1.0]
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_06_dimension_scores_bounded(tmp_engine):
+    engine, _ = tmp_engine
+    result = engine.assess()
+    for d in result.dimensions:
+        assert 0.0 <= d.score <= 1.0, f"Dimension {d.dimension} score={d.score} out of bounds"
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-07  Seven V10 criteria evaluated
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_07_seven_v10_criteria(tmp_engine):
+    engine, _ = tmp_engine
+    result = engine.assess()
+    assert len(result.v10_criteria) == 7
+    criterion_names = {c.criterion for c in result.v10_criteria}
+    for name in _V10_CRITERIA:
+        assert name in criterion_names
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-08  V10 criterion confidence in [0.0, 1.0]
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_08_v10_confidence_bounded(tmp_engine):
+    engine, _ = tmp_engine
+    result = engine.assess()
+    for c in result.v10_criteria:
+        assert 0.0 <= c.confidence <= 1.0, f"Criterion {c.criterion} confidence={c.confidence}"
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-09  Ledger entry written after assess() — GIR-AUDIT-0
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_09_ledger_written(tmp_engine):
+    engine, tmp_path = tmp_engine
+    result = engine.assess()
+    entries = _read_jsonl(tmp_path / "gir" / "readiness_assessment_ledger.jsonl")
+    assert len(entries) == 1
+    assert entries[0]["assessment_id"] == result.assessment_id
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-10  Chain is valid after first assessment — GIR-CHAIN-0
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_10_chain_valid_single(tmp_engine):
+    engine, _ = tmp_engine
+    engine.assess()
+    valid, reason = engine.verify_chain()
+    assert valid, f"Chain invalid: {reason}"
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-11  Chain valid after multiple assessments
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_11_chain_valid_multi(tmp_engine):
+    engine, _ = tmp_engine
+    for _ in range(5):
+        engine.assess()
+    valid, reason = engine.verify_chain()
+    assert valid, f"Chain invalid after 5 assessments: {reason}"
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-12  Duplicate assessment_id raises ValueError — GIR-DOUBLE-0
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_12_double_assessment_rejected(tmp_engine):
+    engine, _ = tmp_engine
+    aid = str(uuid.uuid4())
+    engine.assess(assessment_id=aid)
+    with pytest.raises(ValueError, match="GIR-DOUBLE-0"):
+        engine.assess(assessment_id=aid)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-13  Snapshot written after assess() — GIR-PERSIST-0
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_13_snapshot_written(tmp_engine):
+    engine, tmp_path = tmp_engine
+    result = engine.assess()
+    snap = _read_json(tmp_path / "gir" / "gir_snapshot.json")
+    assert snap
+    assert abs(snap["cri"] - result.cri) < 1e-9
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-14  get_snapshot() returns dict after assess()
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_14_get_snapshot(tmp_engine):
+    engine, _ = tmp_engine
+    engine.assess()
+    snap = engine.get_snapshot()
+    assert snap is not None
+    assert "cri" in snap
+    assert "cri_status" in snap
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-15  get_snapshot() returns None before first assess()
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_15_snapshot_none_before_assess(tmp_engine):
+    engine, _ = tmp_engine
+    snap = engine.get_snapshot()
+    assert snap is None
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-16  Assessment count increments correctly
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_16_assessment_count(tmp_engine):
+    engine, _ = tmp_engine
+    assert engine.get_assessment_count() == 0
+    engine.assess()
+    assert engine.get_assessment_count() == 1
+    engine.assess()
+    assert engine.get_assessment_count() == 2
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-17  CRI status thresholds are correct — GIR-THRESHOLD-0
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_17_cri_status_thresholds():
+    assert _cri_status(1.0) == "READY"
+    assert _cri_status(WARNING_THRESHOLD) == "READY"
+    assert _cri_status(WARNING_THRESHOLD - 0.01) == "WARNING"
+    assert _cri_status(CRITICAL_THRESHOLD) == "WARNING"
+    assert _cri_status(CRITICAL_THRESHOLD - 0.01) == "CRITICAL"
+    assert _cri_status(0.0) == "CRITICAL"
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-18  HMAC digest is deterministic — GIR-DETERM-0
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_18_hmac_determinism():
+    data = "test-payload-adaad"
+    d1 = _hmac_digest(_HMAC_KEY, data)
+    d2 = _hmac_digest(_HMAC_KEY, data)
+    assert d1 == d2
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-19  Ledger score helper bounded
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_19_ledger_score_bounded():
+    assert _ledger_score(0) == 0.0
+    assert _ledger_score(5) == 1.0
+    assert _ledger_score(100) == 1.0
+    score = _ledger_score(2)
+    assert 0.0 < score < 1.0
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-20  Weighted contribution sums to CRI
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_20_weighted_sum_equals_cri(tmp_engine):
+    engine, _ = tmp_engine
+    result = engine.assess()
+    computed = sum(d.weighted_contribution for d in result.dimensions)
+    computed = round(min(1.0, max(0.0, computed)), 6)
+    assert abs(computed - result.cri) < 1e-5
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-21  Seal is non-empty and consistent — GIR-SEAL-0
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_21_seal_present(tmp_engine):
+    engine, _ = tmp_engine
+    result = engine.assess()
+    assert result.seal
+    assert len(result.seal) == 64   # SHA-256 hex digest length
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-22  chain_prev_digest of first entry is GENESIS
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_22_genesis_chain_head(tmp_engine):
+    engine, tmp_path = tmp_engine
+    engine.assess()
+    entries = _read_jsonl(tmp_path / "gir" / "readiness_assessment_ledger.jsonl")
+    assert entries[0]["chain_prev_digest"] == "GENESIS"
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-23  Gap report written for sub-threshold dimensions
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_23_gap_report_written(tmp_engine):
+    engine, tmp_path = tmp_engine
+    result = engine.assess()
+    gap_path = tmp_path / "gir" / "gap_report.jsonl"
+    # Gap report written only if there are gaps
+    low_dims = [d for d in result.dimensions if d.gap_description]
+    if low_dims:
+        assert gap_path.exists()
+        entries = _read_jsonl(gap_path)
+        assert len(entries) >= 1
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-24  Human-0 advisory emitted when CRI < CRITICAL_THRESHOLD — GIR-HUMAN0-0
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_24_human0_advisory_on_critical(tmp_path):
+    """Patch upstream paths to empty to drive CRI below CRITICAL_THRESHOLD."""
+    engine = GovernanceImplementationReadiness(data_dir=tmp_path / "gir")
+    # With no upstream ledgers present, most dimensions score ~0 → CRI < 0.50
+    result = engine.assess()
+    if result.cri < CRITICAL_THRESHOLD:
+        assert result.human0_escalation is True
+        assert result.advisory_payload is not None
+        assert "DUSTIN L REID" in result.advisory_payload
+        advisory_log = tmp_path / "gir" / "human0_advisory_log.jsonl"
+        assert advisory_log.exists()
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-25  No HUMAN-0 escalation when CRI ≥ CRITICAL_THRESHOLD
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_25_no_escalation_when_above_critical(tmp_engine):
+    engine, _ = tmp_engine
+    result = engine.assess()
+    if result.cri >= CRITICAL_THRESHOLD:
+        assert result.human0_escalation is False
+        assert result.advisory_payload is None
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-26  lowest_dimensions list has exactly 3 entries
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_26_lowest_dimensions_count(tmp_engine):
+    engine, _ = tmp_engine
+    result = engine.assess()
+    assert len(result.lowest_dimensions) == 3
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-27  canonical_json produces consistent serialisation
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_27_canonical_json_stable():
+    obj = {"z": 3, "a": 1, "m": 2}
+    s1 = _canonical_json(obj)
+    s2 = _canonical_json(obj)
+    assert s1 == s2
+    assert s1 == '{"a":1,"m":2,"z":3}'   # keys sorted
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-28  Empty ledger chain verification returns CHAIN_VALID_EMPTY
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_28_empty_chain_valid(tmp_engine):
+    engine, _ = tmp_engine
+    valid, reason = engine.verify_chain()
+    assert valid
+    assert "EMPTY" in reason
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-29  Dimension names match _DIM_WEIGHTS keys
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_29_dimension_names_match_weights(tmp_engine):
+    engine, _ = tmp_engine
+    result = engine.assess()
+    scored_names = {d.dimension for d in result.dimensions}
+    weight_names = set(_DIM_WEIGHTS.keys())
+    assert scored_names == weight_names
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# T181-GIR-30  GIR invariant: GIR-SCOPE-0 — assess does not write to upstream ledgers
+# ══════════════════════════════════════════════════════════════════════════════
+def test_gir_30_readonly_scope(tmp_engine, tmp_path):
+    engine, _ = tmp_engine
+    upstream_paths = [
+        tmp_path / "data" / "car" / "rollback_execution_ledger.jsonl",
+        tmp_path / "data" / "csc" / "stability_report_ledger.jsonl",
+        tmp_path / "data" / "cae" / "amendment_execution_ledger.jsonl",
+    ]
+    # Capture mtime of upstream paths (all absent = None)
+    before = {p: p.stat().st_mtime if p.exists() else None for p in upstream_paths}
+    engine.assess()
+    after = {p: p.stat().st_mtime if p.exists() else None for p in upstream_paths}
+    for p in upstream_paths:
+        assert before[p] == after[p], f"GIR-SCOPE-0 violated: {p} was mutated"

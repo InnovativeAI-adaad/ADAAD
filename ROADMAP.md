@@ -4,11 +4,11 @@
 
 ---
 
-## Current State — v9.113.0 · Phase 180 · INNOV-82 CFI — CEL Feedback Integrator
+## Current State — v9.120.0 · Phase 187 · INNOV-92 GPE — GA Promotion Engine
 
-**Status:** 85 innovations shipped (INNOV-01 through INNOV-85). Phase 180 complete. v9.113.0 baseline. CEL self-improvement loop fully closed.
+**Status:** 92 innovations shipped (INNOV-01 through INNOV-92). Phase 187 complete. v9.120.0 baseline. GA Promotion Engine active; V10 C7 (GA_ALIGNMENT) addressable — HUMAN-0 PyPI publish pending.
 **Automation pointer:** Machine phase progression consumes `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` §3.0 “Active Era Contract (Phases 131–136+)”, which governs the current stream through Phase 173 and the Phase 174 next-work pointer.
-**Hard-class invariants:** 440 (cumulative, enforced)
+**Hard-class invariants:** 500 (cumulative, enforced)
 **Constitutional Evolution Loop:** 16-step CEL, deterministic replay, wired
 **Self-Proposing Innovation Engine (SPIE):** active — system proposes its own next innovations; HUMAN-0 ratifies
 **Deterministic Audit Sandbox (DAS):** active — one-command external verification; `docker compose up das-demo`
@@ -167,7 +167,14 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 179 | INNOV-84 · CSC — Constitutional Stability Controller | v9.112.0 | P0 | ✅ shipped |
 | 180 | INNOV-85 · CAR — Constitutional Amendment Rollback | v9.113.0 | P0 | ✅ shipped |
 | 181 | INNOV-86 · GIR — Governance Implementation Readiness | v9.114.0 | P0 | ✅ shipped |
-| 182 | INNOV-87 · TBD — SPIE-ratified | v9.115.0 | P0 | ⏭️ next |
+| 182 | INNOV-87 · CGR — Convergence Gap Resolver | v9.115.0 | P0 | ✅ shipped |
+| 183 | INNOV-88 · CPE — Convergence Plan Executor | v9.116.0 | P0 | ✅ shipped |
+| 184 | INNOV-89 · COV — Convergence Outcome Validator | v9.117.0 | P0 | ✅ shipped |
+| 185 | INNOV-90 · CCA — Convergence Certification Auditor | v9.118.0 | P0 | ✅ shipped |
+| 186 | INNOV-91 · CLS — CEL Loop Sentinel | v9.119.0 | P0 | ✅ shipped |
+| 187 | INNOV-92 · GPE — GA Promotion Engine | v9.120.0 | P0 | ✅ shipped |
+| 188 | INNOV-93 · GTC — Governance Tag Certifier | v9.121.0 | P0 | ✅ shipped |
+| 189 | TBD — v10.0.0 GA Tag Ceremony or next SPIE-ratified innovation | v9.122.0 | P0 | ⏭️ next |
 
 
 ## Phase 140 — Constitutional P0 Sweep + P1 Hardening (v9.73.0) ✅

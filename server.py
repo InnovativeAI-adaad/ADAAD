@@ -60,6 +60,14 @@ from app.api.emergent_sentinel import router as ebs_router        # Phase 160 IN
 from app.api.constitutional_forecast import router as cfe_router  # Phase 161 INNOV-67 CFE
 from app.api.mutation_impact import router as mia_router           # Phase 162 INNOV-68 MIA
 from app.api.mutation_calibration import router as mce_router      # Phase 163 INNOV-69 MCE
+from app.api.governance_implementation_readiness import router as gir_router  # Phase 181 INNOV-86 GIR
+from app.api.convergence_gap_resolver import router as cgr_router             # Phase 182 INNOV-87 CGR
+from app.api.convergence_plan_executor import router as cpe_router             # Phase 183 INNOV-88 CPE
+from app.api.convergence_certification_auditor import router as cca_router    # Phase 184 INNOV-89 CCA
+from app.api.cel_loop_sentinel import router as cls_router                    # Phase 186 INNOV-91 CLS
+from app.api.ga_promotion_engine import router as gpe_router                  # Phase 187 INNOV-92 GPE
+from app.api.governance_tag_certifier import router as gtc_router             # Phase 188 INNOV-93 GTC
+from app.api.v10_epoch_transition import router as v10et_router                  # Phase 189 INNOV-94 V10ET
 from runtime.integrations.github_app import dispatch_event, verify_webhook_signature  # ADAADchat
 from app.api.dependencies import (
     require_audit_scope,
@@ -881,6 +889,14 @@ app.include_router(ebs_router)           # Phase 160 INNOV-66 EBS
 app.include_router(cfe_router)           # Phase 161 INNOV-67 CFE
 app.include_router(mia_router)           # Phase 162 INNOV-68 MIA
 app.include_router(mce_router)           # Phase 163 INNOV-69 MCE
+app.include_router(gir_router)           # Phase 181 INNOV-86 GIR
+app.include_router(cgr_router)           # Phase 182 INNOV-87 CGR
+app.include_router(cpe_router)           # Phase 183 INNOV-88 CPE
+app.include_router(cca_router)           # Phase 184 INNOV-89 CCA
+app.include_router(gpe_router)           # Phase 187 INNOV-92 GPE
+app.include_router(gtc_router)           # Phase 188 INNOV-93 GTC
+app.include_router(v10et_router)         # Phase 189 INNOV-94 V10ET
+app.include_router(cls_router)           # Phase 186 INNOV-91 CLS
 app.include_router(audit_router)
 app.include_router(ui_router)
 app.include_router(simulation_router)

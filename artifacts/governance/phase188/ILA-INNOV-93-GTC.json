@@ -1,0 +1,34 @@
+{
+  "ila_id": "ILA-INNOV-93-GTC",
+  "innovation_id": "INNOV-93",
+  "innovation_code": "GTC",
+  "innovation_name": "Governance Tag Certifier",
+  "phase": 188,
+  "version": "9.121.0",
+  "governor": "DUSTIN L REID",
+  "date": "2026-05-21",
+  "world_first": "First constitutionally-governed, HMAC-chained, Merkle-rooted Release Bundle certifier bridging GPE GA-READY signal to v10.0.0 tag ceremony with mandatory HUMAN-0 runbook emission",
+  "hard_class_invariants": [
+    "GTC-SCOPE-0",
+    "GTC-CHAIN-0",
+    "GTC-HUMAN0-0",
+    "GTC-MERKLE-0",
+    "GTC-IMMUT-0"
+  ],
+  "new_invariant_count": 5,
+  "cumulative_invariant_count": 517,
+  "test_suite": "tests/test_phase188_gtc.py",
+  "tests_passing": 30,
+  "module": "dorkllm/governance_tag_certifier.py",
+  "router": "app/api/governance_tag_certifier.py",
+  "endpoints": [
+    "POST /gtc/certify",
+    "GET /gtc/history",
+    "GET /gtc/verify-chain",
+    "GET /gtc/advisory"
+  ],
+  "predecessor": "Phase 187 — INNOV-92 GPE — GA Promotion Engine",
+  "successor": "Phase 189 — INNOV-94 · TBD or v10.0.0 GA Tag Ceremony (HUMAN-0 exclusive)",
+  "human0_signoff_required": true,
+  "track_b_gpg_signing_required": true
+}
