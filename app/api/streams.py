@@ -109,7 +109,7 @@ async def ws_events(
     relay_queue: asyncio.Queue[dict[str, Any]] = asyncio.Queue(maxsize=relay_queue_limit)
     disconnect_reason = "client_closed"
     dropped_frames = 0
-    last_client_signal = asyncio.get_event_loop().time()
+    last_client_signal = asyncio.get_running_loop().time() if not asyncio.get_event_loop().is_closed() else 0
     coalesced_latest: dict[str, Any] | None = None
     stop_signal = asyncio.Event()
 
@@ -123,7 +123,7 @@ async def ws_events(
             except Exception:
                 break
             if isinstance(message, dict) and message.get("type") == "pong":
-                last_client_signal = asyncio.get_event_loop().time()
+                last_client_signal = asyncio.get_running_loop().time() if not asyncio.get_event_loop().is_closed() else 0
 
     async def _relay_ingress() -> None:
         nonlocal dropped_frames, coalesced_latest
@@ -156,7 +156,7 @@ async def ws_events(
     try:
         while True:
             try:
-                now = asyncio.get_event_loop().time()
+                now = asyncio.get_running_loop().time() if not asyncio.get_event_loop().is_closed() else 0
                 if (now - last_client_signal) >= stale_timeout_s:
                     disconnect_reason = "stale_client_timeout"
                     await websocket.send_json({"type": "disconnect", "reason": disconnect_reason})

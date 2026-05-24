@@ -1,0 +1,11 @@
+{
+  "phase": 190,
+  "invariants": [
+    {"code":"MSR-ROUTE-0","class":"Hard","description":"Every routing decision is sealed in the HMAC-chained ledger."},
+    {"code":"MSR-CHAIN-0","class":"Hard","description":"Each RoutingRecord HMAC covers the previous record HMAC."},
+    {"code":"MSR-HUMAN0-0","class":"Hard","description":"HUMAN-0 approval required before any CRITICAL-tier strategy executes."},
+    {"code":"MSR-SCOPE-0","class":"Hard","description":"A strategy may never expand its declared blast-radius scope at runtime."},
+    {"code":"MSR-ATOMIC-0","class":"Hard","description":"A failed dispatch must leave ledger and state in pre-dispatch condition."}
+  ],
+  "cumulative_total": 527
+}

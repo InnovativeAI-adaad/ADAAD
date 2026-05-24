@@ -1,0 +1,9 @@
+{
+  "phase": 190,
+  "tier": "ROUTINE",
+  "blast_radius": "MODULE",
+  "modules_added": ["runtime/innovations30/mutation_strategy_router.py"],
+  "modules_modified": ["server.py","runtime/innovations_bus.py","dorkllm/governance_tag_certifier.py","dorkllm/intelligence.py","dorkllm/mutation_calibration_engine.py","app/api/streams.py"],
+  "tests_added": ["tests/test_phase190_msr.py"],
+  "pre_phase_p1_fixes": 3
+}

@@ -1,0 +1,17 @@
+{
+  "artifact_type": "ILA",
+  "innov_code": "MSR",
+  "innov_number": 95,
+  "phase": 190,
+  "version": "10.1.0",
+  "title": "Mutation Strategy Router",
+  "description": "HMAC-chained ledger-sealed router that dispatches mutation proposals to constitutional execution strategies based on entropy signal vectors, blast-radius scope, and HUMAN-0 approval gates.",
+  "hard_invariants": ["MSR-ROUTE-0","MSR-CHAIN-0","MSR-HUMAN0-0","MSR-SCOPE-0","MSR-ATOMIC-0"],
+  "cumulative_invariants": 527,
+  "test_suite": "tests/test_phase190_msr.py",
+  "test_count": 30,
+  "test_result": "30/30 PASS",
+  "governor": "DUSTIN L REID",
+  "agent": "DEVADAAD",
+  "organization": "InnovativeAI LLC"
+}

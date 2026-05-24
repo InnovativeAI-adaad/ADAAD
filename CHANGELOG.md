@@ -1,3 +1,21 @@
+## [10.1.0] — Phase 190 · INNOV-95 · MSR
+
+### Added
+- **INNOV-95 Mutation Strategy Router (MSR)** — HMAC-chained ledger-sealed router dispatching mutation proposals to constitutional execution strategies via entropy SignalVectors and blast-radius scope enforcement.
+- 5 Hard-class invariants: MSR-ROUTE-0, MSR-CHAIN-0, MSR-HUMAN0-0, MSR-SCOPE-0, MSR-ATOMIC-0.
+- 30-test acceptance suite (30/30 pass).
+
+### Fixed (P1 deprecations)
+- `runtime/innovations_bus.py`: `asyncio.get_event_loop()` → `get_running_loop()`
+- `dorkllm/governance_tag_certifier.py`: `datetime.utcnow()` → `datetime.now(timezone.utc)`
+- `dorkllm/intelligence.py`: `datetime.utcnow()` → `datetime.now(timezone.utc)`
+- `dorkllm/mutation_calibration_engine.py`: `datetime.utcnow()` → `datetime.now(timezone.utc)`
+- `app/api/streams.py`: `asyncio.get_event_loop().time()` → `get_running_loop().time()`
+
+**Cumulative invariants: 527 | Innovations shipped: 95**
+
+---
+
 ## [9.114.0] — Phase 181 · INNOV-86 · GIR — Governance Implementation Readiness
 
 **Date:** 2026-05-18  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID

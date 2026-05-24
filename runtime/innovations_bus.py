@@ -96,9 +96,8 @@ class InnovationsEventBus:
         Safe to call from non-async code; silently no-ops if no loop running.
         """
         try:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                loop.create_task(self.emit(frame))
+            loop = asyncio.get_running_loop()
+            loop.create_task(self.emit(frame))
         except RuntimeError:
             pass
 

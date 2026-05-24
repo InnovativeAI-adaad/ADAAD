@@ -90,6 +90,7 @@ from runtime.api.compliance_export_service import ComplianceExportService
 import runtime.metrics as metrics                                          # noqa: E402
 import security.ledger.journal as journal                                  # noqa: E402
 import runtime.constitution as constitution                                # noqa: E402
+from runtime.innovations30.mutation_strategy_router import MutationStrategyRouter, make_router  # INNOV-95
 from runtime.evolution.lineage_v2 import LineageLedgerV2                  # noqa: E402
 from runtime.governance.rate_limiter import get_limiter as _get_proposal_limiter  # noqa: E402
 from runtime.audit_auth import load_audit_tokens, require_audit_read_scope  # noqa: E402
