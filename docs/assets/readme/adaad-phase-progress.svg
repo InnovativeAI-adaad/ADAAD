@@ -11,7 +11,7 @@
     <filter id="gcur"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   </defs>
   <rect width="1238" height="88" fill="#060a0f"/>
-  <text x="20" y="20" font-family="'JetBrains Mono','Courier New',monospace" font-size="16" fill="rgba(255,255,255,.4)" letter-spacing="3">PHASE EVOLUTION — 146 OF 100 PROJECTED</text>
+  <text x="20" y="20" font-family="'JetBrains Mono','Courier New',monospace" font-size="16" fill="rgba(255,255,255,.4)" letter-spacing="3">PHASE EVOLUTION — 191 OF 100 PROJECTED</text>
   <rect x="20" y="32" width="10" height="28" rx="2" fill="url(#doneGrad)"/>
   <rect x="32" y="32" width="10" height="28" rx="2" fill="url(#doneGrad)"/>
   <rect x="44" y="32" width="10" height="28" rx="2" fill="url(#doneGrad)"/>
@@ -112,5 +112,5 @@
   <rect x="1184" y="32" width="10" height="28" rx="2" fill="url(#doneGrad)"/>
   <rect x="1196" y="32" width="10" height="28" rx="2" fill="url(#doneGrad)"/>
   <rect x="1208" y="32" width="10" height="28" rx="2" fill="url(#doneGrad)"/>
-  <text x="20" y="78" font-family="'JetBrains Mono','Courier New',monospace" font-size="13" fill="rgba(255,255,255,.18)">FOUNDATION 1–46 · GAP CLOSURE 47–56 · CONSTITUTIONAL 57–64 · SEED 71–77 · EVOLUTION 81–100 · INTELLIGENCE 101–130 · DORK 131–146 ◈</text>
+  <text x="20" y="78" font-family="'JetBrains Mono','Courier New',monospace" font-size="13" fill="rgba(255,255,255,.18)">FOUNDATION 1–46 · GAP CLOSURE 47–56 · CONSTITUTIONAL 57–64 · ⛓ 65 · SEED PIPELINE 71–77 · EVOLUTION ENGINE 81–84 · ◈ CURRENT</text>
 </svg>
