@@ -1,6 +1,6 @@
 {
   "acse_active": true,
-  "active_phase": "Phase 188 — INNOV-93 GTC — Governance Tag Certifier",
+  "active_phase": "Phase 188 \u2014 INNOV-93 GTC \u2014 Governance Tag Certifier",
   "blocked_at_gate": null,
   "blocked_at_tier": null,
   "blocked_reason": null,
@@ -434,14 +434,14 @@
     "phase188-complete"
   ],
   "constitutional_invariants": 517,
-  "current_phase": 188,
+  "current_phase": 189,
   "current_version": "9.121.0",
-  "expected_next_pr": "Phase 189 — INNOV-94 · TBD or v10.0.0 GA Tag Ceremony",
+  "expected_next_pr": "Phase 189 \u2014 INNOV-94 \u00b7 TBD or v10.0.0 GA Tag Ceremony",
   "ga_blocker_count": 0,
   "ga_blockers": 0,
   "ga_gates": {
     "gate1": {
-      "description": "Constitutional invariants ≥ 200",
+      "description": "Constitutional invariants \u2265 200",
       "status": "COMPLETE"
     },
     "gate2": {
@@ -460,7 +460,7 @@
     }
   },
   "hard_class_count": 517,
-  "hard_class_invariant_count": 517,
+  "hard_class_invariant_count": 522,
   "hard_class_invariants": 517,
   "hard_class_invariants_cumulative": 517,
   "hard_invariant_count": 517,
@@ -474,13 +474,13 @@
     {
       "date": "2026-03-28",
       "governor": "DUSTIN L REID",
-      "scope": "Phase 93 state sync — agent_state v9.26.0, README overhaul merge, report_version update, Phase 94 readiness declaration",
+      "scope": "Phase 93 state sync \u2014 agent_state v9.26.0, README overhaul merge, report_version update, Phase 94 readiness declaration",
       "session_digest": "gsync-phase93-v9.26.0-sweep-2026-03-28"
     },
     {
       "date": "2026-03-28",
       "governor": "DUSTIN L REID",
-      "scope": "Phase 93 → 94 state alignment: version 9.26.0, agent_state sync, pyproject alignment, report_version sync, README branch closure, GPG tag ceremony authorization",
+      "scope": "Phase 93 \u2192 94 state alignment: version 9.26.0, agent_state sync, pyproject alignment, report_version sync, README branch closure, GPG tag ceremony authorization",
       "session_digest": "gsync-phase93-v9.26.0-alignment-2026-03-28"
     },
     {
@@ -496,11 +496,11 @@
     }
   ],
   "innovation_count": 93,
-  "innovations_shipped": 93,
+  "innovations_shipped": 94,
   "invariant_count": 517,
   "last_agent_state_sync_digest": "gsync-phase188-gtc-9.121.0",
-  "last_completed_phase": "Phase 188 — INNOV-93 GTC — Governance Tag Certifier",
-  "last_completed_pr": "Phase 188 — INNOV-93 GTC — Governance Tag Certifier",
+  "last_completed_phase": "Phase 189 \u00b7 INNOV-94 \u00b7 V10ET \u2014 V10 Epoch Transition Engine",
+  "last_completed_pr": "Phase 188 \u2014 INNOV-93 GTC \u2014 Governance Tag Certifier",
   "last_completed_version": "9.121.0",
   "last_gate_results": {
     "tier_0": "pass",
@@ -512,20 +512,20 @@
   "last_innovation_id": "INNOV-93",
   "last_innovation_name": "Governance Tag Certifier",
   "last_invocation": "2026-05-21",
-  "last_phase_completed": "Phase 188 · INNOV-93 · GTC — Governance Tag Certifier",
-  "last_phase_completed_label": "Phase 188 — INNOV-93 GTC — Governance Tag Certifier",
-  "last_phase_name": "INNOV-93 GTC — Governance Tag Certifier",
+  "last_phase_completed": "Phase 188 \u00b7 INNOV-93 \u00b7 GTC \u2014 Governance Tag Certifier",
+  "last_phase_completed_label": "Phase 188 \u2014 INNOV-93 GTC \u2014 Governance Tag Certifier",
+  "last_phase_name": "INNOV-93 GTC \u2014 Governance Tag Certifier",
   "last_sync_sha": "phase188-gtc",
   "last_updated": "2026-05-21",
   "milestone": "v1.1-GA",
-  "next_innovation": "INNOV-94",
+  "next_innovation": "INNOV-95",
   "next_innovation_id": "INNOV-94",
   "next_innovation_name": "TBD",
-  "next_phase": 189,
+  "next_phase": 190,
   "next_phase_description": "TBD",
   "next_phase_id": 189,
   "next_phase_target": 189,
-  "next_pr": "Phase 189 — INNOV-94 · TBD",
+  "next_pr": "Phase 189 \u2014 INNOV-94 \u00b7 TBD",
   "open_findings": [
     {
       "id": "FINDING-66-001",
@@ -533,7 +533,7 @@
       "resolved_date": "2026-03-14",
       "resolved_phase": "66",
       "severity": "P2",
-      "source": "Deep Dive §4.7",
+      "source": "Deep Dive \u00a74.7",
       "status": "resolved",
       "title": "LLM failover strategy undocumented"
     },
@@ -543,7 +543,7 @@
       "resolved_date": "2026-03-14",
       "resolved_phase": "66",
       "severity": "P1",
-      "source": "Deep Dive §4.4",
+      "source": "Deep Dive \u00a74.4",
       "status": "resolved",
       "title": "WeightAdaptor telemetry record not published (prediction_accuracy progression)"
     },
@@ -557,9 +557,9 @@
       "resolved_date": "2026-03-26",
       "resolved_phase": "66",
       "severity": "P1",
-      "source": "Deep Dive §2.2.3",
+      "source": "Deep Dive \u00a72.2.3",
       "status": "resolved",
-      "title": "Patent filing: constitutional mutation governance method — pre-v1.1-GA deadline"
+      "title": "Patent filing: constitutional mutation governance method \u2014 pre-v1.1-GA deadline"
     },
     {
       "ceremony_script": "scripts/ceremony_finding_66_004_ed25519_threshold.sh",
@@ -569,7 +569,7 @@
       "resolved_date": "2026-04-12",
       "resolved_phase": "140",
       "severity": "P2",
-      "source": "Deep Dive §VI Medium Term",
+      "source": "Deep Dive \u00a7VI Medium Term",
       "status": "resolved",
       "title": "Governance Key Ceremony (PR-01): 2-of-3 Ed25519 threshold not yet executed"
     },
@@ -579,7 +579,7 @@
       "resolved_date": "2026-03-14",
       "resolved_phase": "66",
       "severity": "P1",
-      "source": "Deep Dive §3.5 / §VI Medium Term",
+      "source": "Deep Dive \u00a73.5 / \u00a7VI Medium Term",
       "status": "resolved",
       "title": "LineageLedgerV2 O(n) fix (C-04/PR-PERF-01): streaming verification + _verified_tail_hash"
     },
@@ -697,7 +697,7 @@
       "severity": "P0",
       "source": "ArchitectAgent session 2026-04-01",
       "status": "resolved",
-      "title": "Ghost tag v9.34.0 pointed to Phase 97 commit — remediation required"
+      "title": "Ghost tag v9.34.0 pointed to Phase 97 commit \u2014 remediation required"
     },
     {
       "id": "FINDING-126-NEW-001",
@@ -708,7 +708,7 @@
       "severity": "P0",
       "source": "ArchitectAgent 2026-04-06",
       "status": "resolved",
-      "title": "Ghost tag v9.59.0 remediation — delete + re-sign required"
+      "title": "Ghost tag v9.59.0 remediation \u2014 delete + re-sign required"
     },
     {
       "id": "FINDING-126-NEW-002",
@@ -719,7 +719,7 @@
       "severity": "P1",
       "source": "ArchitectAgent 2026-04-06",
       "status": "resolved",
-      "title": "33 DORK commits on main unphased — Option A selected by HUMAN-0"
+      "title": "33 DORK commits on main unphased \u2014 Option A selected by HUMAN-0"
     },
     {
       "action": "Assign to Phase 136 governance sweep or retroactively number as Phase 136 hardening; sync all version artifacts",
@@ -730,14 +730,14 @@
       "resolved_date": "2026-04-11",
       "resolved_phase": "140",
       "status": "resolved",
-      "title": "5 unphased autonomous PRs (#696-700) on main post-Phase-135 — CHANGELOG at 9.68.0, VERSION/agent state at 9.67.0"
+      "title": "5 unphased autonomous PRs (#696-700) on main post-Phase-135 \u2014 CHANGELOG at 9.68.0, VERSION/agent state at 9.67.0"
     },
     {
       "id": "FINDING-135-NEW-002",
       "priority": "P2",
-      "resolution": "Fixed to 'Phase 135 · INNOV-43 Constitution Versioning and Rollback (CVR)'",
+      "resolution": "Fixed to 'Phase 135 \u00b7 INNOV-43 Constitution Versioning and Rollback (CVR)'",
       "status": "resolved",
-      "title": "last_completed_phase field corrupted — 'Phase 11 · Phase 135 · ...'"
+      "title": "last_completed_phase field corrupted \u2014 'Phase 11 \u00b7 Phase 135 \u00b7 ...'"
     },
     {
       "action": "Correct phase label when Phase 136 is numbered",
@@ -748,7 +748,7 @@
       "resolved_date": "2026-04-11",
       "resolved_phase": "140",
       "status": "resolved",
-      "title": "CHANGELOG [9.68.0] labeled 'Phase 132' — incorrect phase attribution"
+      "title": "CHANGELOG [9.68.0] labeled 'Phase 132' \u2014 incorrect phase attribution"
     },
     {
       "id": "FINDING-140-001",
@@ -757,24 +757,24 @@
       "severity": "P1",
       "source": "Phase 140 Track B",
       "status": "resolved",
-      "title": "v9.59.0 GPG re-sign ceremony pending — ghost tag deleted, new signed tag not yet pushed"
+      "title": "v9.59.0 GPG re-sign ceremony pending \u2014 ghost tag deleted, new signed tag not yet pushed"
     },
     {
       "ceremony_script": "scripts/ceremony_finding_140_002_adaadell_git_creds.sh",
       "id": "FINDING-140-002",
-      "note": "RESOLVED: Option B (SSH deploy key) executed on ADAADell WSL. Key adaad_deploy_ed25519 generated, added to GitHub deploy keys with write access, ~/.ssh/config configured with adaad-github alias, remote set-url updated. git push origin main confirmed: Everything up-to-date. Windows GCM bypass permanent — no PAT rotation dependency.",
+      "note": "RESOLVED: Option B (SSH deploy key) executed on ADAADell WSL. Key adaad_deploy_ed25519 generated, added to GitHub deploy keys with write access, ~/.ssh/config configured with adaad-github alias, remote set-url updated. git push origin main confirmed: Everything up-to-date. Windows GCM bypass permanent \u2014 no PAT rotation dependency.",
       "resolved_date": "2026-04-12",
       "resolved_phase": "140",
       "severity": "P1",
       "source": "Phase 140 Track B",
       "status": "resolved",
-      "title": "ADAADell git credential manager broken — WSL cannot push via HTTPS with Windows GCM"
+      "title": "ADAADell git credential manager broken \u2014 WSL cannot push via HTTPS with Windows GCM"
     }
   ],
   "open_findings_count": 0,
   "pending_evidence_rows": [],
-  "phase": 188,
-  "phase_label": "Phase 188 — INNOV-93 GTC — Governance Tag Certifier",
+  "phase": 189,
+  "phase_label": "Phase 188 \u2014 INNOV-93 GTC \u2014 Governance Tag Certifier",
   "phases_complete": 188,
   "phases_completed": [
     106,
@@ -1140,7 +1140,7 @@
     "phase124-world-first-governed-kernel-extraction",
     "v9.57.0-released"
   ],
-  "version": "9.121.0",
+  "version": "9.122.0",
   "world_firsts_claimed": [
     "phase118-world-first-federation-bundle-exchange",
     "phase127-world-first-governed-redteam-response",
