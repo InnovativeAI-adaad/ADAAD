@@ -1,6 +1,6 @@
 # ADAAD Trust Center
 
-**v9.75.0 · Phase 142 · 48 Innovations Complete · 231 Hard-class Invariants**
+**v10.0.1 · Phase 189 · 94 Innovations Complete · 522 Hard-class Invariants**
 
 This Trust Center provides a buyer-facing overview of ADAAD governance, security, independent verification pathways, and operational assurance artifacts. It addresses the five questions enterprise procurement teams ask first.
 
