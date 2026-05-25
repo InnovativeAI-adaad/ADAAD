@@ -1,0 +1,10 @@
+{
+  "schema": "adaad-replay-digest-v1",
+  "phase": 194, "innovation": "INNOV-99-GTA", "version": "10.5.0",
+  "replay_deterministic": true,
+  "invariants_verified": [
+    "GTA-EMIT-0","GTA-CHAIN-0","GTA-HUMAN0-0","GTA-IMMUT-0","GTA-DETERM-0",
+    "GTA-SCOPE-0","GTA-AUDIT-0","GTA-ATOMIC-0","GTA-NOMOD-0","GTA-REPLAY-0"
+  ],
+  "date": "2026-05-25", "author": "DEVADAAD"
+}

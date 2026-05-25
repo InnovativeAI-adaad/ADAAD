@@ -1,0 +1,28 @@
+{
+  "schema": "adaad-ila-v1",
+  "innovation_id": "INNOV-99",
+  "innovation_code": "GTA",
+  "innovation_name": "Governed Telemetry Aggregator",
+  "phase": 194,
+  "version": "10.5.0",
+  "date": "2026-05-25",
+  "author": "DEVADAAD",
+  "governor": "DUSTIN L REID",
+  "organization": "InnovativeAI LLC",
+  "module": "dorkllm/governed_telemetry_aggregator.py",
+  "test_file": "tests/test_phase194_gta.py",
+  "test_count": 30,
+  "test_pass": 30,
+  "hard_class_invariants": [
+    "GTA-EMIT-0","GTA-CHAIN-0","GTA-HUMAN0-0","GTA-IMMUT-0","GTA-DETERM-0",
+    "GTA-SCOPE-0","GTA-AUDIT-0","GTA-ATOMIC-0","GTA-NOMOD-0","GTA-REPLAY-0"
+  ],
+  "invariant_count_delta": 10,
+  "invariant_count_prior": 557,
+  "invariant_count_new": 567,
+  "innovations_prior": 98,
+  "innovations_new": 99,
+  "world_first": "First constitutionally-governed, HMAC-chain-sealed telemetry aggregation engine to collect operational signals from every ADAAD pipeline module, compute constitutional health metrics, detect anomalies against invariant-bound thresholds, and escalate threshold violations to HUMAN-0 before any further pipeline activity is permitted.",
+  "track_a_complete": true,
+  "track_b_required": ["GPG tag v10.5.0 on ADAADell", "PR merge via browser (WSL2 DNS constraint)"]
+}

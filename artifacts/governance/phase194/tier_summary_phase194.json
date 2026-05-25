@@ -1,0 +1,7 @@
+{
+  "schema": "adaad-tier-summary-v1",
+  "phase": 194, "innovation": "INNOV-99-GTA",
+  "tier": "T1-CONSTITUTIONAL", "blast_radius": "MODULE",
+  "invariant_tier": "HARD", "human0_gate_required": true,
+  "date": "2026-05-25"
+}

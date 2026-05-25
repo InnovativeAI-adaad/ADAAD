@@ -1,10 +1,10 @@
 {
-  "current_phase": 193,
-  "version": "10.4.0",
-  "hard_invariant_count": 557,
-  "innovations_shipped": 98,
-  "last_innov_code": "CMO",
-  "last_innov_name": "Constitutional Mutation Orchestrator",
+  "current_phase": 194,
+  "version": "10.5.0",
+  "hard_invariant_count": 567,
+  "innovations_shipped": 99,
+  "last_innov_code": "GTA",
+  "last_innov_name": "Governed Telemetry Aggregator",
   "v10_convergence_criteria_met": [
     "C1",
     "C2",
@@ -16,7 +16,7 @@
   "organization": "InnovativeAI LLC",
   "repository": "github.com/InnovativeAI-adaad/adaad",
   "pypi_package": "adaad-core",
-  "next_phase": 194,
+  "next_phase": 195,
   "next_innov": "TBD",
   "gcp_project": "adaad-01",
   "domain": "adaad.pro"

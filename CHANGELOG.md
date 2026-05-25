@@ -1,3 +1,16 @@
+## [10.5.0] — Phase 194 · INNOV-99 · GTA
+
+### Added
+- **INNOV-99 Governed Telemetry Aggregator (GTA)** — World-first constitutionally-governed, HMAC-chain-sealed telemetry aggregation engine that collects operational signals from every ADAAD pipeline module (16 constitutional sources), computes constitutional health metrics, detects anomalies against invariant-bound thresholds, seals all observations in an append-only telemetry ledger, and escalates threshold violations to HUMAN-0 before any further pipeline activity is permitted.
+- 10 Hard-class invariants: GTA-EMIT-0, GTA-CHAIN-0, GTA-HUMAN0-0, GTA-IMMUT-0, GTA-DETERM-0, GTA-SCOPE-0, GTA-AUDIT-0, GTA-ATOMIC-0, GTA-NOMOD-0, GTA-REPLAY-0.
+- Module: `dorkllm/governed_telemetry_aggregator.py`
+- 30-test acceptance suite `tests/test_phase194_gta.py` (T194-GTA-01…30) — 30/30 pass.
+- 4 governance artifacts: ILA JSON, plan JSON, tier summary, replay digest.
+
+**Cumulative invariants: 567 | Innovations shipped: 99**
+
+---
+
 ## [10.4.0] — Phase 193 · INNOV-98 · CMO — Constitutional Mutation Orchestrator
 
 **Date:** 2026-05-25  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
