@@ -68,6 +68,7 @@ from app.api.cel_loop_sentinel import router as cls_router                    # 
 from app.api.ga_promotion_engine import router as gpe_router                  # Phase 187 INNOV-92 GPE
 from app.api.governance_tag_certifier import router as gtc_router             # Phase 188 INNOV-93 GTC
 from app.api.v10_epoch_transition import router as v10et_router                  # Phase 189 INNOV-94 V10ET
+from app.api.invariant_lineage_verifier import router as ilv_router              # Phase 192 INNOV-97 ILV
 from runtime.integrations.github_app import dispatch_event, verify_webhook_signature  # ADAADchat
 from app.api.dependencies import (
     require_audit_scope,
@@ -897,6 +898,7 @@ app.include_router(cca_router)           # Phase 184 INNOV-89 CCA
 app.include_router(gpe_router)           # Phase 187 INNOV-92 GPE
 app.include_router(gtc_router)           # Phase 188 INNOV-93 GTC
 app.include_router(v10et_router)         # Phase 189 INNOV-94 V10ET
+app.include_router(ilv_router)           # Phase 192 INNOV-97 ILV
 app.include_router(cls_router)           # Phase 186 INNOV-91 CLS
 app.include_router(audit_router)
 app.include_router(ui_router)
