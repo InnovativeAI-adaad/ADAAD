@@ -1,0 +1,8 @@
+# ADAAD DORK — add to ~/.bashrc or ~/.zshrc
+# Then run: source ~/.bashrc
+alias dork='bash ~/adaad/dork.sh'
+alias dork-ask='bash ~/adaad/dork.sh ask'
+alias dork-status='bash ~/adaad/dork.sh status'
+alias dork-stop='bash ~/adaad/dork.sh stop'
+alias dork-logs='bash ~/adaad/dork.sh logs'
+alias dork-phone='bash ~/adaad/dork.sh phone'
