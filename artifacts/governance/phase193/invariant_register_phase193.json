@@ -1,0 +1,19 @@
+{
+  "phase": 193,
+  "version": "10.4.0",
+  "date": "2026-05-25",
+  "new_invariants": [
+    {"id": "CMO-ORCH-0",   "desc": "Pipeline stages execute in constitutional order 1-9; no skip, no reorder"},
+    {"id": "CMO-CHAIN-0",  "desc": "Every stage transition record is HMAC-SHA256 chained to the prior record"},
+    {"id": "CMO-HUMAN0-0", "desc": "CRITICAL risk and INCONCLUSIVE fitness gate on HUMAN-0 ratification"},
+    {"id": "CMO-STAGE-0",  "desc": "A stage failure immediately aborts the pipeline; no partial promotion"},
+    {"id": "CMO-ATOMIC-0", "desc": "orchestrate() is atomic; a mid-pipeline exception triggers abort ledger entry"},
+    {"id": "CMO-REPLAY-0", "desc": "Every OrchestrationRecord carries sufficient data for deterministic replay"},
+    {"id": "CMO-SEAL-0",   "desc": "The final SEAL record is written before orchestrate() returns to any caller"},
+    {"id": "CMO-AUDIT-0",  "desc": "Every stage transition including failures emits a ledger entry"},
+    {"id": "CMO-SCOPE-0",  "desc": "CMO only orchestrates mutations within the ADAAD constitutional scope"},
+    {"id": "CMO-DETERM-0", "desc": "Given identical inputs and HMAC key, all stage records are identical"}
+  ],
+  "cumulative_hard_invariants": 557,
+  "previous_total": 547
+}
