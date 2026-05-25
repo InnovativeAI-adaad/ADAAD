@@ -1,0 +1,18 @@
+{
+  "phase": 192,
+  "title": "INNOV-97 · ILV — Invariant Lineage Verifier",
+  "version_target": "10.3.0",
+  "objective": "Deliver a constitutionally-governed HMAC-chained lineage verification engine for all Hard-class invariants, producing sealed provenance attestations and gating mutation activity behind HUMAN-0 on any chain break.",
+  "tracks": {
+    "A": "Implementation: dorkllm/invariant_lineage_verifier.py, app/api/invariant_lineage_verifier.py, 30-test suite, governance artifacts",
+    "B": "GPG-signed tag v10.3.0 pushed to GitHub by HUMAN-0"
+  },
+  "deliverables": [
+    "dorkllm/invariant_lineage_verifier.py",
+    "app/api/invariant_lineage_verifier.py",
+    "tests/test_phase192_ilv.py (30/30)",
+    "artifacts/governance/phase192/"
+  ],
+  "governor": "DUSTIN L REID",
+  "date": "2026-05-25"
+}

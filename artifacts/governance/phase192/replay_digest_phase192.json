@@ -1,0 +1,10 @@
+{
+  "phase": 192,
+  "innovation": "INNOV-97",
+  "replay_class": "deterministic",
+  "replay_entry": "verify_invariant_lineage(registry=_build_invariant_registry(), determinism=RuntimeDeterminismProvider(fixed_ts='2026-05-25T00:00:00+00:00'))",
+  "expected_behavior": "Identical constitutional_seal on every replay with identical inputs",
+  "hmac_secret_ref": "ILV-ADAAD-LINEAGE-v1",
+  "governor": "DUSTIN L REID",
+  "date": "2026-05-25"
+}

@@ -1,3 +1,16 @@
+## [10.3.0] — Phase 192 · INNOV-97 · ILV
+
+### Added
+- **INNOV-97 Invariant Lineage Verifier (ILV)** — World-first constitutionally-governed, cryptographically-sealed invariant lineage verification engine; traces HMAC-SHA256-chained provenance for every Hard-class invariant from introduction phase through current state, seals attestations in an append-only lineage journal, and escalates violations to HUMAN-0 before any further mutation activity is permitted.
+- 10 Hard-class invariants: ILV-CHAIN-0, ILV-HUMAN0-0, ILV-IMMUT-0, ILV-DETERM-0, ILV-SCOPE-0, ILV-ATOMIC-0, ILV-AUDIT-0, ILV-REPLAY-0, ILV-SEAL-0, ILV-COMPLETE-0.
+- 30-test acceptance suite `tests/test_phase192_ilv.py` (T192-ILV-01…30) — 30/30 pass.
+- REST endpoints: POST /ilv/verify, GET /ilv/verify/{invariant_id}, GET /ilv/history, GET /ilv/chain-status, POST /ilv/clear-human0, GET /ilv/advisory.
+- 4 governance artifacts: ILA JSON, plan JSON, tier summary, replay digest.
+
+**Cumulative invariants: 547 | Innovations shipped: 97**
+
+---
+
 ## [10.2.0] — Phase 191 · INNOV-96 · CIL
 
 ### Added
