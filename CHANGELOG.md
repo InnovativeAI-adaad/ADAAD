@@ -1,3 +1,23 @@
+## [10.6.0] — Phase 195 · INNOV-100 · CPA
+
+**Date:** 2026-05-25  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### Added
+- **INNOV-100 · CPA — Constitutional Provenance Auditor** — World-first constitutionally-governed artifact provenance engine that computes and verifies the full constitutional lineage of any ADAAD artifact class (invariants, innovations, mutations, ledger entries), tracing ancestry from creation phase through every ratification, amendment, and rollback event, sealed in an HMAC-chained append-only provenance ledger with deterministic replay and HUMAN-0 immutability enforcement.
+- 10 Hard-class invariants: CPA-TRACE-0, CPA-CHAIN-0, CPA-HUMAN0-0, CPA-DETERM-0, CPA-IMMUT-0, CPA-SCOPE-0, CPA-AUDIT-0, CPA-ATOMIC-0, CPA-NOMOD-0, CPA-VERIFY-0.
+- Module: `dorkllm/constitutional_provenance_auditor.py`
+- API: `app/api/constitutional_provenance_auditor.py` — POST /cpa/trace, GET /cpa/verify/{id}, GET /cpa/summary, GET /cpa/export
+- 30-test acceptance suite `tests/test_phase195_cpa.py` (T195-CPA-01…30) — 30/30 pass.
+- Provenance ledger: `data/cpa/provenance_ledger.jsonl` (append-only JSONL, HMAC-chained).
+- 4 governance artifacts: ILA JSON, plan JSON, tier summary, replay digest.
+
+### World-First
+First constitutionally-governed artifact provenance engine to compute and verify the full constitutional lineage of every ADAAD artifact class — tracing ancestry from creation phase through all ratification, amendment, and rollback events — sealed in an HMAC-chained append-only provenance ledger with deterministic replay and structural HUMAN-0 immutability enforcement.
+
+**Cumulative invariants: 577 | Innovations shipped: 100**
+
+---
+
 ## [10.5.0] — Phase 194 · INNOV-99 · GTA
 
 ### Added
