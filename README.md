@@ -10,7 +10,7 @@
 
 <br/>
 
-[![Proprietary](https://img.shields.io/badge/license-Proprietary-ff4466?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v10.2.0](https://img.shields.io/badge/version-v10.2.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![537 Invariants](https://img.shields.io/badge/invariants-537%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![96 Innovations](https://img.shields.io/badge/innovations-96%20shipped-f97316?style=flat-square&labelColor=0d1117)](ROADMAP.md)&nbsp;[![Free Download](https://img.shields.io/github/v/release/InnovativeAI-adaad/ADAAD?label=APK&color=00d4ff)](https://github.com/InnovativeAI-adaad/ADAAD/releases)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
+[![Proprietary](https://img.shields.io/badge/license-Proprietary-ff4466?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v10.3.0](https://img.shields.io/badge/version-v10.3.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![547 Invariants](https://img.shields.io/badge/invariants-547%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![97 Innovations](https://img.shields.io/badge/innovations-97%20shipped-f97316?style=flat-square&labelColor=0d1117)](ROADMAP.md)&nbsp;[![Free Download](https://img.shields.io/github/v/release/InnovativeAI-adaad/ADAAD?label=APK&color=00d4ff)](https://github.com/InnovativeAI-adaad/ADAAD/releases)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
 
 </div>
 
@@ -29,15 +29,17 @@ Every proposed change goes through a 16-step pipeline. Every decision is recorde
 <!-- ADAAD_VERSION_INFOBOX:START -->
 | Field | Value |
 | --- | --- |
-| **Current version** | `10.2.0` |
-| **Phase** | `191` |
+| **Current version** | `10.3.0` |
+| **Phase** | `192` |
 | **Released** | `2026-05-24` |
-| **Hard-class invariants** | `537` |
-| **Innovations shipped** | `96` |
-| **Latest innovation** | `INNOV-96 · CIL — Constitutional Integrity Ledger` |
-| **V10 GA** | `Released — v10.0.0 tagged` |
+| **Hard-class invariants** | `547` |
+| **Innovations shipped** | `97` |
+| **Latest innovation** | `INNOV-97 · ILV — Invariant Lineage Verifier` |
+| **V10 GA** | `Released — v10.0.0 tagged · v10.3.0 current` |
 | **adaad-core (PyPI)** | `adaad-core==9.121.0` |
 <!-- ADAAD_VERSION_INFOBOX:END -->
+
+![System Stats](docs/assets/readme/inline-stats_card.svg)
 
 Canonical architecture spec: [`docs/governance/ARCHITECT_SPEC_v3.1.0.md`](docs/governance/ARCHITECT_SPEC_v3.1.0.md).
 
@@ -201,7 +203,7 @@ Every mutation — without exception — traverses 16 steps before it ships:
   [6]  AFRT adversarial red-team       [14] GPG-signed ledger entry
   [7]  Fitness surface evaluation      [15] Hash-chained CEPD proof
   [8]  Constitutional scoring          [16] Annotated tag + release evidence
-       (537 Hard-class invariants)
+       (547 Hard-class invariants)
 ```
 
 Every step is deterministic. Every step produces a ledger record. Every ledger record is hash-chained. The entire pipeline is replayable from any point.
@@ -217,7 +219,7 @@ Every step is deterministic. Every step produces a ledger record. Every ledger r
 │    Agent     │              Role                     │      Disposition        │
 ├──────────────┼───────────────────────────────────────┼─────────────────────────┤
 │  Architect   │  Governance, structure, invariant      │  Conservative. Blocks   │
-│  (blue)      │  scoring against all 537 Hard-class    │  anything that breaks   │
+│  (blue)      │  scoring against all 547 Hard-class    │  anything that breaks   │
 │              │  invariants before any execution       │  constitutional integrity│
 ├──────────────┼───────────────────────────────────────┼─────────────────────────┤
 │  Dream       │  Creativity, ideation, novelty         │  Bold. Proposes novelty.│
@@ -289,10 +291,10 @@ Every invariant violation raises a typed exception, terminates the operation, an
 
 | Metric | Value |
 |:-------|:------|
-| Version | `v10.2.0` · Phase `191` complete |
-| Hard-class invariants | **537** — enforced fail-closed at runtime |
-| Shipped innovations | **96** — INNOV-01 through INNOV-96 |
-| Latest innovation | **INNOV-96 · CIL** — Constitutional Integrity Ledger |
+| Version | `v10.3.0` · Phase `192` complete |
+| Hard-class invariants | **547** — enforced fail-closed at runtime |
+| Shipped innovations | **97** — INNOV-01 through INNOV-97 |
+| Latest innovation | **INNOV-97 · ILV** — Invariant Lineage Verifier |
 | Constitutional Evolution Loop | **16 steps** — deterministic, replayable |
 | Specialist agents | **3** — Architect · Dream · Beast |
 | HUMAN-0 gate | **1** — non-delegatable, architecturally enforced |
@@ -301,7 +303,7 @@ Every invariant violation raises a typed exception, terminates the operation, an
 | Governance artifacts | **249+** committed JSON attestations |
 | PyPI | `adaad-core==9.121.0` |
 | GitHub App | ADAADchat — webhook bridge + slash commands |
-| V10 GA | Released — `v10.0.0` tagged · `v10.2.0` current |
+| V10 GA | Released — `v10.0.0` tagged · `v10.3.0` current |
 | Platforms | Linux · macOS · Windows · Android · Docker |
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
@@ -381,7 +383,7 @@ adaad/
 |:---------|:--------------|
 | **AI safety researchers** | A production-running cryptographically evidenced autonomous governance loop — not a prototype |
 | **Autonomous systems engineers** | Reference architecture for constitutional self-modification with full replay capability |
-| **Governance architects** | 537 Hard-class invariants mapped to real operational guarantees, all independently verifiable |
+| **Governance architects** | 547 Hard-class invariants mapped to real operational guarantees, all independently verifiable |
 | **Indie devs on Android** | Full governed runtime on a $200 phone — [`TERMUX_SETUP.md`](TERMUX_SETUP.md) |
 | **Constitutional AI contributors** | Open governed amendment pipeline — all contributions traverse the CEL |
 | **Patent / IP practitioners** | Novel mechanisms with documented prior art absence and replayable cryptographic evidence |
@@ -446,17 +448,19 @@ Community constitutional amendment proposals go through the governed pipeline. S
 
 ## V10.0.0 — Released
 
-V10.0.0 was tagged on 2026-05-24. `v10.2.0` is the current release. All seven V10 convergence criteria were verified by the GA Promotion Engine (INNOV-92 · GPE) and sealed by the Governance Tag Certifier (INNOV-93 · GTC). The v9→v10 epoch boundary was sealed by the V10 Epoch Transition Engine (INNOV-94 · V10ET). The Constitutional Integrity Ledger (INNOV-96 · CIL) now provides cross-ledger HMAC-chain attestation across all governance ledgers.
+V10.0.0 was tagged on 2026-05-24. `v10.3.0` is the current release. All seven V10 convergence criteria were verified by the GA Promotion Engine (INNOV-92 · GPE) and sealed by the Governance Tag Certifier (INNOV-93 · GTC). The v9→v10 epoch boundary was sealed by the V10 Epoch Transition Engine (INNOV-94 · V10ET). The Constitutional Integrity Ledger (INNOV-96 · CIL) provides cross-ledger HMAC-chain attestation. The Invariant Lineage Verifier (INNOV-97 · ILV) traces causal ancestry chains across all 547 Hard-class invariants.
 
 | Criterion | Status |
 |:----------|:-------|
 | CEL Wire integrity | ✅ Complete |
-| Constitutional invariant coverage | ✅ 537 enforced |
+| Constitutional invariant coverage | ✅ 547 enforced |
 | Ledger chain verification | ✅ HMAC chain verified |
 | Replay determinism | ✅ Verified |
 | AFRT adversarial coverage | ✅ Complete |
 | adaad-core PyPI publish | ✅ `9.121.0` |
 | GA_ALIGNMENT (GPE assessment) | ✅ Sealed by GTC — epoch boundary closed by V10ET |
+| Invariant lineage tracing (ILV) | ✅ INNOV-97 · Phase 192 complete |
+| Invariant lineage tracing (ILV) | ✅ INNOV-97 · Phase 192 complete |
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 
