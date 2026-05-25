@@ -1,3 +1,22 @@
+## [10.4.0] — Phase 193 · INNOV-98 · CMO — Constitutional Mutation Orchestrator
+
+**Date:** 2026-05-25  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### Added
+- **INNOV-98 · CMO — Constitutional Mutation Orchestrator** — World-first constitutionally-governed end-to-end mutation orchestration engine unifying the full ADAAD mutation pipeline (PROPOSE → ROUTE → SELECT → RISK → EXECUTE → VERIFY → CALIBRATE → PHYLOGENY → SEAL) into a single, HMAC-chain-sealed execution lifecycle.
+- 10 Hard-class invariants: CMO-ORCH-0, CMO-CHAIN-0, CMO-HUMAN0-0, CMO-STAGE-0, CMO-ATOMIC-0, CMO-REPLAY-0, CMO-SEAL-0, CMO-AUDIT-0, CMO-SCOPE-0, CMO-DETERM-0.
+- Module: `dorkllm/constitutional_mutation_orchestrator.py`
+- 30-test acceptance suite `tests/test_phase193_cmo.py` (T193-CMO-01…30) — 30/30 pass.
+- REST endpoints: POST /cmo/orchestrate, GET /cmo/history, GET /cmo/chain-status, GET /cmo/advisory.
+- 4 governance artifacts: ILA JSON, human0 sign-off, tier summary, invariant register.
+
+### World-First
+First constitutionally-governed end-to-end mutation orchestration engine to unify the full ADAAD mutation pipeline into a single HMAC-chain-sealed lifecycle with constitutional enforcement at every stage handoff, deterministic replay, and HUMAN-0 gates at CRITICAL risk and INCONCLUSIVE fitness choke-points.
+
+**Cumulative invariants: 557 | Innovations shipped: 98**
+
+---
+
 ## [10.3.0] — Phase 192 · INNOV-97 · ILV
 
 ### Added

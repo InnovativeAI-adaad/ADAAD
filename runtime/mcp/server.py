@@ -299,6 +299,77 @@ def create_app(
         except GCBAuthViolation as exc:
             return {"reset": False, "error": str(exc), "circuit_state": _gcb_engine.state}
 
+    # -----------------------------------------------------------------------
+    # INNOV-98 · CMO — Constitutional Mutation Orchestrator  (Phase 193)
+    # -----------------------------------------------------------------------
+    from dorkllm.constitutional_mutation_orchestrator import (
+        ConstitutionalMutationOrchestrator,
+        MutationProposal,
+        CMOHuman0Required,
+        CMOStageAborted,
+        CMOScopeViolation,
+    )
+
+    _cmo_engine = ConstitutionalMutationOrchestrator()
+
+    @app.post("/cmo/orchestrate")
+    async def cmo_orchestrate(request: Request) -> Dict[str, Any]:
+        """CMO-ORCH-0: run the full 9-stage constitutional mutation pipeline.
+
+        Body JSON:
+          proposal_id  str   (optional; auto-generated if absent)
+          scope        str   must be 'adaad-constitutional'
+          description  str
+          blast_radius float 0.0-1.0
+          tier         int   0-3
+          payload      dict
+          submitter    str
+          epoch        int   (optional)
+          human0_token str   (required for CRITICAL risk or INCONCLUSIVE fitness)
+        """
+        import uuid as _uuid
+        body = await request.json()
+        proposal = MutationProposal(
+            proposal_id=str(body.get("proposal_id") or _uuid.uuid4()),
+            scope=str(body.get("scope", "adaad-constitutional")),
+            description=str(body.get("description", "")),
+            blast_radius=float(body.get("blast_radius", 0.3)),
+            tier=int(body.get("tier", 2)),
+            payload=dict(body.get("payload", {})),
+            submitter=str(body.get("submitter", "UNKNOWN")),
+            epoch=int(body.get("epoch", 0)),
+        )
+        human0_token = body.get("human0_token") or None
+        try:
+            rec = _cmo_engine.orchestrate(proposal, human0_token=human0_token)
+            return {
+                "orchestration_id": rec.orchestration_id,
+                "proposal_id": rec.proposal_id,
+                "status": rec.status.value,
+                "stages_completed": len(rec.stages),
+                "seal_hash": rec.seal_hash,
+                "chain_hash": rec.chain_hash,
+                "abort_reason": rec.abort_reason,
+                "human0_gate_cleared": rec.human0_gate_cleared,
+            }
+        except (CMOHuman0Required, CMOStageAborted, CMOScopeViolation) as exc:
+            return {"orchestration_id": None, "status": "ABORTED", "error": str(exc)}
+
+    @app.get("/cmo/history")
+    async def cmo_history() -> Dict[str, Any]:
+        """CMO-AUDIT-0: recent orchestration history."""
+        return {"history": _cmo_engine.history(limit=50)}
+
+    @app.get("/cmo/chain-status")
+    async def cmo_chain_status() -> Dict[str, Any]:
+        """CMO-CHAIN-0: verify end-to-end HMAC ledger chain."""
+        valid = _cmo_engine.verify_chain()
+        return {"chain_valid": valid, "innov": "CMO", "phase": 193}
+
+    @app.get("/cmo/advisory")
+    async def cmo_advisory() -> Dict[str, Any]:
+        """Constitutional advisory for HUMAN-0 review."""
+        return _cmo_engine.advisory()
 
     return app
 

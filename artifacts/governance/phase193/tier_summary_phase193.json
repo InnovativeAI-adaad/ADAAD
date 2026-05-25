@@ -1,0 +1,11 @@
+{
+  "phase": 193,
+  "version": "10.4.0",
+  "date": "2026-05-25",
+  "tier": "Tier-1",
+  "blast_radius": "CONTAINED",
+  "mutation_scope": "dorkllm/constitutional_mutation_orchestrator.py (new module) + runtime/mcp/server.py (4 endpoints) + tests/ + artifacts/ + version files",
+  "constitutional_gates_passed": ["PROPOSE", "ROUTE", "SELECT", "RISK", "EXECUTE", "VERIFY", "CALIBRATE", "PHYLOGENY", "SEAL"],
+  "human0_required": false,
+  "notes": "New module only; no modification to existing Hard-class invariant enforcement code."
+}
