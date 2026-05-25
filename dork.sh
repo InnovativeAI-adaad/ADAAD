@@ -100,16 +100,43 @@ _pick_python() {
 
 _check_deps() {
     local py="$1"
-    if ! "$py" -c "import uvicorn" &>/dev/null; then
-        _warn "uvicorn not found — installing server requirements..."
-        if [[ "${PHONE_MODE:-0}" == "1" ]]; then
-            "$py" -m pip install -r "${REPO_DIR}/requirements.phone.txt" \
-                --break-system-packages -q
-        else
-            "$py" -m pip install -r "${REPO_DIR}/requirements.server.txt" \
-                --break-system-packages -q
+    if "$py" -c "import uvicorn, fastapi" &>/dev/null; then
+        return 0
+    fi
+
+    _warn "Core deps missing — installing..."
+
+    if [[ "${PHONE_MODE:-0}" == "1" ]]; then
+        # Try phone requirements first
+        if "$py" -m pip install -r "${REPO_DIR}/requirements.phone.txt" \
+                --break-system-packages -q 2>/dev/null; then
+            _ok "Phone requirements installed"
+            return 0
         fi
+
+        _warn "requirements.phone.txt failed — trying minimal bare install..."
+        # Bare minimum: fastapi 0.99.1 + pydantic v1 + uvicorn (no Rust)
+        "$py" -m pip install \
+            "fastapi==0.99.1" \
+            "pydantic==1.10.26" \
+            "starlette==0.27.0" \
+            "uvicorn==0.23.2" \
+            "httpx==0.27.2" \
+            "anyio>=3.7.1,<5" \
+            "h11>=0.14,<0.15" \
+            "click>=8.0.0" \
+            --break-system-packages -q
+    else
+        "$py" -m pip install -r "${REPO_DIR}/requirements.server.txt" \
+            --break-system-packages -q
+    fi
+
+    if "$py" -c "import uvicorn, fastapi" &>/dev/null; then
         _ok "Dependencies installed"
+    else
+        _err "Dependency install failed. Try manually:"
+        echo "     pip install fastapi==0.99.1 pydantic==1.10.26 uvicorn==0.23.2 --break-system-packages"
+        exit 1
     fi
 }
 

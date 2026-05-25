@@ -1,50 +1,40 @@
 # ADAAD — Phone-safe requirements
-# Architecture: armv8l (32-bit ARM, Samsung / other devices running Termux)
+# Architecture: armv8l / aarch64 (Termux on Android)
 #
 # WHY THIS EXISTS
 # ---------------
 # requirements.server.txt includes packages with Rust extensions:
-#   pydantic-core  (pydantic v2 backend) → maturin fails: "Unsupported Android architecture: armv8l"
+#   pydantic-core  (pydantic v2 backend) → maturin fails on armv8l
 #   jiter          (anthropic dependency) → same maturin failure
-#
-# This file replaces those with pure-Python equivalents.
 #
 # WHAT CHANGES vs requirements.server.txt
 # ----------------------------------------
-#   fastapi 0.99.1     — last version that supports pydantic v1 (has lifespan= support)
-#   pydantic 1.10.18   — pure Python, no Rust, v1 API (mutate.py is v1 compatible)
+#   fastapi 0.99.1     — last version that supports pydantic v1
+#   pydantic 1.10.26   — pure Python, no Rust, v1 API
 #   starlette 0.27.0   — required by fastapi 0.99.1
 #   uvicorn 0.23.2     — pure Python ASGI server
 #   httpx 0.27.2       — pure Python HTTP client
-#   PyYAML             — C extension with pure-Python fallback; installs on armv8l
+#   PyYAML             — C extension with pure-Python fallback
 #
-# EXCLUDED (Rust compilation required, fails on armv8l):
-#   anthropic          — needs jiter (Rust). AI calls disabled; server/dashboard unaffected.
-#                        To try: pip install anthropic==0.18.1 --only-binary :all:
+# EXCLUDED (Rust compilation required):
+#   anthropic          — needs jiter (Rust). AI calls disabled on armv8l.
+#                        On arm64 try: pip install anthropic --only-binary :all:
 #
 # SYSTEM PACKAGE (install via pkg, not pip):
 #   PyNaCl             — pkg install python-nacl
-#                        Already optional in replay_attestation.py via _has_pynacl()
 
-fastapi==0.136.1
-uvicorn==0.47.0
-starlette==0.52.1
+fastapi==0.99.1
+uvicorn==0.23.2
+starlette==0.27.0
 pydantic==1.10.26
-httpx==0.28.1
+httpx==0.27.2
 PyYAML>=6.0.1
 anyio>=3.7.1,<5
 sniffio>=1.3.1
-h11>=0.16.0,<0.17
-click>=8.4.0
+h11>=0.14,<0.15
+click>=8.0.0
 certifi
 idna
 
-# PHONE-LIBCST-01: libcst is pure-Python (no Rust extension) and installs
-# correctly on armv8l without maturin.  Required by:
-#   - constitution rules: phase63_ast_{safe,import,complexity}_scaffold
-#   - SemanticDiffEngine (runtime/evolution/semantic_diff.py)
-#   - mutation AST scaffold (runtime/autonomy/mutation_scaffold.py)
-# Omitting it silently disables the full constitutional AST validation
-# subsystem on mobile — the import failure is caught lazily at call time,
-# not at startup, making it extremely difficult to diagnose in the field.
+# PHONE-LIBCST-01: pure-Python, no Rust, required by constitutional AST subsystem
 libcst>=1.1.0,<2.0
