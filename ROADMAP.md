@@ -184,3 +184,4 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 
 | Phase 190 | INNOV-95 | MSR — Mutation Strategy Router | ✅ SHIPPED | v10.1.0 | 527 invariants |
 | 192 | INNOV-97 · ILV — Invariant Lineage Verifier | v10.3.0 | P0 | ✅ shipped |
+| 195 | INNOV-100 · CPA — Constitutional Provenance Auditor | v10.6.0 | P0 | ✅ shipped |

@@ -1,0 +1,41 @@
+{
+  "ila_id": "ILA-INNOV-100-CPA",
+  "innovation_id": "INNOV-100",
+  "innovation_code": "CPA",
+  "innovation_name": "Constitutional Provenance Auditor",
+  "phase": 195,
+  "version": "10.6.0",
+  "governor": "DUSTIN L REID",
+  "organization": "InnovativeAI LLC",
+  "ratified_by": "HUMAN-0",
+  "ratification_phrase": "Approved DLR",
+  "timestamp": "2026-05-25T00:00:00Z",
+  "module": "dorkllm/constitutional_provenance_auditor.py",
+  "api_module": "app/api/constitutional_provenance_auditor.py",
+  "test_suite": "tests/test_phase195_cpa.py",
+  "test_results": "30/30 PASS",
+  "hard_class_invariants": [
+    "CPA-TRACE-0",
+    "CPA-CHAIN-0",
+    "CPA-HUMAN0-0",
+    "CPA-DETERM-0",
+    "CPA-IMMUT-0",
+    "CPA-SCOPE-0",
+    "CPA-AUDIT-0",
+    "CPA-ATOMIC-0",
+    "CPA-NOMOD-0",
+    "CPA-VERIFY-0"
+  ],
+  "invariant_count_delta": 10,
+  "cumulative_invariants": 577,
+  "cumulative_innovations": 100,
+  "world_first_claim": "First constitutionally-governed artifact provenance engine to compute and verify the full constitutional lineage of every ADAAD artifact class (invariants, innovations, mutations, ledger entries) — tracing ancestry from creation phase through all ratification, amendment, and rollback events, sealed in an HMAC-chained append-only provenance ledger with deterministic replay.",
+  "endpoints": [
+    "POST /cpa/trace",
+    "GET /cpa/verify/{artifact_id}",
+    "GET /cpa/summary",
+    "GET /cpa/export"
+  ],
+  "ledger_path": "data/cpa/provenance_ledger.jsonl",
+  "status": "RATIFIED"
+}

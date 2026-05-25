@@ -1,0 +1,19 @@
+{
+  "plan_id": "PLAN-PHASE195-INNOV100-CPA",
+  "phase": 195,
+  "version_target": "10.6.0",
+  "innovation_id": "INNOV-100",
+  "innovation_code": "CPA",
+  "governor": "DUSTIN L REID",
+  "ratification_status": "APPROVED",
+  "architectural_position": "Provenance layer — traces constitutional ancestry of all ADAAD artifacts",
+  "upstream_dependencies": ["GTA-INNOV-99", "CMO-INNOV-98", "CIL-INNOV-96", "ILV-INNOV-97"],
+  "deliverables": [
+    "dorkllm/constitutional_provenance_auditor.py",
+    "app/api/constitutional_provenance_auditor.py",
+    "tests/test_phase195_cpa.py",
+    "data/cpa/provenance_ledger.jsonl",
+    "artifacts/governance/phase195/"
+  ],
+  "acceptance_criteria": "30/30 tests passing, all 10 Hard-class invariants enforced, ledger append-only, HMAC chain integrity verified end-to-end"
+}

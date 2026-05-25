@@ -1,0 +1,13 @@
+{
+  "phase": 195,
+  "innovation_id": "INNOV-100",
+  "innovation_code": "CPA",
+  "version": "10.6.0",
+  "hard_class_invariants_added": 10,
+  "cumulative_hard_class_invariants": 577,
+  "innovations_shipped": 100,
+  "test_pass_rate": "30/30",
+  "governor": "DUSTIN L REID",
+  "tier": "P0",
+  "status": "SHIPPED"
+}
