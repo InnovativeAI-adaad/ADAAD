@@ -6,7 +6,7 @@
 
 *Ask why a mutation was blocked. Ask which invariants are under pressure. Ask DORK anything about your constitutional history — it answers from the ledger, not from training data.*
 
-[![ADAAD](https://img.shields.io/badge/ADAAD-v9.118.0-00d9ff?style=flat-square&labelColor=0b0c0f)](https://github.com/InnovativeAI-adaad/adaad)
+[![ADAAD](https://img.shields.io/badge/ADAAD-v10.7.0-00d9ff?style=flat-square&labelColor=0b0c0f)](https://github.com/InnovativeAI-adaad/adaad)
 [![Live](https://img.shields.io/badge/Live-aponi.adaad.pro-22c55e?style=flat-square&labelColor=0b0c0f)](https://aponi.adaad.pro)
 [![PyPI](https://img.shields.io/badge/PyPI-adaad-f97316?style=flat-square&labelColor=0b0c0f)](https://pypi.org/project/adaad/)
 

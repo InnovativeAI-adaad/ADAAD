@@ -1,0 +1,20 @@
+{
+  "phase": 196,
+  "version": "10.7.0",
+  "innovation": "INNOV-101 CMIM",
+  "tier_0_invariants": [
+    "CMIM-HUMAN0-0",
+    "CMIM-ROLLBACK-0"
+  ],
+  "tier_1_invariants": [
+    "CMIM-INTENT-0",
+    "CMIM-COMPLETE-0",
+    "CMIM-TRACE-0",
+    "CMIM-BLAST-0",
+    "CMIM-SCOPE-0",
+    "CMIM-AUTHOR-0",
+    "CMIM-CHAIN-0",
+    "CMIM-DETERM-0"
+  ],
+  "blast_radius_tier": 1
+}

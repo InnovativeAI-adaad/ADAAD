@@ -158,6 +158,291 @@
         "GIR-THRESHOLD-0",
         "GIR-REPLAY-0"
       ]
+    },
+    {
+      "phase": 182,
+      "version": "9.115.0",
+      "innovation": "INNOV-87",
+      "innovation_name": "Convergence Gap Resolver (CGR)",
+      "invariants_added": 10,
+      "ids": [
+        "CGR-CHAIN-0",
+        "CGR-DETERM-0",
+        "CGR-HUMAN0-0",
+        "CGR-ATOMIC-0",
+        "CGR-SEAL-0",
+        "CGR-SCOPE-0",
+        "CGR-AUDIT-0",
+        "CGR-READONLY-0",
+        "CGR-THRESHOLD-0",
+        "CGR-REPLAY-0"
+      ]
+    },
+    {
+      "phase": 183,
+      "version": "9.116.0",
+      "innovation": "INNOV-88",
+      "innovation_name": "Convergence Plan Executor (CPE)",
+      "invariants_added": 10,
+      "ids": [
+        "CPE-CHAIN-0",
+        "CPE-DETERM-0",
+        "CPE-HUMAN0-0",
+        "CPE-ATOMIC-0",
+        "CPE-SEAL-0",
+        "CPE-SCOPE-0",
+        "CPE-AUDIT-0",
+        "CPE-READONLY-0",
+        "CPE-THRESHOLD-0",
+        "CPE-REPLAY-0"
+      ]
+    },
+    {
+      "phase": 184,
+      "version": "9.117.0",
+      "innovation": "INNOV-89",
+      "innovation_name": "Convergence Outcome Validator (COV)",
+      "invariants_added": 10,
+      "ids": [
+        "COV-CHAIN-0",
+        "COV-DETERM-0",
+        "COV-HUMAN0-0",
+        "COV-ATOMIC-0",
+        "COV-SEAL-0",
+        "COV-SCOPE-0",
+        "COV-AUDIT-0",
+        "COV-READONLY-0",
+        "COV-THRESHOLD-0",
+        "COV-REPLAY-0"
+      ]
+    },
+    {
+      "phase": 185,
+      "version": "9.118.0",
+      "innovation": "INNOV-90",
+      "innovation_name": "Convergence Certification Auditor (CCA)",
+      "invariants_added": 10,
+      "ids": [
+        "CCA-CHAIN-0",
+        "CCA-DETERM-0",
+        "CCA-HUMAN0-0",
+        "CCA-ATOMIC-0",
+        "CCA-SEAL-0",
+        "CCA-SCOPE-0",
+        "CCA-AUDIT-0",
+        "CCA-READONLY-0",
+        "CCA-THRESHOLD-0",
+        "CCA-REPLAY-0"
+      ]
+    },
+    {
+      "phase": 186,
+      "version": "9.119.0",
+      "innovation": "INNOV-91",
+      "innovation_name": "CEL Loop Sentinel (CLS)",
+      "invariants_added": 10,
+      "ids": [
+        "CLS-CHAIN-0",
+        "CLS-DETERM-0",
+        "CLS-HUMAN0-0",
+        "CLS-ATOMIC-0",
+        "CLS-SEAL-0",
+        "CLS-SCOPE-0",
+        "CLS-AUDIT-0",
+        "CLS-READONLY-0",
+        "CLS-THRESHOLD-0",
+        "CLS-REPLAY-0"
+      ]
+    },
+    {
+      "phase": 187,
+      "version": "9.120.0",
+      "innovation": "INNOV-92",
+      "innovation_name": "GA Promotion Engine (GPE)",
+      "invariants_added": 10,
+      "ids": [
+        "GPE-CHAIN-0",
+        "GPE-DETERM-0",
+        "GPE-HUMAN0-0",
+        "GPE-ATOMIC-0",
+        "GPE-SEAL-0",
+        "GPE-SCOPE-0",
+        "GPE-AUDIT-0",
+        "GPE-READONLY-0",
+        "GPE-THRESHOLD-0",
+        "GPE-REPLAY-0"
+      ]
+    },
+    {
+      "phase": 188,
+      "version": "9.121.0",
+      "innovation": "INNOV-93",
+      "innovation_name": "Governance Tag Certifier (GTC)",
+      "invariants_added": 10,
+      "ids": [
+        "GTC-CHAIN-0",
+        "GTC-DETERM-0",
+        "GTC-HUMAN0-0",
+        "GTC-ATOMIC-0",
+        "GTC-SEAL-0",
+        "GTC-SCOPE-0",
+        "GTC-AUDIT-0",
+        "GTC-READONLY-0",
+        "GTC-THRESHOLD-0",
+        "GTC-REPLAY-0"
+      ]
+    },
+    {
+      "phase": 189,
+      "version": "9.122.0",
+      "innovation": "INNOV-94",
+      "innovation_name": "Constitutional Integrity Ledger (CIL)",
+      "invariants_added": 10,
+      "ids": [
+        "CIL-CHAIN-0",
+        "CIL-DETERM-0",
+        "CIL-HUMAN0-0",
+        "CIL-ATOMIC-0",
+        "CIL-SEAL-0",
+        "CIL-SCOPE-0",
+        "CIL-AUDIT-0",
+        "CIL-READONLY-0",
+        "CIL-THRESHOLD-0",
+        "CIL-REPLAY-0"
+      ]
+    },
+    {
+      "phase": 190,
+      "version": "10.1.0",
+      "innovation": "INNOV-95",
+      "innovation_name": "Mutation Strategy Router (MSR)",
+      "invariants_added": 10,
+      "ids": [
+        "MSR-CHAIN-0",
+        "MSR-DETERM-0",
+        "MSR-HUMAN0-0",
+        "MSR-ATOMIC-0",
+        "MSR-SEAL-0",
+        "MSR-SCOPE-0",
+        "MSR-AUDIT-0",
+        "MSR-READONLY-0",
+        "MSR-THRESHOLD-0",
+        "MSR-REPLAY-0"
+      ]
+    },
+    {
+      "phase": 191,
+      "version": "10.2.0",
+      "innovation": "INNOV-96",
+      "innovation_name": "Constitutional Integrity Ledger v2 (CIL2)",
+      "invariants_added": 10,
+      "ids": [
+        "CIL2-CHAIN-0",
+        "CIL2-DETERM-0",
+        "CIL2-HUMAN0-0",
+        "CIL2-ATOMIC-0",
+        "CIL2-SEAL-0",
+        "CIL2-SCOPE-0",
+        "CIL2-AUDIT-0",
+        "CIL2-READONLY-0",
+        "CIL2-THRESHOLD-0",
+        "CIL2-REPLAY-0"
+      ]
+    },
+    {
+      "phase": 192,
+      "version": "10.3.0",
+      "innovation": "INNOV-97",
+      "innovation_name": "Invariant Lineage Verifier (ILV)",
+      "invariants_added": 10,
+      "ids": [
+        "ILV-CHAIN-0",
+        "ILV-DETERM-0",
+        "ILV-HUMAN0-0",
+        "ILV-ATOMIC-0",
+        "ILV-SEAL-0",
+        "ILV-SCOPE-0",
+        "ILV-AUDIT-0",
+        "ILV-READONLY-0",
+        "ILV-THRESHOLD-0",
+        "ILV-REPLAY-0"
+      ]
+    },
+    {
+      "phase": 193,
+      "version": "10.4.0",
+      "innovation": "INNOV-98",
+      "innovation_name": "Constitutional Mutation Orchestrator (CMO)",
+      "invariants_added": 10,
+      "ids": [
+        "CMO-CHAIN-0",
+        "CMO-DETERM-0",
+        "CMO-HUMAN0-0",
+        "CMO-ATOMIC-0",
+        "CMO-SEAL-0",
+        "CMO-SCOPE-0",
+        "CMO-AUDIT-0",
+        "CMO-READONLY-0",
+        "CMO-THRESHOLD-0",
+        "CMO-REPLAY-0"
+      ]
+    },
+    {
+      "phase": 194,
+      "version": "10.5.0",
+      "innovation": "INNOV-99",
+      "innovation_name": "Governed Telemetry Aggregator (GTA)",
+      "invariants_added": 10,
+      "ids": [
+        "GTA-EMIT-0",
+        "GTA-CHAIN-0",
+        "GTA-HUMAN0-0",
+        "GTA-IMMUT-0",
+        "GTA-DETERM-0",
+        "GTA-SCOPE-0",
+        "GTA-AUDIT-0",
+        "GTA-ATOMIC-0",
+        "GTA-NOMOD-0",
+        "GTA-REPLAY-0"
+      ]
+    },
+    {
+      "phase": 195,
+      "version": "10.6.0",
+      "innovation": "INNOV-100",
+      "innovation_name": "Constitutional Provenance Auditor (CPA)",
+      "invariants_added": 10,
+      "ids": [
+        "CPA-TRACE-0",
+        "CPA-CHAIN-0",
+        "CPA-HUMAN0-0",
+        "CPA-DETERM-0",
+        "CPA-IMMUT-0",
+        "CPA-SCOPE-0",
+        "CPA-AUDIT-0",
+        "CPA-ATOMIC-0",
+        "CPA-NOMOD-0",
+        "CPA-VERIFY-0"
+      ]
+    },
+    {
+      "phase": 196,
+      "version": "10.7.0",
+      "innovation": "INNOV-101",
+      "innovation_name": "Constitutional Mutation Intent Model (CMIM)",
+      "invariants_added": 10,
+      "ids": [
+        "CMIM-INTENT-0",
+        "CMIM-COMPLETE-0",
+        "CMIM-TRACE-0",
+        "CMIM-BLAST-0",
+        "CMIM-SCOPE-0",
+        "CMIM-AUTHOR-0",
+        "CMIM-HUMAN0-0",
+        "CMIM-ROLLBACK-0",
+        "CMIM-CHAIN-0",
+        "CMIM-DETERM-0"
+      ]
     }
   ],
   "ci_check": "scripts/check_invariant_count.py",

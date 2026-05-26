@@ -1,4 +1,4 @@
-# ADAAD Constitutional Framework v0.9.0
+# ADAAD Constitutional Framework v1.0.0
 
 ## Philosophy
 
@@ -220,3 +220,32 @@ If either artifact is missing or invalid, constitutional initialization fails an
 ## LLM Proposal Agents
 
 LLM agents (e.g. claude-proposal-agent) are governed identically to ArchitectAgent. authority_level is always governor-review. Tier-0 paths require explicit policy elevation by a human reviewer.
+
+
+---
+
+## Constitutional Epoch v1.0.0 — Ratification Record
+
+**Ratified:** 2026-05-26  
+**Governor:** DUSTIN L REID (HUMAN-0)  
+**Ratifying version:** v10.7.0 · Phase 196  
+**Authority:** HUMAN-0 sole ratifying authority under COMMUNITY-HUMAN0-0
+
+### Ratification Basis
+
+This document is formally elevated from v0.9.0 to v1.0.0 on the basis of the following achieved constitutional milestones:
+
+| Milestone | Status |
+|-----------|--------|
+| 16-step Constitutional Evolution Loop (CEL) — fully implemented and enforced | ✅ Ratified |
+| Three-agent architecture (ArchitectAgent, DreamAgent, BeastAgent) — structurally enforced | ✅ Ratified |
+| DORK Intelligence Stack (DQR + RAGS + DPM) — production deployed | ✅ Ratified |
+| 587 Hard-class invariants — cryptographically enforced across all tiers | ✅ Ratified |
+| HMAC-chained append-only governance ledger — deterministic replay verified | ✅ Ratified |
+| Constitutional Provenance Auditor (CPA, INNOV-100) — full artifact lineage tracing | ✅ Ratified |
+| V10.0.0 GA — publicly released on PyPI | ✅ Ratified |
+| Constitutional Mutation Intent Model (CMIM, INNOV-101) — intent verification loop closed | ✅ Ratified |
+
+### Constitutional Immutability Clause
+
+This document, once ratified at v1.0.0, may only be amended through a formal Constitutional Amendment (CEL Stage 14 Tier 0 process) bearing HUMAN-0 GPG signature. Amendment attempts without HUMAN-0 countersignature are constitutionally void and are to be rejected by ConstitutionalGate at Stage 14.

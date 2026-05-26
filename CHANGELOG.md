@@ -1,3 +1,28 @@
+## [10.7.0] — Phase 196 · INNOV-101 · CMIM
+
+**Date:** 2026-05-26  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### Added
+- **INNOV-101 · CMIM — Constitutional Mutation Intent Model** — World-first constitutional AI governance module that requires every proposed mutation to carry a formal machine-readable intent declaration before CEL entry, then verifies post-CEL that actual behavior matched declared intent. Intent-behavior divergence triggers automatic rollback independent of test passage.
+- 10 Hard-class invariants: CMIM-INTENT-0, CMIM-COMPLETE-0, CMIM-TRACE-0, CMIM-BLAST-0, CMIM-SCOPE-0, CMIM-AUTHOR-0, CMIM-HUMAN0-0, CMIM-ROLLBACK-0, CMIM-CHAIN-0, CMIM-DETERM-0.
+- Module: `dorkllm/constitutional_mutation_intent_model.py`
+- API: `app/api/constitutional_mutation_intent_model.py` — POST /cmim/declare, POST /cmim/verify, GET /cmim/report/{id}, GET /cmim/summary, GET /cmim/chain/verify, GET /cmim/export
+- 30-test acceptance suite `tests/test_phase196_cmim.py` (T196-CMIM-01…30) — 30/30 pass.
+- Intent ledger: `data/cmim/intent_ledger.jsonl` (append-only JSONL, HMAC-chained).
+- 4 governance artifacts: ILA JSON, HUMAN-0 signoff JSON, tier summary, replay digest.
+
+### Pre-flight Remediations (Drift)
+- DRIFT-196-001/002/003: README.md, DORK.md, TRUST_CENTER.md synced to v10.7.0 · 587 invariants · 101 innovations.
+- DRIFT-196-005: `artifacts/governance/invariant_registry.json` backfilled for phases 182–195 (14 phases, 140 invariants).
+- DRIFT-196-006: `docs/CONSTITUTION.md` elevated from v0.9.0 to v1.0.0 with formal ratification record.
+
+### World-First
+First constitutional AI governance system to require and machine-verify formal intent declarations for every proposed mutation, with automatic rollback on intent-behavior divergence independent of test passage.
+
+**Cumulative invariants: 587 | Innovations shipped: 101**
+
+---
+
 ## [10.6.0] — Phase 195 · INNOV-100 · CPA
 
 **Date:** 2026-05-25  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
