@@ -10,7 +10,7 @@
 
 <br/>
 
-[![Proprietary](https://img.shields.io/badge/license-Proprietary-ff4466?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v10.3.0](https://img.shields.io/badge/version-v10.3.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![547 Invariants](https://img.shields.io/badge/invariants-547%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![97 Innovations](https://img.shields.io/badge/innovations-97%20shipped-f97316?style=flat-square&labelColor=0d1117)](ROADMAP.md)&nbsp;[![Free Download](https://img.shields.io/github/v/release/InnovativeAI-adaad/ADAAD?label=APK&color=00d4ff)](https://github.com/InnovativeAI-adaad/ADAAD/releases)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
+[![Proprietary](https://img.shields.io/badge/license-Proprietary-ff4466?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v10.3.0](https://img.shields.io/badge/version-v10.7.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![547 Invariants](https://img.shields.io/badge/invariants-587%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![97 Innovations](https://img.shields.io/badge/innovations-101%20shipped-f97316?style=flat-square&labelColor=0d1117)](ROADMAP.md)&nbsp;[![Free Download](https://img.shields.io/github/v/release/InnovativeAI-adaad/ADAAD?label=APK&color=00d4ff)](https://github.com/InnovativeAI-adaad/ADAAD/releases)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
 
 </div>
 
@@ -29,13 +29,13 @@ Every proposed change goes through a 16-step pipeline. Every decision is recorde
 <!-- ADAAD_VERSION_INFOBOX:START -->
 | Field | Value |
 | --- | --- |
-| **Current version** | `10.3.0` |
-| **Phase** | `192` |
-| **Released** | `2026-05-24` |
-| **Hard-class invariants** | `547` |
-| **Innovations shipped** | `97` |
-| **Latest innovation** | `INNOV-97 · ILV — Invariant Lineage Verifier` |
-| **V10 GA** | `Released — v10.0.0 tagged · v10.3.0 current` |
+| **Current version** | `10.7.0` |
+| **Phase** | `196` |
+| **Released** | `2026-05-26` |
+| **Hard-class invariants** | `587` |
+| **Innovations shipped** | `101` |
+| **Latest innovation** | `INNOV-101 · CMIM — Constitutional Mutation Intent Model` |
+| **V10 GA** | `Released — v10.0.0 tagged · v10.7.0 current` |
 | **adaad-core (PyPI)** | `adaad-core==9.121.0` |
 <!-- ADAAD_VERSION_INFOBOX:END -->
 

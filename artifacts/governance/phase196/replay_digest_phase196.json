@@ -1,0 +1,32 @@
+{
+  "phase": 196,
+  "version": "10.7.0",
+  "files_committed": [
+    "dorkllm/constitutional_mutation_intent_model.py",
+    "app/api/constitutional_mutation_intent_model.py",
+    "tests/test_phase196_cmim.py",
+    "artifacts/governance/phase196/ila_phase196_cmim.json",
+    "artifacts/governance/phase196/human0_signoff_phase196.json",
+    "artifacts/governance/phase196/tier_summary_phase196.json",
+    "artifacts/governance/invariant_registry.json",
+    "docs/CONSTITUTION.md",
+    "README.md",
+    "DORK.md",
+    "TRUST_CENTER.md",
+    "VERSION",
+    "pyproject.toml",
+    ".adaad_agent_state.json",
+    "CHANGELOG.md",
+    "ROADMAP.md",
+    "pytest.ini"
+  ],
+  "test_result": "30/30",
+  "drift_remediations": [
+    "DRIFT-196-001",
+    "DRIFT-196-002",
+    "DRIFT-196-003",
+    "DRIFT-196-005",
+    "DRIFT-196-006"
+  ],
+  "constitution_version": "v1.0.0"
+}

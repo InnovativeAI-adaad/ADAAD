@@ -1,0 +1,15 @@
+{
+  "document_type": "HUMAN0_SIGNOFF",
+  "innovation": "INNOV-101 CMIM",
+  "phase": 196,
+  "version": "10.7.0",
+  "governor": "DUSTIN L REID",
+  "signoff_recorded": "2026-05-26",
+  "ratification_phrase": "approved DUSTIN L REID",
+  "invariants_ratified": 10,
+  "cumulative_invariants_post_ratification": 587,
+  "gpg_tag_pending": "v10.7.0",
+  "gpg_key": "4C95E2F99A775335B1CF3DAF247B015A1CCD95F6",
+  "gpg_ceremony_location": "ADAADell",
+  "status": "IN_SESSION_RATIFIED_GPG_PENDING"
+}
