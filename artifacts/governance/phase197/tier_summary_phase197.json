@@ -1,0 +1,16 @@
+{
+  "document_type": "TierSummary",
+  "phase": 197,
+  "version": "10.8.0",
+  "innovation_code": "CMQ",
+  "blast_tier_classification": "Tier 1",
+  "affected_paths": [
+    "dorkllm/constitutional_mutation_queue.py",
+    "app/api/constitutional_mutation_queue.py",
+    "tests/test_phase197_cmq.py",
+    "data/cmq/queue_ledger.jsonl"
+  ],
+  "tier_0_paths_modified": false,
+  "human0_review_required": true,
+  "rationale": "New module in dorkllm/ (Tier 1). No runtime/ or security/ paths touched."
+}
