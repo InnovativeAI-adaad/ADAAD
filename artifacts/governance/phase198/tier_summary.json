@@ -1,0 +1,37 @@
+{
+  "phase": 198,
+  "version": "10.9.0",
+  "attestation_ref": "ILA-198-2026-05-27-001",
+  "tier_0": {
+    "label": "always-on baseline",
+    "status": "PASS",
+    "checks": ["preflight", "per-file-verification", "spdx-headers", "import-guard"]
+  },
+  "tier_1": {
+    "label": "standard gate stack",
+    "status": "PASS",
+    "checks": ["full-test-suite", "governance-tests", "artifact-verification", "evidence-validation"]
+  },
+  "tier_2": {
+    "label": "escalated — multi-agent governance surface",
+    "status": "PASS",
+    "checks": [
+      "constitutional-invariant-tests",
+      "quorum-gate-enforcement",
+      "challenge-escalation-protocol",
+      "human0-veto-override-immutability",
+      "hmac-chain-integrity",
+      "replay-determinism"
+    ]
+  },
+  "tier_3": {
+    "label": "PR completeness",
+    "status": "PASS",
+    "checks": ["evidence-row-complete", "docs-alignment", "ci-tier-declaration", "lane-declaration"]
+  },
+  "tier_m": {
+    "label": "merge-specific",
+    "status": "PASS",
+    "checks": ["devadaad-trigger", "human0-attestation", "version-bump"]
+  }
+}

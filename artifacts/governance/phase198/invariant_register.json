@@ -1,0 +1,20 @@
+{
+  "phase": 198,
+  "innov": "INNOV-103",
+  "code": "CMCE",
+  "version": "10.9.0",
+  "governor": "DUSTIN L REID",
+  "invariants": [
+    {"id": "CMCE-QUORUM-0", "class": "Hard", "description": "Quorum threshold is immutable at construction; runtime reduction is a constitutional violation."},
+    {"id": "CMCE-VOTE-0",   "class": "Hard", "description": "Each registered agent must cast exactly one typed vote per round; duplicate or missing votes are fatal."},
+    {"id": "CMCE-HUMAN0-0", "class": "Hard", "description": "HUMAN-0 veto immediately terminates the round as BLOCKED; HUMAN-0 override as APPROVED. Neither can be contested by any agent."},
+    {"id": "CMCE-CHAIN-0",  "class": "Hard", "description": "Every consensus event is HMAC-chained to its predecessor; chain break is a fatal constitutional violation."},
+    {"id": "CMCE-IMMUT-0",  "class": "Hard", "description": "Committed consensus records are append-only; no mutation or deletion is permitted post-commit."},
+    {"id": "CMCE-CHALLENGE-0", "class": "Hard", "description": "An unresolved CHALLENGE vote blocks quorum; must be withdrawn or escalated to HUMAN-0 before consensus can pass."},
+    {"id": "CMCE-DETERM-0", "class": "Hard", "description": "Consensus evaluation is deterministic; identical vote sets must yield identical outcomes."},
+    {"id": "CMCE-AUDIT-0",  "class": "Hard", "description": "Every vote, resolution, and quorum decision is logged before the caller receives a response."},
+    {"id": "CMCE-SCOPE-0",  "class": "Hard", "description": "A mutation's registered scope paths are immutable once the consensus round is opened."},
+    {"id": "CMCE-NOBYPASS-0", "class": "Hard", "description": "No mutation may advance to the CEL gate without a PASSED consensus record; bypass is a Hard-class constitutional violation."}
+  ],
+  "cumulative_invariants": 607
+}
