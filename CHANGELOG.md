@@ -1,3 +1,23 @@
+## [10.9.0] — Phase 198 · INNOV-103 · CMCE
+
+**Date:** 2026-05-27  **Author:** ADAAD LEAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### Added
+- **INNOV-103 · CMCE — Constitutional Mutation Consensus Engine** — World-first constitutionally-governed multi-agent consensus protocol that requires all registered agents (ArchitectAgent, DreamAgent, BeastAgent, AdversarialRedTeam) to cast typed votes (APPROVE / REJECT / ABSTAIN / CHALLENGE) on every proposed mutation before CEL entry. A configurable quorum threshold (default 3-of-4) must be met with no unresolved CHALLENGE votes. HUMAN-0 holds irrevocable veto (→ BLOCKED) and override (→ OVERRIDE) power that cannot be contested by any agent authority. CHALLENGE votes must be resolved via explicit withdrawal or HUMAN-0 escalation before quorum can pass. All votes, quorum evaluations, and decisions are sealed in an HMAC-chained append-only consensus ledger with deterministic replay.
+- 10 Hard-class invariants: CMCE-QUORUM-0, CMCE-VOTE-0, CMCE-HUMAN0-0, CMCE-CHAIN-0, CMCE-IMMUT-0, CMCE-CHALLENGE-0, CMCE-DETERM-0, CMCE-AUDIT-0, CMCE-SCOPE-0, CMCE-NOBYPASS-0.
+- Module: `dorkllm/constitutional_mutation_consensus_engine.py`
+- API: `app/api/constitutional_mutation_consensus_engine.py` — POST /cmce/round/open, POST /cmce/round/{id}/vote, POST /cmce/round/{id}/human0/veto, POST /cmce/round/{id}/human0/override, POST /cmce/round/{id}/close, POST /cmce/round/{id}/resolve_challenge, GET /cmce/round/{id}, GET /cmce/summary, GET /cmce/chain/verify, GET /cmce/export
+- 30-test acceptance suite `tests/test_phase198_cmce.py` (T198-CMCE-01…30) — 30/30 pass.
+- Consensus ledger: `data/cmce/consensus_ledger.jsonl` (append-only JSONL, HMAC-chained).
+- 4 governance artifacts: ILA JSON, HUMAN-0 sign-off JSON, tier summary, invariant register.
+
+### World-First
+First constitutional AI governance system to enforce multi-agent typed-vote quorum consensus (APPROVE/REJECT/ABSTAIN/CHALLENGE) as a mandatory gate before CEL mutation entry — with irrevocable HUMAN-0 veto/override authority, a CHALLENGE escalation protocol, and a full HMAC-chained deterministic-replay consensus ledger sealing every vote and quorum decision.
+
+**Cumulative invariants: 607 | Innovations shipped: 103**
+
+---
+
 ## [10.8.0] — Phase 197 · INNOV-102 · CMQ
 
 **Date:** 2026-05-26  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
