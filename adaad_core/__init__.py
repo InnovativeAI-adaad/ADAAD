@@ -17,7 +17,7 @@ Invariants: CORE-EXPORT-0, CORE-IMPORT-0
 """
 from __future__ import annotations
 
-__version__ = "10.4.0"
+__version__ = "10.9.0"
 __author__ = "Innovative AI LLC"
 __license__ = "Apache-2.0"
 

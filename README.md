@@ -10,7 +10,7 @@
 
 <br/>
 
-[![Proprietary](https://img.shields.io/badge/license-Proprietary-ff4466?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v10.3.0](https://img.shields.io/badge/version-v10.3.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![547 Invariants](https://img.shields.io/badge/invariants-547%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![97 Innovations](https://img.shields.io/badge/innovations-97%20shipped-f97316?style=flat-square&labelColor=0d1117)](ROADMAP.md)&nbsp;[![Free Download](https://img.shields.io/github/v/release/InnovativeAI-adaad/ADAAD?label=APK&color=00d4ff)](https://github.com/InnovativeAI-adaad/ADAAD/releases)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
+[![Proprietary](https://img.shields.io/badge/license-Proprietary-ff4466?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v10.8.0](https://img.shields.io/badge/version-v10.8.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![547 Invariants](https://img.shields.io/badge/invariants-587%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![97 Innovations](https://img.shields.io/badge/innovations-101%20shipped-f97316?style=flat-square&labelColor=0d1117)](ROADMAP.md)&nbsp;[![Free Download](https://img.shields.io/github/v/release/InnovativeAI-adaad/ADAAD?label=APK&color=00d4ff)](https://github.com/InnovativeAI-adaad/ADAAD/releases)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
 
 </div>
 
@@ -29,13 +29,13 @@ Every proposed change goes through a 16-step pipeline. Every decision is recorde
 <!-- ADAAD_VERSION_INFOBOX:START -->
 | Field | Value |
 | --- | --- |
-| **Current version** | `10.3.0` |
-| **Phase** | `192` |
-| **Released** | `2026-05-24` |
-| **Hard-class invariants** | `547` |
-| **Innovations shipped** | `97` |
-| **Latest innovation** | `INNOV-97 · ILV — Invariant Lineage Verifier` |
-| **V10 GA** | `Released — v10.0.0 tagged · v10.3.0 current` |
+| **Current version** | `10.7.0` |
+| **Phase** | `196` |
+| **Released** | `2026-05-26` |
+| **Hard-class invariants** | `587` |
+| **Innovations shipped** | `101` |
+| **Latest innovation** | `INNOV-102 · CMQ — Constitutional Mutation Intent Model` |
+| **V10 GA** | `Released — v10.8.0 tagged · v10.8.0 current` |
 | **adaad-core (PyPI)** | `adaad-core==9.121.0` |
 <!-- ADAAD_VERSION_INFOBOX:END -->
 
@@ -291,7 +291,7 @@ Every invariant violation raises a typed exception, terminates the operation, an
 
 | Metric | Value |
 |:-------|:------|
-| Version | `v10.3.0` · Phase `192` complete |
+| Version | `v10.8.0` · Phase `192` complete |
 | Hard-class invariants | **547** — enforced fail-closed at runtime |
 | Shipped innovations | **97** — INNOV-01 through INNOV-97 |
 | Latest innovation | **INNOV-97 · ILV** — Invariant Lineage Verifier |
@@ -303,7 +303,7 @@ Every invariant violation raises a typed exception, terminates the operation, an
 | Governance artifacts | **249+** committed JSON attestations |
 | PyPI | `adaad-core==9.121.0` |
 | GitHub App | ADAADchat — webhook bridge + slash commands |
-| V10 GA | Released — `v10.0.0` tagged · `v10.3.0` current |
+| V10 GA | Released — `v10.8.0` tagged · `v10.8.0` current |
 | Platforms | Linux · macOS · Windows · Android · Docker |
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
@@ -448,7 +448,7 @@ Community constitutional amendment proposals go through the governed pipeline. S
 
 ## V10.0.0 — Released
 
-V10.0.0 was tagged on 2026-05-24. `v10.3.0` is the current release. All seven V10 convergence criteria were verified by the GA Promotion Engine (INNOV-92 · GPE) and sealed by the Governance Tag Certifier (INNOV-93 · GTC). The v9→v10 epoch boundary was sealed by the V10 Epoch Transition Engine (INNOV-94 · V10ET). The Constitutional Integrity Ledger (INNOV-96 · CIL) provides cross-ledger HMAC-chain attestation. The Invariant Lineage Verifier (INNOV-97 · ILV) traces causal ancestry chains across all 547 Hard-class invariants.
+V10.0.0 was tagged on 2026-05-24. `v10.8.0` is the current release. All seven V10 convergence criteria were verified by the GA Promotion Engine (INNOV-92 · GPE) and sealed by the Governance Tag Certifier (INNOV-93 · GTC). The v9→v10 epoch boundary was sealed by the V10 Epoch Transition Engine (INNOV-94 · V10ET). The Constitutional Integrity Ledger (INNOV-96 · CIL) provides cross-ledger HMAC-chain attestation. The Invariant Lineage Verifier (INNOV-97 · ILV) traces causal ancestry chains across all 547 Hard-class invariants.
 
 | Criterion | Status |
 |:----------|:-------|
@@ -459,8 +459,8 @@ V10.0.0 was tagged on 2026-05-24. `v10.3.0` is the current release. All seven V1
 | AFRT adversarial coverage | ✅ Complete |
 | adaad-core PyPI publish | ✅ `9.121.0` |
 | GA_ALIGNMENT (GPE assessment) | ✅ Sealed by GTC — epoch boundary closed by V10ET |
-| Invariant lineage tracing (ILV) | ✅ INNOV-97 · Phase 192 complete |
-| Invariant lineage tracing (ILV) | ✅ INNOV-97 · Phase 192 complete |
+| Invariant lineage tracing (ILV) | ✅ INNOV-97 · Phase 197 complete |
+| Invariant lineage tracing (ILV) | ✅ INNOV-97 · Phase 197 complete |
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 

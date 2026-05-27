@@ -1,0 +1,16 @@
+{
+  "document_type": "HUMAN0Signoff",
+  "phase": 197,
+  "version": "10.8.0",
+  "innovation_code": "CMQ",
+  "innovation_number": "INNOV-102",
+  "innovation_name": "Constitutional Mutation Queue",
+  "governor": "DUSTIN L REID",
+  "organization": "InnovativeAI LLC",
+  "ratification_phrase": "approved DUSTIN L REID",
+  "ratification_date": "2026-05-26",
+  "ratification_mode": "in-session verbal ratification",
+  "gpg_sign_status": "PENDING_ADAADELL_CEREMONY",
+  "gpg_key": "4C95E2F99A775335B1CF3DAF247B015A1CCD95F6",
+  "notes": "GPG-signed annotated tag v10.8.0 to be created on ADAADell after push."
+}

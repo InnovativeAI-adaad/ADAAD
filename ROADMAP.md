@@ -185,3 +185,7 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | Phase 190 | INNOV-95 | MSR — Mutation Strategy Router | ✅ SHIPPED | v10.1.0 | 527 invariants |
 | 192 | INNOV-97 · ILV — Invariant Lineage Verifier | v10.3.0 | P0 | ✅ shipped |
 | 195 | INNOV-100 · CPA — Constitutional Provenance Auditor | v10.6.0 | P0 | ✅ shipped |
+| 196 | INNOV-101 · CMIM — Constitutional Mutation Intent Model | v10.7.0 | P0 | ✅ shipped |
+| 197 | INNOV-102 · CMQ — Constitutional Mutation Queue | v10.8.0 | P0 | ✅ shipped |
+| 198 | INNOV-103 · CMCE — Constitutional Mutation Consensus Engine | v10.9.0 | P0 | ✅ shipped |
+

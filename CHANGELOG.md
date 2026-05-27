@@ -1,3 +1,68 @@
+## [10.9.0] — Phase 198 · INNOV-103 · CMCE
+
+**Date:** 2026-05-27  **Author:** ADAAD LEAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### Added
+- **INNOV-103 · CMCE — Constitutional Mutation Consensus Engine** — World-first constitutionally-governed multi-agent consensus protocol that requires all registered agents (ArchitectAgent, DreamAgent, BeastAgent, AdversarialRedTeam) to cast typed votes (APPROVE / REJECT / ABSTAIN / CHALLENGE) on every proposed mutation before CEL entry. A configurable quorum threshold (default 3-of-4) must be met with no unresolved CHALLENGE votes. HUMAN-0 holds irrevocable veto (→ BLOCKED) and override (→ OVERRIDE) power that cannot be contested by any agent authority. CHALLENGE votes must be resolved via explicit withdrawal or HUMAN-0 escalation before quorum can pass. All votes, quorum evaluations, and decisions are sealed in an HMAC-chained append-only consensus ledger with deterministic replay.
+- 10 Hard-class invariants: CMCE-QUORUM-0, CMCE-VOTE-0, CMCE-HUMAN0-0, CMCE-CHAIN-0, CMCE-IMMUT-0, CMCE-CHALLENGE-0, CMCE-DETERM-0, CMCE-AUDIT-0, CMCE-SCOPE-0, CMCE-NOBYPASS-0.
+- Module: `dorkllm/constitutional_mutation_consensus_engine.py`
+- API: `app/api/constitutional_mutation_consensus_engine.py` — POST /cmce/round/open, POST /cmce/round/{id}/vote, POST /cmce/round/{id}/human0/veto, POST /cmce/round/{id}/human0/override, POST /cmce/round/{id}/close, POST /cmce/round/{id}/resolve_challenge, GET /cmce/round/{id}, GET /cmce/summary, GET /cmce/chain/verify, GET /cmce/export
+- 30-test acceptance suite `tests/test_phase198_cmce.py` (T198-CMCE-01…30) — 30/30 pass.
+- Consensus ledger: `data/cmce/consensus_ledger.jsonl` (append-only JSONL, HMAC-chained).
+- 4 governance artifacts: ILA JSON, HUMAN-0 sign-off JSON, tier summary, invariant register.
+
+### World-First
+First constitutional AI governance system to enforce multi-agent typed-vote quorum consensus (APPROVE/REJECT/ABSTAIN/CHALLENGE) as a mandatory gate before CEL mutation entry — with irrevocable HUMAN-0 veto/override authority, a CHALLENGE escalation protocol, and a full HMAC-chained deterministic-replay consensus ledger sealing every vote and quorum decision.
+
+**Cumulative invariants: 607 | Innovations shipped: 103**
+
+---
+
+## [10.8.0] — Phase 197 · INNOV-102 · CMQ
+
+**Date:** 2026-05-26  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### Added
+- **INNOV-102 · CMQ — Constitutional Mutation Queue** — World-first constitutionally-governed mutation queue that enforces deterministic priority ordering of competing CEL candidates based on blast radius, governance objective weight, and HUMAN-0 precedence tier. Ensures no two mutations with overlapping scope paths can advance concurrently. Priority score is computed at enqueue time (immutable) as (3 - blast_tier) * 100 + governance_objective_weight. HUMAN-0 override lane yields constant priority 9999, bypassing all computed ordering. Queue state is HMAC-chained and append-only logged for deterministic replay.
+- 10 Hard-class invariants: CMQ-SERIAL-0, CMQ-OVERLAP-0, CMQ-PRIORITY-0, CMQ-HUMAN0-0, CMQ-CHAIN-0, CMQ-IMMUT-0, CMQ-SCOPE-0, CMQ-DRAIN-0, CMQ-AUDIT-0, CMQ-DETERM-0.
+- Module: `dorkllm/constitutional_mutation_queue.py`
+- API: `app/api/constitutional_mutation_queue.py` — POST /cmq/enqueue, GET /cmq/peek, POST /cmq/dequeue, POST /cmq/complete/{mutation_id}, GET /cmq/state, GET /cmq/chain/verify, GET /cmq/export
+- 30-test acceptance suite `tests/test_phase197_cmq.py` (T197-CMQ-01…30) — 30/30 pass.
+- Queue ledger: `data/cmq/queue_ledger.jsonl` (append-only JSONL, HMAC-chained).
+- 4 governance artifacts: ILA JSON, HUMAN-0 signoff JSON, tier summary, replay digest.
+
+### World-First
+First constitutionally-governed mutation queue to enforce deterministic priority ordering of competing CEL candidates — blocking concurrent overlapping-scope proposals at the CEL entry gate, with priority derived from invariant-weighted governance objectives and sealed in an HMAC-chained append-only ledger with deterministic replay.
+
+**Cumulative invariants: 597 | Innovations shipped: 102**
+
+---
+
+## [10.7.0] — Phase 196 · INNOV-101 · CMIM
+
+**Date:** 2026-05-26  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### Added
+- **INNOV-101 · CMIM — Constitutional Mutation Intent Model** — World-first constitutional AI governance module that requires every proposed mutation to carry a formal machine-readable intent declaration before CEL entry, then verifies post-CEL that actual behavior matched declared intent. Intent-behavior divergence triggers automatic rollback independent of test passage.
+- 10 Hard-class invariants: CMIM-INTENT-0, CMIM-COMPLETE-0, CMIM-TRACE-0, CMIM-BLAST-0, CMIM-SCOPE-0, CMIM-AUTHOR-0, CMIM-HUMAN0-0, CMIM-ROLLBACK-0, CMIM-CHAIN-0, CMIM-DETERM-0.
+- Module: `dorkllm/constitutional_mutation_intent_model.py`
+- API: `app/api/constitutional_mutation_intent_model.py` — POST /cmim/declare, POST /cmim/verify, GET /cmim/report/{id}, GET /cmim/summary, GET /cmim/chain/verify, GET /cmim/export
+- 30-test acceptance suite `tests/test_phase196_cmim.py` (T196-CMIM-01…30) — 30/30 pass.
+- Intent ledger: `data/cmim/intent_ledger.jsonl` (append-only JSONL, HMAC-chained).
+- 4 governance artifacts: ILA JSON, HUMAN-0 signoff JSON, tier summary, replay digest.
+
+### Pre-flight Remediations (Drift)
+- DRIFT-196-001/002/003: README.md, DORK.md, TRUST_CENTER.md synced to v10.7.0 · 587 invariants · 101 innovations.
+- DRIFT-196-005: `artifacts/governance/invariant_registry.json` backfilled for phases 182–195 (14 phases, 140 invariants).
+- DRIFT-196-006: `docs/CONSTITUTION.md` elevated from v0.9.0 to v1.0.0 with formal ratification record.
+
+### World-First
+First constitutional AI governance system to require and machine-verify formal intent declarations for every proposed mutation, with automatic rollback on intent-behavior divergence independent of test passage.
+
+**Cumulative invariants: 587 | Innovations shipped: 101**
+
+---
+
 ## [10.6.0] — Phase 195 · INNOV-100 · CPA
 
 **Date:** 2026-05-25  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID

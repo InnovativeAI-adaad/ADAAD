@@ -1,0 +1,41 @@
+{
+  "attestation_id": "ILA-198-2026-05-27-001",
+  "innov": "INNOV-103",
+  "code": "CMCE",
+  "name": "Constitutional Mutation Consensus Engine",
+  "phase": 198,
+  "version": "10.9.0",
+  "date": "2026-05-27",
+  "governor": "DUSTIN L REID",
+  "organization": "InnovativeAI LLC",
+  "author": "ADAAD LEAD",
+  "world_first": "First constitutionally-governed multi-agent consensus protocol to require all registered agents (ArchitectAgent, DreamAgent, BeastAgent, AdversarialRedTeam) to cast typed votes (APPROVE/REJECT/ABSTAIN/CHALLENGE) on every proposed mutation before CEL entry, with configurable quorum threshold, irrevocable HUMAN-0 veto and override, CHALLENGE escalation protocol, and full HMAC-chained append-only consensus ledger with deterministic replay.",
+  "hard_class_invariants": [
+    "CMCE-QUORUM-0", "CMCE-VOTE-0", "CMCE-HUMAN0-0", "CMCE-CHAIN-0",
+    "CMCE-IMMUT-0", "CMCE-CHALLENGE-0", "CMCE-DETERM-0", "CMCE-AUDIT-0",
+    "CMCE-SCOPE-0", "CMCE-NOBYPASS-0"
+  ],
+  "invariant_count_delta": 10,
+  "cumulative_invariants": 607,
+  "innovations_shipped": 103,
+  "test_suite": "tests/test_phase198_cmce.py",
+  "tests_passed": 30,
+  "tests_total": 30,
+  "module": "dorkllm/constitutional_mutation_consensus_engine.py",
+  "api": "app/api/constitutional_mutation_consensus_engine.py",
+  "ledger": "data/cmce/consensus_ledger.jsonl",
+  "endpoints": [
+    "POST /cmce/round/open",
+    "POST /cmce/round/{round_id}/vote",
+    "POST /cmce/round/{round_id}/human0/veto",
+    "POST /cmce/round/{round_id}/human0/override",
+    "POST /cmce/round/{round_id}/close",
+    "POST /cmce/round/{round_id}/resolve_challenge",
+    "GET  /cmce/round/{round_id}",
+    "GET  /cmce/summary",
+    "GET  /cmce/chain/verify",
+    "GET  /cmce/export"
+  ],
+  "status": "RATIFIED",
+  "constitutional_compliance": "PASS"
+}
