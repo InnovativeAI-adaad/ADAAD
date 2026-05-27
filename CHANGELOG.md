@@ -1,3 +1,23 @@
+## [10.8.0] — Phase 197 · INNOV-102 · CMQ
+
+**Date:** 2026-05-26  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### Added
+- **INNOV-102 · CMQ — Constitutional Mutation Queue** — World-first constitutionally-governed mutation queue that enforces deterministic priority ordering of competing CEL candidates based on blast radius, governance objective weight, and HUMAN-0 precedence tier. Ensures no two mutations with overlapping scope paths can advance concurrently. Priority score is computed at enqueue time (immutable) as (3 - blast_tier) * 100 + governance_objective_weight. HUMAN-0 override lane yields constant priority 9999, bypassing all computed ordering. Queue state is HMAC-chained and append-only logged for deterministic replay.
+- 10 Hard-class invariants: CMQ-SERIAL-0, CMQ-OVERLAP-0, CMQ-PRIORITY-0, CMQ-HUMAN0-0, CMQ-CHAIN-0, CMQ-IMMUT-0, CMQ-SCOPE-0, CMQ-DRAIN-0, CMQ-AUDIT-0, CMQ-DETERM-0.
+- Module: `dorkllm/constitutional_mutation_queue.py`
+- API: `app/api/constitutional_mutation_queue.py` — POST /cmq/enqueue, GET /cmq/peek, POST /cmq/dequeue, POST /cmq/complete/{mutation_id}, GET /cmq/state, GET /cmq/chain/verify, GET /cmq/export
+- 30-test acceptance suite `tests/test_phase197_cmq.py` (T197-CMQ-01…30) — 30/30 pass.
+- Queue ledger: `data/cmq/queue_ledger.jsonl` (append-only JSONL, HMAC-chained).
+- 4 governance artifacts: ILA JSON, HUMAN-0 signoff JSON, tier summary, replay digest.
+
+### World-First
+First constitutionally-governed mutation queue to enforce deterministic priority ordering of competing CEL candidates — blocking concurrent overlapping-scope proposals at the CEL entry gate, with priority derived from invariant-weighted governance objectives and sealed in an HMAC-chained append-only ledger with deterministic replay.
+
+**Cumulative invariants: 597 | Innovations shipped: 102**
+
+---
+
 ## [10.7.0] — Phase 196 · INNOV-101 · CMIM
 
 **Date:** 2026-05-26  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID

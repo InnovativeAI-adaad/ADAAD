@@ -443,6 +443,25 @@
         "CMIM-CHAIN-0",
         "CMIM-DETERM-0"
       ]
+    },
+    {
+      "phase": 197,
+      "version": "10.8.0",
+      "innovation": "INNOV-102",
+      "innovation_name": "Constitutional Mutation Queue (CMQ)",
+      "invariants_added": 10,
+      "ids": [
+        "CMQ-SERIAL-0",
+        "CMQ-OVERLAP-0",
+        "CMQ-PRIORITY-0",
+        "CMQ-HUMAN0-0",
+        "CMQ-CHAIN-0",
+        "CMQ-IMMUT-0",
+        "CMQ-SCOPE-0",
+        "CMQ-DRAIN-0",
+        "CMQ-AUDIT-0",
+        "CMQ-DETERM-0"
+      ]
     }
   ],
   "ci_check": "scripts/check_invariant_count.py",
