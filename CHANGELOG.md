@@ -1,3 +1,20 @@
+## [10.12.0] — Phase 201 · INNOV-106 · CMAC
+
+**Date:** 2026-05-30  **Author:** ADAAD LEAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### Added
+- **INNOV-106 · CMAC — Constitutional Mutation Admission Controller** — World-first constitutional pre-admission firewall. Every mutation proposal passes a fixed-order 7-gate fail-closed pipeline before entering any downstream stage: (1) spec well-formedness, (2) invariant-class validation, (3) blast-radius authorization (TIER2+ requires HUMAN-0 pre-auth), (4) cooldown enforcement, (5) sliding-window rate limiting per tier, (6) lineage conflict detection, (7) quorum readiness (TIER3 only). All decisions HMAC-sealed in append-only admission ledger. HUMAN-0-gated override authority.
+- 10 Hard-class invariants: CMAC-FAILCLOSED-0, CMAC-ORDER-0, CMAC-RATELIMIT-0, CMAC-COOLDOWN-0, CMAC-BLASTAUTH-0, CMAC-CHAIN-0, CMAC-IMMUT-0, CMAC-OVERRIDE-0, CMAC-AUDIT-0, CMAC-QUORUM-0.
+- Module: `dorkllm/constitutional_mutation_admission_controller.py` — 496 lines.
+- API: `app/api/constitutional_mutation_admission_controller.py` — 5 endpoints.
+- Ledger: `data/cmac/admission_ledger.jsonl` (HMAC-chained, append-only).
+- 30-test suite `tests/test_phase201_cmac.py` — 30/30 pass.
+- 4 governance artifacts under `artifacts/governance/phase201/`.
+
+**Cumulative invariants: 637 | Innovations shipped: 106**
+
+---
+
 ## [10.11.0] — Phase 200 · INNOV-105 · CMLG
 
 **Date:** 2026-05-30  **Author:** ADAAD LEAD · InnovativeAI LLC  **Governor:** DUSTIN L REID

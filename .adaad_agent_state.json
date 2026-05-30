@@ -1,10 +1,10 @@
 {
-  "current_phase": 200,
-  "version": "10.11.0",
-  "hard_invariant_count": 627,
-  "innovations_shipped": 105,
-  "last_innov_code": "CMLG",
-  "last_innov_name": "Constitutional Mutation Lineage Graph",
+  "current_phase": 201,
+  "version": "10.12.0",
+  "hard_invariant_count": 637,
+  "innovations_shipped": 106,
+  "last_innov_code": "CMAC",
+  "last_innov_name": "Constitutional Mutation Admission Controller",
   "v10_convergence_criteria_met": [
     "C1",
     "C2",
@@ -16,7 +16,7 @@
   "organization": "InnovativeAI LLC",
   "repository": "github.com/InnovativeAI-adaad/adaad",
   "pypi_package": "adaad-core",
-  "next_phase": 201,
+  "next_phase": 202,
   "next_innov": "TBD",
   "gcp_project": "adaad-01",
   "domain": "adaad.pro"
