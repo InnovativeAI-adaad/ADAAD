@@ -1,0 +1,25 @@
+{
+  "ila_id": "ILA-199-2026-05-30-001",
+  "phase": 199,
+  "version": "10.10.0",
+  "innov_code": "CMES",
+  "innov_name": "Constitutional Mutation Execution Sandbox",
+  "governor": "DUSTIN L REID",
+  "organization": "InnovativeAI LLC",
+  "date": "2026-05-30",
+  "description": "World-first constitutionally-governed deterministic sandbox that executes proposed mutations in isolation, captures full BehavioralDelta (invariant coverage, ledger growth, API surface diff, test pass-rate), and seals pre/post execution snapshots into an HMAC-chained sandbox ledger before any live promotion decision is made.",
+  "hard_class_invariants": [
+    "CMES-ISOLATE-0", "CMES-DETERM-0", "CMES-DELTA-0", "CMES-CHAIN-0",
+    "CMES-IMMUT-0", "CMES-HUMAN0-0", "CMES-PROMOTE-0", "CMES-SCOPE-0",
+    "CMES-REPLAY-0", "CMES-AUDIT-0"
+  ],
+  "invariant_count_added": 10,
+  "cumulative_invariants": 617,
+  "test_suite": "tests/test_phase199_cmes.py",
+  "tests_passed": 30,
+  "tests_total": 30,
+  "module": "dorkllm/constitutional_mutation_execution_sandbox.py",
+  "api": "app/api/constitutional_mutation_execution_sandbox.py",
+  "status": "RATIFIED",
+  "ratified_by": "HUMAN-0/Dustin L. Reid"
+}

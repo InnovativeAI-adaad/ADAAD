@@ -1,3 +1,23 @@
+## [10.10.0] — Phase 199 · INNOV-104 · CMES
+
+**Date:** 2026-05-30  **Author:** ADAAD LEAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### Added
+- **INNOV-104 · CMES — Constitutional Mutation Execution Sandbox** — World-first constitutionally-governed deterministic sandbox that executes proposed mutations in a fully isolated trial environment, captures a signed BehavioralDelta (invariant coverage delta, ledger entry growth, API surface diff, test pass-rate, execution duration, module hash pre/post), and seals the pre/post execution snapshot into an HMAC-chained append-only sandbox ledger before any live promotion decision is made. Live promotion requires a PASSED sealed run; HUMAN-0 holds sole authority over promote and discard. All runs are deterministically replayable from seed + MutationSpec.
+- 10 Hard-class invariants: CMES-ISOLATE-0, CMES-DETERM-0, CMES-DELTA-0, CMES-CHAIN-0, CMES-IMMUT-0, CMES-HUMAN0-0, CMES-PROMOTE-0, CMES-SCOPE-0, CMES-REPLAY-0, CMES-AUDIT-0.
+- Module: `dorkllm/constitutional_mutation_execution_sandbox.py`
+- API: `app/api/constitutional_mutation_execution_sandbox.py` — POST /cmes/sandbox/open, POST /cmes/sandbox/execute, POST /cmes/sandbox/promote, POST /cmes/sandbox/discard, POST /cmes/sandbox/replay/{run_id}, GET /cmes/chain/verify, GET /cmes/summary, GET /cmes/export
+- 30-test acceptance suite `tests/test_phase199_cmes.py` (T199-CMES-01…30) — 30/30 pass.
+- Sandbox ledger: `data/cmes/sandbox_ledger.jsonl` (append-only JSONL, HMAC-chained).
+- 4 governance artifacts: ILA JSON, HUMAN-0 sign-off JSON, tier summary, invariant register.
+
+### World-First
+First constitutional AI governance system to enforce deterministic sandboxed trial execution of proposed mutations — capturing a cryptographically signed BehavioralDelta and sealing it in an HMAC-chained append-only ledger before any live promotion is allowed, with HUMAN-0-gated promotion/discard authority and full deterministic replay from seed + spec.
+
+**Cumulative invariants: 617 | Innovations shipped: 104**
+
+---
+
 ## [10.9.0] — Phase 198 · INNOV-103 · CMCE
 
 **Date:** 2026-05-27  **Author:** ADAAD LEAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
