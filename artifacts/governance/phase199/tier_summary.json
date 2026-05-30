@@ -1,0 +1,20 @@
+{
+  "phase": 199,
+  "version": "10.10.0",
+  "tier": "TIER1",
+  "blast_radius": "single-module",
+  "modules_added": ["dorkllm/constitutional_mutation_execution_sandbox.py"],
+  "modules_modified": [],
+  "api_endpoints_added": [
+    "POST /cmes/sandbox/open",
+    "POST /cmes/sandbox/execute",
+    "POST /cmes/sandbox/promote",
+    "POST /cmes/sandbox/discard",
+    "POST /cmes/sandbox/replay/{run_id}",
+    "GET /cmes/chain/verify",
+    "GET /cmes/summary",
+    "GET /cmes/export"
+  ],
+  "governor": "DUSTIN L REID",
+  "date": "2026-05-30"
+}
