@@ -1,0 +1,19 @@
+{
+  "phase": 200,
+  "version": "10.11.0",
+  "ila_id": "ILA-200-2026-05-30-001",
+  "invariants": [
+    {"id":"CMLG-DAG-0","class":"Hard","description":"Lineage graph MUST be a DAG; cycles are a constitutional violation."},
+    {"id":"CMLG-CHAIN-0","class":"Hard","description":"All graph ledger entries MUST form an unbroken HMAC-SHA256 chain."},
+    {"id":"CMLG-IMMUT-0","class":"Hard","description":"Committed nodes and edges are append-only; no edits or deletes."},
+    {"id":"CMLG-ANCHOR-0","class":"Hard","description":"Every node MUST be anchored to a specific phase, version, and gate."},
+    {"id":"CMLG-TRACE-0","class":"Hard","description":"Full ancestry path from any node to GENESIS MUST be computable in O(N)."},
+    {"id":"CMLG-HUMAN0-0","class":"Hard","description":"HUMAN-0 holds sole authority to seal a lineage snapshot or purge a ghost node."},
+    {"id":"CMLG-GATE-0","class":"Hard","description":"Each edge MUST carry the gate type it represents."},
+    {"id":"CMLG-DETERM-0","class":"Hard","description":"Graph traversal results are deterministic."},
+    {"id":"CMLG-AUDIT-0","class":"Hard","description":"All graph operations logged with ISO-8601 timestamps and actor attribution."},
+    {"id":"CMLG-ROLLBACK-0","class":"Hard","description":"Root-cause path for any rollback MUST be resolvable via the lineage graph."}
+  ],
+  "cumulative_invariants": 627,
+  "governor": "DUSTIN L REID"
+}

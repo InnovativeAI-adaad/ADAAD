@@ -1,3 +1,23 @@
+## [10.11.0] — Phase 200 · INNOV-105 · CMLG
+
+**Date:** 2026-05-30  **Author:** ADAAD LEAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### Added
+- **INNOV-105 · CMLG — Constitutional Mutation Lineage Graph** — World-first constitutionally-governed DAG tracing the full ancestry of every promoted mutation through every gate (Sandbox → Consensus → Queue → CEL → Promote), with HMAC-chained append-only lineage ledger, DFS cycle detection enforcing DAG-0, deterministic O(N) path-to-genesis traversal for rollback forensics, and HUMAN-0-gated rollback marking and ghost-node purge.
+- 10 Hard-class invariants: CMLG-DAG-0, CMLG-CHAIN-0, CMLG-IMMUT-0, CMLG-ANCHOR-0, CMLG-TRACE-0, CMLG-HUMAN0-0, CMLG-GATE-0, CMLG-DETERM-0, CMLG-AUDIT-0, CMLG-ROLLBACK-0.
+- Module: `dorkllm/constitutional_mutation_lineage_graph.py` — 609 lines.
+- API: `app/api/constitutional_mutation_lineage_graph.py` — 11 endpoints (genesis, node, edge, rollback, ghost/purge, path, ancestors, mutation lineage, chain/verify, summary, export).
+- Ledger: `data/cmlg/lineage_ledger.jsonl` (HMAC-chained JSONL, append-only).
+- 30-test acceptance suite `tests/test_phase200_cmlg.py` (T200-CMLG-01…30) — 30/30 pass.
+- 4 governance artifacts under `artifacts/governance/phase200/`.
+
+### Milestone
+Phase 200 — the mutation engine now has end-to-end constitutional coverage: intent → sandbox trial → consensus → queue → CEL → promotion → full lineage ancestry DAG. Every mutation is traceable from birth to GENESIS.
+
+**Cumulative invariants: 627 | Innovations shipped: 105**
+
+---
+
 ## [10.10.0] — Phase 199 · INNOV-104 · CMES
 
 **Date:** 2026-05-30  **Author:** ADAAD LEAD · InnovativeAI LLC  **Governor:** DUSTIN L REID

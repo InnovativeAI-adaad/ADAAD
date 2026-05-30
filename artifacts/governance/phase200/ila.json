@@ -1,0 +1,21 @@
+{
+  "ila_id": "ILA-200-2026-05-30-001",
+  "phase": 200,
+  "version": "10.11.0",
+  "innov_code": "CMLG",
+  "innov_name": "Constitutional Mutation Lineage Graph",
+  "governor": "DUSTIN L REID",
+  "organization": "InnovativeAI LLC",
+  "date": "2026-05-30",
+  "description": "World-first constitutionally-governed DAG that traces the full ancestry of every promoted mutation through every gate (Sandbox→Consensus→Queue→CEL→Promote), seals nodes and edges in an HMAC-chained append-only lineage ledger, and provides deterministic root-cause traversal for rollback forensics and ancestry queries.",
+  "hard_class_invariants": ["CMLG-DAG-0","CMLG-CHAIN-0","CMLG-IMMUT-0","CMLG-ANCHOR-0","CMLG-TRACE-0","CMLG-HUMAN0-0","CMLG-GATE-0","CMLG-DETERM-0","CMLG-AUDIT-0","CMLG-ROLLBACK-0"],
+  "invariant_count_added": 10,
+  "cumulative_invariants": 627,
+  "test_suite": "tests/test_phase200_cmlg.py",
+  "tests_passed": 30,
+  "tests_total": 30,
+  "module": "dorkllm/constitutional_mutation_lineage_graph.py",
+  "api": "app/api/constitutional_mutation_lineage_graph.py",
+  "status": "RATIFIED",
+  "ratified_by": "HUMAN-0/Dustin L. Reid"
+}
