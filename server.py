@@ -69,6 +69,7 @@ from app.api.ga_promotion_engine import router as gpe_router                  # 
 from app.api.governance_tag_certifier import router as gtc_router             # Phase 188 INNOV-93 GTC
 from app.api.v10_epoch_transition import router as v10et_router                  # Phase 189 INNOV-94 V10ET
 from app.api.invariant_lineage_verifier import router as ilv_router              # Phase 192 INNOV-97 ILV
+from app.api.convergence_criteria_state_wire import router as ccsw_router        # Phase 202 INNOV-107 CCSW
 from runtime.integrations.github_app import dispatch_event, verify_webhook_signature  # ADAADchat
 from app.api.dependencies import (
     require_audit_scope,
@@ -907,6 +908,7 @@ app.include_router(compliance_router)
 app.include_router(audit_exports_router)
 app.include_router(mutation_control_router)
 app.include_router(streams_router)
+app.include_router(ccsw_router)             # Phase 202 INNOV-107 CCSW
 
 
 def telemetry_decisions_legacy(

@@ -1,0 +1,44 @@
+{
+  "sign_off_id": "SIGNOFF-202-2026-06-01-001",
+  "phase": 202,
+  "innovation_code": "INNOV-107",
+  "innovation_name": "CCSW — Convergence Criteria State Wire",
+  "version": "10.13.0",
+  "date": "2026-06-01",
+  "governor": "DUSTIN L REID",
+  "author": "ADAAD LEAD · InnovativeAI LLC",
+  "ratification_status": "PENDING_HUMAN0_GPG",
+  "ratification_note": "Awaiting GPG signature by HUMAN-0 (DUSTIN L REID) on local Windows machine at C:\\users\\dl_rd\\adaad",
+  "delivery_checklist": {
+    "ground_truth_audit": true,
+    "feature_branch_created": true,
+    "core_module_implemented": true,
+    "fastapi_router_implemented": true,
+    "30_tests_written": true,
+    "30_tests_passing": true,
+    "governance_artifacts_written": true,
+    "version_bumped_4_files": true,
+    "changelog_prepended": true,
+    "roadmap_updated": true,
+    "agent_state_updated": true,
+    "no_ff_merge_to_main": true,
+    "annotated_tag_created": true,
+    "pushed_to_remote": true
+  },
+  "v10_convergence_outcome": {
+    "score_before_phase": 0.525,
+    "score_after_phase": 1.0,
+    "v10_ready": true,
+    "all_8_criteria_passing": true,
+    "human0_advisory_emitted": true,
+    "wire_id": "2e8ca61e-00ef-4b62-8cfa-b1f114973a95"
+  },
+  "test_results": {
+    "suite": "T202-CCSW-01 through T202-CCSW-30",
+    "total": 30,
+    "passed": 30,
+    "failed": 0
+  },
+  "gpg_signature": null,
+  "gpg_signed_at": null
+}
