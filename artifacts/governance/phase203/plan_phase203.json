@@ -1,0 +1,27 @@
+{
+  "phase": 203,
+  "innovation": "INNOV-108",
+  "code": "CGDR",
+  "name": "Convergence Governance Drift Reporter",
+  "version": "10.14.0",
+  "date": "2026-06-01T00:00:00Z",
+  "description": "Post-convergence drift watchdog. Monitors all 8 CCA criteria for regression after V10 graduation. HMAC-chained append-only drift ledger. HUMAN-0-gated drift acknowledgement. CGDR-GATE-0 blocks phase promotions on DRIFTED status.",
+  "modules": [
+    "dorkllm/convergence_governance_drift_reporter.py",
+    "app/api/convergence_governance_drift_reporter.py"
+  ],
+  "test_file": "tests/test_phase203_cgdr.py",
+  "acceptance_tests": 30,
+  "invariants": [
+    "CGDR-CHAIN-0",
+    "CGDR-IMMUT-0",
+    "CGDR-DETERM-0",
+    "CGDR-BASELINE-0",
+    "CGDR-FAILCLOSED-0",
+    "CGDR-HUMAN0-0",
+    "CGDR-SEAL-0",
+    "CGDR-AUDIT-0",
+    "CGDR-SCOPE-0",
+    "CGDR-GATE-0"
+  ]
+}
