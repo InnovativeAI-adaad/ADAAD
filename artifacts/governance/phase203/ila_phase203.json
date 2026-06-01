@@ -1,0 +1,28 @@
+{
+  "phase": 203,
+  "innovation": "INNOV-108",
+  "code": "CGDR",
+  "name": "Convergence Governance Drift Reporter",
+  "version": "10.14.0",
+  "date": "2026-06-01T00:00:00Z",
+  "governor": "DUSTIN L REID",
+  "organization": "InnovativeAI LLC",
+  "hard_class_invariants": [
+    "CGDR-CHAIN-0",
+    "CGDR-IMMUT-0",
+    "CGDR-DETERM-0",
+    "CGDR-BASELINE-0",
+    "CGDR-FAILCLOSED-0",
+    "CGDR-HUMAN0-0",
+    "CGDR-SEAL-0",
+    "CGDR-AUDIT-0",
+    "CGDR-SCOPE-0",
+    "CGDR-GATE-0"
+  ],
+  "invariant_count": 10,
+  "cumulative_invariants": 657,
+  "tests": 30,
+  "test_pass_rate": 1.0,
+  "status": "SHIPPED",
+  "ila_digest": "sha256:b47b250124dd9baa7d04129ea9b117f3ba79048c419bf7f6507b09404dd83055"
+}

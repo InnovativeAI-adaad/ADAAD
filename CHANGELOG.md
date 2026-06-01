@@ -1,3 +1,23 @@
+## [10.14.0] — Phase 203 · INNOV-108 · CGDR
+
+**Date:** 2026-06-01  **Author:** ADAAD LEAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### Added
+- **INNOV-108 · CGDR — Convergence Governance Drift Reporter** — World-first constitutionally-governed post-convergence drift detection engine. After V10 convergence (score = 1.0/1.0), CGDR runs a scheduled or on-demand assessment of all 8 CCA criteria against live system state and emits a signed DriftReport into an HMAC-chained append-only drift ledger. If any criterion regresses from its last-known passing state, CGDR triggers a HUMAN-0 alert and marks the system as DRIFTED — fail-closed. The CGDR-GATE-0 invariant blocks all downstream governed evolution phase promotions while system is DRIFTED. HUMAN-0 holds sole authority to acknowledge and clear drift via `clear_drift(human_id=...)`. CGDR-BASELINE-0 ensures drift is measured against the last confirmed PASSING snapshot, never a DRIFTED one. CGDR-FAILCLOSED-0 ensures any assessment error produces a DRIFTED report, never a false PASSING. Full 5-endpoint FastAPI surface: POST /cgdr/assess, GET /cgdr/status, POST /cgdr/clear-drift, GET /cgdr/verify-chain, GET /cgdr/assert-no-drift. 30/30 acceptance tests passing.
+- 10 Hard-class invariants: CGDR-CHAIN-0, CGDR-IMMUT-0, CGDR-DETERM-0, CGDR-BASELINE-0, CGDR-FAILCLOSED-0, CGDR-HUMAN0-0, CGDR-SEAL-0, CGDR-AUDIT-0, CGDR-SCOPE-0, CGDR-GATE-0.
+- Module: `dorkllm/convergence_governance_drift_reporter.py` — HMAC-chained drift ledger, CCA criteria assessor, HUMAN-0 clear gate.
+- API: `app/api/convergence_governance_drift_reporter.py` — 5 endpoints.
+- Test suite: `tests/test_phase203_cgdr.py` — 30 tests (T203-CGDR-01…30).
+- Governance artifacts: `artifacts/governance/phase203/` (ILA, sign-off, tier summary, invariant register).
+
+### Post-Convergence Watchdog
+- CGDR is the constitutional sentinel that ensures V10 convergence score = 1.0 is **maintained**, not just achieved.
+- Every phase promotion path consults CGDR gate status before proceeding.
+
+**Cumulative Hard-class invariants: 657 | Innovations shipped: 108**
+
+---
+
 ## [10.13.0] — Phase 202 · INNOV-107 · CCSW
 
 **Date:** 2026-06-01  **Author:** ADAAD LEAD · InnovativeAI LLC  **Governor:** DUSTIN L REID

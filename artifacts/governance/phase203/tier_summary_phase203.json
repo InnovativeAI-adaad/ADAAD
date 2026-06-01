@@ -1,0 +1,20 @@
+{
+  "phase": 203,
+  "innovation": "INNOV-108",
+  "version": "10.14.0",
+  "tier": "TIER-1",
+  "hard_class_count": 10,
+  "all_hard_class": true,
+  "invariants": [
+    "CGDR-CHAIN-0",
+    "CGDR-IMMUT-0",
+    "CGDR-DETERM-0",
+    "CGDR-BASELINE-0",
+    "CGDR-FAILCLOSED-0",
+    "CGDR-HUMAN0-0",
+    "CGDR-SEAL-0",
+    "CGDR-AUDIT-0",
+    "CGDR-SCOPE-0",
+    "CGDR-GATE-0"
+  ]
+}

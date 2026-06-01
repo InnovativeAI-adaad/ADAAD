@@ -1,0 +1,68 @@
+{
+  "phase": 203,
+  "innovation": "INNOV-108",
+  "version": "10.14.0",
+  "invariants": [
+    {
+      "id": "CGDR-CHAIN-0",
+      "class": "Hard",
+      "enforcement": "fail-closed",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "CGDR-IMMUT-0",
+      "class": "Hard",
+      "enforcement": "fail-closed",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "CGDR-DETERM-0",
+      "class": "Hard",
+      "enforcement": "fail-closed",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "CGDR-BASELINE-0",
+      "class": "Hard",
+      "enforcement": "fail-closed",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "CGDR-FAILCLOSED-0",
+      "class": "Hard",
+      "enforcement": "fail-closed",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "CGDR-HUMAN0-0",
+      "class": "Hard",
+      "enforcement": "fail-closed",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "CGDR-SEAL-0",
+      "class": "Hard",
+      "enforcement": "fail-closed",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "CGDR-AUDIT-0",
+      "class": "Hard",
+      "enforcement": "fail-closed",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "CGDR-SCOPE-0",
+      "class": "Hard",
+      "enforcement": "fail-closed",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "CGDR-GATE-0",
+      "class": "Hard",
+      "enforcement": "fail-closed",
+      "status": "ACTIVE"
+    }
+  ],
+  "total": 10
+}
