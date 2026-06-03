@@ -70,6 +70,7 @@ from app.api.governance_tag_certifier import router as gtc_router             # 
 from app.api.v10_epoch_transition import router as v10et_router                  # Phase 189 INNOV-94 V10ET
 from app.api.invariant_lineage_verifier import router as ilv_router              # Phase 192 INNOV-97 ILV
 from app.api.convergence_criteria_state_wire import router as ccsw_router        # Phase 202 INNOV-107 CCSW
+from app.api.convergence_governance_drift_reporter import router as cgdr_router   # Phase 203 INNOV-108 CGDR
 from runtime.integrations.github_app import dispatch_event, verify_webhook_signature  # ADAADchat
 from app.api.dependencies import (
     require_audit_scope,
@@ -909,6 +910,7 @@ app.include_router(audit_exports_router)
 app.include_router(mutation_control_router)
 app.include_router(streams_router)
 app.include_router(ccsw_router)             # Phase 202 INNOV-107 CCSW
+app.include_router(cgdr_router)             # Phase 203 INNOV-108 CGDR
 
 
 def telemetry_decisions_legacy(
