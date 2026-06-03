@@ -9,11 +9,11 @@ Cumulative: 107 innovations · 647 Hard-class invariants · Phase 202
 
 ---
 
-## Current State — v10.15.0 · Phase 204 · INNOV-109 · AMPS
+## Current State — v10.15.0 · Phase 204 · Phase 204
 
-**Status:** 109 innovations shipped (INNOV-01 through INNOV-109). Phase 204 complete. v10.15.0 baseline. V10.0.0 GA. AMPS autonomous proposal engine live.
+**Status:** 109 innovations shipped (INNOV-01 through INNOV-???). Phase 204 complete. v10.15.0 baseline. V10.0.0 GA. AMPS autonomous proposal engine live.
 **Automation pointer:** Machine phase progression consumes `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` §3.0 “Active Era Contract (Phases 131–136+)”, which governs the current stream through Phase 173 and the Phase 174 next-work pointer.
-**Hard-class invariants:** 647 (cumulative, enforced)
+**Hard-class invariants:** 667 (cumulative, enforced)
 **Constitutional Evolution Loop:** 16-step CEL, deterministic replay, wired
 **Self-Proposing Innovation Engine (SPIE):** active — system proposes its own next innovations; HUMAN-0 ratifies
 **Deterministic Audit Sandbox (DAS):** active — one-command external verification; `docker compose up das-demo`
