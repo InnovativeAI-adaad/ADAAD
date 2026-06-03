@@ -1,3 +1,26 @@
+## [10.15.0] — Phase 204 · INNOV-109 · AMPS
+
+**Date:** 2026-06-03  **Author:** ADAAD LEAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### Added
+- **INNOV-109 · AMPS — Autonomous Mutation Proposal Synthesizer** — World-first constitutionally-governed autonomous mutation proposal engine. Analyzes 108+ innovations of mutation history, current system health signals (CGDR drift status, invariant density, category saturation), and applies a constitutional fitness scoring model to synthesize a ranked ProposalManifest sealed in an HMAC-SHA-256-chained ProposalLedger. All proposals require HUMAN-0 ratification before promotion. CGDR gate integration (AMPS-CGDR-0) blocks all proposal promotion when system is DRIFTED. ADAAD transitions from "can execute mutations" to "can propose what to execute next" — closing the autonomous self-direction loop under HUMAN-0 governance. Full 6-endpoint FastAPI surface: POST /amps/synthesize, GET /amps/proposals, GET /amps/proposals/{id}, POST /amps/ratify/{id}, GET /amps/verify-chain, GET /amps/status. 30/30 acceptance tests passing.
+- 10 Hard-class invariants: AMPS-CHAIN-0, AMPS-IMMUT-0, AMPS-HUMAN0-0, AMPS-CGDR-0, AMPS-SCORE-0, AMPS-DETERM-0, AMPS-AUDIT-0, AMPS-BLAST-0, AMPS-FAILCLOSED-0, AMPS-SEAL-0.
+- Module: `dorkllm/autonomous_mutation_proposal_synthesizer.py` — HMAC-chained ProposalLedger, constitutional fitness scorer, blast radius classifier, CGDR gate integration, HUMAN-0 ratification gate.
+- API: `app/api/autonomous_mutation_proposal_synthesizer.py` — 6 endpoints.
+- Test suite: `tests/test_phase204_amps.py` — 30 tests (T204-AMPS-01…30).
+- Governance artifacts: `artifacts/governance/phase204/` (ILA, sign-off, tier summary, invariant register).
+
+### Pre-Phase Fix (committed before branch)
+- `adaad/__init__.py` + `adaad_core/__init__.py`: synced to v10.14.0 (were stale at 10.13.0)
+- `server.py`: registered CGDR router (Phase 203 gap closed)
+- `pytest.ini`: added phase203 marker
+- `v10.14.0` annotated tag: created and pushed to remote (was missing)
+
+**Cumulative Hard-class invariants: 667 | Innovations shipped: 109**
+
+---
+
+
 ## [10.14.0] — Phase 203 · INNOV-108 · CGDR
 
 **Date:** 2026-06-01  **Author:** ADAAD LEAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
