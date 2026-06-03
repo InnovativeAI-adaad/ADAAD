@@ -1,3 +1,19 @@
+## [10.16.0] — Phase 205 · INNOV-110 · CMVG
+
+**Date:** 2026-06-03  **Author:** ADAAD LEAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### Added
+- **INNOV-110 · CMVG — Constitutional Mutation Velocity Governor** — World-first constitutionally-governed mutation pipeline throughput controller. Computes VelocityDecisions from real-time CGDR health, invariant density trends, and CEL gate pass-rates. Supports four velocity modes: HALT, THROTTLE, CRUISE, ACCELERATE. CMVG-CGDR-0 enforces unconditional HALT when system is DRIFTED. All policy overrides and emergency-stops require HUMAN-0 authentication. VelocityDecisions are sealed in an HMAC-SHA-256-chained VelocityLedger with content seals and deterministic IDs. Full 9-endpoint FastAPI surface: POST /cmvg/decide, GET /cmvg/decisions, GET /cmvg/decisions/{id}, POST /cmvg/emergency-stop, POST /cmvg/clear-emergency-stop, POST /cmvg/set-policy-rate, POST /cmvg/clear-policy-rate, GET /cmvg/verify-chain, GET /cmvg/status. 30/30 acceptance tests passing.
+- 10 Hard-class invariants: CMVG-CHAIN-0, CMVG-IMMUT-0, CMVG-HUMAN0-0, CMVG-CGDR-0, CMVG-DETERM-0, CMVG-AUDIT-0, CMVG-FLOOR-0, CMVG-CEIL-0, CMVG-FAILCLOSED-0, CMVG-SEAL-0.
+- Module: `dorkllm/constitutional_mutation_velocity_governor.py` — HMAC-chained VelocityLedger, weight-model rate computation, CGDR gate, emergency-stop, policy override.
+- API: `app/api/constitutional_mutation_velocity_governor.py` — 9 endpoints.
+- Test suite: `tests/test_phase205_cmvg.py` — 30 tests (T205-CMVG-01…30).
+- Governance artifacts: `artifacts/governance/phase205/` (ILA, sign-off, tier summary, invariant register).
+
+**Cumulative Hard-class invariants: 677 | Innovations shipped: 110**
+
+---
+
 ## [10.15.0] — Phase 204 · INNOV-109 · AMPS
 
 **Date:** 2026-06-03  **Author:** ADAAD LEAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
