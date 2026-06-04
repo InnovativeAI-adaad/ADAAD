@@ -1,0 +1,19 @@
+{
+  "phase": 207,
+  "innov_code": "CMWE",
+  "invariants": [
+    {"id": "CMWE-CHAIN-0",    "class": "Hard", "description": "AttestationLedger HMAC-SHA-256 chained"},
+    {"id": "CMWE-IMMUT-0",    "class": "Hard", "description": "Sealed AttestationRecord never mutated"},
+    {"id": "CMWE-HUMAN0-0",   "class": "Hard", "description": "TIER0 execution requires authenticated HUMAN-0"},
+    {"id": "CMWE-PRECHECK-0", "class": "Hard", "description": "Fitness gate enforced before EXECUTING state"},
+    {"id": "CMWE-ATOMIC-0",   "class": "Hard", "description": "Partial outcome treated as FAILED; no indeterminate state"},
+    {"id": "CMWE-ATTEST-0",   "class": "Hard", "description": "Every outcome sealed as signed AttestationRecord"},
+    {"id": "CMWE-FEEDBACK-0", "class": "Hard", "description": "Every execution emits VelocityFeedback for CMVG"},
+    {"id": "CMWE-TIMEOUT-0",  "class": "Hard", "description": "Executions beyond max_duration_ms force-closed TIMEOUT"},
+    {"id": "CMWE-DETERM-0",   "class": "Hard", "description": "AttestationRecord IDs deterministic SHA-256 hashes"},
+    {"id": "CMWE-SCOPE-0",    "class": "Hard", "description": "Empty mutation_scope rejected at execution time"},
+    {"id": "CMWE-BLAST-0",    "class": "Hard", "description": "Blast tier re-validated at execution time"},
+    {"id": "CMWE-AUDIT-0",    "class": "Hard", "description": "Every execute/reject/timeout appends to ledger"}
+  ],
+  "governor": "DUSTIN L REID"
+}
