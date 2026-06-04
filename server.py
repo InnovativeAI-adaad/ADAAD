@@ -74,6 +74,7 @@ from app.api.convergence_governance_drift_reporter import router as cgdr_router 
 from app.api.autonomous_mutation_proposal_synthesizer import router as amps_router  # Phase 204 INNOV-109 AMPS
 from app.api.constitutional_mutation_velocity_governor import router as cmvg_router  # Phase 205 INNOV-110 CMVG
 from app.api.cmse import router as cmse_router                                       # Phase 206 INNOV-111 CMSE
+from app.api.cmwe import router as cmwe_router                                       # Phase 207 INNOV-112 CMWE
 from runtime.integrations.github_app import dispatch_event, verify_webhook_signature  # ADAADchat
 from app.api.dependencies import (
     require_audit_scope,
@@ -917,6 +918,7 @@ app.include_router(cgdr_router)             # Phase 203 INNOV-108 CGDR
 app.include_router(amps_router)             # Phase 204 INNOV-109 AMPS
 app.include_router(cmvg_router)             # Phase 205 INNOV-110 CMVG
 app.include_router(cmse_router)             # Phase 206 INNOV-111 CMSE
+app.include_router(cmwe_router)             # Phase 207 INNOV-112 CMWE
 
 
 def telemetry_decisions_legacy(

@@ -1,3 +1,17 @@
+## [10.18.0] — Phase 207 · INNOV-112 · CMWE — Constitutional Mutation Window Executor
+
+**Date:** 2026-06-04 · **Phase 207** · **INNOV-112 · CMWE**
+
+### Added
+- **INNOV-112 · CMWE** — Constitutional Mutation Window Executor: world-first governed actuator that drives CMSE-scheduled windows through a full execution lifecycle (PRE_CHECK → EXECUTING → ATTESTING → COMPLETE/FAILED) and closes the mutation pipeline feedback loop to CMVG.
+- **12 Hard-class invariants**: CMWE-CHAIN-0, CMWE-IMMUT-0, CMWE-HUMAN0-0, CMWE-PRECHECK-0, CMWE-ATOMIC-0, CMWE-ATTEST-0, CMWE-FEEDBACK-0, CMWE-TIMEOUT-0, CMWE-DETERM-0, CMWE-SCOPE-0, CMWE-BLAST-0, CMWE-AUDIT-0
+- **REST router** `/api/cmwe/*` · **30/30 tests** `tests/test_phase207_cmwe.py`
+- **World first**: `phase207-world-first-constitutionally-governed-mutation-window-executor`
+
+Cumulative: 112 innovations · 701 Hard-class invariants · Phase 207
+
+---
+
 ## [10.17.0] — Phase 206 · INNOV-111 · CMSE — Constitutional Mutation Scheduling Engine
 
 **Date:** 2026-06-04 · **Phase 206** · **INNOV-111 · CMSE**

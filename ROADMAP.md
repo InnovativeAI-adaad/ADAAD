@@ -198,3 +198,4 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 | 198 | INNOV-103 · CMCE — Constitutional Mutation Consensus Engine | v10.9.0 | P0 | ✅ shipped |
 
 | Phase 206 | INNOV-111 | CMSE | Constitutional Mutation Scheduling Engine | v10.17.0 | 689 | ✅ SHIPPED |
+| Phase 207 | INNOV-112 | CMWE | Constitutional Mutation Window Executor | v10.18.0 | 701 | ✅ SHIPPED |
