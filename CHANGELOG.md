@@ -1,3 +1,24 @@
+## [10.19.0] — Phase 208 · INNOV-113 · CMOA — Constitutional Mutation Outcome Analyst
+
+**Date:** 2026-06-03  **Author:** ADAAD LEAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### Added
+- **INNOV-113 · CMOA — Constitutional Mutation Outcome Analyst** — Closes the `AMPS→CMVG→CMSE→CMWE→CMOA→AMPS` self-improving mutation loop. Reads CMWE AttestationLedger records, computes success rates by blast tier and fitness bucket, and emits two bounded signal types: (1) `FITNESS_ADJUST` signal: fitness delta ∈ [-0.20, +0.20] back to AMPS proposal scoring model (CMOA-BIAS-0); (2) `VELOCITY_NUDGE` signal: HALT/THROTTLE/CRUISE/ACCELERATE recommendation for CMVG. Minimum sample of 3 outcomes required before any signal is emitted (CMOA-MIN-0). CGDR gate integration blocks all signal emission when system is DRIFTED (CMOA-CGDR-0). HUMAN-0-gated recalibration endpoint for manual fitness weight override. All analysis runs and NO_SIGNAL events sealed in HMAC-SHA-256-chained OutcomeLedger regardless of outcome (CMOA-AUDIT-0). ADAAD now learns from its own execution history.
+- 10 Hard-class invariants: CMOA-CHAIN-0, CMOA-IMMUT-0, CMOA-DETERM-0, CMOA-BIAS-0, CMOA-MIN-0, CMOA-AUDIT-0, CMOA-FAILCLOSED-0, CMOA-SEAL-0, CMOA-HUMAN0-0, CMOA-CGDR-0.
+- Module: `dorkllm/constitutional_mutation_outcome_analyst.py`
+- API: `app/api/cmoa.py` — 5 endpoints (POST /cmoa/analyse, GET /cmoa/history, POST /cmoa/recalibrate, GET /cmoa/verify-chain, GET /cmoa/status)
+- Tests: `tests/test_phase208_cmoa.py` — 30/30 (T208-CMOA-01…30)
+- Governance: `artifacts/governance/phase208/` — ILA, sign-off, tier summary, invariant register
+
+### Pre-Phase Fix (committed to main before branch)
+- `adaad/__init__.py` + `adaad_core/__init__.py`: synced to v10.18.0 (were stale at 10.15.0)
+- Tags `v10.16.0`, `v10.17.0`, `v10.18.0`: created and pushed (were missing from remote)
+
+**Cumulative Hard-class invariants: 711 | Innovations shipped: 113 | Pipeline loop: CLOSED**
+
+---
+
+
 ## [10.18.0] — Phase 207 · INNOV-112 · CMWE — Constitutional Mutation Window Executor
 
 **Date:** 2026-06-04 · **Phase 207** · **INNOV-112 · CMWE**

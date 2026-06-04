@@ -1,0 +1,17 @@
+{
+  "phase": 208, "innovation": "INNOV-113 · CMOA", "version": "10.19.0",
+  "governor": "DUSTIN L REID", "date": "2026-06-03",
+  "hard_class_invariants": [
+    {"id": "CMOA-CHAIN-0",     "description": "OutcomeLedger entries are HMAC-SHA-256 chained"},
+    {"id": "CMOA-IMMUT-0",     "description": "Sealed analysis records are never mutated post-commit"},
+    {"id": "CMOA-DETERM-0",    "description": "AnalysisRecord IDs are deterministic SHA-256 hashes of content"},
+    {"id": "CMOA-BIAS-0",      "description": "Fitness adjustment deltas bounded to [-0.20, +0.20] per cycle"},
+    {"id": "CMOA-MIN-0",       "description": "No signal emitted from sample size < 3 outcomes"},
+    {"id": "CMOA-AUDIT-0",     "description": "Every analysis run logged in ledger regardless of outcome"},
+    {"id": "CMOA-FAILCLOSED-0","description": "Any analysis error yields NO_SIGNAL, never a partial record"},
+    {"id": "CMOA-SEAL-0",      "description": "Every AnalysisReport carries a SHA-256 content seal"},
+    {"id": "CMOA-HUMAN0-0",    "description": "AMPS base-weight recalibration requires HUMAN-0 authority"},
+    {"id": "CMOA-CGDR-0",      "description": "Signal emission blocked when CGDR gate reports DRIFTED or UNKNOWN"}
+  ],
+  "cumulative_hard_invariants": 711
+}
