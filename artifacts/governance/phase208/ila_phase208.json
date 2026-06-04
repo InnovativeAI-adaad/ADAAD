@@ -1,0 +1,37 @@
+{
+  "ila_id": "ILA-208-20260603-001",
+  "phase": 208,
+  "innovation_code": "CMOA",
+  "innovation_name": "Constitutional Mutation Outcome Analyst",
+  "innov_number": "INNOV-113",
+  "version": "10.19.0",
+  "governor": "DUSTIN L REID",
+  "organization": "InnovativeAI LLC",
+  "date": "2026-06-03",
+  "author": "ADAAD LEAD · MutationAgent",
+  "tests_passed": 30,
+  "tests_total": 30,
+  "hard_invariants_introduced": 10,
+  "hard_invariants_cumulative": 711,
+  "innovations_cumulative": 113,
+  "v10_convergence_score": 1.0,
+  "cgdr_gate_status": "HEALTHY",
+  "strategic_significance": "Closes AMPS→CMVG→CMSE→CMWE→CMOA→AMPS self-improving mutation loop. ADAAD now learns from its own execution outcomes.",
+  "module": "dorkllm/constitutional_mutation_outcome_analyst.py",
+  "api": "app/api/cmoa.py",
+  "tests": "tests/test_phase208_cmoa.py",
+  "endpoints": [
+    "POST /cmoa/analyse",
+    "GET  /cmoa/history",
+    "POST /cmoa/recalibrate",
+    "GET  /cmoa/verify-chain",
+    "GET  /cmoa/status"
+  ],
+  "invariants": [
+    "CMOA-CHAIN-0", "CMOA-IMMUT-0", "CMOA-DETERM-0", "CMOA-BIAS-0",
+    "CMOA-MIN-0", "CMOA-AUDIT-0", "CMOA-FAILCLOSED-0", "CMOA-SEAL-0",
+    "CMOA-HUMAN0-0", "CMOA-CGDR-0"
+  ],
+  "attestation": "30/30 acceptance tests pass. Full pipeline loop AMPS→CMOA→AMPS closed. Fitness and velocity signals bounded and CGDR-gated. HMAC chain verified. Phase 208 constitutionally complete.",
+  "track_b_pending": "GPG sign-off by HUMAN-0 on local machine"
+}
