@@ -1,0 +1,19 @@
+{
+  "phase": 206,
+  "innov_code": "CMSE",
+  "invariants": [
+    {"id": "CMSE-CHAIN-0",     "class": "Hard", "description": "ScheduleLedger entries HMAC-SHA-256 chained"},
+    {"id": "CMSE-IMMUT-0",     "class": "Hard", "description": "Sealed ScheduleWindow records never mutated"},
+    {"id": "CMSE-HUMAN0-0",    "class": "Hard", "description": "TIER0 promotion requires authenticated HUMAN-0"},
+    {"id": "CMSE-OVERLAP-0",   "class": "Hard", "description": "No concurrent windows with intersecting scope"},
+    {"id": "CMSE-DETERM-0",    "class": "Hard", "description": "Window IDs are deterministic SHA-256 functions of content"},
+    {"id": "CMSE-VELOCITY-0",  "class": "Hard", "description": "HALT velocity blocks all window promotion"},
+    {"id": "CMSE-BLAST-0",     "class": "Hard", "description": "Blast radius verified before every window promotion"},
+    {"id": "CMSE-AUDIT-0",     "class": "Hard", "description": "Every schedule/promote/expire appends to ledger"},
+    {"id": "CMSE-FAILCLOSED-0","class": "Hard", "description": "Any scheduling error emits FAILED record and raises"},
+    {"id": "CMSE-DRAIN-0",     "class": "Hard", "description": "Drain mode blocks all new window promotion"},
+    {"id": "CMSE-SCOPE-0",     "class": "Hard", "description": "mutation_scope must be non-empty frozenset"},
+    {"id": "CMSE-SLOT-0",      "class": "Hard", "description": "Slot capacity enforced; overflow raises CMSECapacityError"}
+  ],
+  "governor": "DUSTIN L REID"
+}

@@ -1,3 +1,17 @@
+## [10.17.0] — Phase 206 · INNOV-111 · CMSE — Constitutional Mutation Scheduling Engine
+
+**Date:** 2026-06-04 · **Phase 206** · **INNOV-111 · CMSE**
+
+### Added
+- **INNOV-111 · CMSE** — Constitutional Mutation Scheduling Engine: world-first constitutionally-governed mutation scheduling engine translating AMPS proposals and CMVG velocity decisions into deterministic, non-overlapping execution windows.
+- **12 Hard-class invariants**: CMSE-CHAIN-0, CMSE-IMMUT-0, CMSE-HUMAN0-0, CMSE-OVERLAP-0, CMSE-DETERM-0, CMSE-VELOCITY-0, CMSE-BLAST-0, CMSE-AUDIT-0, CMSE-FAILCLOSED-0, CMSE-DRAIN-0, CMSE-SCOPE-0, CMSE-SLOT-0
+- **REST router** `/api/cmse/*` · **30/30 tests** `tests/test_phase206_cmse.py`
+- **World first**: `phase206-world-first-constitutionally-governed-mutation-scheduling-engine`
+
+Cumulative: 111 innovations · 689 Hard-class invariants · Phase 206
+
+---
+
 ## [10.16.0] — Phase 205 · INNOV-110 · CMVG
 
 **Date:** 2026-06-03  **Author:** ADAAD LEAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
