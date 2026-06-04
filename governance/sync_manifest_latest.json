@@ -1,11 +1,11 @@
 {
-  "sync_timestamp": "2026-06-04T01:20:43.272584+00:00",
+  "sync_timestamp": "2026-06-04T03:59:29.252341+00:00",
   "canonical": {
-    "version": "10.18.0",
-    "phase": 207,
-    "hard_class_count": 701,
-    "innovations": 112,
-    "sha": "b806075"
+    "version": "10.19.0",
+    "phase": 208,
+    "hard_class_count": 711,
+    "innovations": 113,
+    "sha": "68ed367"
   },
   "surfaces": [
     {
@@ -37,7 +37,6 @@
       "changed": true,
       "ops": [
         "ROADMAP Current State header",
-        "ROADMAP status line",
         "ROADMAP invariant count"
       ]
     },
@@ -45,7 +44,9 @@
       "file": "governance/report_version.json",
       "changed": true,
       "ops": [
+        "updated version",
         "updated report_version",
+        "updated phase",
         "updated last_sync_sha"
       ]
     },
@@ -59,10 +60,10 @@
       "changed": true,
       "ops": [
         "SVG: version LIVE badge",
-        "SVG: stale version ref >v10.17.0<"
+        "SVG: stale version ref >v10.18.0<"
       ]
     }
   ],
   "total_changed": 5,
-  "digest": "cac19fcddb68fa32"
+  "digest": "3209840857ecf4ae"
 }
