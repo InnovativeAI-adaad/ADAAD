@@ -15,9 +15,10 @@ Future: Ability can evolve into a typing.Protocol once more surfaces
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Mapping, Protocol
+from typing import Any, Mapping, Protocol, runtime_checkable
 
 
+@runtime_checkable
 class AbilityProtocol(Protocol):
     """Strict protocol for high-level ADAAD Ability.
 
