@@ -1,0 +1,58 @@
+{
+  "artifact": "INVARIANT_REGISTER",
+  "phase": 211,
+  "module": "CIVR",
+  "invariants": [
+    {
+      "code": "CIVR-RECORD-0",
+      "description": "Every violation MUST carry a deterministic violation_id",
+      "tier": "CRITICAL"
+    },
+    {
+      "code": "CIVR-CHAIN-0",
+      "description": "Violation ledger MUST be append-only; every entry carries prev_digest",
+      "tier": "CRITICAL"
+    },
+    {
+      "code": "CIVR-IMMUT-0",
+      "description": "Sealed ViolationRecords MUST NOT be modified after writing",
+      "tier": "HIGH"
+    },
+    {
+      "code": "CIVR-HUMAN0-0",
+      "description": "CRITICAL violations MUST set human0_required=True and emit HUMAN0_REQUIRED",
+      "tier": "CRITICAL"
+    },
+    {
+      "code": "CIVR-SEVERITY-0",
+      "description": "Severity MUST be one of [CRITICAL, HIGH, MEDIUM, LOW]; reject unknowns",
+      "tier": "HIGH"
+    },
+    {
+      "code": "CIVR-CONTEXT-0",
+      "description": "Context dict MUST be size-bounded (<=2 KB serialised JSON)",
+      "tier": "MEDIUM"
+    },
+    {
+      "code": "CIVR-DETERM-0",
+      "description": "violation_id derivation MUST be deterministic given same inputs",
+      "tier": "HIGH"
+    },
+    {
+      "code": "CIVR-AUDIT-0",
+      "description": "All report() and waive() calls MUST be sealed in the ledger",
+      "tier": "HIGH"
+    },
+    {
+      "code": "CIVR-FAILCLOSED-0",
+      "description": "Any internal CIVR error MUST fail closed (raise, never swallow)",
+      "tier": "MEDIUM"
+    },
+    {
+      "code": "CIVR-SEAL-0",
+      "description": "hmac_digest MUST cover invariant_code+severity+phase+detected_at+description",
+      "tier": "MEDIUM"
+    }
+  ],
+  "governor": "DUSTIN L REID"
+}

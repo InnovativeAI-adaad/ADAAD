@@ -1,0 +1,22 @@
+{
+  "artifact": "ILA",
+  "phase": 211,
+  "innov": "INNOV-116",
+  "code": "CIVR",
+  "name": "Constitutional Invariant Violation Reporter",
+  "version": "10.22.0",
+  "governor": "DUSTIN L REID",
+  "date": "2026-06-05",
+  "hard_invariants_added": 10,
+  "hard_invariants_cumulative": 723,
+  "innovations_shipped_cumulative": 116,
+  "test_gate": "30/30",
+  "four_file_sync": "CLEAN",
+  "world_first": "Portable, governed, HMAC-chained constitutional invariant violation ledger with HUMAN-0 escalation gate and offline chain verification",
+  "patent_relevance": "Provides cryptographic evidence capture for all invariant violations \u2014 directly strengthens patent claims on Constitutional Evolution Loop enforcement and fail-closed governance",
+  "track_a_complete": true,
+  "track_b_required": [
+    "GPG sign and tag v10.22.0",
+    "Verify tag delivery via git ls-remote"
+  ]
+}
