@@ -1,3 +1,27 @@
+## [10.23.0] — Phase 212 · INNOV-117 · CGVA
+
+**Date:** 2026-06-05  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### Added
+- **INNOV-117 · CGVA — Constitutional Governance Validation Auditor** (`dorkllm/constitutional_governance_validation_auditor.py`)
+  - World-first governed engine performing deep multi-dimensional constitutional governance validation sweeps across the entire ADAAD governance surface.
+  - Aggregates health signals from peer modules (CIVR, CGPR, CMPE, CMVG, CMOA); produces cryptographically sealed AttestationRecord instances.
+  - 5 validation dimensions: invariant_coverage, chain_integrity, human0_gate, policy_compliance, ledger_health.
+  - Rolling governance health score [0.0, 1.0] with configurable drift thresholds (DRIFT_ALERT at >0.20, DRIFT_CRITICAL at >0.40).
+  - CGVA-HUMAN0-0: health_score < 0.50 automatically sets human0_required=True.
+  - CGVA-CHAIN-0: append-only HMAC-SHA-256 chained attestation ledger; every record carries prev_digest.
+  - CGVA-DETERM-0: attestation_id derived deterministically from SHA-256(domain+ts_ns+dimension_hash).
+  - CGVA-CERT-0: HUMAN-0 certification is one-way sealed; re-certification raises.
+  - CGVA-SEAL-0: every AttestationRecord carries a full HMAC-SHA-256 seal over canonical fields.
+  - CGVA-IMMUT-0: records property returns tuple (immutable view of ledger).
+  - CGVA-FAILCLOSED-0: all internal errors propagate — never swallowed silently.
+  - 10 Hard-class invariants: CGVA-AUDIT-0, CGVA-CHAIN-0, CGVA-DETERM-0, CGVA-FAILCLOSED-0, CGVA-HUMAN0-0, CGVA-SCORE-0, CGVA-SEAL-0, CGVA-CERT-0, CGVA-DRIFT-0, CGVA-IMMUT-0.
+- **REST router** `app/api/cgva.py` — 6 endpoints: POST /cgva/validate, POST /cgva/certify/{id}, GET /cgva/history, GET /cgva/verify-chain, GET /cgva/health-score, GET /cgva/status.
+- **Tests:** `tests/test_phase212_cgva.py` — 30/30 acceptance tests passing (T212-CGVA-01…30).
+- **pytest markers:** `cgva`, `phase212` registered in pytest.ini.
+- **Pre-phase corrections:** stale `adaad/__init__.py` and `adaad_core/__init__.py` (10.19.0→10.22.0) fixed; orphaned v10.23.0 tag deleted and recreated; phase210/211 pytest.ini markers added.
+- **World first:** Portable, governed, HMAC-chained constitutional governance validation engine with multi-dimensional scoring, drift detection, HUMAN-0 escalation gate, and offline chain verification.
+
 ## [10.22.0] — Phase 211 · INNOV-116 · CIVR
 
 **Date:** 2026-06-05  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
