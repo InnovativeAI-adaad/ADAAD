@@ -59,6 +59,12 @@ SECRET_RULES = (
     SecretRule("private_key_block", re.compile(r"-----BEGIN(?: RSA| EC| OPENSSH)? PRIVATE KEY-----")),
     SecretRule("github_pat", re.compile(r"\bghp_[A-Za-z0-9]{36}\b")),
     SecretRule("github_fine_grained_pat", re.compile(r"\bgithub_pat_[A-Za-z0-9_]{80,}\b")),
+    SecretRule("anthropic_claude_key", re.compile(r"\bsk-ant-api03-[A-Za-z0-9_-]{90,}\b")),
+    SecretRule("pypi_token", re.compile(r"\bpypi-AgEI[A-Za-z0-9_-]{40,}\b")),
+    SecretRule("gravatar_api_secret", re.compile(r"\b\d+:gk-[A-Za-z0-9_-]{10,}\b")),
+    SecretRule("ollama_api_key", re.compile(r"(?i)ollama.*(api[_-]?key|key|token)\s*[:=]?\s*['\"]?[0-9a-f]{32}")),
+    SecretRule("adaadchat_client_secret", re.compile(r"(?i)adaadchat.*(client[_-]?secret|secret)\s*[:=]\s*['\"]?[A-Za-z0-9_-]{16,}")),
+    SecretRule("ngrok_recovery_code", re.compile(r"(?i)ngrok.*(recovery|code|token)\s*[:=]?\s*['\"]?[A-Za-z0-9]{4,}-[A-Za-z0-9]{4,}")),
     SecretRule("generic_api_key_assignment", re.compile(r"(?i)\b(api[_-]?key|client[_-]?secret|oauth[_-]?client[_-]?secret)\b\s*[:=]\s*['\"]?[A-Za-z0-9_\-]{16,}")),
     SecretRule("slack_token", re.compile(r"\bxox[baprs]-[A-Za-z0-9-]{10,}\b")),
     SecretRule("stripe_live_key", re.compile(r"\bsk_live_[A-Za-z0-9]{16,}\b")),
@@ -67,6 +73,13 @@ SECRET_RULES = (
 
 ALLOWLIST_FINDINGS = {
     ("docs/ADAADCHAT_SETUP.md", "private_key_block"),
+    # Demo/example recovery codes in governed skills and codex scaffolding (not real secrets)
+    (".agents/skills/adaad-builder/SKILL.md", "ngrok_recovery_code"),
+    (".agents/skills/adaad-builder/scripts/adaad-demo.sh", "ngrok_recovery_code"),
+    (".agents/skills/adaad-builder/scripts/adaad-setup.sh", "ngrok_recovery_code"),
+    (".agents/skills/adaad-builder/scripts/adaad-test.sh", "ngrok_recovery_code"),
+    (".codex/README.md", "ngrok_recovery_code"),
+    (".codex/setup.sh", "ngrok_recovery_code"),
 }
 
 
