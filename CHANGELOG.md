@@ -1,3 +1,17 @@
+## [10.20.0] — Phase 209 · INNOV-114 · CMPE — Constitutional Mutation Policy Engine
+
+**Date:** 2026-06-05 · **Phase 209** · **INNOV-114 · CMPE**
+
+### Added
+- **INNOV-114 · CMPE** — Constitutional Mutation Policy Engine: world-first governed policy layer sitting above the full mutation pipeline, controlling WHAT strategies are permissible given live invariant health, CMVG velocity state, blast-radius budget, and V10 convergence status. Introduces CONVERGENCE_GUARD mode and EMERGENCY_FREEZE, both HUMAN-0 gated.
+- **12 Hard-class invariants**: CMPE-CHAIN-0, CMPE-IMMUT-0, CMPE-HUMAN0-0, CMPE-EVAL-0, CMPE-DENY-0, CMPE-HEALTH-0, CMPE-VELOCITY-0, CMPE-BUDGET-0, CMPE-DETERM-0, CMPE-AMEND-0, CMPE-AUDIT-0, CMPE-V10-0
+- **REST router** `/api/cmpe/*` · **30/30 tests** `tests/test_phase209_cmpe.py`
+- **World first**: `phase209-world-first-constitutionally-governed-mutation-policy-engine`
+
+Cumulative: 114 innovations · 713 Hard-class invariants · Phase 209
+
+---
+
 ## [10.19.0] — Phase 208 · INNOV-113 · CMOA — Constitutional Mutation Outcome Analyst
 
 **Date:** 2026-06-03  **Author:** ADAAD LEAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
