@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "event_id": "prl_7463b633f4dde299",
+  "event_type": "merge_attestation.v1",
+  "pr_number": 199,
+  "commit_sha": "6f3f38dcbf223525632fc6771435cb96f30947e6",
+  "idempotency_key": "sha256:639b0365cf5c3c429b61b67274961326105aabe3d15884f4ea7f8b6da9d67802",
+  "attempt": 1,
+  "sequence": 1,
+  "emitted_at": "2026-06-05T14:47:06.754433+00:00",
+  "correlation_id": "merge-attestation:Phase 183 \u2014 INNOV-88 TBD \u2014 next SPIE-ratified innovation (DEVADAAD hygiene context: phase199-drift + cmce.consensus abilities record)",
+  "previous_event_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "event_digest": "sha256:276057ed4e173dbaa631824f78801958ff7f6c524bb2696db6edb3b81825a54d",
+  "payload": {
+    "pr_id": "Phase 183 \u2014 INNOV-88 TBD \u2014 next SPIE-ratified innovation (DEVADAAD hygiene context: phase199-drift + cmce.consensus abilities record)",
+    "merge_sha": "6f3f38dcbf223525632fc6771435cb96f30947e6",
+    "tier_0_digest": "sha256:b83c1d7d9dbcc797fdbebc5e77dd7c09273fbca3ec1c3fd8ee4c5a5e02f2a048",
+    "tier_1_tests_passed": 0,
+    "tier_1_tests_failed": 0,
+    "tier_2_replay_digest": null,
+    "tier_3_evidence_complete": true,
+    "tier_m_working_code": true,
+    "triggered_by": "DEVADAAD",
+    "operator_session": "plan-019e9827",
+    "timestamp_utc": "2026-06-05T14:47:06.754433+00:00",
+    "human_signoff_token": null
+  }
+}
