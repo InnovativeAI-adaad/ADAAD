@@ -920,6 +920,28 @@ class Orchestrator:
             identity = generate_tool_manifest(__name__, capability_name, capability_version)
             register_capability(capability_name, capability_version, 1.0, owner, identity=identity)
 
+        # Also populate the new lightweight adaad.abilities registry (the canonical
+        # home for high-level element-owned abilities going forward). The import is
+        # deliberately inside the method so that adaad.abilities remains importable
+        # in complete isolation.
+        try:
+            from adaad.abilities import Ability, register_ability
+            for capability_name, capability_version, owner in registrations:
+                ab = Ability(
+                    name=capability_name,
+                    owner=owner,
+                    version=capability_version,
+                    requires=["cryovant.gate"] if capability_name == "cmce.consensus" else [],
+                    tier=1,
+                )
+                try:
+                    register_ability(ab)
+                except ValueError:
+                    pass  # already present (e.g. re-entrant boot or tests)
+        except Exception:
+            # Boot must never be broken by the (still-evolving) abilities registry.
+            pass
+
     def _init_ui(self) -> None:
         if self.exit_after_boot or self.state.get("verify_only"):
             return
