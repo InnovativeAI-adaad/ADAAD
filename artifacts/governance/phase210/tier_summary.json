@@ -1,0 +1,13 @@
+{
+  "artifact": "TIER_SUMMARY",
+  "phase": 210,
+  "blast_radius": "TIER1",
+  "human0_preauth_required": false,
+  "track_a_scope": [
+    "dorkllm/constitutional_governance_proof_renderer.py",
+    "app/api/constitutional_governance_proof_renderer.py",
+    "tests/test_phase210_cgpr.py",
+    "data/cgpr/ (ledger directory)",
+    "artifacts/governance/phase210/"
+  ]
+}
