@@ -45,7 +45,7 @@ _engine = ConstitutionalMutationSchedulingEngine()
 class ScheduleRequest(BaseModel):
     proposal_id: str = Field(..., description="AMPS proposal ID being scheduled")
     blast_tier: int = Field(..., ge=0, le=2, description="Blast radius tier (0/1/2)")
-    mutation_scope: list[str] = Field(..., min_length=1, description="Non-empty list of scope tokens")
+    mutation_scope: list[str] = Field(..., description="Non-empty list of scope tokens")
     constitutional_fitness: float = Field(default=1.0, ge=0.0, le=1.0)
     velocity_rate: float = Field(default=1.0, ge=0.0, description="Current CMVG velocity rate")
     metadata: dict = Field(default_factory=dict)

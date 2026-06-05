@@ -3,11 +3,12 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, StrictStr
+from pydantic import Field, StrictBool, StrictInt, StrictStr
+from adaad.api.schemas._compat import BaseModelCompatStrict as _Base
 
 
-class GovernanceStrictModel(BaseModel):
-    model_config = ConfigDict(extra="forbid", strict=True)
+class GovernanceStrictModel(_Base):
+    pass
 
 
 class ParallelGateAxisSpec(GovernanceStrictModel):
@@ -20,7 +21,7 @@ class ParallelGateAxisSpec(GovernanceStrictModel):
 class ParallelGateEvaluateRequest(GovernanceStrictModel):
     mutation_id: StrictStr = Field(min_length=1, max_length=128)
     trust_mode: StrictStr = Field(default="standard", min_length=1, max_length=32)
-    axis_specs: list[ParallelGateAxisSpec] = Field(min_length=1, max_length=20)
+    axis_specs: list[ParallelGateAxisSpec] = Field(...)
     human_override: StrictBool = False
 
 
@@ -42,9 +43,9 @@ class ParallelGateDecision(GovernanceStrictModel):
     decision: Literal["approve", "reject"]
     mutation_id: StrictStr
     trust_mode: StrictStr
-    reason_codes: list[StrictStr] = Field(default_factory=list, max_length=20)
-    failed_rules: list[ParallelGateFailedRule] = Field(default_factory=list, max_length=20)
-    axis_results: list[ParallelGateAxisResult] = Field(default_factory=list, max_length=20)
+    reason_codes: list[StrictStr] = Field(default_factory=list)
+    failed_rules: list[ParallelGateFailedRule] = Field(default_factory=list)
+    axis_results: list[ParallelGateAxisResult] = Field(default_factory=list)
     decision_id: StrictStr
     human_override: StrictBool
     gate_version: StrictStr
@@ -75,10 +76,10 @@ class ParallelGateProbeLibraryResponse(GovernanceStrictModel):
 class FastPathRoutePreviewRequest(GovernanceStrictModel):
     mutation_id: StrictStr = Field(default="unknown", min_length=1, max_length=128)
     intent: StrictStr = Field(default="", max_length=256)
-    files_touched: list[StrictStr] = Field(default_factory=list, max_length=256)
+    files_touched: list[StrictStr] = Field(default_factory=list)
     loc_added: StrictInt = 0
     loc_deleted: StrictInt = 0
-    risk_tags: list[StrictStr] = Field(default_factory=list, max_length=64)
+    risk_tags: list[StrictStr] = Field(default_factory=list)
 
 
 class FastPathRoutePreviewSummary(GovernanceStrictModel):
@@ -104,7 +105,7 @@ class FastPathRoutePreviewResponse(GovernanceStrictModel):
 class FastPathEntropyGateRequest(GovernanceStrictModel):
     mutation_id: StrictStr = Field(default="unknown", min_length=1, max_length=128)
     estimated_bits: StrictInt = 0
-    sources: list[StrictStr] = Field(default_factory=list, max_length=64)
+    sources: list[StrictStr] = Field(default_factory=list)
     strict: StrictBool = True
 
 

@@ -9,7 +9,8 @@ from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
+from adaad.api.schemas._compat import BaseModelCompat as _BaseCompat
 
 from app.api.dependencies import require_audit_scope
 from adaad.api.schemas.dork_intents import (
@@ -147,10 +148,10 @@ def execute_dork_proposal_route(
     )
 
 
-class DorkEventEnvelope(BaseModel):
+class DorkEventEnvelope(_BaseCompat):
     """Structured event envelope accepted by the Dork event ingestion endpoint."""
 
-    model_config = ConfigDict(extra="forbid")
+    # compat: replaced by BaseModelCompat (see adaad/api/schemas/_compat.py)
 
     source: str = Field(min_length=1, max_length=128)
     event_type: str = Field(min_length=1, max_length=128)

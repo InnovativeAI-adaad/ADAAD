@@ -40,7 +40,7 @@ class RegisterRequest(BaseModel):
     window_id: str
     proposal_id: str
     blast_tier: int = Field(..., ge=0, le=2)
-    mutation_scope: list[str] = Field(..., min_length=1)
+    mutation_scope: list[str] = Field(...)
     constitutional_fitness: float = Field(default=1.0, ge=0.0, le=1.0)
     promoted_by: Optional[str] = None
     metadata: dict = Field(default_factory=dict)
