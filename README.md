@@ -10,7 +10,7 @@
 
 <br/>
 
-[![Proprietary](https://img.shields.io/badge/license-Proprietary-ff4466?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v10.23.0](https://img.shields.io/badge/version-v10.23.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![733 Invariants](https://img.shields.io/badge/invariants-733%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![117 Innovations](https://img.shields.io/badge/innovations-117%20shipped-f97316?style=flat-square&labelColor=0d1117)](ROADMAP.md)&nbsp;[![Free Download](https://img.shields.io/github/v/release/InnovativeAI-adaad/ADAAD?label=APK&color=00d4ff)](https://github.com/InnovativeAI-adaad/ADAAD/releases)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
+[![Proprietary](https://img.shields.io/badge/license-Proprietary-ff4466?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v10.24.0](https://img.shields.io/badge/version-v10.24.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![743 Invariants](https://img.shields.io/badge/invariants-743%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![118 Innovations](https://img.shields.io/badge/innovations-118%20shipped-f97316?style=flat-square&labelColor=0d1117)](ROADMAP.md)&nbsp;[![Free Download](https://img.shields.io/github/v/release/InnovativeAI-adaad/ADAAD?label=APK&color=00d4ff)](https://github.com/InnovativeAI-adaad/ADAAD/releases)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
 
 </div>
 
@@ -32,12 +32,12 @@ Every proposed change goes through a 16-step pipeline. Every decision is recorde
 
 | Field | Value |
 | --- | --- |
-| **Current version** | `10.23.0` |
-| **Phase** | `212` |
+| **Current version** | `10.24.0` |
+| **Phase** | `213` |
 | **Released** | `2026-06-05` |
-| **Release SHA** | `6e77194` |
-| **Hard-class invariants** | `733` |
-| **Innovations shipped** | `117` |
+| **Release SHA** | `8588750` |
+| **Hard-class invariants** | `743` |
+| **Innovations shipped** | `118` |
 <!-- ADAAD_VERSION_INFOBOX:END -->
 
 ![System Stats](docs/assets/readme/inline-stats_card.svg)
@@ -294,7 +294,7 @@ Every invariant violation raises a typed exception, terminates the operation, an
 |:-------|:------|
 | Version | `v10.8.0` · Phase `192` complete |
 | Hard-class invariants | **547** — enforced fail-closed at runtime |
-| Shipped innovations | **117** — INNOV-01 through INNOV-??? |
+| Shipped innovations | **118** — INNOV-01 through INNOV-??? |
 | Latest innovation | **INNOV-97 · ILV** — Invariant Lineage Verifier |
 | Constitutional Evolution Loop | **16 steps** — deterministic, replayable |
 | Specialist agents | **3** — Architect · Dream · Beast |
