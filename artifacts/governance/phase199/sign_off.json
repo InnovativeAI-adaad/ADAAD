@@ -15,5 +15,6 @@
   "status": "TRACK_A_HYGIENE_DRIFT_FIXED_ABILITIES_RECORDED",
   "cmce_gate_integration_status": "Adapter corrected to real engine API; propose_mutation_with_cmce functional; exemption policy active. High-level cmce.consensus ability registered for UI/DORK visibility.",
   "new_invariants_registered": ["CMCE-GATE-0", "CMCE-EXEMPT-0"],
-  "abilities_recorded_this_run": ["cmce.consensus (Water)"]
+  "abilities_recorded_this_run": ["cmce.consensus (Water)"],
+  "lightweight_abilities_registry": "Implemented adaad/abilities/registry.py (lightweight, importable alone) + adaad/abilities/base.py (Ability dataclass/protocol) with isolated registration pattern and GovernanceGate hook comment. Registered via app/main.py _register_capabilities. Matches master strategic for governed agent tooling."
 }

@@ -21,5 +21,5 @@
   "total_hard_class_invariants": 609,
   "governance_impact": "High — this phase makes CMCE the default constitutional filter for all future mutation proposals (except narrow exemptions) and makes high-stakes engines first-class ADAAD abilities (cmce.consensus registered + attested in this DEVADAAD hygiene run).",
   "risk_tier": "Constitutional (core governance substrate change)",
-  "devadaad_hygiene_note": "Drift fixed (report_version + agent_state to 10.9.0/198 via version_sync + validator polish). cmce.consensus ability recorded in phase artifacts. See merge_attestation in data/merge_attestations/."
+  "devadaad_hygiene_note": "Drift fixed (report_version + agent_state to 10.9.0/198 via version_sync + validator polish). cmce.consensus ability + full adaad/abilities/registry.py + base.py (protocol + isolated registration) recorded in phase artifacts. See merge_attestation in data/merge_attestations/. Matches pyproject 10.9.0 and master strategic v10.9.0 Phase 198/199 CMCE."
 }

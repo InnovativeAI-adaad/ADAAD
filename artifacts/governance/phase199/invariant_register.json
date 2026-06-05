@@ -30,5 +30,5 @@
   ],
   "updated_invariants": [],
   "total_hard_class_invariants_after_phase": 609,
-  "notes": "DEVADAAD hygiene run recorded cmce.consensus abilities registration as part of Phase 199 Track A. Full ratification follows Phase 198 GPG + four-surface (now clean)."
+  "notes": "DEVADAAD hygiene run recorded cmce.consensus abilities registration as part of Phase 199 Track A. Implemented adaad/abilities/registry.py + base.py (lightweight isolated registry with protocol pattern). Full ratification follows Phase 198 GPG + four-surface (now clean)."
 }
