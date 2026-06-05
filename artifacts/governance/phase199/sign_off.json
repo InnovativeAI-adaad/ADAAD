@@ -1,10 +1,19 @@
 {
+  "attestation_ref": "ILA-199-2026-05-28-001",
   "phase": 199,
-  "version": "10.10.0",
-  "ila_id": "ILA-199-2026-05-30-001",
-  "sign_off_by": "HUMAN-0/Dustin L. Reid",
+  "version": "10.9.0",
+  "innov": "INNOV-104 + CMCE abilities hygiene",
+  "code": "CMCE-GATE",
   "governor": "DUSTIN L REID",
-  "date": "2026-05-30",
-  "decision": "APPROVED",
-  "notes": "Phase 199 CMES delivers deterministic isolated mutation trial execution with BehavioralDelta capture and HMAC-chained sandbox ledger. 30/30 tests passed. 10 Hard-class invariants registered."
+  "human0_authority": "HUMAN-0",
+  "sign_off_date": "2026-05-28",
+  "sign_off_statement": "DEVADAAD hygiene run (feat/phase199-drift-hygiene-abilities): four-surface + report_version.json reconciled to 10.9.0 / phase 198. cmce.consensus high-level ADAAD ability (Water owner, requires cryovant.gate) registered in data/capabilities.json and app/main.py _register_* as part of Phase 199 CMCE proliferation / Epoch A readiness. The mandatory non-bypassable CMCE gate adapter has been wired into EvolutionKernel.propose_mutation_with_cmce. New Hard-class invariants CMCE-GATE-0 and CMCE-EXEMPT-0 have been registered. Full constitutional ratification of Phase 199 is deferred until Phase 198 GPG gate closure on ADAADell.",
+  "track": "A",
+  "gpg_required": true,
+  "gpg_signed": false,
+  "gpg_note": "Full Track B GPG ratification pending Phase 198 gate closure. This sign_off documents Track A implementation progress + DEVADAAD drift hygiene (abilities recorded).",
+  "status": "TRACK_A_HYGIENE_DRIFT_FIXED_ABILITIES_RECORDED",
+  "cmce_gate_integration_status": "Adapter corrected to real engine API; propose_mutation_with_cmce functional; exemption policy active. High-level cmce.consensus ability registered for UI/DORK visibility.",
+  "new_invariants_registered": ["CMCE-GATE-0", "CMCE-EXEMPT-0"],
+  "abilities_recorded_this_run": ["cmce.consensus (Water)"]
 }
