@@ -1,0 +1,34 @@
+{
+  "ila_ref": "ILA-199-2026-05-28-001",
+  "phase": 199,
+  "innovation": "INNOV-104 + DEVADAAD drift hygiene",
+  "title": "CMCE Core Integration Foundation + four-surface hygiene (10.9.0 / abilities record)",
+  "epoch": "A",
+  "date": "2026-05-28",
+  "summary": "DEVADAAD hygiene run: establishes four-surface (report_version, agent_state, pyproject, VERSION) at 10.9.0 / phase 198 reality and records the cmce.consensus high-level ability registration as part of Phase 199 CMCE proliferation. The CMCE (INNOV-103) gate remains the mandatory constitutional gate.",
+  "deliverables_completed_under_track_a": [
+    "Corrected runtime/governance/cmce/cmce_gate.py adapter to match the real constitutional_mutation_consensus_engine API (open_round, cast_vote, close_round).",
+    "Implemented narrow ExemptionPolicy with allowed scopes for emergency/ bootstrap / governance_drift_closure only.",
+    "Wired propose_mutation_with_cmce in EvolutionKernel as the new primary high-stakes mutation path.",
+    "Registered Hard-class invariants CMCE-GATE-0 and CMCE-EXEMPT-0.",
+    "Produced initial Phase 199 governance artifacts.",
+    "DEVADAAD-directed four-surface drift fix: governance/report_version.json + .adaad_agent_state.json aligned to 10.9.0/198 via scripts/version_sync.py + manual validator polish.",
+    "cmce.consensus high-level ADAAD ability (Water) recorded: registered in data/capabilities.json and app/main.py; cross-linked in Phase 199 artifacts with supporting invariant declarations."
+  ],
+  "success_criteria_status": {
+    "mandatory_non_bypassable_gate": "Implemented in propose_mutation_with_cmce + CMCEGate",
+    "clean_adapter": "Implemented (API mapping corrected)",
+    "new_invariants": "Registered (see invariant_register.json); ABILITY-REG-0 for high-level abilities visibility added via this hygiene run",
+    "governance_artifacts": "Initial + DEVADAAD hygiene update (drift fixed, abilities recorded, versions to 10.9.0)",
+    "four_surface": "PASS (drift validator 0 violations after this run)"
+  },
+  "blockers": [
+    "Full Track B ratification requires Phase 198 GPG closure on ADAADell (four-surface now clean)."
+  ],
+  "next_steps": [
+    "Expand test coverage in tests/evolution/test_phase199_cmce_gate_integration.py",
+    "Add performance regression guard",
+    "Prepare full Epoch A propagation plan (Phase 200+)",
+    "After GPG: new DEVADAAD for formal abilities base.py protocol + full registry (out of scope for this hygiene run)"
+  ]
+}

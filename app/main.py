@@ -454,6 +454,7 @@ class Orchestrator:
         register("Earth", "runtime.warm_pool")
         register("Water", "security.cryovant")
         register("Water", "security.ledger.journal")
+        register("Water", "runtime.governance.cmce.cmce_gate")
         register("Wood", "app.architect_agent")
         register("Fire", "app.dream_mode")
         register("Fire", "app.beast_mode_loop")
@@ -913,6 +914,7 @@ class Orchestrator:
             ("dream.cycle", "0.65.0", "Fire"),
             ("beast.evaluate", "0.65.0", "Fire"),
             ("ui.dashboard", "0.65.0", "Metal"),
+            ("cmce.consensus", "0.10.0", "Water"),
         ]
         for capability_name, capability_version, owner in registrations:
             identity = generate_tool_manifest(__name__, capability_name, capability_version)

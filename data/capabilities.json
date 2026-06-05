@@ -88,5 +88,20 @@
     "score": 1.0,
     "updated_at": "2026-04-04T01:08:25Z",
     "version": "0.65.0"
+  },
+  "cmce.consensus": {
+    "evidence": {},
+    "identity": {
+      "hash": "aeff735361b65610a1ce7eeca8078eacd5fce17d3c78ca34a4433fd9f08ee319",
+      "timestamp": "2026-05-28T00:00:00Z",
+      "tool_id": "cmce.consensus",
+      "version": "0.10.0"
+    },
+    "name": "cmce.consensus",
+    "owner": "Water",
+    "requires": ["cryovant.gate"],
+    "score": 1.0,
+    "updated_at": "2026-05-28T00:00:00Z",
+    "version": "0.10.0"
   }
 }

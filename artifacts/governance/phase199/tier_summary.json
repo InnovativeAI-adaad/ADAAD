@@ -1,0 +1,25 @@
+{
+  "phase": 199,
+  "version": "10.9.0",
+  "innovation": "INNOV-104 + DEVADAAD drift + abilities hygiene",
+  "date": "2026-05-28",
+  "tier_breakdown": {
+    "Hard-class": {
+      "new": 3,
+      "ids": ["CMCE-GATE-0", "CMCE-EXEMPT-0", "ABILITY-REG-0"],
+      "description": "Mandatory CMCE gate before CEL + strict exemption controls + high-level abilities (cmce.consensus) registry visibility invariant"
+    },
+    "Soft-class": {
+      "new": 0,
+      "ids": []
+    },
+    "Procedural": {
+      "new": 5,
+      "description": "Exemption policy, adapter patterns, ledger correlation requirements, four-surface hygiene, DEVADAAD attestation for abilities record"
+    }
+  },
+  "total_hard_class_invariants": 609,
+  "governance_impact": "High — this phase makes CMCE the default constitutional filter for all future mutation proposals (except narrow exemptions) and makes high-stakes engines first-class ADAAD abilities (cmce.consensus registered + attested in this DEVADAAD hygiene run).",
+  "risk_tier": "Constitutional (core governance substrate change)",
+  "devadaad_hygiene_note": "Drift fixed (report_version + agent_state to 10.9.0/198 via version_sync + validator polish). cmce.consensus ability recorded in phase artifacts. See merge_attestation in data/merge_attestations/."
+}
