@@ -1,20 +1,14 @@
-## V10 Convergence — ACHIEVED ✅
-**Date:** 2026-06-01 · **Phase 202** · **INNOV-107 · CCSW**
-V10 CCA convergence score: **1.0/1.0** — All 8 criteria passing. HUMAN-0 ratification advisory issued.
-Cumulative: 107 innovations · 647 Hard-class invariants · Phase 202
-
 # ADAAD Roadmap
 
 > **Constitutional principle:** Every item on this roadmap must be approved by ArchitectAgent before implementation, governed by the mutation pipeline before merge, and evidenced in the release notes before promotion.
 
 ---
 
-## Current State — v10.26.0 · Phase 215 · Phase 215
-- [x] **Phase 212 · INNOV-117 · CGVA** — Constitutional Governance Validation Auditor · v10.23.0 · 733 Hard-class invariants · 117 innovations · 30/30 tests
+## Current State — v10.9.0 · Phase 198 · Phase 198
 
-**Status:** 113 innovations shipped (INNOV-01–INNOV-113). Phase 208 complete. v10.19.0 baseline. Full pipeline loop AMPS→CMVG→CMSE→CMWE→CMOA→AMPS closed.
+**Status:** 103 innovations shipped (INNOV-01 through INNOV-???). Phase 198 complete. v10.9.0 baseline. V10.0.0 GA released. adaad-core 9.121.0 published to PyPI.
 **Automation pointer:** Machine phase progression consumes `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` §3.0 “Active Era Contract (Phases 131–136+)”, which governs the current stream through Phase 173 and the Phase 174 next-work pointer.
-**Hard-class invariants:** 755 (cumulative, enforced)
+**Hard-class invariants:** 0 (cumulative, enforced)
 **Constitutional Evolution Loop:** 16-step CEL, deterministic replay, wired
 **Self-Proposing Innovation Engine (SPIE):** active — system proposes its own next innovations; HUMAN-0 ratifies
 **Deterministic Audit Sandbox (DAS):** active — one-command external verification; `docker compose up das-demo`
@@ -189,15 +183,9 @@ The system now implements the **DORK Governance Intelligence Layer**. This arc e
 - Total invariants: 221 | Total phases: 140 | Tests: 30/30
 
 | Phase 190 | INNOV-95 | MSR — Mutation Strategy Router | ✅ SHIPPED | v10.1.0 | 527 invariants |
-| Phase 199 | INNOV-104 | CMES | Constitutional Mutation Execution Sandbox | v10.10.0 | 617 | ✅ SHIPPED |
-| Phase 200 | INNOV-105 | CMLG | Constitutional Mutation Lineage Graph | v10.11.0 | 627 | ✅ SHIPPED |
-| Phase 201 | INNOV-106 | CMAC | Constitutional Mutation Admission Controller | v10.12.0 | 637 | ✅ SHIPPED |
 | 192 | INNOV-97 · ILV — Invariant Lineage Verifier | v10.3.0 | P0 | ✅ shipped |
 | 195 | INNOV-100 · CPA — Constitutional Provenance Auditor | v10.6.0 | P0 | ✅ shipped |
 | 196 | INNOV-101 · CMIM — Constitutional Mutation Intent Model | v10.7.0 | P0 | ✅ shipped |
 | 197 | INNOV-102 · CMQ — Constitutional Mutation Queue | v10.8.0 | P0 | ✅ shipped |
 | 198 | INNOV-103 · CMCE — Constitutional Mutation Consensus Engine | v10.9.0 | P0 | ✅ shipped |
 
-| Phase 206 | INNOV-111 | CMSE | Constitutional Mutation Scheduling Engine | v10.17.0 | 689 | ✅ SHIPPED |
-| Phase 207 | INNOV-112 | CMWE | Constitutional Mutation Window Executor | v10.18.0 | 701 | ✅ SHIPPED |
-| Phase 209 | INNOV-114 | CMPE | Constitutional Mutation Policy Engine | v10.20.0 | 713 | ✅ SHIPPED |
