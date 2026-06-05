@@ -6,7 +6,7 @@
     "last_completed_version": "10.9.0",
     "schema_version": "1.5.0",
     "last_completed_phase": "Phase 198 \u2014 INNOV-103 CMCE \u2014 Constitutional Mutation Consensus Engine",
-    "hard_invariant_count": 0,
+    "hard_invariant_count": 607,
     "innovations_shipped": 103,
     "last_innov_code": "CMCE",
     "last_innov_name": "Constitutional Mutation Consensus Engine",
