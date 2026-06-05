@@ -1,3 +1,21 @@
+## [10.24.0] — Phase 213 · INNOV-118 · CGVR
+
+**Date:** 2026-06-05  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### Added
+- **INNOV-118 · CGVR — Constitutional Governance Violation Remediator** (`dorkllm/constitutional_governance_violation_remediator.py`)
+- Blast-radius tiered remediation plan prescription engine (Tier-0/1/2)
+- HUMAN-0 gate: Tier-0 actions blocked pending ratification via `approve_tier0()`
+- HMAC-SHA-256 chained append-only remediation ledger with atomic `os.replace()` writes
+- Five REST endpoints: POST /cgvr/remediate, POST /cgvr/approve-tier0/{id}, GET /cgvr/history, GET /cgvr/verify-chain, GET /cgvr/status
+- 10 new Hard-class invariants (CGVR-AUDIT-0 through CGVR-STATUS-0)
+- 30/30 acceptance tests passing (T213-CGVR-01..30)
+
+### Governance
+- Closes CGVA→CGVR audit-to-repair loop in constitutional governance stack
+- Hard-class invariants cumulative: 743
+- HUMAN-0 advisory: Track B ratification required to seal Phase 213
+
 ## [10.23.0] — Phase 212 · INNOV-117 · CGVA
 
 **Date:** 2026-06-05  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
