@@ -4,7 +4,7 @@
 
 <br/>
 
-[![Version](https://img.shields.io/badge/ADAAD-v9.120.0-000?style=for-the-badge&labelColor=0d1117&color=00d4ff)](../CHANGELOG.md)&nbsp;[![Phase](https://img.shields.io/badge/Phase_187-GPE_Shipped-000?style=for-the-badge&labelColor=0d1117&color=f5c842)](../ROADMAP.md)&nbsp;[![Constitution](https://img.shields.io/badge/Constitution-v0.9.0_%C2%B7_23_Rules-000?style=for-the-badge&labelColor=0d1117&color=ff4466)](CONSTITUTION.md)&nbsp;[![Tests](https://img.shields.io/badge/4%2C624_Tests-Passing-000?style=for-the-badge&labelColor=0d1117&color=00ff88)](../tests/)
+[![Version](https://img.shields.io/badge/ADAAD-v10.9.0-000?style=for-the-badge&labelColor=0d1117&color=00d4ff)](../CHANGELOG.md)&nbsp;[![Phase](https://img.shields.io/badge/Phase_198-GPE_Shipped-000?style=for-the-badge&labelColor=0d1117&color=f5c842)](../ROADMAP.md)&nbsp;[![Constitution](https://img.shields.io/badge/Constitution-v0.9.0_%C2%B7_23_Rules-000?style=for-the-badge&labelColor=0d1117&color=ff4466)](CONSTITUTION.md)&nbsp;[![Tests](https://img.shields.io/badge/4%2C624_Tests-Passing-000?style=for-the-badge&labelColor=0d1117&color=00ff88)](../tests/)
 
 <br/>
 
