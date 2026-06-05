@@ -18,7 +18,7 @@ Governance note:
 
 from __future__ import annotations
 
-from .base import Ability
+from .base import Ability, AbilityProtocol
 from .registry import (
     register_ability,
     get_ability,
@@ -38,6 +38,7 @@ seed_from_capabilities_json()
 
 __all__ = [
     "Ability",
+    "AbilityProtocol",
     "register_ability",
     "get_ability",
     "list_abilities",

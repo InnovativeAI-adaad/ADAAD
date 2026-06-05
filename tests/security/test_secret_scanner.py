@@ -17,7 +17,7 @@ _SPEC.loader.exec_module(scan_secrets)
 def test_scan_secrets_detects_high_risk_plaintext(tmp_path: Path) -> None:
     leak_file = tmp_path / "leak.txt"
     simulated_pat = "ghp_" + "123456789012345678901234567890123456"
-    simulated_claude = "sk-ant-api03-tMsC4Rm" + "A" * 80
+    simulated_claude = "sk-ant-api03-tMsC4Rm" + "A" * 95
     leak_file.write_text(f"token = '{simulated_pat}'\nclaude={simulated_claude}\n", encoding="utf-8")
 
     findings = scan_secrets.scan_path(tmp_path)
