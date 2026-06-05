@@ -15,12 +15,29 @@ Future: Ability can evolve into a typing.Protocol once more surfaces
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Mapping
+from typing import Any, Mapping, Protocol
+
+
+class AbilityProtocol(Protocol):
+    """Protocol for high-level ADAAD Ability (for structural typing / future extensions)."""
+    name: str
+    owner: str
+    version: str
+    requires: list[str]
+    score: float
+    tier: int
+    identity: Mapping[str, Any] | None
+    evidence: dict[str, Any]
+    updated_at: str | None
 
 
 @dataclass(frozen=True)
 class Ability:
-    """High-level ADAAD ability.
+    """High-level ADAAD ability (implements AbilityProtocol for structural typing).
+
+    This dataclass provides the concrete implementation of the lightweight
+    Ability protocol. The package (adaad/abilities) is designed to be
+    importable in complete isolation.
 
     Attributes
     ----------
@@ -45,6 +62,8 @@ class Ability:
     updated_at:
         ISO timestamp of last registration / update.
     """
+
+    # Satisfies AbilityProtocol (attrs match)
 
     name: str
     owner: str
