@@ -25,7 +25,16 @@ from .registry import (
     list_abilities,
     clear_abilities,  # test / dev helper
     abilities_snapshot,
+    seed_from_capabilities_json,
 )
+
+# Make data/capabilities.json seed the registry on (package) import.
+# This is done in a side-effect-free / controlled way:
+# - seed_from_capabilities_json() is idempotent (no dups)
+# - it swallows errors (missing file, bad json, bad entries) so import never breaks
+# - it only adds entries not already present
+# Callers that want explicit control can call the function directly or clear first.
+seed_from_capabilities_json()
 
 __all__ = [
     "Ability",
@@ -34,4 +43,5 @@ __all__ = [
     "list_abilities",
     "clear_abilities",
     "abilities_snapshot",
+    "seed_from_capabilities_json",
 ]

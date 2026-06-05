@@ -19,16 +19,23 @@ from typing import Any, Mapping, Protocol
 
 
 class AbilityProtocol(Protocol):
-    """Protocol for high-level ADAAD Ability (for structural typing / future extensions)."""
+    """Strict protocol for high-level ADAAD Ability.
+
+    Implementations (e.g. the dataclass below) MUST provide:
+    - name: str
+    - owner: str
+    - version: str
+    - tier: int
+    - requires: list[str]
+    - invariants() -> list[str]
+    """
     name: str
     owner: str
     version: str
-    requires: list[str]
-    score: float
     tier: int
-    identity: Mapping[str, Any] | None
-    evidence: dict[str, Any]
-    updated_at: str | None
+    requires: list[str]
+
+    def invariants(self) -> list[str]: ...
 
 
 @dataclass(frozen=True)
@@ -63,7 +70,9 @@ class Ability:
         ISO timestamp of last registration / update.
     """
 
-    # Satisfies AbilityProtocol (attrs match)
+    # The dataclass provides extra fields for compatibility with data/capabilities.json
+    # and previous high-level registrations, but the strict AbilityProtocol only
+    # requires the listed attributes + invariants().
 
     name: str
     owner: str
@@ -83,6 +92,19 @@ class Ability:
             pass
         if self.tier not in (0, 1, 2):
             raise ValueError("Ability.tier must be 0, 1, or 2")
+
+    def invariants(self) -> list[str]:
+        """Return list of invariant strings this Ability claims to uphold.
+
+        This is required by the strict AbilityProtocol.
+        """
+        return [
+            f"ABILITY-NAME-0: {self.name}",
+            f"ABILITY-OWNER-0: {self.owner}",
+            f"ABILITY-VERSION-0: {self.version}",
+            f"ABILITY-TIER-0: {self.tier}",
+            f"ABILITY-REQUIRES-0: {self.requires}",
+        ]
 
     def to_dict(self) -> dict[str, Any]:
         """Return a plain dict suitable for JSON / capabilities.json."""
