@@ -1,3 +1,28 @@
+## [10.22.0] — Phase 211 · INNOV-116 · CIVR
+
+**Date:** 2026-06-05  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### Added
+- **INNOV-116 · CIVR — Constitutional Invariant Violation Reporter** (`dorkllm/constitutional_invariant_violation_reporter.py`)
+  - World-first governed engine for capturing, classifying, and cryptographically sealing every constitutional invariant violation event into a tamper-evident HMAC-SHA-256-chained violation ledger.
+  - ViolationRecord: deterministic violation_id (SHA-256), severity (CRITICAL/HIGH/MEDIUM/LOW), context dict (≤2 KB), remediation_hint, HMAC-chained prev_digest, sealed hmac_digest.
+  - CIVR-HUMAN0-0: CRITICAL violations automatically set human0_required=True and emit HUMAN0_REQUIRED signal.
+  - CIVR-CHAIN-0: append-only ledger; every record carries prev_digest linking to previous entry.
+  - CIVR-DETERM-0: violation_id derived deterministically from (invariant_code + ts_ns + context_hash).
+  - CIVR-CONTEXT-0: context dict size-bounded at 2 KB serialised JSON; non-string keys and complex values sanitised.
+  - CIVR-FAILCLOSED-0: all internal errors raise — never swallowed silently.
+  - waive() endpoint: HUMAN-0-authorised waiver sealed and appended to ledger.
+  - verify_chain(): full HMAC chain integrity verification with first_break_index reporting.
+  - 10 Hard-class invariants: CIVR-RECORD-0, CIVR-CHAIN-0, CIVR-IMMUT-0, CIVR-HUMAN0-0, CIVR-SEVERITY-0, CIVR-CONTEXT-0, CIVR-DETERM-0, CIVR-AUDIT-0, CIVR-FAILCLOSED-0, CIVR-SEAL-0.
+- **REST router** `app/api/civr.py` — 5 endpoints: POST /civr/report, POST /civr/waive, GET /civr/history, GET /civr/verify-chain, GET /civr/status.
+- **Tests:** `tests/test_phase211_civr.py` — 30/30 acceptance tests passing (T211-CIVR-01…30).
+- **pytest marker:** `civr` registered in pytest.ini.
+- **World first:** Portable, governed, HMAC-chained constitutional invariant violation ledger with HUMAN-0 escalation gate and offline chain verification.
+
+Cumulative: **116 innovations · 723 Hard-class invariants · Phase 211**
+
+---
+
 ## [10.21.0] — Phase 210 · INNOV-115 · CGPR
 
 **Date:** 2026-06-04  **Author:** ADAAD LEAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
