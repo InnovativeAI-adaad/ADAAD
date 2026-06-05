@@ -9,7 +9,7 @@ Cumulative: 107 innovations · 647 Hard-class invariants · Phase 202
 
 ---
 
-## Current State — v10.20.0 · Phase 209 · Phase 209
+## Current State — v10.21.0 · Phase 210 · Phase 210
 
 **Status:** 113 innovations shipped (INNOV-01–INNOV-113). Phase 208 complete. v10.19.0 baseline. Full pipeline loop AMPS→CMVG→CMSE→CMWE→CMOA→AMPS closed.
 **Automation pointer:** Machine phase progression consumes `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` §3.0 “Active Era Contract (Phases 131–136+)”, which governs the current stream through Phase 173 and the Phase 174 next-work pointer.
