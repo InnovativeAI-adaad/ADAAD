@@ -1,3 +1,16 @@
+## [10.21.0] — Phase 210 · INNOV-115 · CGPR
+
+**Date:** 2026-06-04  **Author:** ADAAD LEAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### Added
+- **INNOV-115 · CGPR — Constitutional Governance Proof Renderer** — World-first portable, self-verifying AI governance proof bundle. Aggregates the HMAC chain, invariant manifest, execution attestations, and HUMAN-0 signature slot into a single self-contained JSON artifact that an external auditor can verify offline using only the ADAAD public verification key — no access to internals required. ProofBundle contains: deterministic bundle_id (CGPR-BUNDLE-0), invariant manifest with per-record HMAC digests, attestation chain with HMAC-chained prev_digest links, chain_summary, HUMAN-0 signature slot (UNSIGNED for internal use; SIGNED for external audit delivery), and embedded offline verification instructions. Every render() appends a sealed ProofLedgerEntry to the append-only HMAC-chained proof ledger (CGPR-AUDIT-0). Bundle HMAC computed via hmac.compare_digest-safe HMAC-SHA-256 throughout (AUTH-CT-0).
+- 10 Hard-class invariants: CGPR-BUNDLE-0, CGPR-CHAIN-0, CGPR-IMMUT-0, CGPR-MANIFEST-0, CGPR-ATTEST-0, CGPR-HMAC-0, CGPR-HUMAN0-0, CGPR-DETERM-0, CGPR-OFFLINE-0, CGPR-AUDIT-0.
+- Module: `dorkllm/constitutional_governance_proof_renderer.py` — world-first portable AI governance proof renderer.
+- API: `app/api/constitutional_governance_proof_renderer.py` — 4 endpoints: POST /cgpr/render, POST /cgpr/verify, GET /cgpr/ledger, GET /cgpr/status.
+- Tests: `tests/test_phase210_cgpr.py` — 30/30 acceptance tests passing.
+- Ledger: `data/cgpr/proof_ledger.jsonl` (HMAC-chained, append-only).
+- Pytest marker: `cgpr` registered in pytest.ini.
+---
 ## [10.20.0] — Phase 209 · INNOV-114 · CMPE — Constitutional Mutation Policy Engine
 
 **Date:** 2026-06-05 · **Phase 209** · **INNOV-114 · CMPE**

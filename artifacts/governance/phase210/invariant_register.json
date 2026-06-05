@@ -1,0 +1,48 @@
+{
+  "artifact": "INVARIANT_REGISTER",
+  "phase": 210,
+  "innov": "INNOV-115",
+  "invariants": [
+    {
+      "code": "CGPR-BUNDLE-0",
+      "description": "Deterministic bundle_id from governor+phase+generated_at_ns; random IDs prohibited"
+    },
+    {
+      "code": "CGPR-CHAIN-0",
+      "description": "ProofLedger entries HMAC-SHA-256 chained; broken link raises CGPRChainError"
+    },
+    {
+      "code": "CGPR-IMMUT-0",
+      "description": "Sealed ProofBundle entries in ledger are append-only; mutation raises CGPRImmutError"
+    },
+    {
+      "code": "CGPR-MANIFEST-0",
+      "description": "InvariantManifest must contain at least one record"
+    },
+    {
+      "code": "CGPR-ATTEST-0",
+      "description": "AttestationList must contain at least one constitutional ledger record"
+    },
+    {
+      "code": "CGPR-HMAC-0",
+      "description": "bundle_hmac computed via hmac.compare_digest-safe HMAC-SHA-256 (AUTH-CT-0)"
+    },
+    {
+      "code": "CGPR-HUMAN0-0",
+      "description": "UNSIGNED bundles valid for internal use; SIGNED required for external audit delivery"
+    },
+    {
+      "code": "CGPR-DETERM-0",
+      "description": "Same phase+invariants+attestations+ns produces identical bundle_id and bundle_hmac"
+    },
+    {
+      "code": "CGPR-OFFLINE-0",
+      "description": "verification_instructions self-contained plain text for offline verification"
+    },
+    {
+      "code": "CGPR-AUDIT-0",
+      "description": "Every render() appends one sealed ProofLedgerEntry before returning"
+    }
+  ],
+  "cumulative_hard_invariants": 723
+}
