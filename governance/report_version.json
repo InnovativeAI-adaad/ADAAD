@@ -18,8 +18,9 @@
     "milestone": "v10.9.0",
     "pypi_published": "adaad-core==10.9.0",
     "ga_tag": "v10.9.0",
-    "note": "DEVADAAD hygiene run: four-surface reconciliation for 10.9.0 / phase 198. cmce.consensus high-level ability (Water) registered as part of Phase 199 CMCE proliferation / Epoch A readiness. See artifacts/governance/phase199/ for extended deliverables and invariants.",
+    "note": "DEVADAAD hygiene run: four-surface reconciliation for 10.9.0 / phase 198. cmce.consensus high-level ability (Water) registered as part of Phase 199 CMCE proliferation / Epoch A readiness. Implemented lightweight adaad/abilities/registry.py + base.py (isolated, importable alone, with Ability dataclass/protocol and GovernanceGate hook point). See artifacts/governance/phase199/ for extended deliverables and invariants.",
     "abilities_recorded": [
         "cmce.consensus"
-    ]
+    ],
+    "abilities_implementation": "adaad/abilities/registry.py and adaad/abilities/base.py (protocol + isolated registration pattern)"
 }

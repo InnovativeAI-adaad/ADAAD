@@ -13,7 +13,8 @@
     "Registered Hard-class invariants CMCE-GATE-0 and CMCE-EXEMPT-0.",
     "Produced initial Phase 199 governance artifacts.",
     "DEVADAAD-directed four-surface drift fix: governance/report_version.json + .adaad_agent_state.json aligned to 10.9.0/198 via scripts/version_sync.py + manual validator polish.",
-    "cmce.consensus high-level ADAAD ability (Water) recorded: registered in data/capabilities.json and app/main.py; cross-linked in Phase 199 artifacts with supporting invariant declarations."
+    "cmce.consensus high-level ADAAD ability (Water) recorded: registered in data/capabilities.json and app/main.py; cross-linked in Phase 199 artifacts with supporting invariant declarations.",
+    "lightweight_abilities_registry_implemented": "adaad/abilities/registry.py (minimal _registry dict, register_ability/get_ability/list_abilities with GovernanceGate hook comment) + adaad/abilities/base.py (Ability frozen dataclass as protocol). Lightweight/isolated import (no runtime heavy deps). Part of Phase 199 CMCE proliferation per master strategic 'persistent governed agent tooling'."
   ],
   "success_criteria_status": {
     "mandatory_non_bypassable_gate": "Implemented in propose_mutation_with_cmce + CMCEGate",
