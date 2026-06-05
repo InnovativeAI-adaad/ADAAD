@@ -3,12 +3,11 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import Field, StrictBool, StrictInt, StrictStr
-from adaad.api.schemas._compat import BaseModelCompatStrict as _Base
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, StrictStr, validator
 
 
-class GovernanceStrictModel(_Base):
-    pass
+class GovernanceStrictModel(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
 
 
 class ParallelGateAxisSpec(GovernanceStrictModel):
@@ -22,6 +21,13 @@ class ParallelGateEvaluateRequest(GovernanceStrictModel):
     mutation_id: StrictStr = Field(min_length=1, max_length=128)
     trust_mode: StrictStr = Field(default="standard", min_length=1, max_length=32)
     axis_specs: list[ParallelGateAxisSpec] = Field(...)
+
+    @validator("axis_specs")
+    @classmethod
+    def _axis_specs_len(cls, v):
+        if not 1 <= len(v) <= 20:
+            raise ValueError("axis_specs must have 1–20 entries")
+        return v
     human_override: StrictBool = False
 
 
