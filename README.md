@@ -34,8 +34,8 @@ Every proposed change goes through a 16-step pipeline. Every decision is recorde
 | --- | --- |
 | **Current version** | `10.24.0` |
 | **Phase** | `213` |
-| **Released** | `2026-06-05` |
-| **Release SHA** | `8588750` |
+| **Released** | `2026-06-06` |
+| **Release SHA** | `455f491` |
 | **Hard-class invariants** | `743` |
 | **Innovations shipped** | `118` |
 <!-- ADAAD_VERSION_INFOBOX:END -->
