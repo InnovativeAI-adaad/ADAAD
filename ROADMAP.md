@@ -9,12 +9,12 @@ Cumulative: 107 innovations · 647 Hard-class invariants · Phase 202
 
 ---
 
-## Current State — v10.24.0 · Phase 213 · Phase 213
+## Current State — v10.25.0 · Phase 214 · Phase 214
 - [x] **Phase 212 · INNOV-117 · CGVA** — Constitutional Governance Validation Auditor · v10.23.0 · 733 Hard-class invariants · 117 innovations · 30/30 tests
 
 **Status:** 113 innovations shipped (INNOV-01–INNOV-113). Phase 208 complete. v10.19.0 baseline. Full pipeline loop AMPS→CMVG→CMSE→CMWE→CMOA→AMPS closed.
 **Automation pointer:** Machine phase progression consumes `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` §3.0 “Active Era Contract (Phases 131–136+)”, which governs the current stream through Phase 173 and the Phase 174 next-work pointer.
-**Hard-class invariants:** 743 (cumulative, enforced)
+**Hard-class invariants:** 755 (cumulative, enforced)
 **Constitutional Evolution Loop:** 16-step CEL, deterministic replay, wired
 **Self-Proposing Innovation Engine (SPIE):** active — system proposes its own next innovations; HUMAN-0 ratifies
 **Deterministic Audit Sandbox (DAS):** active — one-command external verification; `docker compose up das-demo`
