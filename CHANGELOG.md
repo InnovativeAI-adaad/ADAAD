@@ -1,3 +1,19 @@
+## [10.25.0] — Phase 214 · INNOV-119 · CGVE
+
+**Date:** 2026-06-06  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### Added
+- **INNOV-119 · CGVE — Constitutional Governance Version Enforcer** (Phase 214)
+  - World-first HMAC-chained sub-package version enforcement engine
+  - Scans all 4 canonical version surfaces; detects drift from root VERSION file
+  - Atomic os.replace() repair of blast_radius=1 sub-package surfaces (adaad_core/)
+  - HUMAN-0 advisory protocol for blast_radius=0 root surface drift (non-delegable)
+  - 12 hard-class invariants: CGVE-AUDIT-0 through CGVE-BLAST-0
+  - 4 REST endpoints: POST /cgve/enforce, GET /cgve/status, /verify-chain, /history
+  - 30/30 acceptance tests passing
+  - **Live repair executed:** adaad_core/__init__.py (10.23.0→10.25.0), adaad_core/pyproject.toml (9.121.0→10.25.0)
+  - Cumulative hard-class invariants: 755 (+12)
+
 ## [10.24.0] — Phase 213 · INNOV-118 · CGVR
 
 **Date:** 2026-06-05  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
