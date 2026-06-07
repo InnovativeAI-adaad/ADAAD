@@ -1,11 +1,11 @@
 {
-  "sync_timestamp": "2026-06-06T21:14:44.938718+00:00",
+  "sync_timestamp": "2026-06-07T09:47:04.270961+00:00",
   "canonical": {
     "version": "10.25.0",
     "phase": 214,
     "hard_class_count": 755,
     "innovations": 119,
-    "sha": "fa1f8c5"
+    "sha": "7ca57ab"
   },
   "surfaces": [
     {
@@ -17,36 +17,25 @@
       "file": "README.md",
       "changed": true,
       "ops": [
-        "README version badge",
-        "README invariants badge",
-        "README innovations badge",
-        "block [<!-- ADAAD_VERSION_INFOBOX:STA]",
-        "By-the-numbers: innovations"
+        "block [<!-- ADAAD_VERSION_INFOBOX:STA]"
       ]
     },
     {
       "file": "docs/README.md",
-      "changed": true,
-      "ops": [
-        "docs/README version badge",
-        "docs/README phase badge"
-      ]
+      "changed": false,
+      "ops": []
     },
     {
       "file": "ROADMAP.md",
-      "changed": true,
-      "ops": [
-        "ROADMAP Current State header",
-        "ROADMAP invariant count"
-      ]
+      "changed": false,
+      "ops": []
     },
     {
       "file": "governance/report_version.json",
       "changed": true,
       "ops": [
-        "updated version",
-        "updated report_version",
-        "updated phase",
+        "updated date",
+        "updated last_sync_date",
         "updated last_sync_sha"
       ]
     },
@@ -57,13 +46,10 @@
     },
     {
       "file": "docs/assets/readme/inline-hero_banner.svg",
-      "changed": true,
-      "ops": [
-        "SVG: version LIVE badge",
-        "SVG: stale version ref >v10.24.0<"
-      ]
+      "changed": false,
+      "ops": []
     }
   ],
-  "total_changed": 5,
-  "digest": "38592f98db00b9a2"
+  "total_changed": 2,
+  "digest": "af5391dff885fe95"
 }
