@@ -1,12 +1,12 @@
 {
     "current_phase": 198,
-    "version": "10.9.0",
-    "current_version": "10.9.0",
-    "software_version": "10.9.0",
-    "last_completed_version": "10.9.0",
+    "version": "10.26.0",
+    "current_version": "10.26.0",
+    "software_version": "10.26.0",
+    "last_completed_version": "10.26.0",
     "schema_version": "1.5.0",
     "last_completed_phase": "Phase 198 \u2014 INNOV-103 CMCE \u2014 Constitutional Mutation Consensus Engine",
-    "hard_invariant_count": 607,
+    "hard_invariant_count": 0,
     "innovations_shipped": 103,
     "last_innov_code": "CMCE",
     "last_innov_name": "Constitutional Mutation Consensus Engine",
@@ -25,6 +25,6 @@
     "next_innov": "TBD",
     "gcp_project": "adaad-01",
     "domain": "adaad.pro",
-    "last_updated": "2026-06-05T14:56:34.817495+00:00",
-    "last_invocation": "2026-06-05"
+    "last_updated": "2026-06-08T03:36:11.398559+00:00",
+    "last_invocation": "2026-06-08"
 }
