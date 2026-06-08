@@ -4,9 +4,9 @@
 
 ---
 
-## Current State — v10.26.0 · Phase 198 · Phase 198
+## Current State — v10.27.0 · Phase 216 · Phase 216
 
-**Status:** 103 innovations shipped (INNOV-01 through INNOV-???). Phase 198 complete. v10.26.0 baseline. V10.0.0 GA released. adaad-core 9.121.0 published to PyPI.
+**Status:** 121 innovations shipped (INNOV-01 through INNOV-???). Phase 216 complete. v10.27.0 baseline. V10.0.0 GA released. adaad-core 9.121.0 published to PyPI.
 **Automation pointer:** Machine phase progression consumes `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` §3.0 “Active Era Contract (Phases 131–136+)”, which governs the current stream through Phase 173 and the Phase 174 next-work pointer.
 **Hard-class invariants:** 0 (cumulative, enforced)
 **Constitutional Evolution Loop:** 16-step CEL, deterministic replay, wired
