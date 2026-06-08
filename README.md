@@ -42,6 +42,12 @@ Every proposed change goes through a 16-step pipeline. Every decision is recorde
 
 ![System Stats](docs/assets/readme/inline-stats_card.svg)
 
+<div align="center">
+![Arc II Phase Progress](docs/assets/readme/adaad-phase-progress.svg)
+<br/>
+<em>Phase 217 · INNOV-122 ACPA + self-capable abilities (791 invariants / 122 innovations)</em>
+</div>
+
 Canonical architecture spec: [`docs/governance/ARCHITECT_SPEC_v3.1.0.md`](docs/governance/ARCHITECT_SPEC_v3.1.0.md).
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
@@ -85,6 +91,15 @@ The Innovation Impact Scorer computes per-invariant delta scoring for every ship
 ### Propose constitutional amendments and deliver them to a human
 When the Constitutional Adaptive Learner identifies that an invariant's weighting should change based on observed fitness patterns, it generates a typed amendment recommendation. The Recommendation Delivery Protocol formats it as a governance proposal, queues it, and delivers it to HUMAN-0 for disposition — ACCEPTED, DEFERRED, or REJECTED. Every disposition is sealed in an immutable HMAC-chained ledger.
 
+**Phase 217 implementation (INNOV-122 · ACPA)**: The Autonomous Constitutional Proposal Advisor now *autonomously* generates SOFT-class proposals from CGVF telemetry + violation patterns (with flood/diversity caps, 12 ACPA-*0 invariants, full ledger + HUMAN-0 veto). 30/30 acceptance tests, 4 governance artifacts. Endpoints: `/acpa/propose`, `/history`, `/verify-chain`, `/status`.
+
+### Self-capable abilities (new meta-surface)
+ADAAD can now introspect, discover, register, and reconcile its own abilities at runtime:
+- `adaad/abilities/` (protocol + provenance, discovery from manifests, drift reports, pluggable governance hook wired to CMES/CGDR).
+- Meta-abilities: `adaad.abilities.introspect`, `.drift_hygiene`, `.self_register`, `.enhance`.
+- Orchestrator bootstrap, evidence collection, CLI (`--list-abilities`, `--abilities-drift`), status, and runbooks all surface self-awareness.
+- Full integration keeps abilities importable in isolation with determinism + import-boundary guarantees.
+
 ### Feed HUMAN-0 decisions back as selection pressure
 When a HUMAN-0 disposition lands, the CEL Feedback Integrator translates it directly into MSE selection-weight adjustments. Accepted amendments amplify the corresponding fitness axis. Rejected ones decay it. The loop closes: human judgment becomes constitutional calibration signal, automatically.
 
@@ -115,6 +130,22 @@ ADAAD_DISPATCH_LATENCY_BUDGET_MS: Critical dispatch and governance decision path
 Governance surface includes 791 Hard-class invariants, 122 innovations shipped. Full evidence in claims matrix and phase artifacts. HUMAN-0 non-delegatable for amendment paths (ACPA-HUMAN0-0).
 Full HMAC forward-walk of all active ledgers. Any tamper produces a named exception with byte-level location.
 
+<div align="center">
+![Hash Chain Integrity](docs/assets/readme/inline-hash_chain.svg)
+</div>
+
+<div align="center">
+![Self-Capable Abilities & Capabilities Grid](docs/assets/readme/inline-capabilities_grid.svg)
+<br/>
+<em>adaad.abilities.* (introspect, drift_hygiene, enhance) + ACPA world-first (Arc II — Phase 217)</em>
+</div>
+
+<div align="center">
+![World's Firsts](docs/assets/readme/inline-worlds_firsts.svg)
+<br/>
+<em>ACPA: first autonomous constitutional proposal generation from CGVF telemetry under HUMAN-0</em>
+</div>
+
 ### Answer questions about its own governance history
 DORK (Developer Operator Runtime Kernel) is a natural language interface to the entire constitutional history of the system. Ask why a mutation was blocked six weeks ago. Ask which invariants are under the most pressure. Ask it to reconstruct the full decision trail for any shipped capability. It answers with citations from the ledger — not from training data.
 
@@ -125,10 +156,10 @@ The full governed runtime runs on Android via Termux. See [`TERMUX_SETUP.md`](TE
 The **GA Promotion Engine** monitors every V10 convergence criterion in real-time and delivers a structured `HUMAN0_REQUIRED` signal the moment all criteria are met — triggering the GA tag ceremony without polling, drift, or manual state inspection.
 
 ```bash
-# Assess current GA readiness
+# Assess current GA readiness (example; current v10.28+)
 curl -X POST http://localhost:8000/api/gpe/assess \
   -H "Content-Type: application/json" \
-  -d '{"pypi_version": "9.120.0"}'
+  -d '{"pypi_version": "10.28.0"}'
 # → {"verdict": "HUMAN0_REQUIRED", "criteria_met": 7, "criteria_total": 7}
 ```
 
@@ -196,6 +227,12 @@ Install: [github.com/apps/adaadchat](https://github.com/apps/adaadchat)
 
 Every node enforces Hard-class invariants. Every node is fail-closed. Every node writes to an HMAC-chained ledger. The full loop is replayable from any point.
 
+<div align="center">
+![Constitutional Pipeline (Arc II)](docs/assets/readme/adaad-pipeline-animated.svg)
+<br/>
+<em>16-step CEL with ACPA / self-capable extension points</em>
+</div>
+
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 
 ## The Constitutional Evolution Loop
@@ -219,7 +256,7 @@ Every mutation — without exception — traverses 16 steps before it ships:
   [6]  AFRT adversarial red-team       [14] GPG-signed ledger entry
   [7]  Fitness surface evaluation      [15] Hash-chained CEPD proof
   [8]  Constitutional scoring          [16] Annotated tag + release evidence
-       (547 Hard-class invariants)
+       (791 Hard-class invariants)
 ```
 
 Every step is deterministic. Every step produces a ledger record. Every ledger record is hash-chained. The entire pipeline is replayable from any point.
@@ -230,12 +267,16 @@ Every step is deterministic. Every step produces a ledger record. Every ledger r
 
 ## The three agents
 
+<div align="center">
+![Agents Overview](docs/assets/readme/agents-overview.svg)
+</div>
+
 ```
 ┌──────────────┬───────────────────────────────────────┬─────────────────────────┐
 │    Agent     │              Role                     │      Disposition        │
 ├──────────────┼───────────────────────────────────────┼─────────────────────────┤
 │  Architect   │  Governance, structure, invariant      │  Conservative. Blocks   │
-│  (blue)      │  scoring against all 547 Hard-class    │  anything that breaks   │
+│  (blue)      │  scoring against all 791 Hard-class    │  anything that breaks   │
 │              │  invariants before any execution       │  constitutional integrity│
 ├──────────────┼───────────────────────────────────────┼─────────────────────────┤
 │  Dream       │  Creativity, ideation, novelty         │  Bold. Proposes novelty.│
@@ -307,19 +348,19 @@ Every invariant violation raises a typed exception, terminates the operation, an
 
 | Metric | Value |
 |:-------|:------|
-| Version | `v10.8.0` · Phase `192` complete |
-| Hard-class invariants | **547** — enforced fail-closed at runtime |
-| Shipped innovations | **121** — INNOV-01 through INNOV-122 |
-| Latest innovation | **INNOV-97 · ILV** — Invariant Lineage Verifier |
+| Version | `v10.28.0` · Phase `217` complete |
+| Hard-class invariants | **791** — enforced fail-closed at runtime |
+| Shipped innovations | **122** — INNOV-01 through INNOV-122 (ACPA) |
+| Latest innovation | **INNOV-122 · ACPA** — Autonomous Constitutional Proposal Advisor |
 | Constitutional Evolution Loop | **16 steps** — deterministic, replayable |
 | Specialist agents | **3** — Architect · Dream · Beast |
 | HUMAN-0 gate | **1** — non-delegatable, architecturally enforced |
 | Append-only ledger entries | **48,000+** |
 | Test files | **680+** |
 | Governance artifacts | **249+** committed JSON attestations |
-| PyPI | `adaad-core==9.121.0` |
+| PyPI | `adaad-core==10.28.0` |
 | GitHub App | ADAADchat — webhook bridge + slash commands |
-| V10 GA | Released — `v10.8.0` tagged · `v10.8.0` current |
+| Arc II (Self-Amendment) | Phase 217 ACPA + self-capable abilities live |
 | Platforms | Linux · macOS · Windows · Android · Docker |
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
@@ -367,9 +408,13 @@ pip install adaad
 
 ```
 adaad/
+├── adaad/                            # Core namespace + self-capable abilities (discovery, drift, registry, bridge)
+│   ├── abilities/                    # Protocol, provenance, discovery, drift reports, governance hook
+│   └── orchestrator/                 # Bootstrap, CLI, evidence, status with self-abilities integration
 ├── adaad/core/                       # Governance-critical primitives (adaad-core PyPI package)
 ├── runtime/evolution/                # 16-step CEL implementation
-├── dorkllm/                          # Full mutation pipeline + DORK intelligence stack
+├── app/api/acpa.py                   # ACPA REST router (propose / history / verify-chain / status)
+├── dorkllm/                          # Full mutation pipeline + DORK intelligence stack (incl. ACPA advisor)
 │   ├── mutation_selection_engine.py      # MSE — candidate scoring and selection
 │   ├── mutation_risk_profiler.py         # MRP — pre-execution risk assessment
 │   ├── mutation_phylogeny_graph.py       # MPG — lineage mapping
@@ -391,6 +436,10 @@ adaad/
 └── docs/                             # Full documentation corpus
 ```
 
+<div align="center">
+![Architecture Overview](docs/assets/readme/inline-architecture.svg)
+</div>
+
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 
 ## Who ADAAD is for
@@ -399,7 +448,7 @@ adaad/
 |:---------|:--------------|
 | **AI safety researchers** | A production-running cryptographically evidenced autonomous governance loop — not a prototype |
 | **Autonomous systems engineers** | Reference architecture for constitutional self-modification with full replay capability |
-| **Governance architects** | 547 Hard-class invariants mapped to real operational guarantees, all independently verifiable |
+| **Governance architects** | 791 Hard-class invariants mapped to real operational guarantees, all independently verifiable |
 | **Indie devs on Android** | Full governed runtime on a $200 phone — [`TERMUX_SETUP.md`](TERMUX_SETUP.md) |
 | **Constitutional AI contributors** | Open governed amendment pipeline — all contributions traverse the CEL |
 | **Patent / IP practitioners** | Novel mechanisms with documented prior art absence and replayable cryptographic evidence |
@@ -462,21 +511,26 @@ Community constitutional amendment proposals go through the governed pipeline. S
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 
-## V10.0.0 — Released
+## V10 Series — Current (v10.28.0 / Phase 217)
 
-V10.0.0 was tagged on 2026-05-24. `v10.8.0` is the current release. All seven V10 convergence criteria were verified by the GA Promotion Engine (INNOV-92 · GPE) and sealed by the Governance Tag Certifier (INNOV-93 · GTC). The v9→v10 epoch boundary was sealed by the V10 Epoch Transition Engine (INNOV-94 · V10ET). The Constitutional Integrity Ledger (INNOV-96 · CIL) provides cross-ledger HMAC-chain attestation. The Invariant Lineage Verifier (INNOV-97 · ILV) traces causal ancestry chains across all 547 Hard-class invariants.
+V10.0.0 GA was tagged 2026-05-24 after all convergence criteria (CEL integrity, invariant coverage, ledger chains, replay determinism, AFRT coverage, PyPI, GPE assessment) were sealed. The series continues with Arc II self-amendment innovations.
 
-| Criterion | Status |
+`v10.28.0` (Phase 217) delivers:
+- INNOV-122 · ACPA — Autonomous Constitutional Proposal Advisor (world-first autonomous SOFT proposals from CGVF telemetry + HUMAN-0 veto, 12 new ACPA-*0 invariants, 30/30 tests).
+- Full self-capable abilities surface (discovery, drift hygiene, pluggable constitutional hook, meta-abilities `adaad.abilities.*`).
+- 791 Hard-class invariants total, 122 innovations shipped.
+
+| Criterion / Milestone | Status |
 |:----------|:-------|
 | CEL Wire integrity | ✅ Complete |
-| Constitutional invariant coverage | ✅ 547 enforced |
-| Ledger chain verification | ✅ HMAC chain verified |
+| Constitutional invariant coverage | ✅ 791 Hard-class enforced |
+| Ledger chain verification | ✅ HMAC chain verified (CIL) |
 | Replay determinism | ✅ Verified |
 | AFRT adversarial coverage | ✅ Complete |
-| adaad-core PyPI publish | ✅ `9.121.0` |
-| GA_ALIGNMENT (GPE assessment) | ✅ Sealed by GTC — epoch boundary closed by V10ET |
-| Invariant lineage tracing (ILV) | ✅ INNOV-97 · Phase 197 complete |
-| Invariant lineage tracing (ILV) | ✅ INNOV-97 · Phase 197 complete |
+| adaad-core PyPI publish | ✅ `10.28.0` |
+| GA_ALIGNMENT (GPE) + V10ET epoch boundary | ✅ Sealed |
+| Invariant lineage tracing (ILV) | ✅ INNOV-97 baseline + extensions |
+| Self-capable abilities + ACPA (Arc II) | ✅ Phase 217 · INNOV-122 live (self-discovery, drift reports, proposal generation) |
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 
