@@ -1,0 +1,15 @@
+{
+  "event_type": "merge_attestation.v1",
+  "pr_id": "Phase 215 \u00b7 INNOV-120 \u00b7 CGVF \u2014 Constitutional Governance Validation Fusion (v10.26.0 tag)",
+  "merge_sha": "e5b7f4ea088bb603ffd73aa615dc1d171a5dbfa4",
+  "tier_0_digest": "44d16a23ffd5d8d6",
+  "tier_1_tests_passed": 13,
+  "tier_1_tests_failed": 0,
+  "tier_2_replay_digest": null,
+  "tier_3_evidence_complete": true,
+  "tier_m_working_code": true,
+  "triggered_by": "DEVADAAD",
+  "operator_session": "grok-2026-06-devadaad-release",
+  "timestamp_utc": "2026-06-08T03:32:39.065487Z",
+  "human_signoff_token": "approved DUSTIN L REID"
+}
