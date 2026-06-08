@@ -119,6 +119,10 @@ make audit
 
 ![Governance: Fail-Closed](https://img.shields.io/badge/Governance-Fail--Closed-critical)&nbsp;![Self-Capable](https://img.shields.io/badge/Self--Capable-Enabled-8b5cf6)&nbsp;![HUMAN-0](https://img.shields.io/badge/HUMAN--0-Non--Delegatable-ff4466)
 
+<div align="center">
+![Harden &amp; Simplify • Governance Guarantees](docs/assets/readme/inline-harden-simplify.svg)
+</div>
+
 Self-capable abilities + ACPA world-first (hardened with 12 ACPA-*0 invariants, flood/diversity caps, full ledger + replay). All paths fail-closed. No bypass.
 
 <!-- ADAAD_DETERMINISTIC_LOCK:START -->
