@@ -1,0 +1,24 @@
+{
+  "artifact_id": "creative.geography_of_ash.american_shame_tapestry_lite",
+  "title": "American Shame Tapestry (Lite / Preview)",
+  "source_work": "Geography of Ash",
+  "version": "1.0",
+  "duration_seconds": 414,
+  "resolution": "1280x720",
+  "framerate": 30,
+  "video_codec": "H.264 (libx264, crf 28, preset fast)",
+  "audio_codec": "AAC 128kbps",
+  "notes": "Fast preview version for iteration. Lower quality, faster render.",
+  "scenes": [
+    { "name": "Greenwood Fire", "start": 0, "end": 65 },
+    { "name": "Flight 655", "start": 65, "end": 130 },
+    { "name": "Boarding School Hallway", "start": 130, "end": 195 },
+    { "name": "Oil Rig", "start": 195, "end": 260 },
+    { "name": "Ancestor Portraits", "start": 260, "end": 325 },
+    { "name": "Speech Bubbles + Climax + Beast Cyber-Cow", "start": 300, "end": 414 }
+  ],
+  "generated_by": "geography_of_ash_pipeline.py --mode lite",
+  "governed_under": "ADAAD Creative Output Layer",
+  "ledger_reference": "data/creative_ledger.jsonl",
+  "created": "2026-05-27"
+}

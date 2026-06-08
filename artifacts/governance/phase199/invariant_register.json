@@ -1,5 +1,6 @@
 {
   "phase": 199,
+<<<<<<< HEAD
   "version": "10.9.0",
   "innovation": "INNOV-104 + DEVADAAD hygiene",
   "code": "CMCE-GATE",
@@ -32,3 +33,22 @@
   "total_hard_class_invariants_after_phase": 609,
   "notes": "DEVADAAD hygiene run recorded cmce.consensus abilities registration as part of Phase 199 Track A. Implemented adaad/abilities/registry.py + base.py (lightweight isolated registry with protocol pattern). Full ratification follows Phase 198 GPG + four-surface (now clean)."
 }
+=======
+  "version": "10.10.0",
+  "ila_id": "ILA-199-2026-05-30-001",
+  "invariants": [
+    {"id": "CMES-ISOLATE-0", "class": "Hard", "description": "Sandbox execution NEVER touches live ledger or live module state."},
+    {"id": "CMES-DETERM-0", "class": "Hard", "description": "Identical seed + mutation spec MUST produce identical delta."},
+    {"id": "CMES-DELTA-0", "class": "Hard", "description": "Every sandbox run MUST emit a signed BehavioralDelta record."},
+    {"id": "CMES-CHAIN-0", "class": "Hard", "description": "Sandbox ledger entries MUST form unbroken HMAC-SHA256 chain."},
+    {"id": "CMES-IMMUT-0", "class": "Hard", "description": "Committed sandbox ledger entries are append-only; no mutations or deletes."},
+    {"id": "CMES-HUMAN0-0", "class": "Hard", "description": "HUMAN-0 holds sole authority to promote or permanently discard sandbox results."},
+    {"id": "CMES-PROMOTE-0", "class": "Hard", "description": "Live promotion REQUIRES a PASSED sandbox run sealed in the ledger."},
+    {"id": "CMES-SCOPE-0", "class": "Hard", "description": "Sandbox scope MUST match the declared blast_radius of the mutation."},
+    {"id": "CMES-REPLAY-0", "class": "Hard", "description": "Any sandbox run MUST be deterministically replayable from its seed + spec."},
+    {"id": "CMES-AUDIT-0", "class": "Hard", "description": "All sandbox operations logged with ISO-8601 timestamps and HUMAN-0 attribution."}
+  ],
+  "cumulative_invariants": 617,
+  "governor": "DUSTIN L REID"
+}
+>>>>>>> a861c240b75fd2303eec9f58cbc908d5e74e1c04

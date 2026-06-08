@@ -9,9 +9,10 @@
 #
 # WHAT CHANGES vs requirements.server.txt
 # ----------------------------------------
-#   fastapi 0.99.1     — last version that supports pydantic v1
+#   fastapi 0.99.1     — last version that supports pydantic v1 natively
 #   pydantic 1.10.26   — pure Python, no Rust, v1 API
 #   starlette 0.27.0   — required by fastapi 0.99.1
+#   sse-starlette 1.6.5— last version compatible with starlette 0.27.x
 #   uvicorn 0.23.2     — pure Python ASGI server
 #   httpx 0.27.2       — pure Python HTTP client
 #   PyYAML             — C extension with pure-Python fallback
@@ -22,17 +23,23 @@
 #
 # SYSTEM PACKAGE (install via pkg, not pip):
 #   PyNaCl             — pkg install python-nacl
+#
+# INSTALL ORDER MATTERS — run exactly:
+#   pip install "fastapi==0.99.1" "pydantic==1.10.26" "starlette==1.0.1" \
+#               "sse-starlette==1.6.5" "uvicorn==0.23.2" "httpx==0.27.2" \
+#               --break-system-packages
 
 fastapi==0.99.1
-uvicorn==0.23.2
-starlette==0.27.0
 pydantic==1.10.26
+starlette==1.0.1
+sse-starlette==1.6.5
+uvicorn==0.23.2
 httpx==0.27.2
 PyYAML>=6.0.1
 anyio>=3.7.1,<5
 sniffio>=1.3.1
 h11>=0.14,<0.15
-click>=8.0.0
+click>=8.4.1
 certifi
 idna
 

@@ -1,0 +1,7 @@
+{
+  "phase": 208, "version": "10.19.0", "innovation": "INNOV-113 · CMOA",
+  "tier_classification": "TIER1",
+  "blast_radius": "STAGED",
+  "rationale": "CMOA reads existing ledger records and emits bounded signals. No direct code mutation. All feedback signals require CGDR gate clearance. Manual recalibration requires HUMAN-0 authority. Fitness deltas hard-bounded to ±0.20.",
+  "governor": "DUSTIN L REID", "date": "2026-06-03"
+}

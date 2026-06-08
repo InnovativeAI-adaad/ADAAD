@@ -1,0 +1,12 @@
+{"phase":201,"version":"10.12.0","invariants":[
+{"id":"CMAC-FAILCLOSED-0","class":"Hard","description":"Any check failure MUST result in DENIED; no partial-admit path."},
+{"id":"CMAC-ORDER-0","class":"Hard","description":"Admission checks MUST execute in fixed constitutional order."},
+{"id":"CMAC-RATELIMIT-0","class":"Hard","description":"No mutation type may exceed its configured rate limit per window."},
+{"id":"CMAC-COOLDOWN-0","class":"Hard","description":"A DENIED mutation MUST observe its cooldown before re-admission."},
+{"id":"CMAC-BLASTAUTH-0","class":"Hard","description":"TIER2+ blast radius MUST have HUMAN-0 pre-authorization."},
+{"id":"CMAC-CHAIN-0","class":"Hard","description":"All admission ledger entries MUST form an unbroken HMAC-SHA256 chain."},
+{"id":"CMAC-IMMUT-0","class":"Hard","description":"Admission ledger entries are append-only; no edits or deletes."},
+{"id":"CMAC-OVERRIDE-0","class":"Hard","description":"Only HUMAN-0 may override a DENIED admission decision."},
+{"id":"CMAC-AUDIT-0","class":"Hard","description":"All admission decisions logged with ISO-8601 timestamps."},
+{"id":"CMAC-QUORUM-0","class":"Hard","description":"TIER3 mutations require quorum readiness confirmation before admission."}
+],"cumulative_invariants":637,"governor":"DUSTIN L REID"}

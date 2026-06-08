@@ -69,6 +69,20 @@ from app.api.ga_promotion_engine import router as gpe_router                  # 
 from app.api.governance_tag_certifier import router as gtc_router             # Phase 188 INNOV-93 GTC
 from app.api.v10_epoch_transition import router as v10et_router                  # Phase 189 INNOV-94 V10ET
 from app.api.invariant_lineage_verifier import router as ilv_router              # Phase 192 INNOV-97 ILV
+from app.api.convergence_criteria_state_wire import router as ccsw_router        # Phase 202 INNOV-107 CCSW
+from app.api.convergence_governance_drift_reporter import router as cgdr_router   # Phase 203 INNOV-108 CGDR
+from app.api.autonomous_mutation_proposal_synthesizer import router as amps_router  # Phase 204 INNOV-109 AMPS
+from app.api.constitutional_mutation_velocity_governor import router as cmvg_router  # Phase 205 INNOV-110 CMVG
+from app.api.cmse import router as cmse_router                                       # Phase 206 INNOV-111 CMSE
+from app.api.cmwe import router as cmwe_router                                       # Phase 207 INNOV-112 CMWE
+from app.api.cmpe import router as cmpe_router                                       # Phase 209 INNOV-114 CMPE
+from app.api.constitutional_governance_proof_renderer import router as cgpr_router   # Phase 210 INNOV-115 CGPR
+from app.api.civr import router as civr_router                                       # Phase 211 INNOV-116 CIVR
+from app.api.cgva import router as cgva_router                                       # Phase 212 INNOV-117 CGVA
+from app.api.cgvr import router as cgvr_router                                       # Phase 213 INNOV-118 CGVR
+from app.api.cgve import router as cgve_router                                       # Phase 214 INNOV-119 CGVE
+from app.api.cgvf import router as cgvf_router                                       # Phase 215 INNOV-120 CGVF
+from app.api.cmoa import router as cmoa_router                                       # Phase 208 INNOV-113 CMOA
 from runtime.integrations.github_app import dispatch_event, verify_webhook_signature  # ADAADchat
 from app.api.dependencies import (
     require_audit_scope,
@@ -907,6 +921,20 @@ app.include_router(compliance_router)
 app.include_router(audit_exports_router)
 app.include_router(mutation_control_router)
 app.include_router(streams_router)
+app.include_router(ccsw_router)             # Phase 202 INNOV-107 CCSW
+app.include_router(cgdr_router)             # Phase 203 INNOV-108 CGDR
+app.include_router(amps_router)             # Phase 204 INNOV-109 AMPS
+app.include_router(cmvg_router)             # Phase 205 INNOV-110 CMVG
+app.include_router(cmse_router)             # Phase 206 INNOV-111 CMSE
+app.include_router(cmoa_router)             # Phase 208 INNOV-113 CMOA
+app.include_router(cmwe_router)             # Phase 207 INNOV-112 CMWE
+app.include_router(cmpe_router)             # Phase 209 INNOV-114 CMPE
+app.include_router(cgpr_router)             # Phase 210 INNOV-115 CGPR
+app.include_router(civr_router)             # Phase 211 INNOV-116 CIVR
+app.include_router(cgva_router)             # Phase 212 INNOV-117 CGVA
+app.include_router(cgvr_router)             # Phase 213 INNOV-118 CGVR
+app.include_router(cgve_router)             # Phase 214 INNOV-119 CGVE
+app.include_router(cgvf_router)             # Phase 215 INNOV-120 CGVF
 
 
 def telemetry_decisions_legacy(

@@ -1,0 +1,14 @@
+{
+  "artifact": "TIER_SUMMARY",
+  "phase": 211,
+  "innov": "INNOV-116",
+  "code": "CIVR",
+  "tiers": {
+    "CRITICAL": 2,
+    "HIGH": 4,
+    "MEDIUM": 3,
+    "LOW": 1
+  },
+  "total_hard_invariants": 10,
+  "governor": "DUSTIN L REID"
+}

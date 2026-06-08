@@ -15,7 +15,18 @@ Future: Ability can evolve into a typing.Protocol once more surfaces
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Mapping, Protocol, runtime_checkable
+from typing import Any, Literal, Mapping, Protocol, runtime_checkable
+
+# Allowed provenance values for self-capable abilities (beyond static seed).
+# Enables discovery, synthesis via AMPS/CMES, promotion, and hygiene reconciliation
+# while preserving the lightweight importable-alone contract.
+ALLOWED_PROVENANCE: tuple[str, ...] = (
+    "seed",
+    "discovered",
+    "synthesized",
+    "promoted_via_cmes",
+    "hygiene_reconciled",
+)
 
 
 @runtime_checkable
@@ -69,6 +80,10 @@ class Ability:
         Optional governance evidence bag (populated by Phase 199+ artifacts).
     updated_at:
         ISO timestamp of last registration / update.
+    provenance:
+        Source of the ability declaration for self-capability (Phase 199+ self-extension).
+        One of ALLOWED_PROVENANCE. "seed" for data/capabilities.json; "discovered",
+        "synthesized", "promoted_via_cmes", or "hygiene_reconciled" for beyond-known.
     """
 
     # The dataclass provides extra fields for compatibility with data/capabilities.json
@@ -84,31 +99,39 @@ class Ability:
     identity: Mapping[str, Any] | None = None
     evidence: dict[str, Any] = field(default_factory=dict)
     updated_at: str | None = None
+    provenance: str = "seed"
 
     def __post_init__(self) -> None:
         if not self.name or not isinstance(self.name, str):
             raise ValueError("Ability.name must be a non-empty string")
-        if self.owner not in {"Earth", "Water", "Wood", "Fire", "Metal"}:
-            # Allow "Governance" etc. for future, but warn via convention
+        if self.owner not in {"Earth", "Water", "Wood", "Fire", "Metal", "Governance"}:
+            # Allow "Governance" etc. for future/self meta-abilities, but warn via convention
             pass
         if self.tier not in (0, 1, 2):
             raise ValueError("Ability.tier must be 0, 1, or 2")
+        if self.provenance not in ALLOWED_PROVENANCE:
+            raise ValueError(f"Ability.provenance must be one of {ALLOWED_PROVENANCE}, got {self.provenance!r}")
 
     def invariants(self) -> list[str]:
         """Return list of invariant strings this Ability claims to uphold.
 
         This is required by the strict AbilityProtocol.
+        Extended for self-capable (Phase 199+): includes provenance (ABILITY-PROV-0).
         """
-        return [
+        invs = [
             f"ABILITY-NAME-0: {self.name}",
             f"ABILITY-OWNER-0: {self.owner}",
             f"ABILITY-VERSION-0: {self.version}",
             f"ABILITY-TIER-0: {self.tier}",
             f"ABILITY-REQUIRES-0: {self.requires}",
+            f"ABILITY-PROV-0: {self.provenance}",
         ]
+        return invs
 
     def to_dict(self) -> dict[str, Any]:
-        """Return a plain dict suitable for JSON / capabilities.json."""
+        """Return a plain dict suitable for JSON / capabilities.json.
+        Includes provenance for self-capable beyond-known tracking.
+        """
         d: dict[str, Any] = {
             "name": self.name,
             "owner": self.owner,
@@ -116,6 +139,7 @@ class Ability:
             "requires": list(self.requires),
             "score": self.score,
             "tier": self.tier,
+            "provenance": self.provenance,
         }
         if self.identity is not None:
             d["identity"] = dict(self.identity)

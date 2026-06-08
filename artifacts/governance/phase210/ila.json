@@ -1,0 +1,22 @@
+{
+  "artifact": "ILA",
+  "phase": 210,
+  "innov": "INNOV-115",
+  "code": "CGPR",
+  "name": "Constitutional Governance Proof Renderer",
+  "version": "10.21.0",
+  "governor": "DUSTIN L REID",
+  "date": "2026-06-04",
+  "hard_invariants_added": 10,
+  "hard_invariants_cumulative": 723,
+  "innovations_shipped_cumulative": 115,
+  "test_gate": "30/30",
+  "four_file_sync": "CLEAN",
+  "world_first": "Portable self-verifying AI governance proof bundle with embedded offline verification instructions and HUMAN-0 signature slot",
+  "patent_relevance": "Primary deliverable for patent counsel \u2014 every world-first claim in the patent filing can attach a CGPR ProofBundle as a cryptographically verifiable exhibit",
+  "track_a_complete": true,
+  "track_b_required": [
+    "GPG sign and tag v10.21.0",
+    "Verify tag delivery via git ls-remote"
+  ]
+}
