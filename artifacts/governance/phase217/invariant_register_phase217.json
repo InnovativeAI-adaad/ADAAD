@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ﻿{
   "phase": 217,
   "version": "10.28.0",
@@ -15,30 +14,4 @@
   "tests_total": 30,
   "status": "SHIPPED",
   "governor": "DUSTIN L REID"
-=======
-{
-  "schema": "INVARIANT-REGISTER-v2",
-  "phase": 217,
-  "version": "10.28.0",
-  "innovation": "INNOV-122 · ACPA",
-  "date": "2026-06-08",
-  "governor": "DUSTIN L REID",
-  "prior_cumulative": 779,
-  "added_this_phase": 12,
-  "cumulative_total": 791,
-  "invariants": [
-    {"id": "ACPA-HUMAN0-0", "class": "Hard", "enforcement": "fail-closed raise"},
-    {"id": "ACPA-CHAIN-0",  "class": "Hard", "enforcement": "fail-closed raise"},
-    {"id": "ACPA-IMMUT-0",  "class": "Hard", "enforcement": "fail-closed append-only"},
-    {"id": "ACPA-DETERM-0", "class": "Hard", "enforcement": "fail-closed raise"},
-    {"id": "ACPA-AUDIT-0",  "class": "Hard", "enforcement": "fail-closed ledger write"},
-    {"id": "ACPA-GATE-0",   "class": "Hard", "enforcement": "fail-closed raise on submit"},
-    {"id": "ACPA-SCOPE-0",  "class": "Hard", "enforcement": "fail-closed raise ACPAScopeError"},
-    {"id": "ACPA-EVIDENCE-0", "class": "Hard", "enforcement": "fail-closed raise ACPAEvidenceError"},
-    {"id": "ACPA-IDEMPOTENT-0", "class": "Hard", "enforcement": "return existing record"},
-    {"id": "ACPA-ATOMIC-0", "class": "Hard", "enforcement": "single-operation ledger+state write"},
-    {"id": "ACPA-DIVERSITY-0", "class": "Hard", "enforcement": "ARCHIVED + DIVERSITY_BLOCK filter_reason"},
-    {"id": "ACPA-FLOOD-0",  "class": "Hard", "enforcement": "fail-closed raise ACPAFloodError"}
-  ]
->>>>>>> origin/main
 }

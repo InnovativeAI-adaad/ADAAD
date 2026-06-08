@@ -58,8 +58,6 @@
 ### Pre-Phase Corrections
 - Corrected stale adaad/__init__.py version 10.23.0 → 10.25.0 (commit before feature branch)
 
-<<<<<<< HEAD
-=======
 ### Hygiene / Self-Capable Abilities (phase199-drift-hygiene-abilities continuation)
 - adaad/abilities now fully self-capable beyond known (static seed) abilities:
   - discovery.py (beyond-seed from manifests, protocol, intents)
@@ -70,8 +68,6 @@
   - tests/abilities/test_adaad_abilities_self_capable.py (protocol, hook fail-closed, discovery, drift, promoted, isolation)
   - claims_evidence_matrix 2 new Complete rows; phase199 artifacts (sign_off/ila) + report_version updated with ABILITY-*-0 + self-extension evidence
   - All changes keep adaad/abilities importable alone; determinism + import-boundary lints pass on the surface; four-surface hygiene reconciled as part of the run.
-
->>>>>>> f076d54f (feat(abilities): fully self-capable beyond known abilities (Phase 199 drift-hygiene + self-extension via discovery, drift, pluggable hook, meta abilities))
 ## [10.25.0] — Phase 214 · INNOV-119 · CGVE
 
 **Date:** 2026-06-06  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID

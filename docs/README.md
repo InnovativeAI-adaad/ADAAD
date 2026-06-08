@@ -4,12 +4,7 @@
 
 <br/>
 
-<<<<<<< HEAD
-[![Version](https://img.shields.io/badge/ADAAD-v10.28.0-000?style=for-the-badge&labelColor=0d1117&color=00d4ff)](../CHANGELOG.md)&nbsp;[![Phase](https://img.shields.io/badge/Phase_217-GPE_Shipped-000?style=for-the-badge&labelColor=0d1117&color=f5c842)](../ROADMAP.md)&nbsp;[![Constitution](https://img.shields.io/badge/Constitution-v0.9.0_%C2%B7_23_Rules-000?style=for-the-badge&labelColor=0d1117&color=ff4466)](CONSTITUTION.md)&nbsp;[![Tests](https://img.shields.io/badge/4%2C624_Tests-Passing-000?style=for-the-badge&labelColor=0d1117&color=00ff88)](../tests/)
-=======
-[![Version](https://img.shields.io/badge/ADAAD-v10.28.0-000?style=for-the-badge&labelColor=0d1117&color=00d4ff)](../CHANGELOG.md)&nbsp;[![Phase](https://img.shields.io/badge/Phase_215-GPE_Shipped-000?style=for-the-badge&labelColor=0d1117&color=f5c842)](../ROADMAP.md)&nbsp;[![Constitution](https://img.shields.io/badge/Constitution-v0.9.0_%C2%B7_23_Rules-000?style=for-the-badge&labelColor=0d1117&color=ff4466)](CONSTITUTION.md)&nbsp;[![Tests](https://img.shields.io/badge/4%2C624_Tests-Passing-000?style=for-the-badge&labelColor=0d1117&color=00ff88)](../tests/)
->>>>>>> a861c240b75fd2303eec9f58cbc908d5e74e1c04
-
+[![Version](https://img.shields.io/badge/ADAAD-v10.9.0-000?style=for-the-badge&labelColor=0d1117&color=00d4ff)](../CHANGELOG.md)&nbsp;[![Phase](https://img.shields.io/badge/Phase_198-GPE_Shipped-000?style=for-the-badge&labelColor=0d1117&color=f5c842)](../ROADMAP.md)&nbsp;[![Constitution](https://img.shields.io/badge/Constitution-v0.9.0_%C2%B7_23_Rules-000?style=for-the-badge&labelColor=0d1117&color=ff4466)](CONSTITUTION.md)&nbsp;[![Tests](https://img.shields.io/badge/4%2C624_Tests-Passing-000?style=for-the-badge&labelColor=0d1117&color=00ff88)](../tests/)
 <br/>
 
 [Architecture](#architecture-overview) &nbsp;·&nbsp; [CEL 14-Step](#constitutional-evolution-loop) &nbsp;·&nbsp; [API Reference](#module-api-reference) &nbsp;·&nbsp; [Config](#configuration-reference) &nbsp;·&nbsp; [Evidence](#evidence-artifacts) &nbsp;·&nbsp; [Tests](#test-coverage-matrix) &nbsp;·&nbsp; [Index](#documentation-index)
