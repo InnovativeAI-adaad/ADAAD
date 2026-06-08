@@ -10,7 +10,7 @@
 
 <br/>
 
-[![Proprietary](https://img.shields.io/badge/license-Proprietary-ff4466?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v10.28.0](https://img.shields.io/badge/version-v10.28.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![0 Invariants](https://img.shields.io/badge/invariants-0%20Hard--class-00ff88?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![121 Innovations](https://img.shields.io/badge/innovations-121%20shipped-f97316?style=flat-square&labelColor=0d1117)](ROADMAP.md)&nbsp;[![Free Download](https://img.shields.io/github/v/release/InnovativeAI-adaad/ADAAD?label=APK&color=00d4ff)](https://github.com/InnovativeAI-adaad/ADAAD/releases)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
+[![Proprietary](https://img.shields.io/badge/license-Proprietary-ff4466?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v10.28.0](https://img.shields.io/badge/version-v10.28.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![791 Invariants](https://img.shields.io/badge/invariants-791%20Hard--class-00ff88?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![122 Innovations](https://img.shields.io/badge/innovations-122%20shipped-f97316?style=flat-square&labelColor=0d1117)](ROADMAP.md)&nbsp;[![Fail-Closed](https://img.shields.io/badge/Governance-Fail--Closed-critical?style=flat-square&labelColor=0d1117)](docs/CONSTITUTION.md)&nbsp;[![Deterministic](https://img.shields.io/badge/Replay-Deterministic-0ea5e9?style=flat-square&labelColor=0d1117)](docs/governance/STRICT_REPLAY_INVARIANTS.md)&nbsp;[![Free Download](https://img.shields.io/github/v/release/InnovativeAI-adaad/ADAAD?label=APK&color=00d4ff)](https://github.com/InnovativeAI-adaad/ADAAD/releases)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
 
 </div>
 
@@ -35,9 +35,9 @@ Every proposed change goes through a 16-step pipeline. Every decision is recorde
 | **Current version** | `10.28.0` |
 | **Phase** | `217` |
 | **Released** | `2026-06-08` |
-| **Release SHA** | `d2a2181` |
-| **Hard-class invariants** | `0` |
-| **Innovations shipped** | `121` |
+| **Release SHA** | `134104ab` |
+| **Hard-class invariants** | `791` |
+| **Innovations shipped** | `122` |
 <!-- ADAAD_VERSION_INFOBOX:END -->
 
 ![System Stats](docs/assets/readme/inline-stats_card.svg)
@@ -54,9 +54,9 @@ Canonical architecture spec: [`docs/governance/ARCHITECT_SPEC_v3.1.0.md`](docs/g
 
 ## <a id="what-it-does"></a>What ADAAD is
 
-ADAAD proposes mutations to its own codebase, scores them against a cryptographically enforced constitution, red-teams them adversarially, executes them in a sandbox, verifies fitness, and delivers results to the governing human for ratification — all in a closed, auditable loop.
+ADAAD is a **fail-closed, deterministic, self-evolving system** with a structural governance layer. It proposes mutations to its own codebase, scores them against a cryptographically enforced constitution (791 Hard-class invariants), red-teams them adversarially, executes in a sandbox (MEX-ATOMIC-0 blast containment), verifies fitness, and delivers only to HUMAN-0 for non-delegatable ratification. Every decision is hash-chained and fully replayable. No bypasses. No silent failures.
 
-It is not an agent framework, not an LLM wrapper, and not a developer tool. It is a self-evolution engine with a governance layer that is structural, not advisory, and where every decision leaves a hash-chained record.
+It is **not** an agent framework, LLM wrapper, or developer tool. It is a constitutional self-amendment engine (now with self-capable abilities surface and ACPA for autonomous proposal generation).
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 
@@ -117,7 +117,9 @@ make audit
 ## Governance & Determinism Guarantees (Current State)
 **v10.28.0 / Phase 217 / INNOV-122 ACPA + self-capable abilities (Arc II)**
 
-Self-Capable-abilities + ACPA world-first badges and pipeline.
+![Governance: Fail-Closed](https://img.shields.io/badge/Governance-Fail--Closed-critical)&nbsp;![Self-Capable](https://img.shields.io/badge/Self--Capable-Enabled-8b5cf6)&nbsp;![HUMAN-0](https://img.shields.io/badge/HUMAN--0-Non--Delegatable-ff4466)
+
+Self-capable abilities + ACPA world-first (hardened with 12 ACPA-*0 invariants, flood/diversity caps, full ledger + replay). All paths fail-closed. No bypass.
 
 <!-- ADAAD_DETERMINISTIC_LOCK:START -->
 ADAAD_DETERMINISTIC_LOCK: All runtime, security, adaad/orchestrator and governance mutation paths are strictly deterministic. No entropy in hot paths. Full replay equivalence enforced.
