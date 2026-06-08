@@ -83,6 +83,7 @@ from app.api.cgvr import router as cgvr_router                                  
 from app.api.cgve import router as cgve_router                                       # Phase 214 INNOV-119 CGVE
 from app.api.cgvf import router as cgvf_router                                       # Phase 215 INNOV-120 CGVF
 from app.api.acsa import router as acsa_router                                       # Phase 216 INNOV-121 ACSA
+from app.api.acpa import router as acpa_router                                       # Phase 217 INNOV-122 ACPA
 from app.api.cmoa import router as cmoa_router                                       # Phase 208 INNOV-113 CMOA
 from runtime.integrations.github_app import dispatch_event, verify_webhook_signature  # ADAADchat
 from app.api.dependencies import (
@@ -937,6 +938,7 @@ app.include_router(cgvr_router)             # Phase 213 INNOV-118 CGVR
 app.include_router(cgve_router)             # Phase 214 INNOV-119 CGVE
 app.include_router(cgvf_router)             # Phase 215 INNOV-120 CGVF
 app.include_router(acsa_router)             # Phase 216 INNOV-121 ACSA
+app.include_router(acpa_router)             # Phase 217 INNOV-122 ACPA
 
 
 def telemetry_decisions_legacy(

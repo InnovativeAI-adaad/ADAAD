@@ -1,12 +1,12 @@
 {
-  "current_phase": 216,
+  "current_phase": 217,
   "version": "10.27.0",
-  "current_version": "10.27.0",
+  "current_version": "10.28.0",
   "software_version": "10.27.0",
   "last_completed_version": "10.27.0",
   "schema_version": "1.5.0",
   "last_completed_phase": "Phase 216 \u2014 INNOV-121 ACSA \u2014 Autonomous Constitutional Self-Amendment Engine",
-  "hard_invariant_count": 0,
+  "hard_invariant_count": 791,
   "innovations_shipped": 121,
   "last_innov_code": "ACSA",
   "last_innov_name": "Autonomous Constitutional Self-Amendment Engine",
@@ -26,5 +26,10 @@
   "gcp_project": "adaad-01",
   "domain": "adaad.pro",
   "last_updated": "2026-06-08T03:45:00Z",
-  "last_invocation": "2026-06-08"
+  "last_invocation": "2026-06-08",
+  "last_innovation_id": "INNOV-122",
+  "last_innovation_code": "ACPA",
+  "last_phase_description": "Phase 217 \u00b7 INNOV-122 \u00b7 ACPA \u2014 Autonomous Constitutional Proposal Advisor",
+  "total_innovations": 122,
+  "arc": "II \u2014 Self-Amendment & Meta-Governance"
 }

@@ -7,7 +7,7 @@ import importlib
 from pathlib import Path
 from types import ModuleType
 
-__version__ = "10.27.0"
+__version__ = "10.28.0"
 APP_ROOT = Path(__file__).resolve().parent
 __all__ = ["APP_ROOT", "core", "orchestrator", "api"]
 
