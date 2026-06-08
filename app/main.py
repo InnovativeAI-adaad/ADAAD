@@ -454,6 +454,7 @@ class Orchestrator:
         register("Earth", "runtime.warm_pool")
         register("Water", "security.cryovant")
         register("Water", "security.ledger.journal")
+        register("Water", "runtime.governance.cmce.cmce_gate")
         register("Wood", "app.architect_agent")
         register("Fire", "app.dream_mode")
         register("Fire", "app.beast_mode_loop")
@@ -913,10 +914,34 @@ class Orchestrator:
             ("dream.cycle", "0.65.0", "Fire"),
             ("beast.evaluate", "0.65.0", "Fire"),
             ("ui.dashboard", "0.65.0", "Metal"),
+            ("cmce.consensus", "0.10.0", "Water"),
         ]
         for capability_name, capability_version, owner in registrations:
             identity = generate_tool_manifest(__name__, capability_name, capability_version)
             register_capability(capability_name, capability_version, 1.0, owner, identity=identity)
+
+        # Also populate the new lightweight adaad.abilities registry (the canonical
+        # home for high-level element-owned abilities going forward; now self-capable
+        # beyond seed with discovery/drift/pluggable constitutional hook). The import is
+        # deliberately inside the method so that adaad.abilities remains importable
+        # in complete isolation.
+        try:
+            from adaad.abilities import Ability, register_ability
+            for capability_name, capability_version, owner in registrations:
+                ab = Ability(
+                    name=capability_name,
+                    owner=owner,
+                    version=capability_version,
+                    requires=["cryovant.gate"] if capability_name == "cmce.consensus" else [],
+                    tier=1,
+                )
+                try:
+                    register_ability(ab)
+                except ValueError:
+                    pass  # already present (e.g. re-entrant boot or tests)
+        except Exception:
+            # Boot must never be broken by the (still-evolving) abilities registry.
+            pass
 
     def _init_ui(self) -> None:
         if self.exit_after_boot or self.state.get("verify_only"):

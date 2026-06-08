@@ -1,0 +1,31 @@
+{
+  "phase": 202,
+  "innovation_code": "INNOV-107",
+  "innovation_name": "CCSW — Convergence Criteria State Wire",
+  "version": "10.13.0",
+  "date": "2026-06-01",
+  "governor": "DUSTIN L REID",
+  "mutation_tier": "TIER-2",
+  "blast_radius": "CONVERGENCE_STATE_ONLY",
+  "tier_justification": "CCSW writes only to data/ccsw/, data/{car,csc,cae,cfi,rdp,cal,cfe}/ subsystem ledgers, and .adaad_agent_state.json. No Tier-0 constitutional files modified. No existing module altered. Pure additive wiring operation.",
+  "files_modified": [
+    ".adaad_agent_state.json — agent state field additions (hard_class_invariants, cel_loop_status, schema_version, constitutional_invariants)",
+    "data/car/rollback_execution_ledger.jsonl — 5 GENESIS entries appended",
+    "data/csc/stability_report_ledger.jsonl — 5 GENESIS entries appended",
+    "data/cae/amendment_execution_ledger.jsonl — 5 GENESIS entries appended",
+    "data/cfi/feedback_integration_ledger.jsonl — 5 GENESIS entries appended",
+    "data/rdp/recommendation_delivery_ledger.jsonl — 5 GENESIS entries appended",
+    "data/cal/learning_cycle_ledger.jsonl — 5 GENESIS entries appended",
+    "data/cfe/forecast_ledger.jsonl — 5 GENESIS entries appended",
+    "data/gir/gir_snapshot.json — readiness_score and gir_score alias keys added"
+  ],
+  "files_added": [
+    "dorkllm/convergence_criteria_state_wire.py",
+    "app/api/convergence_criteria_state_wire.py",
+    "tests/test_phase202_ccsw.py",
+    "artifacts/governance/phase202/ (4 files)"
+  ],
+  "human0_approval_required": false,
+  "human0_ratification_required": true,
+  "ratification_scope": "GPG sign-off on sign_off.json artifact — HUMAN-0 exclusive action"
+}

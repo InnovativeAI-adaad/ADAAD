@@ -32,7 +32,10 @@
 The repository is fail-closed for plaintext credentials. The following must never be committed:
 
 - Private key blocks (for example, PEM private key block headers)
-- Personal access tokens (GitHub PAT formats such as `ghp_...` or `github_pat_...`)
+- Personal access tokens (GitHub PAT formats such as `ghp_...` or `github_pat_11B...` fine-grained)
+- Anthropic/Claude keys (`sk-ant-api03-...`)
+- PyPI tokens (`pypi-AgEI...`)
+- Provider-specific keys (Gravatar, Ollama, ngrok recovery codes, GitHub App client secrets and private keys for ADAADchat)
 - Plaintext API keys and OAuth client secrets in assignments (`API_KEY=...`, `client_secret: ...`, etc.)
 - Cloud/provider tokens (for example AWS access key IDs, Slack tokens, Stripe live keys)
 - Local scratch secret files (`.env.local`, `*.pem`, `*.key`, `SECRET`, `secrets.local.*`)

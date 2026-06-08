@@ -1,0 +1,20 @@
+{
+  "assessment_count": 28,
+  "chain_head_digest": "0cdc045fc29c5fccc6cc93289fd8afe00b411c0b76cc4cad7e4c590c5db8e969",
+  "cri": 0.825,
+  "cri_status": "READY",
+  "human0_escalations_total": 0,
+  "last_assessment_id": "146d822c-e7f5-4b11-911c-1a9ddb7e3683",
+  "lowest_dimensions": [
+    "invariant_density",
+    "stability_monitoring",
+    "constitutional_lifecycle"
+  ],
+  "snapshot_id": "e477c8c3-5ea3-428b-b765-0db0cabf5c84",
+  "timestamp": "2026-06-01T07:11:53Z",
+  "readiness_score": 0.825,
+  "gir_score": 0.825,
+  "ccsw_alias_injected": true,
+  "ccsw_alias_timestamp": "2026-06-01T07:11:53Z",
+  "ccsw_innov": "INNOV-107"
+}

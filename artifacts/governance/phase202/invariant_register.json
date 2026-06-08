@@ -1,0 +1,72 @@
+{
+  "phase": 202,
+  "innovation_code": "INNOV-107",
+  "innovation_name": "CCSW — Convergence Criteria State Wire",
+  "version": "10.13.0",
+  "date": "2026-06-01",
+  "governor": "DUSTIN L REID",
+  "hard_class_invariants_this_phase": 10,
+  "cumulative_total": 647,
+  "invariants": [
+    {
+      "id": "CCSW-WRITE-0",
+      "class": "Hard",
+      "description": "CCSW only writes to data/{car,csc,cae,cfi,rdp,cal,cfe,ccsw}/ and .adaad_agent_state.json; no other paths touched",
+      "enforcement": "Fail-closed; unauthorized path access raises RuntimeError before any write"
+    },
+    {
+      "id": "CCSW-CHAIN-0",
+      "class": "Hard",
+      "description": "CCSW wire ledger entries form a valid HMAC-SHA-256 chain; broken chain halts processing",
+      "enforcement": "verify_chain() validates each record's digest against recomputed canonical payload"
+    },
+    {
+      "id": "CCSW-IMMUT-0",
+      "class": "Hard",
+      "description": "CCSW wire ledger is append-only; no record mutation after write",
+      "enforcement": "_append_jsonl() opens in append mode; no overwrite path exists in module"
+    },
+    {
+      "id": "CCSW-DETERM-0",
+      "class": "Hard",
+      "description": "No wall-clock injection; all timestamps via _utc_iso(); identical input produces identical subsystem genesis records",
+      "enforcement": "All timestamp calls routed through _utc_iso(); no datetime.now() calls outside this function"
+    },
+    {
+      "id": "CCSW-IDEMPOTENT-0",
+      "class": "Hard",
+      "description": "Repeated bootstrap calls are safe; genesis entries not duplicated; idempotency checked by CCSW_GENESIS source marker",
+      "enforcement": "bootstrap_gir_subsystems() checks existing records for source==CCSW_GENESIS before writing"
+    },
+    {
+      "id": "CCSW-AUDIT-0",
+      "class": "Hard",
+      "description": "Every wire() call writes a signed ledger entry before returning results",
+      "enforcement": "_write_wire_record() called before return in wire(); HMAC-chained entry written first"
+    },
+    {
+      "id": "CCSW-VERIFY-0",
+      "class": "Hard",
+      "description": "After wiring, CCA preview score must be >= 0.875; wire() raises RuntimeError if assertion fails — fail-closed",
+      "enforcement": "verify_convergence() raises RuntimeError on score < CCSW_MIN_CONVERGENCE_SCORE; wire() propagates"
+    },
+    {
+      "id": "CCSW-SEAL-0",
+      "class": "Hard",
+      "description": "Each wire record sealed with HMAC-SHA-256 over canonical JSON payload",
+      "enforcement": "_hmac_digest() applied to _canonical_json() of payload_obj; stored as hmac_digest field"
+    },
+    {
+      "id": "CCSW-HUMAN0-0",
+      "class": "Hard",
+      "description": "Successful verification (score >= 0.875) emits HUMAN-0 V10 graduation advisory",
+      "enforcement": "Advisory written to data/ccsw/human0_advisory_log.jsonl before returning result"
+    },
+    {
+      "id": "CCSW-SCHEMA-0",
+      "class": "Hard",
+      "description": "Agent state schema_version set to '1.0' only if field is absent; never overwrites existing schema_version",
+      "enforcement": "patch_agent_state() checks agent.get('schema_version') before setting; skips if truthy"
+    }
+  ]
+}

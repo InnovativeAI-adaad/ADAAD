@@ -1,0 +1,1 @@
+{"phase":201,"version":"10.12.0","tier":"TIER1","blast_radius":"single-module","modules_added":["dorkllm/constitutional_mutation_admission_controller.py"],"api_endpoints_added":["POST /cmac/admit","POST /cmac/override","GET /cmac/chain/verify","GET /cmac/summary","GET /cmac/export"],"governor":"DUSTIN L REID","date":"2026-05-30"}

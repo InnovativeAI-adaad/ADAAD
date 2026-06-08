@@ -17,12 +17,14 @@ _SPEC.loader.exec_module(scan_secrets)
 def test_scan_secrets_detects_high_risk_plaintext(tmp_path: Path) -> None:
     leak_file = tmp_path / "leak.txt"
     simulated_pat = "ghp_" + "123456789012345678901234567890123456"
-    leak_file.write_text(f"token = '{simulated_pat}'\n", encoding="utf-8")
+    simulated_claude = "sk-ant-api03-tMsC4Rm" + "A" * 95
+    leak_file.write_text(f"token = '{simulated_pat}'\nclaude={simulated_claude}\n", encoding="utf-8")
 
     findings = scan_secrets.scan_path(tmp_path)
 
     assert findings
     assert any(f.rule == "github_pat" for f in findings)
+    assert any(f.rule == "anthropic_claude_key" for f in findings)
 
 
 def test_scan_secrets_allows_template_files(tmp_path: Path) -> None:

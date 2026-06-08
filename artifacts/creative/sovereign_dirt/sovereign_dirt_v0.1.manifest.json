@@ -1,0 +1,10 @@
+{
+  "artifact_id": "creative.sovereign_dirt.v0.1",
+  "title": "Sovereign Dirt (Scaffold Example)",
+  "project": "sovereign_dirt",
+  "version": "0.1",
+  "status": "Scaffold / Workflow Demonstration",
+  "description": "Example of a second creative project registered through the ADAAD governed creative output workflow (creative_output.py --action register).",
+  "generated_by": "creative_output.py",
+  "created": "2026-05-27"
+}

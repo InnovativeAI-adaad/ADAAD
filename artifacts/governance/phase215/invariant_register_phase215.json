@@ -1,0 +1,26 @@
+{
+  "document_type": "Phase Invariant Register",
+  "phase": 215,
+  "innovation": "INNOV-120",
+  "code": "CGVF",
+  "version": "10.26.0",
+  "governor": "DUSTIN L REID",
+  "date": "2026-06-07",
+  "invariants": [
+    {"id": "CGVF-AUDIT-0",      "class": "Hard", "module": "dorkllm/constitutional_governance_validation_fusion.py", "description": "Every fusion run is ledger-recorded before return"},
+    {"id": "CGVF-CHAIN-0",      "class": "Hard", "module": "dorkllm/constitutional_governance_validation_fusion.py", "description": "HMAC-SHA-256 chained ledger; no gaps tolerated"},
+    {"id": "CGVF-DETERM-0",     "class": "Hard", "module": "dorkllm/constitutional_governance_validation_fusion.py", "description": "fusion_id is SHA-256(peer_signal_hash+ts_ns)"},
+    {"id": "CGVF-FAILCLOSED-0", "class": "Hard", "module": "dorkllm/constitutional_governance_validation_fusion.py", "description": "All internal errors raise; never swallowed silently"},
+    {"id": "CGVF-ATOMIC-0",     "class": "Hard", "module": "dorkllm/constitutional_governance_validation_fusion.py", "description": "Ledger writes use os.replace() via .tmp intermediary"},
+    {"id": "CGVF-HUMAN0-0",     "class": "Hard", "module": "dorkllm/constitutional_governance_validation_fusion.py", "description": "consensus_score < 0.70 sets human0_required=True"},
+    {"id": "CGVF-SCORE-0",      "class": "Hard", "module": "dorkllm/constitutional_governance_validation_fusion.py", "description": "consensus_score in [0.0, 1.0]; out-of-range raises CGVFScoreError"},
+    {"id": "CGVF-PEER-0",       "class": "Hard", "module": "dorkllm/constitutional_governance_validation_fusion.py", "description": "All 4 CG* peers queried; missing peer degrades score, recorded as available=False"},
+    {"id": "CGVF-SEAL-0",       "class": "Hard", "module": "dorkllm/constitutional_governance_validation_fusion.py", "description": "Every ledger record carries a sealed HMAC digest"},
+    {"id": "CGVF-IMMUT-0",      "class": "Hard", "module": "dorkllm/constitutional_governance_validation_fusion.py", "description": "Appended ledger records are immutable; mutation raises CGVFImmutError"},
+    {"id": "CGVF-CERT-0",       "class": "Hard", "module": "dorkllm/constitutional_governance_validation_fusion.py", "description": "HUMAN-0 certification is one-way; re-certification raises CGVFCertError"},
+    {"id": "CGVF-CONSENSUS-0",  "class": "Hard", "module": "dorkllm/constitutional_governance_validation_fusion.py", "description": "overall_status derived solely from consensus_score thresholds"}
+  ],
+  "previous_cumulative": 755,
+  "added_this_phase": 12,
+  "new_cumulative": 767
+}

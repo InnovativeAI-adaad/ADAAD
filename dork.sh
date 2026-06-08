@@ -100,7 +100,7 @@ _pick_python() {
 
 _check_deps() {
     local py="$1"
-    if "$py" -c "import uvicorn, fastapi" &>/dev/null; then
+    if "$py" -c "import uvicorn, fastapi, sse_starlette" &>/dev/null; then
         return 0
     fi
 
@@ -116,10 +116,13 @@ _check_deps() {
 
         _warn "requirements.phone.txt failed — trying minimal bare install..."
         # Bare minimum: fastapi 0.99.1 + pydantic v1 + uvicorn (no Rust)
+        # sse-starlette MUST be 1.6.5 — newer versions pull starlette>=0.49 which
+        # breaks fastapi 0.99.1 (Router.__init__ on_startup kwarg removed)
         "$py" -m pip install \
             "fastapi==0.99.1" \
             "pydantic==1.10.26" \
             "starlette==0.27.0" \
+            "sse-starlette==1.6.5" \
             "uvicorn==0.23.2" \
             "httpx==0.27.2" \
             "anyio>=3.7.1,<5" \
@@ -131,11 +134,11 @@ _check_deps() {
             --break-system-packages -q
     fi
 
-    if "$py" -c "import uvicorn, fastapi" &>/dev/null; then
+    if "$py" -c "import uvicorn, fastapi, sse_starlette" &>/dev/null; then
         _ok "Dependencies installed"
     else
         _err "Dependency install failed. Try manually:"
-        echo "     pip install fastapi==0.99.1 pydantic==1.10.26 uvicorn==0.23.2 --break-system-packages"
+        echo "     pip install fastapi==0.99.1 pydantic==1.10.26 starlette==0.27.0 sse-starlette==1.6.5 uvicorn==0.23.2 --break-system-packages"
         exit 1
     fi
 }

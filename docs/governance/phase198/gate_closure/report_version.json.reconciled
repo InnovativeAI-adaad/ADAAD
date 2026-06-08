@@ -1,0 +1,22 @@
+{
+  "last_sync_date": "2026-05-27",
+  "last_sync_sha": "phase198-cmce-gate-closure",
+  "report_version": "10.9.0",
+  "version_source": "governance/report_version.json",
+  "version": "10.9.0",
+  "phase": 198,
+  "date": "2026-05-27",
+  "innovation": "INNOV-103",
+  "updated": "2026-05-27T16:45:00.000000+00:00",
+  "last_updated": "2026-05-27",
+  "phase_label": "Phase 198 \u2014 INNOV-103 \u00b7 CMCE \u2014 Constitutional Mutation Consensus Engine",
+  "last_phase": "Phase 198 \u00b7 INNOV-103 \u00b7 CMCE \u2014 Constitutional Mutation Consensus Engine",
+  "hard_invariants": 607,
+  "last_innovation": "INNOV-103-CMCE",
+  "hard_class_invariant_count": 607,
+  "innovations_shipped": 103,
+  "milestone": "v10.9.0",
+  "pypi_published": "adaad-core==10.9.0",
+  "ga_tag": "v10.0.0",
+  "note": "Reconciled during Phase 198 Gate Closure. Four-surface sync restored after CMCE ratification."
+}

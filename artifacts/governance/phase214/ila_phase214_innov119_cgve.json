@@ -1,0 +1,42 @@
+{
+  "artifact_type": "Innovation Ledger Attestation",
+  "innov_code": "CGVE",
+  "innov_number": "INNOV-119",
+  "innov_name": "Constitutional Governance Version Enforcer",
+  "phase": 214,
+  "version": "10.25.0",
+  "governor": "DUSTIN L REID",
+  "agent": "DEVADAAD",
+  "organization": "InnovativeAI LLC",
+  "timestamp": "2026-06-06T21:12:57Z",
+  "test_result": "30/30 PASSED",
+  "invariants": [
+    "CGVE-AUDIT-0",
+    "CGVE-CHAIN-0",
+    "CGVE-DETERM-0",
+    "CGVE-FAILCLOSED-0",
+    "CGVE-ATOMIC-0",
+    "CGVE-HUMAN0-0",
+    "CGVE-SURFACES-0",
+    "CGVE-SEAL-0",
+    "CGVE-STATUS-0",
+    "CGVE-IMMUT-0",
+    "CGVE-CANONICAL-0",
+    "CGVE-BLAST-0"
+  ],
+  "invariant_count": 12,
+  "module": "dorkllm/constitutional_governance_version_enforcer.py",
+  "api_module": "app/api/cgve.py",
+  "test_module": "tests/test_phase214_cgve.py",
+  "endpoints": [
+    "POST /cgve/enforce",
+    "GET /cgve/status",
+    "GET /cgve/verify-chain",
+    "GET /cgve/history"
+  ],
+  "live_repair_result": "REPAIRED \u2014 adaad_core/__init__.py 10.23.0->10.24.0, adaad_core/pyproject.toml 9.121.0->10.24.0",
+  "post_repair_status": "COMPLIANT",
+  "world_first": "First HMAC-chained sub-package version enforcement engine with constitutional blast-radius gating and HUMAN-0 advisory protocol for root surface drift",
+  "ila_status": "SIGNED_OFF",
+  "ila_hash": "b3e0d4b7f4cdd49fad0b8c91afb6ba5780cf2314cdc95cb1c4331dff645f4479"
+}

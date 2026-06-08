@@ -1,0 +1,35 @@
+{
+  "ila_ref": "ILA-199-2026-06-07-001",
+  "phase": 199,
+  "innovation": "INNOV-104 + DEVADAAD drift hygiene + self-capable abilities",
+  "title": "CMES + adaad/abilities Self-Capable Drift Hygiene (10.9.0 / beyond known abilities)",
+  "epoch": "A",
+  "date": "2026-06-07",
+  "summary": "DEVADAAD hygiene run + self-extension: four-surface (report_version, agent_state, pyproject, VERSION) + abilities surface at 10.9.0 / phase 199. cmce.consensus + 3 meta adaad.abilities.* high-level abilities (introspect, drift_hygiene, self_register) registered. Lightweight adaad/abilities now supports discovery beyond seed, drift reports, and pluggable constitutional hook (CMES trial + CGDR). New ABILITY-*-0 invariants. CMES sandbox foundation retained for self-mutation of ability surface.",
+  "deliverables_completed_under_track_a": [
+    "CMES + CMCE gate foundation + adapter (prior).",
+    "lightweight adaad/abilities/registry.py + base.py (Phase 199 hygiene).",
+    "adaad/abilities/discovery.py: beyond-seed discovery (protocol scan, agent/tool manifests, dork intents).",
+    "adaad/abilities/drift.py: AbilitiesDriftReport + detect_abilities_drift() for surface hygiene.",
+    "registry enhancements: provenance, set_governance_hook (pluggable, lazy CMES/CGDR wiring via bridge), promoted registration.",
+    "3 meta self-abilities added to data/capabilities.json and registry.",
+    "claims_evidence_matrix rows + phase199 artifacts updated for self-capable closure.",
+    "four-surface + report/agent_state reconciled; narrow determinism + import lint PASS on abilities/orchestrator."
+  ],
+  "success_criteria_status": {
+    "mandatory_non_bypassable_gate": "Retained (CMCE); extended to ability registration via hook + CMES delta",
+    "self_discovery": "Implemented (discovery.py + protocol)",
+    "drift_hygiene": "Implemented (drift.py + report; clean post change)",
+    "governed_self_extension": "Implemented (pluggable hook + bridge + CMES trial path; ABILITY-PROMOTE-0)",
+    "lightweight_preserved": "PASS (import adaad.abilities isolation verified)",
+    "evidence": "Complete (matrix rows + artifacts + tests)"
+  },
+  "blockers": [
+    "Full Track B / GPG + Phase 198 closure on ADAADell for final ratification (per prior)."
+  ],
+  "next_steps": [
+    "Integrate abilities list into dork_intent_router and status reports for self-use.",
+    "Phase 200+: native ABILITY_REG blast type in AMPS/CMAC/CMES/CGDR (amend CGDR-SCOPE-0 if needed).",
+    "Expand test coverage and performance guards for discovery/drift under load."
+  ]
+}

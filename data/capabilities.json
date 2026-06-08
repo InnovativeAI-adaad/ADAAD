@@ -88,5 +88,47 @@
     "score": 1.0,
     "updated_at": "2026-04-04T01:08:25Z",
     "version": "0.65.0"
+  },
+  "cmce.consensus": {
+    "evidence": {},
+    "identity": {
+      "hash": "aeff735361b65610a1ce7eeca8078eacd5fce17d3c78ca34a4433fd9f08ee319",
+      "timestamp": "2026-05-28T00:00:00Z",
+      "tool_id": "cmce.consensus",
+      "version": "0.10.0"
+    },
+    "name": "cmce.consensus",
+    "owner": "Water",
+    "requires": ["cryovant.gate"],
+    "score": 1.0,
+    "updated_at": "2026-05-28T00:00:00Z",
+    "version": "0.10.0"
+  },
+  "adaad.abilities.introspect": {
+    "name": "adaad.abilities.introspect",
+    "owner": "Governance",
+    "version": "0.1.0",
+    "requires": ["orchestrator.boot"],
+    "score": 1.0,
+    "updated_at": "2026-06-07T00:00:00Z",
+    "evidence": {"phase": 199, "note": "self-capable meta ability: list and query current high-level abilities"}
+  },
+  "adaad.abilities.drift_hygiene": {
+    "name": "adaad.abilities.drift_hygiene",
+    "owner": "Governance",
+    "version": "0.1.0",
+    "requires": ["adaad.abilities.introspect"],
+    "score": 1.0,
+    "updated_at": "2026-06-07T00:00:00Z",
+    "evidence": {"phase": 199, "note": "self-capable meta ability: detect_abilities_drift + reconcile reports"}
+  },
+  "adaad.abilities.self_register": {
+    "name": "adaad.abilities.self_register",
+    "owner": "Governance",
+    "version": "0.1.0",
+    "requires": ["adaad.abilities.drift_hygiene"],
+    "score": 1.0,
+    "updated_at": "2026-06-07T00:00:00Z",
+    "evidence": {"phase": 199, "note": "self-capable meta ability: governed promotion of new abilities via CMES + hook"}
   }
 }

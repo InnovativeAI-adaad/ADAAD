@@ -1,0 +1,16 @@
+{
+  "phase": 200,
+  "version": "10.11.0",
+  "tier": "TIER1",
+  "blast_radius": "single-module",
+  "modules_added": ["dorkllm/constitutional_mutation_lineage_graph.py"],
+  "api_endpoints_added": [
+    "POST /cmlg/genesis","POST /cmlg/node","POST /cmlg/edge",
+    "POST /cmlg/rollback","POST /cmlg/ghost/purge",
+    "GET /cmlg/path/{node_id}","GET /cmlg/ancestors/{node_id}",
+    "GET /cmlg/mutation/{mutation_id}",
+    "GET /cmlg/chain/verify","GET /cmlg/summary","GET /cmlg/export"
+  ],
+  "governor": "DUSTIN L REID",
+  "date": "2026-05-30"
+}

@@ -1,0 +1,20 @@
+{
+  "phase": 204,
+  "innovation": "INNOV-109 · AMPS",
+  "version": "10.15.0",
+  "governor": "DUSTIN L REID",
+  "date": "2026-06-03",
+  "hard_class_invariants": [
+    {"id": "AMPS-CHAIN-0",     "description": "ProposalLedger entries are HMAC-SHA-256 chained", "tier": "Hard"},
+    {"id": "AMPS-IMMUT-0",     "description": "Sealed proposal records are never mutated post-sealing", "tier": "Hard"},
+    {"id": "AMPS-HUMAN0-0",    "description": "Ratification requires authenticated HUMAN-0 authority", "tier": "Hard"},
+    {"id": "AMPS-CGDR-0",      "description": "No proposal promoted while CGDR gate status is DRIFTED or UNKNOWN", "tier": "Hard"},
+    {"id": "AMPS-SCORE-0",     "description": "Every proposal carries constitutional_fitness ∈ [0.0, 1.0]", "tier": "Hard"},
+    {"id": "AMPS-DETERM-0",    "description": "Proposal IDs are deterministic SHA-256 hashes of content", "tier": "Hard"},
+    {"id": "AMPS-AUDIT-0",     "description": "Every synthesis run is sealed in ledger regardless of outcome", "tier": "Hard"},
+    {"id": "AMPS-BLAST-0",     "description": "Blast radius classified (TIER0/TIER1/TIER2) before proposal emission", "tier": "Hard"},
+    {"id": "AMPS-FAILCLOSED-0","description": "Any synthesis error emits NO_PROPOSAL, never a partial record", "tier": "Hard"},
+    {"id": "AMPS-SEAL-0",      "description": "ProposalManifest carries SHA-256 content seal", "tier": "Hard"}
+  ],
+  "cumulative_hard_invariants": 667
+}

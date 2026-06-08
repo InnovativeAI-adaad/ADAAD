@@ -1,0 +1,43 @@
+{
+  "schema": "ILA-1.0",
+  "phase": 213,
+  "innovation_code": "INNOV-118",
+  "innovation_name": "CGVR — Constitutional Governance Violation Remediator",
+  "version": "10.24.0",
+  "timestamp": "2026-06-05T00:00:00Z",
+  "governor": "DUSTIN L REID",
+  "agent": "DEVADAAD",
+  "organization": "InnovativeAI LLC",
+  "repository": "github.com/InnovativeAI-adaad/adaad",
+  "module": "dorkllm/constitutional_governance_violation_remediator.py",
+  "router": "app/api/cgvr.py",
+  "tests": "tests/test_phase213_cgvr.py",
+  "test_count": 30,
+  "tests_passed": 30,
+  "hard_invariants_this_phase": 10,
+  "hard_invariants_cumulative": 743,
+  "invariants": [
+    "CGVR-AUDIT-0",
+    "CGVR-CHAIN-0",
+    "CGVR-DETERM-0",
+    "CGVR-FAILCLOSED-0",
+    "CGVR-HUMAN0-0",
+    "CGVR-BLAST-0",
+    "CGVR-SEAL-0",
+    "CGVR-IMMUT-0",
+    "CGVR-PLAN-0",
+    "CGVR-STATUS-0"
+  ],
+  "endpoints": [
+    "POST /cgvr/remediate",
+    "POST /cgvr/approve-tier0/{remediation_id}",
+    "GET  /cgvr/history",
+    "GET  /cgvr/verify-chain",
+    "GET  /cgvr/status"
+  ],
+  "world_first": "Portable, governed, HMAC-chained constitutional governance violation remediator with rule-based prescription engine, blast-radius tiering, HUMAN-0 Tier-0 gate, atomic ledger persistence, and full chain verification — closing the CGVA audit-to-repair loop.",
+  "v10_convergence_score": 1.0,
+  "pipeline_topology": "AMPS→CMVG→CMSE→CMWE→CMOA→AMPS",
+  "cel_loop_status": "FULLY CLOSED",
+  "status": "SHIPPED"
+}
