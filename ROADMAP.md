@@ -9,7 +9,7 @@ Cumulative: 107 innovations · 647 Hard-class invariants · Phase 202
 
 ---
 
-## Current State — v10.25.0 · Phase 214 · Phase 214
+## Current State — v10.26.0 · Phase 215 · Phase 215
 - [x] **Phase 212 · INNOV-117 · CGVA** — Constitutional Governance Validation Auditor · v10.23.0 · 733 Hard-class invariants · 117 innovations · 30/30 tests
 
 **Status:** 113 innovations shipped (INNOV-01–INNOV-113). Phase 208 complete. v10.19.0 baseline. Full pipeline loop AMPS→CMVG→CMSE→CMWE→CMOA→AMPS closed.
