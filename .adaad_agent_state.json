@@ -1,10 +1,10 @@
 {
-  "current_phase": 214,
+  "current_phase": 215,
   "version": "10.25.0",
-  "hard_invariant_count": 755,
-  "innovations_shipped": 119,
-  "last_innov_code": "CGVE",
-  "last_innov_name": "Constitutional Governance Version Enforcer",
+  "hard_invariant_count": 767,
+  "innovations_shipped": 120,
+  "last_innov_code": "CGVF",
+  "last_innov_name": "Constitutional Governance Validation Fusion Engine",
   "v10_convergence_criteria_met": [
     "C1",
     "C2",
@@ -20,7 +20,7 @@
   "organization": "InnovativeAI LLC",
   "repository": "github.com/InnovativeAI-adaad/adaad",
   "pypi_package": "adaad-core",
-  "next_phase": 215,
+  "next_phase": 216,
   "next_innov": "CGVF",
   "gcp_project": "adaad-01",
   "domain": "adaad.pro",
@@ -33,5 +33,7 @@
   "last_updated": "2026-06-06T21:13:11Z",
   "last_invocation": "2026-06-06",
   "pipeline_loop_closed": true,
-  "pipeline_topology": "AMPS\u2192CMVG\u2192CMSE\u2192CMWE\u2192CMOA\u2192AMPS"
+  "pipeline_topology": "AMPS\u2192CMVG\u2192CMSE\u2192CMWE\u2192CMOA\u2192AMPS",
+  "current_version": "10.26.0",
+  "updated_at": "2026-06-08T02:38:44Z"
 }

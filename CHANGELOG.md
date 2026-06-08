@@ -1,3 +1,25 @@
+## [10.26.0] — Phase 215 · INNOV-120 · CGVF
+
+**Date:** 2026-06-07  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### Added
+- **INNOV-120 · CGVF — Constitutional Governance Validation Fusion Engine** (Phase 215)
+  - World-first HMAC-chained CG* family orchestration capstone engine
+  - Queries CGVA (40%), CGVR (25%), CGVE (25%), CGPR (10%) — weighted consensus_score [0.0, 1.0]
+  - FusionAttestation dataclass: prev_digest chained, HMAC-sealed, append-only JSONL ledger
+  - FusionStatus: HEALTHY (≥0.85) / DEGRADED (≥0.70) / HUMAN0_REQUIRED / CRITICAL (<0.40)
+  - CGVF-HUMAN0-0: consensus_score < 0.70 automatically sets human0_required=True
+  - CGVF-CERT-0: HUMAN-0 certification is one-way sealed; re-certification raises CGVFCertError
+  - CGVF-PEER-0: unavailable peer degrades consensus rather than blocking — fail-graceful
+  - 6 REST endpoints: POST /cgvf/fuse, /certify/{id}, GET /history, /verify-chain, /consensus-score, /status
+  - 12 Hard-class invariants: CGVF-AUDIT-0 through CGVF-CONSENSUS-0
+  - 30/30 acceptance tests passing (T215-CGVF-01..30)
+  - Arc I: CG* family completion — CGPR→CGVA→CGVR→CGVE→**CGVF** pipeline now producing unified governance certificate
+  - Cumulative hard-class invariants: 767 (+12)
+
+### Pre-Phase Corrections
+- Corrected stale adaad/__init__.py version 10.23.0 → 10.25.0 (commit before feature branch)
+
 ## [10.25.0] — Phase 214 · INNOV-119 · CGVE
 
 **Date:** 2026-06-06  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
