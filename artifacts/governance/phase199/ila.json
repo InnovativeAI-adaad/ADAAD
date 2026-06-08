@@ -1,35 +1,35 @@
 {
-  "ila_ref": "ILA-199-2026-05-28-001",
+  "ila_ref": "ILA-199-2026-06-07-001",
   "phase": 199,
-  "innovation": "INNOV-104 + DEVADAAD drift hygiene",
-  "title": "CMCE Core Integration Foundation + four-surface hygiene (10.9.0 / abilities record)",
+  "innovation": "INNOV-104 + DEVADAAD drift hygiene + self-capable abilities",
+  "title": "CMES + adaad/abilities Self-Capable Drift Hygiene (10.9.0 / beyond known abilities)",
   "epoch": "A",
-  "date": "2026-05-28",
-  "summary": "DEVADAAD hygiene run: establishes four-surface (report_version, agent_state, pyproject, VERSION) at 10.9.0 / phase 198 reality and records the cmce.consensus high-level ability registration as part of Phase 199 CMCE proliferation. The CMCE (INNOV-103) gate remains the mandatory constitutional gate.",
+  "date": "2026-06-07",
+  "summary": "DEVADAAD hygiene run + self-extension: four-surface (report_version, agent_state, pyproject, VERSION) + abilities surface at 10.9.0 / phase 199. cmce.consensus + 3 meta adaad.abilities.* high-level abilities (introspect, drift_hygiene, self_register) registered. Lightweight adaad/abilities now supports discovery beyond seed, drift reports, and pluggable constitutional hook (CMES trial + CGDR). New ABILITY-*-0 invariants. CMES sandbox foundation retained for self-mutation of ability surface.",
   "deliverables_completed_under_track_a": [
-    "Corrected runtime/governance/cmce/cmce_gate.py adapter to match the real constitutional_mutation_consensus_engine API (open_round, cast_vote, close_round).",
-    "Implemented narrow ExemptionPolicy with allowed scopes for emergency/ bootstrap / governance_drift_closure only.",
-    "Wired propose_mutation_with_cmce in EvolutionKernel as the new primary high-stakes mutation path.",
-    "Registered Hard-class invariants CMCE-GATE-0 and CMCE-EXEMPT-0.",
-    "Produced initial Phase 199 governance artifacts.",
-    "DEVADAAD-directed four-surface drift fix: governance/report_version.json + .adaad_agent_state.json aligned to 10.9.0/198 via scripts/version_sync.py + manual validator polish.",
-    "cmce.consensus high-level ADAAD ability (Water) recorded: registered in data/capabilities.json and app/main.py; cross-linked in Phase 199 artifacts with supporting invariant declarations.",
-    "lightweight_abilities_registry_implemented": "adaad/abilities/registry.py (minimal _registry dict, register_ability/get_ability/list_abilities with GovernanceGate hook comment) + adaad/abilities/base.py (Ability frozen dataclass as protocol). Lightweight/isolated import (no runtime heavy deps). Part of Phase 199 CMCE proliferation per master strategic 'persistent governed agent tooling'."
+    "CMES + CMCE gate foundation + adapter (prior).",
+    "lightweight adaad/abilities/registry.py + base.py (Phase 199 hygiene).",
+    "adaad/abilities/discovery.py: beyond-seed discovery (protocol scan, agent/tool manifests, dork intents).",
+    "adaad/abilities/drift.py: AbilitiesDriftReport + detect_abilities_drift() for surface hygiene.",
+    "registry enhancements: provenance, set_governance_hook (pluggable, lazy CMES/CGDR wiring via bridge), promoted registration.",
+    "3 meta self-abilities added to data/capabilities.json and registry.",
+    "claims_evidence_matrix rows + phase199 artifacts updated for self-capable closure.",
+    "four-surface + report/agent_state reconciled; narrow determinism + import lint PASS on abilities/orchestrator."
   ],
   "success_criteria_status": {
-    "mandatory_non_bypassable_gate": "Implemented in propose_mutation_with_cmce + CMCEGate",
-    "clean_adapter": "Implemented (API mapping corrected)",
-    "new_invariants": "Registered (see invariant_register.json); ABILITY-REG-0 for high-level abilities visibility added via this hygiene run",
-    "governance_artifacts": "Initial + DEVADAAD hygiene update (drift fixed, abilities recorded, versions to 10.9.0)",
-    "four_surface": "PASS (drift validator 0 violations after this run)"
+    "mandatory_non_bypassable_gate": "Retained (CMCE); extended to ability registration via hook + CMES delta",
+    "self_discovery": "Implemented (discovery.py + protocol)",
+    "drift_hygiene": "Implemented (drift.py + report; clean post change)",
+    "governed_self_extension": "Implemented (pluggable hook + bridge + CMES trial path; ABILITY-PROMOTE-0)",
+    "lightweight_preserved": "PASS (import adaad.abilities isolation verified)",
+    "evidence": "Complete (matrix rows + artifacts + tests)"
   },
   "blockers": [
-    "Full Track B ratification requires Phase 198 GPG closure on ADAADell (four-surface now clean)."
+    "Full Track B / GPG + Phase 198 closure on ADAADell for final ratification (per prior)."
   ],
   "next_steps": [
-    "Expand test coverage in tests/evolution/test_phase199_cmce_gate_integration.py",
-    "Add performance regression guard",
-    "Prepare full Epoch A propagation plan (Phase 200+)",
-    "After GPG: new DEVADAAD for formal abilities base.py protocol + full registry (out of scope for this hygiene run)"
+    "Integrate abilities list into dork_intent_router and status reports for self-use.",
+    "Phase 200+: native ABILITY_REG blast type in AMPS/CMAC/CMES/CGDR (amend CGDR-SCOPE-0 if needed).",
+    "Expand test coverage and performance guards for discovery/drift under load."
   ]
 }

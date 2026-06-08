@@ -921,7 +921,8 @@ class Orchestrator:
             register_capability(capability_name, capability_version, 1.0, owner, identity=identity)
 
         # Also populate the new lightweight adaad.abilities registry (the canonical
-        # home for high-level element-owned abilities going forward). The import is
+        # home for high-level element-owned abilities going forward; now self-capable
+        # beyond seed with discovery/drift/pluggable constitutional hook). The import is
         # deliberately inside the method so that adaad.abilities remains importable
         # in complete isolation.
         try:

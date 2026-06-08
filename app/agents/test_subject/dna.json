@@ -1,9 +1,0 @@
-{
-  "lineage": "founder",
-  "lineage_parent": "founder",
-  "traits": [
-    "mutable",
-    "testable"
-  ],
-  "version": 0
-}

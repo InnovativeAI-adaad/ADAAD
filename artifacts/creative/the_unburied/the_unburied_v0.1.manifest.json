@@ -1,0 +1,10 @@
+{
+  "artifact_id": "creative.the_unburied.v0.1",
+  "title": "The Unburied (Scaffold)",
+  "project": "the_unburied",
+  "version": "0.1",
+  "status": "Scaffold / Early Concept",
+  "description": "Next piece in the American Shame Tapestry series. Currently in initial scaffolding phase via the governed creative workflow.",
+  "generated_by": "creative_output.py --action register",
+  "created": "2026-05-27"
+}

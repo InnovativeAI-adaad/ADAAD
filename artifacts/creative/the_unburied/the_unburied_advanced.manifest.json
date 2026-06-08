@@ -1,0 +1,27 @@
+﻿{
+  "artifact_id": "creative.the_unburied.advanced_example",
+  "title": "The Unburied (Advanced Small Example)",
+  "series": "American Shame Tapestry",
+  "version": "0.2",
+  "status": "Polished workflow demonstration piece",
+  "duration_seconds": 110,
+  "resolution": "1920x1080",
+  "effects": [
+    "multi-stage datamosh + RGB block corruption (difference/addition blends at 0.017-0.041s periods)",
+    "high-frequency geq chromatic aberration seeds per section",
+    "dual-layer extreme kinetic digging text (primary high-amp + violent ghost/tear layers)",
+    "timed redacted overlay (alpha burst corruption)",
+    "extreme archival film grain + eq crushing + zoompan soil tension"
+  ],
+  "sections": [
+    {"name": "Burial Struggle", "start": 0, "end": 38, "text": "THE UNBURIED (primary + blood ghost)"},
+    {"name": "Redacted Phase", "start": 19, "end": 55, "text": "REDATED black stutter"},
+    {"name": "Digging Climax", "start": 52, "end": 88, "text": "NAMES IN THE DIRT (dual kinetic)"},
+    {"name": "Final Corrupted Reveal", "start": 89, "end": 110, "text": "THE GROUND REMEMBERS"}
+  ],
+  "governed_under": "ADAAD Creative Output Workflow (register + advanced flag)",
+  "renderer": "scripts/creative/the_unburied/render_the_unburied.sh",
+  "docs": "scripts/creative/the_unburied/docs/advanced_effects.md",
+  "ledger_reference": "data/creative_ledger.jsonl",
+  "created": "2026-05-28"
+}

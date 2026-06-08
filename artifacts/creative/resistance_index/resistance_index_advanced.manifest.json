@@ -1,0 +1,46 @@
+{
+  "artifact_id": "creative.resistance_index.advanced_example",
+  "title": "Resistance Index (Advanced)",
+  "series": "American Shame Tapestry",
+  "version": "0.2",
+  "duration_seconds": 105,
+  "resolution": "1920x1080",
+  "effects": [
+    "vertical roll + data-tear index corruption (multi-split difference/addition blends)",
+    "typewriter-list kinetic text (mono font, staggered list items that get redacted/erased)",
+    "dual-layer counting / ledger text with independent high-freq ghost layers",
+    "real-time name erasure motif (NO. 184x lines being overwritten by glitch)",
+    "extreme geq chromatic aberration + heavy archival data-mosh grain"
+  ],
+  "sections": [
+    {
+      "name": "Index Opening",
+      "start": 0,
+      "end": 34,
+      "text": "RESISTANCE INDEX (primary + red tear)"
+    },
+    {
+      "name": "Name List Corruption",
+      "start": 11,
+      "end": 58,
+      "text": "NO. 1847-1849 typewriter lines + erasure"
+    },
+    {
+      "name": "Ledger Lie Climax",
+      "start": 31,
+      "end": 71,
+      "text": "THE LEDGER IS A LIE (dual kinetic)"
+    },
+    {
+      "name": "Total Erasure",
+      "start": 69,
+      "end": 105,
+      "text": "NO NAMES \u2014 NO NUMBERS + THE INDEX REMEMBERS"
+    }
+  ],
+  "governed_under": "ADAAD Creative Output Workflow (register + advanced)",
+  "renderer": "scripts/creative/resistance_index/render_resistance_index.sh",
+  "docs": "scripts/creative/resistance_index/docs/advanced_effects.md",
+  "ledger_reference": "data/creative_ledger.jsonl",
+  "created": "2026-05-28"
+}
