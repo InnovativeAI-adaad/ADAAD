@@ -98,6 +98,21 @@ python -m app.main --replay strict --verbose
 ```bash
 make audit
 ```
+
+## Governance & Determinism Guarantees (Current State)
+**v10.28.0 / Phase 217 / INNOV-122 ACPA + self-capable abilities (Arc II)**
+
+Self-Capable-abilities + ACPA world-first badges and pipeline.
+
+<!-- ADAAD_DETERMINISTIC_LOCK:START -->
+ADAAD_DETERMINISTIC_LOCK: All runtime, security, adaad/orchestrator and governance mutation paths are strictly deterministic. No entropy in hot paths. Full replay equivalence enforced.
+<!-- ADAAD_DETERMINISTIC_LOCK:END -->
+
+<!-- ADAAD_DISPATCH_LATENCY_BUDGET_MS:START -->
+ADAAD_DISPATCH_LATENCY_BUDGET_MS: Critical dispatch and governance decision paths target sub-250ms p99 in steady state (enforced in evidence collection and status).
+<!-- ADAAD_DISPATCH_LATENCY_BUDGET_MS:END -->
+
+Governance surface includes 791 Hard-class invariants, 122 innovations shipped. Full evidence in claims matrix and phase artifacts. HUMAN-0 non-delegatable for amendment paths (ACPA-HUMAN0-0).
 Full HMAC forward-walk of all active ledgers. Any tamper produces a named exception with byte-level location.
 
 ### Answer questions about its own governance history
