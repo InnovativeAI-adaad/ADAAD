@@ -49,6 +49,8 @@ from adaad.orchestrator.cli_handlers import (
     handle_replay_namespace,
     handle_runbook_composer,
     handle_status_report,
+    handle_list_abilities,
+    handle_abilities_drift,
 )
 from adaad.orchestrator.runtime_factory import build_orchestrator
 from adaad.orchestrator.replay_preflight import execute_replay_preflight
@@ -1054,6 +1056,11 @@ def main() -> None:
         runbook_verbosity=args.runbook_verbosity,
         runbook_output_dir=args.runbook_output_dir,
     ):
+        return
+
+    if handle_list_abilities(list_abilities_flag=getattr(args, "list_abilities", False)):
+        return
+    if handle_abilities_drift(abilities_drift_flag=getattr(args, "abilities_drift", False)):
         return
 
     from adaad.orchestrator.cli_handlers import handle_explain_gates

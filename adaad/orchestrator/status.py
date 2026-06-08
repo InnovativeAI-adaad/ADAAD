@@ -34,6 +34,7 @@ class AdaadStatusReport:
     tiers: dict[str, str]
     pending_evidence_rows: list[str]
     source_files: dict[str, str]
+    self_abilities: list[str]  # High-level ADAAD abilities (self-capable surface, Phase 199+ enhancement)
 
 
 def _extract_expected_next_pr(procession_text: str) -> str:
@@ -133,6 +134,13 @@ def build_status_report(*, repo_root: Path, trigger_mode: str = "ADAAD") -> Adaa
     dependency = _resolve_dependency_readiness(next_pr=next_pr, phase_rows=phase_rows, blocked_reason=blocked_reason)
     pending_rows = _extract_pending_evidence_rows(claims_text)
 
+    self_abilities: list[str] = []
+    try:
+        from adaad.abilities import list_abilities  # adaad: import-boundary-ok:status-self-capabilities
+        self_abilities = [a.name for a in list_abilities()]
+    except Exception:
+        self_abilities = ["(discovery unavailable)"]
+
     return AdaadStatusReport(
         schema_version="adaad_status.v1",
         trigger_mode=normalized_mode,
@@ -145,6 +153,7 @@ def build_status_report(*, repo_root: Path, trigger_mode: str = "ADAAD") -> Adaa
             "state": STATE_PATH.as_posix(),
             "claims_evidence": CLAIMS_EVIDENCE_PATH.as_posix(),
         },
+        self_abilities=self_abilities,
     )
 
 
@@ -173,6 +182,8 @@ def render_human_table(report: AdaadStatusReport) -> str:
             f"Tier M: {report.tiers['tier_m']}",
             "",
             f"Pending evidence rows: {pending}",
+            "",
+            f"Self abilities (high-level): {', '.join(report.self_abilities) if report.self_abilities else 'none'}",
         ]
     )
     return "\n".join(lines)

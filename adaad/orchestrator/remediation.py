@@ -31,6 +31,18 @@ _REMEDIATION_BY_GATE: dict[str, RemediationMetadata] = {
         ),
         next_allowed_action="Correct schema payloads and rerun Tier 0 baseline.",
     ),
+    "ABILITIES_DRIFT": RemediationMetadata(
+        gate_id="ABILITIES_DRIFT",
+        gate_type="self",
+        minimal_repro_command="python -m app.main --abilities-drift or from adaad.abilities.drift import detect_abilities_drift; report=detect_abilities_drift()",
+        expected_pass_condition="parity_ok=True and len(drifted)==0 for self_abilities surface",
+        probable_root_causes=(
+            "seed (capabilities.json) vs registry mismatch after clear or partial bootstrap",
+            "new discovered abilities not yet promoted via governance hook / CMES",
+            "drift in meta abilities (introspect, drift_hygiene, self_register, enhance) post state changes",
+        ),
+        next_allowed_action="Run seed_from_capabilities_json(); reconcile with detect_and_reconcile_drift(); or use --list-abilities to verify. Escalate to self-enhance proposal if persistent.",
+    ),
     "TIER0_ARCHITECTURE_SNAPSHOT": RemediationMetadata(
         gate_id="TIER0_ARCHITECTURE_SNAPSHOT",
         gate_type="tier0",

@@ -151,6 +151,30 @@ class LineageAnchorCollector:
         return anchors
 
 
+class SelfAbilitiesCollector:
+    """Enhancement for all of ADAAD: collect current high-level self-capable abilities,
+    snapshot, and drift report as first-class evidence section.
+    Integrates the Phase 199+ self-capable surface (list, discover, drift, provenance, hook)
+    into deterministic evidence bundles for governance, replay, and self-audit."""
+    section = "self_abilities"
+
+    def collect(self, context: EvidenceCollectorContext) -> list[NormalizedEvidenceItem]:
+        try:
+            from adaad.abilities import list_abilities, abilities_snapshot  # adaad: import-boundary-ok:evidence-self-capabilities
+            from adaad.abilities.drift import detect_abilities_drift
+            abilities = [a.to_dict() for a in list_abilities()]
+            snapshot = {k: v.to_dict() for k, v in abilities_snapshot().items()}
+            drift = detect_abilities_drift().to_dict()
+            return [{
+                "abilities": abilities,
+                "snapshot": snapshot,
+                "drift_report": drift,
+                "count": len(abilities),
+            }]
+        except Exception as exc:
+            return [{"error": str(exc), "available": False}]
+
+
 class EvidenceOrchestrator:
     """Runs explicitly-registered collectors in deterministic order."""
 
@@ -175,6 +199,7 @@ DEFAULT_COLLECTOR_ORDER: tuple[type[EvidenceCollector], ...] = (
     SandboxEvidenceCollector,
     ReplayProofCollector,
     LineageAnchorCollector,
+    SelfAbilitiesCollector,  # self-capable enhancement: include abilities/drift in all evidence bundles
 )
 
 
@@ -194,5 +219,6 @@ __all__ = [
     "NormalizedEvidenceItem",
     "ReplayProofCollector",
     "SandboxEvidenceCollector",
+    "SelfAbilitiesCollector",
     "create_default_evidence_orchestrator",
 ]

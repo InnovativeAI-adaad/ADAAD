@@ -128,6 +128,17 @@ def compose_runbook(*, report: "AdaadStatusReport", verbosity_mode: str) -> Runb
                 endpoints_panels=["File: docs/comms/claims_evidence_matrix.md"],
                 evidence=["scripts/validate_release_evidence.py --require-complete passes"],
             ),
+            _step(
+                4,
+                "Introspect self-capabilities",
+                "Use --list-abilities and --abilities-drift (or abilities.list/drift tools) to verify the self-aware surface and drift hygiene.",
+                endpoints_panels=[
+                    "CLI: python -m app.main --list-abilities",
+                    "CLI: python -m app.main --abilities-drift",
+                    "Tool: abilities.list / abilities.drift (via orchestrator bootstrap)",
+                ],
+                evidence=["Include abilities snapshot and drift report in handoff"],
+            ),
         ],
         "replay_incident": [
             _step(

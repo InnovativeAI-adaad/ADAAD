@@ -130,5 +130,14 @@
     "score": 1.0,
     "updated_at": "2026-06-07T00:00:00Z",
     "evidence": {"phase": 199, "note": "self-capable meta ability: governed promotion of new abilities via CMES + hook"}
+  },
+  "adaad.abilities.enhance": {
+    "name": "adaad.abilities.enhance",
+    "owner": "Governance",
+    "version": "0.1.0",
+    "requires": ["adaad.abilities.self_register"],
+    "score": 1.0,
+    "updated_at": "2026-06-08T00:00:00Z",
+    "evidence": {"phase": "enhance", "note": "meta self-enhancement ability: propose and trial improvements to ADAAD surfaces using the self-capable layer (AMPS/CMES bridge)"}
   }
 }

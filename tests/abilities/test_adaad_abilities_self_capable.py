@@ -114,6 +114,12 @@ class TestDiscoveryAndSeedParity(unittest.TestCase):
 
 
 class TestDriftHygiene(unittest.TestCase):
+    def setUp(self):
+        clear_abilities()
+        # Ensure seed is active for "clean state" tests (package side-effect may be cleared by prior tests)
+        from adaad.abilities.registry import seed_from_capabilities_json
+        seed_from_capabilities_json()
+
     def tearDown(self):
         clear_abilities()
 
