@@ -1,0 +1,15 @@
+{
+  "event_type": "merge_attestation.v1",
+  "pr_id": "enhance + Phase 217 ACPA v10.28.0 (DEVADAAD)",
+  "merge_sha": "656d285049dec3a5ff329e6659df61baac23b13f",
+  "tier_0_digest": "b2ccc4853a3b9f57",
+  "tier_1_tests_passed": 43,
+  "tier_1_tests_failed": 0,
+  "tier_2_replay_digest": null,
+  "tier_3_evidence_complete": true,
+  "tier_m_working_code": true,
+  "triggered_by": "DEVADAAD",
+  "operator_session": "grok-devadaad",
+  "timestamp_utc": "2026-06-08T10:06:50.579567Z",
+  "human_signoff_token": "approved DUSTIN L REID"
+}
