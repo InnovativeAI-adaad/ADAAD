@@ -1,0 +1,15 @@
+{
+  "event_type": "merge_attestation.v1",
+  "pr_id": "Phase 217 — INNOV-122 ACPA — Autonomous Constitutional Proposal Advisor (self-capable abilities + README enhance)",
+  "merge_sha": "6e7bd4d7d2fce582e6e0a0417b86b9f3d445bc57",
+  "tier_0_digest": "import-lint+determinism+readme-alignment=PASS; schemas+fast-tests=pre-existing-fcntl-Win-runtime-metrics (not introduced by this PR, surfaced only)",
+  "tier_1_tests_passed": 30,
+  "tier_1_tests_failed": 0,
+  "tier_2_replay_digest": null,
+  "tier_3_evidence_complete": true,
+  "tier_m_working_code": true,
+  "triggered_by": "DEVADAAD",
+  "operator_session": "dl-rd-worktree-2026-06-07-c9c95d03",
+  "timestamp_utc": "2026-06-08T09:15:00.000000+00:00",
+  "human_signoff_token": "approved DUSTIN L REID"
+}
