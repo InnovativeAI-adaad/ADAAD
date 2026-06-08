@@ -1,0 +1,17 @@
+﻿{
+  "phase": 217,
+  "version": "10.28.0",
+  "innovation": "INNOV-122 ACPA",
+  "hard_class_invariants": [
+    "ACPA-HUMAN0-0", "ACPA-CHAIN-0", "ACPA-IMMUT-0", "ACPA-DETERM-0",
+    "ACPA-AUDIT-0", "ACPA-GATE-0", "ACPA-SCOPE-0", "ACPA-EVIDENCE-0",
+    "ACPA-IDEMPOTENT-0", "ACPA-ATOMIC-0", "ACPA-DIVERSITY-0", "ACPA-FLOOD-0"
+  ],
+  "invariant_count_added": 12,
+  "cumulative_invariants": 791,
+  "test_suite": "tests/test_phase217_acpa.py",
+  "tests_passed": 30,
+  "tests_total": 30,
+  "status": "SHIPPED",
+  "governor": "DUSTIN L REID"
+}

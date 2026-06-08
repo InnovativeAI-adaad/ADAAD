@@ -1,0 +1,12 @@
+﻿{
+  "phase": 217,
+  "version": "10.28.0",
+  "innovation": "INNOV-122 · ACPA",
+  "governor": "DUSTIN L REID",
+  "date": "2026-06-08",
+  "decision": "APPROVED",
+  "test_result": "30/30 PASS",
+  "hard_invariants": 12,
+  "cumulative": 791,
+  "notes": "ACPA generates SOFT proposals autonomously. All gates enforced. Tag v10.28.0 ready."
+}
