@@ -1,3 +1,21 @@
+## [10.27.0] — Phase 216 · INNOV-121 · ACSA
+
+**Date:** 2026-06-08  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### INNOV-121 · ACSA — Autonomous Constitutional Self-Amendment Engine (Phase 216)
+- **World-first** six-stage autonomous constitutional amendment lifecycle: PROPOSED→VALIDATED→SIMULATED→PENDING_H0→RATIFIED→REJECTED
+- ACSA-HUMAN0-0: no amendment reaches RATIFIED without HUMAN-0 GPG signature — cryptographic enforcement, not policy
+- ACSA-SIMFIRST-0: DAS dry-run simulation is a mandatory pre-ratification gate
+- ACSA-SCOPE-0: SOFT vs HARD amendment class separation; SOFT cannot touch Hard-class invariants
+- ACSA-CHAIN-0 / ACSA-IMMUT-0: HMAC-SHA-256 chained append-only amendment ledger at data/acsa/amendment_ledger.jsonl
+- ACSA-QUORUM-0: ≥3 supporting invariant IDs required for any proposal
+- ACSA-REVERT-0: every ratified amendment carries revert_hash for CAR rollback path
+- ACSA-IDEMPOTENT-0: repeated propose() with identical content returns existing record
+- 9 REST endpoints: POST /acsa/propose, /validate, /simulate, /queue-for-ratification, /ratify, /reject; GET /verify-chain, /status, /preview/{id}
+- 30/30 acceptance tests passing (T216-ACSA-01..30)
+- Arc II: Meta-Governance & Self-Amendment — opener phase
+- Cumulative hard-class invariants: 779 (+12)
+
 ## [10.26.0] — Phase 215 · INNOV-120 · CGVF
 
 **Date:** 2026-06-07  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
