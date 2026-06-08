@@ -1,21 +1,11 @@
 {
-<<<<<<< HEAD
-  "sync_timestamp": "2026-06-05T14:56:34.824481+00:00",
+  "sync_timestamp": "2026-06-08T08:47:35.595208+00:00",
   "canonical": {
-    "version": "10.9.0",
-    "phase": 198,
+    "version": "10.28.0",
+    "phase": 217,
     "hard_class_count": 0,
-    "innovations": 103,
-    "sha": "16baa2ea"
-=======
-  "sync_timestamp": "2026-06-08T02:39:49.592310+00:00",
-  "canonical": {
-    "version": "10.26.0",
-    "phase": 215,
-    "hard_class_count": 755,
-    "innovations": 120,
-    "sha": "4bb1861"
->>>>>>> a861c240b75fd2303eec9f58cbc908d5e74e1c04
+    "innovations": 121,
+    "sha": "307e6b5"
   },
   "surfaces": [
     {
@@ -28,7 +18,6 @@
       "changed": true,
       "ops": [
         "README version badge",
-        "README innovations badge",
         "block [<!-- ADAAD_VERSION_INFOBOX:STA]",
         "By-the-numbers: innovations"
       ]
@@ -45,33 +34,31 @@
       "file": "ROADMAP.md",
       "changed": true,
       "ops": [
-        "ROADMAP Current State header"
+        "ROADMAP Current State header",
+        "ROADMAP status line"
       ]
     },
     {
       "file": "governance/report_version.json",
       "changed": true,
       "ops": [
-<<<<<<< HEAD
-=======
         "updated version",
         "updated report_version",
         "updated phase",
-        "updated date",
-        "updated last_sync_date",
->>>>>>> a861c240b75fd2303eec9f58cbc908d5e74e1c04
-        "updated last_sync_sha"
+        "updated last_sync_sha",
+        "updated innovation"
       ]
     },
     {
       "file": ".adaad_agent_state.json",
       "changed": true,
       "ops": [
-<<<<<<< HEAD
-=======
         "synced version",
->>>>>>> a861c240b75fd2303eec9f58cbc908d5e74e1c04
-        "synced hard_invariant_count"
+        "synced software_version",
+        "synced last_completed_version",
+        "synced next_phase",
+        "synced hard_invariant_count",
+        "synced total_innovations"
       ]
     },
     {
@@ -79,15 +66,10 @@
       "changed": true,
       "ops": [
         "SVG: version LIVE badge",
-        "SVG: stale version ref >v10.25.0<"
+        "SVG: stale version ref >v10.27.0<"
       ]
     }
   ],
-<<<<<<< HEAD
-  "total_changed": 3,
-  "digest": "0c3c215ebacb74af"
-=======
   "total_changed": 6,
-  "digest": "69f6891967b5b648"
->>>>>>> a861c240b75fd2303eec9f58cbc908d5e74e1c04
+  "digest": "82a504164a7fef90"
 }

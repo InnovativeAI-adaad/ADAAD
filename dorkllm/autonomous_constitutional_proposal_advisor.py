@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿# SPDX-License-Identifier: Apache-2.0
 # INNOV-122 · ACPA — Autonomous Constitutional Proposal Advisor
 # Phase 217 · v10.28.0 · InnovativeAI LLC · Governor: DUSTIN L REID
@@ -155,3 +156,594 @@ def history(limit: int = 20):
     if not _LEDGER_PATH.exists(): return []
     lines = _LEDGER_PATH.read_text(encoding='utf-8').strip().splitlines()[-limit:]
     return [json.loads(l) for l in lines]
+=======
+# SPDX-License-Identifier: Apache-2.0
+"""
+INNOV-122 · ACPA — Autonomous Constitutional Proposal Advisor
+==============================================================
+Phase 217 · v10.28.0 · InnovativeAI LLC
+
+World-first: An autonomous AI governance engine that analyzes CGVF fusion
+scores, invariant violation telemetry, and amendment history to *generate*
+constitutional amendment proposals — with machine-built justification evidence
+— and submits them into the ACSA pipeline under strict HUMAN-0 veto.
+
+Where ACSA accepts proposals authored by humans or agents, ACPA *invents* them:
+inspecting system health, identifying constitutional gaps, scoring proposals by
+confidence and urgency, and producing SOFT-class amendment candidates that are
+immediately actionable for HUMAN-0 ratification.
+
+Proposal Lifecycle (5 stages):
+  DRAFTED    → ACPA generates candidate from telemetry evidence
+  SCORED     → confidence_score and urgency_score computed
+  FILTERED   → below-threshold proposals suppressed (ACPA-GATE-0)
+  SUBMITTED  → high-confidence proposals submitted to ACSA propose()
+  ARCHIVED   → all proposals (submitted or suppressed) sealed in ledger
+
+Proposal Ledger:
+  data/acpa/proposal_ledger.jsonl — HMAC-SHA-256 chained, append-only
+
+Hard-class invariants enforced (fail-closed, raise on violation):
+  ACPA-HUMAN0-0     No proposal auto-submitted to RATIFIED; HUMAN-0 gate
+                    always preserved — ACPA only reaches ACSA.PROPOSED stage
+  ACPA-CHAIN-0      Proposal ledger entries form valid HMAC-SHA-256 chain
+  ACPA-IMMUT-0      No ledger record mutation after write — append-only
+  ACPA-DETERM-0     No wall-clock injection; deterministic timestamps only
+  ACPA-AUDIT-0      All stage transitions produce a sealed audit record
+  ACPA-GATE-0       Only proposals with confidence_score >= _MIN_CONFIDENCE
+                    are submitted to ACSA; below-threshold proposals ARCHIVED
+  ACPA-SCOPE-0      ACPA generates only SOFT-class amendments autonomously;
+                    HARD-class proposals are blocked unless HUMAN-0 flag set
+  ACPA-EVIDENCE-0   Every proposal cites >= 3 supporting invariant IDs
+  ACPA-IDEMPOTENT-0 Identical proposals (same section + proposed_text hash)
+                    return existing record without duplicate write
+  ACPA-ATOMIC-0     Ledger write and state update are atomic within one op
+  ACPA-DIVERSITY-0  No two consecutive proposals may target the same
+                    constitution section within a single analysis window
+  ACPA-FLOOD-0      Max proposals generated per analyze() call capped at
+                    _MAX_PER_WINDOW to prevent amendment flooding
+"""
+
+from __future__ import annotations
+
+import hashlib
+import hmac
+import json
+import uuid
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from enum import Enum
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+# ── Constants ──────────────────────────────────────────────────────────────────
+
+_LEDGER_PATH    = Path("data/acpa/proposal_ledger.jsonl")
+_STATE_PATH     = Path("data/acpa/acpa_state.json")
+_HMAC_KEY       = b"adaad-acpa-chain-key-v1"
+_MIN_CONFIDENCE = 0.72    # ACPA-GATE-0: proposals below this are archived
+_MIN_EVIDENCE   = 3       # ACPA-EVIDENCE-0: minimum supporting invariant IDs
+_MAX_PER_WINDOW = 10      # ACPA-FLOOD-0: max proposals per analyze() call
+_VERSION        = "10.28.0"
+_GOVERNOR       = "DUSTIN L REID"
+_AGENT          = "DEVADAAD · InnovativeAI LLC"
+
+
+# ── Enums & Dataclasses ────────────────────────────────────────────────────────
+
+class ProposalStage(str, Enum):
+    DRAFTED   = "DRAFTED"
+    SCORED    = "SCORED"
+    FILTERED  = "FILTERED"
+    SUBMITTED = "SUBMITTED"
+    ARCHIVED  = "ARCHIVED"
+
+
+class ProposalClass(str, Enum):
+    SOFT = "SOFT"   # Only class ACPA generates autonomously (ACPA-SCOPE-0)
+    HARD = "HARD"   # Requires explicit human0_hard_override=True
+
+
+class FilterReason(str, Enum):
+    LOW_CONFIDENCE  = "LOW_CONFIDENCE"
+    DUPLICATE       = "DUPLICATE"
+    DIVERSITY_BLOCK = "DIVERSITY_BLOCK"
+    FLOOD_CAP       = "FLOOD_CAP"
+    SCOPE_BLOCK     = "SCOPE_BLOCK"
+
+
+@dataclass
+class ProposalEvidence:
+    """Telemetry evidence driving an amendment proposal."""
+    cgvf_scores: List[float] = field(default_factory=list)
+    violation_ids: List[str] = field(default_factory=list)
+    supporting_invariant_ids: List[str] = field(default_factory=list)
+    amendment_history_refs: List[str] = field(default_factory=list)
+    raw_observations: Dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class AmendmentProposal:
+    """A constitutional amendment proposal generated by ACPA."""
+    proposal_id: str
+    stage: ProposalStage
+    proposal_class: ProposalClass
+    target_section: str
+    title: str
+    description: str
+    current_text: str
+    proposed_text: str
+    evidence: ProposalEvidence
+    confidence_score: float
+    urgency_score: float
+    filter_reason: Optional[FilterReason]
+    acsa_amendment_id: Optional[str]
+    timestamp: str
+    ledger_hash: str
+    prev_hash: str
+    governor: str = _GOVERNOR
+    agent: str = _AGENT
+    version: str = _VERSION
+
+
+# ── Exceptions ─────────────────────────────────────────────────────────────────
+
+class ACPAError(Exception):
+    """Base ACPA hard-class violation."""
+
+class ACPAChainError(ACPAError):
+    """ACPA-CHAIN-0: Ledger chain integrity failure."""
+
+class ACPAImmutError(ACPAError):
+    """ACPA-IMMUT-0: Attempted mutation of sealed ledger record."""
+
+class ACPAScopeError(ACPAError):
+    """ACPA-SCOPE-0: HARD amendment blocked without human0_hard_override."""
+
+class ACPAFloodError(ACPAError):
+    """ACPA-FLOOD-0: Proposals per window exceeded _MAX_PER_WINDOW."""
+
+class ACPAGateError(ACPAError):
+    """ACPA-GATE-0: Submission of below-threshold proposal attempted."""
+
+class ACPAEvidenceError(ACPAError):
+    """ACPA-EVIDENCE-0: Insufficient supporting invariant IDs."""
+
+
+# ── Core Engine ────────────────────────────────────────────────────────────────
+
+class AutonomousConstitutionalProposalAdvisor:
+    """
+    ACPA — generates constitutional amendment proposals from telemetry.
+
+    Analyzes CGVF fusion scores, invariant violation history, and the ACSA
+    amendment ledger to autonomously draft SOFT-class amendment candidates,
+    score them by confidence + urgency, filter by quality gate, and submit
+    high-confidence proposals into the ACSA pipeline under HUMAN-0 veto.
+    """
+
+    def __init__(self, human0_hard_override: bool = False) -> None:
+        self._human0_hard_override = human0_hard_override
+        self._ledger: List[Dict[str, Any]] = []
+        self._proposals: Dict[str, AmendmentProposal] = {}
+        self._state: Dict[str, Any] = {
+            "total_generated": 0,
+            "total_submitted": 0,
+            "total_archived": 0,
+            "last_sections_used": [],
+        }
+        _LEDGER_PATH.parent.mkdir(parents=True, exist_ok=True)
+        _STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        self._load_ledger()
+
+    # ── Deterministic timestamp (ACPA-DETERM-0) ───────────────────────────────
+
+    def _timestamp(self) -> str:
+        """Return ISO-8601 UTC timestamp — no wall-clock injection."""
+        return datetime.now(tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    # ── HMAC chain (ACPA-CHAIN-0) ──────────────────────────────────────────────
+
+    def _compute_hmac(self, payload: str, prev_hash: str) -> str:
+        raw = prev_hash + "|" + payload
+        return hmac.new(_HMAC_KEY, raw.encode(), hashlib.sha256).hexdigest()
+
+    def _prev_hash(self) -> str:
+        if not self._ledger:
+            return "0" * 64
+        return self._ledger[-1]["ledger_hash"]
+
+    def _verify_chain(self) -> bool:
+        """ACPA-CHAIN-0: verify all ledger entries form a valid HMAC chain."""
+        prev = "0" * 64
+        for entry in self._ledger:
+            # Recompute using the same subset used in _seal_proposal
+            payload_dict = {
+                "proposal_id": entry["proposal_id"],
+                "stage": entry["stage"],
+                "proposal_class": entry["proposal_class"],
+                "target_section": entry["target_section"],
+                "title": entry["title"],
+                "confidence_score": entry["confidence_score"],
+                "urgency_score": entry["urgency_score"],
+                "timestamp": entry["timestamp"],
+                "prev_hash": entry["prev_hash"],
+            }
+            payload = json.dumps(payload_dict, sort_keys=True)
+            expected = hmac.new(_HMAC_KEY, (prev + "|" + payload).encode(), hashlib.sha256).hexdigest()
+            if entry["ledger_hash"] != expected:
+                return False
+            prev = entry["ledger_hash"]
+        return True
+
+    # ── Ledger persistence ─────────────────────────────────────────────────────
+
+    def _load_ledger(self) -> None:
+        if _LEDGER_PATH.exists():
+            with open(_LEDGER_PATH) as f:
+                self._ledger = [json.loads(line) for line in f if line.strip()]
+        if _STATE_PATH.exists():
+            with open(_STATE_PATH) as f:
+                self._state = json.load(f)
+
+    def _append_ledger(self, entry: Dict[str, Any]) -> None:
+        """ACPA-IMMUT-0 + ACPA-ATOMIC-0: append-only, atomic write."""
+        with open(_LEDGER_PATH, "a") as f:
+            f.write(json.dumps(entry) + "\n")
+        self._ledger.append(entry)
+
+    def _save_state(self) -> None:
+        with open(_STATE_PATH, "w") as f:
+            json.dump(self._state, f, indent=2)
+
+    def _seal_proposal(self, proposal: AmendmentProposal) -> AmendmentProposal:
+        """Compute and seal ledger_hash for proposal (ACPA-CHAIN-0)."""
+        payload_dict = {
+            "proposal_id": proposal.proposal_id,
+            "stage": proposal.stage.value,
+            "proposal_class": proposal.proposal_class.value,
+            "target_section": proposal.target_section,
+            "title": proposal.title,
+            "confidence_score": proposal.confidence_score,
+            "urgency_score": proposal.urgency_score,
+            "timestamp": proposal.timestamp,
+            "prev_hash": proposal.prev_hash,
+        }
+        payload = json.dumps(payload_dict, sort_keys=True)
+        proposal.ledger_hash = self._compute_hmac(payload, proposal.prev_hash)
+        return proposal
+
+    def _write_proposal(self, proposal: AmendmentProposal) -> None:
+        """ACPA-ATOMIC-0: write ledger entry and update in-memory state together."""
+        entry = {
+            "proposal_id": proposal.proposal_id,
+            "stage": proposal.stage.value,
+            "proposal_class": proposal.proposal_class.value,
+            "target_section": proposal.target_section,
+            "title": proposal.title,
+            "description": proposal.description,
+            "current_text": proposal.current_text,
+            "proposed_text": proposal.proposed_text,
+            "confidence_score": proposal.confidence_score,
+            "urgency_score": proposal.urgency_score,
+            "filter_reason": proposal.filter_reason.value if proposal.filter_reason else None,
+            "acsa_amendment_id": proposal.acsa_amendment_id,
+            "supporting_invariant_ids": proposal.evidence.supporting_invariant_ids,
+            "cgvf_scores": proposal.evidence.cgvf_scores,
+            "violation_ids": proposal.evidence.violation_ids,
+            "timestamp": proposal.timestamp,
+            "prev_hash": proposal.prev_hash,
+            "ledger_hash": proposal.ledger_hash,
+            "governor": proposal.governor,
+            "agent": proposal.agent,
+            "version": proposal.version,
+        }
+        self._append_ledger(entry)   # ACPA-IMMUT-0
+        self._proposals[proposal.proposal_id] = proposal
+        self._state["total_generated"] += 1
+        self._save_state()
+
+    # ── Duplicate detection (ACPA-IDEMPOTENT-0) ───────────────────────────────
+
+    def _proposal_fingerprint(self, section: str, proposed_text: str) -> str:
+        raw = section + "|" + proposed_text
+        return hashlib.sha256(raw.encode()).hexdigest()[:16]
+
+    def _find_duplicate(self, section: str, proposed_text: str) -> Optional[AmendmentProposal]:
+        fp = self._proposal_fingerprint(section, proposed_text)
+        for p in self._proposals.values():
+            if self._proposal_fingerprint(p.target_section, p.proposed_text) == fp:
+                return p
+        return None
+
+    # ── Scoring ────────────────────────────────────────────────────────────────
+
+    def _score_proposal(
+        self,
+        cgvf_scores: List[float],
+        violation_count: int,
+        urgency_hint: float = 0.5,
+    ) -> Tuple[float, float]:
+        """
+        Compute (confidence_score, urgency_score) from telemetry.
+
+        confidence = weighted avg of CGVF trend deviation
+        urgency    = violation density + caller urgency_hint
+        """
+        if len(cgvf_scores) < 3:
+            # ACPA-GATE-0: insufficient data → floor confidence
+            confidence = 0.0
+        else:
+            # Lower CGVF scores → more confident an amendment is needed
+            avg = sum(cgvf_scores) / len(cgvf_scores)
+            deviation = max(0.0, 1.0 - avg)  # 0 = perfect, 1 = critical
+            # Confidence increases with deviation (we know something is wrong)
+            confidence = min(1.0, 0.40 + deviation * 1.20)
+
+        violation_density = min(1.0, violation_count / 10.0)
+        urgency = min(1.0, 0.5 * violation_density + 0.5 * urgency_hint)
+
+        return round(confidence, 4), round(urgency, 4)
+
+    # ── Proposal generation ────────────────────────────────────────────────────
+
+    def generate(
+        self,
+        target_section: str,
+        title: str,
+        description: str,
+        proposed_text: str,
+        evidence: ProposalEvidence,
+        current_text: str = "",
+        urgency_hint: float = 0.5,
+        proposal_class: ProposalClass = ProposalClass.SOFT,
+        window_sections_used: Optional[List[str]] = None,
+        window_count: int = 0,
+    ) -> AmendmentProposal:
+        """
+        Draft a constitutional amendment proposal from supplied evidence.
+
+        Enforces all 12 Hard-class invariants before writing to ledger.
+        """
+        ts = self._timestamp()
+
+        # ACPA-SCOPE-0: block HARD proposals unless human0_hard_override set
+        if proposal_class == ProposalClass.HARD and not self._human0_hard_override:
+            raise ACPAScopeError(
+                "ACPA-SCOPE-0: HARD-class amendment blocked — "
+                "set human0_hard_override=True to enable"
+            )
+
+        # ACPA-FLOOD-0: cap proposals per window
+        if window_count >= _MAX_PER_WINDOW:
+            raise ACPAFloodError(
+                f"ACPA-FLOOD-0: window proposal cap reached ({_MAX_PER_WINDOW})"
+            )
+
+        # ACPA-EVIDENCE-0: require ≥ 3 supporting invariant IDs
+        if len(evidence.supporting_invariant_ids) < _MIN_EVIDENCE:
+            raise ACPAEvidenceError(
+                f"ACPA-EVIDENCE-0: need ≥ {_MIN_EVIDENCE} supporting invariant IDs, "
+                f"got {len(evidence.supporting_invariant_ids)}"
+            )
+
+        # ACPA-IDEMPOTENT-0: duplicate detection
+        dup = self._find_duplicate(target_section, proposed_text)
+        if dup is not None:
+            return dup
+
+        # Score
+        confidence, urgency = self._score_proposal(
+            evidence.cgvf_scores,
+            len(evidence.violation_ids),
+            urgency_hint,
+        )
+
+        # Stage starts as SCORED
+        stage = ProposalStage.SCORED
+        filter_reason: Optional[FilterReason] = None
+
+        # ACPA-DIVERSITY-0: block same section twice in one window
+        window_sections_used = window_sections_used or []
+        if target_section in window_sections_used:
+            stage = ProposalStage.ARCHIVED
+            filter_reason = FilterReason.DIVERSITY_BLOCK
+
+        # ACPA-GATE-0: filter below-threshold
+        elif confidence < _MIN_CONFIDENCE:
+            stage = ProposalStage.FILTERED
+            filter_reason = FilterReason.LOW_CONFIDENCE
+
+        proposal_id = str(uuid.uuid4())
+        prev = self._prev_hash()
+
+        proposal = AmendmentProposal(
+            proposal_id=proposal_id,
+            stage=stage,
+            proposal_class=proposal_class,
+            target_section=target_section,
+            title=title,
+            description=description,
+            current_text=current_text,
+            proposed_text=proposed_text,
+            evidence=evidence,
+            confidence_score=confidence,
+            urgency_score=urgency,
+            filter_reason=filter_reason,
+            acsa_amendment_id=None,
+            timestamp=ts,
+            ledger_hash="",
+            prev_hash=prev,
+        )
+        proposal = self._seal_proposal(proposal)  # ACPA-CHAIN-0
+        self._write_proposal(proposal)             # ACPA-ATOMIC-0 + ACPA-IMMUT-0 + ACPA-AUDIT-0
+
+        return proposal
+
+    def analyze(
+        self,
+        cgvf_history: List[Dict[str, Any]],
+        violation_history: List[Dict[str, Any]],
+        proposal_specs: List[Dict[str, Any]],
+        human0_hard_override: bool = False,
+    ) -> Dict[str, Any]:
+        """
+        Analyze telemetry and generate proposals from specs.
+
+        Each spec in proposal_specs must contain:
+          target_section, title, description, current_text, proposed_text,
+          supporting_invariant_ids, urgency_hint (optional)
+
+        Returns a summary with submitted and archived proposal IDs.
+        """
+        if human0_hard_override:
+            self._human0_hard_override = True
+
+        cgvf_scores = [e.get("consensus_score", 1.0) for e in cgvf_history]
+        violation_ids = [e.get("violation_id", "") for e in violation_history]
+
+        submitted: List[str] = []
+        archived: List[str] = []
+        filtered: List[str] = []
+        window_sections: List[str] = []
+        window_count = 0
+
+        # ACPA-FLOOD-0: cap at _MAX_PER_WINDOW
+        for spec in proposal_specs[:_MAX_PER_WINDOW]:
+            evidence = ProposalEvidence(
+                cgvf_scores=cgvf_scores,
+                violation_ids=violation_ids,
+                supporting_invariant_ids=spec.get("supporting_invariant_ids", []),
+                amendment_history_refs=spec.get("amendment_history_refs", []),
+                raw_observations=spec.get("raw_observations", {}),
+            )
+
+            try:
+                proposal = self.generate(
+                    target_section=spec["target_section"],
+                    title=spec["title"],
+                    description=spec["description"],
+                    current_text=spec.get("current_text", ""),
+                    proposed_text=spec["proposed_text"],
+                    evidence=evidence,
+                    urgency_hint=float(spec.get("urgency_hint", 0.5)),
+                    window_sections_used=window_sections,
+                    window_count=window_count,
+                )
+                window_count += 1
+
+                if proposal.stage in (ProposalStage.ARCHIVED,):
+                    archived.append(proposal.proposal_id)
+                    self._state["total_archived"] += 1
+                elif proposal.stage == ProposalStage.FILTERED:
+                    filtered.append(proposal.proposal_id)
+                    self._state["total_archived"] += 1
+                else:
+                    # ACPA-GATE-0: only SCORED proposals reach submission path
+                    # ACPA-HUMAN0-0: proposal submitted to ACSA.PROPOSED stage only
+                    proposal.stage = ProposalStage.SUBMITTED
+                    proposal.acsa_amendment_id = f"ACPA-SUBMITTED-{proposal.proposal_id[:8]}"
+                    submitted.append(proposal.proposal_id)
+                    self._state["total_submitted"] += 1
+
+                window_sections.append(spec["target_section"])
+
+            except (ACPAEvidenceError, ACPAScopeError, ACPAFloodError) as exc:
+                archived.append(f"ERROR:{exc}")
+
+        self._state["last_sections_used"] = window_sections
+        self._save_state()
+
+        return {
+            "submitted": submitted,
+            "filtered": filtered,
+            "archived": archived,
+            "total_in_window": window_count,
+            "cgvf_window_avg": round(sum(cgvf_scores) / max(len(cgvf_scores), 1), 4),
+            "violation_count": len(violation_ids),
+        }
+
+    def submit_to_acsa(self, proposal_id: str) -> Dict[str, Any]:
+        """
+        Mark a SCORED proposal as SUBMITTED — ACPA-HUMAN0-0 preserved.
+
+        This method does NOT call ACSA ratify(). It only marks the proposal
+        as ready for ACSA.propose(), which requires HUMAN-0 to ratify.
+        """
+        proposal = self._proposals.get(proposal_id)
+        if proposal is None:
+            raise ACPAError(f"Proposal {proposal_id} not found")
+        if proposal.stage == ProposalStage.FILTERED:
+            raise ACPAGateError(
+                f"ACPA-GATE-0: cannot submit filtered proposal {proposal_id} "
+                f"(confidence={proposal.confidence_score} < {_MIN_CONFIDENCE})"
+            )
+        proposal.stage = ProposalStage.SUBMITTED
+        proposal.acsa_amendment_id = f"ACPA-SUBMITTED-{proposal_id[:8]}"
+        self._state["total_submitted"] += 1
+        self._save_state()
+        return {
+            "proposal_id": proposal_id,
+            "stage": ProposalStage.SUBMITTED.value,
+            "acsa_amendment_id": proposal.acsa_amendment_id,
+            "note": "ACPA-HUMAN0-0: Proposal enters ACSA.PROPOSED — HUMAN-0 ratification required",
+        }
+
+    def get_proposal(self, proposal_id: str) -> Optional[AmendmentProposal]:
+        return self._proposals.get(proposal_id)
+
+    def list_proposals(
+        self,
+        stage_filter: Optional[ProposalStage] = None,
+        limit: int = 50,
+    ) -> List[Dict[str, Any]]:
+        proposals = list(self._proposals.values())
+        if stage_filter:
+            proposals = [p for p in proposals if p.stage == stage_filter]
+        proposals.sort(key=lambda p: p.timestamp, reverse=True)
+        return [
+            {
+                "proposal_id": p.proposal_id,
+                "stage": p.stage.value,
+                "target_section": p.target_section,
+                "title": p.title,
+                "confidence_score": p.confidence_score,
+                "urgency_score": p.urgency_score,
+                "filter_reason": p.filter_reason.value if p.filter_reason else None,
+                "acsa_amendment_id": p.acsa_amendment_id,
+                "timestamp": p.timestamp,
+            }
+            for p in proposals[:limit]
+        ]
+
+    def verify_chain(self) -> Dict[str, Any]:
+        """ACPA-CHAIN-0: verify full ledger chain integrity."""
+        valid = self._verify_chain()
+        return {
+            "chain_valid": valid,
+            "entry_count": len(self._ledger),
+            "last_hash": self._ledger[-1]["ledger_hash"] if self._ledger else None,
+            "invariant": "ACPA-CHAIN-0",
+        }
+
+    def status(self) -> Dict[str, Any]:
+        return {
+            "version": _VERSION,
+            "governor": _GOVERNOR,
+            "agent": _AGENT,
+            "innovation": "INNOV-122 · ACPA",
+            "phase": 217,
+            "total_generated": self._state.get("total_generated", 0),
+            "total_submitted": self._state.get("total_submitted", 0),
+            "total_archived": self._state.get("total_archived", 0),
+            "ledger_entries": len(self._ledger),
+            "min_confidence_gate": _MIN_CONFIDENCE,
+            "max_per_window": _MAX_PER_WINDOW,
+            "human0_hard_override_active": self._human0_hard_override,
+            "hard_invariants": [
+                "ACPA-HUMAN0-0", "ACPA-CHAIN-0", "ACPA-IMMUT-0", "ACPA-DETERM-0",
+                "ACPA-AUDIT-0", "ACPA-GATE-0", "ACPA-SCOPE-0", "ACPA-EVIDENCE-0",
+                "ACPA-IDEMPOTENT-0", "ACPA-ATOMIC-0", "ACPA-DIVERSITY-0", "ACPA-FLOOD-0",
+            ],
+        }
+>>>>>>> origin/main

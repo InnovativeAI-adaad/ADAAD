@@ -5,17 +5,16 @@
     "software_version": "10.28.0",
     "last_completed_version": "10.28.0",
     "schema_version": "1.5.0",
-    "last_completed_phase": "Phase 217 \u2014 INNOV-122 ACPA \u2014 Autonomous Constitutional Proposal Advisor",
-    "hard_invariant_count": 791,
-    "innovations_shipped": 122,
-    "last_innov_code": "ACPA",
-    "last_innov_name": "Autonomous Constitutional Proposal Advisor",
+    "last_completed_phase": "Phase 216 \u2014 INNOV-121 ACSA \u2014 Autonomous Constitutional Self-Amendment Engine",
+    "hard_invariant_count": 0,
+    "innovations_shipped": 121,
+    "last_innov_code": "ACSA",
+    "last_innov_name": "Autonomous Constitutional Self-Amendment Engine",
     "v10_convergence_criteria_met": [
         "C1",
         "C2",
         "C3",
-        "C4",
-        "C5"
+        "C4"
     ],
     "agent": "DEVADAAD",
     "governor": "DUSTIN L REID",
@@ -26,6 +25,11 @@
     "next_innov": "TBD",
     "gcp_project": "adaad-01",
     "domain": "adaad.pro",
-    "last_updated": "2026-06-08T00:00:00+00:00",
-    "last_invocation": "2026-06-08"
+    "last_updated": "2026-06-08T08:47:35.593934+00:00",
+    "last_invocation": "2026-06-08",
+    "last_innovation_id": "INNOV-122",
+    "last_innovation_code": "ACPA",
+    "last_phase_description": "Phase 217 \u00b7 INNOV-122 \u00b7 ACPA \u2014 Autonomous Constitutional Proposal Advisor",
+    "total_innovations": 121,
+    "arc": "II \u2014 Self-Amendment & Meta-Governance"
 }

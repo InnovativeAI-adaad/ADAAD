@@ -10,7 +10,7 @@
 
 <br/>
 
-[![Proprietary](https://img.shields.io/badge/license-Proprietary-ff4466?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v10.28.0](https://img.shields.io/badge/version-v10.28.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![0 Invariants](https://img.shields.io/badge/invariants-0%20Hard--class-22c55e?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![122 Innovations](https://img.shields.io/badge/innovations-122%20shipped-f97316?style=flat-square&labelColor=0d1117)](ROADMAP.md)&nbsp;[![Free Download](https://img.shields.io/github/v/release/InnovativeAI-adaad/ADAAD?label=APK&color=00d4ff)](https://github.com/InnovativeAI-adaad/ADAAD/releases)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
+[![Proprietary](https://img.shields.io/badge/license-Proprietary-ff4466?style=flat-square&labelColor=0d1117)](LICENSE)&nbsp;[![Python 3.12](https://img.shields.io/badge/python-3.12-00ff88?style=flat-square&labelColor=0d1117)](https://python.org)&nbsp;[![v10.28.0](https://img.shields.io/badge/version-v10.28.0-a855f7?style=flat-square&labelColor=0d1117)](CHANGELOG.md)&nbsp;[![0 Invariants](https://img.shields.io/badge/invariants-0%20Hard--class-ff4466?style=flat-square&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)&nbsp;[![121 Innovations](https://img.shields.io/badge/innovations-121%20shipped-f97316?style=flat-square&labelColor=0d1117)](ROADMAP.md)&nbsp;[![Free Download](https://img.shields.io/github/v/release/InnovativeAI-adaad/ADAAD?label=APK&color=00d4ff)](https://github.com/InnovativeAI-adaad/ADAAD/releases)&nbsp;[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/InnovativeAI-adaad/adaad?style=flat-square&labelColor=0d1117&color=00d4ff&label=Commits%2Fmonth)](https://github.com/InnovativeAI-adaad/adaad/commits/main)
 
 </div>
 
@@ -35,9 +35,9 @@ Every proposed change goes through a 16-step pipeline. Every decision is recorde
 | **Current version** | `10.28.0` |
 | **Phase** | `217` |
 | **Released** | `2026-06-08` |
-| **Release SHA** | `fe74677b` |
+| **Release SHA** | `307e6b5` |
 | **Hard-class invariants** | `0` |
-| **Innovations shipped** | `122` |
+| **Innovations shipped** | `121` |
 <!-- ADAAD_VERSION_INFOBOX:END -->
 
 ![System Stats](docs/assets/readme/inline-stats_card.svg)
@@ -51,43 +51,6 @@ Canonical architecture spec: [`docs/governance/ARCHITECT_SPEC_v3.1.0.md`](docs/g
 ADAAD proposes mutations to its own codebase, scores them against a cryptographically enforced constitution, red-teams them adversarially, executes them in a sandbox, verifies fitness, and delivers results to the governing human for ratification — all in a closed, auditable loop.
 
 It is not an agent framework, not an LLM wrapper, and not a developer tool. It is a self-evolution engine with a governance layer that is structural, not advisory, and where every decision leaves a hash-chained record.
-
-![Section Divider](docs/assets/readme/inline-divider.svg)
-
-## <a id="governance"></a>Governance & Determinism Guarantees (Current State)
-
-![Governance: Fail-Closed](https://img.shields.io/badge/Governance-Fail--Closed-critical)&nbsp;![Replay: Deterministic](https://img.shields.io/badge/Replay-Deterministic-0ea5e9)&nbsp;![Evidence: Ledger Anchored](https://img.shields.io/badge/Evidence-Ledger_Anchored-22c55e)&nbsp;![Self-Capable](https://img.shields.io/badge/Self--Capable-abilities+ACPA-a855f7)
-
-ADAAD structurally enforces determinism and governance. No bypass flags exist. All execution paths are either fully deterministic or explicitly flagged.
-
-![System Stats](docs/assets/readme/inline-stats_card.svg)
-
-![inline-hash_chain.svg](docs/assets/readme/inline-hash_chain.svg)
-
-**ADAAD_DISPATCH_LATENCY_BUDGET_MS**
-
-Controls the hard latency budget (in milliseconds) for the orchestrator dispatcher. Default 100ms. Exceeding the budget in strict mode raises a deterministic error envelope.
-
-```bash
-export ADAAD_DISPATCH_LATENCY_BUDGET_MS=75
-```
-
-Used in: `adaad/orchestrator/dispatcher.py`
-
-**ADAAD_DETERMINISTIC_LOCK**
-
-When set to `1|true|yes|on`, forces all code paths through deterministic-only execution (no wall-clock, no entropy, no non-replayable I/O). Enforced at runtime surface.
-
-```bash
-export ADAAD_DETERMINISTIC_LOCK=1
-```
-
-See also: `runtime/governance_surface.py`, full matrix in `docs/ENVIRONMENT_VARIABLES.md`.
-
-**Self-Capable Surface (Phase 199+ abilities + Arc II ACPA):** High-level ADAAD abilities (orchestrator.boot, cryovant.gate, cmce.consensus, adaad.abilities.* introspect/drift_hygiene/self_register/enhance) are now first-class, discoverable, drift-detected, and governable via constitutional hook. ACPA uses telemetry to propose new ones autonomously.
-
-![Inline Capabilities Grid](docs/assets/readme/inline-capabilities_grid.svg)
-![Agents Overview](docs/assets/readme/agents-overview.svg)
 
 ![Section Divider](docs/assets/readme/inline-divider.svg)
 
@@ -121,11 +84,6 @@ The Innovation Impact Scorer computes per-invariant delta scoring for every ship
 
 ### Propose constitutional amendments and deliver them to a human
 When the Constitutional Adaptive Learner identifies that an invariant's weighting should change based on observed fitness patterns, it generates a typed amendment recommendation. The Recommendation Delivery Protocol formats it as a governance proposal, queues it, and delivers it to HUMAN-0 for disposition — ACCEPTED, DEFERRED, or REJECTED. Every disposition is sealed in an immutable HMAC-chained ledger.
-
-**Arc II Enhancement (Phase 217 · ACPA):** The Autonomous Constitutional Proposal Advisor (ACPA) now *generates* proposals autonomously by analyzing CGVF fusion scores, invariant violation patterns, and telemetry — producing confidence-scored SOFT candidates with built-in flood and diversity protection. Proposals flow to ACSA for ratification under HUMAN-0 veto. World-first self-writing constitution.
-
-![Adaad Pipeline](docs/assets/readme/adaad-pipeline-animated.svg)
-![Phase Progress](docs/assets/readme/adaad-phase-progress.svg)
 
 ### Feed HUMAN-0 decisions back as selection pressure
 When a HUMAN-0 disposition lands, the CEL Feedback Integrator translates it directly into MSE selection-weight adjustments. Accepted amendments amplify the corresponding fitness axis. Rejected ones decay it. The loop closes: human judgment becomes constitutional calibration signal, automatically.
@@ -336,7 +294,7 @@ Every invariant violation raises a typed exception, terminates the operation, an
 |:-------|:------|
 | Version | `v10.8.0` · Phase `192` complete |
 | Hard-class invariants | **547** — enforced fail-closed at runtime |
-| Shipped innovations | **122** — INNOV-01 through INNOV-??? |
+| Shipped innovations | **121** — INNOV-01 through INNOV-122 |
 | Latest innovation | **INNOV-97 · ILV** — Invariant Lineage Verifier |
 | Constitutional Evolution Loop | **16 steps** — deterministic, replayable |
 | Specialist agents | **3** — Architect · Dream · Beast |

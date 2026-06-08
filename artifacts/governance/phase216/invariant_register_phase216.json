@@ -1,0 +1,20 @@
+{
+  "phase": 216,
+  "innovation": "INNOV-121 · ACSA",
+  "version": "10.27.0",
+  "hard_class_invariants": [
+    {"code": "ACSA-HUMAN0-0", "description": "No amendment reaches RATIFIED without HUMAN-0 GPG signature slot populated"},
+    {"code": "ACSA-CHAIN-0", "description": "Amendment ledger entries form valid HMAC-SHA-256 chain"},
+    {"code": "ACSA-IMMUT-0", "description": "No ledger record mutation after write — append-only"},
+    {"code": "ACSA-DETERM-0", "description": "No wall-clock injection; deterministic timestamps only"},
+    {"code": "ACSA-SIMFIRST-0", "description": "No amendment advances to PENDING_H0 without simulation pass"},
+    {"code": "ACSA-CONFLICT-0", "description": "Amendment that would violate existing Hard-class invariants is rejected"},
+    {"code": "ACSA-ATOMIC-0", "description": "Ledger write and state update are atomic within a single operation"},
+    {"code": "ACSA-AUDIT-0", "description": "All stage transitions produce a sealed audit record"},
+    {"code": "ACSA-SCOPE-0", "description": "SOFT amendments cannot affect Hard-class invariants; HARD requires explicit override"},
+    {"code": "ACSA-REVERT-0", "description": "Every ratified amendment references a revert_hash for rollback path"},
+    {"code": "ACSA-QUORUM-0", "description": "Amendment must cite ≥3 supporting invariant IDs as evidence"},
+    {"code": "ACSA-IDEMPOTENT-0", "description": "Repeated propose() with identical content returns existing record"}
+  ],
+  "cumulative_count": 779
+}
