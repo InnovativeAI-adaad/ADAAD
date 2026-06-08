@@ -1,0 +1,17 @@
+{
+  "event_type": "merge_attestation.v1",
+  "pr_id": "Phase 212 Live Audit Remediation (SPEC-001 state schema + SPEC-002 SPDX + SPEC-003 shims + SPEC-004/005 collection/label)",
+  "merge_sha": "7de59ea",
+  "tier_0_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "tier_1_tests_passed": 9355,
+  "tier_1_tests_failed": 18,
+  "tier_2_replay_digest": null,
+  "tier_3_evidence_complete": false,
+  "tier_m_working_code": false,
+  "triggered_by": "DEVADAAD",
+  "operator_session": "live-audit-remediation-212",
+  "timestamp_utc": "2026-06-05T16:10:00Z",
+  "human_signoff_token": "DD5C7176E87C213E",
+  "tag": "v10.27.0",
+  "human_signoff_key_id": "DD5C7176E87C213E"
+}
