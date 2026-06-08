@@ -1,0 +1,24 @@
+{
+  "schema": "TIER-SUMMARY-v2",
+  "phase": 217,
+  "version": "10.28.0",
+  "innovation": "INNOV-122 · ACPA",
+  "date": "2026-06-08",
+  "governor": "DUSTIN L REID",
+  "tiers": {
+    "tier_0_production": {
+      "status": "LOCKED — requires HUMAN-0 GPG ratification",
+      "gate": "ACPA-HUMAN0-0"
+    },
+    "tier_1_development": {
+      "status": "PROMOTED",
+      "gate": "30/30 tests passing",
+      "promoted_by": "DEVADAAD"
+    },
+    "tier_2_simulation": {
+      "status": "COMPLETE",
+      "gate": "DAS dry-run via ACPA-SCOPE-0 enforcement"
+    }
+  },
+  "blast_radius": "SOFT-class only — HARD-class amendment generation blocked by ACPA-SCOPE-0 without HUMAN-0 override"
+}

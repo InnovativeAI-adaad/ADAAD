@@ -1,0 +1,20 @@
+{
+  "schema": "HUMAN0-SIGNOFF-v2",
+  "phase": 217,
+  "version": "10.28.0",
+  "innovation": "INNOV-122 · ACPA",
+  "date": "2026-06-08",
+  "governor": "DUSTIN L REID",
+  "agent": "DEVADAAD · InnovativeAI LLC",
+  "promotion_tier": "Tier 1 — Development",
+  "promotion_gate": "30/30 acceptance tests passing",
+  "hard_invariants_verified": 12,
+  "human0_actions_required": [
+    "GPG Track B sign-off on this governance artifact (local ADAADell)",
+    "PyPI republish of adaad-core to align with v10.28.0",
+    "Formal V10 epoch ratification ceremony (pending)",
+    "Credential rotation per AUTH-CT-0"
+  ],
+  "devadaad_attestation": "DEVADAAD attests that Phase 217 INNOV-122 ACPA delivered: 1 world-first innovation, 12 Hard-class invariants (cumulative: 791), 30/30 acceptance tests, 8 REST endpoints mounted in server.py, 4 governance artifacts. All version surfaces bumped to 10.28.0. No Hard-class invariants violated. HUMAN-0 gate preserved: ACPA-HUMAN0-0 enforced — ACPA cannot bypass ACSA ratification pipeline.",
+  "gpg_signature_slot": "AWAITING_HUMAN0_GPG_SIGNATURE"
+}

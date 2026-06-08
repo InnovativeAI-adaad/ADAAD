@@ -7,7 +7,7 @@ name = "adaad"
 # PYPROJECT-VER-01: Aligned to VERSION file (9.106.0).  pyproject.toml was
 # previously froze at 9.15.0 before release metadata was realigned with
 # the canonical VERSION file and CHANGELOG head.
-version = "10.27.0"
+version = "10.28.0"
 description = "ADAAD — Autonomous Development & Adaptation Architecture: governance-first constitutional AI evolution runtime"
 readme = "README.md"
 license = { text = "Proprietary" }
