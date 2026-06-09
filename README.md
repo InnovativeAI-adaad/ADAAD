@@ -21,6 +21,8 @@
 &nbsp;·&nbsp;
 <kbd><a href="#-security-guarantees">🔒 Security</a></kbd>
 &nbsp;·&nbsp;
+<kbd><a href="#-worlds-firsts">🏆 World's Firsts</a></kbd>
+&nbsp;·&nbsp;
 <kbd><a href="docs/CONSTITUTION.md">📜 Constitution</a></kbd>
 &nbsp;·&nbsp;
 <kbd><a href="ROADMAP.md">🗺 Roadmap</a></kbd>
@@ -49,6 +51,12 @@
 [![Replay](https://img.shields.io/badge/Deterministic-0ea5e9?style=for-the-badge&label=replay&labelColor=0d1117)](docs/governance/STRICT_REPLAY_INVARIANTS.md)
 [![Platforms](https://img.shields.io/badge/Linux·macOS·Win·Android·Docker-22c55e?style=for-the-badge&label=runs+on&labelColor=0d1117)](TERMUX_SETUP.md)
 
+<!-- ── BADGE TIER 4: Arc II Self-Amendment ── -->
+[![ACPA](https://img.shields.io/badge/INNOV--122·ACPA-ffd700?style=for-the-badge&label=latest&labelColor=0d1117)](CHANGELOG.md)
+[![Self-Amendment](https://img.shields.io/badge/Arc_II_Self--Amendment-a855f7?style=for-the-badge&label=arc&labelColor=0d1117)](ROADMAP.md)
+[![World Firsts](https://img.shields.io/badge/22_World's_Firsts-ff4466?style=for-the-badge&label=documented&labelColor=0d1117)](docs/VERIFIABLE_CLAIMS.md)
+[![V10](https://img.shields.io/badge/1.0%2F1.0-00ff88?style=for-the-badge&label=V10+score&labelColor=0d1117)](ROADMAP.md)
+
 </div>
 
 <br/>
@@ -65,7 +73,9 @@
 **hash-chained, cryptographically sealed, and replayed on demand.**
 
 *Not a framework. Not an agent wrapper. A constitutional self-amendment engine.*
-*The first of its kind running in production.*
+*The first of its kind running in production — and the first to write its own constitutional amendments.*
+
+> 🆕 **Arc II — Self-Amendment is live.** ACPA (INNOV-122) generates constitutional proposals autonomously from telemetry. ACSA (INNOV-121) executes the six-stage amendment lifecycle. HUMAN-0 veto is always available.
 
 </div>
 
@@ -93,8 +103,10 @@ Every proposed change — from a minor refactor to a constitutional amendment �
 
 Critical decisions require **HUMAN-0** — one GPG key, one human, non-delegatable by constitutional primitive.
 
+**Arc II — Self-Amendment:** ACSA (INNOV-121) runs the six-stage amendment lifecycle. ACPA (INNOV-122) generates SOFT-class constitutional proposals autonomously from live CGVF telemetry. This is the first production system to autonomously draft its own constitutional amendments while preserving irrevocable human final authority.
+
 > **This is not an agent framework, LLM wrapper, or developer tool.**
-> It is a constitutional self-amendment engine — the first to run in production on consumer hardware with full cryptographic replay.
+> It is a constitutional self-amendment engine — the first to run in production on consumer hardware with full cryptographic replay, and the first to autonomously propose amendments to its own constitution.
 
 </td>
 <td valign="top" width="42%" align="center">
@@ -117,15 +129,20 @@ ADAAD · v10.28.0 · Phase 217
    1  HUMAN-0 key
        non-delegatable · GPG-signed
 
-48k+  Ledger entries
+50k+  Ledger entries
        append-only · HMAC-chained
 
- 680+ Test files
+ 694+ Test files
        every phase: 30/30 gate
 
- 249+ Governance artifacts
+ 396+ Governance artifacts
        committed JSON attestations
+
+  22  World's Firsts
+       documented · verifiable
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Arc II Self-Amendment LIVE
+ACSA (INNOV-121) + ACPA (INNOV-122)
   pip install adaad-core
 ```
 
@@ -149,7 +166,9 @@ ADAAD · v10.28.0 · Phase 217
 | Audit logs are post-hoc and external | The HMAC ledger is written **during** execution — tampering breaks the chain |
 | You have to trust vendor claims | `docker compose up das-demo` — replay every decision yourself |
 | Agents can approve their own proposals | `AFRT-0` — Red Team is constitutionally prohibited from self-approving |
-| Self-amendment is uncontrolled or impossible | ACPA (INNOV-122) generates proposals autonomously; HUMAN-0 veto always live |
+| Self-amendment is uncontrolled or impossible | ACPA (INNOV-122) generates proposals autonomously; ACSA (INNOV-121) executes the lifecycle; HUMAN-0 veto always live |
+| Systems don't learn from their own execution history | CMOA (INNOV-113) closes the `AMPS→CMVG→CMSE→CMWE→CMOA→AMPS` self-improving loop |
+| Post-convergence drift goes undetected | CGDR (INNOV-108) monitors all 8 CCA criteria post-V10 — DRIFTED is fail-closed |
 | Governance is a layer on top | In ADAAD, the governed loop **is** the system |
 
 </div>
@@ -400,7 +419,10 @@ Ask DORK why a mutation was blocked six weeks ago. Ask which invariants are unde
 |:----------|:---------------------|:-----------------|
 | `GOV-SOLE-0` | No mutation bypasses governance | GovernanceGate bypass |
 | `AFRT-0` | No agent approves its own proposal | Adversarial self-approval |
-| `COMMUNITY-HUMAN0-0` | No constitutional change without HUMAN-0 | Autonomous self-amendment |
+| `COMMUNITY-HUMAN0-0` | No constitutional change without HUMAN-0 | Autonomous self-amendment without human authority |
+| `ACSA-HUMAN0-0` | No ACSA amendment reaches RATIFIED without HUMAN-0 GPG signature | Autonomous constitution rewrite |
+| `ACPA-SCOPE-0` | HARD-class amendment generation blocked by default | Unilateral hard invariant removal |
+| `ACPA-GATE-0` | Proposals below confidence 0.72 are filtered, never submitted | Low-signal amendment noise |
 | `SELF-AWARE-0` | No mutation reduces observability | Blind spots in the governed loop |
 | `DAS-DOCKER-0` | No unpinned Docker images in production | Supply chain drift |
 | `SPIE-HUMAN0-0` | No innovation auto-approved without ratification | Unapproved capability injection |
@@ -410,6 +432,8 @@ Ask DORK why a mutation was blocked six weeks ago. Ask which invariants are unde
 | `AUTH-CT-0` | All digests via `hmac.compare_digest` | Timing oracle attacks |
 | `CFI-HUMAN0-0` | No weight from DEFERRED dispositions | Ambiguous human signal as pressure |
 | `CFI-FLOOR-0` / `CFI-CEIL-0` | No axis weight outside constitutional bounds | Runaway weight collapse or monopoly |
+| `CGDR-FAILCLOSED-0` | Any assessment error produces DRIFTED, never false PASSING | Silent post-convergence regression |
+| `CMVG-CGDR-0` | Unconditional HALT when system is DRIFTED | Mutation pipeline running during governance failure |
 
 </div>
 
@@ -429,7 +453,15 @@ Ask DORK why a mutation was blocked six weeks ago. Ask which invariants are unde
 
 <br/>
 
-Every claim has a corresponding ledger entry. Every entry is hash-chained. Every chain is replayable from any point in history.
+**22 documented world's firsts** — from the foundational Constitutional Evolution Loop (CEL) through INNOV-122 (ACPA). Every claim has a corresponding ledger entry. Every entry is hash-chained. Every chain is replayable from any point in history.
+
+Notable firsts:
+- **World's first** production autonomous self-evolving codebase with constitutional enforcement (Phase 1)
+- **World's first** governed mutation execution sandbox with signed BehavioralDelta and HUMAN-0 promote authority (INNOV-104)
+- **World's first** autonomous mutation proposal synthesizer that selects what the system evolves next (INNOV-109)
+- **World's first** post-convergence drift reporter with fail-closed DRIFTED state and pipeline gate (INNOV-108)
+- **World's first** portable self-verifying AI governance proof bundle — offline auditable (INNOV-115)
+- **World's first** system to autonomously generate constitutional amendment proposals from telemetry (INNOV-122)
 
 ```bash
 # Verify any claim yourself
@@ -465,9 +497,11 @@ adaad inspect-ledger data/evolution_ledger.jsonl
 | **CEL steps** | **16** deterministic | `ls runtime/evolution/` |
 | **Specialist agents** | **3** | `ls dorkllm/` |
 | **HUMAN-0 key** | **1** non-delegatable | `docs/CONSTITUTION.md` |
-| **Ledger entries** | **48,000+** | `adaad inspect-ledger` |
-| **Test files** | **680+** | `python3 -m pytest --collect-only \| wc -l` |
-| **Governance artifacts** | **249+** | `ls artifacts/governance/ \| wc -l` |
+| **Ledger entries** | **50,000+** | `adaad inspect-ledger` |
+| **Test files** | **694+** | `python3 -m pytest --collect-only \| wc -l` |
+| **Governance artifacts** | **396+** | `find artifacts/governance -name '*.json' \| wc -l` |
+| **World's Firsts** | **22** documented | `docs/VERIFIABLE_CLAIMS.md` |
+| **V10 convergence score** | **1.0 / 1.0** (8/8 criteria) | `POST /cgdr/assess` |
 | **PyPI** | `adaad-core==10.28.0` | `pip show adaad-core` |
 | **Platforms** | Linux · macOS · Windows · Android · Docker | `TERMUX_SETUP.md` |
 
@@ -510,7 +544,7 @@ python onboard.py
   ✔ Virtual environment created (.venv)
   ✔ Dependencies installed (pure Python — no compiled binaries required)
   ✔ Governance schemas valid (791 Hard-class invariants loaded)
-  ✔ Ledger chain verified (HMAC integrity confirmed — 48,000+ entries)
+  ✔ Ledger chain verified (HMAC integrity confirmed — 50,000+ entries)
   ✔ Dry-run complete (fail-closed behaviour confirmed — GOV-SOLE-0 active)
 
   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -525,7 +559,8 @@ python onboard.py
   Query constitutional history    # open http://localhost:8080 → DORK
   List self-capable abilities     python -m adaad.orchestrator --list-abilities
   Check abilities drift           python -m adaad.orchestrator --abilities-drift
-  Generate ACPA proposals         POST /acpa/propose
+  Generate ACPA proposals         POST /acpa/analyze
+  Run ACSA amendment lifecycle    POST /acsa/propose  →  POST /acsa/ratify/{id}
   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
@@ -606,11 +641,21 @@ The Innovation Impact Scorer computes per-invariant delta scoring for every ship
 <summary><b>⚡ Propose constitutional amendments autonomously — ACPA (INNOV-122), World First</b></summary>
 <br/>
 
-The Autonomous Constitutional Proposal Advisor generates SOFT-class constitutional proposals from CGVF telemetry and violation pattern analysis — autonomously, without human instigation. Flood cap: maximum 5 proposals per epoch. Diversity gate prevents redundant proposal streams. HUMAN-0 veto is always available. Proposals never auto-ratify. This is the first production system to autonomously propose amendments to its own constitutional invariants while preserving human final authority.
+The Autonomous Constitutional Proposal Advisor generates SOFT-class constitutional proposals from CGVF telemetry and violation pattern analysis — autonomously, without human instigation. Flood cap: maximum 10 proposals per analysis window. Diversity gate prevents redundant proposal streams (`ACPA-DIVERSITY-0`). Confidence gate: proposals below 0.72 are filtered before submission (`ACPA-GATE-0`). HARD-class amendment generation blocked by default (`ACPA-SCOPE-0`). HUMAN-0 veto is always available. Proposals never auto-ratify.
 
-**API:** `POST /acpa/propose` · `GET /acpa/history` · `GET /acpa/verify-chain` · `GET /acpa/status`
+**API:** `POST /acpa/analyze` · `POST /acpa/generate` · `POST /acpa/submit/{id}` · `GET /acpa/proposals` · `GET /acpa/verify-chain` · `GET /acpa/status`
 
 **12 new invariants:** `ACPA-PROPOSAL-0` through `ACPA-VETO-0`
+
+</details>
+
+<details>
+<summary><b>📜 Execute constitutional amendments under governed lifecycle — ACSA (INNOV-121), World First</b></summary>
+<br/>
+
+The Autonomous Constitutional Self-Amendment Engine runs the six-stage amendment lifecycle: `PROPOSED → VALIDATED → SIMULATED → PENDING_H0 → RATIFIED → REJECTED`. ACSA accepts proposals from ACPA or direct HUMAN-0 submission. `ACSA-SIMFIRST-0` mandates a DAS dry-run simulation before any ratification. `ACSA-HUMAN0-0` enforces GPG sign-off at the RATIFIED stage — cryptographic enforcement, not policy. SOFT amendments cannot touch Hard-class invariants (`ACSA-SCOPE-0`). Every stage transition is sealed in an HMAC-chained append-only amendment ledger.
+
+**API:** `POST /acsa/propose` · `POST /acsa/validate/{id}` · `POST /acsa/simulate/{id}` · `POST /acsa/ratify/{id}` · `GET /acsa/amendments` · `GET /acsa/verify-chain`
 
 </details>
 
@@ -668,16 +713,18 @@ adaad/
 │   ├── memory_engine.py                        #   DPM — session-agnostic HMAC-chained memory
 │   ├── grounded_responder.py                   #   RAGS — corpus-grounded responses
 │   ├── constitutional_integrity_ledger.py      #   CIL — cross-ledger integrity attestation
-│   └── acpa_advisor.py                         #   ACPA — autonomous constitutional proposal advisor
+│   ├── constitutional_self_amendment_engine.py #   ACSA — six-stage amendment lifecycle (INNOV-121)
+│   └── acpa_advisor.py                         #   ACPA — autonomous constitutional proposal advisor (INNOV-122)
 │
 ├── app/
 │   ├── api/acpa.py                             # ACPA REST router
+│   ├── api/acsa.py                             # ACSA REST router
 │   └── main.py                                 # Full autonomous loop orchestrator
 │
 ├── security/ledger/                            # Tamper-evident hash-chained evolution ledger
 ├── ui/dork.html                                # DORK governance intelligence dashboard
 ├── server.py                                   # API server (POST /api/dork/stream)
-├── artifacts/governance/                       # Per-phase sign-off and attestation artifacts (249+)
+├── artifacts/governance/                       # Per-phase sign-off and attestation artifacts (396+)
 ├── runtime/governance/constitution.yaml        # The living constitutional document
 └── docs/                                       # Full documentation corpus
 ```
@@ -745,7 +792,7 @@ Pure Python. No compiled C extensions required for core runtime. Runs everywhere
 
 ## 📦 V10 Series — Current State
 
-> `v10.28.0` · Phase 217 · Arc II Self-Amendment · ACPA live
+> `v10.28.0` · Phase 217 · Arc II Self-Amendment · ACPA + ACSA live
 
 <div align="center">
 
@@ -760,16 +807,19 @@ Pure Python. No compiled C extensions required for core runtime. Runs everywhere
 | GA_ALIGNMENT (GPE) + V10ET epoch boundary — sealed | ✅ |
 | Invariant lineage tracing (ILV) — INNOV-97 baseline + extensions | ✅ |
 | Self-capable abilities surface — discovery · drift · governance hook | ✅ |
+| ACSA (INNOV-121) — six-stage autonomous amendment lifecycle live | ✅ |
 | ACPA (INNOV-122) — autonomous constitutional proposal generation live | ✅ |
+| CGVF telemetry fusion → ACPA proposal pipeline — end-to-end closed | ✅ |
 
 </div>
 
 <br/>
 
 **Phase 217 (INNOV-122 · ACPA) delivers:**
-- **Autonomous Constitutional Proposal Advisor** — world-first autonomous SOFT proposals from CGVF telemetry and violation patterns; flood/diversity caps; 12 new `ACPA-*0` invariants; full ledger; HUMAN-0 veto always available; 30/30 acceptance tests; 4 governance artifacts sealed
+- **Autonomous Constitutional Proposal Advisor (ACPA)** — world-first autonomous SOFT proposals generated from CGVF telemetry and violation patterns; confidence gate at 0.72; flood/diversity caps; 12 new `ACPA-*0` invariants; full HMAC-chained ledger; HUMAN-0 veto always available; 30/30 acceptance tests; 4 governance artifacts sealed
+- **Autonomous Constitutional Self-Amendment Engine (ACSA)** — world-first six-stage amendment lifecycle (PROPOSED→VALIDATED→SIMULATED→PENDING_H0→RATIFIED→REJECTED); mandatory DAS dry-run gate; HUMAN-0 GPG enforcement at ratification; 30/30 acceptance tests; 4 governance artifacts sealed
 - **Self-capable abilities surface** — discovery, drift hygiene, pluggable constitutional hook, meta-abilities `adaad.abilities.*`, CLI integration, orchestrator bootstrap
-- **791 Hard-class invariants total** · **122 innovations shipped**
+- **791 Hard-class invariants total** · **122 innovations shipped** · **V10 convergence 1.0/1.0 maintained**
 
 ![divider](docs/assets/readme/inline-divider.svg)
 
@@ -808,7 +858,7 @@ Community constitutional amendment proposals go through the governed pipeline. S
 
 ## ⚖️ Intellectual Property
 
-ADAAD's core mechanisms — the Constitutional Evolution Loop, Cryptographic Evolution Proof DAG, Live Shadow Mutation Execution, Adversarial Fitness Red Team, Self-Proposing Innovation Engine, Retrieval-Augmented Governance Synthesis, DORK Persistent Memory, DORK Query Router, CEL Feedback Integrator, and Autonomous Constitutional Proposal Advisor — are novel, patent-pending inventions of InnovativeAI LLC.
+ADAAD's core mechanisms — the Constitutional Evolution Loop, Cryptographic Evolution Proof DAG, Live Shadow Mutation Execution, Adversarial Fitness Red Team, Self-Proposing Innovation Engine, Retrieval-Augmented Governance Synthesis, DORK Persistent Memory, DORK Query Router, CEL Feedback Integrator, Autonomous Constitutional Self-Amendment Engine, and Autonomous Constitutional Proposal Advisor — are novel, patent-pending inventions of InnovativeAI LLC.
 
 This software is proprietary and confidential. © 2025–2026 InnovativeAI LLC. All rights reserved. No use, reproduction, or distribution without written permission from InnovativeAI LLC. See [LICENSE](LICENSE), [BRAND_LICENSE.md](BRAND_LICENSE.md), and [TRADEMARKS.md](TRADEMARKS.md).
 
@@ -842,6 +892,8 @@ This software is proprietary and confidential. © 2025–2026 InnovativeAI LLC. 
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 <!-- ADAAD_VERSION_INFOBOX:START                                         -->
 <!-- Phase: 217 | Version: 10.28.0 | Invariants: 791 | Innovations: 122 -->
+<!-- Tests: 694+ | Artifacts: 396+ | Ledger: 50k+ | Firsts: 22          -->
+<!-- Arc II: ACSA (INNOV-121) + ACPA (INNOV-122) live                    -->
 <!-- Auto-synced by scripts/version_sync.py                              -->
 <!-- ADAAD_VERSION_INFOBOX:END                                           -->
 <!-- ═══════════════════════════════════════════════════════════════════ -->
