@@ -1,3 +1,23 @@
+## [10.29.0] — Phase 218 · INNOV-123 · ACAM
+
+**Date:** 2026-06-09  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### INNOV-123 · ACAM — Autonomous Constitutional Amendment Monitor (Phase 218)
+- **World-first** autonomous constitutional amendment lifecycle monitor spanning ACSA + ACPA corpus: ACAM continuously tracks amendment health across all sources, computing live coverage scores, flagging stale proposals, and surfacing section conflicts with severity-tiered alerting
+- ACAM-SCOPE-0: strict read-only monitor — zero writes to constitution or proposals; enforced at module boundary
+- ACAM-CHAIN-0 / ACAM-IMMUT-0: HMAC-SHA-256 chained append-only monitor ledger at `ledger/acam_monitor_ledger.jsonl`
+- ACAM-STALE-0: stale-proposal alerting with configurable threshold (default 72h); minimum 1h; only PROPOSED state amendments eligible
+- ACAM-CONFLICT-0: section-level conflict detection — dual-RATIFIED triggers CRITICAL alert; PROPOSED overlap triggers WARNING
+- ACAM-COVERAGE-0: amendment coverage score computed from live ACSA ledger (never hardcoded); range 0.0–1.0 per section
+- ACAM-INTEGRITY-0: full chain walk on every verify_chain() call using hmac.compare_digest([:24])
+- ACAM-HUMAN0-0: monitor config reconfiguration (stale threshold) requires explicit human0_authorized=True
+- ACAM-ATOMIC-0: os.replace() atomic ledger write; ACAMAtomicError on OSError
+- ACAM-ALERT-0: CRITICAL alerts persisted to ledger before response returned
+- 5 REST endpoints: POST /acam/scan; GET /acam/coverage, /verify-chain, /status, /health
+- 30/30 acceptance tests passing (T218-ACAM-01..30)
+- Arc II Phase 3: ACAM closes the monitoring loop — ACPA generates proposals, ACSA processes them, ACAM watches both
+- Cumulative hard-class invariants: 801 (+10)
+
 ## [10.28.0] — Phase 217 · INNOV-122 · ACPA
 
 **Date:** 2026-06-08  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
