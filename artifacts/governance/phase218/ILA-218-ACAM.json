@@ -1,0 +1,57 @@
+{
+  "ila_version": "1.0",
+  "innovation_id": "INNOV-123",
+  "innovation_code": "ACAM",
+  "innovation_name": "Autonomous Constitutional Amendment Monitor",
+  "phase": 218,
+  "version": "10.29.0",
+  "arc": "II — Self-Amendment & Meta-Governance",
+  "governor": "DUSTIN L REID",
+  "agent": "DEVADAAD",
+  "organization": "InnovativeAI LLC",
+  "repository": "github.com/InnovativeAI-adaad/adaad",
+  "date_utc": "2026-06-09",
+  "status": "PROPOSED",
+  "ratification_gate": "HUMAN-0 GPG signature required",
+  "description": "World-first autonomous monitor for constitutional amendment lifecycle across ACSA + ACPA corpus. ACAM continuously tracks amendment health, detects stale proposals beyond configurable thresholds, flags section-level conflicts (including CRITICAL dual-RATIFIED collisions), computes live coverage scores, and appends all events to an HMAC-SHA-256 chained append-only monitor ledger. Operates in strict read-only mode per ACAM-SCOPE-0.",
+  "world_first_claims": [
+    "First autonomous constitutional amendment lifecycle monitor operating across a heterogeneous multi-agent amendment corpus (ACSA + ACPA)",
+    "First system to automatically compute amendment section coverage scores from live HMAC-chained ledger data",
+    "First conflict detection engine for constitutional amendments with severity-tiered alerting (WARNING / CRITICAL)",
+    "First stale-proposal alerting system with configurable HUMAN-0-gated threshold reconfiguration"
+  ],
+  "hard_class_invariants": [
+    {"id": "ACAM-CHAIN-0",    "description": "HMAC-SHA-256 chained append-only monitor ledger"},
+    {"id": "ACAM-HUMAN0-0",   "description": "Monitor config changes require HUMAN-0 authorization"},
+    {"id": "ACAM-IMMUT-0",    "description": "Monitor records are immutable once appended"},
+    {"id": "ACAM-SCOPE-0",    "description": "ACAM is read-only — never mutates constitution or proposals"},
+    {"id": "ACAM-INTEGRITY-0","description": "Chain integrity verified on every ledger read"},
+    {"id": "ACAM-STALE-0",    "description": "Stale-proposal detection uses configurable threshold (default 72h)"},
+    {"id": "ACAM-CONFLICT-0", "description": "Amendment conflict detection fires before any RATIFIED state change"},
+    {"id": "ACAM-COVERAGE-0", "description": "Coverage score computed from live ACSA ledger — never hardcoded"},
+    {"id": "ACAM-ATOMIC-0",   "description": "Monitor ledger write uses os.replace() for atomicity"},
+    {"id": "ACAM-ALERT-0",    "description": "All CRITICAL alerts appended to ledger before response is returned"}
+  ],
+  "deliverables": {
+    "core_module": "dorkllm/autonomous_constitutional_amendment_monitor.py",
+    "api_router": "app/api/acam.py",
+    "test_suite": "tests/test_phase218_acam.py",
+    "test_result": "30/30 PASS",
+    "governance_dir": "artifacts/governance/phase218/"
+  },
+  "api_endpoints": [
+    "POST /acam/scan",
+    "GET  /acam/coverage",
+    "GET  /acam/verify-chain",
+    "GET  /acam/status",
+    "GET  /acam/health"
+  ],
+  "invariant_delta": {
+    "prior_count": 791,
+    "added": 10,
+    "new_total": 801
+  },
+  "cumulative_innovations": 123,
+  "hmac_key_env": "ACAM_HMAC_KEY",
+  "ledger_path_env": "ACAM_LEDGER_PATH"
+}

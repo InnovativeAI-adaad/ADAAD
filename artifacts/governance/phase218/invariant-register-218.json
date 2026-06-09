@@ -1,0 +1,83 @@
+{
+  "invariant_register_version": "1.0",
+  "phase": 218,
+  "innovation": "INNOV-123 · ACAM",
+  "version": "10.29.0",
+  "governor": "DUSTIN L REID",
+  "date_utc": "2026-06-09",
+  "prior_cumulative_count": 791,
+  "invariants_added": 10,
+  "new_cumulative_count": 801,
+  "invariants": [
+    {
+      "id": "ACAM-CHAIN-0",
+      "class": "HARD",
+      "description": "HMAC-SHA-256 chained append-only monitor ledger. Every MonitorRecord is sealed with an HMAC over (record_id, event_type, timestamp_ns, payload_hash, prev_digest).",
+      "violation_type": "ACAMChainError",
+      "enforcement": "seal() raises on missing prev_digest; _append_record always chains"
+    },
+    {
+      "id": "ACAM-HUMAN0-0",
+      "class": "HARD",
+      "description": "Monitor config changes require HUMAN-0 authorization. update_config() raises ACAMHuman0Error unless human0_authorized=True.",
+      "violation_type": "ACAMHuman0Error",
+      "enforcement": "update_config() gate check on human0_authorized flag"
+    },
+    {
+      "id": "ACAM-IMMUT-0",
+      "class": "HARD",
+      "description": "Monitor records are immutable once appended. JSONL ledger is append-only; no delete or update operations exist.",
+      "violation_type": "ACAMImmutError",
+      "enforcement": "No delete/update functions exposed; ledger is append-only"
+    },
+    {
+      "id": "ACAM-SCOPE-0",
+      "class": "HARD",
+      "description": "ACAM is strictly read-only — it never mutates the constitution, amendments, or proposals. No write_constitution / write_proposal / ratify_amendment functions exist.",
+      "violation_type": "ACAMScopeError",
+      "enforcement": "Module API has no mutation functions; test_T218_ACAM_28 verifies absence"
+    },
+    {
+      "id": "ACAM-INTEGRITY-0",
+      "class": "HARD",
+      "description": "Chain integrity verified on every verify_chain() call. _verify_chain_integrity() walks all records and compares HMAC[:24] via hmac.compare_digest.",
+      "violation_type": "ACAMIntegrityError",
+      "enforcement": "verify_chain() raises ACAMIntegrityError on any mismatch"
+    },
+    {
+      "id": "ACAM-STALE-0",
+      "class": "HARD",
+      "description": "Stale-proposal detection uses configurable threshold (default 72h). Only PROPOSED state amendments trigger stale detection. Threshold minimum is 1h.",
+      "violation_type": "ACAMStaleError",
+      "enforcement": "AmendmentRecord.is_stale() checks state == PROPOSED and age > threshold"
+    },
+    {
+      "id": "ACAM-CONFLICT-0",
+      "class": "HARD",
+      "description": "Amendment conflict detection fires on every scan. Two or more PROPOSED/RATIFIED/REVIEWED amendments targeting the same section trigger a conflict record. Dual-RATIFIED is CRITICAL severity.",
+      "violation_type": "ACAMConflictError",
+      "enforcement": "_detect_conflicts() runs on every scan(); severity escalation for dual-RATIFIED"
+    },
+    {
+      "id": "ACAM-COVERAGE-0",
+      "class": "HARD",
+      "description": "Coverage score is computed from live ACSA ledger data only — never hardcoded. _compute_coverage() derives score = covered_sections / total_sections from live amendment list.",
+      "violation_type": "ACAMCoverageError",
+      "enforcement": "_compute_coverage() always reads live amendment list; no static fallback"
+    },
+    {
+      "id": "ACAM-ATOMIC-0",
+      "class": "HARD",
+      "description": "Monitor ledger write uses os.replace() for atomicity. All writes go to a .tmp file first, then are atomically renamed.",
+      "violation_type": "ACAMAtomicError",
+      "enforcement": "_append_record() uses tmp file + os.replace(); raises ACAMAtomicError on OSError"
+    },
+    {
+      "id": "ACAM-ALERT-0",
+      "class": "HARD",
+      "description": "All CRITICAL alerts must be appended to the monitor ledger before the scan() response is returned. _append_record() is called before the return statement.",
+      "violation_type": "ACAMAlertError",
+      "enforcement": "_append_record(record) precedes the return dict in scan(); CRITICAL alerts in payload"
+    }
+  ]
+}
