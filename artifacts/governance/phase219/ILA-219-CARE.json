@@ -1,0 +1,34 @@
+{
+  "schema": "ILA-v1",
+  "innovation": "INNOV-124",
+  "code": "CARE",
+  "name": "Constitutional Amendment Ratification Engine",
+  "phase": 219,
+  "version": "10.30.0",
+  "governor": "DUSTIN L REID",
+  "agent": "DEVADAAD · InnovativeAI LLC",
+  "date_utc": "2026-06-10",
+  "world_first": "First autonomous AI governance system with a constitutionally self-amending invariant registry under cryptographically verified HUMAN-0 ratification control — closing the proposal → monitoring → execution loop entirely within constitutional bounds.",
+  "hard_class_invariants_added": 10,
+  "prior_cumulative_invariants": 801,
+  "new_cumulative_invariants": 811,
+  "innovations_shipped": 124,
+  "test_suite": "tests/test_phase219_care.py",
+  "tests_total": 30,
+  "tests_passing": 30,
+  "track": "A",
+  "track_b_actions_required": [
+    "GPG-seal this ILA certificate (HUMAN-0 exclusive)",
+    "twine publish adaad-core to PyPI at v10.30.0 (HUMAN-0 exclusive)"
+  ],
+  "modules_delivered": [
+    "dorkllm/constitutional_amendment_ratification_engine.py",
+    "app/api/care.py"
+  ],
+  "endpoints": [
+    "POST /care/promote",
+    "GET  /care/status/{wire_id}",
+    "GET  /care/certificate/{wire_id}",
+    "GET  /care/registry/diff"
+  ]
+}
