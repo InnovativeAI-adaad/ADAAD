@@ -1,0 +1,15 @@
+{
+  "schema": "human0-signoff-v1",
+  "phase": 219,
+  "innovation": "INNOV-124",
+  "code": "CARE",
+  "version": "10.30.0",
+  "governor": "DUSTIN L REID",
+  "ratification_signal": "go",
+  "track_a_complete": true,
+  "track_b_pending": true,
+  "signoff_date_utc": "2026-06-10",
+  "gpg_seal_required": true,
+  "gpg_key_fingerprint": "BF3C41FCF28FF9135FA879C8E91D0EB4757FBC58",
+  "notes": "HUMAN-0 ratified Phase 219 INNOV-124 CARE via 'go' signal. Track A delivery complete 30/30. GPG seal and PyPI publish remain HUMAN-0 exclusive Track B actions."
+}
