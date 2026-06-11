@@ -1,0 +1,23 @@
+{
+  "invariant_register_version": "1.0",
+  "phase": 219,
+  "innovation": "INNOV-124",
+  "version": "10.30.0",
+  "governor": "DUSTIN L REID",
+  "date_utc": "2026-06-10",
+  "prior_cumulative_count": 801,
+  "invariants_added": 10,
+  "new_cumulative_count": 811,
+  "invariants": [
+    {"id": "CARE-INTAKE-0",    "class": "HARD", "description": "No amendment promoted without valid Wire ID + HUMAN-0 ratification timestamp"},
+    {"id": "CARE-ATOMIC-0",    "class": "HARD", "description": "Registry promotion atomic via os.replace(); partial writes constitutionally prohibited"},
+    {"id": "CARE-HMAC-0",      "class": "HARD", "description": "Every promotion appends a forward-chained HMAC entry to amendment execution ledger"},
+    {"id": "CARE-HASH-0",      "class": "HARD", "description": "Pre/post SHA-256 of invariant registry recorded before commit"},
+    {"id": "CARE-ROLLBACK-0",  "class": "HARD", "description": "Promotion failure triggers fail-closed rollback with forensic manifest emission"},
+    {"id": "CARE-TOMBSTONE-0", "class": "HARD", "description": "Superseded invariants tombstoned (not deleted) with deprecation timestamp and successor reference"},
+    {"id": "CARE-CERT-0",      "class": "HARD", "description": "Every ratification emits signed execution certificate readable by CGVE and ACAM"},
+    {"id": "CARE-HUMAN0-0",    "class": "HARD", "description": "CARE never auto-promotes without explicit HUMAN-0 ratification signal in payload"},
+    {"id": "CARE-REPLAY-0",    "class": "HARD", "description": "Full amendment execution deterministically replayable from ledger alone"},
+    {"id": "CARE-AUDIT-0",     "class": "HARD", "description": "All CARE operations write to append-only CEPD audit trail; silent failures constitutionally prohibited"}
+  ]
+}

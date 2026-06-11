@@ -1,3 +1,31 @@
+## [10.30.0] — Phase 219 · INNOV-124 · CARE
+
+**Date:** 2026-06-10  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### INNOV-124 · CARE — Constitutional Amendment Ratification Engine (Phase 219)
+
+**World-first:** First autonomous AI governance system with a constitutionally self-amending invariant registry under cryptographically verified HUMAN-0 ratification control — closing the proposal → monitoring → execution loop entirely within constitutional bounds.
+
+**Closes the constitutional amendment arc:** ACSA (propose) → ACPA (advise) → ACAM (monitor) → HUMAN-0 → **CARE (execute/seal)**
+
+#### Modules Delivered
+- `dorkllm/constitutional_amendment_ratification_engine.py` — Core engine, 10 hard-class invariants
+- `app/api/care.py` — FastAPI router, 4 endpoints
+
+#### Endpoints
+- `POST /care/promote` — Atomic registry promotion + HMAC chain + certificate emission
+- `GET  /care/status/{wire_id}` — Query promotion status by Wire ID
+- `GET  /care/certificate/{wire_id}` — Retrieve signed execution certificate (CARE-CERT-0)
+- `GET  /care/registry/diff` — Last constitutional diff for CGVE/ACAM cross-validation
+
+#### Hard-Class Invariants Added (10 · cumulative: 811)
+CARE-INTAKE-0 | CARE-ATOMIC-0 | CARE-HMAC-0 | CARE-HASH-0 | CARE-ROLLBACK-0
+CARE-TOMBSTONE-0 | CARE-CERT-0 | CARE-HUMAN0-0 | CARE-REPLAY-0 | CARE-AUDIT-0
+
+#### Test Suite: 30/30 passing — tests/test_phase219_care.py
+
+---
+
 ## [10.29.0] — Phase 218 · INNOV-123 · ACAM
 
 **Date:** 2026-06-09  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
