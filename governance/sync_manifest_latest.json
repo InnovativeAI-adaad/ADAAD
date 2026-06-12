@@ -1,11 +1,11 @@
 {
-  "sync_timestamp": "2026-06-11T13:39:16.102479+00:00",
+  "sync_timestamp": "2026-06-12T10:49:37.578011+00:00",
   "canonical": {
     "version": "10.30.0",
     "phase": 219,
     "hard_class_count": 0,
     "innovations": 124,
-    "sha": "7e951ef"
+    "sha": "9dfcb0c"
   },
   "surfaces": [
     {
@@ -32,15 +32,15 @@
       "file": "governance/report_version.json",
       "changed": true,
       "ops": [
+        "updated date",
+        "updated last_sync_date",
         "updated last_sync_sha"
       ]
     },
     {
       "file": ".adaad_agent_state.json",
-      "changed": true,
-      "ops": [
-        "synced hard_invariant_count"
-      ]
+      "changed": false,
+      "ops": []
     },
     {
       "file": "docs/assets/readme/inline-hero_banner.svg",
@@ -48,6 +48,6 @@
       "ops": []
     }
   ],
-  "total_changed": 2,
-  "digest": "dc7ae104bd3c0bfa"
+  "total_changed": 1,
+  "digest": "3a45fa4d712a8c5e"
 }
