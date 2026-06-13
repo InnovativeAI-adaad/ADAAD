@@ -1,3 +1,26 @@
+## [10.31.0] — Phase 220 · INNOV-125 · CEICC
+
+**Date:** 2026-06-12  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### INNOV-125 · CEICC — Cross-Engine Invariant Coherence Checker
+
+**World-first:** First autonomous AI governance system with a dedicated constitutional coherence
+oracle that verifies, across all registered engine modules, that no two Hard-class invariants
+assert contradictory constitutional rules — detecting CLASS-A semantic conflicts, CLASS-B scope
+overlaps, CLASS-C authority collisions, and CLASS-D duplicate assertions (governance ghosts)
+across the full 821-invariant corpus.
+
+**New module:** `dorkllm/cross_engine_invariant_coherence_checker.py`
+**New router:** `app/api/ceicc.py` — 5 endpoints: POST /ceicc/check, GET /ceicc/report/latest,
+GET /ceicc/chain/verify, GET /ceicc/corpus/stats, GET /ceicc/status
+**Test suite:** `tests/test_phase220_ceicc.py` — 30/30 PASS (INV·CORP·DTCT·SCOR·CHN)
+**Hard-class invariants added:** 10 (CEICC-CORPUS-0 through CEICC-SCOPE-0)
+**Cumulative invariants:** 821 (was 811)
+**Innovations shipped:** 125 (was 124)
+**Persistent fix:** hard_invariant_count corrected to 821 in agent state
+
+---
+
 ## [10.30.0] — Phase 219 · INNOV-124 · CARE
 
 **Date:** 2026-06-10  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
