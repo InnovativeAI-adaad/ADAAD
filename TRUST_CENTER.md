@@ -128,7 +128,7 @@ ADAAD is effectively built by one person: Dustin L. Reid, Governor, Innovative A
 
 4. **The constitution governs succession:** Constitutional amendments (INNOV-01 CSAP) require HUMAN-0 ratification. A succession governance protocol can be encoded as a constitutional amendment under the same process used for all other amendments.
 
-**For enterprise procurement:** The honest answer is that key-person concentration at the current stage is a real risk factor. The runbook for the 2-of-3 key ceremony has been delivered. The mitigating factors — open source, portable ledger, constitutional succession protocol — reduce but do not eliminate this risk until the key ceremony is executed.
+**For enterprise procurement:** The honest answer is that key-person concentration at the current stage is a real risk factor. The runbook for the 2-of-3 key ceremony has been delivered. The mitigating factors — governed source access, portable ledger evidence, and constitutional succession protocol — reduce but do not eliminate this risk until the key ceremony is executed.
 
 ---
 

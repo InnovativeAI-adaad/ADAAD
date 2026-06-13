@@ -10,13 +10,13 @@
 
 > Hey everyone — sharing something I've been working on that might be interesting here.
 >
-> ADAAD is an open-source framework for governed autonomous code evolution. The short version: AI agents propose code improvements, they compete in a genetic-algorithm tournament, and the survivors face a constitutional policy gate before anything changes.
+> ADAAD is an proprietary framework for governed autonomous code evolution. The short version: AI agents propose code improvements, they compete in a genetic-algorithm tournament, and the survivors face a constitutional policy gate before anything changes.
 >
 > The piece I find most interesting from an ML systems perspective: the gate is entirely deterministic. No LLM is asked "is this safe?" — the versioned constitutional rule set is composed of computational checks (AST validity, banned token scan, crypto signature, resource bounds, etc.). Any governance decision can be replayed from logged inputs and produces byte-identical results. Divergence halts the pipeline.
 >
 > Phase 6 is the wild one: the system can now propose amendments to its own roadmap. Same gate. Human sign-off required. `authority_level = "governor-review"` is hardcoded and injection-blocked.
 >
-> Free, open source: https://github.com/InnovativeAI-adaad/ADAAD
+> Governed proprietary access: https://github.com/InnovativeAI-adaad/ADAAD
 > Happy to answer questions about the governance architecture.
 
 ---
@@ -39,13 +39,13 @@
 
 **Channel: #new-projects**
 
-> Sharing ADAAD — an open-source AI code evolution engine with constitutional governance.
+> Sharing ADAAD — an proprietary AI code evolution engine with constitutional governance.
 >
 > Three AI agents compete to improve your codebase each epoch. Best proposals pass through a 16-rule policy gate. Everything is logged, hash-chained, and deterministically replayable. Free Android dashboard app included.
 >
 > What's unusual: the governance layer is architecturally non-bypassable, not just documented policy. `GovernanceGate` is literally the only component that can approve a mutation.
 >
-> https://github.com/InnovativeAI-adaad/ADAAD — MIT license, free, open source
+> https://github.com/InnovativeAI-adaad/ADAAD — proprietary license, governed proprietary access
 
 ---
 
@@ -59,14 +59,14 @@ Hi TLDR team,
 
 Pitching a project for the Open Source or AI section:
 
-**ADAAD** — open-source AI code evolution with constitutional gating
+**ADAAD** — proprietary AI code evolution with constitutional gating
 https://github.com/InnovativeAI-adaad/ADAAD
 
 The angle: most AI coding tools ask humans to approve every suggestion. ADAAD is designed for autonomous/semi-autonomous operation — which means the governance constraints have to be architectural, not advisory. Three Claude-powered agents compete to propose improvements, a genetic algorithm scores them, and the survivors face a 16-rule policy engine. One blocking failure = full halt. The gate is the only approval surface in the system.
 
 The technically interesting part: every governance decision is deterministically replayable from logged inputs. Replay divergence = immediate halt. This is what makes it auditable rather than just logged.
 
-Current version: 9.0.0, Phase 65 complete (Emergence — First Autonomous Capability Evolution: governed self-improvement cycle, cryptographic evidence chain, deterministic replay). Free Android app. MIT license.
+Current version: 9.0.0, Phase 65 complete (Emergence — First Autonomous Capability Evolution: governed self-improvement cycle, cryptographic evidence chain, deterministic replay). Free Android app. proprietary license.
 
 Happy to provide more technical detail or a demo.
 
@@ -74,12 +74,12 @@ Happy to provide more technical detail or a demo.
 
 ### Pointer.io (curated links for developers)
 
-> **ADAAD** — AI agents that evolve your codebase under constitutional governance. Three Claude-powered agents propose, genetic algorithm scores, 16-rule policy gate decides. One failure halts everything. Every decision is deterministically replayable. Phase 6: it now proposes amendments to its own roadmap (human sign-off required). Free, open source, free Android app.
+> **ADAAD** — AI agents that evolve your codebase under constitutional governance. Three Claude-powered agents propose, genetic algorithm scores, 16-rule policy gate decides. One failure halts everything. Every decision is deterministically replayable. Phase 6: it now proposes amendments to its own roadmap (human sign-off required). Governed proprietary access, free Android app.
 > https://github.com/InnovativeAI-adaad/ADAAD
 
 ---
 
-### Console.dev (open source tools newsletter)
+### Console.dev (governed AI tools newsletter)
 
 **Submission:**
 
@@ -104,7 +104,7 @@ Happy to provide more technical detail or a demo.
 
 **Template message:**
 
-> Hi — I've been following [PROJECT] and wanted to share a related open-source project that might be interesting to your community or useful as a reference for [GOVERNANCE/SAFETY/AUDIT] patterns.
+> Hi — I've been following [PROJECT] and wanted to share a related proprietary project that might be interesting to your community or useful as a reference for [GOVERNANCE/SAFETY/AUDIT] patterns.
 >
 > ADAAD (https://github.com/InnovativeAI-adaad/ADAAD) is a governed autonomous code evolution engine. The governance layer is the interesting part: a 16-rule constitutional gate is the only approval surface in the system, every decision is deterministically replayable, and a hash-chained ledger records everything. We've been running it on itself — ADAAD evolves ADAAD through its own governed pipeline.
 >

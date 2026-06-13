@@ -91,7 +91,7 @@ A federated mutation governance system wherein:
 | Audit trail | None | SHA-256 chain, deterministically replayable |
 | Safety mechanism | Human is the safety layer | Constitutional governance IS the safety layer |
 | Proof of decision | Cannot prove what happened | Every decision cryptographically evidenced |
-| Deployment cost | Server-only, enterprise-priced | Runs on \$200 Android phone, Apache 2.0 |
+| Deployment cost | Server-only, enterprise-priced | Runs on \$200 Android phone, proprietary license |
 | Self-improvement | N/A | Governed autonomous self-evolution (Phase 65) |
 
 ---
@@ -111,7 +111,7 @@ The canonical implementation is the ADAAD v9.1.0 codebase:
 - **Constitutional Rules**: `docs/CONSTITUTION.md` (v0.9.0, 23 rules)
 
 Repository: `https://github.com/InnovativeAI-adaad/ADAAD`  
-License: Apache 2.0 (code) — IP claims above are separate from the open-source license
+License: Proprietary repository license — IP claims above are reserved separately
 
 ---
 

@@ -1,7 +1,7 @@
 # Hacker News — Show HN
 
 **Title:**
-Show HN: ADAAD – AI agents that improve your code, constitutionally gated and replay-verified (open source)
+Show HN: ADAAD – AI agents that improve your code, constitutionally gated and replay-verified (proprietary)
 
 **URL:** https://github.com/InnovativeAI-adaad/ADAAD
 
@@ -12,7 +12,7 @@ Show HN: ADAAD – AI agents that improve your code, constitutionally gated and 
 
 ## Comment to post immediately after submission:
 
-ADAAD (Autonomous Development & Adaptation Architecture) is an open-source mutation engine that lets three Claude-powered AI agents (we call them Architect, Dream, and Beast) continuously propose code improvements — but every single change is blocked behind a constitutional governance gate before anything is applied.
+ADAAD (Autonomous Development & Adaptation Architecture) is an proprietary mutation engine that lets three Claude-powered AI agents (we call them Architect, Dream, and Beast) continuously propose code improvements — but every single change is blocked behind a constitutional governance gate before anything is applied.
 
 The problem I was trying to solve: AI code suggestion tools are great at volume, terrible at accountability. If you're on a team where "who changed this and why" is a real question, or in an industry where you need an audit trail, raw AI code generation is a liability. ADAAD threads the needle.
 

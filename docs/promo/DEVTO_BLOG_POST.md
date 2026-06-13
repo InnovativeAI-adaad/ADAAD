@@ -1,7 +1,7 @@
 ---
 title: "We built an AI that improves code — but can't approve its own changes"
 published: true
-description: "ADAAD is an open-source autonomous mutation engine where three AI agents compete to improve your codebase, gated by a constitutional policy engine that the AI itself cannot override."
+description: "ADAAD is an proprietary autonomous mutation engine where three AI agents compete to improve your codebase, gated by a constitutional policy engine that the AI itself cannot override."
 tags: opensource, ai, devtools, governance
 cover_image: https://raw.githubusercontent.com/InnovativeAI-adaad/ADAAD/main/docs/assets/adaad-banner.svg
 canonical_url: https://github.com/InnovativeAI-adaad/ADAAD
@@ -21,7 +21,7 @@ ADAAD tries to close that gap.
 
 ## What ADAAD does
 
-ADAAD is an open-source autonomous mutation engine. Every epoch, three Claude-powered AI agents (we call them Architect, Dream, and Beast) independently propose code improvements. They don't coordinate — they compete.
+ADAAD is an proprietary autonomous mutation engine. Every epoch, three Claude-powered AI agents (we call them Architect, Dream, and Beast) independently propose code improvements. They don't coordinate — they compete.
 
 Those proposals then go through a genetic algorithm population: cross-bred, mutated, ranked. The best candidates advance to the **GovernanceGate**: a 16-rule constitutional policy engine that evaluates each proposal deterministically. One blocking failure? The entire proposal is rejected. Nothing proceeds.
 
@@ -108,7 +108,7 @@ You'll need an Anthropic API key to run the AI mutation loop (`ADAAD_CLAUDE_API_
 
 ---
 
-ADAAD is MIT licensed, free to use, and the whole thing is in the repo. Questions, feedback, and contributions are genuinely welcome.
+ADAAD is proprietary licensed, free to use, and the whole thing is in the repo. Questions, feedback, and contributions are genuinely welcome.
 
 If you're working in a context where AI code changes need to be auditable, reversible, and justifiable — this was built for you.
 
