@@ -1,0 +1,1210 @@
+{
+  "schema_version": "1.0",
+  "sort_order": [
+    "phase",
+    "date",
+    "artifact_path"
+  ],
+  "timestamp_policy": "No generated timestamps are recorded; dates are copied only from source artifacts when present.",
+  "entries": [
+    {
+      "phase": 87,
+      "date": "2026-03-23",
+      "artifact_path": "artifacts/governance/phase87/scdd_signoff.json",
+      "innovation_id": "Semantic Constitutional Drift Detector (SCDD)",
+      "ila_reference": null,
+      "claim_text": "First autonomous evolution system to detect semantic drift in constitutional invariants — distinguishing rule text stability from behavioral coverage drift across epochs.",
+      "digests": {
+        "source_artifact_sha256": "b93a81ee80a015ac66886584064c22b913d1f7d21f82d23441917fb7733fd499"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase87/scdd_signoff.json >/dev/null",
+        "sha256sum artifacts/governance/phase87/scdd_signoff.json"
+      ]
+    },
+    {
+      "phase": 92,
+      "date": "2026-03-27",
+      "artifact_path": "artifacts/governance/phase92/phase92_sign_off.json",
+      "innovation_id": "INNOV-08",
+      "ila_reference": null,
+      "claim_text": "World-first: constitutionally-governed adversarial peer-review as a CEL gate. Dedicated Red Team Agent performs targeted adversarial falsification of mutation proposals — probing paths the proposing agent did not exercise — before governance scoring. Mutations must survive adversarial stress-testing to advance.",
+      "digests": {
+        "attest_hash": "sha256:phase92-afrt-innov08-shipped-2026-03-27",
+        "source_artifact_sha256": "8d8fc788ef0b6970e01cdd54667a5ef2c4fd1de676218e79f80c8505ee5af0b4"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase92/phase92_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase92/phase92_sign_off.json"
+      ]
+    },
+    {
+      "phase": 102,
+      "date": "2026-04-02",
+      "artifact_path": "artifacts/governance/phase102/phase102_sign_off.json",
+      "innovation_id": "INNOV-17",
+      "ila_reference": "ILA-102-2026-04-02-001",
+      "claim_text": "Constitutional-governed post-mortem interviews for autonomous mutation agents — structured failure reasoning feeding back into evolutionary selection pressure.",
+      "digests": {
+        "evidence_hash": "sha256:81604ec87c7a6793",
+        "source_artifact_sha256": "e01d911595b0f380795e4204ba3a621ff81a9eaa9c060718fef775a2f47e1c9d"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase102/phase102_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase102/phase102_sign_off.json"
+      ]
+    },
+    {
+      "phase": 109,
+      "date": "2026-04-03",
+      "artifact_path": "artifacts/governance/phase109/phase109_sign_off.json",
+      "innovation_id": "INNOV-24",
+      "ila_reference": "ILA-109-2026-04-03-001",
+      "claim_text": "Semantic version promises enforced as constitutional governance contracts with deterministic, tamper-evident verdict auditing.",
+      "digests": {
+        "evidence_hash": "sha256:5e9f1f2f5770f492",
+        "source_artifact_sha256": "7a4a58ea138ae36dcc7f0ed69d7ed9b826e9edef4c533c0be3fdb5e9928b3ed7"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase109/phase109_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase109/phase109_sign_off.json"
+      ]
+    },
+    {
+      "phase": 110,
+      "date": "2026-04-03",
+      "artifact_path": "artifacts/governance/phase110/phase110_sign_off.json",
+      "innovation_id": "INNOV-25",
+      "ila_reference": "ILA-110-2026-04-03-001",
+      "claim_text": "Hardware-profile-aware constitutional fitness weights with deterministic, ledger-audited evaluation records — enabling governed evolution across heterogeneous deployment targets.",
+      "digests": {
+        "evidence_hash": "sha256:dfb7cccc1ab13b61",
+        "source_artifact_sha256": "9dfd71550dbb428cbfad4cc1f112e51084ad3d4c5df24b17d7e64da680c33c13"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase110/phase110_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase110/phase110_sign_off.json"
+      ]
+    },
+    {
+      "phase": 111,
+      "date": "2026-04-03",
+      "artifact_path": "artifacts/governance/phase111/phase111_sign_off.json",
+      "innovation_id": "INNOV-26",
+      "ila_reference": "ILA-111-2026-04-03-001",
+      "claim_text": "Constitutional entropy budget enforcing double-HUMAN-0 sign-off at 30% genesis drift, with cooling periods, tamper-evident drift reports, and append-only amendment ledger.",
+      "digests": {
+        "evidence_hash": "sha256:fe806c09cb1e1ded",
+        "source_artifact_sha256": "9dc396991d910f13857d4b3f59b281a3ce4cebbe551f431b37787844f18be7b3"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase111/phase111_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase111/phase111_sign_off.json"
+      ]
+    },
+    {
+      "phase": 112,
+      "date": "2026-04-03",
+      "artifact_path": "artifacts/governance/phase112/phase112_sign_off.json",
+      "innovation_id": "INNOV-27",
+      "ila_reference": "ILA-112-2026-04-03-001",
+      "claim_text": "Constitutional SLA-bound blast radius modeling with tamper-evident reversal cost reports and fail-closed governance gate enforcement.",
+      "digests": {
+        "evidence_hash": "sha256:c95775b2dea06650",
+        "source_artifact_sha256": "c72aec9b511e72d5a32ab6291ad80a577fdc3ff1122028527472e5691f2dd1f0"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase112/phase112_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase112/phase112_sign_off.json"
+      ]
+    },
+    {
+      "phase": 113,
+      "date": "2026-04-03",
+      "artifact_path": "artifacts/governance/phase113/phase113_sign_off.json",
+      "innovation_id": "INNOV-28",
+      "ila_reference": "ILA-113-2026-04-03-001",
+      "claim_text": "Constitutional rule preventing mutations from optimizing away system self-monitoring transparency, with tamper-evident verdict auditing and fail-closed governance gate.",
+      "digests": {
+        "evidence_hash": "sha256:dd1e687b077f9a34",
+        "source_artifact_sha256": "2e49e02be5cb7e3e881f412472e27c1ff1fa39e7daba6aec2fd35367d5ec90da"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase113/phase113_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase113/phase113_sign_off.json"
+      ]
+    },
+    {
+      "phase": 114,
+      "date": "2026-04-03",
+      "artifact_path": "artifacts/governance/phase114/phase114_sign_off.json",
+      "innovation_id": "INNOV-29",
+      "ila_reference": "ILA-114-2026-04-03-001",
+      "claim_text": "Constitutional curiosity-driven exploration with hard stops enforcing health and protected-file bounds, deterministic fitness inversion, and full audit trail on every state transition.",
+      "digests": {
+        "evidence_hash": "sha256:d06e40e320e0bc7d",
+        "source_artifact_sha256": "70f801c1e87a4de6f76c9f5226f3ce86d04182f7565560318d443caf9bede34d"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase114/phase114_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase114/phase114_sign_off.json"
+      ]
+    },
+    {
+      "phase": 115,
+      "date": "2026-04-03",
+      "artifact_path": "artifacts/governance/phase115/phase115_sign_off.json",
+      "innovation_id": "INNOV-30",
+      "ila_reference": "ILA-115-2026-04-03-001",
+      "claim_text": "Constitutional self-calibration test measuring governance prediction accuracy, with deterministic scoring, tamper-evident result digests, and calibration epoch enforcement below threshold.",
+      "digests": {
+        "evidence_hash": "sha256:f43070e004243d73",
+        "source_artifact_sha256": "32ade072b81ac724f7fb0b02c69a2892ca774ce828a7f3ea5ddb9d38ab4cdfa0"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase115/phase115_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase115/phase115_sign_off.json"
+      ]
+    },
+    {
+      "phase": 116,
+      "date": "2026-04-04",
+      "artifact_path": "artifacts/governance/phase116/phase116_sign_off.json",
+      "innovation_id": "INNOV-31",
+      "ila_reference": "ILA-116-2026-04-04-001",
+      "claim_text": "First governed autonomous constitutional self-discovery engine: the system mines its own governance failure history to propose new constitutional invariants, with HMAC-chain-linked ledger, deterministic rule_id derivation, and fail-closed IDE-GATE-0 deduplication preventing rule re-proposal.",
+      "digests": {
+        "evidence_hash": "sha256:ede42128536cc44a",
+        "source_artifact_sha256": "2d47c6c1282d3b33590ea3150528a2d6e48eef9ec792921077ef2f3de422bc01"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase116/phase116_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase116/phase116_sign_off.json"
+      ]
+    },
+    {
+      "phase": 118,
+      "date": "2026-04-04",
+      "artifact_path": "artifacts/governance/phase118/phase118_sign_off.json",
+      "innovation_id": "INNOV-33",
+      "ila_reference": "ILA-118-2026-04-04-001",
+      "claim_text": "First multi-instance federated knowledge bundle exchange with deterministic cryptographic provenance, HMAC-chain-linked ledger, and HUMAN-0 gated federation amendments in a constitutionally governed autonomous system",
+      "digests": {
+        "source_artifact_sha256": "c8ba55643199fda3e0252e70c44c299c3e31f19c39974bdec8ba55de5a60a738"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase118/phase118_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase118/phase118_sign_off.json"
+      ]
+    },
+    {
+      "phase": 119,
+      "date": "2026-04-04",
+      "artifact_path": "artifacts/governance/phase119/phase119_sign_off.json",
+      "innovation_id": "INNOV-34",
+      "ila_reference": "ILA-119-2026-04-04-001",
+      "claim_text": "First formal consensus protocol for federation-wide constitutional amendments in an autonomous AI code governance system, with strict majority quorum enforcement, per-instance anti-unilateral controls, and cryptographic chain-linked vote audit ledger",
+      "digests": {
+        "source_artifact_sha256": "2e84346d29f630bb6d20cd25b9d2d7add17387d23c9729ca09221d7fcf1bfefc"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase119/phase119_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase119/phase119_sign_off.json"
+      ]
+    },
+    {
+      "phase": 120,
+      "date": "2026-04-04",
+      "artifact_path": "artifacts/governance/phase120/phase120_sign_off.json",
+      "innovation_id": "INNOV-35",
+      "ila_reference": "ILA-120-2026-04-04-001",
+      "claim_text": "First autonomous AI system to propose its own next innovations from failure history, constitutional gap analysis, and self-model accuracy signals, with HUMAN-0 ratification gate and cryptographic chain-linked proposal audit ledger",
+      "digests": {
+        "source_artifact_sha256": "8c5e1e3dfaa529e642b72d0290b17a48804ed39ef2b304b986987f5a31798178"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase120/phase120_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase120/phase120_sign_off.json"
+      ]
+    },
+    {
+      "phase": 121,
+      "date": "2026-04-04",
+      "artifact_path": "artifacts/governance/phase121/phase121_sign_off.json",
+      "innovation_id": "INNOV-36",
+      "ila_reference": "ILA-121-2026-04-04-001",
+      "claim_text": "First autonomous AI governance system to offer a hermetic, publicly runnable demo sandbox producing a cryptographically chain-verified mutation audit ledger from a single docker-compose command, with constitutional prohibition on non-deterministic timestamps and :latest Docker image tags",
+      "digests": {
+        "source_artifact_sha256": "0346946fb798cc83e871cd99a7d3520a6ea514c804dcab4397646e4f2ac6a2ae"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase121/phase121_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase121/phase121_sign_off.json"
+      ]
+    },
+    {
+      "phase": 124,
+      "date": "2026-04-05",
+      "artifact_path": "artifacts/governance/phase124/phase124_sign_off.json",
+      "innovation_id": "adaad-core Extraction",
+      "ila_reference": "ILA-124-2026-04-05-001",
+      "claim_text": "First governed constitutional kernel extraction as independently semver-managed package",
+      "digests": {
+        "source_artifact_sha256": "34887ab2a5091de95714928cecbf461f15d238093b0622f40a6d832ee7c35de6"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase124/phase124_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase124/phase124_sign_off.json"
+      ]
+    },
+    {
+      "phase": 125,
+      "date": "2026-04-05",
+      "artifact_path": "artifacts/governance/phase125/phase125_sign_off.json",
+      "innovation_id": "Community Governance Infrastructure",
+      "ila_reference": "ILA-125-2026-04-05-001",
+      "claim_text": "First constitutionally governed community amendment pipeline with cryptographic HUMAN-0 ratification enforcement and FGCON quorum gate — structurally incapable of autonomous constitutional change",
+      "digests": {
+        "source_artifact_sha256": "6e4827211d6612821bca8816a963ddd4de899dec5f716cb301c750af25dc2d5c"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase125/phase125_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase125/phase125_sign_off.json"
+      ]
+    },
+    {
+      "phase": 126,
+      "date": "2026-04-06",
+      "artifact_path": "artifacts/governance/phase126/ILA-126-2026-04-06-001.json",
+      "innovation_id": "Red-Team Challenge",
+      "ila_reference": "ILA-126-2026-04-06-001",
+      "claim_text": "First constitutionally governed autonomous attacker that halts on silent gate pass-through",
+      "digests": {
+        "session_digest": "phase126-red-team-impl-2026-04-06",
+        "source_artifact_sha256": "5113245fbae7128a3174ab3dab454ca97687b9fc6ac6d02cc9420bded1622f50"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase126/ILA-126-2026-04-06-001.json >/dev/null",
+        "sha256sum artifacts/governance/phase126/ILA-126-2026-04-06-001.json"
+      ]
+    },
+    {
+      "phase": 126,
+      "date": "2026-04-06",
+      "artifact_path": "artifacts/governance/phase126/phase126_sign_off.json",
+      "innovation_id": null,
+      "ila_reference": "ILA-126-2026-04-06-001",
+      "claim_text": "First constitutional red-team engine with append-only chain-linked attack ledger, typed breach exceptions, and canonical manifest scope enforcement",
+      "digests": {
+        "source_artifact_sha256": "c3fdd88b78382f3bc1d59d7924e28abbb546fdd6d56075a3a2a698897559a723"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase126/phase126_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase126/phase126_sign_off.json"
+      ]
+    },
+    {
+      "phase": 127,
+      "date": "2026-04-06",
+      "artifact_path": "artifacts/governance/phase127/ILA-127-2026-04-06-001.json",
+      "innovation_id": "INNOV-37 Governed Red-Team Response Protocol (GRRP)",
+      "ila_reference": "ILA-127-2026-04-06-001",
+      "claim_text": "First constitutionally governed red-team response engine with HUMAN-0-gated amendment routing",
+      "digests": {
+        "session_digest": "phase127-grrp-impl-2026-04-06",
+        "source_artifact_sha256": "58b1f6300f773b9bdcc5be07d4c243d1a017cc5d4d318ecbabc9dd3d9fdcdb42"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase127/ILA-127-2026-04-06-001.json >/dev/null",
+        "sha256sum artifacts/governance/phase127/ILA-127-2026-04-06-001.json"
+      ]
+    },
+    {
+      "phase": 128,
+      "date": "2026-04-08",
+      "artifact_path": "artifacts/governance/ILA-128-2026-04-08-001.json",
+      "innovation_id": "INNOV-38",
+      "ila_reference": "ILA-128-2026-04-08-001",
+      "claim_text": "Adversarially-driven constitutional self-amendment with cryptographic provenance — AI system that amends its own constitution via governed adversarial feedback loop",
+      "digests": {
+        "source_artifact_sha256": "18e0daae12b6dd905e2b101576812b45e3d527a4b7e5e23f6422b65658f1e4a0"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/ILA-128-2026-04-08-001.json >/dev/null",
+        "sha256sum artifacts/governance/ILA-128-2026-04-08-001.json"
+      ]
+    },
+    {
+      "phase": 129,
+      "date": "2026-04-08",
+      "artifact_path": "artifacts/governance/ILA-129-2026-04-08-001.json",
+      "innovation_id": "INNOV-39",
+      "ila_reference": "ILA-129-2026-04-08-001",
+      "claim_text": "Governed agent coalition formation with proportional integer stake redistribution and epoch-boundary dissolution enforcement for high-complexity AI mutations",
+      "digests": {
+        "source_artifact_sha256": "4edfb0cd9525fc892ae6cfbe5509c6d376dc1627d19e3dee56e611b7fb68178e"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/ILA-129-2026-04-08-001.json >/dev/null",
+        "sha256sum artifacts/governance/ILA-129-2026-04-08-001.json"
+      ]
+    },
+    {
+      "phase": 130,
+      "date": "2026-04-08",
+      "artifact_path": "artifacts/governance/ILA-130-2026-04-08-001.json",
+      "innovation_id": "INNOV-40",
+      "ila_reference": "ILA-130-2026-04-08-001",
+      "claim_text": "Governed cross-epoch agent behavioral profile transfer with cryptographic bundle signing, schema sanitisation, additive deterministic merge, HUMAN-0 quarantine authority, and epoch-boundary enforcement",
+      "digests": {
+        "source_artifact_sha256": "f18478412caf4e9c23241500437accac8f872156437a2990e35855380b616a1a"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/ILA-130-2026-04-08-001.json >/dev/null",
+        "sha256sum artifacts/governance/ILA-130-2026-04-08-001.json"
+      ]
+    },
+    {
+      "phase": 132,
+      "date": "2026-04-10",
+      "artifact_path": "artifacts/governance/132/ILA-132-2026-04-10-001.json",
+      "innovation_id": "INNOV-41",
+      "ila_reference": "ILA-132-2026-04-10-001",
+      "claim_text": "Constitutional Fail-Closed Provider Fleet with Hash-Chained Conversation Ledger and Jaccard-Taxonomy Intent Routing under HUMAN-0 Governance Authority",
+      "digests": {
+        "source_artifact_sha256": "0b017d48d96a64e3292d380cf02270f3fde56c221f6ba47502e18199624683d8"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/132/ILA-132-2026-04-10-001.json >/dev/null",
+        "sha256sum artifacts/governance/132/ILA-132-2026-04-10-001.json"
+      ]
+    },
+    {
+      "phase": 133,
+      "date": "2026-04-11",
+      "artifact_path": "artifacts/governance/133/ILA-133-2026-04-11-001.json",
+      "innovation_id": "INNOV-42",
+      "ila_reference": "ILA-133-2026-04-11-001",
+      "claim_text": "Governed, self-healing LLM provider fleet with cryptographically-persistent conversation ledger, exposed as a constitutional subsystem of an autonomous governance engine",
+      "digests": {
+        "source_artifact_sha256": "6e73c8b300f4f61b33e9ac6bb81da3782bef26d02811780a07d10eb2474e8f4b"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/133/ILA-133-2026-04-11-001.json >/dev/null",
+        "sha256sum artifacts/governance/133/ILA-133-2026-04-11-001.json"
+      ]
+    },
+    {
+      "phase": 135,
+      "date": "2026-04-11",
+      "artifact_path": "artifacts/governance/phase135/ILA-135-2026-04-11-001.json",
+      "innovation_id": null,
+      "ila_reference": "ILA-135-2026-04-11-001",
+      "claim_text": "Constitutional git-blame-equivalent with cryptographic chain integrity and HUMAN-0-gated rollback — first autonomous codebase to version its own governing constitution with full replay determinism",
+      "digests": {
+        "digest": "00f1c833615e9e0fffba0f618b2ae6171c4dc2095c2d8c6b947225693bf68057",
+        "source_artifact_sha256": "bce7211df22220251974be690c9a66f6f1fe99f33317f5978afd19f3af9a94ec"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase135/ILA-135-2026-04-11-001.json >/dev/null",
+        "sha256sum artifacts/governance/phase135/ILA-135-2026-04-11-001.json"
+      ]
+    },
+    {
+      "phase": 141,
+      "date": "2026-04-12",
+      "artifact_path": "artifacts/governance/phase141/ILA-141-2026-04-12-001.json",
+      "innovation_id": "INNOV-47",
+      "ila_reference": null,
+      "claim_text": "First local LLM with a constitutionally governed, auto-updating knowledge corpus synchronized from the live codebase at every phase boundary.",
+      "digests": {
+        "event_digest": "sha256:placeholder-track-b-will-compute-on-adaadell",
+        "source_artifact_sha256": "36e1de67838f98015e69f03ed9e089742338348d978dd6fa7b6bad7d697e103e"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase141/ILA-141-2026-04-12-001.json >/dev/null",
+        "sha256sum artifacts/governance/phase141/ILA-141-2026-04-12-001.json"
+      ]
+    },
+    {
+      "phase": 141,
+      "date": "2026-04-12",
+      "artifact_path": "artifacts/governance/phase141/phase141_sign_off.json",
+      "innovation_id": "INNOV-47",
+      "ila_reference": "ILA-141-2026-04-12-001",
+      "claim_text": "First local LLM with a constitutionally governed, auto-updating knowledge corpus synchronized from the live codebase at every phase boundary.",
+      "digests": {
+        "source_artifact_sha256": "e69a0204ec5fc494836aba3a2e415e9e3122bcd327e57cbec6b316a1c5b3b1e8"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase141/phase141_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase141/phase141_sign_off.json"
+      ]
+    },
+    {
+      "phase": 142,
+      "date": "2026-04-12",
+      "artifact_path": "artifacts/governance/phase142/phase142_sign_off.json",
+      "innovation_id": "INNOV-48",
+      "ila_reference": "ILA-142-2026-04-12-001",
+      "claim_text": "First constitutionally governed local LLM retrieval engine with pure-Python semantic cosine similarity search, deterministic TF-IDF fallback, and session-locked embedding dimensions — requiring zero native dependencies.",
+      "digests": {
+        "source_artifact_sha256": "da2d471e0c97ec704781813b946db42c90f3c2b258be005e49237ebf5d5fa480"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase142/phase142_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase142/phase142_sign_off.json"
+      ]
+    },
+    {
+      "phase": 143,
+      "date": "2026-04-13",
+      "artifact_path": "artifacts/governance/phase143/ila_phase143_innov49_cmu.json",
+      "innovation_id": null,
+      "ila_reference": null,
+      "claim_text": "First governed local LLM with a constitutionally validated model upgrade pipeline — model changes are constitutional mutations, governed by the same invariant gate as code changes. The Modelfile is a constitutional document; its parameters are enforced by the runtime.",
+      "digests": {
+        "source_artifact_sha256": "061616ab8ef6e4d46b5aa0821df898aaa6702c0dd87df56ad666bf82deba4826"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase143/ila_phase143_innov49_cmu.json >/dev/null",
+        "sha256sum artifacts/governance/phase143/ila_phase143_innov49_cmu.json"
+      ]
+    },
+    {
+      "phase": 144,
+      "date": "2026-04-13",
+      "artifact_path": "artifacts/governance/phase144/ila_phase144_innov50_rags.json",
+      "innovation_id": null,
+      "ila_reference": null,
+      "claim_text": "First constitutionally governed Retrieval-Augmented Generation pipeline for a local LLM governance assistant — corpus retrieval events are constitutional mutations, hash-chained to the LKSE ledger (INNOV-47), scored by CSS cosine similarity (INNOV-48), and injected into phi4's 32K context window (INNOV-49). Every grounded response is cryptographically linked to its corpus evidence.",
+      "digests": {
+        "source_artifact_sha256": "c2722fc48120f9d5b00a9da65122556708c68603bcde00e5f298e657c6a7ff9c"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase144/ila_phase144_innov50_rags.json >/dev/null",
+        "sha256sum artifacts/governance/phase144/ila_phase144_innov50_rags.json"
+      ]
+    },
+    {
+      "phase": 150,
+      "date": "2026-04-22",
+      "artifact_path": "artifacts/governance/phase150/ILA-150-2026-04-22-001.json",
+      "innovation_id": "INNOV-56",
+      "ila_reference": "ILA-150-2026-04-22-001",
+      "claim_text": "First constitutionally governed, fail-closed circuit breaker integrated into an autonomous AI mutation pipeline — trips deterministically on invariant cascade detection and requires HUMAN-0 cryptographic authorisation to restore, ensuring human oversight is mandatory after any constitutional cascade failure.",
+      "digests": {
+        "source_artifact_sha256": "3123248e97768737b48520483e429d5d3ab1bc7430cff489d08796a4fb00ae23"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase150/ILA-150-2026-04-22-001.json >/dev/null",
+        "sha256sum artifacts/governance/phase150/ILA-150-2026-04-22-001.json"
+      ]
+    },
+    {
+      "phase": 153,
+      "date": "2026-04-24",
+      "artifact_path": "artifacts/governance/phase153/sign_off.json",
+      "innovation_id": "INNOV-59",
+      "ila_reference": "ILA-153-2026-04-24-001",
+      "claim_text": "INNOV-59 #14 — First constitutionally governed feedback-control mutation throttle in an autonomous AI governance pipeline — closes the CPI → AMT → GCB control loop with Hard-class constitutional floor enforcement and HUMAN-0-gated full-stop override.",
+      "digests": {
+        "source_artifact_sha256": "96ed75e5c22b2761d7a49dd58f0a35d0a7b31de438a9b3402abc2477e4ad38be"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase153/sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase153/sign_off.json"
+      ]
+    },
+    {
+      "phase": 154,
+      "date": "2026-04-24",
+      "artifact_path": "artifacts/governance/phase154/sign_off.json",
+      "innovation_id": "INNOV-60",
+      "ila_reference": "ILA-154-2026-04-24-001",
+      "claim_text": "INNOV-60 #15 — First constitutionally governed pre-admission mutation gate in an autonomous AI pipeline — evaluates mutations against the Hard-class invariant set before entry, enforces fail-closed rejection, integrates AMT throttle pressure to tighten thresholds under load, and completes the full constitutional lifecycle.",
+      "digests": {
+        "source_artifact_sha256": "4909c6bc280a0a2310c9c84ac6692b96c081790840b251a10b566cccb04161ff"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase154/sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase154/sign_off.json"
+      ]
+    },
+    {
+      "phase": 163,
+      "date": "2026-04-30",
+      "artifact_path": "artifacts/governance/phase163/ila.json",
+      "innovation_id": "INNOV-69",
+      "ila_reference": null,
+      "claim_text": "First governed, HMAC-chained, outcome-driven weight calibration engine for constitutional mutation governance",
+      "digests": {
+        "source_artifact_sha256": "a3b76bc7c983a71c59490e56740547a351d069eacc7d7c2c34c3e3c98d75b23a"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase163/ila.json >/dev/null",
+        "sha256sum artifacts/governance/phase163/ila.json"
+      ]
+    },
+    {
+      "phase": 175,
+      "date": "2026-05-09",
+      "artifact_path": "artifacts/governance/phase175/ILA_phase175_INNOV80_CAL.json",
+      "innovation_id": null,
+      "ila_reference": null,
+      "claim_text": "First autonomous constitutional governance system to produce HUMAN-0-gated self-improvement recommendations grounded in empirical mutation fitness history, with HMAC-chained verifiable audit trail.",
+      "digests": {
+        "source_artifact_sha256": "641918f0fc16c6e7474fac9e8dbd5184f813172d6d797567236dcc17820ca8a7"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase175/ILA_phase175_INNOV80_CAL.json >/dev/null",
+        "sha256sum artifacts/governance/phase175/ILA_phase175_INNOV80_CAL.json"
+      ]
+    },
+    {
+      "phase": 176,
+      "date": "2026-05-09",
+      "artifact_path": "artifacts/governance/phase176/ILA_phase176_INNOV81_RDP.json",
+      "innovation_id": "INNOV-81",
+      "ila_reference": null,
+      "claim_text": "First constitutionally-governed amendment proposal delivery gateway with HUMAN-0 disposition audit trail, closing the full CEL self-improvement loop",
+      "digests": {
+        "source_artifact_sha256": "2569a6854ad17796c6f0108b6aa75ee6ed9cd343cb9b05651b737a5705e5b61d"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase176/ILA_phase176_INNOV81_RDP.json >/dev/null",
+        "sha256sum artifacts/governance/phase176/ILA_phase176_INNOV81_RDP.json"
+      ]
+    },
+    {
+      "phase": 177,
+      "date": "2026-05-09",
+      "artifact_path": "artifacts/governance/phase177/phase_sign_off.json",
+      "innovation_id": "INNOV-82",
+      "ila_reference": null,
+      "claim_text": "First constitutionally-governed AI feedback loop that translates HUMAN-0 amendment dispositions into calibrated MSE selection-weight adjustments, closing the CEL self-improvement loop mechanically.",
+      "digests": {
+        "source_artifact_sha256": "4dcc502111b856a54bee840b2a6aeabc3021c75e7aa03df4cc9b274c6967ab35"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase177/phase_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase177/phase_sign_off.json"
+      ]
+    },
+    {
+      "phase": 178,
+      "date": "2026-05-10",
+      "artifact_path": "artifacts/governance/phase178/phase_sign_off.json",
+      "innovation_id": "INNOV-83",
+      "ila_reference": null,
+      "claim_text": "First constitutionally-governed AI self-amendment executor: closes the full CEL self-improvement loop — HUMAN-0-ACCEPTED proposals from RDP are applied to the live constitution, producing an immutable HMAC-chained execution ledger and post-execution constitutional snapshot.",
+      "digests": {
+        "source_artifact_sha256": "74222d541764e3934d829ed2aa9c5a74041d1bf5cbf638d60950fd0ce8269143"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase178/phase_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase178/phase_sign_off.json"
+      ]
+    },
+    {
+      "phase": 179,
+      "date": "2026-05-10",
+      "artifact_path": "artifacts/governance/phase179/ila_sign_off.json",
+      "innovation_id": "INNOV-84",
+      "ila_reference": "ILA-179",
+      "claim_text": "First constitutionally-governed AI stability monitoring engine to compute per-invariant Stability Scores and a System Constitutional Stability Index (SCSI) from cryptographic amendment execution ledger data, with HMAC-chained audit reporting and governed HUMAN-0 escalation for critical constitutional instability.",
+      "digests": {
+        "source_artifact_sha256": "ef395f5b6c00e153f366819f6be564780f25ed687ce25082812562ec40b6bf7b"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase179/ila_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase179/ila_sign_off.json"
+      ]
+    },
+    {
+      "phase": 180,
+      "date": "2026-05-10",
+      "artifact_path": "artifacts/governance/phase180/phase_sign_off.json",
+      "innovation_id": null,
+      "ila_reference": null,
+      "claim_text": "First constitutionally-governed AI amendment rollback engine to revert applied constitutional amendments based on cryptographic SCSI signals from a governed stability monitor, with HMAC-chained rollback ledgers and fail-closed HUMAN-0 escalation gates.",
+      "digests": {
+        "source_artifact_sha256": "96b159bb15199234fe76b08ce4f560fd29977b62529778349a0b3baea51cae51"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase180/phase_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase180/phase_sign_off.json"
+      ]
+    },
+    {
+      "phase": 181,
+      "date": "2026-05-13",
+      "artifact_path": "artifacts/governance/phase181/ila.json",
+      "innovation_id": "INNOV-86",
+      "ila_reference": "ILA-INNOV-86-GIR",
+      "claim_text": "Novel constitutionally-governed AI governance readiness scoring framework with cryptographically-chained assessment ledger and V10 convergence criterion confidence mapping.",
+      "digests": {
+        "source_artifact_sha256": "ce1ac769fef39814f69e4ac80cb05b999a58fca3a7bede0b052d5ff41dde319c"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase181/ila.json >/dev/null",
+        "sha256sum artifacts/governance/phase181/ila.json"
+      ]
+    },
+    {
+      "phase": 181,
+      "date": "2026-05-14",
+      "artifact_path": "artifacts/governance/phase181/phase181_sign_off.json",
+      "innovation_id": "INNOV-86",
+      "ila_reference": null,
+      "claim_text": "First constitutionally-governed multi-dimensional readiness assessment engine to compute a Composite Readiness Index (CRI) across ten governance health dimensions and seven V10 Convergence Criteria, with HMAC-chained assessment ledger, gap reporting, and fail-closed HUMAN-0 escalation advisory on CRI < 0.50.",
+      "digests": {
+        "source_artifact_sha256": "b293646c94251165dfc6eac525f29bbc767db8e832d97d0fad52358672d991cf"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase181/phase181_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase181/phase181_sign_off.json"
+      ]
+    },
+    {
+      "phase": 181,
+      "date": "2026-05-18",
+      "artifact_path": "artifacts/governance/phase181/ILA-INNOV-86-GIR.json",
+      "innovation_id": null,
+      "ila_reference": null,
+      "claim_text": "First constitutionally-governed multi-subsystem governance readiness synthesis engine to aggregate signals from the full ADAAD stack (CSC/SCSI, CPI pressure, CAL amendments, IIS impact, CAR rollbacks, invariant registry) into a sealed, HMAC-chained Governance Readiness Score attestation that gates milestone promotion behind explicit HUMAN-0 authority.",
+      "digests": {
+        "source_artifact_sha256": "7f0a12c5537ef5bbdc968cc52dc1edbfa02e76600bca487f8617b457f80029d1"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase181/ILA-INNOV-86-GIR.json >/dev/null",
+        "sha256sum artifacts/governance/phase181/ILA-INNOV-86-GIR.json"
+      ]
+    },
+    {
+      "phase": 182,
+      "date": "2026-05-13",
+      "artifact_path": "artifacts/governance/phase182/ila.json",
+      "innovation_id": "INNOV-87",
+      "ila_reference": "ILA-INNOV-87-CGR",
+      "claim_text": "Governed AI self-diagnostic gap resolution framework with cryptographically-chained plan ledger, deterministic action catalogue, and per-action IP opportunity classification for V10 convergence advancement.",
+      "digests": {
+        "source_artifact_sha256": "1521396a111bc6433c6bcd747d528e6a8f21c1fc3901f9b2be8d308337a81f29"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase182/ila.json >/dev/null",
+        "sha256sum artifacts/governance/phase182/ila.json"
+      ]
+    },
+    {
+      "phase": 182,
+      "date": "2026-05-14",
+      "artifact_path": "artifacts/governance/phase182/phase182_sign_off.json",
+      "innovation_id": "INNOV-87",
+      "ila_reference": null,
+      "claim_text": "First constitutionally-governed AI convergence gap resolution engine to read GIR CRI signals and V10CA assessments, generate ranked Gap Resolution Plans per governance dimension with IP-flagged remediation actions, and maintain an HMAC-chained GRP ledger with fail-closed HUMAN-0 advisory on CRITICAL gaps.",
+      "digests": {
+        "source_artifact_sha256": "0e1d95892fa79e3a133c7593896a5b1c1743219835fecb63defd29c0b4d4d984"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase182/phase182_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase182/phase182_sign_off.json"
+      ]
+    },
+    {
+      "phase": 183,
+      "date": "2026-05-15",
+      "artifact_path": "artifacts/governance/phase183/phase_sign_off.json",
+      "innovation_id": "INNOV-88",
+      "ila_reference": null,
+      "claim_text": "First constitutionally-governed autonomous execution engine for Gap Resolution Plans, closing the V10 convergence self-repair loop from gap identification to governed remediation with HMAC-chained outcome telemetry.",
+      "digests": {
+        "source_artifact_sha256": "5e41560d74e6f77f1ee2b102f8f0a371885e97386c80bad08f8243a5a1b67d44"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase183/phase_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase183/phase_sign_off.json"
+      ]
+    },
+    {
+      "phase": 184,
+      "date": "2026-05-15",
+      "artifact_path": "artifacts/governance/phase184/ILA.json",
+      "innovation_id": "INNOV-89",
+      "ila_reference": "ILA-INNOV-89-CCA-184",
+      "claim_text": "phase184-world-first-governed-convergence-certification-auditor",
+      "digests": {
+        "source_artifact_sha256": "a4e10d2d261bf4f0d48c532b13440b64a516d4f569c97f40f165abee9da54460"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase184/ILA.json >/dev/null",
+        "sha256sum artifacts/governance/phase184/ILA.json"
+      ]
+    },
+    {
+      "phase": 184,
+      "date": "2026-05-15",
+      "artifact_path": "artifacts/governance/phase184/phase184_sign_off.json",
+      "innovation_id": "INNOV-89",
+      "ila_reference": null,
+      "claim_text": "First constitutionally-governed convergence outcome validation engine to compute pre/post CRI deltas for executed Gap Resolution Plans, classify outcomes as VALIDATED/NEUTRAL/REGRESSED with HMAC-chained evidence, emit HUMAN-0 advisory on regression alarms, write CAL learning signals for validated improvements, and close the V10 self-improvement feedback loop with cryptographic outcome proof.",
+      "digests": {
+        "source_artifact_sha256": "a849308c111e3a07ec8811194ae3d3efb1bf9a6d4b22e74c65b9c12976ec8cb6"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase184/phase184_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase184/phase184_sign_off.json"
+      ]
+    },
+    {
+      "phase": 184,
+      "date": "2026-05-15",
+      "artifact_path": "artifacts/governance/phase184/phase_sign_off.json",
+      "innovation_id": "INNOV-89",
+      "ila_reference": null,
+      "claim_text": "First constitutionally-governed autonomous V10 convergence certification system with HMAC-SHA-256-sealed Convergence Certificates, frozen weighted-criteria scoring, and HUMAN-0 advisory emission as the final constitutional gate before ADAAD v10.0.0 graduation.",
+      "digests": {
+        "source_artifact_sha256": "2f131100706d34dcd65c81598948a0993c73a7fbb27d28d69cab367469d90b68"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase184/phase_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase184/phase_sign_off.json"
+      ]
+    },
+    {
+      "phase": 185,
+      "date": "2026-05-15",
+      "artifact_path": "artifacts/governance/phase185/ILA.json",
+      "innovation_id": "INNOV-90",
+      "ila_reference": "ILA-INNOV-89-CCA-185",
+      "claim_text": "phase185-world-first-governed-convergence-certification-auditor",
+      "digests": {
+        "source_artifact_sha256": "d481f9afd75aae41a8608a8acee66dbb9cb678339fa8861c039dbe6fdbf93a49"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase185/ILA.json >/dev/null",
+        "sha256sum artifacts/governance/phase185/ILA.json"
+      ]
+    },
+    {
+      "phase": 185,
+      "date": "2026-05-15",
+      "artifact_path": "artifacts/governance/phase185/phase_sign_off.json",
+      "innovation_id": "INNOV-90",
+      "ila_reference": null,
+      "claim_text": "First constitutionally-governed autonomous V10 convergence certification system with HMAC-SHA-256-sealed Convergence Certificates, frozen weighted-criteria scoring, and HUMAN-0 advisory emission as the final constitutional gate before ADAAD v10.0.0 graduation.",
+      "digests": {
+        "source_artifact_sha256": "4fd3fc606c228e06c510f6a0ca3c16ad6707de1399791cb947b35e3c6c61f985"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase185/phase_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase185/phase_sign_off.json"
+      ]
+    },
+    {
+      "phase": 186,
+      "date": "2026-05-16",
+      "artifact_path": "artifacts/governance/phase186/ILA-INNOV-91-CLS.json",
+      "innovation_id": "INNOV-91",
+      "ila_reference": null,
+      "claim_text": "phase186-world-first-cel-loop-sentinel-v10-c5-closure",
+      "digests": {
+        "source_artifact_sha256": "42ed6fc8e3ccdbba6d4c219097e2aef4b2af74f97c40e26f7ae1c7069eb7a8dd"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase186/ILA-INNOV-91-CLS.json >/dev/null",
+        "sha256sum artifacts/governance/phase186/ILA-INNOV-91-CLS.json"
+      ]
+    },
+    {
+      "phase": 187,
+      "date": "2026-05-17",
+      "artifact_path": "artifacts/governance/phase187/ILA-INNOV-92-GPE.json",
+      "innovation_id": "INNOV-92",
+      "ila_reference": null,
+      "claim_text": "phase187-world-first-ga-promotion-engine-v10-c7-alignment",
+      "digests": {
+        "source_artifact_sha256": "7de19b831731adb145451b3e28559a94c43c080920f7986690748105be49bd41"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase187/ILA-INNOV-92-GPE.json >/dev/null",
+        "sha256sum artifacts/governance/phase187/ILA-INNOV-92-GPE.json"
+      ]
+    },
+    {
+      "phase": 188,
+      "date": "2026-05-21",
+      "artifact_path": "artifacts/governance/phase188/ILA-INNOV-93-GTC.json",
+      "innovation_id": "INNOV-93",
+      "ila_reference": "ILA-INNOV-93-GTC",
+      "claim_text": "First constitutionally-governed, HMAC-chained, Merkle-rooted Release Bundle certifier bridging GPE GA-READY signal to v10.0.0 tag ceremony with mandatory HUMAN-0 runbook emission",
+      "digests": {
+        "source_artifact_sha256": "3991a17c353aa0ae2da3b9b4883627f867942f90a72d0363d2b0c0c998ae17e1"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase188/ILA-INNOV-93-GTC.json >/dev/null",
+        "sha256sum artifacts/governance/phase188/ILA-INNOV-93-GTC.json"
+      ]
+    },
+    {
+      "phase": 189,
+      "date": "2026-05-24",
+      "artifact_path": "artifacts/governance/phase189/ILA-INNOV-94-V10ET.json",
+      "innovation_id": "INNOV-94",
+      "ila_reference": "ILA-INNOV-94-V10ET",
+      "claim_text": "First constitutionally-governed, HMAC-chained, Merkle-verified V9-to-V10 epoch boundary engine with mandatory HUMAN-0 Track B runbook emission and irreversible one-way epoch seal",
+      "digests": {
+        "source_artifact_sha256": "59f3d082de6e243e069e2c8e522e92df4a1c79765d495fdb01cd3060e1e5174a"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase189/ILA-INNOV-94-V10ET.json >/dev/null",
+        "sha256sum artifacts/governance/phase189/ILA-INNOV-94-V10ET.json"
+      ]
+    },
+    {
+      "phase": 191,
+      "date": "2026-05-24",
+      "artifact_path": "artifacts/governance/phase191/ila_phase191_innov96_cil.json",
+      "innovation_id": "INNOV-96",
+      "ila_reference": null,
+      "claim_text": "First constitutionally-governed cross-ledger integrity attestation engine to perform cryptographic HMAC-chain verification across all ADAAD governance ledgers, seal attestations in an append-only constitutional integrity journal, and escalate violations to HUMAN-0 before any further mutation activity is permitted.",
+      "digests": {
+        "source_artifact_sha256": "4e95ed05ad30c1ccca0f84be54c3a998852ac92fe2b94bca1493cc5d3fbc7018"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase191/ila_phase191_innov96_cil.json >/dev/null",
+        "sha256sum artifacts/governance/phase191/ila_phase191_innov96_cil.json"
+      ]
+    },
+    {
+      "phase": 192,
+      "date": "2026-05-25",
+      "artifact_path": "artifacts/governance/phase192/ila_phase192_innov97.json",
+      "innovation_id": null,
+      "ila_reference": null,
+      "claim_text": "First constitutionally-governed, cryptographically-sealed invariant lineage verification engine to produce HMAC-SHA256-chained provenance attestations for every Hard-class invariant in a governed AI system at scale (547 invariants).",
+      "digests": {
+        "source_artifact_sha256": "26623360503cdf43bf56c3fe792df92208ab95c683336e43013e37cf82ae3e27"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase192/ila_phase192_innov97.json >/dev/null",
+        "sha256sum artifacts/governance/phase192/ila_phase192_innov97.json"
+      ]
+    },
+    {
+      "phase": 193,
+      "date": "2026-05-25",
+      "artifact_path": "artifacts/governance/phase193/ila_innov98_cmo.json",
+      "innovation_id": null,
+      "ila_reference": null,
+      "claim_text": "First constitutionally-governed end-to-end mutation orchestration engine to unify the full ADAAD mutation pipeline into a single HMAC-chain-sealed execution lifecycle with constitutional enforcement at every stage handoff.",
+      "digests": {
+        "source_artifact_sha256": "49f0c062b1aa042008cee3350ceeb85b85323ece606cc9d5c8a0432428dae2ed"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase193/ila_innov98_cmo.json >/dev/null",
+        "sha256sum artifacts/governance/phase193/ila_innov98_cmo.json"
+      ]
+    },
+    {
+      "phase": 194,
+      "date": "2026-05-25",
+      "artifact_path": "artifacts/governance/phase194/ila_phase194_innov99_gta.json",
+      "innovation_id": "INNOV-99",
+      "ila_reference": null,
+      "claim_text": "First constitutionally-governed, HMAC-chain-sealed telemetry aggregation engine to collect operational signals from every ADAAD pipeline module, compute constitutional health metrics, detect anomalies against invariant-bound thresholds, and escalate threshold violations to HUMAN-0 before any further pipeline activity is permitted.",
+      "digests": {
+        "source_artifact_sha256": "b4e974b07a15f72f6447271f9edaaef6fa66ced5c541c1d9f6bb0d0f8d5e6f83"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase194/ila_phase194_innov99_gta.json >/dev/null",
+        "sha256sum artifacts/governance/phase194/ila_phase194_innov99_gta.json"
+      ]
+    },
+    {
+      "phase": 195,
+      "date": "2026-05-25",
+      "artifact_path": "artifacts/governance/phase195/ila_phase195_innov100_cpa.json",
+      "innovation_id": "INNOV-100",
+      "ila_reference": "ILA-INNOV-100-CPA",
+      "claim_text": "First constitutionally-governed artifact provenance engine to compute and verify the full constitutional lineage of every ADAAD artifact class (invariants, innovations, mutations, ledger entries) — tracing ancestry from creation phase through all ratification, amendment, and rollback events, sealed in an HMAC-chained append-only provenance ledger with deterministic replay.",
+      "digests": {
+        "source_artifact_sha256": "6c6e250e3d7865dabaaec5ef74f31a29e1e6337497fd77f49ce0082622a07efc"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase195/ila_phase195_innov100_cpa.json >/dev/null",
+        "sha256sum artifacts/governance/phase195/ila_phase195_innov100_cpa.json"
+      ]
+    },
+    {
+      "phase": 196,
+      "date": "2026-05-26",
+      "artifact_path": "artifacts/governance/phase196/ila_phase196_cmim.json",
+      "innovation_id": null,
+      "ila_reference": null,
+      "claim_text": "First constitutional AI governance system to require and machine-verify formal intent declarations for every proposed mutation, with automatic rollback on intent-behavior divergence independent of test passage.",
+      "digests": {
+        "source_artifact_sha256": "7ff356730b9b8ac332d3a016f62e4c43a10d15662be867ceea9683ed19508ca3"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase196/ila_phase196_cmim.json >/dev/null",
+        "sha256sum artifacts/governance/phase196/ila_phase196_cmim.json"
+      ]
+    },
+    {
+      "phase": 197,
+      "date": "2026-05-26",
+      "artifact_path": "artifacts/governance/phase197/ila_phase197_cmq.json",
+      "innovation_id": null,
+      "ila_reference": null,
+      "claim_text": "First constitutionally-governed mutation queue to enforce deterministic priority ordering of competing CEL candidates based on blast radius, governance objective weight, and HUMAN-0 precedence tier — ensuring no two mutations with overlapping scope advance concurrently, sealed in an HMAC-chained append-only queue ledger with deterministic replay.",
+      "digests": {
+        "source_artifact_sha256": "4b1cce39fc217e077090eda8f4461967dddcb3f264ae0b392d5f44650957ca2a"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase197/ila_phase197_cmq.json >/dev/null",
+        "sha256sum artifacts/governance/phase197/ila_phase197_cmq.json"
+      ]
+    },
+    {
+      "phase": 198,
+      "date": "2026-05-27",
+      "artifact_path": "artifacts/governance/phase198/ila.json",
+      "innovation_id": null,
+      "ila_reference": null,
+      "claim_text": "First constitutionally-governed multi-agent consensus protocol to require all registered agents (ArchitectAgent, DreamAgent, BeastAgent, AdversarialRedTeam) to cast typed votes (APPROVE/REJECT/ABSTAIN/CHALLENGE) on every proposed mutation before CEL entry, with configurable quorum threshold, irrevocable HUMAN-0 veto and override, CHALLENGE escalation protocol, and full HMAC-chained append-only consensus ledger with deterministic replay.",
+      "digests": {
+        "source_artifact_sha256": "46e37debaa16e6b50c8c7053d48da934603d4f3382fa7f37485a46e1a8b7320b"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase198/ila.json >/dev/null",
+        "sha256sum artifacts/governance/phase198/ila.json"
+      ]
+    },
+    {
+      "phase": 206,
+      "date": "2026-06-03",
+      "artifact_path": "artifacts/governance/phase206/phase_sign_off.json",
+      "innovation_id": "INNOV-111",
+      "ila_reference": null,
+      "claim_text": "phase206-world-first-constitutionally-governed-mutation-scheduling-engine",
+      "digests": {
+        "source_artifact_sha256": "5c71a188124bde06638dd4037c4a3d2a36e1bbd5e3757ac19742afca084dc7f2"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase206/phase_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase206/phase_sign_off.json"
+      ]
+    },
+    {
+      "phase": 207,
+      "date": "2026-06-04",
+      "artifact_path": "artifacts/governance/phase207/phase_sign_off.json",
+      "innovation_id": "INNOV-112",
+      "ila_reference": null,
+      "claim_text": "phase207-world-first-constitutionally-governed-mutation-window-executor",
+      "digests": {
+        "source_artifact_sha256": "699ce03a75485bbe448ecb623a66b67531f9c327a25c3a926bb9ead7c9769436"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase207/phase_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase207/phase_sign_off.json"
+      ]
+    },
+    {
+      "phase": 209,
+      "date": "2026-06-04",
+      "artifact_path": "artifacts/governance/phase209/phase_sign_off.json",
+      "innovation_id": "INNOV-114",
+      "ila_reference": null,
+      "claim_text": "phase209-world-first-constitutionally-governed-mutation-policy-engine",
+      "digests": {
+        "source_artifact_sha256": "1f9f6a892dddec1c428422f95fe6496c7625fc791f664c15e03307f1c54860ed"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase209/phase_sign_off.json >/dev/null",
+        "sha256sum artifacts/governance/phase209/phase_sign_off.json"
+      ]
+    },
+    {
+      "phase": 210,
+      "date": "2026-06-04",
+      "artifact_path": "artifacts/governance/phase210/ila.json",
+      "innovation_id": null,
+      "ila_reference": null,
+      "claim_text": "Portable self-verifying AI governance proof bundle with embedded offline verification instructions and HUMAN-0 signature slot",
+      "digests": {
+        "source_artifact_sha256": "641e62f88ca1725c55ef8f1cc3457da405f178b61404e6a0ec64c24792cc33a2"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase210/ila.json >/dev/null",
+        "sha256sum artifacts/governance/phase210/ila.json"
+      ]
+    },
+    {
+      "phase": 211,
+      "date": "2026-06-05",
+      "artifact_path": "artifacts/governance/phase211/ila.json",
+      "innovation_id": null,
+      "ila_reference": null,
+      "claim_text": "Portable, governed, HMAC-chained constitutional invariant violation ledger with HUMAN-0 escalation gate and offline chain verification",
+      "digests": {
+        "source_artifact_sha256": "f626058f24b58d5736046e38df7d6fbabacd674d4eb4297f126724f7529ecd09"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase211/ila.json >/dev/null",
+        "sha256sum artifacts/governance/phase211/ila.json"
+      ]
+    },
+    {
+      "phase": 212,
+      "date": "2026-06-05",
+      "artifact_path": "artifacts/governance/phase212/ila_phase212_innov117_cgva.json",
+      "innovation_id": null,
+      "ila_reference": null,
+      "claim_text": "Portable, governed, HMAC-chained constitutional governance validation engine with multi-dimensional scoring, drift detection, HUMAN-0 escalation gate, and offline chain verification.",
+      "digests": {
+        "source_artifact_sha256": "b3e22069b928d07bc2b578074bb5c95b809aa22b0f46b08516cdab69990aac30"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase212/ila_phase212_innov117_cgva.json >/dev/null",
+        "sha256sum artifacts/governance/phase212/ila_phase212_innov117_cgva.json"
+      ]
+    },
+    {
+      "phase": 213,
+      "date": "2026-06-05",
+      "artifact_path": "artifacts/governance/phase213/ila_phase213_innov118_cgvr.json",
+      "innovation_id": null,
+      "ila_reference": null,
+      "claim_text": "Portable, governed, HMAC-chained constitutional governance violation remediator with rule-based prescription engine, blast-radius tiering, HUMAN-0 Tier-0 gate, atomic ledger persistence, and full chain verification — closing the CGVA audit-to-repair loop.",
+      "digests": {
+        "source_artifact_sha256": "203a1477306aa05ba46dd6bb722d0a6255a8eba961d719fcb53a3738b732446c"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase213/ila_phase213_innov118_cgvr.json >/dev/null",
+        "sha256sum artifacts/governance/phase213/ila_phase213_innov118_cgvr.json"
+      ]
+    },
+    {
+      "phase": 214,
+      "date": "2026-06-06",
+      "artifact_path": "artifacts/governance/phase214/ila_phase214_innov119_cgve.json",
+      "innovation_id": null,
+      "ila_reference": null,
+      "claim_text": "First HMAC-chained sub-package version enforcement engine with constitutional blast-radius gating and HUMAN-0 advisory protocol for root surface drift",
+      "digests": {
+        "source_artifact_sha256": "f9c9eaabb10086650d44c97d5dd784b28f9a23cee6e855d8d79efe7fa020290c"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase214/ila_phase214_innov119_cgve.json >/dev/null",
+        "sha256sum artifacts/governance/phase214/ila_phase214_innov119_cgve.json"
+      ]
+    },
+    {
+      "phase": 215,
+      "date": "2026-06-07",
+      "artifact_path": "artifacts/governance/phase215/ila_cgvf.json",
+      "innovation_id": null,
+      "ila_reference": null,
+      "claim_text": "First HMAC-chained CG* family fusion engine producing a single authoritative governance consensus certificate consumable by external auditors",
+      "digests": {
+        "source_artifact_sha256": "864c00aba2253e5417b404abfc3bf456b3e33fdc16029feecccfd94eb0c59073"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase215/ila_cgvf.json >/dev/null",
+        "sha256sum artifacts/governance/phase215/ila_cgvf.json"
+      ]
+    },
+    {
+      "phase": 216,
+      "date": "2026-06-08",
+      "artifact_path": "artifacts/governance/phase216/ila_phase216_innov121_acsa.json",
+      "innovation_id": null,
+      "ila_reference": null,
+      "claim_text": "First constitutionally-governed engine for proposing, validating, simulating, and autonomously committing amendments to a live AI governance constitution under cryptographically-enforced HUMAN-0 ratification gates and HMAC-chained amendment ledger",
+      "digests": {
+        "source_artifact_sha256": "5a361330b893add05311b5f18b03f01f722098f832f1d7181f9979bb79917a37"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase216/ila_phase216_innov121_acsa.json >/dev/null",
+        "sha256sum artifacts/governance/phase216/ila_phase216_innov121_acsa.json"
+      ]
+    },
+    {
+      "phase": 217,
+      "date": "2026-06-08",
+      "artifact_path": "artifacts/governance/phase217/ila_acpa.json",
+      "innovation_id": null,
+      "ila_reference": null,
+      "claim_text": "First autonomous system that writes its own constitutional amendment proposals from CGVF telemetry and invariant patterns under HUMAN-0 veto",
+      "digests": {
+        "source_artifact_sha256": "bf68bcdf3e7abfb006743a51de6e9d809f64ce9dd61448b566e0bd085981c3d0"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase217/ila_acpa.json >/dev/null",
+        "sha256sum artifacts/governance/phase217/ila_acpa.json"
+      ]
+    },
+    {
+      "phase": 217,
+      "date": "2026-06-08",
+      "artifact_path": "artifacts/governance/phase217/ila_phase217_innov122_acpa.json",
+      "innovation_id": "INNOV-122",
+      "ila_reference": null,
+      "claim_text": "World-first: An autonomous AI governance engine that *generates* constitutional amendment proposals from telemetry evidence — not merely processes them — with machine-computed confidence scoring, diversity enforcement, and flood protection, feeding into a live HMAC-chained amendment pipeline.",
+      "digests": {
+        "source_artifact_sha256": "b5f4d4710fa03649cbafec79811d22b0bcf14d7ec8b01d3042ece7fb18466907"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase217/ila_phase217_innov122_acpa.json >/dev/null",
+        "sha256sum artifacts/governance/phase217/ila_phase217_innov122_acpa.json"
+      ]
+    },
+    {
+      "phase": 219,
+      "date": "2026-06-10",
+      "artifact_path": "artifacts/governance/phase219/ILA-219-CARE.json",
+      "innovation_id": "INNOV-124",
+      "ila_reference": null,
+      "claim_text": "First autonomous AI governance system with a constitutionally self-amending invariant registry under cryptographically verified HUMAN-0 ratification control — closing the proposal → monitoring → execution loop entirely within constitutional bounds.",
+      "digests": {
+        "source_artifact_sha256": "f453e9d08b1c0de2a07fea22f9d80e462b6d0b48844f4f9cb262d0b43e9dba05"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase219/ILA-219-CARE.json >/dev/null",
+        "sha256sum artifacts/governance/phase219/ILA-219-CARE.json"
+      ]
+    },
+    {
+      "phase": 220,
+      "date": "2026-06-12",
+      "artifact_path": "artifacts/governance/phase220/ILA_phase220_INNOV125_CEICC.json",
+      "innovation_id": null,
+      "ila_reference": "ILA-220-INNOV125-CEICC",
+      "claim_text": "First autonomous AI governance system with a dedicated constitutional coherence oracle that verifies, across all registered engine modules, that no two Hard-class invariants assert contradictory constitutional rules — detecting inter-engine semantic conflicts, scope overlaps, authority collisions, and governance ghosts (duplicate assertions) across a corpus of 811+ invariants.",
+      "digests": {
+        "source_artifact_sha256": "6f7b9021b7cbe1662cf824a58b7c698a593fb74f7ae1c22b28b87639ab074834"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase220/ILA_phase220_INNOV125_CEICC.json >/dev/null",
+        "sha256sum artifacts/governance/phase220/ILA_phase220_INNOV125_CEICC.json"
+      ]
+    },
+    {
+      "phase": 221,
+      "date": "2026-06-13",
+      "artifact_path": "artifacts/governance/phase221/ILA-221-2026-06-13-001.json",
+      "innovation_id": "INNOV-126",
+      "ila_reference": null,
+      "claim_text": "First autonomous AI governance system with a unified, cryptographically-chained Meta-Ledger aggregating every Arc II governance event (ACSA, ACPA, ACAM, CARE, CEICC, CGML) into a single auditable lineage matrix — tracing each invariant from originating proposal through ratification, coherence check, and active deployment, with HUMAN-0-authorized attestation certificates.",
+      "digests": {
+        "source_artifact_sha256": "dd7597d81cfd9ff86011287b2be0e75d7224841c91f2d1d96846257a693d1f01"
+      },
+      "verification_commands": [
+        "python -m json.tool artifacts/governance/phase221/ILA-221-2026-06-13-001.json >/dev/null",
+        "sha256sum artifacts/governance/phase221/ILA-221-2026-06-13-001.json"
+      ]
+    }
+  ]
+}
