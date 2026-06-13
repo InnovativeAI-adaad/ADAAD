@@ -1,0 +1,18 @@
+{
+  "signoff_id": "H0-SIGNOFF-220",
+  "phase": 220,
+  "innov": "INNOV-125",
+  "governor": "DUSTIN L REID",
+  "ratification_signal": "approved DUSTIN L REID",
+  "track": "A",
+  "delivery_agent": "DEVADAAD",
+  "signed_at": "2026-06-12T00:00:00Z",
+  "artifacts_verified": [
+    "dorkllm/cross_engine_invariant_coherence_checker.py",
+    "app/api/ceicc.py",
+    "tests/test_phase220_ceicc.py",
+    "artifacts/governance/phase220/ILA_phase220_INNOV125_CEICC.json"
+  ],
+  "test_attestation": "30/30 PASS — T220-CEICC-01 through T220-CEICC-30",
+  "note": "Track B actions (GPG tag signing) remain HUMAN-0-exclusive on ADAADell."
+}

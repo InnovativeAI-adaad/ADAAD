@@ -1,0 +1,20 @@
+{
+  "phase": 220,
+  "innov": "INNOV-125",
+  "engine": "CEICC",
+  "governor": "DUSTIN L REID",
+  "invariants": [
+    {"code": "CEICC-CORPUS-0", "obligation": "Coherence check must operate over the COMPLETE invariant corpus; partial-scope checks are constitutionally prohibited."},
+    {"code": "CEICC-ATOMIC-0", "obligation": "CoherenceReport written atomically via os.replace(); partial writes leave the ledger unchanged."},
+    {"code": "CEICC-HMAC-0",   "obligation": "Every CoherenceReport entry is HMAC-SHA-256-chained forward; chain breaks are fatal violations."},
+    {"code": "CEICC-IMMUT-0",  "obligation": "The coherence ledger is append-only; no record may be modified or deleted post-seal."},
+    {"code": "CEICC-DETERM-0", "obligation": "All timestamps sourced exclusively via RuntimeDeterminismProvider; wall-clock injection is a constitutional violation."},
+    {"code": "CEICC-AUDIT-0",  "obligation": "Every lifecycle event emitted to CEPD audit trail; silent failures are constitutionally prohibited."},
+    {"code": "CEICC-HUMAN0-0", "obligation": "Any CLASS-A or CLASS-C finding MUST trigger HUMAN-0 advisory; no auto-resolution of authority collisions."},
+    {"code": "CEICC-REPLAY-0", "obligation": "CoherenceReports are deterministically replayable; replay() re-derives identical HMAC from canonical fields alone."},
+    {"code": "CEICC-SCORE-0",  "obligation": "A corpus coherence score (0.0-1.0) MUST be computed and sealed in every CoherenceReport; score < 1.0 flags the system as constitutionally degraded."},
+    {"code": "CEICC-SCOPE-0",  "obligation": "Engine manifest MUST enumerate all registered routers from server.py; unlisted engines are treated as unregistered and flagged as MISSING_REGISTRATION."}
+  ],
+  "count": 10,
+  "cumulative_total": 821
+}
