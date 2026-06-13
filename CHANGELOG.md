@@ -1,3 +1,26 @@
+## [10.32.0] — Phase 221 · INNOV-126 · CGML
+
+**Date:** 2026-06-13  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### INNOV-126 · CGML — Constitutional Governance Meta-Ledger
+
+**World-first:** First autonomous AI governance system with a unified, cryptographically-chained
+Meta-Ledger aggregating every Arc II governance event (ACSA, ACPA, ACAM, CARE, CEICC, CGML)
+into a single auditable lineage matrix — tracing each invariant from its originating proposal
+through ratification, coherence check, and active deployment. HUMAN-0-authorized attestation
+certificates provide a signed integrity proof of the complete Arc II governance lifecycle.
+
+**New module:** `dorkllm/constitutional_governance_meta_ledger.py`
+**New router:** `app/api/cgml.py` — 6 endpoints: POST /cgml/event, GET /cgml/lineage,
+GET /cgml/chain/verify, GET /cgml/domain/summary, POST /cgml/attest, GET /cgml/status
+**Test suite:** `tests/test_phase221_cgml.py` — 30/30 PASS (CHAIN·APPEND·ARC2·LNGE·XPHS·AUTH·API)
+**Hard-class invariants added:** 10 (CGML-CHAIN-0 through CGML-AUDIT-0)
+**Cumulative invariants:** 831 (was 821)
+**Innovations shipped:** 126 (was 125)
+**Pre-phase correction:** adaad/__init__.py synced from 10.30.0 → 10.31.0 before branch creation
+
+---
+
 ## [10.31.0] — Phase 220 · INNOV-125 · CEICC
 
 **Date:** 2026-06-12  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID

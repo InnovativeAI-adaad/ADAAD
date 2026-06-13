@@ -1,0 +1,72 @@
+{
+  "schema": "INVARIANT-REGISTER-1.0",
+  "phase": 221,
+  "innovation_code": "CGML",
+  "version": "10.32.0",
+  "date": "2026-06-13",
+  "governor": "DUSTIN L REID",
+  "invariants": [
+    {
+      "id": "CGML-CHAIN-0",
+      "class": "HARD",
+      "description": "Every meta-ledger entry HMAC-SHA-256 chained; chain breaks are fatal.",
+      "enforcement": "ChainIntegrityError raised; no silent failures"
+    },
+    {
+      "id": "CGML-APPEND-0",
+      "class": "HARD",
+      "description": "Meta-ledger is strictly append-only; no mutation or deletion post-write.",
+      "enforcement": "os.replace() atomic writes; no delete API exposed"
+    },
+    {
+      "id": "CGML-ARC2-0",
+      "class": "HARD",
+      "description": "All six Arc II domains registered at init; unregistered domain raises ConstitutionalViolation.",
+      "enforcement": "Domain whitelist check on every append_event()"
+    },
+    {
+      "id": "CGML-LINEAGE-0",
+      "class": "HARD",
+      "description": "Every invariant entry must carry traceable proposal_id; orphans flagged LINEAGE-BROKEN.",
+      "enforcement": "lineage_status field set to ORPHAN; surfaced in matrix and attestation"
+    },
+    {
+      "id": "CGML-HUMAN0-0",
+      "class": "HARD",
+      "description": "Meta-ledger attestation certificates require HUMAN-0 authorization token.",
+      "enforcement": "AttestationDenied raised for empty/whitespace tokens"
+    },
+    {
+      "id": "CGML-IMMUT-0",
+      "class": "HARD",
+      "description": "Ledger path and HMAC secret fixed at construction; no post-init mutation.",
+      "enforcement": "Private attributes set at __init__; no setters exposed"
+    },
+    {
+      "id": "CGML-REPLAY-0",
+      "class": "HARD",
+      "description": "Full meta-ledger replay must produce identical chain hashes — deterministic replay mandatory.",
+      "enforcement": "verify_chain() re-derives all hashes from raw entries; compare_digest used"
+    },
+    {
+      "id": "CGML-ATOMIC-0",
+      "class": "HARD",
+      "description": "All writes use os.replace() for atomicity; partial writes constitutionally prohibited.",
+      "enforcement": "tmp file written then os.replace() — no in-place file mutation"
+    },
+    {
+      "id": "CGML-XPHASE-0",
+      "class": "HARD",
+      "description": "Cross-phase consistency enforced on every append; phase sequence violations rejected.",
+      "enforcement": "XPhaseViolation raised; CGML meta-domain exempt from ordering"
+    },
+    {
+      "id": "CGML-AUDIT-0",
+      "class": "HARD",
+      "description": "Every read operation emits an audit event; silent reads constitutionally prohibited.",
+      "enforcement": "_emit_audit() called at end of every public read method"
+    }
+  ],
+  "total_this_phase": 10,
+  "cumulative_total": 831
+}
