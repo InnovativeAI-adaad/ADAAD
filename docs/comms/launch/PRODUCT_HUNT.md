@@ -35,7 +35,7 @@ ADAAD runs a continuous improvement loop on your codebase. Three AI agents (Arch
 
 **Who it's for:** Teams that want AI to handle continuous improvement work without the liability of unsupervised changes. Organizations that need real audit trails. Developers building safe AI-assisted systems.
 
-**Completely free and open source.**
+**Available under governed proprietary licensing.**
 
 ---
 

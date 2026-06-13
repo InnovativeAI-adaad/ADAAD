@@ -69,4 +69,4 @@ Each entry follows this structure:
 
 ---
 
-*Published under Apache 2.0. All submissions are the intellectual property of their authors. ADAAD publishes classification and outcome; raw exploit details for `BYPASS_CONFIRMED` findings are coordinated with submitter before public disclosure.*
+*Published under the repository proprietary license unless otherwise agreed in writing. All submissions are the intellectual property of their authors. ADAAD publishes classification and outcome; raw exploit details for `BYPASS_CONFIRMED` findings are coordinated with submitter before public disclosure.*

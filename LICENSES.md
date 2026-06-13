@@ -5,6 +5,17 @@
 - **Python source headers**: Repository-authored Python source files use the exact `# SPDX-License-Identifier: Apache-2.0` header as the governed source-header invariant. This header policy is enforced separately from the current proprietary repository distribution license.
 - **Documentation, examples, tests, tools, and scripts**: Proprietary unless another in-file notice states otherwise; Python files still follow the exact Apache-2.0 SPDX source-header invariant.
 
+## 2026-06-13 licensing decision
+
+After review of the root `LICENSE`, ADAAD keeps the current proprietary repository license and does **not** add Commons Clause. No Apache-2.0 + Commons Clause open-core subset is created in this change because no module/path boundary has been ratified for open-core distribution.
+
+Current applicability remains:
+
+- `LICENSE` applies to the repository as a whole from the versions identified in that file.
+- No `LICENSE.open-core` or `LICENSE.enterprise` file is authoritative unless added by a future governed change with an explicit path/module classification table.
+- Python `# SPDX-License-Identifier: Apache-2.0` headers remain a source-header compliance invariant only; they do not relicense the active repository distribution.
+- Any future open-core proposal must classify every affected module path before license text changes, and must preserve patent, trademark, HUMAN-0, and governance restrictions unless separately ratified.
+
 ## Third-party dependencies
 
 Third-party packages retain their own licenses. Review dependency manifests and

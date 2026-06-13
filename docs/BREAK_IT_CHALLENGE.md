@@ -147,4 +147,4 @@ As of Phase 127 (2026-04-06): **0 bypass attempts submitted. 167 Hard-class inva
 
 ---
 
-*ADAAD v9.60.0 · Phase 127 · Apache 2.0 · InnovativeAI LLC · Governor: Dustin L. Reid · Blackwell, Oklahoma*
+*ADAAD v9.60.0 · Phase 127 · Proprietary · InnovativeAI LLC · Governor: Dustin L. Reid · Blackwell, Oklahoma*

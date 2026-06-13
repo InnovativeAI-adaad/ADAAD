@@ -22,7 +22,7 @@ In recent years, AI tools have gotten good enough to *suggest* code improvements
 
 ## Who built it and who is it for?
 
-ADAAD is built by InnovativeAI-adaad, an independent software project led by its founder. It is open source and free to use.
+ADAAD is built by InnovativeAI-adaad, an independent software project led by its founder. It is proprietary and available only under authorized access or written license.
 
 **Who benefits from ADAAD:**
 
@@ -108,7 +108,7 @@ The key safeguard: **a change approved in one codebase is not automatically appr
 
 ## The Android app
 
-ADAAD has a full-featured dashboard app for Android, and it is completely free — no app store account required, no purchase, no subscription. You can install it directly from the GitHub releases page, from F-Droid (an open-source app store), or as a web app that works in your phone's browser. The app lets you monitor and control the evolution pipeline from your phone.
+ADAAD has a full-featured dashboard app for Android, and it is completely free — no app store account required, no purchase, no subscription. You can install it directly from the GitHub releases page, from an approved distribution channel, or as a web app that works in your phone's browser. The app lets you monitor and control the evolution pipeline from your phone.
 
 ---
 

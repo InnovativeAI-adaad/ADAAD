@@ -12,7 +12,7 @@
 | `HACKERNEWS_SHOW_HN.md` | Hacker News — Show HN | ✅ Ready |
 | `PRODUCT_HUNT_LAUNCH_KIT.md` | Product Hunt | ✅ Ready |
 | `TWITTER_THREAD.md` | Twitter / X | ✅ Ready |
-| `REDDIT_POSTS.md` | r/programming, r/MachineLearning, r/opensource, r/devops, r/androiddev | ✅ Ready |
+| `REDDIT_POSTS.md` | r/programming, r/MachineLearning, relevant governance and AI safety communities, r/devops, r/androiddev | ✅ Ready |
 | `NEWSLETTER_OUTREACH.md` | TLDR, Console.dev, Changelog, Dev.to, GitHub Blog | ✅ Ready |
 | `DEVTO_BLOG_POST.md` | dev.to / Hashnode (full post) | ✅ Ready |
 
@@ -40,7 +40,7 @@
 - [ ] **11am:** Reply to every HN comment within the hour
 - [ ] **Noon:** dev.to blog post publishes
 - [ ] **2pm:** r/MachineLearning post
-- [ ] **End of day:** r/opensource + r/devops posts
+- [ ] **End of day:** relevant governance and AI safety communities + r/devops posts
 
 ### Day +1
 - [ ] r/androiddev post
@@ -81,7 +81,7 @@
 2. **Differentiator:** Constitutional governance is architecturally enforced, not just documented
 3. **Trust signal:** Deterministic replay — every decision byte-identically reproducible
 4. **Phase 6 hook:** The engine proposes changes to its own roadmap. Humans approve.
-5. **Access:** Free, open source, MIT, Android app with no Play Store required
+5. **Access:** Governed proprietary access, proprietary license, Android app with no Play Store required
 
 ---
 
@@ -117,4 +117,4 @@ A: No. The AI can propose a constitutional amendment, but it must pass through t
 A: Claude (Anthropic API). You bring your own API key. The system is designed around the Claude API but the proposer interface could theoretically be adapted.
 
 **Q: Is the Android app really free?**
-A: Yes. MIT license. No Play Store account required. Four install tracks: direct APK from GitHub Releases, Obtainium auto-update, PWA (Chrome), and F-Droid.
+A: Yes. proprietary license. No Play Store account required. Four install tracks: direct APK from GitHub Releases, Obtainium auto-update, PWA (Chrome), and F-Droid.

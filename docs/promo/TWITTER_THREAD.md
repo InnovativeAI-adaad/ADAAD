@@ -99,7 +99,7 @@ Four install tracks. Full governance dashboard. Runs on Android 8.0+.
 ---
 
 **Tweet 9:**
-Everything is open source. MIT license. Zero cost.
+Repository access is proprietary. Written license required for use or redistribution.
 
 Quick start:
 git clone github.com/InnovativeAI-adaad/ADAAD
@@ -168,7 +168,7 @@ github.com/InnovativeAI-adaad/ADAAD
 
 ## Accounts to tag (where relevant):
 - @AnthropicAI (Claude API)
-- @github (open source, GitHub Pages)
+- @github (governed distribution, GitHub Pages)
 - Developer newsletters: @changelog, @tldr_tech, @hackernewsletter
 - AI safety researchers and commentators
 

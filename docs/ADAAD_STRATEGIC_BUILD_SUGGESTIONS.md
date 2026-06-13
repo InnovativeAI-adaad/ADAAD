@@ -192,7 +192,7 @@ complete — they are not separate from the lane model.
 | --- | --- | --- |
 | **Any revenue** | Validate `GET /economic/market-fitness` (PR-04); confirm Aponi dashboard reflects real AppStore/Analytics signal (PR-03) | Single largest valuation lever: transitions income approach from speculative to grounded; potential 2× base case |
 | **ADAAD-7 shipment** | Close PR-05 (Reviewer Reputation Ledger) + PR-06 (Scoring Engine) + PR-07 (Tier Calibration) + PR-08 (Advisory Rule) + PR-09 (Aponi Panel) with full ledger events and constitutional floor | Demonstrates roadmap execution; introduces feedback loop enterprise buyers require; material acquirer pricing signal |
-| **Patent filing readiness** | Prepare constitutional mutation governance method documentation as a standalone IP artifact, reviewable by IP counsel before `v1.1-GA` | Transforms Apache 2.0 code into defensible novel IP; qualitative shift in how acquirers price the asset |
+| **Patent filing readiness** | Prepare constitutional mutation governance method documentation as a standalone IP artifact, reviewable by IP counsel before `v1.1-GA` | Transforms governed source assets into defensible novel IP; qualitative shift in how acquirers price the asset |
 | **Governance Key Ceremony** (PR-01) | Execute 2-of-3 Ed25519 signature threshold; write `governance/attestations/canonical_engine_declaration.json` | Converts the canonical engine declaration from a document to a governance event; required for any enterprise audit presentation |
 
 ---

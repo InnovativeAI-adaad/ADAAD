@@ -1,7 +1,7 @@
 # Show HN: ADAAD – AI agents that improve your code, constitutionally gated
 
 **Submission title:**
-> Show HN: ADAAD – open-source AI that evolves your codebase, with a non-bypassable governance layer
+> Show HN: ADAAD – proprietary AI that evolves your codebase, with a non-bypassable governance layer
 
 **URL:** https://github.com/InnovativeAI-adaad/ADAAD
 

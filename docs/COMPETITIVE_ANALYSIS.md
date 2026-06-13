@@ -223,4 +223,4 @@ The question to ask any autonomous AI code tool:
 
 ---
 
-*ADAAD v9.59.0 · Phase 126 · Apache 2.0 · InnovativeAI LLC · Governor: Dustin L. Reid*
+*ADAAD v9.59.0 · Phase 126 · Proprietary · InnovativeAI LLC · Governor: Dustin L. Reid*

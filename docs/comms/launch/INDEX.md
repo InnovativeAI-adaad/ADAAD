@@ -53,7 +53,7 @@ Day 7+: Newsletter pitches sent
 | **AI safety** | r/MachineLearning, r/LocalLLaMA, LinkedIn | Non-bypassable governance, earned autonomy model, PHASE6-HUMAN-0 |
 | **DevOps / audit** | r/devops, LinkedIn, Console.dev | Hash-chained ledger, replay-verifiable decisions, evidence matrix |
 | **Android / mobile** | r/androiddev, X/Twitter | Free APK, no Play Store, Obtainium, reproducible builds |
-| **Open source** | Awesome lists, Discord, Pointer.io | MIT license, free, runs on itself |
+| **Open source** | Awesome lists, Discord, Pointer.io | proprietary license, free, runs on itself |
 
 ---
 

@@ -5,7 +5,7 @@
 ## r/programming
 
 **Title:**
-> I built an open-source system where AI agents compete to improve your codebase — but nothing ships without passing a 16-rule constitutional gate
+> I built an proprietary system where AI agents compete to improve your codebase — but nothing ships without passing a 16-rule constitutional gate
 
 **Body:**
 
@@ -26,7 +26,7 @@ The part I keep coming back to: the GovernanceGate is architecturally the only t
 - It doesn't guarantee correct code
 - It doesn't operate without human oversight — production deployments always need explicit human approval
 
-Free and open source. Android app available at zero cost. Curious what people think about the determinism-first design and the constitutional model.
+Governed proprietary access. Android app available at zero cost. Curious what people think about the determinism-first design and the constitutional model.
 
 GitHub: https://github.com/InnovativeAI-adaad/ADAAD
 
@@ -123,7 +123,7 @@ Evidence model: https://github.com/InnovativeAI-adaad/ADAAD/blob/main/docs/CONST
 ## r/LocalLLaMA
 
 **Title:**
-> ADAAD: open-source framework for governed autonomous code evolution — the governance layer is the interesting part
+> ADAAD: proprietary framework for governed autonomous code evolution — the governance layer is the interesting part
 
 **Body:**
 
