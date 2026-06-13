@@ -6,7 +6,7 @@
 AI that improves your code. Constitutionally.
 
 **Description (500 chars):**
-Three Claude-powered AI agents compete to improve your codebase every epoch. Every change is gated by a 16-rule constitutional policy engine, SHA-256 hash-chained into an append-only evidence ledger, and deterministically replayable. Nothing ships without proof. Free, open source, and runs on Android.
+Three Claude-powered AI agents compete to improve your codebase every epoch. Every change is gated by a 16-rule constitutional policy engine, SHA-256 hash-chained into an append-only evidence ledger, and deterministically replayable. Nothing ships without proof. Governed proprietary access, and runs on Android.
 
 **Topics:** Developer Tools · Artificial Intelligence · Open Source · DevOps · Productivity
 
@@ -34,7 +34,7 @@ I built ADAAD because I kept running into the same problem: AI code tools are ex
 
 📲 **Free Android app** — full governance dashboard, four install tracks, zero cost.
 
-It's completely free and open source. `python onboard.py` gets you running in about 60 seconds.
+It's available under governed proprietary licensing. `python onboard.py` gets you running in about 60 seconds.
 
 I'd love to hear from teams dealing with AI governance requirements, compliance engineers, or anyone who's wrestled with "how do we use AI code tools without losing auditability."
 
@@ -69,5 +69,5 @@ The plain English doc is genuinely written for non-technical readers — share i
 - **Launch day:** Wednesday or Thursday for developer tools
 - **Hunter:** Seek a hunter with DevTools/AI audience (10k+ followers)
 - **Email outreach:** Send to developer newsletter authors 48h before launch for coverage coordination
-- **Cross-post:** Share in relevant Slack communities (DevTools, AI Safety, open-source dev groups) same day
+- **Cross-post:** Share in relevant Slack communities (DevTools, AI Safety, governed AI/dev groups) same day
 - **Upvote window:** First 6 hours are critical — have your network ready

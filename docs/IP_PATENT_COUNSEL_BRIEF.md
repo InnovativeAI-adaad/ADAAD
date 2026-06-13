@@ -9,7 +9,7 @@
 **Date:** March 20, 2026
 **Re:** Provisional Patent Application — Constitutional Autonomous Code Evolution System
 **Finding Reference:** H-03 (FINDING-66-003)
-**Priority:** HIGH — Time-sensitive; open-source repository is public
+**Priority:** HIGH — Time-sensitive; proprietary repository access is controlled
 
 ---
 
