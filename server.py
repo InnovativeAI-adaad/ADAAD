@@ -88,6 +88,7 @@ from app.api.acam import router as acam_router                                  
 from app.api.care import router as care_router                                       # Phase 219 INNOV-124 CARE
 from app.api.ceicc import router as ceicc_router                                     # Phase 220 INNOV-125 CEICC
 from app.api.cgml import router as cgml_router                                       # Phase 221 INNOV-126 CGML
+from app.api.acdr import router as acdr_router                                       # Phase 222 INNOV-127 ACDR
 from app.api.cmoa import router as cmoa_router                                       # Phase 208 INNOV-113 CMOA
 from runtime.integrations.github_app import dispatch_event, verify_webhook_signature  # ADAADchat
 from app.api.dependencies import (
@@ -947,6 +948,7 @@ app.include_router(acam_router)             # Phase 218 INNOV-123 ACAM
 app.include_router(care_router)             # Phase 219 INNOV-124 CARE
 app.include_router(ceicc_router)            # Phase 220 INNOV-125 CEICC
 app.include_router(cgml_router)             # Phase 221 INNOV-126 CGML
+app.include_router(acdr_router)             # Phase 222 INNOV-127 ACDR
 
 
 def telemetry_decisions_legacy(
