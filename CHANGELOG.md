@@ -1,3 +1,26 @@
+## [10.33.0] — Phase 222 · INNOV-127 · ACDR
+
+**Date:** 2026-06-14  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### INNOV-127 · ACDR — Autonomous Constitutional Drift Reporter
+
+**World-first:** First autonomous AI governance system with a constitutionally-bounded drift
+detection engine that continuously compares live runtime constitutional behavior against
+documented constitutional intent across all Arc II modules — generating entropy-scored
+drift reports, severity-tiered alert streams, and HUMAN-0-addressable remediation
+certificates sealed in an HMAC-SHA-256-chained immutable drift ledger.
+
+**New module:** `dorkllm/autonomous_constitutional_drift_reporter.py`
+**New router:** `app/api/acdr.py` — 6 endpoints: POST /acdr/detect, GET /acdr/report/latest,
+GET /acdr/chain/verify, GET /acdr/quarantine, POST /acdr/ack/{event_id}, GET /acdr/status
+**Test suite:** `tests/test_phase222_acdr.py` — 30/30 PASS (DETECT·ENTR·HMAC·CHAIN·H0·RPT·API)
+**Hard-class invariants added:** 10 (ACDR-DETECT-0 through ACDR-REPLAY-0)
+**Cumulative invariants:** 841 (was 831)
+**Innovations shipped:** 127 (was 126)
+**Arc II sequence:** ACSA → ACPA → ACAM → CARE → CEICC → CGML → **ACDR**
+
+---
+
 ## [10.32.0] — Phase 221 · INNOV-126 · CGML
 
 **Date:** 2026-06-13  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID

@@ -1,0 +1,29 @@
+{
+  "tier_summary_id": "TIER-SUMMARY-222",
+  "phase": 222,
+  "version": "10.33.0",
+  "innovation": "INNOV-127",
+  "code": "ACDR",
+  "date": "2026-06-14",
+  "governor": "DUSTIN L REID",
+  "tier_breakdown": {
+    "tier_0_production": {
+      "label": "Production — HUMAN-0 Gated",
+      "mutations": ["version bump", "CHANGELOG prepend", "annotated tag v10.33.0"],
+      "human0_required": true
+    },
+    "tier_1_governance": {
+      "label": "Governance — Arc II Sealed",
+      "mutations": ["ILA attestation", "HUMAN0_SIGNOFF", "TIER_SUMMARY", "INVARIANT_REGISTER"],
+      "human0_required": false
+    },
+    "tier_2_code": {
+      "label": "Code — Agent Autonomous",
+      "mutations": ["ACDR module", "ACDR router", "server.py registration", "30 tests"],
+      "human0_required": false
+    }
+  },
+  "blast_radius": "TIER-2-CONTAINED",
+  "constitutional_gate": "PASSED",
+  "test_gate": "30/30 PASS"
+}
