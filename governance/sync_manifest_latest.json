@@ -1,11 +1,11 @@
 {
-  "sync_timestamp": "2026-06-14T10:04:17.927689+00:00",
+  "sync_timestamp": "2026-06-15T12:49:19.185424+00:00",
   "canonical": {
     "version": "10.33.0",
     "phase": 222,
     "hard_class_count": 0,
     "innovations": 127,
-    "sha": "4663d59"
+    "sha": "8388600"
   },
   "surfaces": [
     {
@@ -32,6 +32,8 @@
       "file": "governance/report_version.json",
       "changed": true,
       "ops": [
+        "updated date",
+        "updated last_sync_date",
         "updated last_sync_sha"
       ]
     },
@@ -47,5 +49,5 @@
     }
   ],
   "total_changed": 1,
-  "digest": "6099c95a88630ace"
+  "digest": "c3fa8b811e6c73f1"
 }
