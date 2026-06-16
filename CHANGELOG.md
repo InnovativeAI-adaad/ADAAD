@@ -1,3 +1,16 @@
+## [10.34.0] — Phase 223 · INNOV-128 · CPVE
+
+**Date:** 2026-06-16 · **Phase 223** · **INNOV-128 · CPVE**
+
+### INNOV-128 · CPVE — Constitutional Provenance Verification Engine
+
+- **INNOV-128 · CPVE — Constitutional Provenance Verification Engine** — World-first four-subsystem constitutional provenance engine that cryptographically traces every Arc II artifact (INVARIANT, MUTATION, ATTESTATION, AMENDMENT, CERTIFICATE) from origination through its complete governance lineage, producing tamper-evident provenance certificates verifiable offline by any external auditor. Four subsystems: (1) `ProvenanceTracer` (CPVE-TRACE) — HMAC-SHA-256-chained ledger of every artifact origination, enforcing CPVE-ORIGIN-0 (no orphan artifacts) and CPVE-SCOPE-0 (exactly 5 Arc II artifact classes); (2) `ProvenanceVerifier` (CPVE-VERIFY) — per-artifact and full-chain verification via `hmac.compare_digest` (CPVE-VERIFY-0), with fail-closed CPVE-GATE-0 gate blocking all downstream promotion for UNVERIFIED artifacts; (3) `ProvenanceCertifier` (CPVE-CERT) — HUMAN-0-gated certificate issuance backed by its own HMAC-chained cert ledger; (4) `ProvenanceAuditor` (CPVE-AUDIT) — append-only HMAC-chained audit log instrumented on every trace, verify, certify, and query operation. `CPVEEngine` facade coordinates all four subsystems. 8-endpoint FastAPI router: POST /cpve/trace, GET /cpve/verify/{id}, GET /cpve/verify-chain, POST /cpve/certify, GET /cpve/records, GET /cpve/certificates, GET /cpve/audit, GET /cpve/status. 10 new Hard-class invariants (CPVE-CHAIN-0 through CPVE-SCOPE-0). Closes provenance traceability gap across all Arc II governance surfaces (ACSA→ACPA→ACAM→CARE→CEICC→CGML→ACDR→CPVE). 30/30 acceptance tests passing.
+
+**Hard-class invariants added:** CPVE-CHAIN-0, CPVE-APPEND-0, CPVE-ORIGIN-0, CPVE-VERIFY-0, CPVE-CERT-0, CPVE-DETERM-0, CPVE-GATE-0, CPVE-AUDIT-0, CPVE-IMMUT-0, CPVE-SCOPE-0
+**Cumulative Hard-class invariants:** 851
+**Tests:** 30/30 PASS
+**Track B:** GPG tag v10.34.0 · PyPI publish (HUMAN-0 / ADAADell)
+
 ## [10.33.0] — Phase 222 · INNOV-127 · ACDR
 
 **Date:** 2026-06-14  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
