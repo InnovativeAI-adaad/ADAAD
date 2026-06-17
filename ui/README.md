@@ -169,7 +169,7 @@ Submission behavior:
 
 - Primary governed endpoint: `POST /api/mutations/proposals`
 - Compatibility fallback: `POST /mutation/propose`
-- Preview endpoint: `GET /api/lint/preview` (debounced editor lint preview; advisory only)
+- Preview endpoint: `POST /api/lint/preview` with a JSON body (debounced editor lint preview; advisory and non-authorizing). Legacy `GET /api/lint/preview` remains as a compatibility fallback.
 
 Authority boundary invariants:
 

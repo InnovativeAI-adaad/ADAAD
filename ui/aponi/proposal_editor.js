@@ -7,6 +7,72 @@ const pythonInput = document.querySelector('#python_content');
 
 let lintTimer = null;
 
+const lintPreviewNotice = document.createElement('p');
+lintPreviewNotice.id = 'lint-preview-notice';
+lintPreviewNotice.textContent = 'Lint preview is advisory and non-authorizing; proposal queue admission still requires governed validation.';
+lintPreviewNotice.style.fontSize = '0.9rem';
+lintPreviewNotice.style.opacity = '0.8';
+form?.insertBefore(lintPreviewNotice, form.firstChild);
+
+function setFieldLintMessage(field, message, severity = 'info') {
+  if (!field) {
+    return;
+  }
+  const id = `${field.id || field.name}-lint-preview`;
+  let element = document.querySelector(`#${id}`);
+  if (!element) {
+    element = document.createElement('p');
+    element.id = id;
+    element.className = 'lint-preview-message';
+    element.setAttribute('aria-live', 'polite');
+    field.insertAdjacentElement('afterend', element);
+  }
+  element.dataset.severity = severity;
+  element.textContent = message || '';
+}
+
+function clearFieldLintMessages() {
+  for (const field of [metadataInput, agentInput, targetInput, pythonInput]) {
+    setFieldLintMessage(field, '');
+  }
+}
+
+function fieldForAnnotation(annotation) {
+  const target = `${annotation?.field || annotation?.path || annotation?.target || ''}`.toLowerCase();
+  if (target.includes('metadata')) {
+    return metadataInput;
+  }
+  if (target.includes('agent')) {
+    return agentInput;
+  }
+  if (target.includes('path') || target.includes('target')) {
+    return targetInput;
+  }
+  return pythonInput;
+}
+
+function renderLintPreview(body) {
+  clearFieldLintMessages();
+  setFieldLintMessage(pythonInput, 'Lint preview complete: advisory only, not an authorization to execute.', 'info');
+
+  const annotations = Array.isArray(body?.annotations) ? body.annotations : [];
+  if (!annotations.length) {
+    return;
+  }
+
+  const grouped = new Map();
+  for (const annotation of annotations) {
+    const field = fieldForAnnotation(annotation);
+    const current = grouped.get(field) || [];
+    current.push(annotation?.message || annotation?.detail || annotation?.code || JSON.stringify(annotation));
+    grouped.set(field, current);
+  }
+
+  for (const [field, messages] of grouped.entries()) {
+    setFieldLintMessage(field, messages.join(' | '), 'advisory');
+  }
+}
+
 function showResponse(payload) {
   responseElement.textContent = JSON.stringify(payload, null, 2);
 }
@@ -99,25 +165,42 @@ async function fetchLintPreview() {
   const metadataText = (metadataInput?.value || '').trim() || '{}';
   const metadataResult = parseMetadata(metadataText);
   if (!metadataResult.ok) {
+    clearFieldLintMessages();
+    setFieldLintMessage(metadataInput, metadataResult.detail, 'advisory');
     showResponse({ phase: 'lint_preview_invalid', metadata: metadataResult });
     return;
   }
 
-  const params = new URLSearchParams({
+  const lintPayload = {
     agent_id: (agentInput?.value || '').trim(),
     target_path: (targetInput?.value || '').trim(),
     python_content: pythonInput?.value || '',
+    metadata: metadataResult.value,
+  };
+
+  const params = new URLSearchParams({
+    ...lintPayload,
     metadata: JSON.stringify(metadataResult.value),
   });
 
   try {
-    const response = await fetch(`/api/lint/preview?${params.toString()}`);
+    let response = await fetch('/api/lint/preview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(lintPayload),
+    });
+
+    if (response.status === 404 || response.status === 405) {
+      response = await fetch(`/api/lint/preview?${params.toString()}`);
+    }
+
     const body = await response.json().catch(() => ({}));
     if (!response.ok) {
       showResponse({ phase: 'lint_preview_error', status: response.status, body });
       return;
     }
-    showResponse({ phase: 'lint_preview', preview: body });
+    renderLintPreview(body);
+    showResponse({ phase: 'lint_preview', advisory: true, authorizing: false, preview: body });
   } catch (error) {
     showResponse({ phase: 'lint_preview_error', error: String(error) });
   }
