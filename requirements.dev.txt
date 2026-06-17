@@ -1,6 +1,6 @@
 # Development/test extras for full ADAAD validation stack.
 -r requirements.server.txt
-cryptography==46.0.7
+cryptography==48.0.1
 pytest-benchmark==5.2.3
 libcst>=1.1.0,<2.0
 qrcode==8.2
