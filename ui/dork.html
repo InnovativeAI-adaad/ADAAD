@@ -803,8 +803,9 @@ body {
       <span class="badge" id="active-persona-badge">persona: concise</span>
       <span id="fleet-strip-ledger">ledger: —</span>
       <span id="fleet-strip-intents">intents: 20</span>
-      <span id="fleet-strip-cmds">cmds: 15</span>
-      <span id="fleet-strip-invariants" style="color:#22c55e;">invariants: 207 Hard</span>
+      <span id="fleet-strip-cmds">cmds: —</span>
+      <span id="fleet-strip-invariants" style="color:#22c55e;">invariants: —</span>
+      <span id="fleet-strip-source" style="color:#eab308;">offline snapshot</span>
       <!-- UX-003: Fleet status dot -->
       <span id="fleet-dot" style="
         width:8px; height:8px; border-radius:50%;
@@ -818,7 +819,7 @@ body {
       margin:6px 14px; padding:10px; font-family:'JetBrains Mono',monospace;
       font-size:11px; color:#f5f7fa;">
       <div style="color:#3b82f6; font-weight:700; margin-bottom:8px;">
-        DORK Slash Commands · Phase 132 · INNOV-41
+        <span id="slash-palette-title">DORK Slash Commands · —</span>
       </div>
       <div id="slash-palette-grid" style="
         display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:6px;">
@@ -1171,12 +1172,71 @@ function addMsg(role, content, skipHistory) {
   return el;
 }
 
+const OFFLINE_RUNTIME_DISPLAY_STATE = Object.freeze({
+  sourceLabel: 'offline snapshot',
+  isLive: false,
+  version: 'v9.63.0',
+  phase: 130,
+  innovation: 'INNOV-40',
+  innovationSummary: 'Cross-Epoch Agent Learning Transfer',
+  innovationCoverage: CANONICAL_INNOVATION_COVERAGE,
+  commandCount: 15,
+  invariantCount: 201,
+  invariantClass: 'Hard',
+  fleetInvariantCount: 207,
+});
+
+function getRuntimeDisplayState() {
+  const runtime = S.gov?.runtime;
+  const gov = runtime?.gov;
+  const epoch = runtime?.epoch;
+  const innovation = gov?.current_innovation || epoch?.innovation || OFFLINE_RUNTIME_DISPLAY_STATE.innovation;
+  const invariantCount = gov?.invariant_count ?? OFFLINE_RUNTIME_DISPLAY_STATE.invariantCount;
+  const commandCount = gov?.command_count ?? window.DORK_CMD_MANIFEST?.length ?? OFFLINE_RUNTIME_DISPLAY_STATE.commandCount;
+
+  if (!runtime) return { ...OFFLINE_RUNTIME_DISPLAY_STATE };
+  return {
+    ...OFFLINE_RUNTIME_DISPLAY_STATE,
+    sourceLabel: 'live governance',
+    isLive: true,
+    version: epoch?.version || OFFLINE_RUNTIME_DISPLAY_STATE.version,
+    phase: epoch?.phase ?? OFFLINE_RUNTIME_DISPLAY_STATE.phase,
+    innovation,
+    innovationSummary: gov?.innovation_summary || OFFLINE_RUNTIME_DISPLAY_STATE.innovationSummary,
+    innovationCoverage: gov?.innovation_coverage || CANONICAL_INNOVATION_COVERAGE,
+    commandCount,
+    invariantCount,
+    invariantClass: gov?.invariant_class || OFFLINE_RUNTIME_DISPLAY_STATE.invariantClass,
+    fleetInvariantCount: gov?.fleet_invariant_count ?? invariantCount,
+  };
+}
+
+function formatInvariantLabel(state, countKey = 'invariantCount') {
+  return `${state[countKey]} ${state.invariantClass}-class invariants`;
+}
+
+function applyRuntimeDisplayState() {
+  const state = getRuntimeDisplayState();
+  if (D.version) D.version.textContent = state.version;
+  if (D.inv) D.inv.textContent = `${state.invariantCount} invariants`;
+  const cmds = q('#fleet-strip-cmds');
+  const invariants = q('#fleet-strip-invariants');
+  const source = q('#fleet-strip-source');
+  const slashTitle = q('#slash-palette-title');
+  if (cmds) cmds.textContent = `cmds: ${state.commandCount}`;
+  if (invariants) invariants.textContent = `invariants: ${state.fleetInvariantCount} ${state.invariantClass}`;
+  if (source) {
+    source.textContent = state.sourceLabel;
+    source.style.color = state.isLive ? '#22c55e' : '#eab308';
+  }
+  if (slashTitle) slashTitle.textContent = `DORK Slash Commands · Phase ${state.phase} · ${state.innovation}`;
+  return state;
+}
+
 function formatRuntimeIdentity(runtime) {
   if (!runtime) return 'snapshot unavailable';
-  const version = runtime?.epoch?.version || 'v9.63.0';
-  const phase = runtime?.epoch?.phase ?? 130;
-  const coverage = runtime?.gov?.innovation_coverage || CANONICAL_INNOVATION_COVERAGE;
-  return `${version} · Phase ${phase} · ${coverage}`;
+  const state = getRuntimeDisplayState();
+  return `${state.version} · Phase ${state.phase} · ${state.innovationCoverage}`;
 }
 
 function buildWelcomeMessage() {
@@ -1190,11 +1250,9 @@ let _cachedPrompt = null, _cachedGovHash = null;
 
 function buildSystemPrompt() {
   const g   = S.gov?.runtime;
-  const runtimeVersion = g?.epoch?.version || 'v9.63.0';
-  const runtimePhase = g?.epoch?.phase ?? 130;
-  const runtimeCoverage = g?.gov?.innovation_coverage || CANONICAL_INNOVATION_COVERAGE;
+  const displayState = getRuntimeDisplayState();
   const key = g
-    ? `${g.epoch?.epoch}|${g.gov?.ok}|${g.gov?.tier}|${g.rep?.score}|${g.ready?.readiness_score}|${runtimeCoverage}`
+    ? `${g.epoch?.epoch}|${g.gov?.ok}|${g.gov?.tier}|${g.rep?.score}|${g.ready?.readiness_score}|${displayState.innovationCoverage}|${displayState.invariantCount}`
     : 'offline';
   if (_cachedPrompt && key === _cachedGovHash) return _cachedPrompt;
   _cachedGovHash = key;
@@ -1202,7 +1260,7 @@ function buildSystemPrompt() {
   const live = g ? `
 
 ## Live Governance Snapshot
-- **Version:** ${g.epoch?.version||'v9.63.0'} · **Phase:** ${g.epoch?.phase||130}
+- **Version:** ${displayState.version} · **Phase:** ${displayState.phase}
 - **Epoch:** ${g.epoch?.epoch||'—'}
 - **Gate:** ${g.gov?.ok?'✅ PASS':'❌ FAIL'} · Tier: ${g.gov?.tier||'—'} · Locked: ${g.gov?.locked??'—'}
 - **Replay:** score ${g.rep?.score??'—'}, divergence ${g.rep?.divergence??'—'}, mode ${g.rep?.mode||'—'}
@@ -1211,7 +1269,7 @@ function buildSystemPrompt() {
 - **Webhooks:** ${g.wh?.total||0}` : `
 
 ## Live Governance Snapshot
-Governance endpoint offline (snapshot unavailable). Responding from static corpus.`;
+Governance endpoint offline (${displayState.sourceLabel}). Responding from static corpus.`;
 
   _cachedPrompt = `You are **dork** — ADAAD's advisory intelligence, built by Dustin L. Reid (Innovative AI LLC, HUMAN-0).
 
@@ -1219,15 +1277,15 @@ read-only and advisory only. You observe, explain, advise. You cannot modify the
 Never suggest bypassing governance gates, constitutional checks, or human-signoff requirements.
 Persona style directive: ${CFG.persona}
 
-## ADAAD — ${runtimeVersion} · Phase ${runtimePhase} · 201 Hard-class invariants · ${runtimeCoverage}
+## ADAAD — ${displayState.version} · Phase ${displayState.phase} · ${formatInvariantLabel(displayState)} · ${displayState.innovationCoverage}
 
 **Agents:** Architect (blue, methodical, structure-first) · Dream (violet, creative, high-variance) · Beast (orange, aggressive throughput, stress-tests gates)
 
 **CEL — 16 steps:** Propose → ACSE adversarial stress → GovernanceGate → LSME shadow execution → Fitness score → DAS audit sandbox → GRRP response → ACSA self-amendment → ACF coalition (HIGH only) → CJS jury → ARS reputation staking → HUMAN-0 gate → GPG signing → Ledger append → CELT learning transfer → Epoch advance.
 
-**Innovations INNOV-01–40:** CSAP · TIFE · ACSE · SCDD · AOEP · CEPD · LSME · AFRT · AFIT · MMEM · DSTE · MGV · IMT · CJS · ARS · ERS · GBP · MCF · CES · SVP · HAF(×2) · Mirror · IDE · KBEP · DAS · SPIE · GRRP · ACSA · ACF · CELT
+**Innovations through ${displayState.innovation}:** CSAP · TIFE · ACSE · SCDD · AOEP · CEPD · LSME · AFRT · AFIT · MMEM · DSTE · MGV · IMT · CJS · ARS · ERS · GBP · MCF · CES · SVP · HAF(×2) · Mirror · IDE · KBEP · DAS · SPIE · GRRP · ACSA · ACF · CELT
 
-**Key concepts:** Hard-class invariants block mutations outright (201 active). HUMAN-0 = Dustin L. Reid — sole GPG authority, non-delegable. Track A = DEVADAAD autonomous. Track B = HUMAN-0 on ADAADell. Lineage Ledger = append-only HMAC-SHA256 hash-chained JSONL. DAS = deterministic audit sandbox (pinned Docker digest). CELT = signed cross-epoch behavioral profile transfer.
+**Key concepts:** Hard-class invariants block mutations outright (${displayState.invariantCount} active). HUMAN-0 = Dustin L. Reid — sole GPG authority, non-delegable. Track A = DEVADAAD autonomous. Track B = HUMAN-0 on ADAADell. Lineage Ledger = append-only HMAC-SHA256 hash-chained JSONL. DAS = deterministic audit sandbox (pinned Docker digest). CELT = signed cross-epoch behavioral profile transfer.
 
 Style: conversational, warm, precise. Short paragraphs. Reference live data when available.
 ${live}`;
@@ -1386,8 +1444,7 @@ function renderGov(data) {
   D.epoch.innerHTML = `<span class="dot whale"></span> EPOCH ${r.epoch?.epoch||'?'} · Phase ${r.epoch?.phase||'?'}`;
   D.gateDot.className    = `dot ${r.gov?.ok?'green':'red'}`;
   D.gateText.textContent = r.gov?.ok ? 'GATE PASS' : 'GATE FAIL';
-  if (r.epoch?.version)       D.version.textContent = r.epoch.version;
-  if (r.gov?.invariant_count) D.inv.textContent     = `${r.gov.invariant_count} invariants`;
+  applyRuntimeDisplayState();
   if (r.rep?.score != null) {
     D.replayBadge.style.display = 'inline-flex';
     D.replayVal.textContent     = r.rep.score.toFixed(3);
@@ -1514,7 +1571,11 @@ function welcome() {
   addMsg('assistant',
     `${buildWelcomeMessage()}\n\n` +
     `I have eyes on the governance substrate, the Constitutional Evolution Loop, the mutation pipeline, the agent triad, the Lineage Ledger, and the replay engine.\n\n` +
-    `ADAAD is at **v9.63.0**, Phase 130, **201 Hard-class invariants** enforced. INNOV-40 (Cross-Epoch Agent Learning Transfer) just shipped — collective intelligence track closed.\n\n` +
+    (() => {
+      const state = getRuntimeDisplayState();
+      const sourcePrefix = state.isLive ? '' : `**${state.sourceLabel}:** `;
+      return `${sourcePrefix}ADAAD is at **${state.version}**, Phase ${state.phase}, **${formatInvariantLabel(state)}** enforced. ${state.innovation} (${state.innovationSummary}) just shipped — collective intelligence track closed.\n\n`;
+    })() +
     `I'm read-only. Advisory only. Ask me what's happening.\n\n` +
     `*Hit ▾ or press **G** to expand the live governance panel.*`,
     true);
@@ -1523,8 +1584,7 @@ function welcome() {
 /* ── INIT ── */
 function init() {
   D.sessionLabel.textContent = `dork_${Math.random().toString(36).slice(2,10)}`;
-  D.version.textContent = 'v9.63.0';
-  D.inv.textContent     = '201 invariants';
+  applyRuntimeDisplayState();
 
   if (SERVER_KEY_AVAILABLE) D.serverBanner.classList.add('visible');
   if (!loadSession()) welcome();
