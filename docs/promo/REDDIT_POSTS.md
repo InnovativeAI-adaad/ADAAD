@@ -5,7 +5,7 @@
 ## r/programming
 
 **Title:**
-I built an autonomous AI mutation engine that can't do anything without permission — every change is constitutional-gated, hash-chained, and deterministically replayable (open source)
+I built an autonomous AI mutation engine that can't do anything without permission — every change is constitutional-gated, hash-chained, and deterministically replayable (proprietary)
 
 **Body:**
 
@@ -25,8 +25,8 @@ Every decision goes into an append-only SHA-256 hash-chained evidence ledger. Ev
 
 The engine can now propose amendments to its own development roadmap. It checks 6 prerequisite gates (epoch health score, federation divergence count, weight adaptor accuracy, pending amendment count), and if all pass, proposes a governed roadmap update. Human approval required — there's no auto-promote path, it's a constitutional invariant.
 
-**Free and open source:**
-- MIT license
+**Governed proprietary access:**
+- proprietary license
 - Free Android app (APK, Obtainium, PWA, F-Droid)
 - `python onboard.py` gets you running in ~60 seconds
 - Full architecture spec, constitution, and evidence contract in the repo
@@ -71,16 +71,16 @@ Architecture spec: https://github.com/InnovativeAI-adaad/ADAAD/blob/main/docs/go
 
 ---
 
-## r/opensource
+## relevant governance and AI safety communities
 
 **Title:**
-ADAAD: Free, open-source AI mutation engine with constitutional governance — runs on Android, MIT license, no cost
+ADAAD: Free, proprietary AI mutation engine with constitutional governance — runs on Android, proprietary license, no cost
 
 **Body:**
 
-Sharing ADAAD with r/opensource because it hits all the marks I personally care about in open-source software:
+Sharing ADAAD with relevant governance and AI safety communities because it hits all the marks I personally care about in governed software:
 
-✅ **Truly free** — MIT license, $0 to run, no paid tier, no "freemium governance features"
+✅ **Truly free** — proprietary license, $0 to run, no paid tier, no "freemium governance features"
 ✅ **Free Android app** — four install tracks (APK, Obtainium, PWA, F-Droid), no Play Store account required
 ✅ **Transparent governance** — the entire constitutional rulebook is in the repo and versioned
 ✅ **Auditable** — every decision is SHA-256 hash-chained and deterministically replayable
@@ -90,7 +90,7 @@ Sharing ADAAD with r/opensource because it hits all the marks I personally care 
 
 AI agents continuously propose improvements to your codebase. Every change is gated by a constitutional policy engine before anything is applied. Nothing ships without a complete audit trail.
 
-**Why open source matters here specifically:**
+**Why auditability matters here specifically:**
 
 An AI system that modifies code should itself be fully auditable. Closed-source "AI code improvement" tools ask you to trust a black box. With ADAAD, the governance rules, the scoring algorithms, the ledger format, the replay logic — all of it is in the repo. You can read it, fork it, extend it.
 
@@ -102,7 +102,7 @@ Docs: https://github.com/InnovativeAI-adaad/ADAAD/blob/main/docs/ADAAD_PLAIN_ENG
 ## r/devops
 
 **Title:**
-We built an AI that modifies code with full audit trail — every change cryptographically chained, deterministically replayable, and reversible (open source)
+We built an AI that modifies code with full audit trail — every change cryptographically chained, deterministically replayable, and reversible (proprietary)
 
 **Body:**
 
@@ -123,7 +123,7 @@ Fails-closed. Divergence halts. Every approval is explicit and logged.
 
 The audit trail isn't an afterthought you add with a commit message. It's generated mechanically by the governance pipeline. You can't approve a mutation without the trail being created. There's no way to skip it.
 
-**Open source, MIT license, free Android app:**
+**Open source, proprietary license, free Android app:**
 GitHub: https://github.com/InnovativeAI-adaad/ADAAD
 
 ---
@@ -164,6 +164,6 @@ Happy to answer questions about the distribution setup, the CI signing pipeline,
 ## Posting schedule recommendation:
 - r/programming → Tuesday morning (US Eastern)
 - r/MachineLearning → Wednesday (engage technical questions same day)
-- r/opensource → Any weekday
+- relevant governance and AI safety communities → Any weekday
 - r/devops → Wednesday or Thursday
 - r/androiddev → Weekend (Android community is more active)

@@ -1,3 +1,219 @@
+## [10.34.0] — Phase 223 · INNOV-128 · CPVE
+
+**Date:** 2026-06-16 · **Phase 223** · **INNOV-128 · CPVE**
+
+### INNOV-128 · CPVE — Constitutional Provenance Verification Engine
+
+- **INNOV-128 · CPVE — Constitutional Provenance Verification Engine** — World-first four-subsystem constitutional provenance engine that cryptographically traces every Arc II artifact (INVARIANT, MUTATION, ATTESTATION, AMENDMENT, CERTIFICATE) from origination through its complete governance lineage, producing tamper-evident provenance certificates verifiable offline by any external auditor. Four subsystems: (1) `ProvenanceTracer` (CPVE-TRACE) — HMAC-SHA-256-chained ledger of every artifact origination, enforcing CPVE-ORIGIN-0 (no orphan artifacts) and CPVE-SCOPE-0 (exactly 5 Arc II artifact classes); (2) `ProvenanceVerifier` (CPVE-VERIFY) — per-artifact and full-chain verification via `hmac.compare_digest` (CPVE-VERIFY-0), with fail-closed CPVE-GATE-0 gate blocking all downstream promotion for UNVERIFIED artifacts; (3) `ProvenanceCertifier` (CPVE-CERT) — HUMAN-0-gated certificate issuance backed by its own HMAC-chained cert ledger; (4) `ProvenanceAuditor` (CPVE-AUDIT) — append-only HMAC-chained audit log instrumented on every trace, verify, certify, and query operation. `CPVEEngine` facade coordinates all four subsystems. 8-endpoint FastAPI router: POST /cpve/trace, GET /cpve/verify/{id}, GET /cpve/verify-chain, POST /cpve/certify, GET /cpve/records, GET /cpve/certificates, GET /cpve/audit, GET /cpve/status. 10 new Hard-class invariants (CPVE-CHAIN-0 through CPVE-SCOPE-0). Closes provenance traceability gap across all Arc II governance surfaces (ACSA→ACPA→ACAM→CARE→CEICC→CGML→ACDR→CPVE). 30/30 acceptance tests passing.
+
+**Hard-class invariants added:** CPVE-CHAIN-0, CPVE-APPEND-0, CPVE-ORIGIN-0, CPVE-VERIFY-0, CPVE-CERT-0, CPVE-DETERM-0, CPVE-GATE-0, CPVE-AUDIT-0, CPVE-IMMUT-0, CPVE-SCOPE-0
+**Cumulative Hard-class invariants:** 851
+**Tests:** 30/30 PASS
+**Track B:** GPG tag v10.34.0 · PyPI publish (HUMAN-0 / ADAADell)
+
+## [10.33.0] — Phase 222 · INNOV-127 · ACDR
+
+**Date:** 2026-06-14  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### INNOV-127 · ACDR — Autonomous Constitutional Drift Reporter
+
+**World-first:** First autonomous AI governance system with a constitutionally-bounded drift
+detection engine that continuously compares live runtime constitutional behavior against
+documented constitutional intent across all Arc II modules — generating entropy-scored
+drift reports, severity-tiered alert streams, and HUMAN-0-addressable remediation
+certificates sealed in an HMAC-SHA-256-chained immutable drift ledger.
+
+**New module:** `dorkllm/autonomous_constitutional_drift_reporter.py`
+**New router:** `app/api/acdr.py` — 6 endpoints: POST /acdr/detect, GET /acdr/report/latest,
+GET /acdr/chain/verify, GET /acdr/quarantine, POST /acdr/ack/{event_id}, GET /acdr/status
+**Test suite:** `tests/test_phase222_acdr.py` — 30/30 PASS (DETECT·ENTR·HMAC·CHAIN·H0·RPT·API)
+**Hard-class invariants added:** 10 (ACDR-DETECT-0 through ACDR-REPLAY-0)
+**Cumulative invariants:** 841 (was 831)
+**Innovations shipped:** 127 (was 126)
+**Arc II sequence:** ACSA → ACPA → ACAM → CARE → CEICC → CGML → **ACDR**
+
+---
+
+## [10.32.0] — Phase 221 · INNOV-126 · CGML
+
+**Date:** 2026-06-13  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### INNOV-126 · CGML — Constitutional Governance Meta-Ledger
+
+**World-first:** First autonomous AI governance system with a unified, cryptographically-chained
+Meta-Ledger aggregating every Arc II governance event (ACSA, ACPA, ACAM, CARE, CEICC, CGML)
+into a single auditable lineage matrix — tracing each invariant from its originating proposal
+through ratification, coherence check, and active deployment. HUMAN-0-authorized attestation
+certificates provide a signed integrity proof of the complete Arc II governance lifecycle.
+
+**New module:** `dorkllm/constitutional_governance_meta_ledger.py`
+**New router:** `app/api/cgml.py` — 6 endpoints: POST /cgml/event, GET /cgml/lineage,
+GET /cgml/chain/verify, GET /cgml/domain/summary, POST /cgml/attest, GET /cgml/status
+**Test suite:** `tests/test_phase221_cgml.py` — 30/30 PASS (CHAIN·APPEND·ARC2·LNGE·XPHS·AUTH·API)
+**Hard-class invariants added:** 10 (CGML-CHAIN-0 through CGML-AUDIT-0)
+**Cumulative invariants:** 831 (was 821)
+**Innovations shipped:** 126 (was 125)
+**Pre-phase correction:** adaad/__init__.py synced from 10.30.0 → 10.31.0 before branch creation
+
+---
+
+## [10.31.0] — Phase 220 · INNOV-125 · CEICC
+
+**Date:** 2026-06-12  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### INNOV-125 · CEICC — Cross-Engine Invariant Coherence Checker
+
+**World-first:** First autonomous AI governance system with a dedicated constitutional coherence
+oracle that verifies, across all registered engine modules, that no two Hard-class invariants
+assert contradictory constitutional rules — detecting CLASS-A semantic conflicts, CLASS-B scope
+overlaps, CLASS-C authority collisions, and CLASS-D duplicate assertions (governance ghosts)
+across the full 821-invariant corpus.
+
+**New module:** `dorkllm/cross_engine_invariant_coherence_checker.py`
+**New router:** `app/api/ceicc.py` — 5 endpoints: POST /ceicc/check, GET /ceicc/report/latest,
+GET /ceicc/chain/verify, GET /ceicc/corpus/stats, GET /ceicc/status
+**Test suite:** `tests/test_phase220_ceicc.py` — 30/30 PASS (INV·CORP·DTCT·SCOR·CHN)
+**Hard-class invariants added:** 10 (CEICC-CORPUS-0 through CEICC-SCOPE-0)
+**Cumulative invariants:** 821 (was 811)
+**Innovations shipped:** 125 (was 124)
+**Persistent fix:** hard_invariant_count corrected to 821 in agent state
+
+---
+
+## [10.30.0] — Phase 219 · INNOV-124 · CARE
+
+**Date:** 2026-06-10  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### INNOV-124 · CARE — Constitutional Amendment Ratification Engine (Phase 219)
+
+**World-first:** First autonomous AI governance system with a constitutionally self-amending invariant registry under cryptographically verified HUMAN-0 ratification control — closing the proposal → monitoring → execution loop entirely within constitutional bounds.
+
+**Closes the constitutional amendment arc:** ACSA (propose) → ACPA (advise) → ACAM (monitor) → HUMAN-0 → **CARE (execute/seal)**
+
+#### Modules Delivered
+- `dorkllm/constitutional_amendment_ratification_engine.py` — Core engine, 10 hard-class invariants
+- `app/api/care.py` — FastAPI router, 4 endpoints
+
+#### Endpoints
+- `POST /care/promote` — Atomic registry promotion + HMAC chain + certificate emission
+- `GET  /care/status/{wire_id}` — Query promotion status by Wire ID
+- `GET  /care/certificate/{wire_id}` — Retrieve signed execution certificate (CARE-CERT-0)
+- `GET  /care/registry/diff` — Last constitutional diff for CGVE/ACAM cross-validation
+
+#### Hard-Class Invariants Added (10 · cumulative: 811)
+CARE-INTAKE-0 | CARE-ATOMIC-0 | CARE-HMAC-0 | CARE-HASH-0 | CARE-ROLLBACK-0
+CARE-TOMBSTONE-0 | CARE-CERT-0 | CARE-HUMAN0-0 | CARE-REPLAY-0 | CARE-AUDIT-0
+
+#### Test Suite: 30/30 passing — tests/test_phase219_care.py
+
+---
+
+## [10.29.0] — Phase 218 · INNOV-123 · ACAM
+
+**Date:** 2026-06-09  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### INNOV-123 · ACAM — Autonomous Constitutional Amendment Monitor (Phase 218)
+- **World-first** autonomous constitutional amendment lifecycle monitor spanning ACSA + ACPA corpus: ACAM continuously tracks amendment health across all sources, computing live coverage scores, flagging stale proposals, and surfacing section conflicts with severity-tiered alerting
+- ACAM-SCOPE-0: strict read-only monitor — zero writes to constitution or proposals; enforced at module boundary
+- ACAM-CHAIN-0 / ACAM-IMMUT-0: HMAC-SHA-256 chained append-only monitor ledger at `ledger/acam_monitor_ledger.jsonl`
+- ACAM-STALE-0: stale-proposal alerting with configurable threshold (default 72h); minimum 1h; only PROPOSED state amendments eligible
+- ACAM-CONFLICT-0: section-level conflict detection — dual-RATIFIED triggers CRITICAL alert; PROPOSED overlap triggers WARNING
+- ACAM-COVERAGE-0: amendment coverage score computed from live ACSA ledger (never hardcoded); range 0.0–1.0 per section
+- ACAM-INTEGRITY-0: full chain walk on every verify_chain() call using hmac.compare_digest([:24])
+- ACAM-HUMAN0-0: monitor config reconfiguration (stale threshold) requires explicit human0_authorized=True
+- ACAM-ATOMIC-0: os.replace() atomic ledger write; ACAMAtomicError on OSError
+- ACAM-ALERT-0: CRITICAL alerts persisted to ledger before response returned
+- 5 REST endpoints: POST /acam/scan; GET /acam/coverage, /verify-chain, /status, /health
+- 30/30 acceptance tests passing (T218-ACAM-01..30)
+- Arc II Phase 3: ACAM closes the monitoring loop — ACPA generates proposals, ACSA processes them, ACAM watches both
+- Cumulative hard-class invariants: 801 (+10)
+
+## [10.28.0] — Phase 217 · INNOV-122 · ACPA
+
+**Date:** 2026-06-08  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### INNOV-122 · ACPA — Autonomous Constitutional Proposal Advisor (Phase 217)
+- **World-first** autonomous constitutional amendment *generation* from telemetry: ACPA analyzes CGVF fusion scores, invariant violation history, and amendment records to draft SOFT-class amendment candidates with machine-built justification evidence
+- ACPA-HUMAN0-0: no proposal reaches RATIFIED without HUMAN-0 GPG signature — ACPA submits only to ACSA.PROPOSED stage, preserving the full ratification gate
+- ACPA-CHAIN-0 / ACPA-IMMUT-0: HMAC-SHA-256 chained append-only proposal ledger at data/acpa/proposal_ledger.jsonl
+- ACPA-GATE-0: confidence_score gate at 0.72 — proposals below threshold are FILTERED/ARCHIVED, never submitted
+- ACPA-SCOPE-0: HARD-class amendment generation blocked by default; requires explicit human0_hard_override=True
+- ACPA-EVIDENCE-0: every proposal must cite >= 3 supporting invariant IDs (mirrors ACSA-QUORUM-0)
+- ACPA-DIVERSITY-0: no two proposals may target the same constitution section within a single analysis window — prevents amendment clustering
+- ACPA-FLOOD-0: max 10 proposals per analyze() call — prevents amendment flooding
+- ACPA-IDEMPOTENT-0: duplicate proposals (same section + proposed_text fingerprint) return existing record without duplicate write
+- ACPA-ATOMIC-0: ledger write and state update are atomic within a single operation
+- 8 REST endpoints: POST /acpa/generate, /analyze, /submit/{id}; GET /proposal/{id}, /proposals, /verify-chain, /status, /health
+- 30/30 acceptance tests passing (T217-ACPA-01..30)
+- Arc II Phase 2: Meta-Governance & Self-Amendment — ACSA accepts proposals; ACPA *generates* them
+- Cumulative hard-class invariants: 791 (+12)
+
+## [10.27.0] — Phase 216 · INNOV-121 · ACSA
+
+**Date:** 2026-06-08  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### INNOV-121 · ACSA — Autonomous Constitutional Self-Amendment Engine (Phase 216)
+- **World-first** six-stage autonomous constitutional amendment lifecycle: PROPOSED→VALIDATED→SIMULATED→PENDING_H0→RATIFIED→REJECTED
+- ACSA-HUMAN0-0: no amendment reaches RATIFIED without HUMAN-0 GPG signature — cryptographic enforcement, not policy
+- ACSA-SIMFIRST-0: DAS dry-run simulation is a mandatory pre-ratification gate
+- ACSA-SCOPE-0: SOFT vs HARD amendment class separation; SOFT cannot touch Hard-class invariants
+- ACSA-CHAIN-0 / ACSA-IMMUT-0: HMAC-SHA-256 chained append-only amendment ledger at data/acsa/amendment_ledger.jsonl
+- ACSA-QUORUM-0: ≥3 supporting invariant IDs required for any proposal
+- ACSA-REVERT-0: every ratified amendment carries revert_hash for CAR rollback path
+- ACSA-IDEMPOTENT-0: repeated propose() with identical content returns existing record
+- 9 REST endpoints: POST /acsa/propose, /validate, /simulate, /queue-for-ratification, /ratify, /reject; GET /verify-chain, /status, /preview/{id}
+- 30/30 acceptance tests passing (T216-ACSA-01..30)
+- Arc II: Meta-Governance & Self-Amendment — opener phase
+- Cumulative hard-class invariants: 779 (+12)
+
+## [10.26.0] — Phase 215 · INNOV-120 · CGVF
+
+**Date:** 2026-06-07  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### Added
+- **INNOV-120 · CGVF — Constitutional Governance Validation Fusion Engine** (Phase 215)
+  - World-first HMAC-chained CG* family orchestration capstone engine
+  - Queries CGVA (40%), CGVR (25%), CGVE (25%), CGPR (10%) — weighted consensus_score [0.0, 1.0]
+  - FusionAttestation dataclass: prev_digest chained, HMAC-sealed, append-only JSONL ledger
+  - FusionStatus: HEALTHY (≥0.85) / DEGRADED (≥0.70) / HUMAN0_REQUIRED / CRITICAL (<0.40)
+  - CGVF-HUMAN0-0: consensus_score < 0.70 automatically sets human0_required=True
+  - CGVF-CERT-0: HUMAN-0 certification is one-way sealed; re-certification raises CGVFCertError
+  - CGVF-PEER-0: unavailable peer degrades consensus rather than blocking — fail-graceful
+  - 6 REST endpoints: POST /cgvf/fuse, /certify/{id}, GET /history, /verify-chain, /consensus-score, /status
+  - 12 Hard-class invariants: CGVF-AUDIT-0 through CGVF-CONSENSUS-0
+  - 30/30 acceptance tests passing (T215-CGVF-01..30)
+  - Arc I: CG* family completion — CGPR→CGVA→CGVR→CGVE→**CGVF** pipeline now producing unified governance certificate
+  - Cumulative hard-class invariants: 767 (+12)
+
+### Pre-Phase Corrections
+- Corrected stale adaad/__init__.py version 10.23.0 → 10.25.0 (commit before feature branch)
+
+### Hygiene / Self-Capable Abilities (phase199-drift-hygiene-abilities continuation)
+- adaad/abilities now fully self-capable beyond known (static seed) abilities:
+  - discovery.py (beyond-seed from manifests, protocol, intents)
+  - drift.py + AbilitiesDriftReport (surface-specific hygiene, parity, recommendations)
+  - base.py + registry.py: provenance tracking, pluggable governance hook (default no-op; constitutional bridge for CMES/CGDR), register_promoted_ability, discover_and_register, detect_and_reconcile_drift
+  - 3 meta self-abilities added to data/capabilities.json and seeded: adaad.abilities.introspect, .drift_hygiene, .self_register (Governance owned)
+  - orchestrator/abilities_bridge.py (lazy wiring, no heavy import at abilities load time)
+  - tests/abilities/test_adaad_abilities_self_capable.py (protocol, hook fail-closed, discovery, drift, promoted, isolation)
+  - claims_evidence_matrix 2 new Complete rows; phase199 artifacts (sign_off/ila) + report_version updated with ABILITY-*-0 + self-extension evidence
+  - All changes keep adaad/abilities importable alone; determinism + import-boundary lints pass on the surface; four-surface hygiene reconciled as part of the run.
+## [10.25.0] — Phase 214 · INNOV-119 · CGVE
+
+**Date:** 2026-06-06  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID
+
+### Added
+- **INNOV-119 · CGVE — Constitutional Governance Version Enforcer** (Phase 214)
+  - World-first HMAC-chained sub-package version enforcement engine
+  - Scans all 4 canonical version surfaces; detects drift from root VERSION file
+  - Atomic os.replace() repair of blast_radius=1 sub-package surfaces (adaad_core/)
+  - HUMAN-0 advisory protocol for blast_radius=0 root surface drift (non-delegable)
+  - 12 hard-class invariants: CGVE-AUDIT-0 through CGVE-BLAST-0
+  - 4 REST endpoints: POST /cgve/enforce, GET /cgve/status, /verify-chain, /history
+  - 30/30 acceptance tests passing
+  - **Live repair executed:** adaad_core/__init__.py (10.23.0→10.25.0), adaad_core/pyproject.toml (9.121.0→10.25.0)
+  - Cumulative hard-class invariants: 755 (+12)
+
 ## [10.24.0] — Phase 213 · INNOV-118 · CGVR
 
 **Date:** 2026-06-05  **Author:** DEVADAAD · InnovativeAI LLC  **Governor:** DUSTIN L REID

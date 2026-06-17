@@ -1,0 +1,74 @@
+{
+  "invariant_register_id": "INV-REG-222",
+  "phase": 222,
+  "version": "10.33.0",
+  "innovation": "INNOV-127",
+  "code": "ACDR",
+  "date": "2026-06-14",
+  "governor": "DUSTIN L REID",
+  "prior_cumulative": 831,
+  "added_this_phase": 10,
+  "cumulative": 841,
+  "invariants": [
+    {
+      "id": "ACDR-DETECT-0",
+      "class": "Hard",
+      "description": "Drift detection must evaluate all registered constitutional domains",
+      "enforcement": "run_detection iterates _CONSTITUTIONAL_DOMAINS; missing domain raises AssertionError"
+    },
+    {
+      "id": "ACDR-ENTROPY-0",
+      "class": "Hard",
+      "description": "Every drift event must carry a floating-point entropy score in [0.0, 1.0]",
+      "enforcement": "_score_entropy() clamps all raw scores; test T222-ENTR-01 validates bounds"
+    },
+    {
+      "id": "ACDR-HMAC-0",
+      "class": "Hard",
+      "description": "Drift ledger entries must be HMAC-SHA-256 chained; no orphan entries",
+      "enforcement": "LedgerEntry.seal() computes over (seq, entry_id, type, payload, ts, prev_hmac)"
+    },
+    {
+      "id": "ACDR-CHAIN-0",
+      "class": "Hard",
+      "description": "Chain integrity must be verifiable from genesis to HEAD at any time",
+      "enforcement": "verify_chain() traverses full ledger; any break returns valid=False"
+    },
+    {
+      "id": "ACDR-HUMAN0-0",
+      "class": "Hard",
+      "description": "CRITICAL severity drifts must be quarantined until HUMAN-0 acknowledges",
+      "enforcement": "_quarantine dict; human0_acknowledge() is sole removal path"
+    },
+    {
+      "id": "ACDR-REPORT-0",
+      "class": "Hard",
+      "description": "Every drift report must include structured remediation recommendations",
+      "enforcement": "All analyzer methods populate ev.remediation with ≥1 concrete action items"
+    },
+    {
+      "id": "ACDR-HISTORY-0",
+      "class": "Hard",
+      "description": "Drift event history is immutable; entries may not be deleted or altered",
+      "enforcement": "DriftEvent.immutable=True; ledger is append-only JSONL; no delete endpoint"
+    },
+    {
+      "id": "ACDR-ATOMIC-0",
+      "class": "Hard",
+      "description": "Drift state transitions must complete atomically via os.replace()",
+      "enforcement": "_persist_state() writes to .tmp then os.replace() to final path"
+    },
+    {
+      "id": "ACDR-AUDIT-0",
+      "class": "Hard",
+      "description": "Every detection run must produce an immutable audit record",
+      "enforcement": "_append_ledger('RUN_AUDIT', ...) called inside run_detection() unconditionally"
+    },
+    {
+      "id": "ACDR-REPLAY-0",
+      "class": "Hard",
+      "description": "Drift reports must be deterministically replayable from ledger state",
+      "enforcement": "All report data is derived from ledger; verify_chain() confirms replayability"
+    }
+  ]
+}

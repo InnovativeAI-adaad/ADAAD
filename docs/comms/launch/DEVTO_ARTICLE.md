@@ -142,7 +142,7 @@ The constitutional invariant is called `PHASE6-HUMAN-0`. It lives in `docs/gover
 
 ---
 
-ADAAD is open source and free. The Android dashboard is free (no Play Store needed). The constitution is the best starting point if you want to understand the governance model.
+ADAAD is proprietary and available only under authorized access or written license. The Android dashboard is free (no Play Store needed). The constitution is the best starting point if you want to understand the governance model.
 
 **GitHub:** https://github.com/InnovativeAI-adaad/ADAAD
 **Constitution:** https://github.com/InnovativeAI-adaad/ADAAD/blob/main/docs/CONSTITUTION.md

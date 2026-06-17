@@ -1,10 +1,32 @@
 {
+  "attestation_ref": "ILA-199-2026-06-07-001",
   "phase": 199,
-  "version": "10.10.0",
-  "ila_id": "ILA-199-2026-05-30-001",
-  "sign_off_by": "HUMAN-0/Dustin L. Reid",
+  "version": "10.9.0",
+  "innov": "INNOV-104 + CMES + adaad/abilities self-capable drift hygiene",
+  "code": "CMES-ABILITY-SELF",
   "governor": "DUSTIN L REID",
-  "date": "2026-05-30",
-  "decision": "APPROVED",
-  "notes": "Phase 199 CMES delivers deterministic isolated mutation trial execution with BehavioralDelta capture and HMAC-chained sandbox ledger. 30/30 tests passed. 10 Hard-class invariants registered."
+  "human0_authority": "HUMAN-0",
+  "sign_off_date": "2026-06-07",
+  "sign_off_statement": "DEVADAAD hygiene + self-capable extension (feat/phase199-drift-hygiene-abilities): four-surface reconciled + adaad/abilities now fully self-capable beyond static known (discovery from manifests/contracts/intents, abilities-specific drift detection+report, pluggable governance hook with lazy CMES/CGDR wiring, 3 new meta adaad.abilities.* registered with provenance). CMCE gate + CMES sandbox foundation (Track A) retained. New Hard invariants: CMCE-GATE-0, CMCE-EXEMPT-0, ABILITY-SELF-0, ABILITY-DRIFT-0, ABILITY-REG-HOOK-0, ABILITY-PROMOTE-0. Lightweight registry + protocol preserved. Full Track B/GPG ratification deferred per prior note. Evidence in claims matrix + artifacts/governance/phase199/.",
+  "track": "A+self",
+  "gpg_required": true,
+  "gpg_signed": false,
+  "gpg_note": "Track A hygiene + self-extension on abilities surface. GPG pending Phase 198 closure on ADAADell.",
+  "status": "TRACK_A_HYGIENE_SELF_CAPABLE_ABILITIES_CLOSED",
+  "cmce_gate_integration_status": "Retained from foundation; CMES sandbox used for ability registration trial deltas in self-extension.",
+  "new_invariants_registered": [
+    "CMCE-GATE-0",
+    "CMCE-EXEMPT-0",
+    "ABILITY-SELF-0",
+    "ABILITY-DRIFT-0",
+    "ABILITY-REG-HOOK-0",
+    "ABILITY-PROMOTE-0"
+  ],
+  "abilities_recorded_this_run": [
+    "cmce.consensus (Water)",
+    "adaad.abilities.introspect",
+    "adaad.abilities.drift_hygiene",
+    "adaad.abilities.self_register"
+  ],
+  "lightweight_abilities_registry": "Extended: adaad/abilities/base.py (Protocol + provenance + Ability), registry.py (pluggable hook, discovery/drift integration, promoted support), new discovery.py + drift.py. Self meta abilities + constitutional promotion path (lazy bridge to CMES sandbox delta + CGDR healthy). Matches AGENTS.md governed self-evolution model."
 }

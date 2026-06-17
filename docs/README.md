@@ -4,8 +4,7 @@
 
 <br/>
 
-[![Version](https://img.shields.io/badge/ADAAD-v10.24.0-000?style=for-the-badge&labelColor=0d1117&color=00d4ff)](../CHANGELOG.md)&nbsp;[![Phase](https://img.shields.io/badge/Phase_213-GPE_Shipped-000?style=for-the-badge&labelColor=0d1117&color=f5c842)](../ROADMAP.md)&nbsp;[![Constitution](https://img.shields.io/badge/Constitution-v0.9.0_%C2%B7_23_Rules-000?style=for-the-badge&labelColor=0d1117&color=ff4466)](CONSTITUTION.md)&nbsp;[![Tests](https://img.shields.io/badge/4%2C624_Tests-Passing-000?style=for-the-badge&labelColor=0d1117&color=00ff88)](../tests/)
-
+[![Version](https://img.shields.io/badge/ADAAD-v10.33.0-000?style=for-the-badge&labelColor=0d1117&color=00d4ff)](../CHANGELOG.md)&nbsp;[![Phase](https://img.shields.io/badge/Phase_222-GPE_Shipped-000?style=for-the-badge&labelColor=0d1117&color=f5c842)](../ROADMAP.md)&nbsp;[![Constitution](https://img.shields.io/badge/Constitution-v0.9.0_%C2%B7_23_Rules-000?style=for-the-badge&labelColor=0d1117&color=ff4466)](CONSTITUTION.md)&nbsp;[![Tests](https://img.shields.io/badge/4%2C624_Tests-Passing-000?style=for-the-badge&labelColor=0d1117&color=00ff88)](../tests/)
 <br/>
 
 [Architecture](#architecture-overview) &nbsp;·&nbsp; [CEL 14-Step](#constitutional-evolution-loop) &nbsp;·&nbsp; [API Reference](#module-api-reference) &nbsp;·&nbsp; [Config](#configuration-reference) &nbsp;·&nbsp; [Evidence](#evidence-artifacts) &nbsp;·&nbsp; [Tests](#test-coverage-matrix) &nbsp;·&nbsp; [Index](#documentation-index)
@@ -643,10 +642,10 @@ ADAAD/
 
 <br/>
 
-![version](https://img.shields.io/badge/ADAAD-v9.120.0-0d1117?style=flat-square&labelColor=0d1117&color=00d4ff)&nbsp;![phase](https://img.shields.io/badge/Phase_187-GPE_Shipped-0d1117?style=flat-square&labelColor=0d1117&color=f5c842)&nbsp;![constitution](https://img.shields.io/badge/Constitution-v0.9.0_%C2%B7_23_Rules-0d1117?style=flat-square&labelColor=0d1117&color=ff4466)&nbsp;![license](https://img.shields.io/badge/Apache_2.0-Free_Forever-0d1117?style=flat-square&labelColor=0d1117&color=00ff88)
+![version](https://img.shields.io/badge/ADAAD-v9.120.0-0d1117?style=flat-square&labelColor=0d1117&color=00d4ff)&nbsp;![phase](https://img.shields.io/badge/Phase_187-GPE_Shipped-0d1117?style=flat-square&labelColor=0d1117&color=f5c842)&nbsp;![constitution](https://img.shields.io/badge/Constitution-v0.9.0_%C2%B7_23_Rules-0d1117?style=flat-square&labelColor=0d1117&color=ff4466)&nbsp;![license](https://img.shields.io/badge/Proprietary-Patent_Pending-0d1117?style=flat-square&labelColor=0d1117&color=ff8800)
 
 <br/>
 
-<sub><code>ADAAD v9.120.0</code> &nbsp;·&nbsp; Apache 2.0 &nbsp;·&nbsp; InnovativeAI LLC &nbsp;·&nbsp; Blackwell, Oklahoma &nbsp;·&nbsp; <a href="https://github.com/InnovativeAI-adaad/ADAAD">github.com/InnovativeAI-adaad/ADAAD</a></sub>
+<sub><code>ADAAD v9.120.0</code> &nbsp;·&nbsp; Proprietary &nbsp;·&nbsp; InnovativeAI LLC &nbsp;·&nbsp; Blackwell, Oklahoma &nbsp;·&nbsp; <a href="https://github.com/InnovativeAI-adaad/ADAAD">github.com/InnovativeAI-adaad/ADAAD</a></sub>
 
 </div>

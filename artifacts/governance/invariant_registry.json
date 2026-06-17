@@ -462,6 +462,337 @@
         "CMQ-AUDIT-0",
         "CMQ-DETERM-0"
       ]
+    },
+    {
+      "phase": 198,
+      "version": "10.9.0",
+      "innovation": "INNOV-103",
+      "innovation_name": "Constitutional Mutation Consensus Engine** \u2014 World-first constitutionally-governed multi-agent consensus protocol that requires all registered agents (CMCE)",
+      "invariants_added": 10,
+      "ids": [
+        "CMCE-QUORUM-0",
+        "CMCE-VOTE-0",
+        "CMCE-HUMAN0-0",
+        "CMCE-CHAIN-0",
+        "CMCE-IMMUT-0",
+        "CMCE-CHALLENGE-0",
+        "CMCE-DETERM-0",
+        "CMCE-AUDIT-0",
+        "CMCE-SCOPE-0",
+        "CMCE-NOBYPASS-0"
+      ]
+    },
+    {
+      "phase": 199,
+      "version": "10.10.0",
+      "innovation": "INNOV-104",
+      "innovation_name": "Constitutional Mutation Execution Sandbox** \u2014 World-first constitutionally-governed deterministic sandbox that executes proposed mutations in a fully isolated trial environment, captures a signed BehavioralDelta (CMES)",
+      "invariants_added": 10,
+      "ids": [
+        "CMES-ISOLATE-0",
+        "CMES-DETERM-0",
+        "CMES-DELTA-0",
+        "CMES-CHAIN-0",
+        "CMES-IMMUT-0",
+        "CMES-HUMAN0-0",
+        "CMES-PROMOTE-0",
+        "CMES-SCOPE-0",
+        "CMES-REPLAY-0",
+        "CMES-AUDIT-0"
+      ]
+    },
+    {
+      "phase": 200,
+      "version": "10.11.0",
+      "innovation": "INNOV-105",
+      "innovation_name": "Constitutional Mutation Lineage Graph** \u2014 World-first constitutionally-governed DAG tracing the full ancestry of every promoted mutation through every gate (CMLG)",
+      "invariants_added": 10,
+      "ids": [
+        "CMLG-DAG-0",
+        "CMLG-CHAIN-0",
+        "CMLG-IMMUT-0",
+        "CMLG-ANCHOR-0",
+        "CMLG-TRACE-0",
+        "CMLG-HUMAN0-0",
+        "CMLG-GATE-0",
+        "CMLG-DETERM-0",
+        "CMLG-AUDIT-0",
+        "CMLG-ROLLBACK-0"
+      ]
+    },
+    {
+      "phase": 201,
+      "version": "10.12.0",
+      "innovation": "INNOV-106",
+      "innovation_name": "Constitutional Mutation Admission Controller** \u2014 World-first constitutional pre-admission firewall. Every mutation proposal passes a fixed-order 7-gate fail-closed pipeline before entering any downstream stage: (CMAC)",
+      "invariants_added": 10,
+      "ids": [
+        "CMAC-FAILCLOSED-0",
+        "CMAC-ORDER-0",
+        "CMAC-RATELIMIT-0",
+        "CMAC-COOLDOWN-0",
+        "CMAC-BLASTAUTH-0",
+        "CMAC-CHAIN-0",
+        "CMAC-IMMUT-0",
+        "CMAC-OVERRIDE-0",
+        "CMAC-AUDIT-0",
+        "CMAC-QUORUM-0"
+      ]
+    },
+    {
+      "phase": 202,
+      "version": "10.13.0",
+      "innovation": "INNOV-107",
+      "innovation_name": "Convergence Criteria State Wire** \u2014 World-first constitutionally-governed convergence state wiring engine. Eliminates the four CCA data-plumbing gaps (CCSW)",
+      "invariants_added": 10,
+      "ids": [
+        "CCSW-SCHEMA-0",
+        "CCSW-VERIFY-0",
+        "CCSW-WRITE-0",
+        "CCSW-CHAIN-0",
+        "CCSW-IMMUT-0",
+        "CCSW-DETERM-0",
+        "CCSW-IDEMPOTENT-0",
+        "CCSW-AUDIT-0",
+        "CCSW-SEAL-0",
+        "CCSW-HUMAN0-0"
+      ]
+    },
+    {
+      "phase": 203,
+      "version": "10.14.0",
+      "innovation": "INNOV-108",
+      "innovation_name": "Convergence Governance Drift Reporter** \u2014 World-first constitutionally-governed post-convergence drift detection engine. After V10 convergence (CGDR)",
+      "invariants_added": 10,
+      "ids": [
+        "CGDR-GATE-0",
+        "CGDR-BASELINE-0",
+        "CGDR-FAILCLOSED-0",
+        "CGDR-CHAIN-0",
+        "CGDR-IMMUT-0",
+        "CGDR-DETERM-0",
+        "CGDR-HUMAN0-0",
+        "CGDR-SEAL-0",
+        "CGDR-AUDIT-0",
+        "CGDR-SCOPE-0"
+      ]
+    },
+    {
+      "phase": 204,
+      "version": "10.15.0",
+      "innovation": "INNOV-109",
+      "innovation_name": "Autonomous Mutation Proposal Synthesizer** \u2014 World-first constitutionally-governed autonomous mutation proposal engine. Analyzes 108+ innovations of mutation history, current system health signals (AMPS)",
+      "invariants_added": 10,
+      "ids": [
+        "AMPS-CGDR-0",
+        "AMPS-CHAIN-0",
+        "AMPS-IMMUT-0",
+        "AMPS-HUMAN0-0",
+        "AMPS-SCORE-0",
+        "AMPS-DETERM-0",
+        "AMPS-AUDIT-0",
+        "AMPS-BLAST-0",
+        "AMPS-FAILCLOSED-0",
+        "AMPS-SEAL-0"
+      ]
+    },
+    {
+      "phase": 205,
+      "version": "10.16.0",
+      "innovation": "INNOV-110",
+      "innovation_name": "Constitutional Mutation Velocity Governor** \u2014 World-first constitutionally-governed mutation pipeline throughput controller. Computes VelocityDecisions from real-time CGDR health, invariant density trends, and CEL gate pass-rates. Supports four velocity modes: HALT, THROTTLE, CRUISE, ACCELERATE. CMVG-CGDR-0 enforces unconditional HALT when system is DRIFTED. All policy overrides and emergency-stops require HUMAN-0 authentication. VelocityDecisions are sealed in an HMAC-SHA-256-chained VelocityLedger with content seals and deterministic IDs. Full 9-endpoint FastAPI surface: POST /cmvg/decide, GET /cmvg/decisions, GET /cmvg/decisions/{id}, POST /cmvg/emergency-stop, POST /cmvg/clear-emergency-stop, POST /cmvg/set-policy-rate, POST /cmvg/clear-policy-rate, GET /cmvg/verify-chain, GET /cmvg/status. 30/30 acceptance tests passing. (CMVG)",
+      "invariants_added": 10,
+      "ids": [
+        "CMVG-CGDR-0",
+        "CMVG-CHAIN-0",
+        "CMVG-IMMUT-0",
+        "CMVG-HUMAN0-0",
+        "CMVG-DETERM-0",
+        "CMVG-AUDIT-0",
+        "CMVG-FLOOR-0",
+        "CMVG-CEIL-0",
+        "CMVG-FAILCLOSED-0",
+        "CMVG-SEAL-0"
+      ]
+    },
+    {
+      "phase": 206,
+      "version": "10.17.0",
+      "innovation": "INNOV-111",
+      "innovation_name": "Constitutional Mutation Scheduling Engine (CMSE)",
+      "invariants_added": 12,
+      "ids": [
+        "CMSE-CHAIN-0",
+        "CMSE-IMMUT-0",
+        "CMSE-HUMAN0-0",
+        "CMSE-OVERLAP-0",
+        "CMSE-DETERM-0",
+        "CMSE-VELOCITY-0",
+        "CMSE-BLAST-0",
+        "CMSE-AUDIT-0",
+        "CMSE-FAILCLOSED-0",
+        "CMSE-DRAIN-0",
+        "CMSE-SCOPE-0",
+        "CMSE-SLOT-0"
+      ]
+    },
+    {
+      "phase": 207,
+      "version": "10.18.0",
+      "innovation": "INNOV-112",
+      "innovation_name": "Constitutional Mutation Window Executor (CMWE)",
+      "invariants_added": 12,
+      "ids": [
+        "CMWE-CHAIN-0",
+        "CMWE-IMMUT-0",
+        "CMWE-HUMAN0-0",
+        "CMWE-PRECHECK-0",
+        "CMWE-ATOMIC-0",
+        "CMWE-ATTEST-0",
+        "CMWE-FEEDBACK-0",
+        "CMWE-TIMEOUT-0",
+        "CMWE-DETERM-0",
+        "CMWE-SCOPE-0",
+        "CMWE-BLAST-0",
+        "CMWE-AUDIT-0"
+      ]
+    },
+    {
+      "phase": 208,
+      "version": "10.19.0",
+      "innovation": "INNOV-113",
+      "innovation_name": "Constitutional Mutation Outcome Analyst (CMOA)",
+      "invariants_added": 10,
+      "ids": [
+        "CMOA-BIAS-0",
+        "CMOA-MIN-0",
+        "CMOA-CGDR-0",
+        "CMOA-AUDIT-0",
+        "CMOA-CHAIN-0",
+        "CMOA-IMMUT-0",
+        "CMOA-DETERM-0",
+        "CMOA-FAILCLOSED-0",
+        "CMOA-SEAL-0",
+        "CMOA-HUMAN0-0"
+      ]
+    },
+    {
+      "phase": 209,
+      "version": "10.20.0",
+      "innovation": "INNOV-114",
+      "innovation_name": "Constitutional Mutation Policy Engine (CMPE)",
+      "invariants_added": 12,
+      "ids": [
+        "CMPE-CHAIN-0",
+        "CMPE-IMMUT-0",
+        "CMPE-HUMAN0-0",
+        "CMPE-EVAL-0",
+        "CMPE-DENY-0",
+        "CMPE-HEALTH-0",
+        "CMPE-VELOCITY-0",
+        "CMPE-BUDGET-0",
+        "CMPE-DETERM-0",
+        "CMPE-AMEND-0",
+        "CMPE-AUDIT-0",
+        "CMPE-V10-0"
+      ]
+    },
+    {
+      "phase": 210,
+      "version": "10.21.0",
+      "innovation": "INNOV-115",
+      "innovation_name": "Constitutional Governance Proof Renderer** \u2014 World-first portable, self-verifying AI governance proof bundle. Aggregates the HMAC chain, invariant manifest, execution attestations, and HUMAN-0 signature slot into a single self-contained JSON artifact that an external auditor can verify offline using only the ADAAD public verification key \u2014 no access to internals required. ProofBundle contains: deterministic bundle_id (CGPR)",
+      "invariants_added": 10,
+      "ids": [
+        "CGPR-BUNDLE-0",
+        "CGPR-AUDIT-0",
+        "CGPR-CHAIN-0",
+        "CGPR-IMMUT-0",
+        "CGPR-MANIFEST-0",
+        "CGPR-ATTEST-0",
+        "CGPR-HMAC-0",
+        "CGPR-HUMAN0-0",
+        "CGPR-DETERM-0",
+        "CGPR-OFFLINE-0"
+      ]
+    },
+    {
+      "phase": 211,
+      "version": "10.22.0",
+      "innovation": "INNOV-116",
+      "innovation_name": "Constitutional Invariant Violation Reporter** (CIVR)",
+      "invariants_added": 10,
+      "ids": [
+        "CIVR-HUMAN0-0",
+        "CIVR-CHAIN-0",
+        "CIVR-DETERM-0",
+        "CIVR-CONTEXT-0",
+        "CIVR-FAILCLOSED-0",
+        "CIVR-RECORD-0",
+        "CIVR-IMMUT-0",
+        "CIVR-SEVERITY-0",
+        "CIVR-AUDIT-0",
+        "CIVR-SEAL-0"
+      ]
+    },
+    {
+      "phase": 212,
+      "version": "10.23.0",
+      "innovation": "INNOV-117",
+      "innovation_name": "Constitutional Governance Validation Auditor** (CGVA)",
+      "invariants_added": 10,
+      "ids": [
+        "CGVA-HUMAN0-0",
+        "CGVA-CHAIN-0",
+        "CGVA-DETERM-0",
+        "CGVA-CERT-0",
+        "CGVA-SEAL-0",
+        "CGVA-IMMUT-0",
+        "CGVA-FAILCLOSED-0",
+        "CGVA-AUDIT-0",
+        "CGVA-SCORE-0",
+        "CGVA-DRIFT-0"
+      ]
+    },
+    {
+      "phase": 213,
+      "version": "10.24.0",
+      "innovation": "INNOV-118",
+      "innovation_name": "Constitutional Governance Violation Remediator** (CGVR)",
+      "invariants_added": 10,
+      "ids": [
+        "CGVR-AUDIT-0",
+        "CGVR-CHAIN-0",
+        "CGVR-DETERM-0",
+        "CGVR-FAILCLOSED-0",
+        "CGVR-HUMAN0-0",
+        "CGVR-BLAST-0",
+        "CGVR-SEAL-0",
+        "CGVR-IMMUT-0",
+        "CGVR-PLAN-0",
+        "CGVR-STATUS-0"
+      ]
+    },
+    {
+      "phase": 214,
+      "version": "10.25.0",
+      "innovation": "INNOV-119",
+      "innovation_name": "Constitutional Governance Version Enforcer** (CGVE)",
+      "invariants_added": 12,
+      "ids": [
+        "CGVE-AUDIT-0",
+        "CGVE-CHAIN-0",
+        "CGVE-DETERM-0",
+        "CGVE-FAILCLOSED-0",
+        "CGVE-ATOMIC-0",
+        "CGVE-HUMAN0-0",
+        "CGVE-SURFACES-0",
+        "CGVE-SEAL-0",
+        "CGVE-STATUS-0",
+        "CGVE-IMMUT-0",
+        "CGVE-CANONICAL-0",
+        "CGVE-BLAST-0"
+      ]
     }
   ],
   "ci_check": "scripts/check_invariant_count.py",

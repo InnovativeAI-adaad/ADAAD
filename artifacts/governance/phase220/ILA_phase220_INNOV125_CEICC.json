@@ -1,0 +1,45 @@
+{
+  "ila_id": "ILA-220-INNOV125-CEICC",
+  "phase": 220,
+  "innov": "INNOV-125",
+  "code": "CEICC",
+  "full_name": "Cross-Engine Invariant Coherence Checker",
+  "version": "10.31.0",
+  "governor": "DUSTIN L REID",
+  "agent": "DEVADAAD",
+  "authored_at": "2026-06-12T00:00:00Z",
+  "world_first": "First autonomous AI governance system with a dedicated constitutional coherence oracle that verifies, across all registered engine modules, that no two Hard-class invariants assert contradictory constitutional rules — detecting inter-engine semantic conflicts, scope overlaps, authority collisions, and governance ghosts (duplicate assertions) across a corpus of 811+ invariants.",
+  "hard_class_invariants": [
+    "CEICC-CORPUS-0",
+    "CEICC-ATOMIC-0",
+    "CEICC-HMAC-0",
+    "CEICC-IMMUT-0",
+    "CEICC-DETERM-0",
+    "CEICC-AUDIT-0",
+    "CEICC-HUMAN0-0",
+    "CEICC-REPLAY-0",
+    "CEICC-SCORE-0",
+    "CEICC-SCOPE-0"
+  ],
+  "hard_class_invariant_count": 10,
+  "cumulative_hard_class_invariants": 821,
+  "test_suite": "tests/test_phase220_ceicc.py",
+  "test_count": 30,
+  "test_result": "30/30 PASS",
+  "contradiction_classes": [
+    "CLASS-A SEMANTIC_CONFLICT",
+    "CLASS-B SCOPE_OVERLAP",
+    "CLASS-C AUTHORITY_COLLISION",
+    "CLASS-D DUPLICATE_ASSERTION"
+  ],
+  "endpoints": [
+    "POST /ceicc/check",
+    "GET  /ceicc/report/latest",
+    "GET  /ceicc/chain/verify",
+    "GET  /ceicc/corpus/stats",
+    "GET  /ceicc/status"
+  ],
+  "ledger_path": "ledger/ceicc_coherence_ledger.jsonl",
+  "ratification_signal": "approved DUSTIN L REID",
+  "ratified": true
+}

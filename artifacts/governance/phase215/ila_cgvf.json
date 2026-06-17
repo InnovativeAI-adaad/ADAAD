@@ -1,0 +1,39 @@
+{
+  "document_type": "Innovation Ledger Attestation",
+  "innovation_code": "INNOV-120",
+  "innovation_name": "CGVF — Constitutional Governance Validation Fusion Engine",
+  "phase": 215,
+  "version": "10.26.0",
+  "governor": "DUSTIN L REID",
+  "author": "DEVADAAD · InnovativeAI LLC",
+  "date": "2026-06-07",
+  "module_path": "dorkllm/constitutional_governance_validation_fusion.py",
+  "router_path": "app/api/cgvf.py",
+  "test_path": "tests/test_phase215_cgvf.py",
+  "hard_invariants_added": 12,
+  "hard_invariants_cumulative": 767,
+  "invariant_ids": [
+    "CGVF-AUDIT-0", "CGVF-CHAIN-0", "CGVF-DETERM-0", "CGVF-FAILCLOSED-0",
+    "CGVF-ATOMIC-0", "CGVF-HUMAN0-0", "CGVF-SCORE-0", "CGVF-PEER-0",
+    "CGVF-SEAL-0", "CGVF-IMMUT-0", "CGVF-CERT-0", "CGVF-CONSENSUS-0"
+  ],
+  "test_count": 30,
+  "test_result": "30/30 PASS",
+  "endpoints": [
+    "POST /cgvf/fuse",
+    "POST /cgvf/certify/{fusion_id}",
+    "GET /cgvf/history",
+    "GET /cgvf/verify-chain",
+    "GET /cgvf/consensus-score",
+    "GET /cgvf/status"
+  ],
+  "peer_weights": {
+    "CGVA": 0.40,
+    "CGVR": 0.25,
+    "CGVE": 0.25,
+    "CGPR": 0.10
+  },
+  "world_first": "First HMAC-chained CG* family fusion engine producing a single authoritative governance consensus certificate consumable by external auditors",
+  "arc": "I — CG* Family Completion",
+  "human0_action_required": "Track B: GPG-sign and push tag v10.26.0"
+}

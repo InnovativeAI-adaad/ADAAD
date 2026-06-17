@@ -1,0 +1,11 @@
+﻿{
+  "artifact_id": "creative.resistance_index.v0.1",
+  "title": "Resistance Index (Scaffold + Workflow Example)",
+  "project": "resistance_index",
+  "version": "0.1",
+  "status": "Newly registered via creative_output.py --action register",
+  "description": "Next piece after the_unburied in the American Shame Tapestry series. Registered through the governed workflow to demonstrate expansion. Will receive full hyper-stylized advanced pipeline in subsequent iterations.",
+  "generated_by": "creative_output.py --action register",
+  "created": "2026-05-28",
+  "governed": true
+}

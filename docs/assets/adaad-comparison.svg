@@ -122,5 +122,5 @@
 <text x="655" y="329" fill="#2a4a5a" font-size="10" text-anchor="middle">$10–19 / $500+/mo</text>
 <circle cx="920" cy="324" r="10" fill="url(#cmp-check-glow)"/>
 <text x="920" y="329" fill="#00ff88" font-size="14" text-anchor="middle" filter="url(#cmp-glow-sm)">✓</text>
-<text x="950" y="329" fill="#b0e8cc" font-size="10">Apache 2.0 — free forever</text></g>
+<text x="950" y="329" fill="#b0e8cc" font-size="10">Proprietary — license required</text></g>
 </svg>

@@ -1,0 +1,31 @@
+{
+  "artifact_id": "creative.geography_of_ash.american_shame_tapestry_full",
+  "title": "American Shame Tapestry (Full Multi-Scene)",
+  "source_work": "Geography of Ash",
+  "version": "1.0",
+  "duration_seconds": 414,
+  "resolution": "1920x1080",
+  "framerate": 60,
+  "video_codec": "H.264 (libx264, crf 17, preset slower)",
+  "audio_codec": "AAC 320kbps",
+  "scenes": [
+    { "name": "Greenwood Fire", "start": 0, "end": 65, "transition_out": "xfade fade 1.8s" },
+    { "name": "Flight 655", "start": 65, "end": 130, "transition_out": "xfade fade 1.6s" },
+    { "name": "Boarding School Hallway", "start": 130, "end": 195, "transition_out": "xfade fadeblack 1.5s" },
+    { "name": "Oil Rig", "start": 195, "end": 260, "transition_out": "xfade fade 1.7s" },
+    { "name": "Ancestor Portraits", "start": 260, "end": 325, "transition_out": "xfade fade 1.6s" },
+    { "name": "Speech Bubbles + Climax + Beast Cyber-Cow", "start": 300, "end": 414, "notes": "Full intensity Beast overlay + speech bubbles" }
+  ],
+  "branding_overlays": [
+    "MEMORY AS WITNESS (Cross Gold)",
+    "THE DIRT DON’T LIE (Governance Teal) - final sting"
+  ],
+  "color_grade": "Testimony Mode (slight brightness + contrast bump, reduced saturation for ash/red dirt aesthetic)",
+  "transitions": ["xfade fade", "fadeblack", "violent multi-split RGB block scramble + frame stutter + datamosh bursts"],
+  "kinetic_text": "dual-layer (primary high-amp sin/cos + independent fast ghost/tear layers with accent colors)",
+  "glitch_engine": "geq CA seeds + high-freq difference/addition blends + split corruption passes",
+  "generated_by": "scripts/creative/geography_of_ash_pipeline.py (--mode advanced emits the full hyper version)",
+  "governed_under": "ADAAD Creative Output Layer (Epoch A spirit)",
+  "ledger_reference": "data/creative_ledger.jsonl",
+  "created": "2026-05-27"
+}

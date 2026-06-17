@@ -1,0 +1,15 @@
+{
+  "event_type": "merge_attestation.v1",
+  "pr_id": "enhance: README visuals + self-capable integrations + Phase 217 ACPA (v10.28.0)",
+  "merge_sha": "fe74677b1fc5df6d3c11af50e93d5dcd90a50031",
+  "tier_0_digest": "94a3309e64cc6d49",
+  "tier_1_tests_passed": 43,
+  "tier_1_tests_failed": 0,
+  "tier_2_replay_digest": null,
+  "tier_3_evidence_complete": true,
+  "tier_m_working_code": true,
+  "triggered_by": "DEVADAAD",
+  "operator_session": "grok-devadaad-enhance",
+  "timestamp_utc": "2026-06-08T10:06:02.894605Z",
+  "human_signoff_token": null
+}

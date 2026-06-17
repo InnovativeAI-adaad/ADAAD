@@ -1,0 +1,63 @@
+﻿<svg style="max-width:100%;height:auto" viewBox="0 0 1200 140" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="hc-cyan" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00d4ff"/><stop offset="100%" style="stop-color:#00ff88"/>
+    </linearGradient>
+    <linearGradient id="hc-green" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00ff88"/><stop offset="100%" style="stop-color:#00d4ff"/>
+    </linearGradient>
+    <linearGradient id="hc-red" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ff4466"/><stop offset="100%" style="stop-color:#ff8800"/>
+    </linearGradient>
+    <linearGradient id="hc-purple" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#a855f7"/><stop offset="100%" style="stop-color:#ff4466"/>
+    </linearGradient>
+    <linearGradient id="hc-amber" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f59e0b"/><stop offset="100%" style="stop-color:#ff8800"/>
+    </linearGradient>
+    <linearGradient id="hc-bg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#070a10"/><stop offset="100%" style="stop-color:#0b1420"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="140" fill="url(#hc-bg)" rx="10"/>
+  <rect width="1200" height="140" fill="none" stroke="#1a2332" stroke-width="1.5" rx="10"/>
+
+  <!-- Title -->
+  <text x="600" y="28" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="14" font-weight="600" fill="#6a7a95" letter-spacing="3">HARDENED • GOVERNED • SIMPLIFIED</text>
+
+  <!-- 5 key pillars -->
+  <!-- Fail-Closed -->
+  <rect x="30" y="42" width="210" height="82" rx="8" fill="#1a060e" stroke="#ff4466" stroke-width="1.5"/>
+  <text x="135" y="72" text-anchor="middle" font-family="'Courier New',monospace" font-size="22" font-weight="700" fill="url(#hc-red)">FAIL-CLOSED</text>
+  <text x="135" y="92" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" fill="#9aa8c0">NO BYPASSES • NO SILENT FAILS</text>
+  <rect x="42" y="102" width="186" height="4" rx="2" fill="#2a0a12"/>
+  <rect x="42" y="102" width="186" height="4" rx="2" fill="url(#hc-red)"><animate attributeName="width" from="0" to="186" dur="1.2s" fill="freeze"/></rect>
+
+  <!-- 791 Invariants -->
+  <rect x="260" y="42" width="210" height="82" rx="8" fill="#091808" stroke="#00ff88" stroke-width="1.5"/>
+  <text x="365" y="72" text-anchor="middle" font-family="'Courier New',monospace" font-size="22" font-weight="700" fill="url(#hc-green)">791 INVARIANTS</text>
+  <text x="365" y="92" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" fill="#9aa8c0">HARD-CLASS • ENFORCED AT RUNTIME</text>
+  <rect x="272" y="102" width="186" height="4" rx="2" fill="#0a1f12"/>
+  <rect x="272" y="102" width="186" height="4" rx="2" fill="url(#hc-green)"><animate attributeName="width" from="0" to="186" dur="1.2s" begin="0.15s" fill="freeze"/></rect>
+
+  <!-- Deterministic -->
+  <rect x="490" y="42" width="210" height="82" rx="8" fill="#0b1420" stroke="#00d4ff" stroke-width="1.5"/>
+  <text x="595" y="72" text-anchor="middle" font-family="'Courier New',monospace" font-size="22" font-weight="700" fill="url(#hc-cyan)">DETERMINISTIC</text>
+  <text x="595" y="92" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" fill="#9aa8c0">FULL REPLAY • NO ENTROPY</text>
+  <rect x="502" y="102" width="186" height="4" rx="2" fill="#0d1a2a"/>
+  <rect x="502" y="102" width="186" height="4" rx="2" fill="url(#hc-cyan)"><animate attributeName="width" from="0" to="186" dur="1.2s" begin="0.3s" fill="freeze"/></rect>
+
+  <!-- HUMAN-0 -->
+  <rect x="720" y="42" width="210" height="82" rx="8" fill="#0f0820" stroke="#a855f7" stroke-width="1.5"/>
+  <text x="825" y="72" text-anchor="middle" font-family="'Courier New',monospace" font-size="22" font-weight="700" fill="url(#hc-purple)">HUMAN-0</text>
+  <text x="825" y="92" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" fill="#9aa8c0">NON-DELEGATABLE • ARCHITECTURAL</text>
+  <rect x="732" y="102" width="186" height="4" rx="2" fill="#160f2a"/>
+  <rect x="732" y="102" width="186" height="4" rx="2" fill="url(#hc-purple)"><animate attributeName="width" from="0" to="186" dur="1.2s" begin="0.45s" fill="freeze"/></rect>
+
+  <!-- Self-Capable -->
+  <rect x="950" y="42" width="220" height="82" rx="8" fill="#120a00" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="1060" y="72" text-anchor="middle" font-family="'Courier New',monospace" font-size="22" font-weight="700" fill="url(#hc-amber)">SELF-CAPABLE</text>
+  <text x="1060" y="92" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9" fill="#9aa8c0">DISCOVERY • DRIFT • HOOK • ENHANCE</text>
+  <rect x="962" y="102" width="196" height="4" rx="2" fill="#1f1408"/>
+  <rect x="962" y="102" width="196" height="4" rx="2" fill="url(#hc-amber)"><animate attributeName="width" from="0" to="196" dur="1.2s" begin="0.6s" fill="freeze"/></rect>
+</svg>

@@ -1,0 +1,42 @@
+{
+  "tier_summary_version": "1.0",
+  "phase": 218,
+  "innovation": "INNOV-123 · ACAM — Autonomous Constitutional Amendment Monitor",
+  "version": "10.29.0",
+  "arc": "II — Self-Amendment & Meta-Governance",
+  "mutation_blast_radius": "TIER-2",
+  "blast_radius_justification": "ACAM is a read-only monitor — ACAM-SCOPE-0 enforces zero writes to constitution or proposals. Blast radius is limited to ledger appends and monitoring state.",
+  "governor": "DUSTIN L REID",
+  "date_utc": "2026-06-09",
+  "tier_definitions": {
+    "TIER-0": "Production constitutional changes — HUMAN-0 GPG required",
+    "TIER-1": "Autonomous governance module changes — GovernanceGate required",
+    "TIER-2": "Monitor/telemetry modules — automated with HUMAN-0 gate on config",
+    "TIER-3": "Non-governance utility changes — automated"
+  },
+  "gate_requirements": {
+    "human0_gpg": true,
+    "governance_gate": true,
+    "adversarial_redteam": true,
+    "fitness_engine": true
+  },
+  "scope_of_change": {
+    "new_files": [
+      "dorkllm/autonomous_constitutional_amendment_monitor.py",
+      "app/api/acam.py",
+      "tests/test_phase218_acam.py",
+      "artifacts/governance/phase218/"
+    ],
+    "modified_files": [
+      "server.py (router import + mount)",
+      "VERSION",
+      "pyproject.toml",
+      "adaad/__init__.py",
+      "adaad_core/__init__.py",
+      "CHANGELOG.md",
+      ".adaad_agent_state.json",
+      "pytest.ini"
+    ],
+    "deleted_files": []
+  }
+}

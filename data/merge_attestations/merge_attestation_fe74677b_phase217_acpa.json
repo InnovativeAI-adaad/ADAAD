@@ -1,0 +1,15 @@
+{
+  "event_type": "merge_attestation.v1",
+  "pr_id": "Phase 217 \u2014 INNOV-122 \u00b7 ACPA \u2014 Autonomous Constitutional Proposal Advisor (v10.28.0)",
+  "merge_sha": "fe74677b",
+  "tier_0_digest": "d8bdc37640994837",
+  "tier_1_tests_passed": 30,
+  "tier_1_tests_failed": 0,
+  "tier_2_replay_digest": null,
+  "tier_3_evidence_complete": true,
+  "tier_m_working_code": true,
+  "triggered_by": "DEVADAAD",
+  "operator_session": "grok-devadaad-phase217",
+  "timestamp_utc": "2026-06-08T08:58:50.096658Z",
+  "human_signoff_token": "approved DUSTIN L REID"
+}

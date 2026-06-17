@@ -17,6 +17,13 @@ from adaad.api.schemas.dork_intents import (
     DorkTrustMetadata,
 )
 from adaad.orchestrator.mutation_orchestration_service import MutationOrchestrationService
+
+# Self-capable abilities integration (Phase 199+ enhancement)
+# Makes DORK routing aware of the agent's current high-level declared abilities.
+try:
+    from adaad.abilities import list_abilities  # adaad: import-boundary-ok:dork-self-capabilities
+except Exception:
+    list_abilities = None  # graceful degradation for isolation
 from runtime.api.app_layer import (
     DorkEventStream,
     HumanApprovalGate,
@@ -93,16 +100,22 @@ class DorkIntentRouter:
         ("query_fleet_fitness", ("fitness", "fleet health", "degraded", "dfsb fitness")),
         ("verify_fleet_chain", ("fleet chain", "chain verify", "dispatch chain", "verify chain")),
         ("query_fleet_endpoints", ("endpoints", "fleet endpoints", "engine list", "registry")),
+        # Self-capable abilities (Phase 199+ enhancement)
+        ("list_self_abilities", ("abilities", "self abilities", "what can you do", "adaad abilities", "list capabilities", "high level abilities")),
     )
 
     def route(self, request: DorkIntentRouteRequest) -> DorkIntentDecision:
         normalized = " ".join(request.query.lower().split())
         for intent, keywords in self._ORDERED_RULES:
             if any(keyword in normalized for keyword in keywords):
+                rationale = f"matched_keywords:{','.join(keywords)}"
+                if intent == "list_self_abilities":
+                    abilities = self.list_current_abilities()
+                    rationale += f";self_abilities:{','.join(abilities) if abilities else 'none'}"
                 return DorkIntentDecision(
                     intent=intent,
                     normalized_query=normalized,
-                    rationale=f"matched_keywords:{','.join(keywords)}",
+                    rationale=rationale,
                     marker=self._marker_for_intent(intent),
                 )
         return DorkIntentDecision(
@@ -111,6 +124,15 @@ class DorkIntentRouter:
             rationale="fallback:governance_brief",
             marker=self._marker_for_intent("generate_governance_brief"),
         )
+
+    def list_current_abilities(self) -> list[str]:
+        """Return current high-level ADAAD abilities (self-capable surface integration)."""
+        if list_abilities is None:
+            return []
+        try:
+            return [a.name for a in list_abilities()]
+        except Exception:
+            return []
 
     @staticmethod
     def _marker_for_intent(intent: str) -> DorkExecutionMarker:

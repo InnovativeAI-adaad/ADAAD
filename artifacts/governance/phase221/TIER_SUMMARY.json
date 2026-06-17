@@ -1,0 +1,33 @@
+{
+  "schema": "TIER-SUMMARY-1.0",
+  "phase": 221,
+  "innovation_id": "INNOV-126",
+  "innovation_code": "CGML",
+  "version": "10.32.0",
+  "date": "2026-06-13",
+  "governor": "DUSTIN L REID",
+  "tier_breakdown": {
+    "TIER_0_PRODUCTION": {
+      "description": "Hard-class invariants — non-negotiable, fail-closed",
+      "count": 10,
+      "invariants": [
+        "CGML-CHAIN-0", "CGML-APPEND-0", "CGML-ARC2-0", "CGML-LINEAGE-0",
+        "CGML-HUMAN0-0", "CGML-IMMUT-0", "CGML-REPLAY-0", "CGML-ATOMIC-0",
+        "CGML-XPHASE-0", "CGML-AUDIT-0"
+      ]
+    },
+    "TIER_1_GOVERNANCE": {
+      "description": "Arc II meta-governance integration",
+      "domains": ["ACSA", "ACPA", "ACAM", "CARE", "CEICC", "CGML"],
+      "lineage_tracing": "enabled",
+      "attestation": "HUMAN-0 gated"
+    },
+    "TIER_2_OBSERVABILITY": {
+      "description": "Audit trail and chain verification",
+      "ledger": "ledger/cgml_meta_ledger.jsonl",
+      "chain_algo": "HMAC-SHA-256",
+      "audit_every_read": true
+    }
+  },
+  "cumulative_hard_invariants": 831
+}

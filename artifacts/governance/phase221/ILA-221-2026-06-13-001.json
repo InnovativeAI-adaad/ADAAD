@@ -1,0 +1,38 @@
+{
+  "schema": "ILA-1.0",
+  "attestation_type": "Innovation Ledger Attestation",
+  "phase": 221,
+  "innovation_id": "INNOV-126",
+  "innovation_code": "CGML",
+  "innovation_name": "Constitutional Governance Meta-Ledger",
+  "version": "10.32.0",
+  "date": "2026-06-13",
+  "governor": "DUSTIN L REID",
+  "agent": "DEVADAAD",
+  "organization": "InnovativeAI LLC",
+  "repository": "github.com/InnovativeAI-adaad/adaad",
+  "arc": "II — Self-Amendment & Meta-Governance",
+  "world_first": "First autonomous AI governance system with a unified, cryptographically-chained Meta-Ledger aggregating every Arc II governance event (ACSA, ACPA, ACAM, CARE, CEICC, CGML) into a single auditable lineage matrix — tracing each invariant from originating proposal through ratification, coherence check, and active deployment, with HUMAN-0-authorized attestation certificates.",
+  "module": "dorkllm/constitutional_governance_meta_ledger.py",
+  "router": "app/api/cgml.py",
+  "endpoints": [
+    "POST /cgml/event",
+    "GET /cgml/lineage",
+    "GET /cgml/chain/verify",
+    "GET /cgml/domain/summary",
+    "POST /cgml/attest",
+    "GET /cgml/status"
+  ],
+  "test_suite": "tests/test_phase221_cgml.py",
+  "test_result": "30/30 PASS",
+  "test_categories": ["CHAIN", "APPEND", "ARC2", "LNGE", "XPHS", "AUTH", "API"],
+  "hard_invariants_added": 10,
+  "hard_invariants_cumulative": 831,
+  "hard_invariant_ids": [
+    "CGML-CHAIN-0", "CGML-APPEND-0", "CGML-ARC2-0", "CGML-LINEAGE-0",
+    "CGML-HUMAN0-0", "CGML-IMMUT-0", "CGML-REPLAY-0", "CGML-ATOMIC-0",
+    "CGML-XPHASE-0", "CGML-AUDIT-0"
+  ],
+  "innovations_shipped": 126,
+  "seal": "ILA-221-2026-06-13-001-DEVADAAD-DUSTIN-L-REID"
+}

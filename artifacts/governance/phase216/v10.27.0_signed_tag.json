@@ -1,0 +1,16 @@
+{
+  "tag": "v10.27.0",
+  "sha": "06eaaa8",
+  "phase": 216,
+  "innovation": "INNOV-121",
+  "feature": "ACSA — Governor Sign-off",
+  "governor": "DUSTIN L REID",
+  "governor_role": "HUMAN-0",
+  "gpg_key_id": "DD5C7176E87C213E",
+  "message": "Phase 216 · INNOV-121 · ACSA · Governor: DUSTIN L REID · 30/30 PASS · 779 Hard-class invariants",
+  "ceremony_date": "2026-06-08",
+  "ceremony_machine": "ADAADell (WSL Ubuntu)",
+  "verification": "Signed tag created with gpg --list-secret-keys DD5C7176E87C213E and git tag -s",
+  "remediation_reference": "fix/live-audit-remediation-212 (shims, SPDX, state drift fixes)",
+  "attestation_ref": "merge_attestation_live_audit_remediation_2026-06-05.json"
+}

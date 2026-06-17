@@ -80,6 +80,15 @@ from app.api.constitutional_governance_proof_renderer import router as cgpr_rout
 from app.api.civr import router as civr_router                                       # Phase 211 INNOV-116 CIVR
 from app.api.cgva import router as cgva_router                                       # Phase 212 INNOV-117 CGVA
 from app.api.cgvr import router as cgvr_router                                       # Phase 213 INNOV-118 CGVR
+from app.api.cgve import router as cgve_router                                       # Phase 214 INNOV-119 CGVE
+from app.api.cgvf import router as cgvf_router                                       # Phase 215 INNOV-120 CGVF
+from app.api.acsa import router as acsa_router                                       # Phase 216 INNOV-121 ACSA
+from app.api.acpa import router as acpa_router                                       # Phase 217 INNOV-122 ACPA
+from app.api.acam import router as acam_router                                       # Phase 218 INNOV-123 ACAM
+from app.api.care import router as care_router                                       # Phase 219 INNOV-124 CARE
+from app.api.ceicc import router as ceicc_router                                     # Phase 220 INNOV-125 CEICC
+from app.api.cgml import router as cgml_router                                       # Phase 221 INNOV-126 CGML
+from app.api.acdr import router as acdr_router                                       # Phase 222 INNOV-127 ACDR
 from app.api.cmoa import router as cmoa_router                                       # Phase 208 INNOV-113 CMOA
 from runtime.integrations.github_app import dispatch_event, verify_webhook_signature  # ADAADchat
 from app.api.dependencies import (
@@ -931,6 +940,15 @@ app.include_router(cgpr_router)             # Phase 210 INNOV-115 CGPR
 app.include_router(civr_router)             # Phase 211 INNOV-116 CIVR
 app.include_router(cgva_router)             # Phase 212 INNOV-117 CGVA
 app.include_router(cgvr_router)             # Phase 213 INNOV-118 CGVR
+app.include_router(cgve_router)             # Phase 214 INNOV-119 CGVE
+app.include_router(cgvf_router)             # Phase 215 INNOV-120 CGVF
+app.include_router(acsa_router)             # Phase 216 INNOV-121 ACSA
+app.include_router(acpa_router)             # Phase 217 INNOV-122 ACPA
+app.include_router(acam_router)             # Phase 218 INNOV-123 ACAM
+app.include_router(care_router)             # Phase 219 INNOV-124 CARE
+app.include_router(ceicc_router)            # Phase 220 INNOV-125 CEICC
+app.include_router(cgml_router)             # Phase 221 INNOV-126 CGML
+app.include_router(acdr_router)             # Phase 222 INNOV-127 ACDR
 
 
 def telemetry_decisions_legacy(

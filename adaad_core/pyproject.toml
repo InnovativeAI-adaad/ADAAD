@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "adaad-core"
-version = "9.121.0"
+version = "10.28.0"
 description = "ADAAD Constitutional Governance Kernel — stable API surface for governed autonomous software evolution"
 license = "Apache-2.0"
 readme = { file = "README_CORE.md", content-type = "text/markdown" }

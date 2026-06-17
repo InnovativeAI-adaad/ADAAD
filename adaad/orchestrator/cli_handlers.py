@@ -103,6 +103,16 @@ def build_main_parser() -> argparse.ArgumentParser:
         help="Output format for --adaad-status.",
     )
     parser.add_argument(
+        "--list-abilities",
+        action="store_true",
+        help="List current high-level ADAAD self-capabilities (abilities registry: name, owner, version, tier, provenance, requires) and exit.",
+    )
+    parser.add_argument(
+        "--abilities-drift",
+        action="store_true",
+        help="Detect and report drift on the high-level abilities surface (seed vs registry vs discovery) and exit.",
+    )
+    parser.add_argument(
         "--runbook-verbosity",
         choices=("compact", "full_governance"),
         default="compact",
@@ -325,4 +335,38 @@ def handle_explain_gates(*, explain_gates: bool) -> bool:
         print("gate stack (T0-T3) to guarantee constitutional compliance.")
     
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    return True
+
+
+def handle_list_abilities(*, list_abilities_flag: bool) -> bool:
+    """Enhancement: expose self-capable abilities via CLI for all of ADAAD."""
+    if not list_abilities_flag:
+        return False
+    try:
+        from adaad.abilities import list_abilities as list_adaad_abilities
+        print("ADAAD High-Level Self-Capabilities:")
+        for a in list_adaad_abilities():
+            req = f" requires={a.requires}" if a.requires else ""
+            print(f"  {a.name} owner={a.owner} v={a.version} tier={a.tier} prov={a.provenance}{req}")
+    except Exception as e:
+        print(f"abilities surface unavailable: {e}")
+    return True
+
+
+def handle_abilities_drift(*, abilities_drift_flag: bool) -> bool:
+    """Enhancement: expose drift hygiene via CLI."""
+    if not abilities_drift_flag:
+        return False
+    try:
+        from adaad.abilities.drift import detect_abilities_drift
+        report = detect_abilities_drift()
+        print("ADAAD Abilities Drift Report:")
+        print(f"  parity_ok: {report.parity_ok}")
+        print(f"  drifted: {len(report.drifted)}")
+        for d in report.drifted[:5]:
+            print(f"    {d.name}: {d.kind} - {d.details}")
+        if report.recommendations:
+            print(f"  recommendations: {report.recommendations[0]}")
+    except Exception as e:
+        print(f"drift detection unavailable: {e}")
     return True

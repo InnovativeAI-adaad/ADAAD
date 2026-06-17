@@ -1,0 +1,20 @@
+{
+  "signoff_type": "HUMAN-0-REQUIRED",
+  "phase": 218,
+  "innovation": "INNOV-123 · ACAM",
+  "version": "10.29.0",
+  "governor": "DUSTIN L REID",
+  "status": "AWAITING_GPG_SIGNATURE",
+  "instructions": "Governor DUSTIN L REID (HUMAN-0) must GPG-sign this artifact from ADAADell to ratify Phase 218 promotion. Use WSL2: wsl gpg --armor --detach-sign human0-signoff-218.json",
+  "items_requiring_ratification": [
+    "INNOV-123 ACAM module delivery (dorkllm/autonomous_constitutional_amendment_monitor.py)",
+    "ACAM API router registration (app/api/acam.py mounted in server.py)",
+    "30/30 acceptance tests passing (tests/test_phase218_acam.py)",
+    "10 Hard-class invariants ACAM-CHAIN-0 through ACAM-ALERT-0",
+    "Version bump 10.28.0 → 10.29.0 across all 4 surfaces",
+    "Cumulative invariant count: 791 → 801"
+  ],
+  "note": "GPG Track B sign-off backlog: this artifact joins prior unsigned phases. Batch ceremony recommended from ADAADell WSL2.",
+  "date_generated_utc": "2026-06-09",
+  "gpg_signature": "PENDING"
+}

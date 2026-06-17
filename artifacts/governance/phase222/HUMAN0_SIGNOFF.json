@@ -1,0 +1,20 @@
+{
+  "signoff_id": "HUMAN0-SIGNOFF-222",
+  "phase": 222,
+  "innovation": "INNOV-127",
+  "code": "ACDR",
+  "version": "10.33.0",
+  "date": "2026-06-14",
+  "governor": "DUSTIN L REID",
+  "agent_track": "A — DEVADAAD (automated delivery, code, tests, artifacts)",
+  "human0_track": "B — GPG sign-off required on ADAADell by DUSTIN L REID",
+  "track_a_status": "COMPLETE",
+  "track_b_status": "PENDING — HUMAN-0 local GPG action required",
+  "deliverable_hash_targets": [
+    "dorkllm/autonomous_constitutional_drift_reporter.py",
+    "app/api/acdr.py",
+    "tests/test_phase222_acdr.py",
+    "artifacts/governance/phase222/ILA-222-2026-06-14-001.json"
+  ],
+  "instruction": "On ADAADell (WSL2): git pull origin main && gpg --armor --detach-sign artifacts/governance/phase222/ILA-222-2026-06-14-001.json && git add artifacts/governance/phase222/ILA-222-2026-06-14-001.json.asc && git commit -m 'chore(gpg): Track B sign-off Phase 222 ACDR' && git push"
+}
