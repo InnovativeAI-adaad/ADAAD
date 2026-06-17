@@ -1,3 +1,17 @@
+## [10.35.0] — Phase 224 · INNOV-129 · CASL
+
+**Date:** 2026-06-16 · **Phase 224** · **INNOV-129 · CASL**
+
+### INNOV-129 · CASL — Constitutional Arc Synthesis Layer
+
+- **INNOV-129 · CASL — Constitutional Arc Synthesis Layer** — World-first apex constitutional synthesis engine aggregating all 9 Arc II governance signals (ACSA→ACPA→ACAM→CARE→CEICC→CGML→ACDR→CPVE→CASL) into a deterministic Constitutional Health Index (CHI). Four subsystems: (1) `ArcSynthesisCollector` (CASL-SCOPE-0, CASL-VERIFY-0) — ingests and verifies governance signals from all Arc II domains via `hmac.compare_digest`, filling missing domains with synthetic DEGRADED signals; (2) `ConstitutionalHealthIndexEngine` (CASL-CHI-0, CASL-DETERM-0) — computes a deterministic weighted CHI across exactly 9 Arc II domains, applying status-based penalty multipliers (VIOLATED→0.25×, UNVERIFIED→0.10×, DEGRADED→0.70×); (3) `SynthesisLedger` (CASL-CHAIN-0, CASL-APPEND-0, CASL-IMMUT-0) — HMAC-SHA-256-chained append-only ledger sealing every synthesis record on write; (4) `CASLAuditor` (CASL-AUDIT-0) — append-only HMAC-chained audit log recording every ingest, synthesize, gate-check, and verify operation. `CASLEngine` facade coordinates all four subsystems. 8-endpoint FastAPI router: POST /casl/ingest, POST /casl/synthesize, GET /casl/verify-chain, GET /casl/records, GET /casl/audit, GET /casl/status, GET /casl/domains, GET /casl/chi/{synthesis_id}. 10 new Hard-class invariants (CASL-CHAIN-0 through CASL-ORIGIN-0). Closes Arc II synthesis gap — CASL is the apex layer synthesizing all 9 Arc II governance domains into a single verifiable constitutional health signal. Pre-phase correction: adaad/__init__.py + adaad_core/__init__.py v10.34.0 drift fixed, phase223 pytest marker added, CPVE router wired to server.py.
+
+**Hard-class invariants added:** CASL-CHAIN-0, CASL-APPEND-0, CASL-CHI-0, CASL-GATE-0, CASL-DETERM-0, CASL-AUDIT-0, CASL-VERIFY-0, CASL-SCOPE-0, CASL-IMMUT-0, CASL-ORIGIN-0
+**Cumulative Hard-class invariants:** 861
+**Tests:** 30/30 PASS
+**Track B:** GPG tag v10.35.0 · PyPI publish (HUMAN-0 / ADAADell)
+
+
 ## [10.34.0] — Phase 223 · INNOV-128 · CPVE
 
 **Date:** 2026-06-16 · **Phase 223** · **INNOV-128 · CPVE**

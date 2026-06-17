@@ -1,0 +1,13 @@
+{
+  "signoff_id": "H0-SIGNOFF-224-2026-06-16",
+  "phase": 224,
+  "innovation_id": "INNOV-129",
+  "authority": "HUMAN-0",
+  "governor": "DUSTIN L REID",
+  "action": "APPROVE",
+  "rationale": "Phase 224 CASL delivers the apex Arc II synthesis layer, computing a deterministic Constitutional Health Index across all 9 Arc II domains. 30/30 acceptance tests passing. 10 Hard-class invariants enforced. HMAC-SHA-256 chain integrity verified. Track B GPG signing and PyPI publish deferred to ADAADell.",
+  "timestamp": "2026-06-16T00:00:00Z",
+  "track_b_required": true,
+  "track_b_note": "GPG sign v10.35.0 tag and publish adaad-core to PyPI from ADAADell (Windows/WSL2)",
+  "status": "APPROVED_PENDING_TRACK_B"
+}
