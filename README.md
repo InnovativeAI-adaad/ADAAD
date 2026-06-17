@@ -34,14 +34,14 @@
 <br/><br/>
 
 <!-- ── BADGE TIER 1: Identity ── -->
-[![Version](https://img.shields.io/badge/v10.28.0-a855f7?style=for-the-badge&logo=github&logoColor=white&label=version&labelColor=0d1117)](CHANGELOG.md)
-[![Phase](https://img.shields.io/badge/217-00d4ff?style=for-the-badge&label=phase&labelColor=0d1117)](ROADMAP.md)
+[![Version](https://img.shields.io/badge/v10.35.0-a855f7?style=for-the-badge&logo=github&logoColor=white&label=version&labelColor=0d1117)](CHANGELOG.md)
+[![Phase](https://img.shields.io/badge/224-00d4ff?style=for-the-badge&label=phase&labelColor=0d1117)](ROADMAP.md)
 [![PyPI](https://img.shields.io/badge/adaad--core-ff4466?style=for-the-badge&logo=pypi&logoColor=white&label=PyPI&labelColor=0d1117)](https://pypi.org/project/adaad-core)
 [![License](https://img.shields.io/badge/Proprietary-ff8800?style=for-the-badge&label=license&labelColor=0d1117)](LICENSE)
 
 <!-- ── BADGE TIER 2: Constitution ── -->
-[![Invariants](https://img.shields.io/badge/791_Hard--class-00ff88?style=for-the-badge&label=invariants&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)
-[![Innovations](https://img.shields.io/badge/122_shipped-f97316?style=for-the-badge&label=innovations&labelColor=0d1117)](ROADMAP.md)
+[![Invariants](https://img.shields.io/badge/861_Hard--class-00ff88?style=for-the-badge&label=invariants&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)
+[![Innovations](https://img.shields.io/badge/129_shipped-f97316?style=for-the-badge&label=innovations&labelColor=0d1117)](ROADMAP.md)
 [![CEL](https://img.shields.io/badge/16--step-8b5cf6?style=for-the-badge&label=CEL&labelColor=0d1117)](runtime/evolution/)
 [![Governance](https://img.shields.io/badge/Fail--Closed-ef4444?style=for-the-badge&label=governance&labelColor=0d1117)](docs/CONSTITUTION.md)
 
@@ -52,7 +52,7 @@
 [![Platforms](https://img.shields.io/badge/Linux·macOS·Win·Android·Docker-22c55e?style=for-the-badge&label=runs+on&labelColor=0d1117)](TERMUX_SETUP.md)
 
 <!-- ── BADGE TIER 4: Arc II Self-Amendment ── -->
-[![ACPA](https://img.shields.io/badge/INNOV--122·ACPA-ffd700?style=for-the-badge&label=latest&labelColor=0d1117)](CHANGELOG.md)
+[![ACPA](https://img.shields.io/badge/INNOV--129·CASL-ffd700?style=for-the-badge&label=latest&labelColor=0d1117)](CHANGELOG.md)
 [![Self-Amendment](https://img.shields.io/badge/Arc_II_Self--Amendment-a855f7?style=for-the-badge&label=arc&labelColor=0d1117)](ROADMAP.md)
 [![World Firsts](https://img.shields.io/badge/22_World's_Firsts-ff4466?style=for-the-badge&label=documented&labelColor=0d1117)](docs/VERIFIABLE_CLAIMS.md)
 [![V10](https://img.shields.io/badge/1.0%2F1.0-00ff88?style=for-the-badge&label=V10+score&labelColor=0d1117)](ROADMAP.md)
@@ -75,7 +75,7 @@
 *Not a framework. Not an agent wrapper. A constitutional self-amendment engine.*
 *The first of its kind running in production — and the first to write its own constitutional amendments.*
 
-> 🆕 **Arc II — Self-Amendment is live.** ACPA (INNOV-122) generates constitutional proposals autonomously from telemetry. ACSA (INNOV-121) executes the six-stage amendment lifecycle. HUMAN-0 veto is always available.
+> 🆕 **Arc II — Self-Amendment is live.** Arc II COMPLETE: CASL (INNOV-129) synthesizes all 9 Arc II governance signals into a Constitutional Health Index (CHI). HUMAN-0 veto always live.
 
 </div>
 
@@ -95,7 +95,7 @@ ADAAD is a **fail-closed, deterministic, self-evolving software system** with it
 
 Every proposed change — from a minor refactor to a constitutional amendment — traverses a **16-step Constitutional Evolution Loop (CEL)**:
 
-- Scored against **791 Hard-class invariants** (cryptographically enforced, not advisory)
+- Scored against **861 Hard-class invariants** (cryptographically enforced, not advisory)
 - Adversarially red-teamed by an agent that cannot approve its own challenges (`AFRT-0`)
 - Shadow-executed in a blast-contained sandbox — partial state is a typed exception (`MEX-ATOMIC-0`)
 - Fitness-verified post-execution — regressions do not promote, ever
@@ -112,13 +112,13 @@ Critical decisions require **HUMAN-0** — one GPG key, one human, non-delegatab
 <td valign="top" width="42%" align="center">
 
 ```
-ADAAD · v10.28.0 · Phase 217
+ADAAD · v10.35.0 · Phase 224
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- 791  Hard-class invariants
+ 861  Hard-class invariants
        enforced fail-closed at runtime
 
- 122  Innovations shipped
-       INNOV-01 → INNOV-122 (ACPA)
+ 129  Innovations shipped
+       INNOV-01 → INNOV-129 (CASL)
 
   16  CEL steps
        deterministic · replayable
@@ -142,7 +142,7 @@ ADAAD · v10.28.0 · Phase 217
        documented · verifiable
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Arc II Self-Amendment LIVE
-ACSA (INNOV-121) + ACPA (INNOV-122)
+Arc II COMPLETE — CASL (INNOV-129) synthesizes all 9 Arc II domains
   pip install adaad-core
 ```
 
@@ -193,7 +193,7 @@ ACSA (INNOV-121) + ACPA (INNOV-122)
 <br/>
 
 ```
-CONSTITUTIONAL EVOLUTION LOOP — v10.28.0
+CONSTITUTIONAL EVOLUTION LOOP — v10.35.0
 ══════════════════════════════════════════════════════════════════════════
 
  01 ▸ PROPOSAL INTAKE
@@ -202,7 +202,7 @@ CONSTITUTIONAL EVOLUTION LOOP — v10.28.0
       Flood and diversity caps enforced. Duplicate rejection at gate.
 
  02 ▸ INVARIANT SCORING  [ MSE ]
-      Scored against all 791 Hard-class invariants.
+      Scored against all 861 Hard-class invariants.
       Five constitutional fitness axes evaluated:
       lineage depth · blast containment · velocity alignment
       · convergence delta · constitutional debt
@@ -253,7 +253,7 @@ CONSTITUTIONAL EVOLUTION LOOP — v10.28.0
       Identifies weight drift before it becomes constitutional debt.
       CFI-FLOOR-0 / CFI-CEIL-0 bounds enforced at scoring time.
 
- 12 ▸ AUTONOMOUS PROPOSAL GENERATION  [ ACPA — INNOV-122 ]
+ 12 ▸ AUTONOMOUS PROPOSAL GENERATION  [ CASL — INNOV-129 ]
       ACPA generates SOFT-class constitutional proposals
       from CGVF telemetry + violation pattern analysis.
       Flood caps: max 5 proposals per epoch. Diversity gate active.
@@ -314,7 +314,7 @@ CONSTITUTIONAL EVOLUTION LOOP — v10.28.0
 
 *Guardian*
 
-Scores every mutation against all 791 Hard-class invariants before any execution touches production.
+Scores every mutation against all 861 Hard-class invariants before any execution touches production.
 
 Conservative by design.
 
@@ -453,7 +453,7 @@ Ask DORK why a mutation was blocked six weeks ago. Ask which invariants are unde
 
 <br/>
 
-**22 documented world's firsts** — from the foundational Constitutional Evolution Loop (CEL) through INNOV-122 (ACPA). Every claim has a corresponding ledger entry. Every entry is hash-chained. Every chain is replayable from any point in history.
+**29 documented world's firsts** — from the foundational Constitutional Evolution Loop (CEL) through INNOV-129 (CASL). Every claim has a corresponding ledger entry. Every entry is hash-chained. Every chain is replayable from any point in history.
 
 Notable firsts:
 - **World's first** production autonomous self-evolving codebase with constitutional enforcement (Phase 1)
@@ -461,7 +461,7 @@ Notable firsts:
 - **World's first** autonomous mutation proposal synthesizer that selects what the system evolves next (INNOV-109)
 - **World's first** post-convergence drift reporter with fail-closed DRIFTED state and pipeline gate (INNOV-108)
 - **World's first** portable self-verifying AI governance proof bundle — offline auditable (INNOV-115)
-- **World's first** system to autonomously generate constitutional amendment proposals from telemetry (INNOV-122)
+- **World's first** system to synthesize all Arc II governance signals into a Constitutional Health Index (INNOV-129 · CASL)
 
 ```bash
 # Verify any claim yourself
@@ -490,10 +490,10 @@ adaad inspect-ledger data/evolution_ledger.jsonl
 
 | Metric | Value | How to verify |
 |:-------|:-----:|:--------------|
-| **Version** | `v10.28.0` · Phase `217` | `cat VERSION` |
-| **Hard-class invariants** | **791** | `make audit` |
-| **Innovations shipped** | **122** (INNOV-01→122) | `cat ROADMAP.md` |
-| **Latest** | **INNOV-122 · ACPA** | `cat CHANGELOG.md` |
+| **Version** | `v10.35.0` · Phase `224` | `cat VERSION` |
+| **Hard-class invariants** | **861** | `make audit` |
+| **Innovations shipped** | **129** (INNOV-01→129) | `cat ROADMAP.md` |
+| **Latest** | **INNOV-129 · CASL** | `cat CHANGELOG.md` |
 | **CEL steps** | **16** deterministic | `ls runtime/evolution/` |
 | **Specialist agents** | **3** | `ls dorkllm/` |
 | **HUMAN-0 key** | **1** non-delegatable | `docs/CONSTITUTION.md` |
@@ -513,7 +513,7 @@ adaad inspect-ledger data/evolution_ledger.jsonl
 
 ![Phase Progress](docs/assets/readme/adaad-phase-progress.svg)
 
-*Phase 217 · INNOV-122 ACPA + Self-Capable Abilities Surface · Arc II Self-Amendment*
+*Phase 224 · INNOV-129 CASL · Arc II COMPLETE — Constitutional Arc Synthesis Layer*
 
 </div>
 
@@ -543,7 +543,7 @@ python onboard.py
   ✔ Python 3.12.x detected
   ✔ Virtual environment created (.venv)
   ✔ Dependencies installed (pure Python — no compiled binaries required)
-  ✔ Governance schemas valid (791 Hard-class invariants loaded)
+  ✔ Governance schemas valid (861 Hard-class invariants loaded)
   ✔ Ledger chain verified (HMAC integrity confirmed — 50,000+ entries)
   ✔ Dry-run complete (fail-closed behaviour confirmed — GOV-SOLE-0 active)
 
@@ -598,7 +598,7 @@ from adaad.core import (
 </div>
 
 <details>
-<summary><b>🔵 Govern its own mutations — 791 Hard-class invariants, fail-closed</b></summary>
+<summary><b>🔵 Govern its own mutations — 861 Hard-class invariants, fail-closed</b></summary>
 <br/>
 
 ADAAD scores every proposed change across five constitutional fitness axes before a single line executes. Proposals violating invariants are rejected fail-closed: a typed `RuntimeError` subclass is raised, the operation terminates, and a ledger entry is written. There is no silent failure path, no advisory mode, and no bypass flag.
@@ -747,7 +747,7 @@ adaad/
 |:---------|:-------------------------|
 | **AI safety researchers** | A production-running cryptographically evidenced autonomous governance loop — not a prototype, not a demo |
 | **Autonomous systems engineers** | Reference architecture for constitutional self-modification with full replay capability and deterministic audit |
-| **Governance architects** | 791 Hard-class invariants mapped to real operational guarantees — all independently verifiable, all hash-chained |
+| **Governance architects** | 861 Hard-class invariants mapped to real operational guarantees — all independently verifiable, all hash-chained |
 | **Indie developers on Android** | Full governed runtime on a $200 phone — [`TERMUX_SETUP.md`](TERMUX_SETUP.md), pure Python, no compiled binaries |
 | **Constitutional AI contributors** | Open governed amendment pipeline — every contribution traverses the full 16-step CEL |
 | **Patent and IP practitioners** | Novel mechanisms with documented prior art absence, replayable cryptographic evidence, and dated ledger provenance |
@@ -792,14 +792,14 @@ Pure Python. No compiled C extensions required for core runtime. Runs everywhere
 
 ## 📦 V10 Series — Current State
 
-> `v10.28.0` · Phase 217 · Arc II Self-Amendment · ACPA + ACSA live
+> `v10.35.0` · Phase 224 · Arc II COMPLETE · CASL (INNOV-129) · Constitutional Arc Synthesis
 
 <div align="center">
 
 | Criterion | Status |
 |:----------|:------:|
 | CEL wire integrity — all 16 steps operational | ✅ |
-| Constitutional invariant coverage — 791 Hard-class enforced | ✅ |
+| Constitutional invariant coverage — 861 Hard-class enforced | ✅ |
 | Ledger chain verification — HMAC chain verified (CIL) | ✅ |
 | Replay determinism — verified end-to-end | ✅ |
 | AFRT adversarial coverage — complete | ✅ |
@@ -808,18 +808,18 @@ Pure Python. No compiled C extensions required for core runtime. Runs everywhere
 | Invariant lineage tracing (ILV) — INNOV-97 baseline + extensions | ✅ |
 | Self-capable abilities surface — discovery · drift · governance hook | ✅ |
 | ACSA (INNOV-121) — six-stage autonomous amendment lifecycle live | ✅ |
-| ACPA (INNOV-122) — autonomous constitutional proposal generation live | ✅ |
+| CASL (INNOV-129) — Arc II synthesis apex, Constitutional Health Index live | ✅ |
 | CGVF telemetry fusion → ACPA proposal pipeline — end-to-end closed | ✅ |
 
 </div>
 
 <br/>
 
-**Phase 217 (INNOV-122 · ACPA) delivers:**
+**Phase 224 (INNOV-129 · CASL) delivers:**
 - **Autonomous Constitutional Proposal Advisor (ACPA)** — world-first autonomous SOFT proposals generated from CGVF telemetry and violation patterns; confidence gate at 0.72; flood/diversity caps; 12 new `ACPA-*0` invariants; full HMAC-chained ledger; HUMAN-0 veto always available; 30/30 acceptance tests; 4 governance artifacts sealed
 - **Autonomous Constitutional Self-Amendment Engine (ACSA)** — world-first six-stage amendment lifecycle (PROPOSED→VALIDATED→SIMULATED→PENDING_H0→RATIFIED→REJECTED); mandatory DAS dry-run gate; HUMAN-0 GPG enforcement at ratification; 30/30 acceptance tests; 4 governance artifacts sealed
 - **Self-capable abilities surface** — discovery, drift hygiene, pluggable constitutional hook, meta-abilities `adaad.abilities.*`, CLI integration, orchestrator bootstrap
-- **791 Hard-class invariants total** · **122 innovations shipped** · **V10 convergence 1.0/1.0 maintained**
+- **861 Hard-class invariants total** · **122 innovations shipped** · **V10 convergence 1.0/1.0 maintained**
 
 ![divider](docs/assets/readme/inline-divider.svg)
 
@@ -891,9 +891,9 @@ This software is proprietary and confidential. © 2025–2026 InnovativeAI LLC. 
 
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 <!-- ADAAD_VERSION_INFOBOX:START                                         -->
-<!-- Phase: 217 | Version: 10.28.0 | Invariants: 791 | Innovations: 122 -->
+<!-- Phase: 224 | Version: 10.35.0 | Invariants: 861 | Innovations: 129 -->
 <!-- Tests: 694+ | Artifacts: 396+ | Ledger: 50k+ | Firsts: 22          -->
-<!-- Arc II: ACSA (INNOV-121) + ACPA (INNOV-122) live                    -->
+<!-- Arc II: Arc II COMPLETE — CASL (INNOV-129) synthesizes all 9 Arc II domains live                    -->
 <!-- Auto-synced by scripts/version_sync.py                              -->
 <!-- ADAAD_VERSION_INFOBOX:END                                           -->
 <!-- ═══════════════════════════════════════════════════════════════════ -->

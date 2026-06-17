@@ -1,11 +1,11 @@
 {
   "_comment": "Machine-readable invariant registry \u2014 single source of truth for all Hard-class invariant counts. All badges, docs, and CI gates derive from this file. Do not edit manually; update via phase sign-off process.",
-  "version": "9.114.0",
-  "phase": 181,
-  "updated": "2026-05-18",
-  "cumulative_hard_class_invariants": 450,
-  "innovations_shipped": 86,
-  "phases_complete": 181,
+  "version": "10.35.0",
+  "phase": 224,
+  "updated": "2026-06-16",
+  "cumulative_hard_class_invariants": 861,
+  "innovations_shipped": 129,
+  "phases_complete": 224,
   "authoritative_source": "artifacts/governance/phase150/ILA-150-2026-04-22-001.json",
   "phase_invariant_log": [
     {
@@ -792,6 +792,206 @@
         "CGVE-IMMUT-0",
         "CGVE-CANONICAL-0",
         "CGVE-BLAST-0"
+      ]
+    },
+    {
+      "phase": 215,
+      "version": "10.26.0",
+      "innovation": "INNOV-120",
+      "innovation_name": "Constitutional Governance Validation Framework (CGVF)",
+      "invariants_added": 10,
+      "cumulative": 791,
+      "ids": [
+        "CGVF-CHAIN-0",
+        "CGVF-APPEND-0",
+        "CGVF-DETERM-0",
+        "CGVF-GATE-0",
+        "CGVF-HUMAN0-0",
+        "CGVF-AUDIT-0",
+        "CGVF-CERT-0",
+        "CGVF-IMMUT-0",
+        "CGVF-SCOPE-0",
+        "CGVF-ORIGIN-0"
+      ]
+    },
+    {
+      "phase": 216,
+      "version": "10.27.0",
+      "innovation": "INNOV-121",
+      "innovation_name": "Autonomous Constitutional Self-Amendment Engine (ACSA)",
+      "invariants_added": 10,
+      "cumulative": 801,
+      "ids": [
+        "ACSA-CHAIN-0",
+        "ACSA-APPEND-0",
+        "ACSA-DETERM-0",
+        "ACSA-GATE-0",
+        "ACSA-HUMAN0-0",
+        "ACSA-AUDIT-0",
+        "ACSA-CERT-0",
+        "ACSA-IMMUT-0",
+        "ACSA-SCOPE-0",
+        "ACSA-ORIGIN-0"
+      ]
+    },
+    {
+      "phase": 217,
+      "version": "10.28.0",
+      "innovation": "INNOV-122",
+      "innovation_name": "Autonomous Constitutional Proposal Agent (ACPA)",
+      "invariants_added": 10,
+      "cumulative": 811,
+      "ids": [
+        "ACPA-CHAIN-0",
+        "ACPA-APPEND-0",
+        "ACPA-DETERM-0",
+        "ACPA-GATE-0",
+        "ACPA-SCOPE-0",
+        "ACPA-HUMAN0-0",
+        "ACPA-AUDIT-0",
+        "ACPA-IMMUT-0",
+        "ACPA-ORIGIN-0",
+        "ACPA-CERT-0"
+      ]
+    },
+    {
+      "phase": 218,
+      "version": "10.29.0",
+      "innovation": "INNOV-123",
+      "innovation_name": "Autonomous Constitutional Amendment Monitor (ACAM)",
+      "invariants_added": 10,
+      "cumulative": 821,
+      "ids": [
+        "ACAM-CHAIN-0",
+        "ACAM-APPEND-0",
+        "ACAM-DETERM-0",
+        "ACAM-GATE-0",
+        "ACAM-SCOPE-0",
+        "ACAM-HUMAN0-0",
+        "ACAM-AUDIT-0",
+        "ACAM-IMMUT-0",
+        "ACAM-ORIGIN-0",
+        "ACAM-CERT-0"
+      ]
+    },
+    {
+      "phase": 219,
+      "version": "10.30.0",
+      "innovation": "INNOV-124",
+      "innovation_name": "Constitutional Amendment Ratification Engine (CARE)",
+      "invariants_added": 10,
+      "cumulative": 831,
+      "ids": [
+        "CARE-CHAIN-0",
+        "CARE-APPEND-0",
+        "CARE-DETERM-0",
+        "CARE-GATE-0",
+        "CARE-SCOPE-0",
+        "CARE-HUMAN0-0",
+        "CARE-AUDIT-0",
+        "CARE-IMMUT-0",
+        "CARE-ORIGIN-0",
+        "CARE-CERT-0"
+      ]
+    },
+    {
+      "phase": 220,
+      "version": "10.31.0",
+      "innovation": "INNOV-125",
+      "innovation_name": "Cross-Engine Invariant Coherence Checker (CEICC)",
+      "invariants_added": 10,
+      "cumulative": 841,
+      "ids": [
+        "CEICC-CHAIN-0",
+        "CEICC-APPEND-0",
+        "CEICC-DETERM-0",
+        "CEICC-GATE-0",
+        "CEICC-SCOPE-0",
+        "CEICC-HUMAN0-0",
+        "CEICC-AUDIT-0",
+        "CEICC-IMMUT-0",
+        "CEICC-ORIGIN-0",
+        "CEICC-CERT-0"
+      ]
+    },
+    {
+      "phase": 221,
+      "version": "10.32.0",
+      "innovation": "INNOV-126",
+      "innovation_name": "Constitutional Governance Meta-Ledger (CGML)",
+      "invariants_added": 10,
+      "cumulative": 851,
+      "ids": [
+        "CGML-CHAIN-0",
+        "CGML-APPEND-0",
+        "CGML-LINEAGE-0",
+        "CGML-GATE-0",
+        "CGML-SCOPE-0",
+        "CGML-HUMAN0-0",
+        "CGML-ATTEST-0",
+        "CGML-IMMUT-0",
+        "CGML-ORIGIN-0",
+        "CGML-AUDIT-0"
+      ]
+    },
+    {
+      "phase": 222,
+      "version": "10.33.0",
+      "innovation": "INNOV-127",
+      "innovation_name": "Autonomous Constitutional Drift Reporter (ACDR)",
+      "invariants_added": 10,
+      "cumulative": 851,
+      "ids": [
+        "ACDR-DETECT-0",
+        "ACDR-CHAIN-0",
+        "ACDR-APPEND-0",
+        "ACDR-DETERM-0",
+        "ACDR-GATE-0",
+        "ACDR-HUMAN0-0",
+        "ACDR-AUDIT-0",
+        "ACDR-IMMUT-0",
+        "ACDR-SCOPE-0",
+        "ACDR-REPLAY-0"
+      ]
+    },
+    {
+      "phase": 223,
+      "version": "10.34.0",
+      "innovation": "INNOV-128",
+      "innovation_name": "Constitutional Provenance Verification Engine (CPVE)",
+      "invariants_added": 10,
+      "cumulative": 851,
+      "ids": [
+        "CPVE-CHAIN-0",
+        "CPVE-APPEND-0",
+        "CPVE-ORIGIN-0",
+        "CPVE-VERIFY-0",
+        "CPVE-CERT-0",
+        "CPVE-DETERM-0",
+        "CPVE-GATE-0",
+        "CPVE-AUDIT-0",
+        "CPVE-IMMUT-0",
+        "CPVE-SCOPE-0"
+      ]
+    },
+    {
+      "phase": 224,
+      "version": "10.35.0",
+      "innovation": "INNOV-129",
+      "innovation_name": "Constitutional Arc Synthesis Layer (CASL)",
+      "invariants_added": 10,
+      "cumulative": 861,
+      "ids": [
+        "CASL-CHAIN-0",
+        "CASL-APPEND-0",
+        "CASL-CHI-0",
+        "CASL-GATE-0",
+        "CASL-DETERM-0",
+        "CASL-AUDIT-0",
+        "CASL-VERIFY-0",
+        "CASL-SCOPE-0",
+        "CASL-IMMUT-0",
+        "CASL-ORIGIN-0"
       ]
     }
   ],

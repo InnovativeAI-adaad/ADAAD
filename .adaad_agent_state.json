@@ -6,7 +6,7 @@
     "last_completed_version": "10.35.0",
     "schema_version": "1.5.0",
     "last_completed_phase": "Phase 224 \u2014 INNOV-129 CASL \u2014 Constitutional Arc Synthesis Layer",
-    "hard_invariant_count": 0,
+    "hard_invariant_count": 861,
     "innovations_shipped": 129,
     "last_innov_code": "CASL",
     "last_innov_name": "Constitutional Arc Synthesis Layer",
@@ -25,7 +25,7 @@
     "next_innov": "INNOV-130",
     "gcp_project": "adaad-01",
     "domain": "adaad.pro",
-    "last_updated": "2026-06-17T01:41:45.096331+00:00",
+    "last_updated": "2026-06-17T01:50:54.084929+00:00",
     "last_invocation": "2026-06-16",
     "last_innovation_id": "INNOV-129",
     "last_innovation_code": "CASL",
@@ -34,6 +34,6 @@
     "arc": "II \u2014 Self-Amendment & Meta-Governance",
     "hard_class_invariants": 861,
     "cel_loop_status": "FULLY CLOSED",
-    "constitutional_invariants": 0,
+    "constitutional_invariants": 861,
     "phase": 224
 }
