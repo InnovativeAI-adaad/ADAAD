@@ -1,3 +1,17 @@
+## [10.36.0] — Phase 225 · INNOV-130 · CADE
+
+**Date:** 2026-06-17 · **Phase 225** · **INNOV-130 · CADE**
+
+### INNOV-130 · CADE — Constitutional Autonomous Decision Engine
+
+- **INNOV-130 · CADE — Constitutional Autonomous Decision Engine** — World-first Arc III autonomous constitutional decision engine consuming CASL Constitutional Health Index (CHI) scores and producing cryptographically attested PROMOTE / HOLD / REJECT verdicts. Four subsystems: (1) `DecisionMatrix` (CADE-GATE-0, CADE-DETERM-0) — deterministic CHI-to-verdict mapping; CHI ≥ 0.80 → PROMOTE, 0.50 ≤ CHI < 0.80 → HOLD, CHI < 0.50 → REJECT; (2) `DecisionLedger` (CADE-CHAIN-0, CADE-APPEND-0, CADE-IMMUT-0) — HMAC-SHA-256-chained append-only ledger sealing every decision record on write with full chain verification; (3) `AttestationEngine` (CADE-ATTEST-0) — HMAC-SHA-256 attestation issued for every PROMOTE decision covering record_id, synthesis_id, chi_score, and verdict; (4) `DecisionAuditor` (CADE-AUDIT-0) — append-only HMAC-chained audit log recording every evaluate, veto, verify, and attest operation. `CADEEngine` facade coordinates all four subsystems. HUMAN-0 veto gate (CADE-HUMAN0-0) structurally enforced and non-delegable — only PROMOTE decisions may be vetoed, double-veto raises HUMAN0VetoError, empty veto_by raises HUMAN0VetoError. CADE-ORIGIN-0 enforces that every decision references a non-empty CASL CHI synthesis_id. 9-endpoint FastAPI router: POST /cade/evaluate, GET /cade/decision/{id}, GET /cade/decisions, POST /cade/veto/{id}, GET /cade/verify-chain, GET /cade/attestation/{id}, GET /cade/audit, GET /cade/matrix, GET /cade/status. Marks the opening of **Arc III — Autonomous Constitutional Intelligence (ACI)** — the first phase in which ADAAD makes constitutionally governed autonomous promotion decisions from a unified health signal.
+
+**Hard-class invariants added:** CADE-CHAIN-0, CADE-APPEND-0, CADE-GATE-0, CADE-DETERM-0, CADE-AUDIT-0, CADE-ATTEST-0, CADE-HUMAN0-0, CADE-SCOPE-0, CADE-IMMUT-0, CADE-ORIGIN-0
+**Cumulative Hard-class invariants:** 871
+**Tests:** 30/30 PASS
+**Track B:** GPG tag v10.36.0 · PyPI publish (HUMAN-0 / ADAADell)
+
+
 ## [10.35.0] — Phase 224 · INNOV-129 · CASL
 
 **Date:** 2026-06-16 · **Phase 224** · **INNOV-129 · CASL**

@@ -1,0 +1,70 @@
+{
+  "phase": 225,
+  "innov_id": "INNOV-130",
+  "innov_code": "CADE",
+  "version": "10.36.0",
+  "date": "2026-06-17",
+  "governor": "DUSTIN L REID",
+  "invariants": [
+    {
+      "id": "CADE-CHAIN-0",
+      "tier": "Hard",
+      "description": "All decision ledger entries HMAC-SHA-256 chained. Every LedgerEntry.entry_hash is computed as HMAC-SHA-256 over the full entry payload including prev_hash.",
+      "enforcement": "DecisionLedger.seal() + verify_chain()"
+    },
+    {
+      "id": "CADE-APPEND-0",
+      "tier": "Hard",
+      "description": "Decision ledger append-only — no mutation or deletion of sealed entries. Duplicate record_id raises AppendViolation.",
+      "enforcement": "DecisionLedger.seal() — duplicate check"
+    },
+    {
+      "id": "CADE-GATE-0",
+      "tier": "Hard",
+      "description": "Fail-closed gate — PROMOTE verdict only when chi_score ≥ PROMOTE_THRESHOLD (0.80). chi_score outside [0.0, 1.0] raises GateBlockError.",
+      "enforcement": "DecisionMatrix.evaluate()"
+    },
+    {
+      "id": "CADE-DETERM-0",
+      "tier": "Hard",
+      "description": "Decision deterministic — identical CHI inputs always yield identical verdict. DecisionMatrix.evaluate() is pure function.",
+      "enforcement": "DecisionMatrix.evaluate() — threshold comparison"
+    },
+    {
+      "id": "CADE-AUDIT-0",
+      "tier": "Hard",
+      "description": "Every CADE operation (evaluate, veto, verify_chain, verify_attestation, ENGINE_INIT) recorded in append-only HMAC-chained audit ledger.",
+      "enforcement": "DecisionAuditor.record() called in all CADEEngine methods"
+    },
+    {
+      "id": "CADE-ATTEST-0",
+      "tier": "Hard",
+      "description": "Every PROMOTE decision carries a HMAC-SHA-256 attestation covering record_id, synthesis_id, chi_score, and verdict. Non-PROMOTE decisions have empty attestation.",
+      "enforcement": "AttestationEngine.attest() called in CADEEngine.evaluate() for PROMOTE; verify_attestation() uses hmac.compare_digest"
+    },
+    {
+      "id": "CADE-HUMAN0-0",
+      "tier": "Hard",
+      "description": "HUMAN-0 veto gate is structurally enforced and non-delegable. Veto requires non-empty veto_by. Only PROMOTE decisions can be vetoed. Double veto raises HUMAN0VetoError.",
+      "enforcement": "CADEEngine.veto() + DecisionLedger.apply_veto()"
+    },
+    {
+      "id": "CADE-SCOPE-0",
+      "tier": "Hard",
+      "description": "Exactly 3 decision classes recognized: PROMOTE, HOLD, REJECT. Module-load guard enforces count == 3.",
+      "enforcement": "_DECISION_CLASS_COUNT guard at module load; DecisionVerdict enum"
+    },
+    {
+      "id": "CADE-IMMUT-0",
+      "tier": "Hard",
+      "description": "Decision records immutable after seal. record_id, synthesis_id, chi_score, verdict, attestation_hmac, and sealed_ts are never modified post-seal.",
+      "enforcement": "DecisionLedger.seal() — write-once; only state field transitions allowed via apply_veto()"
+    },
+    {
+      "id": "CADE-ORIGIN-0",
+      "tier": "Hard",
+      "description": "Every decision must reference a valid CASL CHI synthesis_id. Empty or whitespace-only synthesis_id raises OriginViolation.",
+      "enforcement": "CADEEngine.evaluate() — synthesis_id guard"
+    }
+  ]
+}
