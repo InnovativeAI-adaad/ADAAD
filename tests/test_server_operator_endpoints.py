@@ -330,6 +330,43 @@ def test_get_lint_preview_returns_bridge_output(monkeypatch) -> None:
     assert observed["payload"]["agent_id"] == "agent.test"
 
 
+def test_post_lint_preview_accepts_json_body(monkeypatch) -> None:
+    observed: dict[str, object] = {}
+
+    class _Bridge:
+        def analyze(self, payload):
+            observed["payload"] = payload
+            return {
+                "preview_authoritative": False,
+                "annotations": [{"field": "target_path", "message": "path reviewed"}],
+                "gate": "queue_append_constitutional_evaluation",
+                "throttle": False,
+            }
+
+    monkeypatch.setattr(server, "MutationLintingBridge", _Bridge)
+
+    with TestClient(server.app) as client:
+        response = client.post(
+            "/api/lint/preview",
+            json={
+                "agent_id": "agent.test",
+                "target_path": "app/example.py",
+                "python_content": "print('ok')",
+                "metadata": {"change_reason": "test"},
+            },
+        )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["preview_authoritative"] is False
+    assert observed["payload"] == {
+        "agent_id": "agent.test",
+        "target_path": "app/example.py",
+        "python_content": "print('ok')",
+        "metadata": {"change_reason": "test"},
+    }
+
+
 def test_post_proposal_emits_aponi_editor_submission_event(monkeypatch) -> None:
     class _Request:
         authority_level = "governor-review"

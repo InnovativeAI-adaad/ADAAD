@@ -25,7 +25,7 @@ from contextlib import asynccontextmanager
 
 import anyio
 from fastapi import BackgroundTasks, Body, Depends, FastAPI, Header, HTTPException, Query, Request, WebSocket
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from adaad.api.schemas.governance import (
     FastPathCheckpointVerifyResponse,
@@ -3698,16 +3698,36 @@ async def grok_chat(request: Request):
             }
 
 
-# ── GET /api/lint/preview ─────────────────────────────────────────────────────
+# ── /api/lint/preview ─────────────────────────────────────────────────────────
+
+
+class LintPreviewRequest(BaseModel):
+    agent_id: str
+    target_path: str
+    python_content: str = ""
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+def _lint_preview_response(lint_payload: Mapping[str, Any]) -> dict:
+    """Return deterministic lint annotations for a proposed code change."""
+    return MutationLintingBridge().analyze(dict(lint_payload))
+
+
+@app.post("/api/lint/preview")
+def lint_preview_post(payload: LintPreviewRequest = Body(...)) -> dict:
+    """Return advisory lint annotations from a JSON preview request body."""
+    payload_dict = payload.model_dump() if hasattr(payload, "model_dump") else payload.dict()
+    return _lint_preview_response(payload_dict)
+
 
 @app.get("/api/lint/preview")
-def lint_preview(
+def lint_preview_get(
     agent_id: str = Query(...),
     target_path: str = Query(...),
     python_content: str = Query(default=""),
     metadata: str = Query(default="{}"),
 ) -> dict:
-    """Return deterministic lint annotations for a proposed code change."""
+    """Return advisory lint annotations for legacy query-string callers."""
     try:
         meta = json.loads(metadata)
     except (json.JSONDecodeError, ValueError):
@@ -3718,7 +3738,7 @@ def lint_preview(
         "python_content": python_content,
         "metadata": meta,
     }
-    return MutationLintingBridge().analyze(lint_payload)
+    return _lint_preview_response(lint_payload)
 
 
 # ── GET /api/status (mock disabled sentinel) ──────────────────────────────────
