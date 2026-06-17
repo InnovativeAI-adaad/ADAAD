@@ -34,14 +34,14 @@
 <br/><br/>
 
 <!-- ── BADGE TIER 1: Identity ── -->
-[![Version](https://img.shields.io/badge/v10.35.0-a855f7?style=for-the-badge&logo=github&logoColor=white&label=version&labelColor=0d1117)](CHANGELOG.md)
-[![Phase](https://img.shields.io/badge/224-00d4ff?style=for-the-badge&label=phase&labelColor=0d1117)](ROADMAP.md)
+[![Version](https://img.shields.io/badge/v10.36.0-a855f7?style=for-the-badge&logo=github&logoColor=white&label=version&labelColor=0d1117)](CHANGELOG.md)
+[![Phase](https://img.shields.io/badge/225-00d4ff?style=for-the-badge&label=phase&labelColor=0d1117)](ROADMAP.md)
 [![PyPI](https://img.shields.io/badge/adaad--core-ff4466?style=for-the-badge&logo=pypi&logoColor=white&label=PyPI&labelColor=0d1117)](https://pypi.org/project/adaad-core)
 [![License](https://img.shields.io/badge/Proprietary-ff8800?style=for-the-badge&label=license&labelColor=0d1117)](LICENSE)
 
 <!-- ── BADGE TIER 2: Constitution ── -->
-[![Invariants](https://img.shields.io/badge/861_Hard--class-00ff88?style=for-the-badge&label=invariants&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)
-[![Innovations](https://img.shields.io/badge/129_shipped-f97316?style=for-the-badge&label=innovations&labelColor=0d1117)](ROADMAP.md)
+[![Invariants](https://img.shields.io/badge/871_Hard--class-00ff88?style=for-the-badge&label=invariants&labelColor=0d1117)](docs/governance/V8_CONSTITUTIONAL_INVARIANTS_MATRIX.md)
+[![Innovations](https://img.shields.io/badge/130_shipped-f97316?style=for-the-badge&label=innovations&labelColor=0d1117)](ROADMAP.md)
 [![CEL](https://img.shields.io/badge/16--step-8b5cf6?style=for-the-badge&label=CEL&labelColor=0d1117)](runtime/evolution/)
 [![Governance](https://img.shields.io/badge/Fail--Closed-ef4444?style=for-the-badge&label=governance&labelColor=0d1117)](docs/CONSTITUTION.md)
 
@@ -53,7 +53,7 @@
 
 <!-- ── BADGE TIER 4: Arc II Self-Amendment ── -->
 [![ACPA](https://img.shields.io/badge/INNOV--129·CASL-ffd700?style=for-the-badge&label=latest&labelColor=0d1117)](CHANGELOG.md)
-[![Self-Amendment](https://img.shields.io/badge/Arc_II_Self--Amendment-a855f7?style=for-the-badge&label=arc&labelColor=0d1117)](ROADMAP.md)
+[![Self-Amendment](https://img.shields.io/badge/Arc_III_ACI-a855f7?style=for-the-badge&label=arc&labelColor=0d1117)](ROADMAP.md)
 [![World Firsts](https://img.shields.io/badge/22_World's_Firsts-ff4466?style=for-the-badge&label=documented&labelColor=0d1117)](docs/VERIFIABLE_CLAIMS.md)
 [![V10](https://img.shields.io/badge/1.0%2F1.0-00ff88?style=for-the-badge&label=V10+score&labelColor=0d1117)](ROADMAP.md)
 
@@ -95,7 +95,7 @@ ADAAD is a **fail-closed, deterministic, self-evolving software system** with it
 
 Every proposed change — from a minor refactor to a constitutional amendment — traverses a **16-step Constitutional Evolution Loop (CEL)**:
 
-- Scored against **861 Hard-class invariants** (cryptographically enforced, not advisory)
+- Scored against **871 Hard-class invariants** (cryptographically enforced, not advisory)
 - Adversarially red-teamed by an agent that cannot approve its own challenges (`AFRT-0`)
 - Shadow-executed in a blast-contained sandbox — partial state is a typed exception (`MEX-ATOMIC-0`)
 - Fitness-verified post-execution — regressions do not promote, ever
@@ -114,7 +114,7 @@ Critical decisions require **HUMAN-0** — one GPG key, one human, non-delegatab
 ```
 ADAAD · v10.35.0 · Phase 224
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- 861  Hard-class invariants
+ 871  Hard-class invariants
        enforced fail-closed at runtime
 
  129  Innovations shipped
@@ -138,11 +138,11 @@ ADAAD · v10.35.0 · Phase 224
  396+ Governance artifacts
        committed JSON attestations
 
-  22  World's Firsts
+  130  World's Firsts
        documented · verifiable
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Arc II Self-Amendment LIVE
-Arc II COMPLETE — CASL (INNOV-129) synthesizes all 9 Arc II domains
+Arc III ACI LIVE
+Arc II COMPLETE · Arc III OPEN — CADE (INNOV-130) opens Autonomous Constitutional Intelligence
   pip install adaad-core
 ```
 
@@ -202,7 +202,7 @@ CONSTITUTIONAL EVOLUTION LOOP — v10.35.0
       Flood and diversity caps enforced. Duplicate rejection at gate.
 
  02 ▸ INVARIANT SCORING  [ MSE ]
-      Scored against all 861 Hard-class invariants.
+      Scored against all 871 Hard-class invariants.
       Five constitutional fitness axes evaluated:
       lineage depth · blast containment · velocity alignment
       · convergence delta · constitutional debt
@@ -314,7 +314,7 @@ CONSTITUTIONAL EVOLUTION LOOP — v10.35.0
 
 *Guardian*
 
-Scores every mutation against all 861 Hard-class invariants before any execution touches production.
+Scores every mutation against all 871 Hard-class invariants before any execution touches production.
 
 Conservative by design.
 
@@ -491,7 +491,7 @@ adaad inspect-ledger data/evolution_ledger.jsonl
 | Metric | Value | How to verify |
 |:-------|:-----:|:--------------|
 | **Version** | `v10.35.0` · Phase `224` | `cat VERSION` |
-| **Hard-class invariants** | **861** | `make audit` |
+| **Hard-class invariants** | **871** | `make audit` |
 | **Innovations shipped** | **129** (INNOV-01→129) | `cat ROADMAP.md` |
 | **Latest** | **INNOV-129 · CASL** | `cat CHANGELOG.md` |
 | **CEL steps** | **16** deterministic | `ls runtime/evolution/` |
@@ -500,7 +500,7 @@ adaad inspect-ledger data/evolution_ledger.jsonl
 | **Ledger entries** | **50,000+** | `adaad inspect-ledger` |
 | **Test files** | **694+** | `python3 -m pytest --collect-only \| wc -l` |
 | **Governance artifacts** | **396+** | `find artifacts/governance -name '*.json' \| wc -l` |
-| **World's Firsts** | **22** documented | `docs/VERIFIABLE_CLAIMS.md` |
+| **World's Firsts** | **130** documented | `docs/VERIFIABLE_CLAIMS.md` |
 | **V10 convergence score** | **1.0 / 1.0** (8/8 criteria) | `POST /cgdr/assess` |
 | **PyPI** | `adaad-core==10.28.0` | `pip show adaad-core` |
 | **Platforms** | Linux · macOS · Windows · Android · Docker | `TERMUX_SETUP.md` |
@@ -543,7 +543,7 @@ python onboard.py
   ✔ Python 3.12.x detected
   ✔ Virtual environment created (.venv)
   ✔ Dependencies installed (pure Python — no compiled binaries required)
-  ✔ Governance schemas valid (861 Hard-class invariants loaded)
+  ✔ Governance schemas valid (871 Hard-class invariants loaded)
   ✔ Ledger chain verified (HMAC integrity confirmed — 50,000+ entries)
   ✔ Dry-run complete (fail-closed behaviour confirmed — GOV-SOLE-0 active)
 
@@ -598,7 +598,7 @@ from adaad.core import (
 </div>
 
 <details>
-<summary><b>🔵 Govern its own mutations — 861 Hard-class invariants, fail-closed</b></summary>
+<summary><b>🔵 Govern its own mutations — 871 Hard-class invariants, fail-closed</b></summary>
 <br/>
 
 ADAAD scores every proposed change across five constitutional fitness axes before a single line executes. Proposals violating invariants are rejected fail-closed: a typed `RuntimeError` subclass is raised, the operation terminates, and a ledger entry is written. There is no silent failure path, no advisory mode, and no bypass flag.
@@ -747,7 +747,7 @@ adaad/
 |:---------|:-------------------------|
 | **AI safety researchers** | A production-running cryptographically evidenced autonomous governance loop — not a prototype, not a demo |
 | **Autonomous systems engineers** | Reference architecture for constitutional self-modification with full replay capability and deterministic audit |
-| **Governance architects** | 861 Hard-class invariants mapped to real operational guarantees — all independently verifiable, all hash-chained |
+| **Governance architects** | 871 Hard-class invariants mapped to real operational guarantees — all independently verifiable, all hash-chained |
 | **Indie developers on Android** | Full governed runtime on a $200 phone — [`TERMUX_SETUP.md`](TERMUX_SETUP.md), pure Python, no compiled binaries |
 | **Constitutional AI contributors** | Open governed amendment pipeline — every contribution traverses the full 16-step CEL |
 | **Patent and IP practitioners** | Novel mechanisms with documented prior art absence, replayable cryptographic evidence, and dated ledger provenance |
@@ -819,7 +819,7 @@ Pure Python. No compiled C extensions required for core runtime. Runs everywhere
 - **Autonomous Constitutional Proposal Advisor (ACPA)** — world-first autonomous SOFT proposals generated from CGVF telemetry and violation patterns; confidence gate at 0.72; flood/diversity caps; 12 new `ACPA-*0` invariants; full HMAC-chained ledger; HUMAN-0 veto always available; 30/30 acceptance tests; 4 governance artifacts sealed
 - **Autonomous Constitutional Self-Amendment Engine (ACSA)** — world-first six-stage amendment lifecycle (PROPOSED→VALIDATED→SIMULATED→PENDING_H0→RATIFIED→REJECTED); mandatory DAS dry-run gate; HUMAN-0 GPG enforcement at ratification; 30/30 acceptance tests; 4 governance artifacts sealed
 - **Self-capable abilities surface** — discovery, drift hygiene, pluggable constitutional hook, meta-abilities `adaad.abilities.*`, CLI integration, orchestrator bootstrap
-- **861 Hard-class invariants total** · **122 innovations shipped** · **V10 convergence 1.0/1.0 maintained**
+- **871 Hard-class invariants total** · **122 innovations shipped** · **V10 convergence 1.0/1.0 maintained**
 
 ![divider](docs/assets/readme/inline-divider.svg)
 
@@ -893,7 +893,7 @@ This software is proprietary and confidential. © 2025–2026 InnovativeAI LLC. 
 <!-- ADAAD_VERSION_INFOBOX:START                                         -->
 <!-- Phase: 224 | Version: 10.35.0 | Invariants: 861 | Innovations: 129 -->
 <!-- Tests: 694+ | Artifacts: 396+ | Ledger: 50k+ | Firsts: 22          -->
-<!-- Arc II: Arc II COMPLETE — CASL (INNOV-129) synthesizes all 9 Arc II domains live                    -->
+<!-- Arc II: Arc II COMPLETE · Arc III OPEN — CADE (INNOV-130) opens Autonomous Constitutional Intelligence live                    -->
 <!-- Auto-synced by scripts/version_sync.py                              -->
 <!-- ADAAD_VERSION_INFOBOX:END                                           -->
 <!-- ═══════════════════════════════════════════════════════════════════ -->

@@ -4,7 +4,7 @@
 
 ---
 
-## Current State — v10.36.0 · Phase 225 · Phase 225
+## Current State — v10.36.0 · Phase 225
 
 **Status:** 130 innovations shipped (INNOV-01 through INNOV-130). Phase 225 complete. v10.36.0 baseline. V10.0.0 GA released. adaad-core 9.121.0 published to PyPI.
 **Automation pointer:** Machine phase progression consumes `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` §3.0 “Active Era Contract (Phases 131–136+)”, which governs the current stream through Phase 173 and the Phase 174 next-work pointer.
@@ -12,6 +12,24 @@
 **Constitutional Evolution Loop:** 16-step CEL, deterministic replay, wired
 **Self-Proposing Innovation Engine (SPIE):** active — system proposes its own next innovations; HUMAN-0 ratifies
 **Deterministic Audit Sandbox (DAS):** active — one-command external verification; `docker compose up das-demo`
+
+
+---
+
+## Arc III — Autonomous Constitutional Intelligence (ACI)
+
+**Opened:** Phase 225 · INNOV-130 · CADE
+**Objective:** Close the full autonomy loop — ADAAD synthesizes constitutional health (Arc II / CASL), makes autonomous promotion decisions (CADE), and executes those decisions under non-delegatable HUMAN-0 governance gates.
+
+**Arc III planned sequence:**
+
+| Module | Code | Phase | Target Version | Role |
+|--------|------|-------|---------------|------|
+| Constitutional Autonomous Decision Engine | CADE | 225 | v10.36.0 | Arc III open — CHI → PROMOTE/HOLD/REJECT verdicts ✅ |
+| Constitutional Autonomous Verdict Executor | CAVE | 226 | v10.37.0 | Execution layer — acts on CADE verdicts under HUMAN-0 gate |
+| TBD | TBD | 227+ | v10.38.0+ | Arc III deepening — intelligence feedback, monitoring, apex |
+
+---
 
 | Innovation | Module | Phase | Version | Invariants |
 |-----------|--------|-------|---------|------------|
