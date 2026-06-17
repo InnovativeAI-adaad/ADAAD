@@ -1,8 +1,8 @@
 {
   "corpus_version": "1.0",
-  "generated_at_utc": "2026-06-17T01:37:38.611461+00:00",
-  "source_phase": 223,
-  "source_version": "10.34.0",
+  "generated_at_utc": "2026-06-17T05:40:06.351165+00:00",
+  "source_phase": 224,
+  "source_version": "10.35.0",
   "entry_count": 192,
   "type_counts": {
     "architecture": 6,
@@ -12,5 +12,5 @@
     "invariant": 82,
     "system": 1
   },
-  "chain_digest": "hmac-sha256:b466e6b849b2b65c9a6e2720d6fae3e995c3fb05dc54c1a34000c8f5414e9fdf"
+  "chain_digest": "hmac-sha256:0b21541803dc24b5453301a9fb12da2303ddc14d40217adc1db5aa85c41ff168"
 }
