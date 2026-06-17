@@ -90,6 +90,7 @@ from app.api.ceicc import router as ceicc_router                                
 from app.api.cgml import router as cgml_router                                       # Phase 221 INNOV-126 CGML
 from app.api.acdr import router as acdr_router                                       # Phase 222 INNOV-127 ACDR
 from app.api.cpve import router as cpve_router                                       # Phase 223 INNOV-128 CPVE
+from app.api.casl import router as casl_router                                       # Phase 224 INNOV-129 CASL
 from app.api.cmoa import router as cmoa_router                                       # Phase 208 INNOV-113 CMOA
 from runtime.integrations.github_app import dispatch_event, verify_webhook_signature  # ADAADchat
 from app.api.dependencies import (
@@ -951,6 +952,7 @@ app.include_router(ceicc_router)            # Phase 220 INNOV-125 CEICC
 app.include_router(cgml_router)             # Phase 221 INNOV-126 CGML
 app.include_router(acdr_router)             # Phase 222 INNOV-127 ACDR
 app.include_router(cpve_router)             # Phase 223 INNOV-128 CPVE
+app.include_router(casl_router)             # Phase 224 INNOV-129 CASL
 
 
 def telemetry_decisions_legacy(
