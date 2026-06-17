@@ -625,7 +625,7 @@ body {
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: var(--r-lg);
   padding: 30px;
-  width: 90%; max-width: 460px;
+  width: 90%; max-width: 520px;
   animation: modalIn 0.28s var(--ease);
 }
 #cfg-modal h2 {
@@ -635,6 +635,40 @@ body {
   margin-bottom: 18px;
 }
 .cfg-field { margin-bottom: 14px; }
+.cfg-section-title {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.4px;
+  margin: 4px 0 12px;
+}
+.cfg-advanced {
+  margin-top: 8px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: var(--r-md);
+}
+.cfg-advanced summary {
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--whale);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.cfg-advanced summary::-webkit-details-marker { display: none; }
+.cfg-advanced summary::after {
+  content: '▾';
+  color: var(--text-muted);
+  transition: transform 0.18s var(--ease);
+}
+.cfg-advanced[open] summary::after { transform: rotate(180deg); }
+.cfg-advanced-body { margin-top: 14px; }
 .cfg-field label {
   display: block;
   font-size: 11px; font-weight: 600;
@@ -693,6 +727,11 @@ body {
   border: 1px solid rgba(239,68,68,0.18) !important;
 }
 .btn-danger:hover { background: rgba(239,68,68,0.2); }
+.btn-secondary {
+  background: rgba(0,217,255,0.08); color: var(--whale);
+  border: 1px solid var(--whale-border) !important;
+}
+.btn-secondary:hover { background: rgba(0,217,255,0.14); }
 
 /* ═══════════════════════════════════════════
    ANIMATIONS
@@ -858,22 +897,7 @@ body {
   <div id="cfg-modal">
     <h2>⚙ dork config</h2>
 
-    <div class="cfg-field">
-      <label>Anthropic API Key</label>
-      <input type="password" id="cfg-key" placeholder="sk-ant-… or leave blank if server key active">
-      <div class="hint" id="key-hint"></div>
-    </div>
-    <div class="cfg-field">
-      <label style="display:flex;align-items:center;gap:8px;">
-        <input type="checkbox" id="cfg-remember-key">
-        Remember key for this session
-      </label>
-      <div class="hint">Off by default. When enabled, key is kept only in session storage with a short TTL.</div>
-    </div>
-    <div class="cfg-field">
-      <label>Model</label>
-      <input type="text" id="cfg-model" placeholder="claude-sonnet-4-6">
-    </div>
+    <div class="cfg-section-title">Common preferences</div>
     <div class="cfg-field">
       <label>Persona</label>
       <select id="cfg-persona">
@@ -891,16 +915,40 @@ body {
       </label>
       <div class="hint">Rewrites jargon-heavy phrasing into simpler language after generation.</div>
     </div>
-    <div class="cfg-field">
-      <label>Governance Endpoint</label>
-      <input type="text" id="cfg-gov" placeholder="/api/whale/snapshot">
-      <div class="hint">Relative or absolute URL. Leave default for local ADAAD server.</div>
-    </div>
+
+    <details class="cfg-advanced">
+      <summary>Advanced connection settings</summary>
+      <div class="cfg-advanced-body">
+        <div class="cfg-field">
+          <label>Anthropic API Key</label>
+          <input type="password" id="cfg-key" placeholder="sk-ant-… or leave blank if server key active">
+          <div class="hint" id="key-hint"></div>
+        </div>
+        <div class="cfg-field">
+          <label style="display:flex;align-items:center;gap:8px;">
+            <input type="checkbox" id="cfg-remember-key">
+            Remember key for this session
+          </label>
+          <div class="hint">Off by default. When enabled, key is kept only in session storage with a short TTL.</div>
+        </div>
+        <div class="cfg-field">
+          <label>Model</label>
+          <input type="text" id="cfg-model" placeholder="claude-sonnet-4-6">
+          <div class="hint">Leave blank to use the recommended DORK model.</div>
+        </div>
+        <div class="cfg-field">
+          <label>Governance Endpoint</label>
+          <input type="text" id="cfg-gov" placeholder="/api/whale/snapshot" aria-describedby="cfg-gov-help">
+          <div class="hint" id="cfg-gov-help">Recommended default: <code>/api/whale/snapshot</code>. Change only when connecting to a trusted remote ADAAD server or a test endpoint; the local endpoint is safest for normal use.</div>
+        </div>
+      </div>
+    </details>
 
     <div class="cfg-actions">
       <button class="btn-cancel" id="cfg-cancel">Cancel</button>
       <button class="btn-danger" id="cfg-clear">Clear chat</button>
       <button class="btn-danger" id="cfg-clear-secrets">Clear secrets</button>
+      <button class="btn-secondary" id="cfg-reset-defaults">Reset defaults</button>
       <button class="btn-save" id="cfg-save">Save</button>
     </div>
   </div>
@@ -915,6 +963,8 @@ const DORK_CONSOLE_ROUTE_ENDPOINT = '/api/dork/console/route';
 const DORK_GIP_PROPOSE_ENDPOINT = '/api/dork/gip/propose';
 const SESSION_KEY_STORAGE_KEY = 'dork_api_key_session_v1';
 const SESSION_KEY_TTL_MS      = 4 * 60 * 60 * 1000;
+const RECOMMENDED_MODEL = 'claude-sonnet-4-6';
+const RECOMMENDED_GOV_ENDPOINT = '/api/whale/snapshot';
 
 const MEM = {
   dorkApiKey: '',
@@ -990,9 +1040,9 @@ const CFG = {
     if (!MEM.rememberKeyForSession) writeSessionKey('');
     else if (MEM.dorkApiKey) writeSessionKey(MEM.dorkApiKey);
   },
-  get model()  { return localStorage.getItem('dork_model')    || 'claude-sonnet-4-6'; },
+  get model()  { return localStorage.getItem('dork_model')    || RECOMMENDED_MODEL; },
   set model(v) { localStorage.setItem('dork_model', v); },
-  get gov()    { return localStorage.getItem('dork_gov_url')  || '/api/whale/snapshot'; },
+  get gov()    { return localStorage.getItem('dork_gov_url')  || RECOMMENDED_GOV_ENDPOINT; },
   set gov(v)   { localStorage.setItem('dork_gov_url', v); },
   get persona() {
     const stored = localStorage.getItem('dork_persona') || 'concise';
@@ -1475,10 +1525,16 @@ function openCfg() {
     D.cfgCancel = q('#cfg-cancel');
     D.cfgSave   = q('#cfg-save');
     D.cfgClear  = q('#cfg-clear');
+    D.cfgPersona = q('#cfg-persona');
+    D.cfgPlainLanguage = q('#cfg-plain-language');
+    D.cfgRemember = q('#cfg-remember-key');
   }
   D.cfgKey.value   = CFG.key;
   D.cfgModel.value = CFG.model;
   D.cfgGov.value   = CFG.gov;
+  D.cfgPersona.value = CFG.persona;
+  D.cfgPlainLanguage.checked = CFG.plainLanguage;
+  D.cfgRemember.checked = CFG.rememberKeyForSession;
   D.cfgHint.textContent = SERVER_KEY_AVAILABLE
     ? '✅ Server API key active — you can leave this blank.'
     : 'No server key detected. Enter your Anthropic API key.';
@@ -1489,11 +1545,27 @@ function openCfg() {
 function closeCfg() { D.cfgOverlay.classList.remove('open'); }
 
 function saveCfg() {
+  CFG.rememberKeyForSession = D.cfgRemember.checked;
   CFG.key   = D.cfgKey.value.trim();
-  CFG.model = D.cfgModel.value.trim()  || 'claude-sonnet-4-6';
-  CFG.gov   = D.cfgGov.value.trim()    || '/api/whale/snapshot';
+  CFG.model = D.cfgModel.value.trim()  || RECOMMENDED_MODEL;
+  CFG.gov   = D.cfgGov.value.trim()    || RECOMMENDED_GOV_ENDPOINT;
+  CFG.persona = D.cfgPersona.value;
+  CFG.plainLanguage = D.cfgPlainLanguage.checked;
   _cachedPrompt = null;
+  refreshPersonaBadge();
   closeCfg();
+  clearInterval(S.govTimer);
+  pollGov();
+  S.govTimer = setInterval(pollGov, CFG.pollMs);
+}
+
+function resetRecommendedDefaults() {
+  localStorage.removeItem('dork_model');
+  localStorage.removeItem('dork_gov_url');
+  if (D.cfgModel) D.cfgModel.value = RECOMMENDED_MODEL;
+  if (D.cfgGov) D.cfgGov.value = RECOMMENDED_GOV_ENDPOINT;
+  _cachedPrompt = null;
+  refreshPersonaBadge();
   clearInterval(S.govTimer);
   pollGov();
   S.govTimer = setInterval(pollGov, CFG.pollMs);
@@ -1567,6 +1639,7 @@ function init() {
     if (id === 'cfg-cancel') closeCfg();
     else if (id === 'cfg-save')  saveCfg();
     else if (id === 'cfg-clear') clearChat();
+    else if (id === 'cfg-reset-defaults') resetRecommendedDefaults();
   });
   q('#cfg-clear-secrets').addEventListener('click', clearSecrets);
 
