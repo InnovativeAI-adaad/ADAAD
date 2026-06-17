@@ -1,0 +1,47 @@
+{
+  "ila_id": "ILA-225-2026-06-17-001",
+  "phase": 225,
+  "innov_id": "INNOV-130",
+  "innov_code": "CADE",
+  "innov_name": "Constitutional Autonomous Decision Engine",
+  "arc": "III — Autonomous Constitutional Intelligence",
+  "arc_module": 1,
+  "version": "10.36.0",
+  "date": "2026-06-17",
+  "governor": "DUSTIN L REID",
+  "agent": "DEVADAAD",
+  "organization": "InnovativeAI LLC",
+  "repository": "github.com/InnovativeAI-adaad/adaad",
+  "branch": "feat/phase225-innov130-cade",
+  "description": "World-first Constitutional Autonomous Decision Engine consuming CASL CHI (Constitutional Health Index) scores and producing cryptographically attested PROMOTE / HOLD / REJECT verdicts. Four subsystems: DecisionMatrix (CADE-GATE-0, CADE-DETERM-0) — deterministic CHI-to-verdict mapping; DecisionLedger (CADE-CHAIN-0, CADE-APPEND-0, CADE-IMMUT-0) — HMAC-SHA-256-chained append-only ledger; AttestationEngine (CADE-ATTEST-0) — HMAC-SHA-256 attestation on all PROMOTE decisions; DecisionAuditor (CADE-AUDIT-0) — append-only HMAC-chained audit log. CADEEngine facade coordinates all four subsystems. HUMAN-0 veto gate (CADE-HUMAN0-0) structurally enforced and non-delegable. 8-endpoint FastAPI router: POST /cade/evaluate, GET /cade/decision/{id}, GET /cade/decisions, POST /cade/veto/{id}, GET /cade/verify-chain, GET /cade/attestation/{id}, GET /cade/audit, GET /cade/matrix, GET /cade/status. Marks beginning of Arc III — Autonomous Constitutional Intelligence.",
+  "hard_class_invariants_added": [
+    "CADE-CHAIN-0",
+    "CADE-APPEND-0",
+    "CADE-GATE-0",
+    "CADE-DETERM-0",
+    "CADE-AUDIT-0",
+    "CADE-ATTEST-0",
+    "CADE-HUMAN0-0",
+    "CADE-SCOPE-0",
+    "CADE-IMMUT-0",
+    "CADE-ORIGIN-0"
+  ],
+  "hard_class_invariants_count_added": 10,
+  "hard_class_invariants_cumulative": 871,
+  "test_suite": "tests/test_phase225_cade.py",
+  "test_ids": [
+    "T225-CADE-01", "T225-CADE-02", "T225-CADE-03", "T225-CADE-04", "T225-CADE-05",
+    "T225-CADE-06", "T225-CADE-07", "T225-CADE-08", "T225-CADE-09", "T225-CADE-10",
+    "T225-CADE-11", "T225-CADE-12", "T225-CADE-13", "T225-CADE-14", "T225-CADE-15",
+    "T225-CADE-16", "T225-CADE-17", "T225-CADE-18", "T225-CADE-19", "T225-CADE-20",
+    "T225-CADE-21", "T225-CADE-22", "T225-CADE-23", "T225-CADE-24", "T225-CADE-25",
+    "T225-CADE-26", "T225-CADE-27", "T225-CADE-28", "T225-CADE-29", "T225-CADE-30"
+  ],
+  "tests_passed": 30,
+  "tests_total": 30,
+  "status": "APPROVED",
+  "track_b_required": [
+    "GPG sign tag v10.36.0 (HUMAN-0 / ADAADell)",
+    "PyPI republish adaad-core (HUMAN-0 / ADAADell)"
+  ]
+}

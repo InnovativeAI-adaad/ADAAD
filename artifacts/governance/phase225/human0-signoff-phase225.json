@@ -1,0 +1,16 @@
+{
+  "signoff_id": "H0-SIGNOFF-225-2026-06-17",
+  "phase": 225,
+  "innov_id": "INNOV-130",
+  "innov_code": "CADE",
+  "version": "10.36.0",
+  "date": "2026-06-17",
+  "human0": "DUSTIN L REID",
+  "organization": "InnovativeAI LLC",
+  "ila_ref": "ILA-225-2026-06-17-001",
+  "decision": "APPROVED",
+  "notes": "Phase 225 / INNOV-130 / CADE — Constitutional Autonomous Decision Engine. Arc III kickoff. 30/30 acceptance tests passing. 10 Hard-class invariants ratified. HUMAN-0 veto gate (CADE-HUMAN0-0) structurally enforced. Cumulative invariants: 871. Track B actions (GPG sign + PyPI publish) to be executed from ADAADell.",
+  "track_b_status": "PENDING_HUMAN0_LOCAL",
+  "gpg_tag": "v10.36.0",
+  "pypi_package": "adaad-core"
+}

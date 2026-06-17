@@ -1,0 +1,30 @@
+{
+  "phase": 225,
+  "innov_id": "INNOV-130",
+  "innov_code": "CADE",
+  "version": "10.36.0",
+  "tier_summary": {
+    "Hard": {
+      "count": 10,
+      "invariants": [
+        "CADE-CHAIN-0",
+        "CADE-APPEND-0",
+        "CADE-GATE-0",
+        "CADE-DETERM-0",
+        "CADE-AUDIT-0",
+        "CADE-ATTEST-0",
+        "CADE-HUMAN0-0",
+        "CADE-SCOPE-0",
+        "CADE-IMMUT-0",
+        "CADE-ORIGIN-0"
+      ]
+    },
+    "Soft": {
+      "count": 0,
+      "invariants": []
+    }
+  },
+  "cumulative_hard_class": 871,
+  "date": "2026-06-17",
+  "governor": "DUSTIN L REID"
+}
