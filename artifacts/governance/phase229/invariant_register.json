@@ -1,0 +1,78 @@
+{
+  "schema": "INVARIANT_REGISTER-v1",
+  "phase": 229,
+  "version": "10.40.0",
+  "innovation": "INNOV-134",
+  "code": "CACP",
+  "governor": "DUSTIN L REID",
+  "timestamp_utc": 1781777454.359467,
+  "invariants": [
+    {
+      "id": "CACP-CHAIN-0",
+      "class": "Hard",
+      "module": "ConvergenceLedger",
+      "enforced_by": "ConvergenceLedger._verify_chain()"
+    },
+    {
+      "id": "CACP-APPEND-0",
+      "class": "Hard",
+      "module": "ConvergenceLedger",
+      "enforced_by": "ConvergenceLedger.append() \u2014 no delete paths"
+    },
+    {
+      "id": "CACP-IMMUT-0",
+      "class": "Hard",
+      "module": "ProofRegistry",
+      "enforced_by": "ProofRegistry.acknowledge() \u2014 raises ImmutabilityViolation if already ack"
+    },
+    {
+      "id": "CACP-SCOPE-0",
+      "class": "Hard",
+      "module": "CycleAggregator",
+      "enforced_by": "CycleAggregator.aggregate() \u2014 unknown stage guard"
+    },
+    {
+      "id": "CACP-ORIGIN-0",
+      "class": "Hard",
+      "module": "CycleAggregator",
+      "enforced_by": "CycleAggregator.aggregate() + ConvergenceEngine.compute()"
+    },
+    {
+      "id": "CACP-CYCLE-0",
+      "class": "Hard",
+      "module": "CycleAggregator",
+      "enforced_by": "CycleAggregator.aggregate() \u2014 missing stage guard"
+    },
+    {
+      "id": "CACP-DETERM-0",
+      "class": "Hard",
+      "module": "ConvergenceEngine",
+      "enforced_by": "ConvergenceEngine.compute() \u2014 deterministic formula, no RNG"
+    },
+    {
+      "id": "CACP-TREND-0",
+      "class": "Hard",
+      "module": "ConvergenceEngine",
+      "enforced_by": "ConvergenceEngine.compute() \u2014 validated trend enum"
+    },
+    {
+      "id": "CACP-HUMAN0-0",
+      "class": "Hard",
+      "module": "ProofRegistry",
+      "enforced_by": "ProofRegistry.acknowledge() \u2014 non-empty notified_by for DEGRADING"
+    },
+    {
+      "id": "CACP-AUDIT-0",
+      "class": "Hard",
+      "module": "CACPAuditor",
+      "enforced_by": "CACPEngine.* \u2014 every public method calls self._auditor.record()"
+    },
+    {
+      "id": "CACP-PROOF-0",
+      "class": "Hard",
+      "module": "ConvergenceEngine",
+      "enforced_by": "ConvergenceEngine.compute() \u2014 HMAC-SHA-256 proof_binding over all cycle digests"
+    }
+  ],
+  "cumulative_hard_count": 913
+}

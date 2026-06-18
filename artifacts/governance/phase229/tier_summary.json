@@ -1,0 +1,24 @@
+{
+  "schema": "TIER_SUMMARY-v1",
+  "phase": 229,
+  "version": "10.40.0",
+  "innovation": "INNOV-134",
+  "code": "CACP",
+  "governor": "DUSTIN L REID",
+  "timestamp_utc": 1781777454.3593795,
+  "hard_class_invariants": {
+    "CACP-CHAIN-0": "ConvergenceLedger HMAC-SHA-256 chained; verified before every append",
+    "CACP-APPEND-0": "ConvergenceLedger append-only; no record removal permitted",
+    "CACP-IMMUT-0": "Sealed ConvergenceProofs raise ImmutabilityViolation on re-write",
+    "CACP-SCOPE-0": "Only valid ACI pipeline stage names accepted (CASL/CADE/CAPE/CAOE/CALI)",
+    "CACP-ORIGIN-0": "Proof must reference at least one non-empty ACI cycle record",
+    "CACP-CYCLE-0": "Complete ACI cycle requires all 5 pipeline stages present",
+    "CACP-DETERM-0": "Convergence score computation is deterministic; no randomness",
+    "CACP-TREND-0": "Trend must be IMPROVING/STABLE/DEGRADING; unknown raises TrendError",
+    "CACP-HUMAN0-0": "DEGRADING proof requires non-empty notified_by before acknowledgement",
+    "CACP-AUDIT-0": "Every aggregate/prove/acknowledge operation sealed in HMAC-chained audit log",
+    "CACP-PROOF-0": "Every ConvergenceProof carries HMAC-SHA-256 binding of all cycle inputs"
+  },
+  "total_hard_count": 11,
+  "cumulative_hard_count": 913
+}
