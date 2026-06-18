@@ -88,9 +88,9 @@
     <animate attributeName="opacity" values="1;0.2;1" dur="1.2s" repeatCount="indefinite"/>
   </circle>
 <<<<<<< HEAD
-  <text x="278" y="205" text-anchor="middle" class="hg-mono" font-size="12.5" fill="#00d4ff">v10.36.0  LIVE</text>
+  <text x="278" y="205" text-anchor="middle" class="hg-mono" font-size="12.5" fill="#00d4ff">v10.37.0  LIVE</text>
 =======
-  <text x="278" y="205" text-anchor="middle" class="hg-mono" font-size="12.5" fill="#00d4ff">v10.36.0  LIVE</text>
+  <text x="278" y="205" text-anchor="middle" class="hg-mono" font-size="12.5" fill="#00d4ff">v10.37.0  LIVE</text>
 >>>>>>> a861c240b75fd2303eec9f58cbc908d5e74e1c04
 
   <!-- GA badge -->
@@ -186,9 +186,9 @@
       </circle>
       <text x="28" y="20" class="hg-sans" font-size="11" fill="#00ff88" font-weight="600">Constitutional Evolution Loop  ACTIVE</text>
 <<<<<<< HEAD
-      <text x="270" y="20" class="hg-mono" font-size="10" fill="#00ff88">v10.36.0</text>
+      <text x="270" y="20" class="hg-mono" font-size="10" fill="#00ff88">v10.37.0</text>
 =======
-      <text x="270" y="20" class="hg-mono" font-size="10" fill="#00ff88">v10.36.0</text>
+      <text x="270" y="20" class="hg-mono" font-size="10" fill="#00ff88">v10.37.0</text>
 >>>>>>> a861c240b75fd2303eec9f58cbc908d5e74e1c04
     </g>
 
