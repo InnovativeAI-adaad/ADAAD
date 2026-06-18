@@ -1,3 +1,16 @@
+## [10.41.0] — Phase 230 · INNOV-135 · CAVE
+
+**Date:** 2026-06-18 · **Phase 230** · **INNOV-135 · CAVE**
+
+### INNOV-135 · CAVE — Constitutional Autonomous Verdict Executor
+
+- **INNOV-135 · CAVE — Constitutional Autonomous Verdict Executor** — World-first Arc III ACI Module 06 completing the non-PROMOTE verdict enforcement lifecycle: consuming CADE HOLD/REJECT/DEFER verdicts and routing each through a constitutionally governed enforcement pipeline with immutable quarantine sealing and deterministic CHI re-evaluation triggers. Five subsystems: (1) `VerdictRouter` (CAVE-SCOPE-0, CAVE-ORIGIN-0, CAVE-DETERM-0) — validates and routes verdicts; exactly 3 verdict classes enforced at module load; unknown verdicts raise ScopeViolation; empty cade_record_id or mutation_ref raises OriginViolation; routing is fully deterministic; (2) `QuarantineEngine` (CAVE-QUARANTINE-0, CAVE-HUMAN0-0, CAVE-IMMUT-0) — seals REJECT and DEFER verdicts into immutable quarantine; HUMAN-0 release requires non-empty released_by (CAVE-HUMAN0-0); sealed records may not be re-sealed (CAVE-IMMUT-0); double-release raises ImmutabilityViolation; (3) `CHIReEvaluator` (CAVE-REEVAL-0, CAVE-DETERM-0) — issues deterministic CHI re-evaluation triggers for every HOLD verdict; trigger generation is deterministic; double-completion raises ReEvalError; trigger only valid for HOLD verdict records; (4) `QuarantineLedger` (CAVE-CHAIN-0, CAVE-APPEND-0) — HMAC-SHA-256-chained append-only ledger sealing every verdict record; full chain verification before every append; (5) `CAVEAuditor` (CAVE-AUDIT-0) — parallel HMAC-chained audit log recording every route, seal, release, trigger, complete, and verify operation. `CAVEEngine` facade coordinates all subsystems. 11-endpoint FastAPI router: POST /cave/execute, POST /cave/release/{id}, POST /cave/reeval/{id}/complete, GET /cave/record/{id}, GET /cave/records, GET /cave/quarantined, GET /cave/trigger/{id}, GET /cave/triggers, GET /cave/triggers/pending, GET /cave/verify-chain, GET /cave/audit, GET /cave/status. Closes the ROADMAP CAVE debt item (originally planned Phase 227); Arc III ACI verdict lifecycle now complete for all CADE output classes: PROMOTE→CAPE, HOLD/REJECT/DEFER→CAVE.
+
+**Hard-class invariants added:** CAVE-CHAIN-0, CAVE-APPEND-0, CAVE-IMMUT-0, CAVE-SCOPE-0, CAVE-QUARANTINE-0, CAVE-REEVAL-0, CAVE-HUMAN0-0, CAVE-DETERM-0, CAVE-AUDIT-0, CAVE-ORIGIN-0
+**Cumulative Hard-class invariants:** 924
+**Tests:** 30/30 PASS
+**Track B:** GPG tag v10.41.0 · PyPI publish (HUMAN-0 / ADAADell)
+
 ## [10.40.0] — Phase 229 · INNOV-134 · CACP
 
 **Date:** 2026-06-18 · **Phase 229** · **INNOV-134 · CACP**

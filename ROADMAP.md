@@ -4,11 +4,11 @@
 
 ---
 
-## Current State — v10.37.0 · Phase 226
+## Current State — v10.41.0 · Phase 230
 
-**Status:** 134 innovations shipped (INNOV-01 through INNOV-134). Phase 229 complete. v10.40.0 baseline. V10.0.0 GA released. adaad-core 9.121.0 published to PyPI.
+**Status:** 135 innovations shipped (INNOV-01 through INNOV-135). Phase 230 complete. v10.41.0 baseline. V10.0.0 GA released. adaad-core 9.121.0 published to PyPI.
 **Automation pointer:** Machine phase progression consumes `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` §3.0 “Active Era Contract (Phases 131–136+)”, which governs the current stream through Phase 173 and the Phase 174 next-work pointer.
-**Hard-class invariants:** 913 (cumulative, enforced)
+**Hard-class invariants:** 924 (cumulative, enforced)
 **Constitutional Evolution Loop:** 16-step CEL, deterministic replay, wired
 **Self-Proposing Innovation Engine (SPIE):** active — system proposes its own next innovations; HUMAN-0 ratifies
 **Deterministic Audit Sandbox (DAS):** active — one-command external verification; `docker compose up das-demo`
@@ -27,8 +27,9 @@
 |--------|------|-------|---------------|------|
 | Constitutional Autonomous Decision Engine | CADE | 225 | v10.36.0 | Arc III open — CHI → PROMOTE/HOLD/REJECT verdicts ✅ |
 | Constitutional Autonomous Promotion Executor | CAPE | 226 | v10.37.0 | Executes PROMOTE verdicts via 5-stage governed pipeline under HUMAN-0 gate ✅ |
-| Constitutional Autonomous Verdict Executor | CAVE | 227 | v10.38.0 | Executes HOLD/REJECT/DEFER verdicts — quarantine, sealing, CHI re-eval triggers |
-| TBD | TBD | 228+ | v10.39.0+ | Arc III apex — intelligence feedback loop, autonomous monitoring |
+| Constitutional Autonomous Verdict Executor | CAVE | 230 | v10.41.0 | Executes HOLD/REJECT/DEFER verdicts — quarantine sealing, CHI re-eval triggers, HUMAN-0 release gate ✅ |
+| Constitutional Autonomous Monitoring Sentinel | CAMS | 231 | v10.42.0 | Arc III apex — proactive CHI health monitoring, CACP-proof-aware trend detection |
+| Constitutional Autonomous Cycle Governor | CACG | 232 | v10.43.0 | Arc III governance capstone — ACI cycle orchestration, timeout enforcement, HUMAN-0 escalation |
 
 ---
 
