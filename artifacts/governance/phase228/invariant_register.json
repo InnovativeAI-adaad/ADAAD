@@ -1,0 +1,78 @@
+{
+  "schema": "INVARIANT_REGISTER-v1",
+  "phase": 228,
+  "version": "10.39.0",
+  "innovation": "INNOV-133",
+  "code": "CALI",
+  "governor": "DUSTIN L REID",
+  "timestamp_utc": 1781777042.1553133,
+  "invariants": [
+    {
+      "id": "CALI-CHAIN-0",
+      "class": "Hard",
+      "module": "LearningLedger",
+      "enforced_by": "LearningLedger._verify_chain()"
+    },
+    {
+      "id": "CALI-APPEND-0",
+      "class": "Hard",
+      "module": "LearningLedger",
+      "enforced_by": "LearningLedger.append() \u2014 no delete/update paths"
+    },
+    {
+      "id": "CALI-IMMUT-0",
+      "class": "Hard",
+      "module": "ThresholdRecommender",
+      "enforced_by": "ThresholdRecommender._get_pending() \u2014 raises ImmutabilityViolation"
+    },
+    {
+      "id": "CALI-INGEST-0",
+      "class": "Hard",
+      "module": "OutcomeIngester",
+      "enforced_by": "OutcomeIngester.ingest() \u2014 missing field guard"
+    },
+    {
+      "id": "CALI-SCOPE-0",
+      "class": "Hard",
+      "module": "OutcomeIngester",
+      "enforced_by": "OutcomeIngester.ingest() \u2014 valid classification check"
+    },
+    {
+      "id": "CALI-ORIGIN-0",
+      "class": "Hard",
+      "module": "OutcomeIngester",
+      "enforced_by": "OutcomeIngester.ingest() \u2014 non-empty evaluation_id guard"
+    },
+    {
+      "id": "CALI-ADAPT-0",
+      "class": "Hard",
+      "module": "AdaptationSignalEngine",
+      "enforced_by": "_compute_raw_signal() \u2014 clamp to [-0.05, +0.05]"
+    },
+    {
+      "id": "CALI-DETERM-0",
+      "class": "Hard",
+      "module": "AdaptationSignalEngine",
+      "enforced_by": "_compute_raw_signal() \u2014 deterministic formula, no RNG"
+    },
+    {
+      "id": "CALI-BOUND-0",
+      "class": "Hard",
+      "module": "AdaptationSignalEngine",
+      "enforced_by": "AdaptationSignalEngine.compute() \u2014 cumulative cap check"
+    },
+    {
+      "id": "CALI-HUMAN0-0",
+      "class": "Hard",
+      "module": "ThresholdRecommender",
+      "enforced_by": "ThresholdRecommender.ratify() \u2014 non-empty ratified_by check"
+    },
+    {
+      "id": "CALI-AUDIT-0",
+      "class": "Hard",
+      "module": "CALIAuditor",
+      "enforced_by": "CALIEngine.* \u2014 every operation calls self._auditor.record()"
+    }
+  ],
+  "cumulative_hard_count": 902
+}

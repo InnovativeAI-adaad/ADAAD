@@ -1,0 +1,12 @@
+{
+  "schema": "HUMAN0_SIGNOFF-v1",
+  "phase": 228,
+  "version": "10.39.0",
+  "innovation": "INNOV-133",
+  "code": "CALI",
+  "governor": "DUSTIN L REID",
+  "status": "PENDING_GPG_SEAL",
+  "gpg_fingerprint": "5C85F8737C93DC0F1E639F9CDD5C7176E87C213E",
+  "note": "GPG signing is a HUMAN-0 exclusive Track B action. Execute on ADAADell/WSL2 using key 5C85F8737C93DC0F1E639F9CDD5C7176E87C213E.",
+  "instructions": "gpg --armor --detach-sign --local-user 5C85F8737C93DC0F1E639F9CDD5C7176E87C213E artifacts/governance/phase228/ila.json"
+}

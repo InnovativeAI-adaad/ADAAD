@@ -1,0 +1,25 @@
+{
+  "schema": "TIER_SUMMARY-v1",
+  "phase": 228,
+  "version": "10.39.0",
+  "innovation": "INNOV-133",
+  "code": "CALI",
+  "governor": "DUSTIN L REID",
+  "timestamp_utc": 1781777042.1551068,
+  "hard_class_invariants": {
+    "CALI-CHAIN-0": "LearningLedger is HMAC-SHA-256 chained; chain verified before every append",
+    "CALI-APPEND-0": "LearningLedger is append-only; sealed records cannot be removed or reordered",
+    "CALI-IMMUT-0": "Sealed learning records raise ImmutabilityViolation on write attempt",
+    "CALI-INGEST-0": "OutcomeIngester validates all required CAOE EvaluationRecord fields before ingestion",
+    "CALI-SCOPE-0": "Only IMPROVED/NEUTRAL/DEGRADED classifications accepted; unknown raises ScopeError",
+    "CALI-ORIGIN-0": "Every ingested record must carry a non-empty evaluation_id; empty raises OriginError",
+    "CALI-ADAPT-0": "AdaptationSignalEngine raw signals bounded to [-0.05, +0.05]; out-of-band raises BoundError",
+    "CALI-DETERM-0": "Signal computation is deterministic given classification+chi_delta; no randomness permitted",
+    "CALI-BOUND-0": "Cumulative adaptation per CHI band capped at +/-0.10; excess raises BoundError",
+    "CALI-HUMAN0-0": "ThresholdRecommendation status=RATIFIED requires non-empty ratified_by; structurally enforced",
+    "CALI-AUDIT-0": "Every ingest/compute/recommend/ratify/reject operation sealed in HMAC-chained audit log"
+  },
+  "soft_class_invariants": [],
+  "total_hard_count": 11,
+  "cumulative_hard_count": 902
+}

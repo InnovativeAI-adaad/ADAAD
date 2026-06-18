@@ -1,3 +1,16 @@
+## [10.39.0] — Phase 228 · INNOV-133 · CALI
+
+**Date:** 2026-06-18 · **Phase 228** · **INNOV-133 · CALI**
+
+### INNOV-133 · CALI — Constitutional Autonomous Learning Intelligence
+
+- **INNOV-133 · CALI — Constitutional Autonomous Learning Intelligence** — World-first Arc III ACI Module 04 that closes the full autonomous constitutional intelligence feedback loop: ingesting sealed CAOE EvaluationRecords, computing deterministic bounded CHI-band adaptation signals, and producing CADE threshold recommendations sealed in an HMAC-SHA-256-chained LearningLedger — all under mandatory HUMAN-0 ratification before any threshold adjustment applies. Four subsystems: (1) `OutcomeIngester` (CALI-INGEST-0, CALI-SCOPE-0, CALI-ORIGIN-0) — validates and ingests CAOE EvaluationRecords; only IMPROVED/NEUTRAL/DEGRADED classifications accepted; evaluation_id non-empty enforced; all required fields present validated; (2) `AdaptationSignalEngine` (CALI-ADAPT-0, CALI-DETERM-0, CALI-BOUND-0) — deterministic bounded adaptation signal computation per CHI band: IMPROVED→+signal, DEGRADED→-signal, NEUTRAL→0; raw signal clamped to [-0.05, +0.05] (CALI-ADAPT-0); cumulative delta per band capped at ±0.10 (CALI-BOUND-0); fully deterministic, no RNG (CALI-DETERM-0); (3) `ThresholdRecommender` (CALI-HUMAN0-0) — produces CADE threshold recommendations aggregating band signals; status=RATIFIED structurally requires non-empty ratified_by (CALI-HUMAN0-0); live thresholds only update after HUMAN-0 ratification; HUMAN-0 may also reject any recommendation; (4) `LearningLedger` (CALI-CHAIN-0, CALI-APPEND-0, CALI-IMMUT-0) — HMAC-SHA-256-chained append-only ledger; full chain verification before every append; sealed records immutable. `CALIAuditor` (CALI-AUDIT-0) records every ingest/compute/recommend/ratify/reject in a parallel HMAC-chained audit log. `CALIEngine` facade coordinates all subsystems. 13-endpoint FastAPI router: POST /cali/ingest, POST /cali/compute-signal, POST /cali/recommend, POST /cali/ratify/{id}, POST /cali/reject/{id}, GET /cali/outcome/{id}, GET /cali/outcomes, GET /cali/signals, GET /cali/recommendations, GET /cali/verify-chain, GET /cali/thresholds, GET /cali/audit, GET /cali/status. **Full Arc III ACI loop closed: CASL synthesizes CHI → CADE decides PROMOTE/HOLD/REJECT → CAPE executes promotions → CAOE evaluates outcomes → CALI learns and recommends threshold adaptations → CADE (threshold recommendations, HUMAN-0 ratified).**
+
+**Hard-class invariants added:** CALI-CHAIN-0, CALI-APPEND-0, CALI-IMMUT-0, CALI-INGEST-0, CALI-SCOPE-0, CALI-ORIGIN-0, CALI-ADAPT-0, CALI-DETERM-0, CALI-BOUND-0, CALI-HUMAN0-0, CALI-AUDIT-0
+**Cumulative Hard-class invariants:** 902
+**Tests:** 30/30 PASS
+**Track B:** GPG tag v10.39.0 · PyPI publish (HUMAN-0 / ADAADell)
+
 ## [10.38.0] — Phase 227 · INNOV-132 · CAOE
 
 **Date:** 2026-06-18 · **Phase 227** · **INNOV-132 · CAOE**
