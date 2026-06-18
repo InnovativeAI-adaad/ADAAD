@@ -1,11 +1,11 @@
 {
   "_comment": "Machine-readable invariant registry \u2014 single source of truth for all Hard-class invariant counts. All badges, docs, and CI gates derive from this file. Do not edit manually; update via phase sign-off process.",
-  "version": "10.36.0",
-  "phase": 225,
+  "version": "10.37.0",
+  "phase": 226,
   "updated": "2026-06-17",
-  "cumulative_hard_class_invariants": 871,
-  "innovations_shipped": 130,
-  "phases_complete": 225,
+  "cumulative_hard_class_invariants": 881,
+  "innovations_shipped": 131,
+  "phases_complete": 226,
   "authoritative_source": "artifacts/governance/phase150/ILA-150-2026-04-22-001.json",
   "phase_invariant_log": [
     {

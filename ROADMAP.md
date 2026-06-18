@@ -4,7 +4,7 @@
 
 ---
 
-## Current State — v10.36.0 · Phase 225
+## Current State — v10.37.0 · Phase 226
 
 **Status:** 131 innovations shipped (INNOV-01 through INNOV-131). Phase 226 complete. v10.37.0 baseline. V10.0.0 GA released. adaad-core 9.121.0 published to PyPI.
 **Automation pointer:** Machine phase progression consumes `docs/governance/ADAAD_PR_PROCESSION_2026-03-v2.md` §3.0 “Active Era Contract (Phases 131–136+)”, which governs the current stream through Phase 173 and the Phase 174 next-work pointer.
@@ -26,8 +26,9 @@
 | Module | Code | Phase | Target Version | Role |
 |--------|------|-------|---------------|------|
 | Constitutional Autonomous Decision Engine | CADE | 225 | v10.36.0 | Arc III open — CHI → PROMOTE/HOLD/REJECT verdicts ✅ |
-| Constitutional Autonomous Verdict Executor | CAVE | 226 | v10.37.0 | Execution layer — acts on CADE verdicts under HUMAN-0 gate |
-| TBD | TBD | 227+ | v10.38.0+ | Arc III deepening — intelligence feedback, monitoring, apex |
+| Constitutional Autonomous Promotion Executor | CAPE | 226 | v10.37.0 | Executes PROMOTE verdicts via 5-stage governed pipeline under HUMAN-0 gate ✅ |
+| Constitutional Autonomous Verdict Executor | CAVE | 227 | v10.38.0 | Executes HOLD/REJECT/DEFER verdicts — quarantine, sealing, CHI re-eval triggers |
+| TBD | TBD | 228+ | v10.39.0+ | Arc III apex — intelligence feedback loop, autonomous monitoring |
 
 ---
 
