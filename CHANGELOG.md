@@ -1,3 +1,17 @@
+## [10.37.0] — Phase 226 · INNOV-131 · CAPE
+
+**Date:** 2026-06-17 · **Phase 226** · **INNOV-131 · CAPE**
+
+### INNOV-131 · CAPE — Constitutional Autonomous Promotion Executor
+
+- **INNOV-131 · CAPE — Constitutional Autonomous Promotion Executor** — World-first Arc III ACI Module 02 that closes the decision-to-action loop: consuming CADE PROMOTE verdicts and executing mutation promotions through a deterministic 5-stage governed pipeline (VALIDATE→STAGE→EXECUTE→SEAL→RECORD) under mandatory HUMAN-0 approval. Four subsystems: (1) `PromotionQueue` (CAPE-QUEUE-0, CAPE-GATE-0, CAPE-SCOPE-0, CAPE-ORDER-0) — FIFO queue of CADE PROMOTE verdicts; every entry HMAC-sealed on enqueue; CHI ≥ 0.80 gate enforced; only PROMOTE verdicts accepted; FIFO peek enforced before execution; (2) `PromotionExecutor` (CAPE-EXEC-0, CAPE-HUMAN0-0, CAPE-ORDER-0) — executes APPROVED entries through the 5-stage pipeline; HUMAN-0 approved_by required; FIFO order validated against queue before execution; (3) `ExecutionLedger` (CAPE-CHAIN-0, CAPE-APPEND-0, CAPE-IMMUT-0) — HMAC-SHA-256-chained append-only ledger sealing every execution record on write with SHA-256 cryptographic execution proof; full chain verification before every append; (4) `ExecutionAuditor` (CAPE-AUDIT-0) — append-only HMAC-chained audit log recording every enqueue, approve, reject, execute, and stage operation. `CAPEEngine` facade coordinates all four subsystems. CAPE-HUMAN0-0 enforces non-empty HUMAN-0 approved_by before any execution — structurally irreplaceable. 11-endpoint FastAPI router: POST /cape/enqueue, POST /cape/approve/{id}, POST /cape/reject/{id}, POST /cape/execute/{id}, GET /cape/entry/{id}, GET /cape/queue, GET /cape/execution/{id}, GET /cape/executions, GET /cape/verify-chain, GET /cape/audit, GET /cape/status. Arc III ACI Module 02 — CADE decides, CAPE executes: the world-first cryptographically governed autonomous mutation promotion pipeline.
+
+**Hard-class invariants added:** CAPE-CHAIN-0, CAPE-APPEND-0, CAPE-EXEC-0, CAPE-GATE-0, CAPE-QUEUE-0, CAPE-AUDIT-0, CAPE-HUMAN0-0, CAPE-SCOPE-0, CAPE-IMMUT-0, CAPE-ORDER-0
+**Cumulative Hard-class invariants:** 881
+**Tests:** 30/30 PASS
+**Track B:** GPG tag v10.37.0 · PyPI publish (HUMAN-0 / ADAADell)
+
+
 ## [10.36.0] — Phase 225 · INNOV-130 · CADE
 
 **Date:** 2026-06-17 · **Phase 225** · **INNOV-130 · CADE**
