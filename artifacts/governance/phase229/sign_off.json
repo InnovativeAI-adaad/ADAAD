@@ -1,0 +1,11 @@
+{
+  "schema": "HUMAN0_SIGNOFF-v1",
+  "phase": 229,
+  "version": "10.40.0",
+  "innovation": "INNOV-134",
+  "code": "CACP",
+  "governor": "DUSTIN L REID",
+  "status": "PENDING_GPG_SEAL",
+  "gpg_fingerprint": "5C85F8737C93DC0F1E639F9CDD5C7176E87C213E",
+  "instructions": "gpg --armor --detach-sign --local-user 5C85F8737C93DC0F1E639F9CDD5C7176E87C213E artifacts/governance/phase229/ila.json"
+}

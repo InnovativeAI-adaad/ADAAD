@@ -95,6 +95,7 @@ from app.api.cade import router as cade_router                                  
 from app.api.cape import router as cape_router             # Phase 226 INNOV-131 CAPE
 from app.api.caoe import router as caoe_router             # Phase 227 INNOV-132 CAOE
 from app.api.cali import router as cali_router             # Phase 228 INNOV-133 CALI
+from app.api.cacp import router as cacp_router             # Phase 229 INNOV-134 CACP
 from app.api.cmoa import router as cmoa_router                                       # Phase 208 INNOV-113 CMOA
 from runtime.integrations.github_app import dispatch_event, verify_webhook_signature  # ADAADchat
 from app.api.dependencies import (
@@ -961,6 +962,7 @@ app.include_router(cade_router)             # Phase 225 INNOV-130 CADE
 app.include_router(cape_router)             # Phase 226 INNOV-131 CAPE
 app.include_router(caoe_router)             # Phase 227 INNOV-132 CAOE
 app.include_router(cali_router)             # Phase 228 INNOV-133 CALI
+app.include_router(cacp_router)             # Phase 229 INNOV-134 CACP
 
 
 def telemetry_decisions_legacy(

@@ -1,3 +1,16 @@
+## [10.40.0] — Phase 229 · INNOV-134 · CACP
+
+**Date:** 2026-06-18 · **Phase 229** · **INNOV-134 · CACP**
+
+### INNOV-134 · CACP — Constitutional Autonomous Convergence Prover
+
+- **INNOV-134 · CACP — Constitutional Autonomous Convergence Prover** — World-first Arc III ACI Meta-layer that aggregates multi-cycle evidence across the complete 5-module ACI pipeline (CASL+CADE+CAPE+CAOE+CALI) and computes cryptographic convergence proofs. Three subsystems: (1) `CycleAggregator` (CACP-SCOPE-0, CACP-CYCLE-0, CACP-ORIGIN-0) — validates and seals complete ACI cycles; all 5 stages required (CACP-CYCLE-0); unknown stage names raise ScopeError (CACP-SCOPE-0); at least one non-empty stage required (CACP-ORIGIN-0); (2) `ConvergenceEngine` (CACP-DETERM-0, CACP-TREND-0, CACP-PROOF-0) — deterministic mean_delta_chi computation; IMPROVING (Δ ≥ +0.02) / STABLE / DEGRADING (Δ ≤ -0.02) classification (CACP-TREND-0); convergence_score in [0.0, 1.0]; proof_binding is HMAC-SHA-256 over all cycle digests (CACP-PROOF-0); (3) `ProofRegistry` (CACP-HUMAN0-0, CACP-IMMUT-0) — stores ConvergenceProofs; DEGRADING proofs set degrading_flag=True and require non-empty notified_by before acknowledgement (CACP-HUMAN0-0); double-acknowledgement raises ImmutabilityViolation (CACP-IMMUT-0). `ConvergenceLedger` (CACP-CHAIN-0, CACP-APPEND-0): HMAC-SHA-256-chained append-only ledger; chain verified before every write. `CACPAuditor` (CACP-AUDIT-0): every operation sealed in parallel HMAC-chained audit log. `CACPEngine` facade coordinates all subsystems. 11-endpoint FastAPI router: POST /cacp/aggregate, POST /cacp/prove, POST /cacp/acknowledge/{id}, GET /cacp/cycle/{id}, GET /cacp/cycles, GET /cacp/proof/{id}, GET /cacp/proofs, GET /cacp/degrading, GET /cacp/verify-chain, GET /cacp/audit, GET /cacp/status.
+
+**Hard-class invariants added:** CACP-CHAIN-0, CACP-APPEND-0, CACP-IMMUT-0, CACP-SCOPE-0, CACP-ORIGIN-0, CACP-CYCLE-0, CACP-DETERM-0, CACP-TREND-0, CACP-HUMAN0-0, CACP-AUDIT-0, CACP-PROOF-0
+**Cumulative Hard-class invariants:** 913
+**Tests:** 30/30 PASS
+**Track B:** GPG tag v10.40.0 · PyPI publish (HUMAN-0 / ADAADell)
+
 ## [10.39.0] — Phase 228 · INNOV-133 · CALI
 
 **Date:** 2026-06-18 · **Phase 228** · **INNOV-133 · CALI**
