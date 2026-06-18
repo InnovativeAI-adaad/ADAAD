@@ -1,0 +1,67 @@
+{
+  "phase": 226,
+  "innovation": "INNOV-131",
+  "module": "CAPE",
+  "invariants": [
+    {
+      "id": "CAPE-CHAIN-0",
+      "class": "Hard",
+      "description": "ExecutionLedger HMAC chain must be verified before every append",
+      "enforced_by": "ExecutionLedger._verify_chain"
+    },
+    {
+      "id": "CAPE-APPEND-0",
+      "class": "Hard",
+      "description": "ExecutionLedger is append-only; historical records are immutable",
+      "enforced_by": "ExecutionLedger.append"
+    },
+    {
+      "id": "CAPE-EXEC-0",
+      "class": "Hard",
+      "description": "Only APPROVED queue entries may enter the 5-stage execution pipeline",
+      "enforced_by": "PromotionExecutor.execute"
+    },
+    {
+      "id": "CAPE-GATE-0",
+      "class": "Hard",
+      "description": "GateBlockError raised when CHI < 0.80 on any enqueue attempt",
+      "enforced_by": "PromotionQueue.enqueue"
+    },
+    {
+      "id": "CAPE-QUEUE-0",
+      "class": "Hard",
+      "description": "PromotionQueue is FIFO; entries are HMAC-sealed on enqueue",
+      "enforced_by": "PromotionQueue.enqueue"
+    },
+    {
+      "id": "CAPE-AUDIT-0",
+      "class": "Hard",
+      "description": "Every operation (enqueue/approve/execute/reject/verify) is audited",
+      "enforced_by": "ExecutionAuditor.record"
+    },
+    {
+      "id": "CAPE-HUMAN0-0",
+      "class": "Hard",
+      "description": "HUMAN-0 approval (non-empty approver string) required before execute",
+      "enforced_by": "PromotionQueue.approve, PromotionExecutor.execute"
+    },
+    {
+      "id": "CAPE-SCOPE-0",
+      "class": "Hard",
+      "description": "Only PROMOTE verdicts from CADE may be enqueued (ScopeViolation otherwise)",
+      "enforced_by": "PromotionQueue.enqueue"
+    },
+    {
+      "id": "CAPE-IMMUT-0",
+      "class": "Hard",
+      "description": "ImmutabilityViolation raised on any attempted mutation of sealed records",
+      "enforced_by": "ExecutionLedger.append"
+    },
+    {
+      "id": "CAPE-ORDER-0",
+      "class": "Hard",
+      "description": "Execution order must match queue insertion order (FIFO enforcement)",
+      "enforced_by": "PromotionExecutor.execute, PromotionQueue.peek_next_approved"
+    }
+  ]
+}
