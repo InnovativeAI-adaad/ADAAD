@@ -1,13 +1,13 @@
 {
-  "current_phase": 226,
-  "version": "10.37.0",
+  "current_phase": 227,
+  "version": "10.38.0",
   "current_version": "10.37.0",
   "software_version": "10.37.0",
   "last_completed_version": "10.37.0",
   "schema_version": "1.5.0",
   "last_completed_phase": "Phase 226 \u2014 INNOV-131 CAPE \u2014 Constitutional Autonomous Promotion Executor",
-  "hard_invariant_count": 881,
-  "innovations_shipped": 131,
+  "hard_invariant_count": 891,
+  "innovations_shipped": 132,
   "last_innov_code": "CAPE",
   "last_innov_name": "Constitutional Autonomous Promotion Executor",
   "v10_convergence_criteria_met": [

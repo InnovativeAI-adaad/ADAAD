@@ -1,0 +1,60 @@
+{
+  "schema": "INV-REGISTER-v1",
+  "phase": 227,
+  "version": "10.38.0",
+  "new_invariants": [
+    {
+      "name": "CAOE-CHAIN-0",
+      "class": "Hard",
+      "description": "OutcomeLedger HMAC chain must be verified before every append"
+    },
+    {
+      "name": "CAOE-APPEND-0",
+      "class": "Hard",
+      "description": "OutcomeLedger is append-only; historical records are immutable"
+    },
+    {
+      "name": "CAOE-IMMUT-0",
+      "class": "Hard",
+      "description": "ImmutabilityViolation raised on any attempted mutation of sealed records"
+    },
+    {
+      "name": "CAOE-COLLECT-0",
+      "class": "Hard",
+      "description": "Only COMPLETED CAPE ExecutionRecords may be ingested"
+    },
+    {
+      "name": "CAOE-SCOPE-0",
+      "class": "Hard",
+      "description": "All 5 CAPE pipeline stages must be present in ExecutionRecord"
+    },
+    {
+      "name": "CAOE-EVAL-0",
+      "class": "Hard",
+      "description": "Outcome classification is deterministic: IMPROVED/NEUTRAL/DEGRADED"
+    },
+    {
+      "name": "CAOE-DETERM-0",
+      "class": "Hard",
+      "description": "Identical pre/post CHI inputs yield identical delta_chi and classification"
+    },
+    {
+      "name": "CAOE-AUDIT-0",
+      "class": "Hard",
+      "description": "Every operation (collect/evaluate/flag/verify/acknowledge) is audited"
+    },
+    {
+      "name": "CAOE-HUMAN0-0",
+      "class": "Hard",
+      "description": "DEGRADED outcome requires non-empty notified_by before acknowledgement"
+    },
+    {
+      "name": "CAOE-ORIGIN-0",
+      "class": "Hard",
+      "description": "Every evaluation references a non-empty CAPE execution_id"
+    }
+  ],
+  "cumulative_hard_invariants": 891,
+  "governor": "DUSTIN L REID",
+  "timestamp_utc": 1781775678.6188416
+}

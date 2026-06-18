@@ -1,0 +1,14 @@
+{
+  "schema": "TIER-SUMMARY-v1",
+  "phase": 227,
+  "version": "10.38.0",
+  "tier_0_changes": 0,
+  "tier_1_changes": 1,
+  "tier_1_details": [
+    "CAOE module delivery \u2014 new Arc III ACI Module 03"
+  ],
+  "tier_2_changes": 0,
+  "spie_required": false,
+  "governor": "DUSTIN L REID",
+  "timestamp_utc": 1781775678.618577
+}

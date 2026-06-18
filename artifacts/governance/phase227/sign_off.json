@@ -1,0 +1,16 @@
+{
+  "schema": "SIGNOFF-v1",
+  "phase": 227,
+  "version": "10.38.0",
+  "track_a_agent": "DEVADAAD",
+  "track_a_status": "COMPLETE",
+  "track_b_required": [
+    "gpg_sign",
+    "release_tag",
+    "spie_ratification_not_required"
+  ],
+  "track_b_status": "PENDING_HUMAN0",
+  "notes": "CAOE is a new module delivery \u2014 not a constitutional amendment. SPIE ratification not required. GPG tag v10.38.0 required from HUMAN-0.",
+  "governor": "DUSTIN L REID",
+  "timestamp_utc": 1781775678.6184812
+}
