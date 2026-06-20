@@ -1,3 +1,18 @@
+## [10.43.0] — Phase 232 · INNOV-137 · CACG
+
+**Date:** 2026-06-19 · **Phase 232** · **INNOV-137 · CACG**
+
+### INNOV-137 · CACG — Constitutional Autonomous Cycle Governor
+
+- **INNOV-137 · CACG — Constitutional Autonomous Cycle Governor** — World-first Arc III ACI Module 08, the Arc III governance capstone: a cryptographically governed orchestrator for the full multi-module ACI pipeline that enforces a fixed 7-stage traversal order, deterministic per-stage timeout detection, and a non-delegable HUMAN-0 escalation gate for any stalled stage. CACG orchestrates rather than replaces CASL, CADE, CAPE, CAVE, CAOE, CALI, CACP, and CAMS. Five subsystems: (1) `CycleOrchestrator` (CACG-STAGE-0, CACG-IMMUT-0) — opens cycles at stage 0 (CASL); advancement must follow the exact fixed order CASL → CADE → EXECUTE → CAOE → CALI → CACP → CAMS, else StageError; only OPEN cycles may advance or complete; (2) `TimeoutEnforcer` (CACG-DETERM-0, CACG-TIMEOUT-0) — deterministic pure-timestamp comparison against a fixed per-stage threshold (default 1800s, env-overridable); accepts an injectable `now` for deterministic testing; only OPEN cycles may be checked; (3) `EscalationEngine` (CACG-ESCALATE-0, CACG-HUMAN0-0, CACG-IMMUT-0) — raises exactly one escalation per TIMED_OUT cycle; resolution requires non-empty HUMAN-0 identity; only OPEN → RESOLVED is permitted, double-resolution raises ImmutabilityViolation; (4) `CycleLedger` (CACG-CHAIN-0, CACG-APPEND-0) — HMAC-SHA-256-chained append-only ledger of every cycle transition, storing an immutable snapshot of status/stage_index at append time rather than a live record reference; (5) `CACGAuditor` (CACG-AUDIT-0) — parallel HMAC-chained audit log recording every open, advance, complete, timeout-check, escalate, and resolve operation. `CACGEngine` facade coordinates all subsystems. 12-endpoint FastAPI router: POST /cacg/cycle/open, POST /cacg/cycle/{id}/advance, POST /cacg/cycle/{id}/complete, POST /cacg/cycle/{id}/check-timeout, POST /cacg/escalation/{id}/resolve, GET /cacg/cycle/{id}, GET /cacg/cycles, GET /cacg/cycles/open, GET /cacg/escalations, GET /cacg/verify-chain, GET /cacg/audit, GET /cacg/status. **Closes Arc III — Autonomous Constitutional Intelligence: all 8 modules (CASL, CADE, CAPE, CAVE, CAOE, CALI, CACP, CAMS, CACG) now shipped and orchestrated end-to-end.**
+
+**Implementation note:** initial draft stored a live `CycleRecord` reference inside each ledger entry; since the record continues to mutate across later stage advances, re-deriving an earlier entry's hash from that live reference silently broke `verify_chain()`. Caught in pre-commit smoke testing and fixed by snapshotting immutable `status`/`stage_index` fields onto the ledger entry at append time.
+
+**Hard-class invariants added:** CACG-CHAIN-0, CACG-APPEND-0, CACG-STAGE-0, CACG-SCOPE-0, CACG-DETERM-0, CACG-TIMEOUT-0, CACG-ESCALATE-0, CACG-HUMAN0-0, CACG-IMMUT-0, CACG-AUDIT-0
+**Cumulative Hard-class invariants:** 944
+**Tests:** 30/30 PASS
+**Track B:** GPG tag v10.43.0 · PyPI publish (HUMAN-0 / ADAADell)
+
 ## [10.42.0] — Phase 231 · INNOV-136 · CAMS
 
 **Date:** 2026-06-19 · **Phase 231** · **INNOV-136 · CAMS**

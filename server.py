@@ -98,6 +98,7 @@ from app.api.cali import router as cali_router             # Phase 228 INNOV-133
 from app.api.cacp import router as cacp_router             # Phase 229 INNOV-134 CACP
 from app.api.cave import router as cave_router              # Phase 230 INNOV-135 CAVE
 from app.api.cams import router as cams_router               # Phase 231 INNOV-136 CAMS
+from app.api.cacg import router as cacg_router                # Phase 232 INNOV-137 CACG
 from app.api.cmoa import router as cmoa_router                                       # Phase 208 INNOV-113 CMOA
 from runtime.integrations.github_app import dispatch_event, verify_webhook_signature  # ADAADchat
 from app.api.dependencies import (
@@ -967,6 +968,7 @@ app.include_router(cali_router)             # Phase 228 INNOV-133 CALI
 app.include_router(cacp_router)             # Phase 229 INNOV-134 CACP
 app.include_router(cave_router)             # Phase 230 INNOV-135 CAVE
 app.include_router(cams_router)             # Phase 231 INNOV-136 CAMS
+app.include_router(cacg_router)             # Phase 232 INNOV-137 CACG
 
 
 def telemetry_decisions_legacy(
