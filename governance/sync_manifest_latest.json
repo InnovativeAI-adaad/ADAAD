@@ -1,11 +1,11 @@
 {
-  "sync_timestamp": "2026-06-20T04:41:21.403008+00:00",
+  "sync_timestamp": "2026-06-20T04:55:50.691555+00:00",
   "canonical": {
-    "version": "10.42.0",
-    "phase": 231,
-    "hard_class_count": 934,
-    "innovations": 136,
-    "sha": "bace9b9"
+    "version": "10.43.0",
+    "phase": 232,
+    "hard_class_count": 944,
+    "innovations": 137,
+    "sha": "c0412da"
   },
   "surfaces": [
     {
@@ -38,13 +38,9 @@
       "file": "governance/report_version.json",
       "changed": true,
       "ops": [
-        "updated version",
-        "updated report_version",
-        "updated phase",
         "updated date",
         "updated last_sync_date",
-        "updated last_sync_sha",
-        "updated innovation"
+        "updated last_sync_sha"
       ]
     },
     {
@@ -57,10 +53,10 @@
       "changed": true,
       "ops": [
         "SVG: version LIVE badge",
-        "SVG: stale version ref >v10.41.0<"
+        "SVG: stale version ref >v10.42.0<"
       ]
     }
   ],
   "total_changed": 4,
-  "digest": "f0e2977119668de2"
+  "digest": "f46f1b8eccbc6cca"
 }
