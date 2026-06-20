@@ -1,3 +1,18 @@
+## [10.42.0] — Phase 231 · INNOV-136 · CAMS
+
+**Date:** 2026-06-19 · **Phase 231** · **INNOV-136 · CAMS**
+
+### INNOV-136 · CAMS — Constitutional Autonomous Monitoring Sentinel
+
+- **INNOV-136 · CAMS — Constitutional Autonomous Monitoring Sentinel** — World-first Arc III ACI Module 07 closing the observability gap across the ACI pipeline: continuously samples CHI scores emitted by CASL, deterministically classifies the rolling trend, seals every observation into an HMAC-chained ledger, and gates every CRITICAL finding behind a non-delegable HUMAN-0 acknowledgement. Five subsystems: (1) `CHIMonitor` (CAMS-SAMPLE-0) — validates incoming CHI samples; chi_score must be in [0,1] and source_ref non-empty, else SampleError; (2) `TrendDetector` (CAMS-CLASS-0, CAMS-DETERM-0, CAMS-WINDOW-0) — fixed 5-sample rolling window; exactly 3 trend classes (HEALTHY/DEGRADING/CRITICAL) enforced at module load; classification is deterministic — fixed mean and slope thresholds, no RNG; fewer than the minimum window always classifies HEALTHY, preventing premature verdicts on sparse data; a sharp slope decline forces CRITICAL even when the mean is still above the critical-mean threshold; (3) `AlertEngine` (CAMS-ALERT-0, CAMS-HUMAN0-0, CAMS-IMMUT-0) — raises exactly one Alert per CRITICAL classification; raising on a non-CRITICAL classification raises AlertError; acknowledgement requires non-empty HUMAN-0 identity; only the OPEN → ACKNOWLEDGED transition is permitted, double-acknowledgement raises ImmutabilityViolation; (4) `MonitoringLedger` (CAMS-CHAIN-0, CAMS-APPEND-0) — HMAC-SHA-256-chained append-only ledger of every sample + classification; full chain verification before every append; (5) `CAMSAuditor` (CAMS-AUDIT-0) — parallel HMAC-chained audit log recording every ingest, classify, alert, acknowledge, and verify operation. `CAMSEngine` facade coordinates all subsystems. 9-endpoint FastAPI router: POST /cams/sample, POST /cams/alerts/{id}/acknowledge, GET /cams/alerts/{id}, GET /cams/alerts, GET /cams/alerts/open/all, GET /cams/ledger, GET /cams/verify-chain, GET /cams/audit, GET /cams/status. **Arc III ACI observability loop closed: CASL synthesizes CHI → CADE decides → CAPE/CAVE execute → CAOE evaluates → CALI learns → CAMS watches the live CHI trend and raises HUMAN-0-gated alerts on sustained or sharp degradation.**
+
+**Pre-phase drift corrected:** `adaad/__init__.py` / `adaad_core/__init__.py` re-synced to 10.41.0; Phase 230 CAVE router was built but never mounted in `server.py` — now wired, 12 endpoints confirmed live; missing `phase230`/`cave` pytest markers registered alongside the new `phase231`/`cams` markers.
+
+**Hard-class invariants added:** CAMS-CHAIN-0, CAMS-APPEND-0, CAMS-SAMPLE-0, CAMS-CLASS-0, CAMS-DETERM-0, CAMS-WINDOW-0, CAMS-ALERT-0, CAMS-HUMAN0-0, CAMS-IMMUT-0, CAMS-AUDIT-0
+**Cumulative Hard-class invariants:** 934
+**Tests:** 30/30 PASS
+**Track B:** GPG tag v10.42.0 · PyPI publish (HUMAN-0 / ADAADell)
+
 ## [10.41.0] — Phase 230 · INNOV-135 · CAVE
 
 **Date:** 2026-06-18 · **Phase 230** · **INNOV-135 · CAVE**
