@@ -1,4 +1,16 @@
-## [10.42.0] — Phase 231 · INNOV-136 · CAMS
+## [10.43.0] — Phase 232 · INNOV-137 · CACG
+
+**Date:** 2026-06-19 · **Phase 232** · **INNOV-137 · CACG**
+
+### INNOV-137 · CACG — Constitutional Autonomous Cycle Governor
+
+- **INNOV-137 · CACG — Constitutional Autonomous Cycle Governor** — World-first Arc III ACI Module 08 governance capstone: orchestrates the full ACI pipeline lifecycle (CASL → CADE → CAPE → CAVE → CAOE → CALI → CACP → CAMS), enforcing stage-level timeout contracts, detecting stalls, escalating to HUMAN-0 on constitutional violations, and sealing every cycle into an HMAC-SHA-256-chained immutable governance ledger. Five subsystems: (1) `TimeoutEnforcer` (CACG-STAGES-0, CACG-TIMEOUT-0, CACG-DETERM-0) — validates all 8 stage timeout configs at instantiation (zero/negative → ConfigError); deterministically classifies each stage completion as COMPLETED or TIMED_OUT given elapsed time vs. threshold; no RNG; (2) `CycleGovernanceLedger` (CACG-CHAIN-0, CACG-APPEND-0, CACG-PROOF-0) — HMAC-SHA-256-chained append-only ledger of sealed CycleGovernanceRecords; full chain re-derivation before every append; each record carries a proof_hmac binding all stage receipts; (3) `EscalationEngine` (CACG-HUMAN0-0, CACG-IMMUT-0) — issues mandatory HUMAN-0 escalations for every STALLED or VIOLATED cycle; escalated_by must be non-empty; only OPEN → ACKNOWLEDGED transition permitted; double-acknowledgement raises ImmutabilityViolation; (4) `CACGAuditor` (CACG-AUDIT-0) — parallel HMAC-chained audit log recording every start_cycle, stage_completed, stage_timeout, close_cycle, acknowledge_escalation, and verify_chain operation; (5) `CACGEngine` facade — coordinates all subsystems across the start_cycle → register_stage_completion (×8) → close_cycle lifecycle. 11-endpoint FastAPI router: POST /cacg/cycles/start, POST /cacg/cycles/{id}/stages, POST /cacg/cycles/{id}/close, GET /cacg/cycles/{id}, GET /cacg/cycles/active/all, POST /cacg/escalations/{id}/acknowledge, GET /cacg/escalations/{id}, GET /cacg/ledger, GET /cacg/verify-chain, GET /cacg/audit, GET /cacg/status. **Arc III ACI governance capstone complete: CACG governs the cycle lifecycle that CASL synthesizes, CADE decides, CAPE/CAVE execute, CAOE evaluates, CALI learns, CACP proves convergence for, and CAMS monitors — the outer constitutional governance loop is now fully closed.**
+
+**Hard-class invariants added:** CACG-CHAIN-0, CACG-APPEND-0, CACG-STAGES-0, CACG-TIMEOUT-0, CACG-STALL-0, CACG-HUMAN0-0, CACG-IMMUT-0, CACG-DETERM-0, CACG-AUDIT-0, CACG-PROOF-0
+**Cumulative Hard-class invariants:** 944
+**Tests:** 30/30 PASS
+**Track B:** GPG tag v10.43.0 · PyPI publish (HUMAN-0 / ADAADell)
+
 
 **Date:** 2026-06-19 · **Phase 231** · **INNOV-136 · CAMS**
 
