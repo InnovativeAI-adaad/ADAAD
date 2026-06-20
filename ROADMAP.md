@@ -29,7 +29,7 @@
 | Constitutional Autonomous Promotion Executor | CAPE | 226 | v10.37.0 | Executes PROMOTE verdicts via 5-stage governed pipeline under HUMAN-0 gate ✅ |
 | Constitutional Autonomous Verdict Executor | CAVE | 230 | v10.41.0 | Executes HOLD/REJECT/DEFER verdicts — quarantine sealing, CHI re-eval triggers, HUMAN-0 release gate ✅ |
 | Constitutional Autonomous Monitoring Sentinel | CAMS | 231 | v10.42.0 | Arc III apex — proactive CHI health monitoring, CACP-proof-aware trend detection |
-| Constitutional Autonomous Cycle Governor | CACG | 232 | v10.43.0 | Arc III governance capstone — ACI cycle orchestration, timeout enforcement, HUMAN-0 escalation |
+| Constitutional Autonomous Cycle Governor | CACG | 232 | v10.43.0 | ✅ SHIPPED 2026-06-19 · Arc III governance capstone — ACI cycle orchestration, timeout enforcement, HUMAN-0 escalation |
 
 ---
 
