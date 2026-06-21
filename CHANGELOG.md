@@ -1,3 +1,31 @@
+## [10.44.0] — Phase 233 · INNOV-138 · EVE
+
+**Date:** 2026-06-21 · **Phase 233** · **INNOV-138 · EVE**
+
+### INNOV-138 · EVE — External Verifiability Engine
+
+**Arc IV — External Verifiability & Federation · Module 01 · ARC OPENED**
+
+SPIE-ratified (candidate spie:4f75db25a631a8fe, gap_score 1.00, epoch arc4-open-20260621, HUMAN-0: DUSTIN L. REID). Closes the external verifiability constitutional gap identified at Arc III close.
+
+EVE produces externally-auditable AttestationBundles from ADAAD's internal governance ledgers, enabling independent third-party verification of CHI scores, ACI cycle proofs, invariant register snapshots, and SPIE ratification events — without access to private chain internals.
+
+#### Deliverables
+- `dorkllm/external_verifiability_engine.py` — 720 LOC · EVEEngine, AttestationBundle, AttestationLedger, AuditLog, CHIProof, ACICycleProof, InvariantRegisterProof, SPIEProof
+- `app/api/eve.py` — 241 LOC · 10 FastAPI endpoints
+- `tests/test_phase233_eve.py` — 30/30 PASS (T233-EVE-01 through T233-EVE-30)
+- `artifacts/governance/phase233/` — ILA attestation, plan, tier summary, invariant register
+
+#### Hard-class Invariants Added (10)
+EVE-BUNDLE-0, EVE-CHAIN-0, EVE-APPEND-0, EVE-DETERM-0, EVE-SCOPE-0, EVE-HUMAN0-0, EVE-VERIFY-0, EVE-EXTERN-0, EVE-IMMUT-0, EVE-AUDIT-0
+
+**Cumulative Hard-class Invariants: 954**
+
+#### Track B (ADAADell / HUMAN-0)
+- [ ] `git tag -s v10.44.0 -m "Phase 233 · INNOV-138 · EVE — External Verifiability Engine"`
+- [ ] `twine upload dist/*` (PyPI adaad-core==10.44.0)
+
+
 ## [10.43.0] — Phase 232 · INNOV-137 · CACG
 
 **Date:** 2026-06-19 · **Phase 232** · **INNOV-137 · CACG**
