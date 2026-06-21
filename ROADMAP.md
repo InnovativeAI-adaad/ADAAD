@@ -16,6 +16,21 @@
 
 ---
 
+
+---
+
+## Arc IV — External Verifiability & Federation
+
+**Opened:** Phase 233 · INNOV-138 · EVE
+**Objective:** Extend ADAAD constitutional governance to external auditors and federated instances — proving to the world what Arc III proved internally.
+
+**Arc IV planned sequence:**
+
+| Module | Code | Phase | Target Version | Role |
+|--------|------|-------|---------------|------|
+| External Verifiability Engine | EVE | 233 | v10.44.0 | Arc IV open — externally-auditable AttestationBundles; third-party CHI/ACI/SPIE verification ✅ |
+| TBD — SPIE-ratified | TBD | 234 | v10.45.0 | TBD |
+
 ## Arc III — Autonomous Constitutional Intelligence (ACI)
 
 **Opened:** Phase 225 · INNOV-130 · CADE
