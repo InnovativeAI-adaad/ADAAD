@@ -25,15 +25,15 @@
 #   PyNaCl             — pkg install python-nacl
 #
 # INSTALL ORDER MATTERS — run exactly:
-#   pip install "fastapi==0.136.3" "pydantic==1.10.26" "starlette==1.2.1" \
-#               "sse-starlette==1.6.5" "uvicorn==0.49.0" "httpx==0.28.1" \
+#   pip install "fastapi==0.141.1" "pydantic==1.10.26" "starlette==1.6.0" \
+#               "sse-starlette==1.6.5" "uvicorn==0.52.4" "httpx==0.28.1" \
 #               --break-system-packages
 
-fastapi==0.136.3
+fastapi==0.141.1
 pydantic==1.10.26
-starlette==1.2.1
+starlette==1.6.0
 sse-starlette==1.6.5
-uvicorn==0.49.0
+uvicorn==0.52.4
 httpx==0.28.1
 PyYAML>=6.0.1
 anyio>=3.7.1,<5
