@@ -1,11 +1,11 @@
 {
-  "sync_timestamp": "2026-09-05T10:51:12.307075+00:00",
+  "sync_timestamp": "2026-09-06T11:15:43.249654+00:00",
   "canonical": {
     "version": "10.44.0",
     "phase": 233,
     "hard_class_count": 954,
     "innovations": 138,
-    "sha": "cd4b31b"
+    "sha": "31dfb48"
   },
   "surfaces": [
     {
@@ -49,5 +49,5 @@
     }
   ],
   "total_changed": 1,
-  "digest": "619461a4c89a521e"
+  "digest": "cc0a18bc69d7476e"
 }
